@@ -1,8 +1,9 @@
-import { Routine } from '@/api/routine.api';
-import { useDeleteRoutineMutation } from '@/hooks/useRoutine';
+import { Routine } from '@repo/types';
+
+import { useDeleteRoutineMutation } from '@repo/shared/hooks/useRoutine';
 import { ModalName, useModalStore } from '@/store/modal.store';
 import { useRoutineStore } from '@/store/routine.store';
-import { getDisplayFormatDate } from '@/utils/date-utils';
+import { getDisplayFormatDate } from '@repo/shared/utils';
 
 import Button from '../common/button/Button';
 import Paragraph from '../common/paragraph/Paragraph';

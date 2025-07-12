@@ -4,10 +4,10 @@ import Button from '@/components/common/button/Button';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import RoutineDate from '@/components/routine/RoutineDate';
 import RoutineList from '@/components/routine/RoutineList';
-import { useRoutinesQuery } from '@/hooks/useRoutine';
-import { useAuthStore } from '@/store/auth.store';
+import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { ModalName, useModalStore } from '@/store/modal.store';
-import { getWeekMonday } from '@/utils/date-utils';
+import { getWeekMonday } from '@repo/shared/utils';
 
 const RoutinePage = () => {
   const showModal = useModalStore((state) => state.show);

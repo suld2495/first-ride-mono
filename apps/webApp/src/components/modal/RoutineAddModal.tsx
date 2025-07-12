@@ -1,6 +1,7 @@
-import { RoutineForm as RoutineFormType } from '@/api/routine.api';
-import { useCreateRoutineMutation } from '@/hooks/useRoutine';
-import { useAuthStore } from '@/store/auth.store';
+import { RoutineForm as RoutineFormType } from '@repo/types';
+
+import { useCreateRoutineMutation } from '@repo/shared/hooks/useRoutine';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { useModalStore } from '@/store/modal.store';
 
 import RoutineForm from '../routine/RoutineForm';

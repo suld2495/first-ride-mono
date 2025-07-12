@@ -5,16 +5,16 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { RoutineForm } from '@/api/routine.api';
+import { RoutineForm } from '@repo/types';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useForm } from '@/hooks/useForm';
 import { ModalType } from '@/hooks/useModal';
 import {
   useCreateRoutineMutation,
   useUpdateRoutineMutation,
-} from '@/hooks/useRoutine';
+} from '@repo/shared/hooks/useRoutine';
 import { useRoutineStore } from '@/store/routine.store';
-import { useUserStore } from '@/store/user.store';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 import { getFormatDate } from '@/utils/date-utils';
 
@@ -47,7 +47,7 @@ const RoutineFormModal = () => {
   const [isShowStartDate, setIsShowStartDate] = useState(false);
   const [isShowEndDate, setIsShowEndDate] = useState(false);
 
-  const { user } = useUserStore();
+  const { user } = useAuthStore();
   const saveMutation = useCreateRoutineMutation(user!.name);
   const updateMutation = useUpdateRoutineMutation();
 

@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
-import { Routine } from '@/api/routine.api';
+import { Routine } from '@repo/types';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRoutineStore } from '@/store/routine.store';
 import { COLORS } from '@/theme/colors';

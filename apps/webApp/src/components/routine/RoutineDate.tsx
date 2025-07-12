@@ -16,7 +16,7 @@ import {
   getDisplayFormatDate,
   getWeekMonday,
   getWeekSunday,
-} from '@/utils/date-utils';
+} from '@repo/shared/utils';
 
 interface RoutineDateProps {
   date?: string;

@@ -2,8 +2,8 @@ import { FlatList, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useRoutinesQuery } from '@/hooks/useRoutine';
-import { useUserStore } from '@/store/user.store';
+import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 import { getWeekMonday } from '@/utils/date-utils';
 
@@ -16,7 +16,7 @@ const RoutineList = () => {
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
   const searchParams = useLocalSearchParams();
-  const { user } = useUserStore();
+  const { user } = useAuthStore();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
 
   const { data } = useRoutinesQuery(user!.name, date);

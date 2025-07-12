@@ -1,22 +1,7 @@
-import axios from 'axios';
+import { createHttp } from '@repo/shared/api';
 
 export const BASE_URL = `${process.env.EXPO_PUBLIC_VITE_BASE_URL}/api`;
 
-const http = axios.create({
+createHttp({
   baseURL: BASE_URL,
-  headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  },
 });
-
-http.interceptors.response.use(
-  (response) => {
-    return response.data;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-
-export default http;

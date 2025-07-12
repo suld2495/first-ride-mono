@@ -1,0 +1,25 @@
+{
+  "name": "@repo/shared",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint \"**/*.ts\"",
+    "dev": "tsc -p tsconfig.json --watch",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@repo/types": "workspace:*",
+    "@tanstack/react-query": "*",
+    "@tanstack/react-query-devtools": "*",
+    "axios": "*",
+    "dotenv": "^17.2.0",
+    "react": "*",
+    "react-dom": "*",
+    "zustand": "*"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "*"
+  }
+}

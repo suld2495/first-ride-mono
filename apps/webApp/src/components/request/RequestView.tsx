@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { RequestResponseStatus, RoutineDetail } from '@repo/types';
 
-import { CheckStatus, RoutineRequestDetail } from '@/api/request.api';
-import { useReplyRequestMutation } from '@/hooks/useRequest';
-import { useAuthStore } from '@/store/auth.store';
+import { useReplyRequestMutation } from '@repo/shared/hooks/useRequest';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { useModalStore } from '@/store/modal.store';
 
 import Button from '../common/button/Button';
@@ -14,13 +14,13 @@ const RequestView = ({
   routineName,
   routineDetail,
   imagePath,
-}: RoutineRequestDetail) => {
+}: RoutineDetail) => {
   const user = useAuthStore((state) => state.user);
   const [comment, setComment] = useState('');
   const replyRequest = useReplyRequestMutation(user);
   const closeModal = useModalStore((state) => state.close);
 
-  const handleSubmit = async (status: CheckStatus) => {
+  const handleSubmit = async (status: RequestResponseStatus) => {
     try {
       await replyRequest.mutateAsync({
         confirmId: id,
@@ -30,7 +30,7 @@ const RequestView = ({
 
       closeModal();
 
-      if (status === CheckStatus.PASS) {
+      if (status === 'PASS') {
         alert('승인되었습니다.');
       } else {
         alert('거절되었습니다.');
@@ -82,14 +82,14 @@ const RequestView = ({
             <Button
               type="button"
               className="mr-2 px-4 disabled:opacity-30 disabled:cursor-not-allowed"
-              onClick={() => handleSubmit(CheckStatus.PASS)}
+              onClick={() => handleSubmit('PASS')}
             >
               승인
             </Button>
             <Button
               type="button"
               className="mr-2 px-4 bg-red-400 dark:bg-red-400 hover:bg-red-500 dark:hover:bg-red-500 disabled:opacity-30 disabled:cursor-not-allowed"
-              onClick={() => handleSubmit(CheckStatus.DENIED)}
+              onClick={() => handleSubmit('DENY')}
             >
               거절
             </Button>

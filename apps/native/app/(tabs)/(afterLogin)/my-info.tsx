@@ -9,11 +9,11 @@ import ThemeText from '@/components/common/ThemeText';
 import ThemeView from '@/components/common/ThemeView';
 import { Container } from '@/components/layout/Container';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useUserStore } from '@/store/user.store';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 
 const MyInfo = () => {
-  const user = useUserStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
 

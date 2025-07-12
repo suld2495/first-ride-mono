@@ -14,7 +14,7 @@ import {
   RequiredValidator,
   StringValidator,
   Validator,
-} from '@/utils/validator';
+} from '@repo/shared/utils/validator';
 
 export type FormValue = number | string;
 export type FormData<T extends object> = {

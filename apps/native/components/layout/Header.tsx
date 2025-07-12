@@ -3,9 +3,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useFetchReceivedRequestsQuery } from '@/hooks/useRequest';
+import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
 import { useColorSchemeStore } from '@/store/colorScheme.store';
-import { useUserStore } from '@/store/user.store';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 
 import ThemeText from '../common/ThemeText';
@@ -16,7 +16,7 @@ const Header = () => {
   const { setColorScheme } = useColorSchemeStore();
 
   const router = useRouter();
-  const { user } = useUserStore();
+  const { user } = useAuthStore();
   const { data: requests } = useFetchReceivedRequestsQuery(user?.name || '');
 
   const toggleColorScheme = () => {

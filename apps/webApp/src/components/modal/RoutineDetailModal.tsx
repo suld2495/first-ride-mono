@@ -1,4 +1,4 @@
-import { useRoutineDetailQuery } from '@/hooks/useRoutine';
+import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRoutineStore } from '@/store/routine.store';
 
 import RoutineView from '../routine/RoutineView';

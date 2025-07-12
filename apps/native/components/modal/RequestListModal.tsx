@@ -2,9 +2,9 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useFetchReceivedRequestsQuery } from '@/hooks/useRequest';
-import { useRequestStore } from '@/store/request.store';
-import { useUserStore } from '@/store/user.store';
+import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
+import { useRequestStore } from '@repo/shared/store/request.store';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 import { getFormatDate } from '@/utils/date-utils';
 
@@ -16,7 +16,7 @@ const RequestListModal = () => {
   const styles = createStyles(colorScheme);
 
   const router = useRouter();
-  const { user } = useUserStore();
+  const { user } = useAuthStore();
   const { data: requests } = useFetchReceivedRequestsQuery(user?.name || '');
   const setRequestId = useRequestStore((state) => state.setRequestId);
 

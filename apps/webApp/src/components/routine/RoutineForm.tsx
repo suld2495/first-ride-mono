@@ -1,4 +1,5 @@
-import { Routine, RoutineForm as RoutineFormType } from '@/api/routine.api';
+import { Routine, RoutineForm as RoutineFormType } from '@repo/types';
+
 import { useModalStore } from '@/store/modal.store';
 
 import Button from '../common/button/Button';

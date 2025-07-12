@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
+import { RequestList } from '@repo/types';
 import { IconBellPlus } from '@tabler/icons-react';
 
-import { RoutineRequest } from '@/api/request.api';
 import DarkMode from '@/components/common/DarkMode';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import { ModalName, useModalStore } from '@/store/modal.store';
-import { useRequestStore } from '@/store/request.store';
-import { getFormatDate } from '@/utils/date-utils';
+import { useRequestStore } from '@repo/shared/store/request.store';
+import { getFormatDate } from '@repo/shared/utils';
 
 interface RoutineHeaderProps {
-  list: RoutineRequest[];
+  list: RequestList;
   nickname: string;
 }
 

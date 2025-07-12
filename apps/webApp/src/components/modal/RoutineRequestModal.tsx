@@ -1,5 +1,5 @@
-import { useRoutineDetailQuery } from '@/hooks/useRoutine';
-import { useAuthStore } from '@/store/auth.store';
+import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { useRoutineStore } from '@/store/routine.store';
 
 import RequestForm from '../request/RequestForm';

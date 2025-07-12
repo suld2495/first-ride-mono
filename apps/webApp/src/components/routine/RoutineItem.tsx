@@ -1,12 +1,12 @@
+import { Routine } from '@repo/types';
 import {
   IconCheck,
   IconSquare,
   IconSquareCheckFilled,
 } from '@tabler/icons-react';
 
-import { Routine } from '@/api/routine.api';
-import { useWeeklyData } from '@/hooks/useRoutine';
-import { getWeekMonday } from '@/utils/date-utils';
+import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
+import { getWeekMonday } from '@repo/shared/utils';
 
 import IconButton from '../common/button/IconButton';
 import Paragraph from '../common/paragraph/Paragraph';

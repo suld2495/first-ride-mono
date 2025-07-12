@@ -25,8 +25,6 @@
     "@roninoss/icons": "^0.0.4",
     "@shopify/flash-list": "1.7.6",
     "@supabase/supabase-js": "^2.38.4",
-    "@tanstack/react-query": "^5.77.2",
-    "axios": "^1.9.0",
     "expo": "^53.0.9",
     "expo-constants": "~17.1.4",
     "expo-dev-client": "~5.1.8",
@@ -35,12 +33,9 @@
     "expo-linking": "~7.1.4",
     "expo-navigation-bar": "~4.2.4",
     "expo-router": "~5.0.3",
-    "expo-secure-store": "^14.2.3",
     "expo-status-bar": "~2.2.3",
     "expo-system-ui": "~5.0.6",
     "expo-web-browser": "~14.1.6",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
     "react-native": "0.79.2",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
@@ -50,8 +45,14 @@
     "react-native-screens": "~4.10.0",
     "react-native-svg": "15.11.2",
     "react-native-web": "^0.20.0",
-    "zustand": "^4.5.1",
-    "@repo/ui": "workspace:*"
+    "react": "*",
+    "react-dom": "*",
+    "axios": "*",
+    "zustand": "*",
+    "expo-secure-store": "*",
+    "@tanstack/react-query": "*",
+    "@tanstack/react-query-devtools": "*",
+    "@repo/shared": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -59,8 +60,10 @@
     "ajv": "^8.12.0",
     "miragejs": "^0.1.48",
     "prettier-plugin-tailwindcss": "^0.5.14",
-    "typescript": "~5.8.3",
-    "@repo/eslint-config": "workspace:*"
+    "typescript": "*",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@repo/types": "workspace:*"
   },
   "private": true
 }

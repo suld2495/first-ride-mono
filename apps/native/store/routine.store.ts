@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { RoutineForm } from '@/api/routine.api';
+import { RoutineForm } from '@repo/types';
 
 interface State {
   routineId: number;

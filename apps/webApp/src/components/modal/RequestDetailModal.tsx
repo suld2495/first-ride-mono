@@ -1,5 +1,5 @@
-import { useFetchRequestDetailQuery } from '@/hooks/useRequest';
-import { useRequestStore } from '@/store/request.store';
+import { useFetchRequestDetailQuery } from '@repo/shared/hooks/useRequest';
+import { useRequestStore } from '@repo/shared/store/request.store';
 
 import RequestView from '../request/RequestView';
 

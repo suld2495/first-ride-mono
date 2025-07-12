@@ -9,12 +9,14 @@ import MockProvider from '@/components/mock/MockProvider';
 import { SplashScreenController } from '@/components/splash';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
-import { useUserStore } from '@/store/user.store';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { NAV_THEME } from '@/theme';
+import '@/api';
+
 
 export default function RootLayout() {
   const [queryClient] = React.useState(() => new QueryClient());
-  const { user } = useUserStore();
+  const { user } = useAuthStore();
   const colorScheme = useColorScheme();
 
   useInitialAndroidBarSync();

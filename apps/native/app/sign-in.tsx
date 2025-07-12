@@ -5,12 +5,12 @@ import { useRouter } from 'expo-router';
 import { Button } from '@/components/common/Button';
 import ThemeTextInput from '@/components/common/ThemeTextInput';
 import ThemeView from '@/components/common/ThemeView';
-import { useUserStore } from '@/store/user.store';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 
 export default function SignIn() {
   const router = useRouter();
   const [username, setUsername] = useState('');
-  const { signIn } = useUserStore();
+  const { signIn } = useAuthStore();
 
   const handleLogin = () => {
     signIn({ name: username });

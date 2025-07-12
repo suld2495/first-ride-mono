@@ -5,10 +5,9 @@ import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useForm } from '@/hooks/useForm';
-import { useCreateRequestMutation } from '@/hooks/useRequest';
-import { useRoutineDetailQuery } from '@/hooks/useRoutine';
+import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
+import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRoutineStore } from '@/store/routine.store';
-import { useUserStore } from '@/store/user.store';
 import { COLORS } from '@/theme/colors';
 
 import { Button } from '../common/Button';

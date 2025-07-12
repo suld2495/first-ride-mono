@@ -1,7 +1,8 @@
 {
-  "name": "first-ride",
+  "name": "first-ride-web",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -12,28 +13,29 @@
     "@tabler/icons": "3.17.0",
     "@tabler/icons-react": "3.17.0",
     "@tailwindcss/vite": "^4.1.10",
-    "@tanstack/react-query": "^5.74.4",
-    "@tanstack/react-query-devtools": "^5.74.4",
-    "axios": "^1.8.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "react-router": "^7.5.0",
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.10",
-    "zustand": "^5.0.3",
-    "@repo/ui": "workspace:*"
+    "react": "*",
+    "react-dom": "*",
+    "axios": "*",
+    "zustand": "*",
+    "@tanstack/react-query": "*",
+    "@tanstack/react-query-devtools": "*",
+    "@repo/shared": "workspace:*",
+    "@repo/types": "workspace:*"
   },
   "devDependencies": {
-    "@eslint/js": "^9.22.0",
     "@types/node": "^22.14.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
     "globals": "^16.0.0",
     "msw": "^2.7.4",
-    "typescript": "~5.7.2",
     "vite": "6.3.1",
-    "@repo/eslint-config": "workspace:*"
+    "typescript": "*",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*"
   },
   "msw": {
     "workerDirectory": [

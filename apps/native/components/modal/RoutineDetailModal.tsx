@@ -5,9 +5,9 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import {
   useDeleteRoutineMutation,
   useRoutineDetailQuery,
-} from '@/hooks/useRoutine';
+} from '@repo/shared/hooks/useRoutine';
 import { useRoutineStore } from '@/store/routine.store';
-import { useUserStore } from '@/store/user.store';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 
 import { Button } from '../common/Button';
@@ -26,7 +26,7 @@ const RoutineDetailModal = () => {
   ]);
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
 
-  const user = useUserStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
   const deleteRoutine = useDeleteRoutineMutation(user?.name || '');
 
   if (isLoading) {

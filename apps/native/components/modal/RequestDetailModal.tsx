@@ -4,14 +4,13 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import * as Svg from 'react-native-svg';
 import { useRouter } from 'expo-router';
 
-import { CheckStatus } from '@/api/request.api';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {
   useFetchRequestDetailQuery,
   useReplyRequestMutation,
-} from '@/hooks/useRequest';
-import { useRequestStore } from '@/store/request.store';
-import { useUserStore } from '@/store/user.store';
+} from '@repo/shared/hooks/useRequest';
+import { useRequestStore } from '@repo/shared/store/request.store';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 
 import { Button } from '../common/Button';
@@ -19,6 +18,7 @@ import FormItem from '../common/form/FormItem';
 import ThemeText from '../common/ThemeText';
 import ThemeTextInput from '../common/ThemeTextInput';
 import ThemeView from '../common/ThemeView';
+import { RequestResponseStatus } from '@repo/types';
 
 const RequestDetailModal = () => {
   const colorScheme = useColorScheme();
@@ -28,7 +28,7 @@ const RequestDetailModal = () => {
   const { data: detail, isLoading } = useFetchRequestDetailQuery(requestId);
 
   const router = useRouter();
-  const user = useUserStore((state) => state.user);
+  const user = useAuthStore((state) => state.user);
   const replyRequest = useReplyRequestMutation(user?.name || '');
   const [comment, setComment] = useState('');
   const [ratio, setRatio] = useState(1);
@@ -45,7 +45,7 @@ const RequestDetailModal = () => {
     return null;
   }
 
-  const handleSubmit = async (status: CheckStatus) => {
+  const handleSubmit = async (status: RequestResponseStatus) => {
     try {
       await replyRequest.mutateAsync({
         confirmId: detail?.id,
@@ -53,7 +53,7 @@ const RequestDetailModal = () => {
         checkComment: comment,
       });
 
-      if (status === CheckStatus.PASS) {
+      if (status === 'PASS') {
         Alert.alert('승인되었습니다.');
       } else {
         Alert.alert('거절되었습니다.');
@@ -116,12 +116,12 @@ const RequestDetailModal = () => {
           <ThemeView style={styles.buttonContainer}>
             <Button
               title="승인"
-              onPress={() => handleSubmit(CheckStatus.PASS)}
+              onPress={() => handleSubmit('PASS')}
               style={[styles.addButton, styles.button]}
             />
             <Button
               title="거절"
-              onPress={() => handleSubmit(CheckStatus.DENIED)}
+              onPress={() => handleSubmit('DENY')}
               style={[styles.cancelButton, styles.button]}
             />
           </ThemeView>

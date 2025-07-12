@@ -3,6 +3,7 @@ import { RouterProvider } from 'react-router';
 
 import QueryProvider from './components/providers/QueryProvider.tsx';
 import router from './router/index.tsx';
+import '@/api';
 
 import './index.css';
 

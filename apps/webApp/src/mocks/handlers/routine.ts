@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { RoutineForm } from '@/api/routine.api';
-import { getWeekMonday } from '@/utils/date-utils';
+import { getWeekMonday } from '@repo/shared/utils';
 
 const BASE_URL = import.meta.env.VITE_MOCK_BASE_URL;
 

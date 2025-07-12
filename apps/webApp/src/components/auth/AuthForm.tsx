@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
 
 const AuthForm = () => {
-  const setUser = useAuthStore((state) => state.setUser);
+  const signIn = useAuthStore((state) => state.signIn);
   const navigate = useNavigate();
   const [nickname, setNickname] = useState('');
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    setUser(nickname);
+    signIn({ name: nickname });
 
     navigate('/routine');
   };

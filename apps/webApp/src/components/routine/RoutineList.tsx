@@ -1,7 +1,8 @@
-import { Routine } from '@/api/routine.api';
+import { Routine } from '@repo/types';
+
 import { ModalName, useModalStore } from '@/store/modal.store';
 import { useRoutineStore } from '@/store/routine.store';
-import { getDaysOfTheWeek } from '@/utils/date-utils';
+import { getDaysOfTheWeek } from '@repo/shared/utils';
 
 import Paragraph from '../common/paragraph/Paragraph';
 
