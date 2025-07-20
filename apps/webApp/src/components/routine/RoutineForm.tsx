@@ -121,7 +121,7 @@ const RoutineForm = ({
 
               if (target.name === 'startDate') {
                 const startDate = new Date(target.value);
-                const endDate = new Date(routineForm.endDate);
+                const endDate = new Date(routineForm.endDate || '');
 
                 if (routineForm.endDate && endDate < startDate) {
                   setValue('endDate', target.value);

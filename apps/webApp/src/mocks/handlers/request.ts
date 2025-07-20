@@ -1,7 +1,5 @@
 import { http, HttpResponse } from 'msw';
 
-import { RoutineRequestCheckForm } from '@/api/request.api';
-
 const BASE_URL = import.meta.env.VITE_MOCK_BASE_URL;
 
 export const requestHandlers = [
@@ -38,23 +36,6 @@ export const requestHandlers = [
     return HttpResponse.json(
       { message: '인증 요청이 완료되었습니다.' },
       { status: 201 },
-    );
-  }),
-
-  http.post(`${BASE_URL}/api/routine/check`, async ({ request }) => {
-    const { confirmId, checkStatus } =
-      (await request.json()) as RoutineRequestCheckForm;
-
-    if (!confirmId || !checkStatus) {
-      return HttpResponse.json(
-        { message: '모든 필드를 입력해주세요.' },
-        { status: 400 },
-      );
-    }
-
-    return HttpResponse.json(
-      { message: '인증이 완료되었습니다.' },
-      { status: 200 },
     );
   }),
 ];

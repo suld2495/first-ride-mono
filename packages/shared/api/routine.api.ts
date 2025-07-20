@@ -1,16 +1,11 @@
-import {
-  Routine,
-  RoutineForm,
-  UpdateRoutineForm,
-  WeeklyRoutine,
-} from '@repo/types';
+import { Routine, RoutineForm, UpdateRoutineForm } from '@repo/types';
 
 import http from '.';
 
 export const fetchRoutines = async (
   nickname: string,
   date: string,
-): Promise<WeeklyRoutine[]> => {
+): Promise<Routine[]> => {
   return http.get(`/routine/list?date=${date}&nickname=${nickname}`);
 };
 

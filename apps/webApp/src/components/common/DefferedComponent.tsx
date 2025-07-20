@@ -13,7 +13,7 @@ const DefferedComponent = ({
   show,
   animation = false,
 }: DefferedComponentProps) => {
-  const timer = useRef<number | null>(null);
+  const timer = useRef<NodeJS.Timeout | null>(null);
   const [shouldRender, handleAnimationEnd, setRender] = useAnimation(show);
   const [fadeIn, setFadeIn] = useState(false);
 

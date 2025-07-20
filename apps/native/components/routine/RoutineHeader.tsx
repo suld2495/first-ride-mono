@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
+import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams } from 'expo-router';
-
-import { getWeekMonday } from '@/utils/date-utils';
 
 import Link from '../common/Link';
 import ThemeText from '../common/ThemeText';

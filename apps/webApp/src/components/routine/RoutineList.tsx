@@ -1,4 +1,4 @@
-import { WeeklyRoutine } from '@repo/types';
+import { Routine } from '@repo/types';
 
 import { ModalName, useModalStore } from '@/store/modal.store';
 import { useRoutineStore } from '@/store/routine.store';
@@ -11,7 +11,7 @@ import {
 } from './WeeklyRoutine';
 
 interface RoutineListProps {
-  routines: WeeklyRoutine[];
+  routines: Routine[];
   date: string;
 }
 

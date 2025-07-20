@@ -1,11 +1,11 @@
 import { FlatList, StyleSheet } from 'react-native';
+import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
+import { useAuthStore } from '@repo/shared/store/auth.store';
+import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
-import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
-import { getWeekMonday } from '@/utils/date-utils';
 
 import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';

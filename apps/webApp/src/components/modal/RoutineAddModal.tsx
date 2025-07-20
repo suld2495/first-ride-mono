@@ -9,9 +9,10 @@ import RoutineForm from '../routine/RoutineForm';
 const RoutineAddModal = () => {
   const closeModal = useModalStore((state) => state.close);
   const user = useAuthStore((state) => state.user);
-  const mateNickname = user === 'yunji' ? 'moon' : 'yunji';
+  const username = user?.name || ''
+  const mateNickname = username === 'yunji' ? 'moon' : 'yunji';
 
-  const saveMutation = useCreateRoutineMutation(user);
+  const saveMutation = useCreateRoutineMutation(username);
 
   const handleSubmit = async (data: RoutineFormType) => {
     try {
@@ -25,7 +26,7 @@ const RoutineAddModal = () => {
 
   return (
     <RoutineForm
-      nickname={user}
+      nickname={username}
       mateNickname={mateNickname}
       onSubmit={handleSubmit}
     />

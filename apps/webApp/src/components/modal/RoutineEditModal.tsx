@@ -14,10 +14,11 @@ const RoutineEditModal = () => {
   const closeModal = useModalStore((state) => state.close);
   const routineId = useRoutineStore((state) => state.routineId);
   const user = useAuthStore((state) => state.user);
+  const username = user?.name || ''
   const { data: detail } = useRoutineDetailQuery(routineId);
-  const mateNickname = user === 'yunji' ? 'moon' : 'yunji';
+  const mateNickname = username === 'yunji' ? 'moon' : 'yunji';
 
-  const updateMutation = useUpdateRoutineMutation(user);
+  const updateMutation = useUpdateRoutineMutation(username);
 
   const handleSubmit = async (data: RoutineFormType) => {
     try {
@@ -36,7 +37,7 @@ const RoutineEditModal = () => {
 
   return (
     <RoutineForm
-      nickname={user}
+      nickname={username}
       mateNickname={mateNickname}
       form={detail}
       onSubmit={handleSubmit}

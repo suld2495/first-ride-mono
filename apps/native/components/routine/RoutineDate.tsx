@@ -1,15 +1,15 @@
 import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { COLORS } from '@/theme/colors';
 import {
   afterWeek,
   beforeWeek,
   getDisplayFormatDate,
   getWeekMonday,
   getWeekSunday,
-} from '@/utils/date-utils';
+} from '@repo/shared/utils';
+
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { COLORS } from '@/theme/colors';
 
 import Link from '../common/Link';
 import ThemeText from '../common/ThemeText';

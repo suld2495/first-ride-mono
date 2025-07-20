@@ -11,9 +11,13 @@ export interface Routine {
   mateNickname: string;
   startDate: string;
   endDate?: string;
+  successDate: string[];
 }
 
-export type RoutineForm = Omit<Routine, 'routineId' | 'weeklyCount'>;
+export type RoutineForm = Omit<
+  Routine,
+  'routineId' | 'weeklyCount' | 'successDate'
+>;
 
 export type WeeklyRoutine = Pick<
   Routine,
