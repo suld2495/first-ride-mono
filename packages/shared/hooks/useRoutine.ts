@@ -80,10 +80,18 @@ const createWeeklyData = (startDate: string): string[] => {
   });
 };
 
-export const useWeeklyData = (routines: WeeklyRoutine[]): boolean[][] => {
-  return routines.map(({ successDate }) =>
-    createWeeklyData(getWeekMonday(new Date())).map((date) =>
-      successDate.includes(date),
-    ),
+export const useWeeklyData = (
+  routines: WeeklyRoutine[],
+): Record<number, boolean[]> => {
+  return routines.reduce(
+    (acc, { routineId, successDate }) => {
+      const data = createWeeklyData(getWeekMonday(new Date())).map((date) =>
+        successDate.includes(date),
+      );
+
+      acc[routineId] = data;
+      return acc;
+    },
+    {} as Record<number, boolean[]>,
   );
 };

@@ -2,7 +2,7 @@ import { User } from '@repo/types';
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-import { storage } from './storage-provider';
+import { storage } from './storage-provider.web';
 
 interface State {
   user: User | null;

@@ -16,7 +16,7 @@ const RoutinePage = () => {
   const date = searchParams.get('date') || getWeekMonday(new Date());
   const user = useAuthStore((state) => state.user);
 
-  const { data: routines, isLoading } = useRoutinesQuery(user, date);
+  const { data: routines, isLoading } = useRoutinesQuery(user?.name || '', date);
 
   if (!user) {
     navigate('/');
