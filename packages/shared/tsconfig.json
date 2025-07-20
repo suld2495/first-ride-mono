@@ -1,8 +1,10 @@
 {
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-    "moduleSuffixes": [".native", ".web", ""]
+    "moduleSuffixes": [".native", ".web", ""],
+    "composite": true
   },
+  "references": [{ "path": "../types" }],
   "include": ["."],
   "exclude": ["node_modules"]
 }
