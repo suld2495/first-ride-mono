@@ -1,5 +1,5 @@
 {
   "buildCommand": "pnpm turbo run build --filter=@repo/types --filter=@repo/shared --filter=./ --parallel",
-  "outputDirectory": "apps/webApp/dist",
+  "outputDirectory": "dist",
   "framework": "vite"
 }
