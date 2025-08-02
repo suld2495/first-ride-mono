@@ -6,6 +6,7 @@ import Input from '../common/input/Input';
 import AuthForm from './AuthForm';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { useLoginMutation } from '@repo/shared/hooks/useAuth';
+import { setAuthorization } from '@/api';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -26,7 +27,8 @@ const LoginForm = () => {
     }
 
     try {
-      await login.mutateAsync(form);
+      const response = await login.mutateAsync(form);
+      setAuthorization(response.token);
       navigate('/routine');
     } catch {}
   };

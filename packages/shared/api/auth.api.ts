@@ -1,8 +1,8 @@
-import { AuthForm, JoinForm, User } from '@repo/types';
+import { AuthForm, AuthResponse, JoinForm } from '@repo/types';
 
 import http from '.';
 
-export const login = (form: AuthForm): Promise<User> => {
+export const login = (form: AuthForm): Promise<AuthResponse> => {
   return http.post(`/login`, form);
 };
 

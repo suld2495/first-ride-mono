@@ -10,8 +10,9 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: login,
 
-    onSuccess: (user) => {
-      authStore.signIn(user);
+    onSuccess: (response) => {
+      authStore.signIn(response.user);
+      return response.token;
     },
 
     onError: (error: AxiosError) => {

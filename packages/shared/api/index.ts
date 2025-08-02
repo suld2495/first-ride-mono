@@ -1,7 +1,8 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 
 interface HttpConfig {
   baseURL: string;
+  request: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig;
 }
 
 const http = axios.create({
@@ -13,6 +14,7 @@ const http = axios.create({
 
 export const createHttp = (config: HttpConfig) => {
   http.defaults.baseURL = config.baseURL;
+  http.interceptors.request.use(config.request);
 };
 
 http.interceptors.response.use(
