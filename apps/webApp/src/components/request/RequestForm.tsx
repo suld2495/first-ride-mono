@@ -7,6 +7,7 @@ import Button from '../common/button/Button';
 import ImageUpload from '../common/input/ImageUpload';
 import Label from '../common/input/Label';
 import Paragraph from '../common/paragraph/Paragraph';
+import { AxiosError } from 'axios';
 
 interface FormLabelProps {
   children: React.ReactNode;
@@ -58,7 +59,13 @@ const RequestForm = ({
       await saveRequest.mutateAsync(formData);
       closeModal();
       alert('인증 요청이 완료되었습니다.');
-    } catch {
+    } catch (e) {
+      if (e instanceof AxiosError) {
+        if (e.status === 413) {
+          alert('용량은 1MB 이하만 업로드 가능합니다.');    
+          return;
+        }
+      }
       alert('인증 요청에 실패했습니다.');
     }
   };

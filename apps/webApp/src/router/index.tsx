@@ -4,6 +4,7 @@ import Layout from '@/layouts/common/Layout';
 import RoutineLayout from '@/layouts/routine/RoutineLayout';
 import LoginPage from '@/pages/Login';
 import RoutinePage from '@/pages/Routine';
+import JoinPage from '@/pages/Join';
 
 const router = createBrowserRouter([
   {
@@ -11,11 +12,14 @@ const router = createBrowserRouter([
     Component: Layout,
     children: [
       {
-        index: true,
+        path: 'login',
         Component: LoginPage,
       },
       {
-        path: 'routine',
+        path: 'join',
+        Component: JoinPage
+      },
+      {
         Component: RoutineLayout,
         children: [
           {

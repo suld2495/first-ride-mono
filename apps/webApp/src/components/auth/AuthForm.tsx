@@ -1,40 +1,20 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
+interface AuthFormProps {
+  title: string;
+  children: React.ReactNode;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+}
 
-import { useAuthStore } from '@repo/shared/store/auth.store';
-
-import Button from '../common/button/Button';
-import Input from '../common/input/Input';
-
-const AuthForm = () => {
-  const signIn = useAuthStore((state) => state.signIn);
-  const navigate = useNavigate();
-  const [nickname, setNickname] = useState('');
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    signIn({ name: nickname });
-
-    navigate('/routine');
-  };
-
+const AuthForm = ({ title, children, onSubmit }: AuthFormProps) => {
   return (
-    <form
-      className="flex flex-col items-center justify-center h-screen"
-      onSubmit={handleSubmit}
-    >
-      <Input
-        className="mb-4"
-        name="nickname"
-        type="text"
-        placeholder="값을 입력하세요"
-        value={nickname}
-        onChange={(e) => setNickname(e.target.value)}
-        required
-      />
-      <Button type="submit">로그인</Button>
-    </form>
+    <div className="flex flex-col items-center justify-center h-screen gap-5">
+      <h3 className="dark:text-white text-2xl font-bold">{title}</h3>
+      <form
+        className="flex flex-col items-center justify-center w-[300px]"
+        onSubmit={onSubmit}
+      >
+        {children}
+      </form>
+    </div>
   );
 };
 

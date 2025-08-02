@@ -8,7 +8,6 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@repo/types": "workspace:*",
     "@tanstack/react-query": "*",
     "@tanstack/react-query-devtools": "*",
     "axios": "*",
@@ -18,6 +17,7 @@
     "zustand": "*"
   },
   "devDependencies": {
+    "@repo/types": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "typescript": "*"
