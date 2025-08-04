@@ -9,10 +9,11 @@ import { useJoinMutation } from '@repo/shared/hooks/useAuth';
 
 const JoinForm = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState<JoinFormType>({
+  const [form, setForm] = useState<JoinFormType & { passwordConfirm: JoinFormType['password'] }>({
     email: '',
     name: '',
     password: '',
+    passwordConfirm: '',
   });
   const join = useJoinMutation();
 
@@ -23,6 +24,11 @@ const JoinForm = () => {
 
     if (!isValid) {
       alert('아이디 또는 비밀번호를 입력해주세요.');
+      return;
+    }
+
+    if (form.passwordConfirm !== form.password) {
+      alert("비밀번호가 다릅니다.");
       return;
     }
 
@@ -67,6 +73,15 @@ const JoinForm = () => {
         name="password"
         type="password"
         placeholder="비밀번호를 입력해주세요"
+        value={form.password}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        className="w-full h-13 mb-4"
+        name="passwordConfirm"
+        type="password"
+        placeholder="비밀번호를 다시 입력해주세요"
         value={form.password}
         onChange={handleChange}
         required
