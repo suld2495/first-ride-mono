@@ -1,7 +1,8 @@
 export interface Auth {
-  email: string;
-  name: string;
+  userId: string;
+  nickname: string;
   password: string;
+  job: string;
 }
 
-export type User = Pick<Auth, 'email' | 'name'>;
+export type User = Pick<Auth, 'userId' | 'nickname'>;

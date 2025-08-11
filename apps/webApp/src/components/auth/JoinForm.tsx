@@ -10,8 +10,8 @@ import { useJoinMutation } from '@repo/shared/hooks/useAuth';
 const JoinForm = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState<JoinFormType & { passwordConfirm: JoinFormType['password'] }>({
-    email: '',
-    name: '',
+    userId: '',
+    nickname: '',
     password: '',
     passwordConfirm: '',
   });
@@ -20,7 +20,7 @@ const JoinForm = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const isValid = form.email && form.name && form.password;
+    const isValid = form.userId && form.nickname && form.password;
 
     if (!isValid) {
       alert('아이디 또는 비밀번호를 입력해주세요.');
@@ -52,10 +52,10 @@ const JoinForm = () => {
     >
       <Input
         className="w-full h-13 mb-4"
-        name="email"
+        name="userId"
         type="text"
         placeholder="아이디를 입력해주세요"
-        value={form.email}
+        value={form.userId}
         onChange={handleChange}
         required
       />
@@ -64,7 +64,7 @@ const JoinForm = () => {
         name="name"
         type="text"
         placeholder="닉네임을 입력해주세요"
-        value={form.name}
+        value={form.nickname}
         onChange={handleChange}
         required
       />

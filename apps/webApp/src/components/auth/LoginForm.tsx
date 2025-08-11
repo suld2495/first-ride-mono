@@ -11,7 +11,7 @@ import { setAuthorization } from '@/api';
 const LoginForm = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState<AuthFormType>({
-    email: '',
+    userId: '',
     password: '',
   });
   const login = useLoginMutation();
@@ -19,7 +19,7 @@ const LoginForm = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const isValid = form.email && form.password;
+    const isValid = form.userId && form.password;
 
     if (!isValid) {
       alert('아이디 또는 비밀번호를 입력해주세요.');
@@ -47,10 +47,10 @@ const LoginForm = () => {
     >
       <Input
         className="w-full h-13 mb-4"
-        name="email"
+        name="userId"
         type="text"
         placeholder="아이디를 입력해주세요"
-        value={form.email}
+        value={form.userId}
         onChange={handleChange}
         required
       />

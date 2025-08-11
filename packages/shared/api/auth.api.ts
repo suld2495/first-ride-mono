@@ -7,5 +7,5 @@ export const login = (form: AuthForm): Promise<AuthResponse> => {
 };
 
 export const join = (form: JoinForm): Promise<void> => {
-  return http.post(`/join`, form);
+  return http.post(`/signup`, form);
 };
