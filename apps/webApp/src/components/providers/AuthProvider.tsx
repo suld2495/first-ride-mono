@@ -16,7 +16,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       navigate('/');
     }
 
-    if (!user && ['/login', 'join'].includes(location.pathname)) {
+    if (!user && !['/login', '/join'].includes(location.pathname)) {
       navigate('/login');
     }
   }, [location.pathname]);

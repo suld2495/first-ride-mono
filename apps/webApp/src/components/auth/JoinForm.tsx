@@ -14,6 +14,7 @@ const JoinForm = () => {
     nickname: '',
     password: '',
     passwordConfirm: '',
+    job: '',
   });
   const join = useJoinMutation();
 
@@ -61,7 +62,7 @@ const JoinForm = () => {
       />
       <Input
         className="w-full h-13 mb-4"
-        name="name"
+        name="nickname"
         type="text"
         placeholder="닉네임을 입력해주세요"
         value={form.nickname}
@@ -82,9 +83,17 @@ const JoinForm = () => {
         name="passwordConfirm"
         type="password"
         placeholder="비밀번호를 다시 입력해주세요"
-        value={form.password}
+        value={form.passwordConfirm}
         onChange={handleChange}
         required
+      />
+      <Input
+        className="w-full h-13 mb-4"
+        name="job"
+        type="text"
+        placeholder="직업을 입력해주세요"
+        value={form.job}
+        onChange={handleChange}
       />
       <Button 
         className='w-full h-13' 
