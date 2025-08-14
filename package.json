@@ -7,14 +7,16 @@
     "shared": "turbo run dev --filter=@repo/shared --filter=@repo/types --parallel",
     "all": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "devDependencies": {
     "eslint": "^8",
     "prettier": "^3.2.5",
     "turbo": "^2.5.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "axios": "^1.9.0",
     "zustand": "^5.0.3",
     "expo-secure-store": "^14.2.3",
@@ -22,6 +24,12 @@
     "@tanstack/react-query-devtools": "^5.77.4",
     "typescript": "~5.8.3"
   },
-  "packageManager": "pnpm@8.15.6",
-  "name": "first-ride-repo"
+  "packageManager": "pnpm@10.11.1",
+  "name": "first-ride-repo",
+  "version": "1.0.0",
+  "dependencies": {
+    "expo": "~53.0.20",
+    "react": "19.0.0",
+    "react-native": "0.79.5"
+  }
 }
