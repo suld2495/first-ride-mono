@@ -1,0 +1,74 @@
+{
+  "expo": {
+    "name": "first-ride",
+    "slug": "first-ride",
+    "version": "1.0.0",
+    "scheme": "first-ride",
+    "entryPoint": "expo-router/entry",
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-dev-launcher",
+        {
+          "launchMode": "most-recent"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+        }
+      ],
+      [
+        "expo-web-browser",
+        {
+          "experimentalLauncherActivity": true
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "tsconfigPaths": true
+    },
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#7edcd5"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "jsEngine": "hermes",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mannal.firstride",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#76dcd1"
+      },
+      "package": "com.mannal.firstride",
+      "jsEngine": "hermes"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1d17c608-a305-47a2-9b5c-659fcff4ff7c"
+      },
+      "feedback": "https://docs.google.com/forms/d/e/1FAIpQLSe_MCFeYCVJ6xolSkGSENYZ3tI9yz3KO7NTRSMHt6aAMz_4lg/viewform?usp=dialog"
+    }
+  }
+}
