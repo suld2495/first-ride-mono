@@ -61,7 +61,8 @@
         "backgroundColor": "#76dcd1"
       },
       "package": "com.mannal.firstride",
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "scheme": ["com.mannal.firstride"]
     },
     "extra": {
       "router": {},

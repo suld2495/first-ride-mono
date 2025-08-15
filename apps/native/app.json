@@ -59,7 +59,9 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#76dcd1"
       },
-      "package": "com.mannal.firstride"
+      "package": "com.mannal.firstride",
+      "jsEngine": "hermes",
+      "scheme": ["com.mannal.firstride"]
     },
     "extra": {
       "router": {},
