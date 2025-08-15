@@ -8,15 +8,24 @@ importers:
 
   .:
     dependencies:
+      axios:
+        specifier: ^1.9.0
+        version: 1.11.0
       expo:
         specifier: ~53.0.20
         version: 53.0.20(@babel/core@7.28.0)(@expo/metro-runtime@5.0.4(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native@0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
       react:
         specifier: 19.0.0
         version: 19.0.0
+      react-dom:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.0.0)
       react-native:
         specifier: 0.79.5
         version: 0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0)
+      zustand:
+        specifier: ^5.0.3
+        version: 5.0.7(@types/react@19.0.14)(react@19.0.0)(use-sync-external-store@1.5.0(react@19.0.0))
     devDependencies:
       '@tanstack/react-query':
         specifier: ^5.77.4
@@ -24,9 +33,9 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: ^5.77.4
         version: 5.85.0(@tanstack/react-query@5.85.0(react@19.0.0))(react@19.0.0)
-      axios:
-        specifier: ^1.9.0
-        version: 1.11.0
+      babel-plugin-transform-inline-environment-variables:
+        specifier: ^0.4.4
+        version: 0.4.4
       eslint:
         specifier: ^8
         version: 8.57.1
@@ -36,18 +45,12 @@ importers:
       prettier:
         specifier: ^3.2.5
         version: 3.6.2
-      react-dom:
-        specifier: 19.0.0
-        version: 19.0.0(react@19.0.0)
       turbo:
         specifier: ^2.5.4
         version: 2.5.5
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
-      zustand:
-        specifier: ^5.0.3
-        version: 5.0.7(@types/react@19.0.14)(react@19.0.0)(use-sync-external-store@1.5.0(react@19.0.0))
 
   apps/native:
     dependencies:
@@ -130,7 +133,7 @@ importers:
         specifier: '*'
         version: 19.0.0(react@19.0.0)
       react-native:
-        specifier: 0.79.5
+        specifier: '*'
         version: 0.79.5(@babel/core@7.28.0)(@types/react@19.0.14)(react@19.0.0)
       react-native-gesture-handler:
         specifier: ~2.24.0
@@ -2249,6 +2252,9 @@ packages:
 
   babel-plugin-transform-flow-enums@0.0.2:
     resolution: {integrity: sha512-g4aaCrDDOsWjbm0PUUeVnkcVd6AKJsVc/MbnPhEotEpkeJQP6b8nzewohQi7+QS8UyPehOhGWn0nOwjvWpmMvQ==}
+
+  babel-plugin-transform-inline-environment-variables@0.4.4:
+    resolution: {integrity: sha512-bJILBtn5a11SmtR2j/3mBOjX4K3weC6cq+NNZ7hG22wCAqpc3qtj/iN7dSe9HDiS46lgp1nHsQgeYrea/RUe+g==}
 
   babel-preset-current-node-syntax@1.2.0:
     resolution: {integrity: sha512-E/VlAEzRrsLEb2+dv8yp3bo4scof3l9nR4lrld+Iy5NyVqgVYUJnDAmunkhPMisRI32Qc4iRiz425d8vM++2fg==}
@@ -7836,6 +7842,8 @@ snapshots:
       '@babel/plugin-syntax-flow': 7.27.1(@babel/core@7.28.0)
     transitivePeerDependencies:
       - '@babel/core'
+
+  babel-plugin-transform-inline-environment-variables@0.4.4: {}
 
   babel-preset-current-node-syntax@1.2.0(@babel/core@7.28.0):
     dependencies:

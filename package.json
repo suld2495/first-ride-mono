@@ -12,24 +12,24 @@
     "ios": "expo run:ios"
   },
   "devDependencies": {
-    "eslint": "^8",
-    "prettier": "^3.2.5",
-    "turbo": "^2.5.4",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "axios": "^1.9.0",
-    "zustand": "^5.0.3",
-    "expo-secure-store": "^14.2.3",
     "@tanstack/react-query": "^5.77.4",
     "@tanstack/react-query-devtools": "^5.77.4",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
+    "eslint": "^8",
+    "expo-secure-store": "^14.2.3",
+    "prettier": "^3.2.5",
+    "turbo": "^2.5.4",
     "typescript": "~5.8.3"
   },
   "packageManager": "pnpm@10.11.1",
   "name": "first-ride-repo",
   "version": "1.0.0",
   "dependencies": {
+    "axios": "^1.9.0",
     "expo": "~53.0.20",
     "react": "19.0.0",
-    "react-native": "0.79.5"
+    "react-dom": "19.0.0",
+    "react-native": "0.79.5",
+    "zustand": "^5.0.3"
   }
 }
