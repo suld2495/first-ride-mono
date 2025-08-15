@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-
 import {
   CustomValidator,
   NumberValidator,
@@ -7,7 +6,7 @@ import {
   RequiredValidator,
   StringValidator,
   Validator,
-} from '@/utils/validator';
+} from '@repo/shared/utils/validator';
 
 interface Rule {
   required?: boolean;

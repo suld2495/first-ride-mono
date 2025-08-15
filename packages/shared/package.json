@@ -14,7 +14,8 @@
     "dotenv": "^17.2.0",
     "react": "*",
     "react-dom": "*",
-    "zustand": "*"
+    "zustand": "*",
+    "expo-secure-store": "*"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",

@@ -10,7 +10,7 @@ import { useRoutineStore } from '@/store/routine.store';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 
-import { Button } from '../common/Button';
+import Button from '../common/Button';
 import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
 

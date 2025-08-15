@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import { useRouter } from 'expo-router';
 
-import { Button } from '@/components/common/Button';
+import Button from '@/components/common/Button';
 import ThemeTextInput from '@/components/common/ThemeTextInput';
 import ThemeView from '@/components/common/ThemeView';
-import { useAuthStore } from '@repo/shared/store/auth.store';
 
 export default function SignIn() {
   const router = useRouter();

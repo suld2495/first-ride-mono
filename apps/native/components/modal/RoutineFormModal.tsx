@@ -18,7 +18,7 @@ import { ModalType } from '@/hooks/useModal';
 import { useRoutineStore } from '@/store/routine.store';
 import { COLORS } from '@/theme/colors';
 
-import { Button } from '../common/Button';
+import Button from '../common/Button';
 import FormItem from '../common/form/FormItem';
 import Link from '../common/Link';
 import ThemeText from '../common/ThemeText';

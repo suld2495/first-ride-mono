@@ -9,7 +9,7 @@ import RoutineForm from '../routine/RoutineForm';
 const RoutineAddModal = () => {
   const closeModal = useModalStore((state) => state.close);
   const user = useAuthStore((state) => state.user);
-  const username = user?.name || ''
+  const username = user?.nickname || ''
   const mateNickname = username === 'yunji' ? 'moon' : 'yunji';
 
   const saveMutation = useCreateRoutineMutation(username);

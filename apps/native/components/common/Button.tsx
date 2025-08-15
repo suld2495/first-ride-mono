@@ -23,7 +23,7 @@ export type ButtonProps = PressableProps & {
   iconGap?: number;
 };
 
-export const Button = ({
+const Button = ({
   variant = 'filled',
   title = '',
   style,
@@ -102,3 +102,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
 });
+
+export default Button;

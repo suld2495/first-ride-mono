@@ -3,11 +3,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
 
-import { Button } from '@/components/common/Button';
+import Button from '@/components/common/Button';
 import Link from '@/components/common/Link';
 import ThemeText from '@/components/common/ThemeText';
 import ThemeView from '@/components/common/ThemeView';
-import { Container } from '@/components/layout/Container';
+import Container from '@/components/layout/Container';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';

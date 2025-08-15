@@ -3,7 +3,7 @@ module.exports = {
   root: true,
   extends: ["@repo/eslint-config"],
   parser: "@typescript-eslint/parser",
-  ignorePatterns: ["dist/*"],
+  ignorePatterns: ["dist/*", "metro.config.js"],
   parserOptions: {
     project: true,
   }

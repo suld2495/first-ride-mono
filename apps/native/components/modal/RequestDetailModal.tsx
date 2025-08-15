@@ -13,7 +13,7 @@ import { useRequestStore } from '@repo/shared/store/request.store';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 
-import { Button } from '../common/Button';
+import Button from '../common/Button';
 import FormItem from '../common/form/FormItem';
 import ThemeText from '../common/ThemeText';
 import ThemeTextInput from '../common/ThemeTextInput';

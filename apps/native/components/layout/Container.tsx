@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ThemeView from '../common/ThemeView';
 
-export const Container = ({
+const Container = ({
   children,
   style,
 }: {
@@ -30,3 +30,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default Container;

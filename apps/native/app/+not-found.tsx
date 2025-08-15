@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { Link, Stack } from 'expo-router';
 
 import ThemeText from '@/components/common/ThemeText';
-import { Container } from '@/components/layout/Container';
+import Container from '@/components/layout/Container';
 
 export default function NotFoundScreen() {
   return (

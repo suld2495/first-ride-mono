@@ -10,11 +10,9 @@ export const fetchRoutines = async (
 };
 
 export const fetchRoutineDetail = async (id: number): Promise<Routine> => {
-  const params = new URLSearchParams();
+  const query = `routineId=${encodeURIComponent(id)}`;
 
-  params.append('routineId', id.toString());
-
-  return http.get(`/routine/details?${params.toString()}`);
+  return http.get(`/routine/details?${query}`);
 };
 
 export const createRoutine = async (form: RoutineForm): Promise<void> => {

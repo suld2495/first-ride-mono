@@ -7,7 +7,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRoutineStore } from '@/store/routine.store';
 import { COLORS } from '@/theme/colors';
 
-import { Button } from '../common/Button';
+import Button from '../common/Button';
 import ThemeText from '../common/ThemeText';
 import ThemeView, { ThemedViewProps } from '../common/ThemeView';
 

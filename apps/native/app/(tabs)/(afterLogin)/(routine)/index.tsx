@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { Container } from '@/components/layout/Container';
+import Container from '@/components/layout/Container';
 import Header from '@/components/layout/Header';
 import RoutineHeader from '@/components/routine/RoutineHeader';
 import RoutineList from '@/components/routine/RoutineList';

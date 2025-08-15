@@ -3,7 +3,7 @@ import { Animated, Pressable } from 'react-native';
 import { type BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
 
-import { TabBarIcon } from '@/components/common/TabBarIcon';
+import TabBarIcon from '@/components/common/TabBarIcon';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { COLORS } from '@/theme/colors';
 

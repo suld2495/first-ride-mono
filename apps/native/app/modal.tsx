@@ -3,7 +3,7 @@ import Animated, { SlideInRight } from 'react-native-reanimated';
 import { useLocalSearchParams } from 'expo-router';
 
 import ThemeView from '@/components/common/ThemeView';
-import { Container } from '@/components/layout/Container';
+import Container from '@/components/layout/Container';
 import ModalHeader from '@/components/modal/ModalHeader';
 import { ModalType, useModal } from '@/hooks/useModal';
 
