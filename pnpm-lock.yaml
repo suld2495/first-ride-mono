@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       axios:
-        specifier: 1.3.5
-        version: 1.3.5
+        specifier: ^1.9.0
+        version: 1.11.0
       expo:
         specifier: ~53.0.20
         version: 53.0.20(@babel/core@7.28.3)(@expo/metro-runtime@5.0.4(react-native@0.79.5(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native@0.79.5(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
@@ -2223,9 +2223,6 @@ packages:
 
   axios@1.11.0:
     resolution: {integrity: sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==}
-
-  axios@1.3.5:
-    resolution: {integrity: sha512-glL/PvG/E+xCWwV8S6nCHcrfg1exGx7vxyUIivIA1iL7BIh6bePylCfVHwp6k13ao7SATxB6imau2kqY+I67kw==}
 
   babel-jest@29.7.0:
     resolution: {integrity: sha512-BrvGY3xZSwEcCzKvKsCi2GgHqDqsYkOP4/by5xCgIwGXQxIEh+8ew3gmrE1y7XRR6LHZIj6yLYnUi/mm2KXKBg==}
@@ -7793,14 +7790,6 @@ snapshots:
       possible-typed-array-names: 1.1.0
 
   axios@1.11.0:
-    dependencies:
-      follow-redirects: 1.15.11
-      form-data: 4.0.4
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-
-  axios@1.3.5:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.4
