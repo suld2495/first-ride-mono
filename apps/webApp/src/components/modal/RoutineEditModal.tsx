@@ -14,7 +14,7 @@ const RoutineEditModal = () => {
   const closeModal = useModalStore((state) => state.close);
   const routineId = useRoutineStore((state) => state.routineId);
   const user = useAuthStore((state) => state.user);
-  const username = user?.name || ''
+  const username = user?.nickname || ''
   const { data: detail } = useRoutineDetailQuery(routineId);
   const mateNickname = username === 'yunji' ? 'moon' : 'yunji';
 

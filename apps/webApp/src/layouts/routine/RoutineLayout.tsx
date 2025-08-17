@@ -7,7 +7,7 @@ import RoutineHeader from './RoutineHeader';
 
 const RoutineLayout = () => {
   const user = useAuthStore((state) => state.user);
-  const nickname = user?.name || '';
+  const nickname = user?.nickname || '';
 
   const { data: requests } = useFetchReceivedRequestsQuery(nickname);
 

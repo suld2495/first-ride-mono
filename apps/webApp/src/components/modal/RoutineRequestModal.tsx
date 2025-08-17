@@ -6,7 +6,7 @@ import RequestForm from '../request/RequestForm';
 
 const RoutineRequestModal = () => {
   const user = useAuthStore((state) => state.user);
-  const username = user?.name || '';
+  const username = user?.nickname || '';
   const routineId = useRoutineStore((state) => state.routineId);
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
 
