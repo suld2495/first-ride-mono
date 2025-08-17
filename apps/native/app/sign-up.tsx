@@ -6,36 +6,42 @@ import Button from '@/components/common/Button';
 import Link from '@/components/common/Link';
 import ThemeTextInput from '@/components/common/ThemeTextInput';
 import ThemeView from '@/components/common/ThemeView';
-import { useLoginMutation } from '@repo/shared/hooks/useAuth';
-import { AuthForm as AuthFormType } from '@repo/types';
-import { setAuthorization } from '@/api';
+import { useJoinMutation } from '@repo/shared/hooks/useAuth';
+import { JoinForm as JoinFormType } from '@repo/types';
 
 const initial = () => ({
   userId: '',
+  nickname: '',
   password: '',
+  passwordConfirm: '',
+  job: '',
 });
 
-export default function SignIn() {
+export default function SignUp() {
   const router = useRouter();
-  const [form, setForm] = useState<AuthFormType>(initial());
-  const login = useLoginMutation();
+  const [form, setForm] = useState<JoinFormType & { passwordConfirm: JoinFormType['password'] }>(initial());
+  const join = useJoinMutation();
 
   const handleLogin = async () => {
-    const isValid = form.userId && form.password;
+    const isValid = form.userId && form.nickname && form.password;
 
     if (!isValid) {
       alert('아이디 또는 비밀번호를 입력해주세요.');
       return;
-    } 
+    }
+
+    if (form.passwordConfirm !== form.password) {
+      alert("비밀번호가 다릅니다.");
+      return;
+    }
 
     try {
-      const response = await login.mutateAsync(form);
-      setAuthorization(response.token);
-      router.push('/(tabs)/(afterLogin)/(routine)')
+      await join.mutateAsync(form);
+      router.push('/sign-in')
     } catch {}
   };
 
-  const handleChange = (key: 'userId' | 'password', value: string) => {
+  const handleChange = (key: 'userId' | 'nickname' | 'password' | 'passwordConfirm', value: string) => {
     setForm((prev) => ({
       ...prev,
       [key]: value,
@@ -44,7 +50,7 @@ export default function SignIn() {
 
   return (
     <ThemeView style={styles.container}>
-      <AuthForm title='로그인'>
+      <AuthForm title='회원가입'>
         <ThemeTextInput 
           width={250} 
           placeholder="아이디를 입력해주세요."
@@ -53,19 +59,31 @@ export default function SignIn() {
         />
         <ThemeTextInput 
           width={250} 
+          placeholder="닉네임을 입력해주세요."
+          value={form.nickname}
+          onChangeText={(value) => handleChange('nickname', value)}
+        />
+        <ThemeTextInput 
+          width={250} 
           placeholder="비밀번호를 입력해주세요."
           value={form.password}
           onChangeText={(value) => handleChange('password', value)}
         />
+        <ThemeTextInput 
+          width={250} 
+          placeholder="비밀번호를 다시 입력해주세요."
+          value={form.passwordConfirm}
+          onChangeText={(value) => handleChange('passwordConfirm', value)}
+        />
         <Button 
-          title="로그인" 
+          title="회원가입" 
           onPress={handleLogin}
           style={styles.button}
         />
         <Link 
-          href="/sign-up"
+          href="/sign-in"
           variant="plain"
-          title='회원가입'
+          title='로그인'
           style={styles.link}
           onPress={() => setForm(initial())}
         />

@@ -8,19 +8,19 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@tanstack/react-query": "*",
-    "@tanstack/react-query-devtools": "*",
-    "axios": "*",
+    "@tanstack/react-query": "^5.77.4",
+    "@tanstack/react-query-devtools": "^5.77.4",
+    "axios": "^1.9.0",
     "dotenv": "^17.2.0",
-    "react": "*",
-    "react-dom": "*",
-    "zustand": "*",
-    "expo-secure-store": "*"
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "zustand": "^5.0.3",
+    "expo-secure-store": "^14.2.3"
   },
   "devDependencies": {
     "@repo/types": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "typescript": "*"
+    "typescript": "~5.8.3"
   }
 }

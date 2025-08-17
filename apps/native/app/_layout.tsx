@@ -37,6 +37,7 @@ const StackLayout = () => {
           </Stack.Protected>
           <Stack.Protected guard={!user}>
             <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+            <Stack.Screen name="sign-up" options={{ headerShown: false }} />
           </Stack.Protected>
         </Stack>
       </NavThemeProvider>

@@ -12,6 +12,9 @@
       "cache": false,
       "persistent": true,
       "env": ["EXPO_ROUTER_APP_ROOT", "EXPO_NO_DOTENV"]
+    },
+    "clean": {
+      "cache": false
     }
   }
 }
