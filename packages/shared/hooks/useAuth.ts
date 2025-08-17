@@ -12,7 +12,7 @@ export const useLoginMutation = () => {
 
     onSuccess: (response) => {
       authStore.signIn(response.user);
-      return response.token;
+      return response.accessToken;
     },
 
     onError: (error: AxiosError) => {

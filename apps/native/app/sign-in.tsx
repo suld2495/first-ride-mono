@@ -30,7 +30,7 @@ export default function SignIn() {
 
     try {
       const response = await login.mutateAsync(form);
-      setAuthorization(response.token);
+      setAuthorization(response.accessToken);
       router.push('/(tabs)/(afterLogin)/(routine)')
     } catch {}
   };

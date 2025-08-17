@@ -28,7 +28,7 @@ const LoginForm = () => {
 
     try {
       const response = await login.mutateAsync(form);
-      setAuthorization(response.token);
+      setAuthorization(response.accessToken);
       navigate('/routine');
     } catch {}
   };
