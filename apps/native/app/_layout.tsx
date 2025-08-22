@@ -1,10 +1,9 @@
-import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { useAuthStore } from '@repo/shared/store/auth.store';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { QueryProvider } from '@repo/shared/components';
 
 import MockProvider from '@/components/mock/MockProvider';
 import SplashScreenController from '@/components/splash';
@@ -46,16 +45,14 @@ const StackLayout = () => {
 };
 
 export default function RootLayout() {
-  const [queryClient] = React.useState(() => new QueryClient());
-
   useInitialAndroidBarSync();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
+      <QueryProvider>
         <MockProvider />
         <StackLayout />
-      </QueryClientProvider>
+      </QueryProvider>
     </GestureHandlerRootView>
   );
 }
