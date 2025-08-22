@@ -1,4 +1,4 @@
-import { Auth, User } from 'src/models';
+import { Auth, User } from '../models';
 
 export type AuthForm = Pick<Auth, 'userId' | 'password'>;
 

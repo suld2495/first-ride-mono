@@ -1,4 +1,4 @@
-import { RequestResponseForm } from 'src/models/request';
+import { RequestResponseForm } from '../models/request';
 
 interface CreateRequestDto {
   routineId: number;
