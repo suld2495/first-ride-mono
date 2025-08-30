@@ -13,6 +13,7 @@ import { COLORS } from '@/theme/colors';
 import Button from '../common/Button';
 import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
+import { useShallow } from 'zustand/shallow';
 
 const RoutineDetailModal = () => {
   const router = useRouter();
@@ -20,14 +21,14 @@ const RoutineDetailModal = () => {
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
 
-  const [routineId, setRoutineForm] = useRoutineStore((state) => [
+  const [routineId, setRoutineForm] = useRoutineStore(useShallow((state) => [
     state.routineId,
     state.setRoutineForm,
-  ]);
+  ]));
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
 
   const user = useAuthStore((state) => state.user);
-  const deleteRoutine = useDeleteRoutineMutation(user?.name || '');
+  const deleteRoutine = useDeleteRoutineMutation(user?.nickname || '');
 
   if (isLoading) {
     return null;

@@ -1,16 +1,12 @@
 import { useNavigate, useSearchParams } from 'react-router';
 
-import Button from '@/components/common/button/Button';
-import Paragraph from '@/components/common/paragraph/Paragraph';
-import RoutineDate from '@/components/routine/RoutineDate';
 import RoutineList from '@/components/routine/RoutineList';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { useAuthStore } from '@repo/shared/store/auth.store';
-import { ModalName, useModalStore } from '@/store/modal.store';
 import { getWeekMonday } from '@repo/shared/utils';
+import RoutineHeader from '@/components/routine/RoutineHeader';
 
 const RoutinePage = () => {
-  const showModal = useModalStore((state) => state.show);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const date = searchParams.get('date') || getWeekMonday(new Date());
@@ -27,23 +23,10 @@ const RoutinePage = () => {
     return null;
   }
 
-  const showRoutineAddModal = () => {
-    showModal(ModalName.ROUTINE_ADD);
-  };
 
   return (
     <div className="px-5">
-      <div className="mb-5 relative">
-        <Paragraph variant="h4">루틴 리스트</Paragraph>
-        <Button
-          type="button"
-          className="absolute right-0 top-[50%] translate-y-[-50%]"
-          onClick={showRoutineAddModal}
-        >
-          루틴 추가
-        </Button>
-      </div>
-      <RoutineDate date={date} />
+      <RoutineHeader date={date} />
       <RoutineList routines={routines} date={date} />
     </div>
   );

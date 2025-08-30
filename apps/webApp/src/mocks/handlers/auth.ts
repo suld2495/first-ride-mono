@@ -5,9 +5,13 @@ const BASE_URL = import.meta.env.VITE_MOCK_BASE_URL;
 
 export const authHandlers = [
   http.post<object, AuthForm>(`${BASE_URL}/api/auth/login`, async ({ request }) => {
+    const user = {
+      userId: 'admin',
+      password: 'admin',
+    };
     const { userId, password } = await request.json();
 
-    if (!userId || !password) {
+    if (!userId || !password || user.userId !== userId || user.password !== password) {
       return HttpResponse.json(
         {
           message: "아이디 또는 비밀번호가 일치하지 않습니다.",

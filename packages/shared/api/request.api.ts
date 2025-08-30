@@ -1,31 +1,58 @@
 import { RequestList, RequestResponseForm, RoutineDetail } from '@repo/types';
 
-import http from '.';
+import http from './client';
+import { toAppError } from '.';
 
 export const fetchReceivedRequests = async (
   nickname: string,
 ): Promise<RequestList> => {
-  return http.get(`/routine/confirm/list?nickname=${nickname}`);
+  try {
+    const response: RequestList = await http.get(
+      `/routine/confirm/list?nickname=${nickname}`,
+    );
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
 export const fetchRequestDetail = async (
   id: number,
 ): Promise<RoutineDetail> => {
-  return http.get(`/routine/confirm/detail?id=${id}`);
+  try {
+    const response: RoutineDetail = await http.get(
+      `/routine/confirm/detail?id=${id}`,
+    );
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
 export const createRequest = async (data: FormData): Promise<void> => {
-  return http.post(`/routine/confirm`, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  try {
+    const response: void = await http.post(`/routine/confirm`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
 export const replyRequest = async (
   data: RequestResponseForm,
 ): Promise<void> => {
-  return http.post('/routine/check', data, {
-    method: 'POST',
-  });
+  try {
+    const response: void = await http.post('/routine/check', data);
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };

@@ -1,6 +1,4 @@
 import { StyleSheet } from 'react-native';
-import { getWeekMonday } from '@repo/shared/utils';
-import { useLocalSearchParams } from 'expo-router';
 
 import Link from '../common/Link';
 import ThemeText from '../common/ThemeText';
@@ -8,9 +6,11 @@ import ThemeView from '../common/ThemeView';
 
 import RoutineDate from './RoutineDate';
 
-const RoutineHeader = () => {
-  const { date } = useLocalSearchParams<{ date: string }>();
-  const currentDate = date || getWeekMonday(new Date());
+interface RoutineHeaderProps {
+  date: string;
+}
+
+const RoutineHeader = ({ date }: RoutineHeaderProps) => {
 
   return (
     <ThemeView style={styles.container}>
@@ -23,7 +23,7 @@ const RoutineHeader = () => {
           fontSize="body"
         />
       </ThemeView>
-      <RoutineDate date={currentDate} />
+      <RoutineDate date={date} />
     </ThemeView>
   );
 };

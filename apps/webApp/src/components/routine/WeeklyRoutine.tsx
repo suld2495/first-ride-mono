@@ -41,7 +41,7 @@ type RoutineWrapperProps = RoutineListProps & {
 const RoutineWrapper = ({ routines, date, onShowRequestModal, onShowDetailModal, render }: RoutineWrapperProps) => {
   return routines.map(
     (routine) => (
-      <div className='mt-10'>
+      <div key={routine.routineId} className='mt-10'>
         <div className='flex justify-between my-4'>
           <Paragraph 
             className='flex items-center cursor-pointer hover:underline hover:text-gray-500'
@@ -81,7 +81,7 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
         <>
           <ul className='flex w-full text-center pb-2 border-b-1 border-b-white'>
             {getDaysOfTheWeek().map((day) => (
-              <li className="text-sm truncate py-2 px-1 w-1/8 text-[var(--primary-color)]">
+              <li key={day} className="text-sm truncate py-2 px-1 w-1/8 text-[var(--primary-color)]">
                 <Paragraph>{day}</Paragraph>
               </li>
             ))}
@@ -122,8 +122,8 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
       render={({ routineId, weeklyCount, routineCount }) => (
         <>
           <ul className='flex w-full text-center pb-2 border-b-1 border-b-white'>
-            {Array.from({ length: 7 }, (_, i) => i + 1).map((count) => (
-              <li className="text-sm truncate py-2 px-1 w-1/8 text-[var(--primary-color)]">
+            {Array.from({ length: 7 }, (_, i) => i + 1).map((count, i) => (
+              <li key={i} className="text-sm truncate py-2 px-1 w-1/8 text-[var(--primary-color)]">
                 <Paragraph>{count}회</Paragraph>
               </li>
             ))}

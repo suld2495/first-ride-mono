@@ -1,31 +1,64 @@
 import { Routine, RoutineForm, UpdateRoutineForm } from '@repo/types';
 
-import http from '.';
+import http from './client';
+import { toAppError } from '.';
 
 export const fetchRoutines = async (
   nickname: string,
   date: string,
 ): Promise<Routine[]> => {
-  return http.get(`/routine/list?date=${date}&nickname=${nickname}`);
+  try {
+    const response: Routine[] = await http.get(
+      `/routine/list?date=${date}&nickname=${nickname}`,
+    );
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
 export const fetchRoutineDetail = async (id: number): Promise<Routine> => {
-  const query = `routineId=${encodeURIComponent(id)}`;
+  try {
+    const query = `routineId=${encodeURIComponent(id)}`;
 
-  return http.get(`/routine/details?${query}`);
+    const response: Routine = await http.get(`/routine/details?${query}`);
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
 export const createRoutine = async (form: RoutineForm): Promise<void> => {
-  return http.post('/routine', form);
+  try {
+    const response: void = await http.post('/routine', form);
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
 export const updateRoutine = async ({
   routineId,
   ...form
 }: UpdateRoutineForm): Promise<void> => {
-  return http.put(`/routine/${routineId}`, form);
+  try {
+    const response: void = await http.put(`/routine/${routineId}`, form);
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
 export const deleteRoutine = async (id: number): Promise<void> => {
-  return http.delete(`/routine/${id}`);
+  try {
+    const response: void = await http.delete(`/routine/${id}`);
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };

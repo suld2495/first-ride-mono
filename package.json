@@ -2,8 +2,8 @@
   "private": true,
   "scripts": {
     "build": "pnpm turbo run build --filter=@repo/types --filter=@repo/shared --filter=./apps/webApp --parallel",
-    "native:dev": "turbo run dev --filter=@repo/shared --filter=@repo/types  --filter=./apps/native --parallel",
-    "web:dev": "turbo run dev --filter=@repo/shared --filter=@repo/types --filter=./apps/webApp --parallel",
+    "native:dev": "turbo run dev --filter=@repo/types --filter=@repo/shared --filter=./apps/native --parallel",
+    "web:dev": "turbo run dev --filter=@repo/types --filter=@repo/shared --filter=./apps/webApp --parallel",
     "shared": "turbo run dev --filter=@repo/shared --filter=@repo/types --parallel",
     "all": "turbo run dev",
     "lint": "turbo run lint",

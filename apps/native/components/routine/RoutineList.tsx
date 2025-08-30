@@ -1,8 +1,4 @@
-import { FlatList, StyleSheet } from 'react-native';
-import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
-import { useAuthStore } from '@repo/shared/store/auth.store';
-import { getWeekMonday } from '@repo/shared/utils';
-import { useLocalSearchParams } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { COLORS } from '@/theme/colors';
@@ -10,32 +6,52 @@ import { COLORS } from '@/theme/colors';
 import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
 
-import WeeklyRoutine from './WeeklyRoutine';
+import { RoutineCountList, RoutineWeekList } from './WeeklyRoutine';
+import { Routine } from '@repo/types';
+import { useRoutineStore } from '@/store/routine.store';
+import { useRouter } from 'expo-router';
 
-const RoutineList = () => {
+interface RoutineListProps {
+  routines: Routine[];
+  date: string;
+}
+
+const RoutineList = ({ routines, date }: RoutineListProps) => {
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
-  const searchParams = useLocalSearchParams();
-  const { user } = useAuthStore();
-  const date = (searchParams.date as string) || getWeekMonday(new Date());
 
-  const { data } = useRoutinesQuery(user!.name, date);
+  const setRoutineId = useRoutineStore((state) => state.setRoutineId);
+  const type = useRoutineStore((state) => state.type);
+  const router = useRouter();
+
+  const handleShowRequestModal = (id: number) => {
+    router.push('/modal?type=request');
+    setRoutineId(id);
+  };
+
+  const handleShowDetailModal = (id: number) => {
+    router.push('/modal?type=routine-detail');
+    setRoutineId(id);
+  };
 
   return (
     <ThemeView style={[styles.container]}>
-      {data.length ? (
-        <FlatList
-          data={data}
-          renderItem={({ item, index }) => (
-            <WeeklyRoutine
-              key={item.routineId}
-              isLast={index === data.length - 1}
-              {...item}
-            />
-          )}
-          keyExtractor={(item) => item.routineId.toString()}
-          contentContainerStyle={styles.list}
-        />
+      {routines.length ? (
+        type === 'number' ? (
+          <RoutineCountList
+            routines={routines}
+            date={date}
+            onShowRequestModal={handleShowRequestModal}
+            onShowDetailModal={handleShowDetailModal}
+          />
+        ) : (
+          <RoutineWeekList
+            routines={routines}
+            date={date}
+            onShowRequestModal={handleShowRequestModal}
+            onShowDetailModal={handleShowDetailModal}
+          />
+        )
       ) : (
         <ThemeView style={styles.empty}>
           <ThemeText style={styles.emptyText}>

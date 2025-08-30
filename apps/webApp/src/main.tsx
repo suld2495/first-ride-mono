@@ -1,11 +1,11 @@
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
 
-import QueryProvider from './components/providers/QueryProvider.tsx';
 import router from './router/index.tsx';
 import '@/api';
 
 import './index.css';
+import WebQueryProvider from './components/providers/WebQueryProvider.tsx';
 
 async function enableMocking() {
   if (import.meta.env.MODE !== 'development') {
@@ -19,8 +19,8 @@ async function enableMocking() {
 
 enableMocking().then(() => {
   createRoot(document.getElementById('root')!).render(
-    <QueryProvider>
+    <WebQueryProvider>
       <RouterProvider router={router} />
-    </QueryProvider>,
+    </WebQueryProvider>,
   );
 });
