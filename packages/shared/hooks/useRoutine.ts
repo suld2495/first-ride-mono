@@ -1,4 +1,9 @@
-import { RoutineForm, UpdateRoutineForm, WeeklyRoutine } from '@repo/types';
+import {
+  Routine,
+  RoutineForm,
+  UpdateRoutineForm,
+  WeeklyRoutine,
+} from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import * as routineApi from '../api/routine.api';
@@ -70,7 +75,7 @@ const createWeeklyData = (startDate: string): string[] => {
   return Array.from({ length: 7 }, (_, i) => {
     const newDate = new Date(date);
 
-    newDate.setDate(newDate.getDate() + i + 1);
+    newDate.setDate(newDate.getDate() + i);
 
     const year = newDate.getFullYear() - 2000;
     const month = (newDate.getMonth() + 1).toString().padStart(2, '0');
@@ -82,7 +87,7 @@ const createWeeklyData = (startDate: string): string[] => {
 
 export const useWeeklyData = (
   routines: WeeklyRoutine[],
-): Record<number, boolean[]> => {
+): Record<Routine['routineId'], boolean[]> => {
   return routines.reduce(
     (acc, { routineId, successDate }) => {
       const data = createWeeklyData(getWeekMonday(new Date())).map((date) =>
@@ -92,6 +97,6 @@ export const useWeeklyData = (
       acc[routineId] = data;
       return acc;
     },
-    {} as Record<number, boolean[]>,
+    {} as Record<Routine['routineId'], boolean[]>,
   );
 };
