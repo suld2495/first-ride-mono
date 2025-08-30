@@ -1,17 +1,18 @@
+import { RoutineForm } from '@repo/types';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-
-import { RoutineForm } from '@repo/types';
 
 interface State {
   routineId: number;
   routineForm: RoutineForm;
+  type: 'number' | 'week';
 }
 
 interface Action {
   setRoutineId: (id: number) => void;
   setRoutineForm: (routineForm: RoutineForm) => void;
   resetRoutineForm: () => void;
+  setType: (type: 'number' | 'week') => void;
 }
 
 const initialState: State = {
@@ -26,6 +27,7 @@ const initialState: State = {
     routineCount: 0,
     mateNickname: '',
   },
+  type: 'number',
 };
 
 export const useRoutineStore = create<State & Action>()(
@@ -36,5 +38,6 @@ export const useRoutineStore = create<State & Action>()(
     setRoutineForm: (form: RoutineForm) => set({ routineForm: form }),
     resetRoutineForm: () =>
       set({ routineForm: { ...initialState.routineForm } }),
+    setType: (type: 'number' | 'week') => set({ type }),
   })),
 );

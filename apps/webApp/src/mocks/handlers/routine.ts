@@ -22,6 +22,7 @@ export const routineHandlers = [
           routineCount: 3,
           weeklyCount: 1,
           mateNickname: 'moon',
+          successDate: [],
         },
         {
           routineId: 2,
@@ -33,6 +34,7 @@ export const routineHandlers = [
           routineCount: 3,
           weeklyCount: 4,
           mateNickname: 'moon',
+          successDate: [],
         },
       ]);
     } else {

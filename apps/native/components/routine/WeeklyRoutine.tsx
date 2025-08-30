@@ -1,15 +1,15 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, FlatList } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
 
-import { Routine } from '@repo/types';
+import { Routine, WeeklyRoutine } from '@repo/types';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useRoutineStore } from '@/store/routine.store';
 import { COLORS } from '@/theme/colors';
 
 import Button from '../common/Button';
 import ThemeText from '../common/ThemeText';
 import ThemeView, { ThemedViewProps } from '../common/ThemeView';
+import { getDaysOfTheWeek, getWeekMonday } from '@repo/shared/utils';
+import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
 
 const WeekyView = (props: ThemedViewProps & { text?: string }) => {
   const colorScheme = useColorScheme();
@@ -30,126 +30,211 @@ const WeekyView = (props: ThemedViewProps & { text?: string }) => {
   );
 };
 
-const WeeklyRoutine = ({
-  routineId,
-  routineName,
-  weeklyCount,
-  routineCount,
-  isLast,
-}: Routine & { isLast?: boolean }) => {
-  const router = useRouter();
+interface RoutineListProps {
+  date: string;
+  onShowRequestModal: (id: number) => void;
+  onShowDetailModal: (id: number) => void;
+}
+
+
+type RoutineWrapperProps = RoutineListProps & {
+  routines: WeeklyRoutine[] | Routine[];
+  render: (routine: WeeklyRoutine | Routine) => React.ReactNode;
+}
+
+const RoutineWrapper = ({ routines, date, onShowRequestModal, onShowDetailModal, render }: RoutineWrapperProps) => {
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
-  const setRoutineId = useRoutineStore((state) => state.setRoutineId);
-
-  const handleRequestModal = () => {
-    router.push('/modal?type=request');
-    setRoutineId(routineId);
-  };
-
-  const handleRoutineDetailModal = () => {
-    router.push('/modal?type=routine-detail');
-    setRoutineId(routineId);
-  };
 
   return (
-    <ThemeView style={[styles.container, !isLast && styles.borderBottom]}>
-      <ThemeView style={styles.info}>
-        <ThemeView>
-          <Pressable onPress={handleRoutineDetailModal}>
-            <ThemeText style={styles.title}>{routineName}</ThemeText>
-          </Pressable>
-        </ThemeView>
-        <ThemeView>
-          <Button
-            title="인증 요청"
-            fontSize="caption"
-            style={styles.complete_button}
-            icon={
-              <Ionicons
-                name="checkmark-circle"
-                size={16}
-                color={COLORS[colorScheme].buttonLight}
-              />
-            }
-            onPress={handleRequestModal}
-          />
-        </ThemeView>
-      </ThemeView>
+    <FlatList
+      data={routines}
+      renderItem={({ item: routine, index }) => {
+        const isLast = (index === routines.length - 1);
 
-      <ThemeView style={styles.table}>
-        <ThemeView style={[styles.row, styles.header]}>
-          {Array(7)
-            .fill(0)
-            .map((_, index) => (
+        return (
+          <ThemeView style={[styles.container, !isLast && styles.borderBottom]}>
+            <ThemeView style={styles.info}>
+              <ThemeView>
+                <Pressable onPress={() => onShowDetailModal(routine.routineId)}>
+                  <ThemeText style={styles.title}>{routine.routineName}</ThemeText>
+                </Pressable>
+              </ThemeView>
+              <ThemeView>
+                {date === getWeekMonday(new Date()) && (
+                  <Button
+                    title="인증 요청"
+                    fontSize="caption"
+                    style={styles.complete_button}
+                    icon={
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={16}
+                        color={COLORS[colorScheme].buttonLight}
+                      />
+                    }
+                    onPress={() => onShowRequestModal(routine.routineId)}
+                  />
+                )}
+              </ThemeView>
+            </ThemeView>
+            {render(routine)}
+          </ThemeView>
+        )
+      }}
+      keyExtractor={(item) => item.routineId.toString()}
+      contentContainerStyle={styles.list}
+    />
+  )
+};
+
+export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRoutine[] }) => {
+  const colorScheme = useColorScheme();
+  const styles = createStyles(colorScheme);
+
+  const { routines } = props;
+  const weeklyData = useWeeklyData(routines);
+
+  return (
+    <RoutineWrapper
+      {...props}
+      render={({ routineId, weeklyCount, routineCount }) => (
+        <ThemeView style={styles.table}>
+          <ThemeView style={[styles.row, styles.header]}>
+            {getDaysOfTheWeek().map((day) => (
               <WeekyView
-                key={index}
-                text={`${index + 1}회`}
+                key={day}
+                text={day}
                 style={styles.column}
               />
             ))}
-          <View style={styles.success_rate}>
-            <Ionicons
-              name="checkmark-circle"
-              size={24}
-              color={COLORS[colorScheme].buttonLight}
-              style={styles.success_rate_icon}
-            />
-          </View>
+            <View style={styles.success_rate}>
+              <Ionicons
+                name="checkmark-circle"
+                size={24}
+                color={COLORS[colorScheme].buttonLight}
+                style={styles.success_rate_icon}
+              />
+            </View>
+          </ThemeView>
+          <ThemeView style={styles.row}>
+            {weeklyData[routineId].map((check, index) => (
+              check ? (
+                <WeekyView key={index} style={styles.column}>
+                  <Ionicons
+                    name="checkbox"
+                    size={24}
+                    color={COLORS[colorScheme].button}
+                  />
+                </WeekyView>
+              ) : (
+                <WeekyView key={index} style={styles.column}>
+                  <Ionicons
+                    name="square-outline"
+                    size={24}
+                    color={COLORS[colorScheme].icon}
+                  />
+                </WeekyView>
+              )
+            ))}
+            <View style={styles.success_rate}>
+              <ThemeText variant="body">
+                {weeklyCount
+                  ? `${Math.round((weeklyCount / routineCount) * 100)}%`
+                  : '0%'}
+              </ThemeText>
+            </View>
+          </ThemeView>
         </ThemeView>
-        <ThemeView style={styles.row}>
-          {Array(~~weeklyCount)
-            .fill(0)
-            .map((_, index) => (
-              <WeekyView key={index} style={styles.column}>
-                <Ionicons
-                  name="checkbox"
-                  size={24}
-                  color={COLORS[colorScheme].button}
-                />
-              </WeekyView>
-            ))}
-
-          {Array(Math.max(routineCount - ~~weeklyCount, 0))
-            .fill(0)
-            .map((_, index) => (
-              <WeekyView key={index} style={styles.column}>
-                <Ionicons
-                  name="square-outline"
-                  size={24}
-                  color={COLORS[colorScheme].icon}
-                />
-              </WeekyView>
-            ))}
-
-          {Array(7 - Math.max(routineCount, ~~weeklyCount))
-            .fill(0)
-            .map((_, index) => (
-              <WeekyView key={index} style={styles.column}>
-                <Ionicons
-                  name="remove-outline"
-                  size={24}
-                  color={COLORS[colorScheme].icon}
-                />
-              </WeekyView>
-            ))}
-          <View style={styles.success_rate}>
-            <ThemeText variant="body">
-              {weeklyCount
-                ? `${Math.round((weeklyCount / routineCount) * 100)}%`
-                : '0%'}
-            </ThemeText>
-          </View>
-        </ThemeView>
-      </ThemeView>
-    </ThemeView>
+      )}
+    />
   );
 };
 
-export default WeeklyRoutine;
+export const RoutineCountList = (props: RoutineListProps & { routines: Routine[] }) => {
+  const colorScheme = useColorScheme();
+  const styles = createStyles(colorScheme);
+
+  return (
+    <RoutineWrapper
+      {...props}
+      render={({ weeklyCount, routineCount }) => (
+        <ThemeView style={styles.table}>
+          <ThemeView style={[styles.row, styles.header]}>
+            {Array(7)
+              .fill(0)
+              .map((_, index) => (
+                <WeekyView
+                  key={index}
+                  text={`${index + 1}회`}
+                  style={styles.column}
+                />
+              ))}
+            <View style={styles.success_rate}>
+              <Ionicons
+                name="checkmark-circle"
+                size={24}
+                color={COLORS[colorScheme].buttonLight}
+                style={styles.success_rate_icon}
+              />
+            </View>
+          </ThemeView>
+          <ThemeView style={styles.row}>
+            {Array(~~weeklyCount)
+              .fill(0)
+              .map((_, index) => (
+                <WeekyView key={index} style={styles.column}>
+                  <Ionicons
+                    name="checkbox"
+                    size={24}
+                    color={COLORS[colorScheme].button}
+                  />
+                </WeekyView>
+              ))}
+
+            {Array(Math.max(routineCount - ~~weeklyCount, 0))
+              .fill(0)
+              .map((_, index) => (
+                <WeekyView key={index} style={styles.column}>
+                  <Ionicons
+                    name="square-outline"
+                    size={24}
+                    color={COLORS[colorScheme].icon}
+                  />
+                </WeekyView>
+              ))}
+
+            {Array(7 - Math.max(routineCount, ~~weeklyCount))
+              .fill(0)
+              .map((_, index) => (
+                <WeekyView key={index} style={styles.column}>
+                  <Ionicons
+                    name="remove-outline"
+                    size={24}
+                    color={COLORS[colorScheme].icon}
+                  />
+                </WeekyView>
+              ))}
+            <View style={styles.success_rate}>
+              <ThemeText variant="body">
+                {weeklyCount
+                  ? `${Math.round((weeklyCount / routineCount) * 100)}%`
+                  : '0%'}
+              </ThemeText>
+            </View>
+          </ThemeView>
+        </ThemeView>
+      )}
+    />
+  );
+};
 
 const createStyles = (colorScheme: 'light' | 'dark') =>
   StyleSheet.create({
+    list: {
+      gap: 15,
+    },
+
     container: {
       backgroundColor: 'transparent',
       gap: 10,

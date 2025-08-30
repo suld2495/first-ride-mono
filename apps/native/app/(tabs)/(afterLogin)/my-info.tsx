@@ -24,7 +24,7 @@ const MyInfo = () => {
   return (
     <Container>
       <ThemeView style={styles.container}>
-        <ThemeText variant="title">{user?.name}</ThemeText>
+        <ThemeText variant="title">{user?.nickname}</ThemeText>
       </ThemeView>
       <ThemeView style={styles.linkContainer}>
         <Link

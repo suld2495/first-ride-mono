@@ -1,8 +1,12 @@
+import { makeServer } from '@/mock/server';
 import { useEffect } from 'react';
 
 const MockProvider = () => {
   useEffect(() => {
-    // makeServer();
+    if (!process.env.EXPO_PUBLIC_VITE_BASE_URL) {
+      makeServer();
+    }
+
   }, []);
 
   return null;

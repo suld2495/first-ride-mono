@@ -32,9 +32,6 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
 
   return (
     <div>
-      {!routines.length && (
-        <Paragraph className="py-4 text-center">등록된 루틴이 없습니다.</Paragraph>
-      )}
       {type === 'number' ? (
         <RoutineCountList
           routines={routines}
@@ -49,6 +46,9 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
           onShowRequestModal={handleShowRequestModal}
           onShowDetailModal={handleShowDetailModal}
         />
+      )}
+      {!routines.length && (
+        <Paragraph className="py-4 text-center">등록된 루틴이 없습니다.</Paragraph>
       )}
     </div>
   );
