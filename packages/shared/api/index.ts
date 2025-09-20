@@ -14,7 +14,11 @@ export const UN_AUTHORIZATION_URL = ['/login', '/join'];
 
 interface HttpConfig {
   baseURL: string;
-  request: (config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig;
+  request:
+    | ((config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig)
+    | ((
+        config: InternalAxiosRequestConfig,
+      ) => Promise<InternalAxiosRequestConfig>);
 }
 
 const axiosInstance = axios.create({

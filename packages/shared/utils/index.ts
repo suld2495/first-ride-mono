@@ -8,3 +8,4 @@ export {
   getWeekMonday,
   getWeekSunday,
 } from './date-utils';
+export { toArray } from './utils';

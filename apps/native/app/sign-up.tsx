@@ -22,7 +22,7 @@ export default function SignUp() {
   const [form, setForm] = useState<JoinFormType & { passwordConfirm: JoinFormType['password'] }>(initial());
   const join = useJoinMutation();
 
-  const handleLogin = async () => {
+  const handleJoin = async () => {
     const isValid = form.userId && form.nickname && form.password;
 
     if (!isValid) {
@@ -77,7 +77,7 @@ export default function SignUp() {
         />
         <Button 
           title="회원가입" 
-          onPress={handleLogin}
+          onPress={handleJoin}
           style={styles.button}
         />
         <Link 
