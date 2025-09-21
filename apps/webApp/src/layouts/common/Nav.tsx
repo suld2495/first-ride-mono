@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { IconHome, IconFriends } from '@tabler/icons-react';
 import React from 'react';
 
