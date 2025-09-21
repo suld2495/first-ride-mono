@@ -1,6 +1,8 @@
 import { ErrorAraryData, ErrorData } from '@repo/types';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
+import { errorMessages } from '../error/error-message';
+
 import {
   ApiError,
   AppError,
@@ -68,7 +70,7 @@ export const toAppError = (err: unknown): AppError => {
   }
 
   if (!isErrorArary(errorData)) {
-    const { error: code, message } = errorData;
+    const { error: code } = errorData;
 
     return new ApiError(
       {
@@ -77,7 +79,7 @@ export const toAppError = (err: unknown): AppError => {
       status,
       url,
       error,
-      message,
+      errorMessages[code],
     );
   }
 
@@ -93,6 +95,7 @@ export const isRetryable = (error: AppError) =>
 
 export default axiosInstance;
 
+export * from './AppError';
 export {
   createRequest,
   fetchReceivedRequests,

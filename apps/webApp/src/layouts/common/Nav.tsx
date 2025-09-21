@@ -1,14 +1,32 @@
-import { Link } from 'react-router';
-import { IconHome } from '@tabler/icons-react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { IconHome, IconFriends } from '@tabler/icons-react';
+import React from 'react';
+
+interface NavTextProps {
+  children: React.ReactNode;
+  active: boolean;
+}
+
+const NavText = ({ children, active }: NavTextProps) => {
+  return <span className={`text-[12px] ${active ? 'text-white' : 'text-gray-500'}`}>{children}</span>
+}
 
 const Nav = () => {
+  const { pathname } = useLocation();
+
   return (
     <nav>
       <ul className="flex justify-center gap-10">
         <li>
           <Link to="/" className="flex flex-col items-center gap-1">
-            <IconHome color="white" stroke={2} />
-            <span className="text-[12px] text-white">루틴</span>
+            <IconHome color={pathname === '/' ? 'white' : 'gray'} stroke={2} />
+            <NavText active={pathname === '/'}>루틴</NavText>
+          </Link>
+        </li>
+        <li>
+          <Link to="/friends" className="flex flex-col items-center gap-1">
+            <IconFriends color={pathname === '/friends' ? 'white' : 'gray'} stroke={2} />
+            <NavText active={pathname === '/friends'}>친구</NavText>
           </Link>
         </li>
       </ul>
