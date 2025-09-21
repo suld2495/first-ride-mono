@@ -15,10 +15,10 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "zustand": "^5.0.3",
-    "expo-secure-store": "^14.2.3"
+    "expo-secure-store": "^14.2.3",
+    "@repo/types": "workspace:*"
   },
   "devDependencies": {
-    "@repo/types": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "typescript": "~5.8.3"
