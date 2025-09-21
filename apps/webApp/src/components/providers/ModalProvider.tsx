@@ -8,6 +8,7 @@ import RoutineAddModal from '../modal/RoutineAddModal';
 import RoutineDetailModal from '../modal/RoutineDetailModal';
 import RoutineEditModal from '../modal/RoutineEditModal';
 import RoutineRequestModal from '../modal/RoutineRequestModal';
+import FriendAddModal from '../modal/FriendAddModal';
 
 interface ModalContainerProps {
   name: ModalName;
@@ -37,6 +38,10 @@ const ModalContainer = ({ name }: ModalContainerProps) => {
     case ModalName.ROUTINE_REQUEST:
       title = '인증 요청';
       children = <RoutineRequestModal />;
+      break;
+    case ModalName.FRIEND_ADD:
+      title = '친구 추가';
+      children = <FriendAddModal />;
       break;
     default:
       title = 'Unknown Modal';

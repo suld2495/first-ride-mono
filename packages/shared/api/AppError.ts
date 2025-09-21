@@ -38,7 +38,7 @@ export class HttpError extends AppError {
     readonly status: number,
     readonly url: string = '',
     cause: unknown,
-    message: string = '요청이 시간 초과되었습니다.',
+    message: string = '',
   ) {
     super(cause, message);
   }
@@ -50,7 +50,7 @@ export class ApiError extends HttpError {
     status: number,
     url: string = '',
     cause: unknown,
-    message: string = '요청이 시간 초과되었습니다.',
+    message: string = '',
   ) {
     super(status, url, cause, message);
   }
