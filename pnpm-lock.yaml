@@ -314,6 +314,9 @@ importers:
 
   packages/shared:
     dependencies:
+      '@repo/types':
+        specifier: workspace:*
+        version: link:../types
       '@tanstack/react-query':
         specifier: ^5.77.4
         version: 5.85.3(react@19.0.0)
@@ -342,9 +345,6 @@ importers:
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@repo/types':
-        specifier: workspace:*
-        version: link:../types
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
