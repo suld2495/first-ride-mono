@@ -5,3 +5,9 @@ export class Friend {
   nickname: User['nickname'];
   isFollowing: boolean;
 }
+
+export class FriendRequest {
+  requestId: string;
+  friendId: Friend['userId'];
+  createdAt: Date;
+}
