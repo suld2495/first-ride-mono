@@ -1,7 +1,11 @@
-import { Friend } from '../models/friend';
+import { User } from 'src/models';
 
-export class FriendRequestResponse {
-  requestId: number;
-  friendId: Friend['userId'];
+import { FriendRequestStatus } from '../models/friend';
+
+export interface FriendRequestResponse {
+  id: number;
+  senderNickname: User['nickname'];
+  receiverNickname: User['nickname'];
+  status: FriendRequestStatus;
   createdAt: string;
 }

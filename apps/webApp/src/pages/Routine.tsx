@@ -25,7 +25,7 @@ const RoutinePage = () => {
 
 
   return (
-    <div className="px-5">
+    <div>
       <RoutineHeader date={date} />
       <RoutineList routines={routines} date={date} />
     </div>
