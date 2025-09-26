@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint \"**/*.ts\"",
     "dev": "tsc -p tsconfig.json --watch",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.77.4",
