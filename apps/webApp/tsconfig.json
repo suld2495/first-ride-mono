@@ -6,7 +6,15 @@
       "@/*": [
         "./src/*"
       ],
-      "@repo/shared/*": ["../../packages/shared/*/index.ts"]
+      "@repo/shared/*": [
+        "../../packages/shared/*"
+      ],
+      "@repo/types": [
+        "../../packages/types/src/index.ts"
+      ],
+      "@repo/types/*": [
+        "../../packages/types/src/*"
+      ]
     }
   },
   "include": ["src", "."],
