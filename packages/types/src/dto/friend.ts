@@ -1,6 +1,5 @@
-import { User } from 'src/models';
-
 import { FriendRequestStatus } from '../models/friend';
+import { User } from '../models/user';
 
 export interface FriendRequestResponse {
   id: number;
