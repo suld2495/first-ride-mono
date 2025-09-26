@@ -34,15 +34,19 @@ export const fetchFriendRequests = async (
   }
 };
 
-export const addFriend = async (friendId: User['userId']): Promise<void> => {
+export const addFriend = async (
+  friendNickname: User['nickname'],
+): Promise<FriendRequestResponse> => {
   try {
-    await http.post(`${baseURL}/requests/${friendId}`);
+    return await http.post(`${baseURL}/requests`, {
+      receiverNickname: friendNickname,
+    });
   } catch (error) {
     throw toAppError(error);
   }
 };
 
-export const acceptFriendRequest = async (requestId: string): Promise<void> => {
+export const acceptFriendRequest = async (requestId: number): Promise<void> => {
   try {
     await http.post(`${baseURL}/requests/${requestId}/accept`);
   } catch (error) {
@@ -50,7 +54,7 @@ export const acceptFriendRequest = async (requestId: string): Promise<void> => {
   }
 };
 
-export const rejectFriendRequest = async (requestId: string): Promise<void> => {
+export const rejectFriendRequest = async (requestId: number): Promise<void> => {
   try {
     await http.post(`${baseURL}/requests/${requestId}/reject`);
   } catch (error) {
@@ -58,9 +62,11 @@ export const rejectFriendRequest = async (requestId: string): Promise<void> => {
   }
 };
 
-export const deleteFriend = async (friendId: User['userId']): Promise<void> => {
+export const deleteFriend = async (
+  friendNickname: User['nickname'],
+): Promise<void> => {
   try {
-    await http.delete(`${baseURL}/${friendId}`);
+    await http.delete(`${baseURL}/${friendNickname}`);
   } catch (error) {
     throw toAppError(error);
   }

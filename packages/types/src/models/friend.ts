@@ -1,13 +1,16 @@
 import { User } from './user';
 
-export class Friend {
-  userId: User['userId'];
+export interface Friend {
   nickname: User['nickname'];
-  isFollowing: boolean;
+  job: string;
+  profileImage: null | string;
+  friendSince: string;
 }
 
-export class FriendRequest {
+export interface FriendRequest {
   requestId: string;
-  friendId: Friend['userId'];
+  friendNickname: Friend['nickname'];
   createdAt: Date;
 }
+
+export type FriendRequestStatus = 'PENDING';

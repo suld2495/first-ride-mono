@@ -4,12 +4,12 @@ import Paragraph from '../common/paragraph/Paragraph';
 import { IconTrash } from '@tabler/icons-react';
 import IconButton from '../common/button/IconButton';
 
-const FriendItem = ({ userId, nickname }: Friend) => {
+const FriendItem = ({ nickname }: Friend) => {
   const deleteMutation = useDeleteFriendMutation();
 
   const handleDelete = async () => {
     try {
-      await deleteMutation.mutateAsync(userId);
+      await deleteMutation.mutateAsync(nickname);
       alert('삭제되었습니다.');
     } catch {}
   };
@@ -36,7 +36,7 @@ const FriendList = ({ page, keyword }: SearchOption) => {
       {!!friends?.length && (
         <ul>
           {friends.map((friend) => (
-            <FriendItem key={friend.userId} {...friend} />
+            <FriendItem key={friend.nickname} {...friend} />
           ))}
         </ul>
       )}

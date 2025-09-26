@@ -1,7 +1,7 @@
 import { twMerge } from 'tailwind-merge';
 
 type ButtonVariant = 'primary' | 'plain';
-type ButtonSize = 'small' | 'medium' | 'large';
+type ButtonSize = 'very-small' | 'small' | 'medium' | 'large';
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,7 +18,8 @@ const variantStyle: Record<ButtonVariant, string> = {
 };
 
 const sizeStyle: Record<ButtonSize, string> = {
-  small: 'h-7 text-[12px] rounded-sm',
+  'very-small': 'h-5 text-[11px] rounded-sm',
+  small: 'h-7 px-1 text-[12px] rounded-sm',
   medium: 'min-w-[60px] p-2 h-9 text-[14px] rounded-md',
   large: 'min-w-[100px] h-12 text-[16px] rounded-xl',
 };

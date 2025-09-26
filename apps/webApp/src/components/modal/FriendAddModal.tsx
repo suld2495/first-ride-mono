@@ -12,12 +12,12 @@ interface UserItemProps extends User {
   close: () => void;
 }
 
-const UserItem = ({ userId, nickname, close }: UserItemProps) => {
+const UserItem = ({ nickname, close }: UserItemProps) => {
   const addMutation = useAddFriendMutation();
 
   const handleAdd = async () => {
     try {
-      await addMutation.mutateAsync(userId);
+      await addMutation.mutateAsync(nickname);
       alert('추가되었습니다.');
       close();
     } catch {}

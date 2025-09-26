@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { RequestList } from '@repo/types';
 import { IconBellPlus } from '@tabler/icons-react';
 
@@ -7,6 +6,8 @@ import Paragraph from '@/components/common/paragraph/Paragraph';
 import { ModalName, useModalStore } from '@/store/modal.store';
 import { useRequestStore } from '@repo/shared/store/request.store';
 import { getFormatDate } from '@repo/shared/utils';
+import Header from '../common/Header';
+import { useShowModal } from '@/hooks/useModal';
 
 interface RoutineHeaderProps {
   list: RequestList;
@@ -14,25 +15,9 @@ interface RoutineHeaderProps {
 }
 
 const RoutineHeader = ({ list, nickname }: RoutineHeaderProps) => {
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useShowModal(false);
   const showModal = useModalStore((state) => state.show);
   const setRequestId = useRequestStore((state) => state.setRequestId);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-
-      if (target.matches('.alert')) return;
-
-      setShow(false);
-    };
-
-    document.addEventListener('click', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [show, setShow]);
 
   const handleClick = (e: React.MouseEvent) => {
     setShow(true);
@@ -45,7 +30,7 @@ const RoutineHeader = ({ list, nickname }: RoutineHeaderProps) => {
   };
 
   return (
-    <header className="relative flex justify-between w-full h-[var(--header-height)] py-3 px-4">
+    <Header>
       <div className="text-[15px] text-gray-500">
         <Paragraph className="text-[16px]">{nickname}</Paragraph>
       </div>
@@ -88,7 +73,7 @@ const RoutineHeader = ({ list, nickname }: RoutineHeaderProps) => {
           </ul>
         </div>
       )}
-    </header>
+    </Header>
   );
 };
 
