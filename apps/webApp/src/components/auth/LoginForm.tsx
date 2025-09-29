@@ -29,7 +29,7 @@ const LoginForm = () => {
     try {
       const response = await login.mutateAsync(form);
       setAuthorization(response.accessToken);
-      navigate('/routine');
+      navigate('/');
     } catch {}
   };
 
