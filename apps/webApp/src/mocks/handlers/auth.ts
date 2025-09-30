@@ -23,7 +23,7 @@ export const authHandlers = [
 
     const response: AuthResponse = {
       accessToken: 'accessToken',
-      user: {
+      userInfo: {
         userId: 'moon',
         nickname: '용사',
       },
