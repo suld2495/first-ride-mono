@@ -11,7 +11,7 @@ export const useLoginMutation = () => {
     mutationFn: login,
 
     onSuccess: (response) => {
-      authStore.signIn(response.user);
+      authStore.signIn(response.userInfo);
       return response.accessToken;
     },
 

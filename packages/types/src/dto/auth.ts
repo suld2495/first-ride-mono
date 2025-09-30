@@ -5,6 +5,6 @@ export type AuthForm = Pick<Auth, 'userId' | 'password'>;
 export type JoinForm = Pick<Auth, 'userId' | 'nickname' | 'password' | 'job'>;
 
 export type AuthResponse = {
-  user: User;
+  userInfo: User;
   accessToken: string;
 };
