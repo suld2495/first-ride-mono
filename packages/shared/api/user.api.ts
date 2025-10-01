@@ -11,7 +11,7 @@ export const fetchUserList = async ({
 }: SearchOption): Promise<User[]> => {
   try {
     const response: User[] = await http.get(
-      `${baseURL}/search?page=${page}${keyword ? `q=${keyword}` : ''}`,
+      `${baseURL}/search?page=${page}${keyword ? `&q=${keyword}` : ''}`,
     );
 
     return response;
