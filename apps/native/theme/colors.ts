@@ -3,6 +3,7 @@ const COLORS = {
   black: 'rgb(0, 0, 0)',
   badge: 'rgb(255, 63, 63)',
   red: 'rgb(235, 80, 80)',
+  checkPoint: '#00ffdd',
 
   light: {
     grey: 'rgb(24, 28, 35)',

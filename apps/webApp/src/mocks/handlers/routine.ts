@@ -34,7 +34,7 @@ export const routineHandlers = [
           routineCount: 3,
           weeklyCount: 4,
           mateNickname: 'moon',
-          successDate: [],
+          successDate: ['250826', '250827', '250829', '250830'],
         },
       ]);
     } else {

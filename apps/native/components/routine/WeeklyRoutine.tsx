@@ -98,55 +98,63 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
   return (
     <RoutineWrapper
       {...props}
-      render={({ routineId, weeklyCount, routineCount }) => (
-        <ThemeView style={styles.table}>
-          <ThemeView style={[styles.row, styles.header]}>
-            {getDaysOfTheWeek().map((day) => (
-              <WeekyView
-                key={day}
-                text={day}
-                style={styles.column}
-              />
-            ))}
-            <View style={styles.success_rate}>
-              <Ionicons
-                name="checkmark-circle"
-                size={24}
-                color={COLORS[colorScheme].buttonLight}
-                style={styles.success_rate_icon}
-              />
-            </View>
+      render={({ routineId, weeklyCount, routineCount }) => {
+        let count = 0;
+
+        return (
+          <ThemeView style={styles.table}>
+            <ThemeView style={[styles.row, styles.header]}>
+              {getDaysOfTheWeek().map((day) => (
+                <WeekyView
+                  key={day}
+                  text={day}
+                  style={styles.column}
+                />
+              ))}
+              <View style={styles.success_rate}>
+                <Ionicons
+                  name="checkmark-circle"
+                  size={24}
+                  color={COLORS[colorScheme].buttonLight}
+                  style={styles.success_rate_icon}
+                />
+              </View>
+            </ThemeView>
+            <ThemeView style={styles.row}>
+              {weeklyData[routineId].map((check, index) => {
+                count += +check;
+
+                return (
+                  check ? (
+                    <WeekyView key={index} style={styles.column}>
+                      <Ionicons
+                        name="checkbox"
+                        size={24}
+                        color={count <= routineCount ? COLORS[colorScheme].button : COLORS.checkPoint}
+                      />
+                    </WeekyView>
+                  ) : (
+                    <WeekyView key={index} style={styles.column}>
+                      <Ionicons
+                        name="square-outline"
+                        size={24}
+                        color={COLORS[colorScheme].icon}
+                      />
+                    </WeekyView>
+                  )
+                )
+              })}
+              <View style={styles.success_rate}>
+                <ThemeText variant="body">
+                  {weeklyCount
+                    ? `${Math.round((weeklyCount / routineCount) * 100)}%`
+                    : '0%'}
+                </ThemeText>
+              </View>
+            </ThemeView>
           </ThemeView>
-          <ThemeView style={styles.row}>
-            {weeklyData[routineId].map((check, index) => (
-              check ? (
-                <WeekyView key={index} style={styles.column}>
-                  <Ionicons
-                    name="checkbox"
-                    size={24}
-                    color={COLORS[colorScheme].button}
-                  />
-                </WeekyView>
-              ) : (
-                <WeekyView key={index} style={styles.column}>
-                  <Ionicons
-                    name="square-outline"
-                    size={24}
-                    color={COLORS[colorScheme].icon}
-                  />
-                </WeekyView>
-              )
-            ))}
-            <View style={styles.success_rate}>
-              <ThemeText variant="body">
-                {weeklyCount
-                  ? `${Math.round((weeklyCount / routineCount) * 100)}%`
-                  : '0%'}
-              </ThemeText>
-            </View>
-          </ThemeView>
-        </ThemeView>
-      )}
+        )
+      }}
     />
   );
 };
@@ -180,7 +188,7 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
             </View>
           </ThemeView>
           <ThemeView style={styles.row}>
-            {Array(~~weeklyCount)
+            {Array(Math.min(~~weeklyCount, routineCount))
               .fill(0)
               .map((_, index) => (
                 <WeekyView key={index} style={styles.column}>
@@ -188,6 +196,18 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
                     name="checkbox"
                     size={24}
                     color={COLORS[colorScheme].button}
+                  />
+                </WeekyView>
+              ))}
+
+            {Array(Math.max(~~weeklyCount - routineCount, 0))
+              .fill(0)
+              .map((_, index) => (
+                <WeekyView key={index} style={styles.column}>
+                  <Ionicons
+                    name="checkbox"
+                    size={24}
+                    color={COLORS.checkPoint}
                   />
                 </WeekyView>
               ))}

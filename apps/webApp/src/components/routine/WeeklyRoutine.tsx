@@ -27,6 +27,8 @@ export const RoutineHeader = ({ className, children }: RoutineHeaderProps) => {
   );
 };
 
+const checkPointColor = '#00ffdd';
+
 interface RoutineListProps {
   date: string;
   onShowRequestModal: (id: number) => void;
@@ -77,40 +79,48 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
   return (
     <RoutineWrapper
       {...props}
-      render={({ routineId, weeklyCount, routineCount }) => (
-        <>
-          <ul className='flex w-full text-center pb-2 border-b-1 border-b-white'>
-            {getDaysOfTheWeek().map((day) => (
-              <li key={day} className="text-sm truncate py-2 px-1 w-1/8 text-[var(--primary-color)]">
-                <Paragraph>{day}</Paragraph>
-              </li>
-            ))}
-            <li className='flex justify-center items-center w-1/8 dark:text-white'>
-              <IconCircleCheckFilled height={24} stroke={2} />
-            </li>
-          </ul>
-          <ul className="flex w-full text-center pt-2" key={routineId}>
-            {weeklyData[routineId].map((check, index) => (
-              <RoutineHeader className="text-[var(--primary-color)]" key={index}>
-                {check ? (
-                  <IconSquareCheckFilled stroke={2} />
-                ) : (
-                  <IconSquare stroke={2} />
-                )}
-              </RoutineHeader>
-            ))}
+      render={({ routineId, weeklyCount, routineCount }) => {
+        let count = 0;
 
-            <RoutineHeader>
-              <Paragraph
-                variant="span"
-                className="text-[var(--gray-main-color)] font-bold"
-              >
-                {Math.floor((~~weeklyCount / routineCount) * 100)}%
-              </Paragraph>
-            </RoutineHeader>
-          </ul>
-        </>
-      )}
+        return (
+          <>
+            <ul className='flex w-full text-center pb-2 border-b-1 border-b-white'>
+              {getDaysOfTheWeek().map((day) => (
+                <li key={day} className="text-sm truncate py-2 px-1 w-1/8 text-[var(--primary-color)]">
+                  <Paragraph>{day}</Paragraph>
+                </li>
+              ))}
+              <li className='flex justify-center items-center w-1/8 dark:text-white'>
+                <IconCircleCheckFilled height={24} stroke={2} />
+              </li>
+            </ul>
+            <ul className="flex w-full text-center pt-2" key={routineId}>
+              {weeklyData[routineId].map((check, index) => {
+                count += +check;
+  
+                return (
+                  <RoutineHeader className="text-[var(--primary-color)]" key={index}>
+                    {check ? (
+                      <IconSquareCheckFilled stroke={2} color={count <= routineCount ? undefined : checkPointColor} />
+                    ) : (
+                      <IconSquare stroke={2} />
+                    )}
+                  </RoutineHeader>
+                )
+              })}
+  
+              <RoutineHeader>
+                <Paragraph
+                  variant="span"
+                  className="text-[var(--gray-main-color)] font-bold"
+                >
+                  {Math.floor((~~weeklyCount / routineCount) * 100)}%
+                </Paragraph>
+              </RoutineHeader>
+            </ul>
+          </>
+        )
+      }}
     />
   )
 };
@@ -132,11 +142,19 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
             </li>
           </ul>
           <ul className="flex w-full text-center pt-2" key={routineId}>
-            {Array(~~weeklyCount)
+            {Array(Math.min(~~weeklyCount, routineCount))
               .fill(0)
               .map((_, index) => (
                 <RoutineHeader className="text-[var(--primary-color)]" key={index}>
                   <IconSquareCheckFilled stroke={2} />
+                </RoutineHeader>
+              ))}
+
+            {Array(Math.max(~~weeklyCount - routineCount, 0))
+              .fill(0)
+              .map((_, index) => (
+                <RoutineHeader className="text-[var(--primary-color)]" key={index}>
+                  <IconSquareCheckFilled stroke={2} color={checkPointColor} />
                 </RoutineHeader>
               ))}
 
