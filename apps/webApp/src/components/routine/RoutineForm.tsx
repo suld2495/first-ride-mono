@@ -3,15 +3,17 @@ import { Routine, RoutineForm as RoutineFormType } from '@repo/types';
 import { useModalStore } from '@/store/modal.store';
 
 import Button from '../common/button/Button';
-import Form from '../common/form/Form';
-import { FormItem } from '../common/form/FormItem';
 import Input from '../common/input/Input';
 
 import RoutineSubmitButton from './RoutineSubmitButton';
+import AutoComplete from '../common/autocomplete/AutoComplete';
+import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
+import { createForm } from '@/hooks/useForm';
+import { routineFormValidators } from '@repo/shared/service/validatorMessage';
 
 interface RoutineFormProps {
   nickname: string;
-  mateNickname: string;
+  mateNickname?: string;
   form?: Routine;
   onSubmit: (data: RoutineFormType) => void;
 }
@@ -27,28 +29,39 @@ const routineFormInit = {
   mateNickname: '',
 };
 
+const { Form, FormItem, useForm } = createForm<RoutineFormType>();
+
 const RoutineForm = ({
   nickname,
-  mateNickname,
   form: formData,
   onSubmit,
 }: RoutineFormProps) => {
   const closeModal = useModalStore((state) => state.close);
+  const { data: friendList = [] } = useFetchFriendsQuery();
   const form: RoutineFormType = {
     ...routineFormInit,
     nickname,
-    mateNickname,
     ...formData,
   };
 
   return (
-    <Form data={form} onSubmit={onSubmit}>
+    <Form form={form} onSubmit={onSubmit} validators={{
+      ...routineFormValidators,
+      mateNickname(value) {
+        if (!value) {
+          return '루틴 설명을 입력해주세요.';
+        }
+    
+        if (friendList.some(({ nickname }) => nickname === value)) {
+          return '존재하지 않는 친구입니다.';
+        }
+      }
+    }}>
       <FormItem
         name="routineName"
         className="flex flex-col gap-2 mt-5"
         label="루틴 이름"
-        rule={{ required: true }}
-        render={({ value, name, onChange }) => (
+        children={({ value, name, onChange }) => (
           <Input
             name={name}
             value={value}
@@ -61,8 +74,7 @@ const RoutineForm = ({
         name="routineDetail"
         className="flex flex-col gap-2 mt-5"
         label="루틴 설명"
-        rule={{ required: true }}
-        render={({ value, name, onChange }) => (
+        children={({ value, name, onChange }) => (
           <Input
             name={name}
             value={value}
@@ -72,11 +84,24 @@ const RoutineForm = ({
         )}
       />
       <FormItem
+        name='mateNickname'
+        className="flex flex-col gap-2 mt-5"
+        label="메이트"
+        children={({ value, name, onChange }) => (
+          <AutoComplete
+            name={name}
+            value={value}
+            placeholder="메이트를 지정해주세요."
+            onChange={onChange}
+            values={friendList?.map(({ nickname }) => nickname)}
+          />
+        )}
+      />
+      <FormItem
         name="penalty"
         className="flex flex-col gap-2 mt-5"
         label="벌금"
-        rule={{ required: true, min: 0 }}
-        render={({ value, name, onChange }) => (
+        children={({ value, name, onChange }) => (
           <Input
             type="number"
             name={name}
@@ -91,8 +116,7 @@ const RoutineForm = ({
         name="routineCount"
         className="flex flex-col gap-2 mt-5"
         label="루틴 횟수"
-        rule={{ required: true, min: 1, max: 7 }}
-        render={({ value, name, onChange }) => (
+        children={({ value, name, onChange }) => (
           <Input
             type="number"
             name={name}
@@ -108,8 +132,7 @@ const RoutineForm = ({
         name="startDate"
         className="flex flex-col gap-2 mt-5"
         label="루틴 시작 날짜"
-        rule={{ required: true }}
-        render={({ value, name, onChange, form, setValue }) => (
+        children={({ value, name, onChange, form, setValue }) => (
           <Input
             type="date"
             name={name}
@@ -137,7 +160,7 @@ const RoutineForm = ({
         name="endDate"
         className="flex flex-col gap-2 mt-5"
         label="루틴 종료 날짜"
-        render={({ value, name, onChange, form, setValue }) => (
+        children={({ value, name, onChange, form, setValue }) => (
           <Input
             type="date"
             name={name}
@@ -167,7 +190,7 @@ const RoutineForm = ({
         >
           취소
         </Button>
-        <RoutineSubmitButton />
+        <RoutineSubmitButton  useForm={useForm} />
       </div>
     </Form>
   );

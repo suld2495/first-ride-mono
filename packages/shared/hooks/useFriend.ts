@@ -11,7 +11,9 @@ import {
 } from '../api/friend';
 import { friendKey, friendRequestKey } from '../types/query-keys/friend';
 
-export const useFetchFriendsQuery = (option: SearchOption) => {
+export const useFetchFriendsQuery = (
+  option: SearchOption = { page: 1, keyword: '' },
+) => {
   return useQuery({
     queryKey: friendKey.list(option),
     queryFn: () => fetchFriends(option),

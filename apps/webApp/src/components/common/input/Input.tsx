@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge';
 type InputVariant = 'primary' | 'plain';
 type InputSize = 'small' | 'medium' | 'large';
 
-interface InputProps
+export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   variant?: InputVariant;
   size?: InputSize;
