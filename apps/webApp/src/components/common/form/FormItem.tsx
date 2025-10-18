@@ -58,16 +58,14 @@ export function createFormItem<T extends Record<string, any>>(
           </Label>
         )}
 
-        <div>
-          {children({
-            value: field.bindInput().value,
-            onChange: handleChange,
-            onBlur: field.onBlur,
-            name: String(name),
-            form: formContext.form,
-            setValue: formContext.setValue
-          })}
-        </div>
+        {children({
+          value: field.bindInput().value,
+          onChange: handleChange,
+          onBlur: field.onBlur,
+          name,
+          form: formContext.form,
+          setValue: formContext.setValue
+        })}
 
         {helpText && !hasError && (
           <p className="">{helpText}</p>

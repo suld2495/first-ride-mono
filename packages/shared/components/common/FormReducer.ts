@@ -5,7 +5,12 @@ export type Action<T> =
   | { type: 'SET_VALUE'; key: keyof T; value: unknown }
   | { type: 'TOUCH'; key: keyof T }
   | { type: 'SET_ERRORS'; errors: ValidationErrors<T> }
-  | { type: 'SET_FIELD_ERRORS'; key: keyof T; errors: string[] }
+  | {
+      type: 'SET_FIELD_ERRORS';
+      key: keyof T;
+      errors: string[];
+      isValid: boolean;
+    }
   | { type: 'RESET'; form: T };
 
 export function formReducer<T>(
@@ -36,7 +41,7 @@ export function formReducer<T>(
       return {
         ...state,
         errors: next,
-        enabled: Object.keys(action.errors).length === 0,
+        enabled: action.isValid,
       };
     }
     case 'RESET': {

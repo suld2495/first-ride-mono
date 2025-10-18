@@ -15,7 +15,7 @@ export function createFormComponents<T extends Record<string, any>>(
 ) {
   const { Provider, useFormField, useForm } = hooks;
 
-  const Form = createFormComponent<T>(Provider);
+  const Form = createFormComponent<T>(Provider, useForm);
   const FormItem = createFormItem<T>(useFormField, useForm);
 
   return {

@@ -30,7 +30,7 @@ export type FormContextType<T> = {
 
   setValue: <K extends keyof T>(key: K, value: T[K], options?: { validate?: boolean; touch?: boolean }) => void;
   touch: (key: keyof T, doValidate?: boolean) => void;
-  validateField: (key: keyof T) => FormContextType<T>['errors'][keyof T];
+  validateField: (key: keyof T, form?: T) => FormContextType<T>['errors'][keyof T];
   validateAll: () => { errors: FormContextType<T>['errors']; isValid: boolean };
   reset: (next?: T) => void;
   handleSubmit: () => void;
@@ -60,6 +60,19 @@ export function useCreateForm<T extends Record<string, any>>() {
       return Object.keys(state.errors).length === 0;
     }, [state.errors]);
 
+    const validateField: FormContextType<T>['validateField'] = useCallback((key, form = state.form) => {
+      const errors = doValidateField(validators, form, key);
+      const allErrors = doAllValidators(validators, form);
+
+      dispatch({ 
+        type: 'SET_FIELD_ERRORS', 
+        key, 
+        errors, 
+        isValid: Object.keys(allErrors).length === 0 
+      });
+      return errors;
+    }, [validators, state.form]);
+
     const getFieldErrors: FormContextType<T>['getFieldErrors'] = useCallback((key) => (
       state.errors[key] ?? []
     ), [state.errors]);
@@ -75,9 +88,12 @@ export function useCreateForm<T extends Record<string, any>>() {
       }
 
       if (validated) {
-        validateField(key);
+        validateField(key, {
+          ...state.form,
+          [key]: value,
+        });
       }
-    }, [dispatch]);
+    }, [dispatch, validateField]);
 
     const touch: FormContextType<T>['touch'] = useCallback((key, doValidate = true) => {
       dispatch({ type: 'TOUCH', key });
@@ -85,13 +101,7 @@ export function useCreateForm<T extends Record<string, any>>() {
       if (doValidate) {
         validateField(key);
       }
-    }, [dispatch]);
-
-    const validateField: FormContextType<T>['validateField'] = useCallback((key) => {
-      const errors = doValidateField(validators, state.form, key);
-      dispatch({ type: 'SET_FIELD_ERRORS', key, errors });
-      return errors;
-    }, [validators, state.form]);
+    }, [dispatch, validateField]);
 
     const validateAll: FormContextType<T>['validateAll'] = useCallback(() => {
       const errors = doAllValidators(validators, state.form);

@@ -11,6 +11,7 @@ import AutoComplete from '../common/autocomplete/AutoComplete';
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
 import { createForm } from '@/hooks/useForm';
 import { routineFormValidators } from '@repo/shared/service/validatorMessage';
+import Label from '../common/input/Label';
 
 interface RoutineFormProps {
   nickname: string;
@@ -19,7 +20,7 @@ interface RoutineFormProps {
   onSubmit: (data: RoutineFormType) => void;
 }
 
-const routineFormInit = {
+const routineFormInit: RoutineFormType = {
   nickname: '',
   routineName: '',
   routineDetail: '',
@@ -28,6 +29,7 @@ const routineFormInit = {
   startDate: '',
   endDate: '',
   mateNickname: '',
+  isMe: false,
 };
 
 const { Form, FormItem, useForm } = createForm<RoutineFormType>();
@@ -49,9 +51,13 @@ const RoutineForm = ({
   return (
     <Form form={form} onSubmit={onSubmit} validators={{
       ...routineFormValidators,
-      mateNickname(value) {
+      mateNickname(value, values) {
+        if (values.isMe) {
+          return;
+        }
+        
         if (!value) {
-          return '루틴 설명을 입력해주세요.';
+          return '메이트를 설정해주세요.';
         }
     
         if (friendList.some(({ nickname }) => nickname === value)) {
@@ -89,14 +95,27 @@ const RoutineForm = ({
         name='mateNickname'
         className="flex flex-col gap-2 mt-5"
         label="메이트"
-        children={({ value, name, onChange }) => (
-          <AutoComplete
-            name={name}
-            value={value}
-            placeholder="메이트를 지정해주세요."
-            onChange={onChange}
-            values={friendList?.map(({ nickname }) => nickname)}
-          />
+        children={({ value, name, onChange, form, setValue }) => (
+          <div className='flex flex-col'>
+            <div className='flex items-center gap-2'>
+              <Label>직접 루틴 체크</Label>
+              <Input
+                className='min-w-4 cursor-pointer'
+                type='checkbox'
+                checked={form.isMe}
+                onChange={(e) => setValue('isMe', e.target.checked)}
+              />
+            </div>
+            <AutoComplete
+              className='flex-1'
+              name={name}
+              value={value}
+              placeholder="메이트를 지정해주세요."
+              onChange={onChange}
+              values={friendList?.map(({ nickname }) => nickname)}
+              disabled={form.isMe}
+            />
+          </div>
         )}
       />
       <FormItem
