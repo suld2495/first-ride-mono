@@ -22,17 +22,25 @@ export function formReducer<T>(
       return { ...state, touched: { ...state.touched, [action.key]: true } };
     }
     case 'SET_ERRORS': {
-      return { ...state, errors: action.errors };
+      return {
+        ...state,
+        errors: action.errors,
+        enabled: Object.keys(action.errors).length === 0,
+      };
     }
     case 'SET_FIELD_ERRORS': {
       const next = { ...state.errors } as ValidationErrors<T>;
 
       if (action.errors.length) next[action.key] = action.errors;
       else delete next[action.key];
-      return { ...state, errors: next };
+      return {
+        ...state,
+        errors: next,
+        enabled: Object.keys(action.errors).length === 0,
+      };
     }
     case 'RESET': {
-      return { form: action.form, touched: {}, errors: {} };
+      return { form: action.form, touched: {}, errors: {}, enabled: false };
     }
     default:
       return state;

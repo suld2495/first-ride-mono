@@ -16,12 +16,14 @@ export type FormState<T> = {
   form: T;
   touched: Partial<Record<keyof T, boolean>>;
   errors: ValidationErrors<T>;
+  enabled: boolean;
 };
 
 export type FormContextType<T> = {
   form: FormState<T>['form'];
   touched: FormState<T>['touched'];
   errors: FormState<T>['errors'];
+  enabled: FormState<T>['enabled'];
 
   isValid: (key?: keyof T) => boolean;
   getFieldErrors: (key: keyof T) => string[];
@@ -46,7 +48,8 @@ export function useCreateForm<T extends Record<string, any>>() {
     const [state, dispatch] = useReducer(formReducer<T>, {
       form,
       errors: {},
-      touched: {}
+      touched: {},
+      enabled: false,
     });
 
     const isValid: FormContextType<T>['isValid'] = useCallback((key) => {
@@ -96,7 +99,7 @@ export function useCreateForm<T extends Record<string, any>>() {
       dispatch({ type: 'SET_ERRORS', errors });
 
       const isValid = Object.keys(errors).length === 0;
-
+      
       return { errors, isValid };
     }, [state.form, validators]);
 
@@ -112,6 +115,7 @@ export function useCreateForm<T extends Record<string, any>>() {
       form: state.form,
       errors: state.errors,
       touched: state.touched,
+      enabled: state.enabled,
       isValid,
       getFieldErrors,
       setValue,

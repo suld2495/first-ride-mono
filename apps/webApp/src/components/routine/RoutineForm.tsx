@@ -1,4 +1,5 @@
 import { Routine, RoutineForm as RoutineFormType } from '@repo/types';
+import { useMemo } from 'react';
 
 import { useModalStore } from '@/store/modal.store';
 
@@ -38,11 +39,12 @@ const RoutineForm = ({
 }: RoutineFormProps) => {
   const closeModal = useModalStore((state) => state.close);
   const { data: friendList = [] } = useFetchFriendsQuery();
-  const form: RoutineFormType = {
+
+  const form: RoutineFormType = useMemo(() => ({
     ...routineFormInit,
     nickname,
     ...formData,
-  };
+  }), [nickname, formData]);
 
   return (
     <Form form={form} onSubmit={onSubmit} validators={{

@@ -6,14 +6,13 @@ interface RoutineSubmitButtonProps<T> {
 }
 
 const RoutineSubmitButton = <T extends object>({ useForm }: RoutineSubmitButtonProps<T>) => {
-  const { validateAll } = useForm();
-  const { isValid } = validateAll();
+  const { enabled } = useForm();
 
   return (
     <Button
       type="submit"
       className="disabled:opacity-30 disabled:cursor-not-allowed"
-      disabled={!isValid}
+      disabled={!enabled}
     >
       추가
     </Button>
