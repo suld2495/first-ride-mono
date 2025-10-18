@@ -51,7 +51,7 @@ const RoutineHeader = ({ list, nickname }: RoutineHeaderProps) => {
       {show && !!list.length && (
         <div className="absolute z-10 top-12 right-11">
           <div className="fixed z-1 w-full h-full top-0 left-0"></div>
-          <ul className="alert relative z-2 w-[200px] p-2 border-[1px] border-gray-300 rounded-sm bg-white dark:bg-primary-color shadow-lg dark:shadow-middle dark:shadow-gray-600/80">
+          <ul className="relative z-2 w-[200px] p-2 border-[1px] border-gray-300 rounded-sm bg-white dark:bg-primary-color shadow-lg dark:shadow-middle dark:shadow-gray-600/80">
             {list.map(
               ({ id, routineName, nickname: mateNickname, createdAt }) => (
                 <li key={id}>
