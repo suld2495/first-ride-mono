@@ -1,10 +1,12 @@
-import { useContext } from 'react';
-
 import Button from '../common/button/Button';
-import { FormContext } from '../common/form/FormProvider';
+import { FormContextType } from '@repo/shared/components';
 
-const RoutineSubmitButton = () => {
-  const { enabled } = useContext(FormContext);
+interface RoutineSubmitButtonProps<T> {
+  useForm: () => FormContextType<T>
+}
+
+const RoutineSubmitButton = <T extends object>({ useForm }: RoutineSubmitButtonProps<T>) => {
+  const { enabled } = useForm();
 
   return (
     <Button

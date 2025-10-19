@@ -31,7 +31,7 @@ const StackLayout = () => {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen
               name="modal"
-              options={{ presentation: 'modal', headerShown: false }}
+              options={{ headerShown: false }}
             />
           </Stack.Protected>
           <Stack.Protected guard={!user}>

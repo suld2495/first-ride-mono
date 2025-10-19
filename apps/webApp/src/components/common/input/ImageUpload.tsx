@@ -6,6 +6,7 @@ import { Image } from '@/types/image';
 import IconButton, { IconButtonProps } from '../button/IconButton';
 
 import PreviewImage from './PreviewImage';
+import Paragraph from '../paragraph/Paragraph';
 
 type IconButtonType = Omit<IconButtonProps, 'onChange' | 'value' | 'icon'> &
   Partial<Pick<IconButtonProps, 'icon'>>;
@@ -94,9 +95,9 @@ const ImageUpload = ({
         >
           Upload
         </IconButton>
-        <span className="text-primary-color">
+        <Paragraph variant='span'>
           {value?.name || images?.[0]?.name}
-        </span>
+        </Paragraph>
       </div>
 
       {isPreview && (

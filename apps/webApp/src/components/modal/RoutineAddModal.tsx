@@ -10,7 +10,6 @@ const RoutineAddModal = () => {
   const closeModal = useModalStore((state) => state.close);
   const user = useAuthStore((state) => state.user);
   const username = user?.nickname || ''
-  const mateNickname = username === 'yunji' ? 'moon' : 'yunji';
 
   const saveMutation = useCreateRoutineMutation(username);
 
@@ -27,7 +26,6 @@ const RoutineAddModal = () => {
   return (
     <RoutineForm
       nickname={username}
-      mateNickname={mateNickname}
       onSubmit={handleSubmit}
     />
   );

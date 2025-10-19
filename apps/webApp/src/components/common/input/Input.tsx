@@ -3,7 +3,7 @@ import { twMerge } from 'tailwind-merge';
 type InputVariant = 'primary' | 'plain';
 type InputSize = 'small' | 'medium' | 'large';
 
-interface InputProps
+export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   variant?: InputVariant;
   size?: InputSize;
@@ -28,10 +28,12 @@ const Input = ({
   type,
   ...rest
 }: InputProps) => {
+  const disabled = rest.disabled ? 'opacity-50' : '';
+
   return (
     <input
       className={twMerge(
-        `outline-0 placeholder-gray-500 dark:placeholder-gray-400 text-gray-main dark:text-gray-200 ${type === 'date' && 'scheme-light dark:scheme-dark'}  ${variantStyle[variant]} ${sizeStyle[size]}`,
+        `outline-0 placeholder-gray-500 dark:placeholder-gray-400 text-gray-main dark:text-gray-200 ${type === 'date' && 'scheme-light dark:scheme-dark'}  ${variantStyle[variant]} ${sizeStyle[size]} ${disabled}`,
         className,
       )}
       type={type}

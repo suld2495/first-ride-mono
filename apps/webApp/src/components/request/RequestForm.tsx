@@ -8,6 +8,7 @@ import ImageUpload from '../common/input/ImageUpload';
 import Label from '../common/input/Label';
 import Paragraph from '../common/paragraph/Paragraph';
 import { AxiosError } from 'axios';
+import { Routine } from '@repo/types';
 
 interface FormLabelProps {
   children: React.ReactNode;
@@ -22,10 +23,12 @@ const FormLabel = ({ children }: FormLabelProps) => {
 };
 
 interface RequestFormProps {
-  routineId: number;
-  routineName: string;
-  routineDetail: string;
-  nickname: string;
+  routineId: Routine['routineId'];
+  routineName: Routine['routineName'];
+  routineDetail: Routine['routineDetail'];
+  nickname: Routine['nickname'];
+  mateNickname: Routine['mateNickname'];
+  isMe: Routine['isMe'];
 }
 
 const RequestForm = ({
@@ -33,6 +36,8 @@ const RequestForm = ({
   routineName,
   routineDetail,
   nickname,
+  mateNickname,
+  isMe,
 }: RequestFormProps) => {
   const closeModal = useModalStore((state) => state.close);
   const [image, setImage] = useState<File | null>(null);
@@ -58,7 +63,12 @@ const RequestForm = ({
     try {
       await saveRequest.mutateAsync(formData);
       closeModal();
-      alert('인증 요청이 완료되었습니다.');
+
+      if (isMe) {
+        alert('인증이 완료되었습니다.');
+      } else {
+        alert('인증 요청이 완료되었습니다.');
+      }
     } catch (e) {
       if (e instanceof AxiosError) {
         if (e.status === 413) {
@@ -81,6 +91,10 @@ const RequestForm = ({
       <div className="flex flex-col gap-2 mt-5">
         <FormLabel>루틴 설명</FormLabel>
         <Paragraph>{routineDetail}</Paragraph>
+      </div>
+      <div className="flex flex-col gap-2 mt-5">
+        <FormLabel>메이트</FormLabel>
+        <Paragraph>{!isMe ? mateNickname : '나'}</Paragraph>
       </div>
       <div className="flex flex-col gap-2 mt-5">
         <FormLabel>인증 사진</FormLabel>

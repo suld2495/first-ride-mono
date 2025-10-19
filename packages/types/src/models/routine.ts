@@ -9,6 +9,7 @@ export interface Routine {
   weeklyCount: number;
   routineCount: number;
   mateNickname: string;
+  isMe: boolean;
   startDate: string;
   endDate?: string;
   successDate: string[];
