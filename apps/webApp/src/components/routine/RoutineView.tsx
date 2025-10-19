@@ -12,12 +12,14 @@ const RoutineView = ({
   routineId,
   nickname,
   routineName,
+  mateNickname,
   routineDetail,
   penalty,
   weeklyCount,
   routineCount,
   startDate,
   endDate,
+  isMe,
 }: Routine) => {
   const openModal = useModalStore((state) => state.show);
   const closeModal = useModalStore((state) => state.close);
@@ -49,6 +51,16 @@ const RoutineView = ({
           {routineName}
         </Paragraph>
         <Paragraph>{routineDetail}</Paragraph>
+      </div>
+      <div className="py-4">
+        <Paragraph className="mb-2" variant="h4">
+          메이트
+        </Paragraph>
+        <div className="relative w-full">
+          <Paragraph>
+            {isMe ? '나' : mateNickname}
+          </Paragraph>
+        </div>
       </div>
       <div className="py-4">
         <Paragraph className="mb-2" variant="h4">

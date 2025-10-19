@@ -77,6 +77,15 @@ const RoutineDetailModal = () => {
 
         <ThemeView style={styles.content}>
           <ThemeText variant="subtitle" style={[styles.info, styles.infoLabel]}>
+            메이트
+          </ThemeText>
+          <ThemeText style={styles.info}>
+            {detail?.isMe ? '나' : detail?.mateNickname}
+          </ThemeText>
+        </ThemeView>
+
+        <ThemeView style={styles.content}>
+          <ThemeText variant="subtitle" style={[styles.info, styles.infoLabel]}>
             루틴 횟수
           </ThemeText>
           <ThemeText style={styles.info}>
