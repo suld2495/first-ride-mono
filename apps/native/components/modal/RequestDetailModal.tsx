@@ -13,12 +13,14 @@ import { useRequestStore } from '@repo/shared/store/request.store';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 
-import Button from '../common/Button';
-import FormItem from '../common/form/FormItem';
 import ThemeText from '../common/ThemeText';
 import ThemeTextInput from '../common/ThemeTextInput';
 import ThemeView from '../common/ThemeView';
 import { RequestResponseStatus } from '@repo/types';
+import { useCreateForm } from '@/hooks/useForm';
+import ConfirmRequestButtonGroup from '../request/ConfirmRequestButtonGroup';
+
+const { Form, FormItem, useForm } = useCreateForm<{ comment: string }>();
 
 const RequestDetailModal = () => {
   const colorScheme = useColorScheme();
@@ -29,8 +31,7 @@ const RequestDetailModal = () => {
 
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
-  const replyRequest = useReplyRequestMutation(user?.name || '');
-  const [comment, setComment] = useState('');
+  const replyRequest = useReplyRequestMutation(user?.nickname || '');
   const [ratio, setRatio] = useState(1);
 
   useEffect(() => {
@@ -45,10 +46,10 @@ const RequestDetailModal = () => {
     return null;
   }
 
-  const handleSubmit = async (status: RequestResponseStatus) => {
+  const handleSubmit = async (status: RequestResponseStatus, comment: string) => {
     try {
       await replyRequest.mutateAsync({
-        confirmId: detail?.id,
+        confirmId: detail!.id,
         checkStatus: status,
         checkComment: comment,
       });
@@ -104,27 +105,26 @@ const RequestDetailModal = () => {
               />
             )}
           </ThemeView>
-          <FormItem label="응원의 한마디">
-            <ThemeTextInput
-              placeholder="응원의 한마디를 입력해주세요."
-              value={comment}
-              onChangeText={setComment}
-              style={styles.textarea}
-              multiline
+          <Form form={{ comment: '' }}>
+            <FormItem 
+              name="comment"
+              label="응원의 한마디"
+              children={({ value, onChange }) => (
+                <ThemeTextInput
+                  placeholder="응원의 한마디를 입력해주세요."
+                  value={value}
+                  onChangeText={onChange}
+                  style={styles.textarea}
+                  multiline
+                />
+              )}
             />
-          </FormItem>
-          <ThemeView style={styles.buttonContainer}>
-            <Button
-              title="승인"
-              onPress={() => handleSubmit('PASS')}
-              style={[styles.addButton, styles.button]}
+            
+            <ConfirmRequestButtonGroup 
+              onSubmit={handleSubmit}
+              useForm={useForm}
             />
-            <Button
-              title="거절"
-              onPress={() => handleSubmit('DENY')}
-              style={[styles.cancelButton, styles.button]}
-            />
-          </ThemeView>
+          </Form>
         </ScrollView>
       </ThemeView>
     </KeyboardAwareScrollView>
@@ -179,13 +179,6 @@ const createStyles = (colorScheme: 'light' | 'dark') =>
       height: 100,
     },
 
-    buttonContainer: {
-      marginTop: 10,
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      gap: 10,
-    },
-
     dateContainer: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -194,17 +187,5 @@ const createStyles = (colorScheme: 'light' | 'dark') =>
 
     date_button: {
       backgroundColor: COLORS[colorScheme].backgroundGrey,
-    },
-
-    button: {
-      flex: 1,
-    },
-
-    cancelButton: {
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
-    },
-
-    addButton: {
-      backgroundColor: COLORS[colorScheme].button,
     },
   });

@@ -4,28 +4,21 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useForm } from '@/hooks/useForm';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRoutineStore } from '@/store/routine.store';
 import { COLORS } from '@/theme/colors';
 
 import Button from '../common/Button';
-import FormItem from '../common/form/FormItem';
-import Link from '../common/Link';
 import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
+import { useCreateForm } from '@/hooks/useForm';
+import RequetButtonGroup from '../request/RequestButtonGroup';
+import { requestFormValidators } from '@repo/shared/service/validatorMessage';
+
+const { Form, FormItem, useForm } = useCreateForm<{ image: string }>();
 
 const RequestModal = () => {
-  const { form, errors, handleChange, validate } = useForm<{ image: string }>({
-    initialState: {
-      image: '',
-    },
-    validator: {
-      image: { required: true },
-    },
-  });
-
   const routineId = useRoutineStore((state) => state.routineId);
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
 
@@ -35,8 +28,6 @@ const RequestModal = () => {
 
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
-
-  const isValid = validate(form);
 
   const handleSubmit = async (submitedForm: { image: string }) => {
     if (!submitedForm.image || !detail) return;
@@ -56,7 +47,7 @@ const RequestModal = () => {
     }
   };
 
-  const pickImage = async () => {
+  const pickImage = async (setValue: (name: 'image', value: string) => void) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
@@ -80,11 +71,11 @@ const RequestModal = () => {
     });
 
     if (!result.canceled) {
-      handleChange('image', result.assets[0].base64);
+      setValue('image', result.assets[0].base64 || '');
     }
   };
 
-  const takePickture = async () => {
+  const takePickture = async (setValue: (name: 'image', value: string) => void) => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
     if (status !== 'granted') {
@@ -108,7 +99,7 @@ const RequestModal = () => {
     });
 
     if (!result.canceled) {
-      handleChange('image', result.assets[0].base64);
+      setValue('image', result.assets[0].base64 || '');
     }
   };
 
@@ -127,61 +118,51 @@ const RequestModal = () => {
       <ThemeView style={styles.line}>
         <ThemeText style={styles.info}>{detail?.routineDetail}</ThemeText>
       </ThemeView>
-      <FormItem
-        label="이미지 업로드"
-        error={errors.image}
-        errorMessage={'이미지를 업로드해주세요.'}
-      >
-        <ThemeView style={styles.imageContainer}>
-          <Button
-            variant="plain"
-            icon={
-              <Ionicons
-                name="image-outline"
-                size={20}
-                color={COLORS[colorScheme].icon}
-              />
-            }
-            style={styles.phone}
-            onPress={pickImage}
-          />
-          <Button
-            icon={
-              <Ionicons
-                name="camera-outline"
-                size={20}
-                color={COLORS[colorScheme].icon}
-              />
-            }
-            style={styles.phone}
-            onPress={takePickture}
-          />
-        </ThemeView>
-        {form.image && (
-          <Image
-            source={{ uri: `data:image/jpeg;base64,${form.image}` }}
-            style={styles.preview}
-          />
-        )}
-      </FormItem>
 
-      <ThemeView style={styles.buttonContainer}>
-        <Link
-          title="취소"
-          href=".."
-          style={[styles.cancelButton, styles.button]}
+      <Form form={{ image: '' }} onSubmit={handleSubmit} validators={requestFormValidators}>
+        <FormItem
+          name="image"
+          label="이미지 업로드"
+          children={({ form, setValue }) => (
+            <>
+              <ThemeView style={styles.imageContainer}>
+                <Button
+                  variant="plain"
+                  icon={
+                    <Ionicons
+                      name="image-outline"
+                      size={20}
+                      color={COLORS[colorScheme].icon}
+                    />
+                  }
+                  style={styles.phone}
+                  onPress={() => pickImage(setValue)}
+                />
+                <Button
+                  icon={
+                    <Ionicons
+                      name="camera-outline"
+                      size={20}
+                      color={COLORS[colorScheme].icon}
+                    />
+                  }
+                  style={styles.phone}
+                  onPress={() => takePickture(setValue)}
+                />
+              </ThemeView>
+              {form.image && (
+                <Image
+                  source={{ uri: `data:image/jpeg;base64,${form.image}` }}
+                  style={styles.preview}
+                />
+              )}
+            </>
+          )}
         />
-        <Button
-          title="요청"
-          onPress={() => handleSubmit(form)}
-          style={[
-            styles.requestButton,
-            styles.button,
-            !isValid ? styles.disabledButton : {},
-          ]}
-          disabled={!isValid}
-        />
-      </ThemeView>
+        
+        <RequetButtonGroup useForm={useForm} />
+      </Form>
+
     </ThemeView>
   );
 };
@@ -230,28 +211,5 @@ const createStyles = (colorScheme: 'light' | 'dark') =>
       width: '100%',
       aspectRatio: 1,
       borderRadius: 5,
-    },
-
-    buttonContainer: {
-      marginTop: 10,
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      gap: 10,
-    },
-
-    button: {
-      flex: 1,
-    },
-
-    cancelButton: {
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
-    },
-
-    requestButton: {
-      backgroundColor: COLORS[colorScheme].button,
-    },
-
-    disabledButton: {
-      opacity: 0.5,
     },
   });
