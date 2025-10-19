@@ -40,7 +40,12 @@ const RequestModal = () => {
 
     try {
       await saveRequest.mutateAsync(formData);
-      alert('인증 요청이 완료되었습니다.');
+
+      if (detail.isMe) {
+        alert('인증이 완료되었습니다.');
+      } else {
+        alert('인증 요청이 완료되었습니다.');
+      }
       router.push('/(tabs)/(afterLogin)/(routine)');
     } catch {
       alert('인증 요청에 실패했습니다.');
