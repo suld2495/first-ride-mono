@@ -26,6 +26,7 @@ const initialState: State = {
     penalty: 0,
     routineCount: 0,
     mateNickname: '',
+    isMe: false,
   },
   type: 'number',
 };

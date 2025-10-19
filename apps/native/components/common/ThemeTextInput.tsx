@@ -21,6 +21,7 @@ const ThemeTextInput = ({
   style,
   width,
   onChangeText,
+  editable = true,
   ...props
 }: ThemeTextInputProps) => {
   const colorScheme = useColorScheme();
@@ -32,6 +33,7 @@ const ThemeTextInput = ({
         styles.container,
         styles[colorScheme],
         { width: width ?? '100%' },
+        { opacity: editable ? 1 :0.5 },
         style,
       ]}
     >
