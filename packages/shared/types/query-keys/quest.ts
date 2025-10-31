@@ -11,4 +11,7 @@ export const questKeys = {
 export const rewardKeys = {
   all: ['reward'] as const,
   lists: () => [...rewardKeys.all, 'list'] as const,
+  list: (filter: string) => [...rewardKeys.lists(), filter] as const,
+  details: () => [...rewardKeys.all, 'detail'] as const,
+  detail: (rewardId: number) => [...rewardKeys.details(), rewardId] as const,
 };
