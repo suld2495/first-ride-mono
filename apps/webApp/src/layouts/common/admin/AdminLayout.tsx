@@ -5,9 +5,9 @@ import AuthProvider from '@/components/providers/AuthProvider';
 import ModalProvider from '@/components/providers/ModalProvider';
 import { useDarkModeStore } from '@/store/dark.store';
 
-import Footer from './Footer';
+import AdminFooter from './AdminFooter';
 
-const Layout = () => {
+const AdminLayout = () => {
   const isDarkMode = useDarkModeStore((state) => state.isDarkMode);
 
   useEffect(() => {
@@ -22,11 +22,11 @@ const Layout = () => {
     <AuthProvider>
       <div className="h-dvh max-w-[var(--max-width)] mx-auto shadow-sm dark:shadow-white">
         <Outlet />
-        <Footer />
+        <AdminFooter />
         <ModalProvider />
       </div>
     </AuthProvider>
   );
 };
 
-export default Layout;
+export default AdminLayout;

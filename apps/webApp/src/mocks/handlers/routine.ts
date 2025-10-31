@@ -1,7 +1,6 @@
-import { http, HttpResponse } from 'msw';
-
 import { getWeekMonday } from '@repo/shared/utils';
 import { RoutineForm } from '@repo/types';
+import { http, HttpResponse } from 'msw';
 
 const BASE_URL = import.meta.env.VITE_MOCK_BASE_URL;
 
@@ -74,6 +73,7 @@ export const routineHandlers = [
       penalty: 5000,
       routineCount: 3,
       mateNickname: 'moon',
+      isMe: true,
     });
   }),
 

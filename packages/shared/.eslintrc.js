@@ -6,4 +6,7 @@ module.exports = {
   parserOptions: {
     project: true,
   },
+  rules: {
+    'consistent-return': 'off'
+  }
 };
