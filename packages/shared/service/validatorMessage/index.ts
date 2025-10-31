@@ -37,3 +37,11 @@ export const routineFormValidators: Validators<RoutineForm> = {
     }
   },
 };
+
+export const requestFormValidators: Validators<{ image: string }> = {
+  image: (value) => {
+    if (!value) {
+      return '이미지를 추가해주세요.';
+    }
+  },
+};
