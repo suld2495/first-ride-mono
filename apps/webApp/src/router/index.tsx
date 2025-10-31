@@ -8,6 +8,7 @@ import JoinPage from '@/pages/Join';
 import FriendPage from '@/pages/Friend';
 import QuestManagement from '@/pages/admin/QuestManagement';
 import QuestDetail from '@/pages/admin/QuestDetail';
+import RewardManagement from '@/pages/admin/RewardManagement';
 import AdminLayout from '@/layouts/common/admin/AdminLayout';
 
 const router = createBrowserRouter([
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
       {
         path: 'quest-management/:id',
         Component: QuestDetail,
+      },
+      {
+        path: 'reward-management',
+        Component: RewardManagement,
       },
     ]
   },

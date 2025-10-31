@@ -49,31 +49,28 @@ const mockQuests: Quest[] = [
 
 const mockRewards: Reward[] = [
   {
-    id: 1,
-    rewardName: '골드 100',
-    rewardType: 'GOLD',
-    rewardAmount: 100,
-    description: '골드 100개를 획득합니다',
+    rewardId: 1,
+    rewardName: '첫 퀘스트 뱃지',
+    rewardType: 'BADGE',
+    expAmount: 100,
+    description: '첫 퀘스트 완료 보상',
+    createdAt: '2025-01-01T00:00:00Z',
   },
   {
-    id: 2,
-    rewardName: '젬 50',
-    rewardType: 'GEM',
-    rewardAmount: 50,
-    description: '젬 50개를 획득합니다',
-  },
-  {
-    id: 3,
+    rewardId: 2,
     rewardName: '경험치 200',
     rewardType: 'EXP',
-    rewardAmount: 200,
+    expAmount: 200,
     description: '경험치 200을 획득합니다',
+    createdAt: '2025-01-02T00:00:00Z',
   },
   {
-    id: 4,
-    rewardName: '특별 아이템',
-    rewardType: 'ITEM',
-    description: '특별한 아이템을 획득합니다',
+    rewardId: 3,
+    rewardName: '루틴 마스터 뱃지',
+    rewardType: 'BADGE',
+    expAmount: 500,
+    description: '루틴 마스터 달성 뱃지',
+    createdAt: '2025-01-03T00:00:00Z',
   },
 ];
 
@@ -136,7 +133,7 @@ export const questHandlers = [
 
   // 퀘스트 수정
   http.put(`${BASE_URL}/api/quest/:id`, async ({ params, request }) => {
-    const { id } = params;
+    const { id: _id } = params;
     const body = (await request.json()) as QuestForm;
 
     if (
@@ -162,7 +159,7 @@ export const questHandlers = [
 
   // 퀘스트 삭제
   http.delete(`${BASE_URL}/api/quest/:id`, ({ params }) => {
-    const { id } = params;
+    const { id: _id } = params;
 
     return HttpResponse.json(
       { message: '퀘스트가 삭제되었습니다.' },

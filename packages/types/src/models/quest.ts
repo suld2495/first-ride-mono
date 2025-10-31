@@ -16,11 +16,12 @@ export interface Quest {
 
 // Reward 엔티티
 export interface Reward {
-  id: number;
+  rewardId: number;
   rewardName: string;
-  rewardType: 'GOLD' | 'GEM' | 'EXP' | 'ITEM';
-  rewardAmount?: number;
+  rewardType: 'BADGE' | 'EXP';
+  expAmount: number;
   description?: string;
+  createdAt: string; // ISO 8601
 }
 
 // 폼 타입

@@ -1,4 +1,4 @@
-import { Quest, QuestForm } from '../models/quest';
+import { Quest, QuestForm, Reward } from '../models/quest';
 
 // 수정 요청 타입
 export type UpdateQuestForm = QuestForm & {
@@ -15,3 +15,14 @@ export interface QuestListResponse {
 export interface QuestDetailResponse {
   data: Quest;
 }
+
+// Reward 폼 타입
+export type RewardForm = Omit<Reward, 'rewardId' | 'createdAt'>;
+
+// Reward 수정 요청 타입
+export type UpdateRewardForm = RewardForm & {
+  rewardId: Reward['rewardId'];
+};
+
+// Reward 필터 타입
+export type RewardTypeFilter = 'ALL' | 'BADGE' | 'EXP';
