@@ -66,7 +66,7 @@ const QuestManagement = () => {
     setIsFormModalOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     const confirmed = await confirm({
       title: '퀘스트 삭제',
       message: '정말 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',

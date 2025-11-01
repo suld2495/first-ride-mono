@@ -10,7 +10,7 @@ import { formatQuestPeriod } from '@repo/shared/utils/quest-utils';
 const QuestDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: quest, isLoading, error } = useFetchQuestDetailQuery(id || '');
+  const { data: quest, isLoading, error } = useFetchQuestDetailQuery(Number(id) || 0);
 
   const handleBack = () => {
     navigate('/admin/quest-management');
@@ -124,22 +124,6 @@ const QuestDetail = () => {
               </Paragraph>
             </div>
           )}
-        </div>
-
-        {/* Metadata */}
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <Paragraph className="text-gray-500 dark:text-gray-400">
-                생성일: {new Date(quest.createdAt).toLocaleString('ko-KR')}
-              </Paragraph>
-            </div>
-            <div>
-              <Paragraph className="text-gray-500 dark:text-gray-400">
-                수정일: {new Date(quest.updatedAt).toLocaleString('ko-KR')}
-              </Paragraph>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
+import { COLOR } from "@/utils/color";
 import { formatTimeRemaining } from "@repo/shared/utils/date-utils";
-import { IconClockHour4, IconClockHour9 } from "@tabler/icons-react";
+import { IconClockHour4 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import Paragraph from "../common/paragraph/Paragraph";
-import { COLOR } from "@/utils/color";
 
 interface QuestTimeProps {
   endDate: Date;

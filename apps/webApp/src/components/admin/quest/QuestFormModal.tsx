@@ -31,7 +31,9 @@ const questFormInit: QuestFormType = {
   startDate: '',
   endDate: '',
   requiredLevel: 1,
-  maxParticipants: undefined,
+  maxParticipants: 0,
+  rewardType: 'BADGE', 
+  expAmount: 0, 
 };
 
 const { Form, FormItem } = createForm<QuestFormType>();
@@ -66,6 +68,8 @@ const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
       endDate: toDateTimeLocal(quest.endDate),
       requiredLevel: quest.requiredLevel,
       maxParticipants: quest.maxParticipants,
+      expAmount: quest.expAmount,
+      rewardType: quest.rewardType
     };
   }, [quest, selectedReward]);
 
@@ -78,7 +82,7 @@ const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
       };
 
       if (quest) {
-        await updateMutation.mutateAsync({ id: quest.id, ...submitData });
+        await updateMutation.mutateAsync({ id: quest.questId, ...submitData });
         success('퀘스트가 수정되었습니다');
       } else {
         await createMutation.mutateAsync(submitData);

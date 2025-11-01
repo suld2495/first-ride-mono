@@ -56,7 +56,7 @@ export const updateQuest = async ({
 };
 
 // 삭제
-export const deleteQuest = async (id: string): Promise<void> => {
+export const deleteQuest = async (id: number): Promise<void> => {
   try {
     await http.delete(`/quest/${id}`);
   } catch (error) {

@@ -37,7 +37,7 @@ export interface Reward {
 // 폼 타입
 export type QuestForm = Omit<
   Quest,
-  'questId' | 'rewardName' | 'createdAt' | 'updatedAt'
+  'questId' | 'rewardName' | 'createdAt' | 'updatedAt' | 'currentParticipants' | 'currentParticipants' | 'completedCount' | 'myRank' | 'status' | 'isAccepted' | 'isCompleted'
 >;
 
 // 필터 타입
