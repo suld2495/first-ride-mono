@@ -27,6 +27,15 @@
   --color-dark-primary-text-color: white;
   --color-dark-primary-text-color-hover: #c0bdbd;
 
+  --color-primary-quest-border-color: #005f78;
+  --color-primary-quest-background-color: #005f78;
+  --color-quest-title-color: #00d6ff;
+  --color-quest-error-color: #ff6467;
+
+  --color-primary-reward-border-color: #b07a4f;
+  --color-primary-reward-background-color: #8c3e1066;
+  --color-primary-reward-text-color: #8c3e1066;
+
   --header-height: 60px;
 
   --footer-height: 62px;

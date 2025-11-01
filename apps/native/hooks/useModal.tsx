@@ -1,4 +1,5 @@
 import PrivacyModal from '@/components/modal/PrivacyModal';
+import QuestDetailModal from '@/components/modal/QuestDetailModal';
 import RequestDetailModal from '@/components/modal/RequestDetailModal';
 import RequestListModal from '@/components/modal/RequestListModal';
 import RequestModal from '@/components/modal/RequestModal';
@@ -10,6 +11,7 @@ export type ModalType =
   | 'routine-add'
   | 'routine-update'
   | 'routine-detail'
+  | 'quest-detail'
   | 'request'
   | 'request-list'
   | 'request-detail'
@@ -24,6 +26,8 @@ export const useModal = (type: ModalType): [string, () => React.ReactNode] => {
       return ['루틴 수정', RoutineFormModal];
     case 'routine-detail':
       return ['루틴 상세', RoutineDetailModal];
+    case 'quest-detail':
+      return ['퀘스트 상세', QuestDetailModal];
     case 'request':
       return ['인증 요청', RequestModal];
     case 'request-list':

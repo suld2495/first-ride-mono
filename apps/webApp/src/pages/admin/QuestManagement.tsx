@@ -11,9 +11,9 @@ import DarkMode from '@/components/common/DarkMode';
 import Pagination from '@/components/common/Pagination';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import ToastContainer from '@/components/common/ToastContainer';
-import QuestFilter from '@/components/quest/QuestFilter';
-import QuestFormModal from '@/components/quest/QuestFormModal';
-import QuestTable from '@/components/quest/QuestTable';
+import QuestFilter from '@/components/admin/quest/QuestFilter';
+import QuestFormModal from '@/components/admin/quest/QuestFormModal';
+import QuestTable from '@/components/admin/quest/QuestTable';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useToast } from '@/hooks/useToast';
 
@@ -66,7 +66,7 @@ const QuestManagement = () => {
     setIsFormModalOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     const confirmed = await confirm({
       title: '퀘스트 삭제',
       message: '정말 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',

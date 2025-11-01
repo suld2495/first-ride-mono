@@ -2,7 +2,7 @@ import { Quest, QuestForm, Reward } from '../models/quest';
 
 // 수정 요청 타입
 export type UpdateQuestForm = QuestForm & {
-  id: Quest['id'];
+  id: Quest['questId'];
 };
 
 // 목록 조회 응답 타입

@@ -2,15 +2,15 @@ import { useNavigate } from 'react-router';
 import { Quest } from '@repo/types';
 import { truncateQuestName, formatQuestPeriod } from '@repo/shared/utils/quest-utils';
 import { getQuestTypeBadgeClass } from '@/utils/quest-utils';
-import Button from '../common/button/Button';
-import Paragraph from '../common/paragraph/Paragraph';
+import Button from '@/components/common/button/Button';
+import Paragraph from '@/components/common/paragraph/Paragraph';
 
 interface QuestTableProps {
   quests: Quest[];
   currentPage: number;
   itemsPerPage: number;
   onEdit: (quest: Quest) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 }
 
 const QuestTable = ({
@@ -24,7 +24,7 @@ const QuestTable = ({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedQuests = quests.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleQuestNameClick = (id: string) => {
+  const handleQuestNameClick = (id: number) => {
     navigate(`/admin/quest-management/${id}`);
   };
 
@@ -47,12 +47,12 @@ const QuestTable = ({
         </thead>
         <tbody>
           {paginatedQuests.map((quest, index) => (
-            <tr key={quest.id} className="border-b-[1px] border-gray-200 dark:border-gray-700">
+            <tr key={quest.questId} className="border-b-[1px] border-gray-200 dark:border-gray-700">
               <td className="p-3 text-gray-main dark:text-gray-200"><Paragraph>{startIndex + index + 1}</Paragraph></td>
               <td
                 className="p-3 text-gray-main dark:text-gray-200 cursor-pointer hover:text-primary-main dark:hover:text-primary-light transition-colors"
                 title={quest.questName}
-                onClick={() => handleQuestNameClick(quest.id)}
+                onClick={() => handleQuestNameClick(quest.questId)}
               >
                 <Paragraph className="hover:underline">{truncateQuestName(quest.questName, 20)}</Paragraph>
               </td>
@@ -68,7 +68,7 @@ const QuestTable = ({
               <td className="p-3">
                 <div className="flex gap-2">
                   <Button size="small" onClick={() => onEdit(quest)}>수정</Button>
-                  <Button size="small" variant="plain" onClick={() => onDelete(quest.id)}>삭제</Button>
+                  <Button size="small" variant="plain" onClick={() => onDelete(quest.questId)}>삭제</Button>
                 </div>
               </td>
             </tr>

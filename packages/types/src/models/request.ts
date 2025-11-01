@@ -17,4 +17,4 @@ export interface RequestResponseForm {
 }
 
 export type RequestList = (Pick<Request, 'id' | 'createdAt'> &
-  Pick<Routine, 'routineName' | 'nickname'>)[];
+  Pick<Routine, 'routineName' | 'nickname' | 'mateNickname'>)[];

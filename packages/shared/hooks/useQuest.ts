@@ -1,4 +1,4 @@
-import { QuestTypeFilter } from '@repo/types';
+import { QuestTypeFilter, RewardTypeFilter } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import * as questApi from '../api/quest.api';
@@ -15,7 +15,7 @@ export const useFetchQuestsQuery = (filter: QuestTypeFilter = 'ALL') => {
 };
 
 // 상세 조회
-export const useFetchQuestDetailQuery = (id: string) => {
+export const useFetchQuestDetailQuery = (id: number) => {
   return useQuery({
     queryKey: questKeys.detail(id),
     queryFn: () => questApi.fetchQuestDetail(id),
@@ -62,11 +62,23 @@ export const useDeleteQuestMutation = () => {
   });
 };
 
+// 수락
+export const useAccpetQuestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: questApi.acceptQuest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: questKeys.lists() });
+    },
+  });
+};
+
 // 보상 목록 조회 (필터 포함)
-export const useFetchRewardsQuery = (filter: string = 'ALL') => {
+export const useFetchRewardsQuery = (filter: RewardTypeFilter = 'ALL') => {
   return useQuery({
     queryKey: rewardKeys.list(filter),
-    queryFn: () => rewardApi.fetchRewards(filter as any),
+    queryFn: () => rewardApi.fetchRewards(filter),
     initialData: [],
   });
 };

@@ -8,8 +8,10 @@ export interface Friend {
 }
 
 export interface FriendRequest {
-  requestId: string;
-  friendNickname: Friend['nickname'];
+  id: number;
+  senderNickname: User['nickname'];
+  receiverNickname: User['nickname'];
+  status: FriendRequestStatus;
   createdAt: Date;
 }
 

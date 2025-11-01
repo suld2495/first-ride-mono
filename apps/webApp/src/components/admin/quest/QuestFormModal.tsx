@@ -9,13 +9,13 @@ import { createForm } from '@/hooks/useForm';
 import { useToast } from '@/hooks/useToast';
 import { fromDateTimeLocal, toDateTimeLocal } from '@/utils/quest-utils';
 
-import Button from '../common/button/Button';
-import Input from '../common/input/Input';
-import Paragraph from '../common/paragraph/Paragraph';
-import Select from '../common/Select';
-import ToastContainer from '../common/ToastContainer';
+import Button from '@/components/common/button/Button';
+import Input from '@/components/common/input/Input';
+import Paragraph from '@/components/common/paragraph/Paragraph';
+import Select from '@/components/common/Select';
+import ToastContainer from '@/components/common/ToastContainer';
 
-import RewardSelectModal from './RewardSelectModal';
+import RewardSelectModal from '@/components/admin/quest/RewardSelectModal';
 
 interface QuestFormModalProps {
   isOpen: boolean;
@@ -31,7 +31,9 @@ const questFormInit: QuestFormType = {
   startDate: '',
   endDate: '',
   requiredLevel: 1,
-  maxParticipants: undefined,
+  maxParticipants: 0,
+  rewardType: 'BADGE', 
+  expAmount: 0, 
 };
 
 const { Form, FormItem } = createForm<QuestFormType>();
@@ -66,6 +68,8 @@ const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
       endDate: toDateTimeLocal(quest.endDate),
       requiredLevel: quest.requiredLevel,
       maxParticipants: quest.maxParticipants,
+      expAmount: quest.expAmount,
+      rewardType: quest.rewardType
     };
   }, [quest, selectedReward]);
 
@@ -78,7 +82,7 @@ const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
       };
 
       if (quest) {
-        await updateMutation.mutateAsync({ id: quest.id, ...submitData });
+        await updateMutation.mutateAsync({ id: quest.questId, ...submitData });
         success('퀘스트가 수정되었습니다');
       } else {
         await createMutation.mutateAsync(submitData);

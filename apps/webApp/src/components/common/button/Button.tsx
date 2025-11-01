@@ -6,6 +6,7 @@ type ButtonSize = 'very-small' | 'small' | 'medium' | 'large';
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
+  background?: string;
   size?: ButtonSize;
   children?: React.ReactNode;
 }
@@ -29,13 +30,23 @@ const Button = ({
   size = 'medium',
   className = '',
   children,
+  style,
+  color,
+  background,
   ...props
 }: ButtonProps) => {
+  const newStyle = {
+    ...style,
+    color,
+    background,
+  };
+
   return (
     <button
       className={twMerge(
         `cursor-pointer transition-colors duration-200 ${variantStyle[variant]} ${sizeStyle[size]} ${className}`,
       )}
+      style={newStyle}
       {...props}
     >
       {children}

@@ -9,6 +9,7 @@ import RoutineDetailModal from '../modal/RoutineDetailModal';
 import RoutineEditModal from '../modal/RoutineEditModal';
 import RoutineRequestModal from '../modal/RoutineRequestModal';
 import FriendAddModal from '../modal/FriendAddModal';
+import QuestDetailModal from '../modal/QuestDetailModal';
 
 interface ModalContainerProps {
   name: ModalName;
@@ -42,6 +43,10 @@ const ModalContainer = ({ name }: ModalContainerProps) => {
     case ModalName.FRIEND_ADD:
       title = '친구 추가';
       children = <FriendAddModal />;
+      break;
+    case ModalName.QUEST_DETAIL:
+      title = '퀘스트';
+      children = <QuestDetailModal />;
       break;
     default:
       title = 'Unknown Modal';

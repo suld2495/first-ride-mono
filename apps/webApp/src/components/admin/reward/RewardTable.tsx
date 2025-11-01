@@ -4,8 +4,8 @@ import {
   formatRewardDate,
   getRewardTypeBadgeColor,
 } from '@repo/shared/utils/reward-utils';
-import Button from '../common/button/Button';
-import Paragraph from '../common/paragraph/Paragraph';
+import Button from '@/components/common/button/Button';
+import Paragraph from '@/components/common/paragraph/Paragraph';
 
 interface RewardTableProps {
   rewards: Reward[];
