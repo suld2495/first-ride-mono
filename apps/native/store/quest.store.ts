@@ -5,7 +5,7 @@ export type QuestStatus = 'ALL' | 'ACTIVE' | 'INACTIVE' | 'COMPLETED';
 export type QuestTypeFilter = 'ALL' | 'DAILY' | 'WEEKLY';
 
 interface State {
-  questId: number;
+  questId: number | null;
   statusFilter: QuestStatus;
   typeFilter: QuestTypeFilter;
 }
@@ -17,7 +17,7 @@ interface Action {
 }
 
 const initialState: State = {
-  questId: 0,
+  questId: null,
   statusFilter: 'ALL',
   typeFilter: 'ALL',
 };

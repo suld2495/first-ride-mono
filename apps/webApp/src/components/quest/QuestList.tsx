@@ -1,9 +1,9 @@
-import { useFetchQuestsQuery } from "@repo/shared/hooks/useQuest";
 import { Quest } from "@repo/types";
-import Paragraph from "../common/paragraph/Paragraph";
 import { IconBriefcase, IconSquare } from "@tabler/icons-react";
-import QuestTime from "./QuestTime";
+
 import { COLOR } from "@/utils/color";
+import Paragraph from "../common/paragraph/Paragraph";
+import QuestTime from "./QuestTime";
 
 const QUEST_LABEL: Record<Quest['questType'], string> = {
   'DAILY': '일일 퀘스트',
@@ -67,11 +67,11 @@ const QuestItem = (quest: Quest & { onClick: (item: Quest) => void }) => {
 }
 
 interface QuestListProps {
+  quests: Quest[];
   onClickItem: (item: Quest) => void;
 }
 
-const QuestList = ({ onClickItem }: QuestListProps) => {
-  const { data: quests } = useFetchQuestsQuery();
+const QuestList = ({ quests, onClickItem }: QuestListProps) => {
 
   return (
     <div className="px-4 pt-3 pb-10 flex-1 overflow-y-auto">

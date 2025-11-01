@@ -86,6 +86,15 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="(afterLogin)/(quest)/index"
+          options={{
+            title: '퀘스트',
+            tabBarIcon: () => (
+              <TabBarIcon name="trophy" color={COLORS[colorScheme].icon} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="(afterLogin)/my-info"
           options={{
             title: 'My',
