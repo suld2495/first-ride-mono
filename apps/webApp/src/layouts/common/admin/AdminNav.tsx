@@ -24,9 +24,9 @@ const AdminNav = () => {
           </Link>
         </li>
         <li>
-          <Link to="/reward" className="flex flex-col items-center gap-1">
-            <IconFriends color={pathname.includes('/admin/reward') ? 'white' : 'gray'} stroke={2} />
-            <NavText active={pathname.includes('/admin/reward')}>보상</NavText>
+          <Link to="/admin/reward-management" className="flex flex-col items-center gap-1">
+            <IconFriends color={pathname.includes('/admin/reward-management') ? 'white' : 'gray'} stroke={2} />
+            <NavText active={pathname.includes('/admin/reward-management')}>보상</NavText>
           </Link>
         </li>
       </ul>

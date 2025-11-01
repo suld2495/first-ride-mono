@@ -293,7 +293,7 @@ const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
         selectedRewardId={selectedReward?.id}
         onClose={() => setIsRewardModalOpen(false)}
         onSelect={(reward) => {
-          setSelectedReward({ id: reward.id, name: reward.rewardName });
+          setSelectedReward({ id: reward.rewardId, name: reward.rewardName });
           setIsRewardModalOpen(false);
         }}
       />

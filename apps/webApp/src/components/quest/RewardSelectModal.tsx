@@ -52,7 +52,7 @@ const RewardSelectModal = ({
       error('보상을 선택해주세요');
       return;
     }
-    const reward = rewards.find((r) => r.id === selectedId);
+    const reward = rewards.find((r) => r.rewardId === selectedId);
 
     if (reward) {
       onSelect(reward);
@@ -116,7 +116,7 @@ const RewardSelectModal = ({
                   <tbody>
                     {paginatedRewards.map((reward, index) => (
                       <tr
-                        key={reward.id}
+                        key={reward.rewardId}
                         className="border-b-[1px] border-gray-200 dark:border-gray-700"
                       >
                         <td className="p-3 text-gray-main dark:text-gray-200">
@@ -134,8 +134,8 @@ const RewardSelectModal = ({
                           <input
                             type="radio"
                             name="reward"
-                            checked={selectedId === reward.id}
-                            onChange={() => setSelectedId(reward.id)}
+                            checked={selectedId === reward.rewardId}
+                            onChange={() => setSelectedId(reward.rewardId)}
                             className="cursor-pointer"
                           />
                         </td>

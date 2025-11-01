@@ -62,11 +62,59 @@ export const useDeleteQuestMutation = () => {
   });
 };
 
-// 보상 목록 조회
-export const useFetchRewardsQuery = () => {
+// 보상 목록 조회 (필터 포함)
+export const useFetchRewardsQuery = (filter: string = 'ALL') => {
   return useQuery({
-    queryKey: rewardKeys.lists(),
-    queryFn: rewardApi.fetchRewards,
+    queryKey: rewardKeys.list(filter),
+    queryFn: () => rewardApi.fetchRewards(filter as any),
     initialData: [],
+  });
+};
+
+// 보상 상세 조회
+export const useFetchRewardDetailQuery = (rewardId: number) => {
+  return useQuery({
+    queryKey: rewardKeys.detail(rewardId),
+    queryFn: () => rewardApi.fetchRewardDetail(rewardId),
+    enabled: !!rewardId,
+  });
+};
+
+// 보상 생성
+export const useCreateRewardMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: rewardApi.createReward,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: rewardKeys.lists() });
+    },
+  });
+};
+
+// 보상 수정
+export const useUpdateRewardMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: rewardApi.updateReward,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: rewardKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: rewardKeys.detail(variables.rewardId),
+      });
+    },
+  });
+};
+
+// 보상 삭제
+export const useDeleteRewardMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: rewardApi.deleteReward,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: rewardKeys.lists() });
+    },
   });
 };
