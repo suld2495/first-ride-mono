@@ -5,7 +5,7 @@ export const questKeys = {
   lists: () => [...questKeys.all, 'list'] as const,
   list: (filter: QuestTypeFilter) => [...questKeys.lists(), filter] as const,
   details: () => [...questKeys.all, 'detail'] as const,
-  detail: (id: string) => [...questKeys.details(), id] as const,
+  detail: (id: number) => [...questKeys.details(), id] as const,
 };
 
 export const rewardKeys = {

@@ -1,13 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-export const useShowModal = (visible: boolean = false, modalSelectors: string = '.alert') => {
+export const useShowModal = (
+  visible: boolean = false,
+  modalSelectors: string = '.notification-bell',
+) => {
   const [show, setShow] = useState(visible);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
 
-      if (target.matches(modalSelectors) || target.closest(modalSelectors)) return;
+      if (target.matches(modalSelectors) || target.closest(modalSelectors))
+        return;
 
       setShow(false);
     };
@@ -17,7 +21,7 @@ export const useShowModal = (visible: boolean = false, modalSelectors: string = 
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [show, setShow]);
+  }, [show, setShow, modalSelectors]);
 
   return [show, setShow] as const;
 };

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router';
-import { IconHome, IconFriends } from '@tabler/icons-react';
+import { IconHome, IconFriends, IconBriefcase } from '@tabler/icons-react';
 import React from 'react';
 
 interface NavTextProps {
@@ -21,6 +21,12 @@ const Nav = () => {
           <Link to="/" className="flex flex-col items-center gap-1">
             <IconHome color={pathname === '/' ? 'white' : 'gray'} stroke={2} />
             <NavText active={pathname === '/'}>루틴</NavText>
+          </Link>
+        </li>
+        <li>
+          <Link to="/quest" className="flex flex-col items-center gap-1">
+            <IconBriefcase color={pathname.includes('quest') ? 'white' : 'gray'} stroke={2} />
+            <NavText active={pathname.includes('quest')}>퀘스트</NavText>
           </Link>
         </li>
         <li>

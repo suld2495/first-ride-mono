@@ -5,7 +5,7 @@ const BASE_URL = import.meta.env.VITE_MOCK_BASE_URL;
 
 const mockQuests: Quest[] = [
   {
-    id: '1',
+    questId: 1,
     questName: '일일 루틴 3회 완료',
     questType: 'DAILY',
     description: '하루에 루틴을 3회 완료하세요',
@@ -15,11 +15,17 @@ const mockQuests: Quest[] = [
     endDate: '2025-12-31T23:59:59Z',
     requiredLevel: 1,
     maxParticipants: 100,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z',
+    rewardType: 'BADGE',
+    expAmount: 100,
+    currentParticipants: 100,
+    completedCount: 100,
+    myRank: 2,
+    status: 'ACTIVE',
+    isAccepted: true,
+    isCompleted: true,
   },
   {
-    id: '2',
+    questId: 2,
     questName: '주간 루틴 마스터',
     questType: 'WEEKLY',
     description: '일주일 동안 루틴을 완벽하게 수행하세요',
@@ -28,12 +34,18 @@ const mockQuests: Quest[] = [
     startDate: '2025-01-01T00:00:00Z',
     endDate: '2025-12-31T23:59:59Z',
     requiredLevel: 5,
-    maxParticipants: 50,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z',
+    maxParticipants: 150,
+    rewardType: 'BADGE',
+    expAmount: 100,
+    currentParticipants: 100,
+    completedCount: 100,
+    myRank: 2,
+    status: 'ACTIVE',
+    isAccepted: true,
+    isCompleted: true,
   },
   {
-    id: '3',
+    questId: 3,
     questName: '일일 운동 챌린지',
     questType: 'DAILY',
     description: '매일 30분 이상 운동하세요',
@@ -42,8 +54,15 @@ const mockQuests: Quest[] = [
     startDate: '2025-01-01T00:00:00Z',
     endDate: '2025-12-31T23:59:59Z',
     requiredLevel: 3,
-    createdAt: '2025-01-01T00:00:00Z',
-    updatedAt: '2025-01-01T00:00:00Z',
+    maxParticipants: 150,
+    rewardType: 'BADGE',
+    expAmount: 100,
+    currentParticipants: 100,
+    completedCount: 100,
+    myRank: 2,
+    status: 'ACTIVE',
+    isAccepted: true,
+    isCompleted: true,
   },
 ];
 
@@ -85,8 +104,9 @@ export const questHandlers = [
     }
 
     const filteredQuests = mockQuests.filter(
-      quest => quest.questType === filter,
+      (quest) => quest.questType === filter,
     );
+
     return HttpResponse.json(filteredQuests);
   }),
 
@@ -94,7 +114,7 @@ export const questHandlers = [
   http.get(`${BASE_URL}/api/quest/:id`, ({ params }) => {
     const { id } = params;
 
-    const quest = mockQuests.find(q => q.id === id);
+    const quest = mockQuests.find((q) => q.questId === Number(id));
 
     if (!quest) {
       return HttpResponse.json(

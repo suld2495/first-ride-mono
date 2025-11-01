@@ -8,6 +8,7 @@ export enum ModalName {
   ROUTINE_REQUEST = 'routine_request',
   REQUEST_DETAIL = 'request_detail',
   FRIEND_ADD = 'friend_add',
+  QUEST_DETAIL = 'quest_detail',
 }
 
 interface State {

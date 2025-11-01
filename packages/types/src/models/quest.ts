@@ -1,17 +1,27 @@
 // Quest 엔티티
+type QuestStatus = 'ACTIVE' | 'INACTIVE' | 'COMPLETED';
+type QuestType = 'DAILY' | 'WEEKLY';
+type RewardType = 'BADGE' | 'EXP';
+
 export interface Quest {
-  id: string;
+  questId: number;
   questName: string;
-  questType: 'DAILY' | 'WEEKLY';
+  questType: QuestType;
   description: string;
   rewardId: number;
-  rewardName?: string; // 조회 시 포함
-  startDate: string; // ISO 8601
-  endDate: string; // ISO 8601
+  rewardName: string;
+  rewardType: RewardType;
+  expAmount: number;
+  startDate: string; // ISO 8601 형식
+  endDate: string; // ISO 8601 형식
   requiredLevel: number;
-  maxParticipants?: number;
-  createdAt: string;
-  updatedAt: string;
+  maxParticipants: number;
+  currentParticipants: number;
+  completedCount: number;
+  myRank: number;
+  status: QuestStatus;
+  isAccepted: boolean;
+  isCompleted: boolean;
 }
 
 // Reward 엔티티
@@ -27,7 +37,7 @@ export interface Reward {
 // 폼 타입
 export type QuestForm = Omit<
   Quest,
-  'id' | 'rewardName' | 'createdAt' | 'updatedAt'
+  'questId' | 'rewardName' | 'createdAt' | 'updatedAt'
 >;
 
 // 필터 타입

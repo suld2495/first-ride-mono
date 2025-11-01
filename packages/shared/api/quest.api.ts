@@ -24,7 +24,7 @@ export const fetchQuests = async (
 };
 
 // 상세 조회
-export const fetchQuestDetail = async (id: string): Promise<Quest> => {
+export const fetchQuestDetail = async (id: number): Promise<Quest> => {
   try {
     const response: Quest = await http.get(`/quest/${id}`);
 
@@ -59,6 +59,17 @@ export const updateQuest = async ({
 export const deleteQuest = async (id: string): Promise<void> => {
   try {
     await http.delete(`/quest/${id}`);
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+// 수락
+export const acceptQuest = async (questId: number): Promise<void> => {
+  try {
+    await http.post(`/quest/accept`, {
+      questId,
+    });
   } catch (error) {
     throw toAppError(error);
   }

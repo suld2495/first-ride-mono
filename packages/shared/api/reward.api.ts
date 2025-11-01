@@ -24,9 +24,7 @@ export const fetchRewards = async (
 };
 
 // 보상 상세 조회
-export const fetchRewardDetail = async (
-  rewardId: number,
-): Promise<Reward> => {
+export const fetchRewardDetail = async (rewardId: number): Promise<Reward> => {
   try {
     const response: Reward = await http.get(`/quest/reward/${rewardId}`);
 
