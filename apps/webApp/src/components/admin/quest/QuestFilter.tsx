@@ -1,7 +1,7 @@
 import { QuestTypeFilter } from '@repo/types';
-import Select from '../common/Select';
-import Input from '../common/input/Input';
-import Button from '../common/button/Button';
+import Select from '@/components/common/Select';
+import Input from '@/components/common/input/Input';
+import Button from '@/components/common/button/Button';
 
 interface QuestFilterProps {
   selectedType: QuestTypeFilter;

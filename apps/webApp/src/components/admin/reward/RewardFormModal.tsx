@@ -8,11 +8,11 @@ import { Reward, RewardForm as RewardFormType } from '@repo/types';
 import { createForm } from '@/hooks/useForm';
 import { useToast } from '@/hooks/useToast';
 
-import Button from '../common/button/Button';
-import Input from '../common/input/Input';
-import Paragraph from '../common/paragraph/Paragraph';
-import Select from '../common/Select';
-import ToastContainer from '../common/ToastContainer';
+import Button from '@/components/common/button/Button';
+import Input from '@/components/common/input/Input';
+import Paragraph from '@/components/common/paragraph/Paragraph';
+import Select from '@/components/common/Select';
+import ToastContainer from '@/components/common/ToastContainer';
 
 interface RewardFormModalProps {
   isOpen: boolean;

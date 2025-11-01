@@ -4,11 +4,11 @@ import { Reward } from '@repo/types';
 
 import { useToast } from '@/hooks/useToast';
 
-import Button from '../common/button/Button';
-import Input from '../common/input/Input';
-import Pagination from '../common/Pagination';
-import Paragraph from '../common/paragraph/Paragraph';
-import ToastContainer from '../common/ToastContainer';
+import Button from '@/components/common/button/Button';
+import Input from '@/components/common/input/Input';
+import Pagination from '@/components/common/Pagination';
+import Paragraph from '@/components/common/paragraph/Paragraph';
+import ToastContainer from '@/components/common/ToastContainer';
 
 interface RewardSelectModalProps {
   isOpen: boolean;

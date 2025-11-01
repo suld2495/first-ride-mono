@@ -11,9 +11,9 @@ import DarkMode from '@/components/common/DarkMode';
 import Pagination from '@/components/common/Pagination';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import ToastContainer from '@/components/common/ToastContainer';
-import QuestFilter from '@/components/quest/QuestFilter';
-import QuestFormModal from '@/components/quest/QuestFormModal';
-import QuestTable from '@/components/quest/QuestTable';
+import QuestFilter from '@/components/admin/quest/QuestFilter';
+import QuestFormModal from '@/components/admin/quest/QuestFormModal';
+import QuestTable from '@/components/admin/quest/QuestTable';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useToast } from '@/hooks/useToast';
 

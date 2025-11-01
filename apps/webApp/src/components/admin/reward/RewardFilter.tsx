@@ -1,14 +1,14 @@
 import { RewardTypeFilter } from '@repo/types';
-import Select from '../common/Select';
-import Input from '../common/input/Input';
-import Button from '../common/button/Button';
+import Select from '@/components/common/Select';
+import Input from '@/components/common/input/Input';
+import Button from '@/components/common/button/Button';
 
 interface RewardFilterProps {
   selectedType: RewardTypeFilter;
   searchQuery: string;
   onTypeChange: (type: RewardTypeFilter) => void;
   onSearchChange: (query: string) => void;
-  onSearchSubmit: () => void;
+  onSearchSubmit: () => void; 
 }
 
 const RewardFilter = ({

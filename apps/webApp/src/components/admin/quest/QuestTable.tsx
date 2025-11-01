@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router';
 import { Quest } from '@repo/types';
 import { truncateQuestName, formatQuestPeriod } from '@repo/shared/utils/quest-utils';
 import { getQuestTypeBadgeClass } from '@/utils/quest-utils';
-import Button from '../common/button/Button';
-import Paragraph from '../common/paragraph/Paragraph';
+import Button from '@/components/common/button/Button';
+import Paragraph from '@/components/common/paragraph/Paragraph';
 
 interface QuestTableProps {
   quests: Quest[];
