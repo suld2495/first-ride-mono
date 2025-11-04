@@ -30,6 +30,14 @@
         {
           "experimentalLauncherActivity": true
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#7edcd5",
+          "sounds": ["./assets/notification-sound.wav"]
+        }
       ]
     ],
     "experiments": {
@@ -52,7 +60,17 @@
       "bundleIdentifier": "com.mannal.firstride",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
+    },
+    "notification": {
+      "icon": "./assets/notification-icon.png",
+      "color": "#7edcd5",
+      "iosDisplayInForeground": true,
+      "androidMode": "default",
+      "androidCollapsedTitle": "First Ride"
     },
     "android": {
       "adaptiveIcon": {

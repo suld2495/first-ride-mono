@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import AuthForm from '@/components/auth/AuthForm';
 import Button from '@/components/common/Button';
 import Link from '@/components/common/Link';
@@ -9,6 +9,7 @@ import ThemeView from '@/components/common/ThemeView';
 import { useLoginMutation } from '@repo/shared/hooks/useAuth';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { setAuthorization } from '@/api';
+import { useNotifications } from '@/hooks/useNotifications';
 
 const initial = () => ({
   userId: '',
@@ -19,6 +20,7 @@ export default function SignIn() {
   const router = useRouter();
   const [form, setForm] = useState<AuthFormType>(initial());
   const login = useLoginMutation();
+  const { pushToken } = useNotifications();
 
   const handleLogin = async () => {
     const isValid = form.userId && form.password;
@@ -26,10 +28,17 @@ export default function SignIn() {
     if (!isValid) {
       alert('아이디 또는 비밀번호를 입력해주세요.');
       return;
-    } 
+    }
 
     try {
-      const response = await login.mutateAsync(form);
+      // 로그인 요청 시 푸시 토큰 정보 포함
+      const loginData: AuthFormType = {
+        ...form,
+        pushToken: pushToken?.data,
+        deviceType: Platform.OS as 'ios' | 'android',
+      };
+
+      const response = await login.mutateAsync(loginData);
       setAuthorization(response.accessToken);
       router.push('/(tabs)/(afterLogin)/(routine)')
     } catch {}

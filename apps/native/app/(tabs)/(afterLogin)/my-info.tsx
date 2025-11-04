@@ -10,12 +10,15 @@ import ThemeText from '@/components/common/ThemeText';
 import ThemeView from '@/components/common/ThemeView';
 import Container from '@/components/layout/Container';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useNotifications } from '@/hooks/useNotifications';
+import { deletePushToken } from '@/api/push-token.api';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 
 const MyInfo = () => {
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
+  const { pushToken } = useNotifications();
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
 
@@ -35,7 +38,16 @@ const MyInfo = () => {
         {
           text: '로그아웃',
           style: 'destructive',
-          onPress: () => {
+          onPress: async () => {
+            // 로그아웃 시 푸시 토큰 삭제
+            if (pushToken?.data) {
+              try {
+                await deletePushToken(pushToken.data);
+              } catch (error) {
+                console.error('Failed to delete push token on logout:', error);
+              }
+            }
+
             signOut();
             router.replace('/');
           },
