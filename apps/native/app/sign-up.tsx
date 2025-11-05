@@ -41,7 +41,7 @@ export default function SignUp() {
     } catch {}
   };
 
-  const handleChange = (key: 'userId' | 'nickname' | 'password' | 'passwordConfirm', value: string) => {
+  const handleChange = (key: (keyof JoinFormType) | 'passwordConfirm', value: string) => {
     setForm((prev) => ({
       ...prev,
       [key]: value,
@@ -74,6 +74,12 @@ export default function SignUp() {
           placeholder="비밀번호를 다시 입력해주세요."
           value={form.passwordConfirm}
           onChangeText={(value) => handleChange('passwordConfirm', value)}
+        />
+        <ThemeTextInput 
+          width={250} 
+          placeholder="직업을 입력해주세요."
+          value={form.job}
+          onChangeText={(value) => handleChange('job', value)}
         />
         <Button 
           title="회원가입" 

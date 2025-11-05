@@ -13,7 +13,10 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_VITE_BASE_URL": "https://port-0-firstride-m9fo6v759f8f10a9.sel4.cloudtype.app"
+      }
     }
   },
   "submit": {
