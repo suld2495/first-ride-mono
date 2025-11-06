@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 const MockProvider = () => {
   useEffect(() => {
     if (!process.env.EXPO_PUBLIC_VITE_BASE_URL) {
-      makeServer();
+      // makeServer();
     }
 
   }, []);
