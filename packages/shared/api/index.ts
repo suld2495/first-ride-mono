@@ -38,7 +38,7 @@ export const createHttp = (config: HttpConfig) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    return response.data;
+    return response.data.data;
   },
   async (error: AxiosError) => {
     throw error;
