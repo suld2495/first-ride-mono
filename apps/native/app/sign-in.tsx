@@ -1,14 +1,16 @@
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
+import { useLoginMutation } from '@repo/shared/hooks/useAuth';
+import { AuthForm as AuthFormType } from '@repo/types';
+import { useRouter } from 'expo-router';
+
+import { setAuthorization } from '@/api';
 import AuthForm from '@/components/auth/AuthForm';
 import Button from '@/components/common/Button';
 import Link from '@/components/common/Link';
+import PasswordInput from '@/components/common/PasswordInput';
 import ThemeTextInput from '@/components/common/ThemeTextInput';
 import ThemeView from '@/components/common/ThemeView';
-import { useLoginMutation } from '@repo/shared/hooks/useAuth';
-import { AuthForm as AuthFormType } from '@repo/types';
-import { setAuthorization } from '@/api';
 import { useNotifications } from '@/hooks/useNotifications';
 
 const initial = () => ({
@@ -39,8 +41,9 @@ export default function SignIn() {
       };
 
       const response = await login.mutateAsync(loginData);
+
       setAuthorization(response.accessToken);
-      router.push('/(tabs)/(afterLogin)/(routine)')
+      router.push('/(tabs)/(afterLogin)/(routine)');
     } catch {}
   };
 
@@ -49,39 +52,35 @@ export default function SignIn() {
       ...prev,
       [key]: value,
     }));
-  }
+  };
 
   return (
     <ThemeView style={styles.container}>
-      <AuthForm title='로그인'>
-        <ThemeTextInput 
-          width={250} 
+      <AuthForm title="로그인">
+        <ThemeTextInput
+          width={250}
           placeholder="아이디를 입력해주세요."
           value={form.userId}
           onChangeText={(value) => handleChange('userId', value)}
         />
-        <ThemeTextInput 
-          width={250} 
+        <PasswordInput
+          width={250}
           placeholder="비밀번호를 입력해주세요."
           value={form.password}
           onChangeText={(value) => handleChange('password', value)}
         />
-        <Button 
-          title="로그인" 
-          onPress={handleLogin}
-          style={styles.button}
-        />
-        <Link 
+        <Button title="로그인" onPress={handleLogin} style={styles.button} />
+        <Link
           href="/sign-up"
           variant="plain"
-          title='회원가입'
+          title="회원가입"
           style={styles.link}
           onPress={() => setForm(initial())}
         />
       </AuthForm>
     </ThemeView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -92,10 +91,10 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    marginTop: 10
+    marginTop: 10,
   },
 
   link: {
-    alignItems: 'flex-end'
-  }
+    alignItems: 'flex-end',
+  },
 });

@@ -1,13 +1,15 @@
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
+import { useJoinMutation } from '@repo/shared/hooks/useAuth';
+import { JoinForm as JoinFormType } from '@repo/types';
+import { useRouter } from 'expo-router';
+
 import AuthForm from '@/components/auth/AuthForm';
 import Button from '@/components/common/Button';
 import Link from '@/components/common/Link';
+import PasswordInput from '@/components/common/PasswordInput';
 import ThemeTextInput from '@/components/common/ThemeTextInput';
 import ThemeView from '@/components/common/ThemeView';
-import { useJoinMutation } from '@repo/shared/hooks/useAuth';
-import { JoinForm as JoinFormType } from '@repo/types';
 
 const initial = () => ({
   userId: '',
@@ -19,7 +21,9 @@ const initial = () => ({
 
 export default function SignUp() {
   const router = useRouter();
-  const [form, setForm] = useState<JoinFormType & { passwordConfirm: JoinFormType['password'] }>(initial());
+  const [form, setForm] = useState<
+    JoinFormType & { passwordConfirm: JoinFormType['password'] }
+  >(initial());
   const join = useJoinMutation();
 
   const handleJoin = async () => {
@@ -31,72 +35,71 @@ export default function SignUp() {
     }
 
     if (form.passwordConfirm !== form.password) {
-      alert("비밀번호가 다릅니다.");
+      alert('비밀번호가 다릅니다.');
       return;
     }
 
     try {
       await join.mutateAsync(form);
-      router.push('/sign-in')
+      router.push('/sign-in');
     } catch {}
   };
 
-  const handleChange = (key: (keyof JoinFormType) | 'passwordConfirm', value: string) => {
+  const handleChange = (
+    key: keyof JoinFormType | 'passwordConfirm',
+    value: string,
+  ) => {
     setForm((prev) => ({
       ...prev,
       [key]: value,
     }));
-  }
+  };
 
   return (
     <ThemeView style={styles.container}>
-      <AuthForm title='회원가입'>
-        <ThemeTextInput 
-          width={250} 
+      <AuthForm title="회원가입">
+        <ThemeTextInput
+          width={250}
           placeholder="아이디를 입력해주세요."
           value={form.userId}
           onChangeText={(value) => handleChange('userId', value)}
         />
-        <ThemeTextInput 
-          width={250} 
+        <ThemeTextInput
+          width={250}
           placeholder="닉네임을 입력해주세요."
           value={form.nickname}
           onChangeText={(value) => handleChange('nickname', value)}
         />
-        <ThemeTextInput 
-          width={250} 
+        <PasswordInput
+          width={250}
           placeholder="비밀번호를 입력해주세요."
           value={form.password}
           onChangeText={(value) => handleChange('password', value)}
         />
-        <ThemeTextInput 
-          width={250} 
+        <PasswordInput
+          width={250}
           placeholder="비밀번호를 다시 입력해주세요."
           value={form.passwordConfirm}
           onChangeText={(value) => handleChange('passwordConfirm', value)}
         />
-        <ThemeTextInput 
-          width={250} 
+        <ThemeTextInput
+          width={250}
           placeholder="직업을 입력해주세요."
           value={form.job}
           onChangeText={(value) => handleChange('job', value)}
         />
-        <Button 
-          title="회원가입" 
-          onPress={handleJoin}
-          style={styles.button}
-        />
-        <Link 
+        <Button title="회원가입" onPress={handleJoin} style={styles.button} />
+        <Link
           href="/sign-in"
           variant="plain"
-          title='로그인'
+          title="로그인"
           style={styles.link}
           onPress={() => setForm(initial())}
         />
       </AuthForm>
     </ThemeView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -107,10 +110,10 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    marginTop: 10
+    marginTop: 10,
   },
 
   link: {
-    alignItems: 'flex-end'
-  }
+    alignItems: 'flex-end',
+  },
 });
