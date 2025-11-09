@@ -17,7 +17,7 @@ const RequestListModal = () => {
 
   const router = useRouter();
   const { user } = useAuthStore();
-  const { data: requests } = useFetchReceivedRequestsQuery(user?.name || '');
+  const { data: requests } = useFetchReceivedRequestsQuery(user?.nickname || '');
   const setRequestId = useRequestStore((state) => state.setRequestId);
 
   const handleMove = (requestId: number) => {

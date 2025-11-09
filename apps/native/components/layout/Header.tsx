@@ -17,7 +17,7 @@ const Header = () => {
 
   const router = useRouter();
   const { user } = useAuthStore();
-  const { data: requests } = useFetchReceivedRequestsQuery(user?.name || '');
+  const { data: requests } = useFetchReceivedRequestsQuery(user?.nickname || '');
 
   const toggleColorScheme = () => {
     setColorScheme(colorScheme === 'light' ? 'dark' : 'light');
@@ -26,7 +26,7 @@ const Header = () => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView>
-        <ThemeText variant="title">{user?.name}</ThemeText>
+        <ThemeText variant="title">{user?.nickname}</ThemeText>
       </ThemeView>
 
       <ThemeView style={styles.icon_container}>

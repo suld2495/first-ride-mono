@@ -6,7 +6,6 @@ import FriendHeader from '@/components/friend/FriendHeader';
 import FriendList from '@/components/friend/FriendList';
 import ThemeTextInput from '@/components/common/ThemeTextInput';
 import Button from '@/components/common/Button';
-import ThemeView from '@/components/common/ThemeView';
 import { COLORS } from '@/theme/colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FriendAddModal from '@/components/friend/FriendAddModal';
@@ -23,7 +22,7 @@ const FriendPage = () => {
   };
 
   return (
-    <ThemeView style={styles.container}>
+    <Container style={styles.container}>
       <FriendHeader />
 
       <Container>
@@ -62,7 +61,7 @@ const FriendPage = () => {
         visible={showAddModal}
         onClose={() => setShowAddModal(false)}
       />
-    </ThemeView>
+    </Container>
   );
 };
 
