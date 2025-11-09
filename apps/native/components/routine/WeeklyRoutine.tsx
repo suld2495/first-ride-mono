@@ -145,11 +145,17 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
                 )
               })}
               <View style={styles.success_rate}>
-                <ThemeText variant="body">
-                  {weeklyCount
-                    ? `${Math.round((weeklyCount / routineCount) * 100)}%`
-                    : '0%'}
-                </ThemeText>
+                {weeklyCount >= routineCount ? (
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={24}
+                    color={COLORS[colorScheme].buttonLight}
+                  />
+                ) : (
+                  <ThemeText variant="body">
+                    {routineCount > 0 ? `${Math.round((weeklyCount / routineCount) * 100)}%` : '0%'}
+                  </ThemeText>
+                )}
               </View>
             </ThemeView>
           </ThemeView>
@@ -236,11 +242,17 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
                 </WeekyView>
               ))}
             <View style={styles.success_rate}>
-              <ThemeText variant="body">
-                {weeklyCount
-                  ? `${Math.round((weeklyCount / routineCount) * 100)}%`
-                  : '0%'}
-              </ThemeText>
+              {weeklyCount >= routineCount ? (
+                <Ionicons
+                  name="checkmark-circle"
+                  size={24}
+                  color={COLORS[colorScheme].buttonLight}
+                />
+              ) : (
+                <ThemeText variant="body">
+                  {routineCount > 0 ? `${Math.round((weeklyCount / routineCount) * 100)}%` : '0%'}
+                </ThemeText>
+              )}
             </View>
           </ThemeView>
         </ThemeView>
