@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useLoginMutation } from '@repo/shared/hooks/useAuth';
 import { AuthForm as AuthFormType } from '@repo/types';
-import axios from 'axios';
 
 import { setAuthorization } from '@/api';
 
@@ -11,9 +10,6 @@ import Input from '../common/input/Input';
 import PasswordInput from '../common/input/PasswordInput';
 
 import AuthForm from './AuthForm';
-import { AuthForm as AuthFormType } from '@repo/types';
-import { useLoginMutation } from '@repo/shared/hooks/useAuth';
-import { setAuthorization } from '@/api';
 import { ApiError } from '@repo/shared/api/AppError';
 
 const LoginForm = () => {

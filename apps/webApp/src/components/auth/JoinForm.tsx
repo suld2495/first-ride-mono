@@ -2,15 +2,12 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useJoinMutation } from '@repo/shared/hooks/useAuth';
 import { JoinForm as JoinFormType } from '@repo/types';
-import axios from 'axios';
 
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
 import PasswordInput from '../common/input/PasswordInput';
 
 import AuthForm from './AuthForm';
-import { JoinForm as JoinFormType } from '@repo/types';
-import { useJoinMutation } from '@repo/shared/hooks/useAuth';
 import { ApiError } from '@repo/shared/api/AppError';
 
 const JoinForm = () => {

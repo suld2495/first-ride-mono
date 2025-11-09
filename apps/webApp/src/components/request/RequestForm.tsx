@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import { Routine } from '@repo/types';
-import { AxiosError } from 'axios';
 
 import { useModalStore } from '@/store/modal.store';
 
@@ -9,7 +8,6 @@ import Button from '../common/button/Button';
 import ImageUpload from '../common/input/ImageUpload';
 import Label from '../common/input/Label';
 import Paragraph from '../common/paragraph/Paragraph';
-import { Routine } from '@repo/types';
 import { ApiError } from '@repo/shared/api/AppError';
 
 interface FormLabelProps {
