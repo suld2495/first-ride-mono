@@ -11,6 +11,7 @@ import AutoComplete from '../common/autocomplete/AutoComplete';
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
 import { createForm } from '@/hooks/useForm';
 import Label from '../common/input/Label';
+import { routineFormValidators } from '@repo/shared/service/validatorMessage';
 
 interface RoutineFormProps {
   nickname: string;
@@ -67,39 +68,7 @@ const RoutineForm = ({
 
   return (
     <Form form={form} onSubmit={handleSubmit} validators={{
-      routineName: (value) => {
-        if (!value) {
-          return '루틴 이름을 입력해주세요.';
-        }
-      },
-      routineDetail(value) {
-        if (!value) {
-          return '루틴 설명을 입력해주세요.';
-        }
-      },
-      penalty(value) {
-        const numValue = Number(value);
-        if (!value && value !== 0) {
-          return '벌금을 입력해주세요.';
-        }
-        if (numValue < 0) {
-          return '벌금은 0원 이상으로 입력해주세요.';
-        }
-      },
-      routineCount(value) {
-        const numValue = Number(value);
-        if (!value && value !== 0) {
-          return '루틴 횟수를 입력해주세요.';
-        }
-        if (numValue < 1 || numValue > 7) {
-          return '루틴 횟수는 1 에서 7 사이로 입력해주세요.';
-        }
-      },
-      startDate(value) {
-        if (!value) {
-          return '시작 날짜를 입력해주세요.';
-        }
-      },
+      ...routineFormValidators,
       mateNickname(value, values) {
         if (values.isMe) {
           return;

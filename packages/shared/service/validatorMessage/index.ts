@@ -2,7 +2,12 @@ import { RoutineForm } from '@repo/types';
 
 import { Validators } from '../../components';
 
-export const routineFormValidators: Validators<RoutineForm> = {
+type InternalFormType = Omit<RoutineForm, 'penalty' | 'routineCount'> & {
+  penalty: string | number;
+  routineCount: string | number;
+};
+
+export const routineFormValidators: Validators<InternalFormType> = {
   routineName: (value) => {
     if (!value) {
       return '루틴 이름을 입력해주세요.';
