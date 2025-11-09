@@ -122,32 +122,65 @@ const RoutineForm = ({
         name="penalty"
         className="flex flex-col gap-2 mt-5"
         label="벌금"
-        children={({ value, name, onChange }) => (
-          <Input
-            type="number"
-            name={name}
-            value={value}
-            min={0}
-            placeholder="벌금을 입력하세요."
-            onChange={onChange}
-          />
-        )}
+        children={({ value, name, onChange }) => {
+          const formatNumber = (num: string | number) => {
+            const numStr = String(num).replace(/,/g, '');
+            if (!numStr || numStr === '0') return '';
+            return parseInt(numStr).toLocaleString('ko-KR');
+          };
+
+          const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const numericValue = e.target.value.replace(/,/g, '');
+            e.target.value = numericValue;
+            onChange(e);
+          };
+
+          const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+            if (e.target.value === '0') {
+              e.target.value = '';
+              onChange(e);
+            }
+          };
+
+          return (
+            <Input
+              type="text"
+              name={name}
+              value={formatNumber(value)}
+              min={0}
+              placeholder="벌금을 입력하세요."
+              onChange={handleChange}
+              onFocus={handleFocus}
+            />
+          );
+        }}
       />
       <FormItem
         name="routineCount"
         className="flex flex-col gap-2 mt-5"
         label="루틴 횟수"
-        children={({ value, name, onChange }) => (
-          <Input
-            type="number"
-            name={name}
-            value={value}
-            max={7}
-            min={1}
-            placeholder="루틴 횟수를 입력하세요."
-            onChange={onChange}
-          />
-        )}
+        children={({ value, name, onChange }) => {
+          const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+            const val = e.target.value;
+            if (val === '0' || val === '1') {
+              e.target.value = '';
+              onChange(e);
+            }
+          };
+
+          return (
+            <Input
+              type="number"
+              name={name}
+              value={value}
+              max={7}
+              min={1}
+              placeholder="루틴 횟수를 입력하세요."
+              onChange={onChange}
+              onFocus={handleFocus}
+            />
+          );
+        }}
       />
       <FormItem
         name="startDate"
