@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import axios from 'axios';
 
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
@@ -8,6 +7,7 @@ import PasswordInput from '../common/input/PasswordInput';
 import AuthForm from './AuthForm';
 import { JoinForm as JoinFormType } from '@repo/types';
 import { useJoinMutation } from '@repo/shared/hooks/useAuth';
+import { ApiError } from '@repo/shared/api/AppError';
 
 const JoinForm = () => {
   const navigate = useNavigate();
@@ -43,8 +43,8 @@ const JoinForm = () => {
       navigate('/login');
     } catch (error) {
       const errorMessage =
-        axios.isAxiosError(error) && typeof error.response?.data?.error?.message === 'string'
-          ? error.response.data.error.message
+        error instanceof ApiError
+          ? error.message
           : '회원가입에 실패했습니다. 다시 시도해주세요.';
       alert(errorMessage);
     } finally {

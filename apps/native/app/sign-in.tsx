@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import axios from 'axios';
 import { useLoginMutation } from '@repo/shared/hooks/useAuth';
+import { ApiError } from '@repo/shared/api/AppError';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 
@@ -47,8 +47,8 @@ export default function SignIn() {
       router.push('/(tabs)/(afterLogin)/(routine)');
     } catch (error) {
       const errorMessage =
-        axios.isAxiosError(error) && typeof error.response?.data?.error?.message === 'string'
-          ? error.response.data.error.message
+        error instanceof ApiError
+          ? error.message
           : '로그인에 실패했습니다. 다시 시도해주세요.';
       alert(errorMessage);
     }
