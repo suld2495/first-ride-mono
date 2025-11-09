@@ -28,12 +28,12 @@ const Input = ({
   type,
   ...rest
 }: InputProps) => {
-  const disabled = rest.disabled ? 'opacity-50' : '';
+  const disabledStyle = rest.disabled ? 'opacity-50 cursor-not-allowed' : '';
 
   return (
     <input
       className={twMerge(
-        `outline-0 placeholder-gray-500 dark:placeholder-gray-400 text-gray-main dark:text-gray-200 ${type === 'date' && 'scheme-light dark:scheme-dark'}  ${variantStyle[variant]} ${sizeStyle[size]} ${disabled}`,
+        `outline-0 placeholder-gray-500 dark:placeholder-gray-400 text-gray-main dark:text-gray-200 ${type === 'date' && 'scheme-light dark:scheme-dark'}  ${variantStyle[variant]} ${sizeStyle[size]} ${disabledStyle}`,
         className,
       )}
       type={type}
