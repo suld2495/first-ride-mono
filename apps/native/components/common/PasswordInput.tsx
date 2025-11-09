@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     position: 'absolute',
     right: 12,
+    top: 0,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
