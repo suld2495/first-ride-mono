@@ -97,6 +97,15 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="(afterLogin)/(friend)/index"
+          options={{
+            title: '친구',
+            tabBarIcon: () => (
+              <TabBarIcon name="users" color={COLORS[colorScheme].icon} />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="(afterLogin)/my-info"
           options={{
             title: 'My',

@@ -17,7 +17,8 @@ export type ButtonProps = PressableProps & {
   lightColor?: string;
   darkColor?: string;
   title?: string;
-  variant?: 'filled' | 'outline' | 'plain';
+  variant?: 'filled' | 'outline' | 'plain' | 'primary' | 'danger';
+  size?: 'small' | 'very-small' | 'medium' | 'large';
   fontSize?: ThemeTextProps['variant'];
   style?: StyleProp<ViewStyle>;
   icon?: React.ReactNode;
@@ -27,6 +28,7 @@ export type ButtonProps = PressableProps & {
 
 const Button = ({
   variant = 'filled',
+  size = 'medium',
   title = '',
   style,
   fontSize = 'button',
@@ -37,12 +39,34 @@ const Button = ({
   ...props
 }: ButtonProps) => {
   const colorScheme = useColorScheme();
-  const textColor =
-    variant === 'filled' ? COLORS.white : COLORS[colorScheme].grey;
+
+  const getTextColor = () => {
+    if (variant === 'filled' || variant === 'primary' || variant === 'danger') {
+      return COLORS.white;
+    }
+    return COLORS[colorScheme].grey;
+  };
+
+  const getBackgroundColor = () => {
+    if (variant === 'primary') return COLORS[colorScheme].primary;
+    if (variant === 'danger') return COLORS[colorScheme].error;
+    return undefined;
+  };
+
+  const textColor = getTextColor();
+  const backgroundColor = getBackgroundColor();
 
   return (
     <Pressable
-      style={[styles.container, styles[`light_${variant}`], style]}
+      style={[
+        styles.container,
+        styles[size],
+        variant === 'filled' && styles[`light_${variant}`],
+        variant === 'outline' && styles.light_outline,
+        variant === 'plain' && styles.light_plain,
+        backgroundColor && { backgroundColor },
+        style,
+      ]}
       disabled={disabled || loading}
       {...props}
     >
@@ -73,8 +97,6 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
     borderRadius: 8,
   },
 
@@ -87,6 +109,28 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
 
+  // Size styles
+  'very-small': {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+
+  small: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+
+  medium: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+
+  large: {
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+  },
+
+  // Variant styles
   light_filled: {
     backgroundColor: COLORS.light.button,
   },
