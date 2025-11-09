@@ -20,6 +20,7 @@ const LoginForm = () => {
     userId: '',
     password: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
   const login = useLoginMutation();
   const { toasts, error, removeToast } = useToast();
 
@@ -33,6 +34,7 @@ const LoginForm = () => {
       return;
     }
 
+    setIsLoading(true);
     try {
       const response = await login.mutateAsync(form);
 
@@ -45,6 +47,8 @@ const LoginForm = () => {
       );
 
       error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,7 +80,7 @@ const LoginForm = () => {
             onChange={handleChange}
             required
           />
-          <Button className="w-full h-13" type="submit">
+          <Button className="w-full h-13" type="submit" loading={isLoading}>
             로그인
           </Button>
         </div>

@@ -23,6 +23,7 @@ export default function SignIn() {
   const router = useRouter();
   const [form, setForm] = useState<AuthFormType>(initial());
   const login = useLoginMutation();
+  const [isLoading, setIsLoading] = useState(false);
   const { pushToken } = useNotifications();
 
   const handleLogin = async () => {
@@ -33,6 +34,7 @@ export default function SignIn() {
       return;
     }
 
+    setIsLoading(true);
     try {
       // 로그인 요청 시 푸시 토큰 정보 포함
       const loginData: AuthFormType = {
@@ -51,6 +53,8 @@ export default function SignIn() {
           ? error.message
           : '로그인에 실패했습니다. 다시 시도해주세요.';
       alert(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,7 +80,12 @@ export default function SignIn() {
           value={form.password}
           onChangeText={(value) => handleChange('password', value)}
         />
-        <Button title="로그인" onPress={handleLogin} style={styles.button} />
+        <Button 
+          title="로그인" 
+          onPress={handleLogin} 
+          style={styles.button} 
+          loading={isLoading}
+        />
         <Link
           href="/sign-up"
           variant="plain"

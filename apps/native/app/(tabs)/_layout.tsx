@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { Animated, Pressable } from 'react-native';
 import { type BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import TabBarIcon from '@/components/common/TabBarIcon';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -53,6 +54,7 @@ const AnimatedTabBarButton = ({
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <>
@@ -67,8 +69,8 @@ export default function TabLayout() {
             fontWeight: 'bold',
           },
           tabBarStyle: {
-            height: 65,
-            paddingBottom: 10,
+            height: 65 + insets.bottom,
+            paddingBottom: 10 + insets.bottom,
             paddingTop: 10,
             paddingHorizontal: 20,
             justifyContent: 'center',
