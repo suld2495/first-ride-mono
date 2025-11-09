@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
+import axios from 'axios';
 import { useJoinMutation } from '@repo/shared/hooks/useAuth';
 import { JoinForm as JoinFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
@@ -45,8 +46,11 @@ export default function SignUp() {
       await join.mutateAsync(form);
       alert('회원가입이 완료되었습니다.');
       router.push('/sign-in');
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.error?.message || '회원가입에 실패했습니다. 다시 시도해주세요.';
+    } catch (error) {
+      const errorMessage =
+        axios.isAxiosError(error) && typeof error.response?.data?.error?.message === 'string'
+          ? error.response.data.error.message
+          : '회원가입에 실패했습니다. 다시 시도해주세요.';
       alert(errorMessage);
     } finally {
       setIsLoading(false);

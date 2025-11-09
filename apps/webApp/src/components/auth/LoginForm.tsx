@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import axios from 'axios';
 
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
@@ -31,8 +32,11 @@ const LoginForm = () => {
       const response = await login.mutateAsync(form);
       setAuthorization(response.accessToken);
       navigate('/');
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.error?.message || '로그인에 실패했습니다. 다시 시도해주세요.';
+    } catch (error) {
+      const errorMessage =
+        axios.isAxiosError(error) && typeof error.response?.data?.error?.message === 'string'
+          ? error.response.data.error.message
+          : '로그인에 실패했습니다. 다시 시도해주세요.';
       alert(errorMessage);
     }
   };

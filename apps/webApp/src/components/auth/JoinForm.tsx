@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import axios from 'axios';
 
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
@@ -40,8 +41,11 @@ const JoinForm = () => {
       await join.mutateAsync(form);
       alert('회원가입이 완료되었습니다.');
       navigate('/login');
-    } catch (error: any) {
-      const errorMessage = error?.response?.data?.error?.message || '회원가입에 실패했습니다. 다시 시도해주세요.';
+    } catch (error) {
+      const errorMessage =
+        axios.isAxiosError(error) && typeof error.response?.data?.error?.message === 'string'
+          ? error.response.data.error.message
+          : '회원가입에 실패했습니다. 다시 시도해주세요.';
       alert(errorMessage);
     } finally {
       setIsLoading(false);
