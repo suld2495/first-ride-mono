@@ -210,16 +210,15 @@ const RoutineFormModal = () => {
           }}
         />
         <FormItem
-          name="routineCount"
+          name="startDate"
           label="루틴 시작 날짜"
           children={({ value, form, setValue }) => (
-            <>
-              <ThemeView style={styles.dateContainer}>
+            <ThemeView style={styles.dateContainer}>
               {form.startDate && <ThemeText>{form.startDate}</ThemeText>}
               <Button
                 title="날짜 선택"
                 fontSize="caption"
-                onPress={() => setIsShowStartDate(true)}
+                onPress={() => setIsShowStartDate(!isShowStartDate)}
                 style={styles.date_button}
                 icon={
                   <Ionicons
@@ -230,39 +229,36 @@ const RoutineFormModal = () => {
                   />
                 }
               />
+              {isShowStartDate && (
+                <DateTimePicker
+                  themeVariant={colorScheme}
+                  value={value ? new Date(value) : new Date()}
+                  mode="date"
+                  onChange={(_, startDate = new Date()) => {
+                    setValue('startDate', getFormatDate(startDate));
+
+                    const endDate = new Date(form.endDate || startDate);
+
+                    if (form.endDate && endDate < startDate) {
+                      setValue('endDate', getFormatDate(startDate));
+                    }
+                    setIsShowStartDate(false);
+                  }}
+                />
+              )}
             </ThemeView>
-
-            {isShowStartDate && (
-              <DateTimePicker
-                initialInputMode="keyboard"
-                value={value ? new Date(value) : new Date()}
-                mode="date"
-                onChange={(_, startDate = new Date()) => {
-                  setValue('startDate', getFormatDate(startDate));
-
-                  const endDate = new Date(form.endDate || startDate);
-
-                  if (form.endDate && endDate < startDate) {
-                    setValue('endDate', getFormatDate(startDate));
-                  }
-                  setIsShowStartDate(false);
-                }}
-              />
-            )}
-            </>
           )}
         />
-        <FormItem 
-          name="routineCount"
+        <FormItem
+          name="endDate"
           label="루틴 종료 날짜"
           children={({ form, setValue }) => (
-            <>
-              <ThemeView style={styles.dateContainer}>
+            <ThemeView style={styles.dateContainer}>
               {form.endDate && <ThemeText>{form.endDate}</ThemeText>}
               <Button
                 title="날짜 선택"
                 fontSize="caption"
-                onPress={() => setIsShowEndDate(true)}
+                onPress={() => setIsShowEndDate(!isShowEndDate)}
                 style={styles.date_button}
                 icon={
                   <Ionicons
@@ -273,25 +269,24 @@ const RoutineFormModal = () => {
                   />
                 }
               />
+              {isShowEndDate && (
+                <DateTimePicker
+                  themeVariant={colorScheme}
+                  value={form.endDate ? new Date(form.endDate) : new Date()}
+                  mode="date"
+                  onChange={(_, endDate = new Date()) => {
+                    setValue('endDate', getFormatDate(endDate));
+
+                    const startDate = new Date(form.startDate);
+
+                    if (form.startDate && startDate > endDate) {
+                      setValue('startDate', getFormatDate(endDate));
+                    }
+                    setIsShowEndDate(false);
+                  }}
+                />
+              )}
             </ThemeView>
-
-            {isShowEndDate && (
-              <DateTimePicker
-                value={form.endDate ? new Date(form.endDate) : new Date()}
-                mode="date"
-                onChange={(_, endDate = new Date()) => {
-                  setValue('endDate', getFormatDate(endDate));
-
-                  const startDate = new Date(form.startDate);
-
-                  if (form.startDate && startDate > endDate) {
-                    setValue('startDate', getFormatDate(endDate));
-                  }
-                  setIsShowEndDate(false);
-                }}
-              />
-            )}
-            </>
           )}
         />
         
