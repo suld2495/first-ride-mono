@@ -178,6 +178,13 @@ const RoutineForm = ({
             }
           };
 
+          const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const numericValue = parseInt(e.target.value, 10);
+            if (e.target.value === '' || (numericValue >= 1 && numericValue <= 7)) {
+              onChange(e);
+            }
+          };
+
           return (
             <Input
               type="number"
@@ -186,7 +193,7 @@ const RoutineForm = ({
               max={7}
               min={1}
               placeholder="루틴 횟수를 입력하세요."
-              onChange={onChange}
+              onChange={handleChange}
               onFocus={handleFocus}
             />
           );
