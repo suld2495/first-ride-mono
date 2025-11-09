@@ -117,7 +117,7 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
                     variant="span"
                     className="text-[var(--gray-main-color)] font-bold"
                   >
-                    {Math.floor((~~weeklyCount / routineCount) * 100)}%
+                    {Math.round((~~weeklyCount / routineCount) * 100)}%
                   </Paragraph>
                 )}
               </RoutineHeader>
@@ -186,7 +186,7 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
                   variant="span"
                   className="text-[var(--gray-main-color)] font-bold"
                 >
-                  {Math.floor((~~weeklyCount / routineCount) * 100)}%
+                  {Math.round((~~weeklyCount / routineCount) * 100)}%
                 </Paragraph>
               )}
             </RoutineHeader>

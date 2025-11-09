@@ -153,9 +153,7 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
                   />
                 ) : (
                   <ThemeText variant="body">
-                    {weeklyCount
-                      ? `${Math.round((weeklyCount / routineCount) * 100)}%`
-                      : '0%'}
+                    {routineCount > 0 ? `${Math.round((weeklyCount / routineCount) * 100)}%` : '0%'}
                   </ThemeText>
                 )}
               </View>
@@ -252,9 +250,7 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
                 />
               ) : (
                 <ThemeText variant="body">
-                  {weeklyCount
-                    ? `${Math.round((weeklyCount / routineCount) * 100)}%`
-                    : '0%'}
+                  {routineCount > 0 ? `${Math.round((weeklyCount / routineCount) * 100)}%` : '0%'}
                 </ThemeText>
               )}
             </View>
