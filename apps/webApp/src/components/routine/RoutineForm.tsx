@@ -179,8 +179,13 @@ const RoutineForm = ({
           };
 
           const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            const numericValue = parseInt(e.target.value, 10);
-            if (e.target.value === '' || (numericValue >= 1 && numericValue <= 7)) {
+            const { value } = e.target;
+            if (value === '') {
+              onChange(e);
+              return;
+            }
+            const num = Number(value);
+            if (Number.isInteger(num) && num >= 1 && num <= 7) {
               onChange(e);
             }
           };

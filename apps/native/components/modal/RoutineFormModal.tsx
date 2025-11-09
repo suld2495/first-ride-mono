@@ -184,8 +184,12 @@ const RoutineFormModal = () => {
           label="루틴 횟수"
           children={({ value, onChange }) => {
             const handleChange = (text: string) => {
-              const numericValue = parseInt(text, 10);
-              if (text === '' || (numericValue >= 1 && numericValue <= 7)) {
+              if (text === '') {
+                onChange(text);
+                return;
+              }
+              const num = Number(text);
+              if (Number.isInteger(num) && num >= 1 && num <= 7) {
                 onChange(text);
               }
             };
