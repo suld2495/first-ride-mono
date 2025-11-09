@@ -110,12 +110,16 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
               })}
   
               <RoutineHeader>
-                <Paragraph
-                  variant="span"
-                  className="text-[var(--gray-main-color)] font-bold"
-                >
-                  {Math.floor((~~weeklyCount / routineCount) * 100)}%
-                </Paragraph>
+                {~~weeklyCount >= routineCount ? (
+                  <IconCircleCheckFilled height={24} stroke={2} />
+                ) : (
+                  <Paragraph
+                    variant="span"
+                    className="text-[var(--gray-main-color)] font-bold"
+                  >
+                    {Math.floor((~~weeklyCount / routineCount) * 100)}%
+                  </Paragraph>
+                )}
               </RoutineHeader>
             </ul>
           </>
@@ -175,12 +179,16 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
               ))}
 
             <RoutineHeader>
-              <Paragraph
-                variant="span"
-                className="text-[var(--gray-main-color)] font-bold"
-              >
-                {Math.floor((~~weeklyCount / routineCount) * 100)}%
-              </Paragraph>
+              {~~weeklyCount >= routineCount ? (
+                <IconCircleCheckFilled height={24} stroke={2} />
+              ) : (
+                <Paragraph
+                  variant="span"
+                  className="text-[var(--gray-main-color)] font-bold"
+                >
+                  {Math.floor((~~weeklyCount / routineCount) * 100)}%
+                </Paragraph>
+              )}
             </RoutineHeader>
           </ul>
         </>
