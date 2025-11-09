@@ -5,14 +5,13 @@ import {
 } from '@repo/shared/hooks/useQuest';
 import { Reward, RewardForm as RewardFormType } from '@repo/types';
 
-import { createForm } from '@/hooks/useForm';
-import { useToast } from '@/hooks/useToast';
-
 import Button from '@/components/common/button/Button';
 import Input from '@/components/common/input/Input';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import Select from '@/components/common/Select';
 import ToastContainer from '@/components/common/ToastContainer';
+import { createForm } from '@/hooks/useForm';
+import { useToast } from '@/hooks/useToast';
 
 interface RewardFormModalProps {
   isOpen: boolean;
@@ -29,11 +28,7 @@ const rewardFormInit: RewardFormType = {
 
 const { Form, FormItem } = createForm<RewardFormType>();
 
-const RewardFormModal = ({
-  isOpen,
-  reward,
-  onClose,
-}: RewardFormModalProps) => {
+const RewardFormModal = ({ isOpen, reward, onClose }: RewardFormModalProps) => {
   const createMutation = useCreateRewardMutation();
   const updateMutation = useUpdateRewardMutation();
   const { toasts, success, error, removeToast } = useToast();
@@ -93,7 +88,8 @@ const RewardFormModal = ({
             validators={{
               rewardName: (value) =>
                 value ? undefined : '보상명을 입력해주세요',
-              rewardType: (value) => (value ? undefined : '타입을 선택해주세요'),
+              rewardType: (value) =>
+                value ? undefined : '타입을 선택해주세요',
               expAmount: (value) =>
                 value >= 0 ? undefined : '0 이상의 숫자를 입력해주세요',
             }}

@@ -3,13 +3,13 @@ import { createPortal } from 'react-dom';
 import { ModalName, useModalStore } from '@/store/modal.store';
 
 import Modal from '../common/Modal';
+import FriendAddModal from '../modal/FriendAddModal';
+import QuestDetailModal from '../modal/QuestDetailModal';
 import RequestDetailModal from '../modal/RequestDetailModal';
 import RoutineAddModal from '../modal/RoutineAddModal';
 import RoutineDetailModal from '../modal/RoutineDetailModal';
 import RoutineEditModal from '../modal/RoutineEditModal';
 import RoutineRequestModal from '../modal/RoutineRequestModal';
-import FriendAddModal from '../modal/FriendAddModal';
-import QuestDetailModal from '../modal/QuestDetailModal';
 
 interface ModalContainerProps {
   name: ModalName;

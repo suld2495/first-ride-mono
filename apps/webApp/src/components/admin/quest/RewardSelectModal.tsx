@@ -2,13 +2,12 @@ import { useMemo, useState } from 'react';
 import { useFetchRewardsQuery } from '@repo/shared/hooks/useQuest';
 import { Reward } from '@repo/types';
 
-import { useToast } from '@/hooks/useToast';
-
 import Button from '@/components/common/button/Button';
 import Input from '@/components/common/input/Input';
 import Pagination from '@/components/common/Pagination';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import ToastContainer from '@/components/common/ToastContainer';
+import { useToast } from '@/hooks/useToast';
 
 interface RewardSelectModalProps {
   isOpen: boolean;

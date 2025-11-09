@@ -1,6 +1,8 @@
 import { useState } from 'react';
-
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
+import { Routine } from '@repo/types';
+import { AxiosError } from 'axios';
+
 import { useModalStore } from '@/store/modal.store';
 
 import Button from '../common/button/Button';
@@ -72,7 +74,7 @@ const RequestForm = ({
     } catch (e) {
       if (e instanceof ApiError) {
         if (e.status === 413) {
-          alert('용량은 1MB 이하만 업로드 가능합니다.');    
+          alert('용량은 1MB 이하만 업로드 가능합니다.');
           return;
         }
       }

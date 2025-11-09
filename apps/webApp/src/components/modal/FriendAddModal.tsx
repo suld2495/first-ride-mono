@@ -1,12 +1,14 @@
-import { useModalStore } from '@/store/modal.store';
+import { useState } from 'react';
+import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import { SearchOption, User } from '@repo/types';
-import { useState } from 'react';
-import Paragraph from '../common/paragraph/Paragraph';
-import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
-import IconButton from '../common/button/IconButton';
 import { IconPlus } from '@tabler/icons-react';
+
+import { useModalStore } from '@/store/modal.store';
+
+import IconButton from '../common/button/IconButton';
 import Input from '../common/input/Input';
+import Paragraph from '../common/paragraph/Paragraph';
 
 interface UserItemProps extends User {
   close: () => void;
@@ -24,17 +26,17 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
   };
 
   return (
-    <div className='h-[50px] flex items-center justify-between border-b-[1px] border-b-black dark:border-b-white'>
+    <div className="h-[50px] flex items-center justify-between border-b-[1px] border-b-black dark:border-b-white">
       <Paragraph>{nickname}</Paragraph>
-      <IconButton 
-        size='small' 
-        variant='plain' 
+      <IconButton
+        size="small"
+        variant="plain"
         icon={<IconPlus size={16} />}
-        className='px-2'
+        className="px-2"
         onClick={handleAdd}
       />
     </div>
-  )
+  );
 };
 
 const FriendAddModal = () => {
@@ -60,9 +62,9 @@ const FriendAddModal = () => {
 
   return (
     <div>
-      <Input 
-        className='w-full mt-3' 
-        placeholder='유저이름을 입력해주세요.' 
+      <Input
+        className="w-full mt-3"
+        placeholder="유저이름을 입력해주세요."
         value={keyword}
         onChange={(event) => setKeyword(event.target.value)}
         onKeyDown={handleSerach}
@@ -71,19 +73,13 @@ const FriendAddModal = () => {
         {!!userList?.length && (
           <ul>
             {userList.map((user) => (
-              <UserItem 
-                key={user.userId} 
-                close={closeModal}
-                {...user} 
-              />
+              <UserItem key={user.userId} close={closeModal} {...user} />
             ))}
           </ul>
         )}
 
         {!userList?.length && (
-          <Paragraph 
-            className='h-[100px] w-full flex items-center justify-center'
-          >
+          <Paragraph className="h-[100px] w-full flex items-center justify-center">
             유저가 존재하지 않습니다.
           </Paragraph>
         )}

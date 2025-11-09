@@ -1,10 +1,10 @@
-import { RoutineForm as RoutineFormType } from '@repo/types';
-
 import {
   useRoutineDetailQuery,
   useUpdateRoutineMutation,
 } from '@repo/shared/hooks/useRoutine';
 import { useAuthStore } from '@repo/shared/store/auth.store';
+import { RoutineForm as RoutineFormType } from '@repo/types';
+
 import { useModalStore } from '@/store/modal.store';
 import { useRoutineStore } from '@/store/routine.store';
 
@@ -14,7 +14,7 @@ const RoutineEditModal = () => {
   const closeModal = useModalStore((state) => state.close);
   const routineId = useRoutineStore((state) => state.routineId);
   const user = useAuthStore((state) => state.user);
-  const username = user?.nickname || ''
+  const username = user?.nickname || '';
   const { data: detail } = useRoutineDetailQuery(routineId);
   const mateNickname = username === 'yunji' ? 'moon' : 'yunji';
 

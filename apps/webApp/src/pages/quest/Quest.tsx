@@ -1,11 +1,12 @@
-import QuestList from "@/components/quest/QuestList";
-import QuestStatusTabs from "@/components/quest/QuestStatusTabs";
-import QuestTypeFilter from "@/components/quest/QuestTypeFilter";
-import QuestHeader from "@/layouts/quest/QuestHeader";
-import { ModalName, useModalStore } from "@/store/modal.store";
-import { useQuestStore } from "@/store/quest.store";
-import { useFetchQuestsQuery } from "@repo/shared/hooks/useQuest";
-import { Quest } from "@repo/types";
+import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
+import { Quest } from '@repo/types';
+
+import QuestList from '@/components/quest/QuestList';
+import QuestStatusTabs from '@/components/quest/QuestStatusTabs';
+import QuestTypeFilter from '@/components/quest/QuestTypeFilter';
+import QuestHeader from '@/layouts/quest/QuestHeader';
+import { ModalName, useModalStore } from '@/store/modal.store';
+import { useQuestStore } from '@/store/quest.store';
 
 const QuestPage = () => {
   const showModal = useModalStore((state) => state.show);
@@ -48,7 +49,7 @@ const QuestPage = () => {
       <QuestTypeFilter selected={typeFilter} onSelect={setTypeFilter} />
       <QuestList quests={filteredQuests} onClickItem={handleClick} />
     </div>
-  )
+  );
 };
 
 export default QuestPage;

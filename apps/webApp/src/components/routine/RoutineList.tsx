@@ -5,10 +5,7 @@ import { useRoutineStore } from '@/store/routine.store';
 
 import Paragraph from '../common/paragraph/Paragraph';
 
-import {
-  RoutineCountList,
-  RoutineWeekList,
-} from './WeeklyRoutine';
+import { RoutineCountList, RoutineWeekList } from './WeeklyRoutine';
 
 interface RoutineListProps {
   routines: Routine[];
@@ -48,7 +45,9 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
         />
       )}
       {!routines.length && (
-        <Paragraph className="py-4 text-center">등록된 루틴이 없습니다.</Paragraph>
+        <Paragraph className="py-4 text-center">
+          등록된 루틴이 없습니다.
+        </Paragraph>
       )}
     </div>
   );

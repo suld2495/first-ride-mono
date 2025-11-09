@@ -1,26 +1,34 @@
-import { FormContextType, FormProviderProps } from "@repo/shared/components";
-import React from "react";
+import React from 'react';
+import { FormContextType, FormProviderProps } from '@repo/shared/components';
 
 interface FormComponentProps {
   children: React.ReactNode;
   className?: string;
-  useForm: () => FormContextType<unknown>
+  useForm: () => FormContextType<unknown>;
 }
 
-const FormComponent = ({ className, children, useForm }: FormComponentProps) => {
+const FormComponent = ({
+  className,
+  children,
+  useForm,
+}: FormComponentProps) => {
   const formContext = useForm();
+
   return (
-    <form 
-      className={className} 
+    <form
+      className={className}
       onSubmit={() => formContext.handleSubmit()}
       noValidate
     >
       {children}
     </form>
-  )
+  );
 };
 
-export type FormProps<T extends Record<string, any>> = Omit<FormProviderProps<T>, 'children'> & {
+export type FormProps<T extends Record<string, any>> = Omit<
+  FormProviderProps<T>,
+  'children'
+> & {
   children: React.ReactNode;
   className?: string;
   onSubmitCapture?: (e: React.FormEvent) => void;
@@ -28,19 +36,16 @@ export type FormProps<T extends Record<string, any>> = Omit<FormProviderProps<T>
 
 export function createFormComponent<T extends Record<string, any>>(
   Provider: React.ComponentType<FormProviderProps<T>>,
-  useForm: () => any
+  useForm: () => any,
 ) {
-  return function Form({ 
-    children, 
-    className = "",
-    ...providerProps 
+  return function Form({
+    children,
+    className = '',
+    ...providerProps
   }: FormProps<T>) {
     return (
       <Provider {...providerProps}>
-        <FormComponent 
-          className={className}
-          useForm={useForm}
-        >
+        <FormComponent className={className} useForm={useForm}>
           {children}
         </FormComponent>
       </Provider>
