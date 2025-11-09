@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 import ThemeText from "../common/ThemeText";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { COLORS } from "@/theme/colors";
@@ -13,12 +13,24 @@ const AuthForm = ({ title, children }: AuthFormProps) => {
   const styles = createStyles(colorScheme);
 
   return (
-    <View style={styles.container}>
-      <ThemeText variant="title" style={styles.title}>{title}</ThemeText>
-      <View style={styles.form}>
-        {children}
-      </View>
-    </View>
+    <KeyboardAvoidingView
+      style={styles.keyboardView}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.container}>
+          <ThemeText variant="title" style={styles.title}>{title}</ThemeText>
+          <View style={styles.form}>
+            {children}
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 };
 
@@ -26,6 +38,15 @@ export default AuthForm;
 
 const createStyles = (colorScheme: 'light' | 'dark') => (
   StyleSheet.create({
+    keyboardView: {
+      flex: 1,
+    },
+
+    scrollContent: {
+      flexGrow: 1,
+      justifyContent: 'center',
+    },
+
     container: {
       gap: 20
     },
