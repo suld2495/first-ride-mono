@@ -36,7 +36,9 @@ export const authHandlers = [
         },
       };
 
-      return HttpResponse.json(response);
+      return HttpResponse.json({
+        data: response,
+      });
     },
   ),
 

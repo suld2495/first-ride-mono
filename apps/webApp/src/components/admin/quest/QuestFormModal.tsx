@@ -13,6 +13,7 @@ import Select from '@/components/common/Select';
 import ToastContainer from '@/components/common/ToastContainer';
 import { createForm } from '@/hooks/useForm';
 import { useToast } from '@/hooks/useToast';
+import { getApiErrorMessage } from '@/utils/error-utils';
 import { fromDateTimeLocal, toDateTimeLocal } from '@/utils/quest-utils';
 
 interface QuestFormModalProps {
@@ -89,7 +90,11 @@ const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
 
       onClose();
     } catch (err) {
-      error('오류가 발생했습니다. 다시 시도해주세요.');
+      const errorMessage = getApiErrorMessage(
+        err,
+        '오류가 발생했습니다. 다시 시도해주세요.',
+      );
+      error(errorMessage);
     }
   };
 

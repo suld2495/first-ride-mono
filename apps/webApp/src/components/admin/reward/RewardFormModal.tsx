@@ -12,6 +12,7 @@ import Select from '@/components/common/Select';
 import ToastContainer from '@/components/common/ToastContainer';
 import { createForm } from '@/hooks/useForm';
 import { useToast } from '@/hooks/useToast';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 interface RewardFormModalProps {
   isOpen: boolean;
@@ -61,7 +62,11 @@ const RewardFormModal = ({ isOpen, reward, onClose }: RewardFormModalProps) => {
 
       onClose();
     } catch (err) {
-      error('오류가 발생했습니다. 다시 시도해주세요.');
+      const errorMessage = getApiErrorMessage(
+        err,
+        '오류가 발생했습니다. 다시 시도해주세요.',
+      );
+      error(errorMessage);
     }
   };
 

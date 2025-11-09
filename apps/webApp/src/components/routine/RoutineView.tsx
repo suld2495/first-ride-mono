@@ -2,11 +2,14 @@ import { useDeleteRoutineMutation } from '@repo/shared/hooks/useRoutine';
 import { getDisplayFormatDate } from '@repo/shared/utils';
 import { Routine } from '@repo/types';
 
+import { useToast } from '@/hooks/useToast';
 import { ModalName, useModalStore } from '@/store/modal.store';
 import { useRoutineStore } from '@/store/routine.store';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 import Button from '../common/button/Button';
 import Paragraph from '../common/paragraph/Paragraph';
+import ToastContainer from '../common/ToastContainer';
 
 const RoutineView = ({
   routineId,
@@ -24,6 +27,7 @@ const RoutineView = ({
   const openModal = useModalStore((state) => state.show);
   const closeModal = useModalStore((state) => state.close);
   const setRoutineId = useRoutineStore((state) => state.setRoutineId);
+  const { toasts, success, error, removeToast } = useToast();
 
   const deleteRoutine = useDeleteRoutineMutation(nickname);
 
@@ -31,10 +35,15 @@ const RoutineView = ({
     if (confirm('정말 삭제하시겠습니까?')) {
       try {
         await deleteRoutine.mutateAsync(routineId);
-        alert('삭제되었습니다.');
+        success('삭제되었습니다.');
         closeModal();
-      } catch {
-        alert('삭제에 실패했습니다.');
+      } catch (err) {
+        const errorMessage = getApiErrorMessage(
+          err,
+          '삭제에 실패했습니다. 다시 시도해주세요.',
+        );
+
+        error(errorMessage);
       }
     }
   };
@@ -45,7 +54,8 @@ const RoutineView = ({
   };
 
   return (
-    <div>
+    <>
+      <div>
       <div className="py-4">
         <Paragraph className="mb-2" variant="h4">
           {routineName}
@@ -109,7 +119,10 @@ const RoutineView = ({
           삭제
         </Button>
       </div>
-    </div>
+      </div>
+
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+    </>
   );
 };
 

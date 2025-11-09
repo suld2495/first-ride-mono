@@ -11,6 +11,9 @@ import Button from '@/components/common/button/Button';
 import DarkMode from '@/components/common/DarkMode';
 import NotificationBell from '@/components/common/notification-bell/NotificationBell';
 import Paragraph from '@/components/common/paragraph/Paragraph';
+import ToastContainer from '@/components/common/ToastContainer';
+import { useToast } from '@/hooks/useToast';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 import Header from '../common/Header';
 
@@ -59,19 +62,34 @@ const FriendHeader = () => {
   const { data: list } = useFetchFriendRequestsQuery(page);
   const acceptFriendMutation = useAcceptFriendRequestMutation();
   const rejectFriendRequestMutation = useRejectFriendRequestMutation();
+  const { toasts, success, error, removeToast } = useToast();
 
   const handleAccpet = async (id: number) => {
     try {
       await acceptFriendMutation.mutateAsync(id);
-      alert('추가 되었습니다.');
-    } catch {}
+      success('추가 되었습니다.');
+    } catch (err) {
+      const errorMessage = getApiErrorMessage(
+        err,
+        '친구 요청 수락에 실패했습니다. 다시 시도해주세요.',
+      );
+
+      error(errorMessage);
+    }
   };
 
   const handleReject = async (id: number) => {
     try {
       await rejectFriendRequestMutation.mutateAsync(id);
-      alert('거절 되었습니다.');
-    } catch {}
+      success('거절 되었습니다.');
+    } catch (err) {
+      const errorMessage = getApiErrorMessage(
+        err,
+        '친구 요청 거절에 실패했습니다. 다시 시도해주세요.',
+      );
+
+      error(errorMessage);
+    }
   };
 
   if (!list) {
@@ -79,25 +97,29 @@ const FriendHeader = () => {
   }
 
   return (
-    <Header>
-      <Paragraph variant="h3">친구 리스트</Paragraph>
-      <div className="flex gap-3 items-center">
-        <NotificationBell
-          list={list.map((item) => ({
-            ...item,
-            title: item.senderNickname,
-          }))}
-          renderItem={(item) => (
-            <NotificationContent
-              onAccept={handleAccpet}
-              onReject={handleReject}
-              {...item}
-            />
-          )}
-        />
-        <DarkMode />
-      </div>
-    </Header>
+    <>
+      <Header>
+        <Paragraph variant="h3">친구 리스트</Paragraph>
+        <div className="flex gap-3 items-center">
+          <NotificationBell
+            list={list.map((item) => ({
+              ...item,
+              title: item.senderNickname,
+            }))}
+            renderItem={(item) => (
+              <NotificationContent
+                onAccept={handleAccpet}
+                onReject={handleReject}
+                {...item}
+              />
+            )}
+          />
+          <DarkMode />
+        </div>
+      </Header>
+
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+    </>
   );
 };
 

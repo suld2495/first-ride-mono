@@ -16,6 +16,7 @@ import Paragraph from '@/components/common/paragraph/Paragraph';
 import ToastContainer from '@/components/common/ToastContainer';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useToast } from '@/hooks/useToast';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 const QuestManagement = () => {
   const [selectedType, setSelectedType] = useState<QuestTypeFilter>('ALL');
@@ -81,7 +82,12 @@ const QuestManagement = () => {
       await deleteMutation.mutateAsync(id);
       success('퀘스트가 삭제되었습니다');
     } catch (err) {
-      error('삭제 중 오류가 발생했습니다');
+      const errorMessage = getApiErrorMessage(
+        err,
+        '삭제 중 오류가 발생했습니다',
+      );
+
+      error(errorMessage);
     }
   };
 

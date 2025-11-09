@@ -1,14 +1,17 @@
 import { useState } from 'react';
+import { ApiError } from '@repo/shared/api/AppError';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import { Routine } from '@repo/types';
 
+import { useToast } from '@/hooks/useToast';
 import { useModalStore } from '@/store/modal.store';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 import Button from '../common/button/Button';
 import ImageUpload from '../common/input/ImageUpload';
 import Label from '../common/input/Label';
 import Paragraph from '../common/paragraph/Paragraph';
-import { ApiError } from '@repo/shared/api/AppError';
+import ToastContainer from '../common/ToastContainer';
 
 interface FormLabelProps {
   children: React.ReactNode;
@@ -42,6 +45,7 @@ const RequestForm = ({
   const closeModal = useModalStore((state) => state.close);
   const [image, setImage] = useState<File | null>(null);
   const enable = image !== null;
+  const { toasts, success, error, removeToast } = useToast();
 
   const saveRequest = useCreateRequestMutation();
 
@@ -65,23 +69,30 @@ const RequestForm = ({
       closeModal();
 
       if (isMe) {
-        alert('인증이 완료되었습니다.');
+        success('인증이 완료되었습니다.');
       } else {
-        alert('인증 요청이 완료되었습니다.');
+        success('인증 요청이 완료되었습니다.');
       }
-    } catch (e) {
-      if (e instanceof ApiError) {
-        if (e.status === 413) {
-          alert('용량은 1MB 이하만 업로드 가능합니다.');
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 413) {
+          error('용량은 1MB 이하만 업로드 가능합니다.');
           return;
         }
       }
-      alert('인증 요청에 실패했습니다.');
+
+      const errorMessage = getApiErrorMessage(
+        err,
+        '인증 요청에 실패했습니다. 다시 시도해주세요.',
+      );
+
+      error(errorMessage);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <>
+      <form onSubmit={handleSubmit}>
       <input className="hidden" name="routineId" defaultValue={routineId} />
       <input className="hidden" name="nickname" defaultValue={nickname} />
       <div className="flex flex-col gap-2 mt-5">
@@ -114,7 +125,10 @@ const RequestForm = ({
           요청
         </Button>
       </div>
-    </form>
+      </form>
+
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+    </>
   );
 };
 
