@@ -15,7 +15,10 @@ const Pagination = ({
   const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-  const pages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  const pages = Array.from(
+    { length: endPage - startPage + 1 },
+    (_, i) => startPage + i,
+  );
 
   return (
     <div className="flex justify-center items-center gap-2 mt-4">

@@ -1,13 +1,15 @@
-import { ModalName, useModalStore } from "@/store/modal.store";
-import Button from "../common/button/Button";
-import Paragraph from "../common/paragraph/Paragraph";
-import RoutineDate from "./RoutineDate";
+import { ModalName, useModalStore } from '@/store/modal.store';
+
+import Button from '../common/button/Button';
+import Paragraph from '../common/paragraph/Paragraph';
+
+import RoutineDate from './RoutineDate';
 
 interface RoutineHeaderProps {
   date: string;
 }
 
-const RoutineHeader = ({date}: RoutineHeaderProps) => {
+const RoutineHeader = ({ date }: RoutineHeaderProps) => {
   const showModal = useModalStore((state) => state.show);
 
   const showRoutineAddModal = () => {
@@ -28,7 +30,7 @@ const RoutineHeader = ({date}: RoutineHeaderProps) => {
       </div>
       <RoutineDate date={date} />
     </>
-  )
+  );
 };
 
 export default RoutineHeader;

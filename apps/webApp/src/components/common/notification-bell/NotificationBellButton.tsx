@@ -1,11 +1,14 @@
-import { IconBellPlus } from "@tabler/icons-react";
+import { IconBellPlus } from '@tabler/icons-react';
 
 interface NotificationBellButtonProps {
   count: number;
   onClick: (e: React.MouseEvent) => void;
 }
 
-const NotificationBellButton = ({ count, onClick }: NotificationBellButtonProps) => {
+const NotificationBellButton = ({
+  count,
+  onClick,
+}: NotificationBellButtonProps) => {
   return (
     <div
       className="relative text-primary-color dark:text-white cursor-pointer flex "
@@ -18,7 +21,7 @@ const NotificationBellButton = ({ count, onClick }: NotificationBellButtonProps)
         </span>
       )}
     </div>
-  )
+  );
 };
 
 export default NotificationBellButton;

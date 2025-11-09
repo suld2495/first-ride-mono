@@ -1,16 +1,16 @@
 import { createBrowserRouter } from 'react-router';
 
+import AdminLayout from '@/layouts/common/admin/AdminLayout';
 import Layout from '@/layouts/common/Layout';
 import RoutineLayout from '@/layouts/routine/RoutineLayout';
-import LoginPage from '@/pages/Login';
-import RoutinePage from '@/pages/Routine';
-import JoinPage from '@/pages/Join';
-import FriendPage from '@/pages/Friend';
-import QuestManagement from '@/pages/admin/QuestManagement';
 import QuestDetail from '@/pages/admin/QuestDetail';
+import QuestManagement from '@/pages/admin/QuestManagement';
 import RewardManagement from '@/pages/admin/RewardManagement';
-import AdminLayout from '@/layouts/common/admin/AdminLayout';
+import FriendPage from '@/pages/Friend';
+import JoinPage from '@/pages/Join';
+import LoginPage from '@/pages/Login';
 import QuestPage from '@/pages/quest/Quest';
+import RoutinePage from '@/pages/Routine';
 
 const router = createBrowserRouter([
   {
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'join',
-        Component: JoinPage
+        Component: JoinPage,
       },
       {
         Component: RoutineLayout,
@@ -60,7 +60,7 @@ const router = createBrowserRouter([
         path: 'reward-management',
         Component: RewardManagement,
       },
-    ]
+    ],
   },
 ]);
 

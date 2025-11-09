@@ -1,8 +1,12 @@
-import React from "react";
-import { createFormComponent } from "@/components/common/form/Form";
-import { createFormItem, UseFormFieldReturn } from "@/components/common/form/FormItem";
-import { FormProviderProps, useCreateForm } from "@repo/shared/components";
-import FormGroup from "@/components/common/form/FormGroup";
+import React from 'react';
+import { FormProviderProps, useCreateForm } from '@repo/shared/components';
+
+import { createFormComponent } from '@/components/common/form/Form';
+import FormGroup from '@/components/common/form/FormGroup';
+import {
+  createFormItem,
+  UseFormFieldReturn,
+} from '@/components/common/form/FormItem';
 
 export type FormHooks<T extends Record<string, any>> = {
   Provider: React.ComponentType<FormProviderProps<T>>;
@@ -11,7 +15,7 @@ export type FormHooks<T extends Record<string, any>> = {
 };
 
 export function createFormComponents<T extends Record<string, any>>(
-  hooks: FormHooks<T>
+  hooks: FormHooks<T>,
 ) {
   const { Provider, useFormField, useForm } = hooks;
 
@@ -23,12 +27,12 @@ export function createFormComponents<T extends Record<string, any>>(
     FormItem,
     FormGroup,
   };
-};
+}
 
 export function createForm<T extends Record<string, any>>() {
   const hooks = useCreateForm<T>();
   const components = createFormComponents(hooks);
-  
+
   return {
     ...hooks,
     ...components,

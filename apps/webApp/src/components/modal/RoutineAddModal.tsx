@@ -1,7 +1,7 @@
-import { RoutineForm as RoutineFormType } from '@repo/types';
-
 import { useCreateRoutineMutation } from '@repo/shared/hooks/useRoutine';
 import { useAuthStore } from '@repo/shared/store/auth.store';
+import { RoutineForm as RoutineFormType } from '@repo/types';
+
 import { useModalStore } from '@/store/modal.store';
 
 import RoutineForm from '../routine/RoutineForm';
@@ -9,7 +9,7 @@ import RoutineForm from '../routine/RoutineForm';
 const RoutineAddModal = () => {
   const closeModal = useModalStore((state) => state.close);
   const user = useAuthStore((state) => state.user);
-  const username = user?.nickname || ''
+  const username = user?.nickname || '';
 
   const saveMutation = useCreateRoutineMutation(username);
 
@@ -23,12 +23,7 @@ const RoutineAddModal = () => {
     }
   };
 
-  return (
-    <RoutineForm
-      nickname={username}
-      onSubmit={handleSubmit}
-    />
-  );
+  return <RoutineForm nickname={username} onSubmit={handleSubmit} />;
 };
 
 export default RoutineAddModal;

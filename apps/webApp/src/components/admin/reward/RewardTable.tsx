@@ -1,9 +1,10 @@
-import { Reward } from '@repo/types';
 import {
-  truncateRewardName,
   formatRewardDate,
   getRewardTypeBadgeColor,
+  truncateRewardName,
 } from '@repo/shared/utils/reward-utils';
+import { Reward } from '@repo/types';
+
 import Button from '@/components/common/button/Button';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 
@@ -71,7 +72,9 @@ const RewardTable = ({
                 className="p-3 text-gray-main dark:text-gray-200"
                 title={reward.rewardName}
               >
-                <Paragraph>{truncateRewardName(reward.rewardName, 20)}</Paragraph>
+                <Paragraph>
+                  {truncateRewardName(reward.rewardName, 20)}
+                </Paragraph>
               </td>
               <td className="p-3">
                 <span

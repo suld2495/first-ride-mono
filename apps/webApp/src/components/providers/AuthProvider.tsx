@@ -1,6 +1,6 @@
-import { useAuthStore } from "@repo/shared/store/auth.store";
-import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 
 interface AuthProviderProps {
   children: React.ReactNode;

@@ -1,16 +1,20 @@
 import { useNavigate, useParams } from 'react-router';
 import { useFetchQuestDetailQuery } from '@repo/shared/hooks/useQuest';
+import { formatQuestPeriod } from '@repo/shared/utils/quest-utils';
 
 import Button from '@/components/common/button/Button';
 import DarkMode from '@/components/common/DarkMode';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import { getQuestTypeBadgeClass } from '@/utils/quest-utils';
-import { formatQuestPeriod } from '@repo/shared/utils/quest-utils';
 
 const QuestDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: quest, isLoading, error } = useFetchQuestDetailQuery(Number(id) || 0);
+  const {
+    data: quest,
+    isLoading,
+    error,
+  } = useFetchQuestDetailQuery(Number(id) || 0);
 
   const handleBack = () => {
     navigate('/admin/quest-management');

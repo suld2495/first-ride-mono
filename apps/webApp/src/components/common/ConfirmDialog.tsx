@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import Paragraph from './paragraph/Paragraph';
+
 import Button from './button/Button';
+import Paragraph from './paragraph/Paragraph';
 
 export interface ConfirmDialogProps {
   isOpen: boolean;
@@ -54,7 +55,7 @@ const ConfirmDialog = ({
         <Paragraph
           id="dialog-title"
           className="font-semibold text-gray-900 dark:text-gray-200 mb-4"
-          variant='h3'
+          variant="h3"
         >
           {title}
         </Paragraph>
@@ -75,7 +76,7 @@ const ConfirmDialog = ({
           </Button>
           <Button
             onClick={onConfirm}
-            color=''
+            color=""
             className={`
               ${
                 isDangerous

@@ -4,9 +4,9 @@ import { IconPhotoScan } from '@tabler/icons-react';
 import { Image } from '@/types/image';
 
 import IconButton, { IconButtonProps } from '../button/IconButton';
+import Paragraph from '../paragraph/Paragraph';
 
 import PreviewImage from './PreviewImage';
-import Paragraph from '../paragraph/Paragraph';
 
 type IconButtonType = Omit<IconButtonProps, 'onChange' | 'value' | 'icon'> &
   Partial<Pick<IconButtonProps, 'icon'>>;
@@ -95,9 +95,7 @@ const ImageUpload = ({
         >
           Upload
         </IconButton>
-        <Paragraph variant='span'>
-          {value?.name || images?.[0]?.name}
-        </Paragraph>
+        <Paragraph variant="span">{value?.name || images?.[0]?.name}</Paragraph>
       </div>
 
       {isPreview && (

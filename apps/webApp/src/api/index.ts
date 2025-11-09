@@ -1,4 +1,4 @@
-import { createHttp, UN_AUTHORIZATION_URL } from "@repo/shared/api";
+import { createHttp, UN_AUTHORIZATION_URL } from '@repo/shared/api';
 
 export const BASE_URL = `${import.meta.env.VITE_BASE_URL}/api`;
 
@@ -10,7 +10,7 @@ createHttp({
     }
 
     return config;
-  }
+  },
 });
 
 export const setAuthorization = (token: string = '') => {
@@ -19,4 +19,4 @@ export const setAuthorization = (token: string = '') => {
 
 const getAuthorization = () => {
   return localStorage.getItem('token');
-}
+};

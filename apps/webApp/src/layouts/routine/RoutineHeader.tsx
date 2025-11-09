@@ -1,12 +1,13 @@
+import { useRequestStore } from '@repo/shared/store/request.store';
+import { getFormatDate } from '@repo/shared/utils';
 import { RequestList } from '@repo/types';
 
 import DarkMode from '@/components/common/DarkMode';
 import NotificationBell from '@/components/common/notification-bell/NotificationBell';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import { ModalName, useModalStore } from '@/store/modal.store';
-import { useRequestStore } from '@repo/shared/store/request.store';
+
 import Header from '../common/Header';
-import { getFormatDate } from '@repo/shared/utils';
 
 interface RoutineHeaderProps {
   list: RequestList;
@@ -14,10 +15,15 @@ interface RoutineHeaderProps {
 }
 
 const NotificationContent = ({
-  mateNickname, 
-  createdAt, 
+  mateNickname,
+  createdAt,
   routineName,
-}: { id: number; mateNickname: string; createdAt: string; routineName: string; }) => {
+}: {
+  id: number;
+  mateNickname: string;
+  createdAt: string;
+  routineName: string;
+}) => {
   return (
     <div
       className={`flex flex-col hover:bg-gray-100 dark:hover:bg-dark-primary-color-hover rounded-sm cursor-pointer`}
@@ -30,13 +36,13 @@ const NotificationContent = ({
         <span>{getFormatDate(new Date(createdAt))}</span>
       </div>
     </div>
-  )
+  );
 };
 
 const RoutineHeader = ({ list, nickname }: RoutineHeaderProps) => {
   const showModal = useModalStore((state) => state.show);
   const setRequestId = useRequestStore((state) => state.setRequestId);
-  
+
   const handleModalShow = ({ id }: { id: number }) => {
     showModal(ModalName.REQUEST_DETAIL);
     setRequestId(id);
@@ -52,13 +58,9 @@ const RoutineHeader = ({ list, nickname }: RoutineHeaderProps) => {
           list={list.map((item) => ({
             ...item,
             title: item.routineName,
-          }))} 
-          onClick={handleModalShow} 
-          renderItem={(item) => (
-            <NotificationContent 
-              {...item}
-            />
-          )}
+          }))}
+          onClick={handleModalShow}
+          renderItem={(item) => <NotificationContent {...item} />}
         />
         <DarkMode />
       </div>
