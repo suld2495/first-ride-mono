@@ -158,13 +158,14 @@ const RoutineFormModal = () => {
           label="벌금"
           children={({ value, onChange }) => {
             const formatNumber = (num: string | number) => {
-              const numStr = String(num).replace(/,/g, '');
-              if (!numStr || numStr === '0') return '0';
-              return parseInt(numStr).toLocaleString('ko-KR');
+              const numStr = String(num).replace(/[^0-9]/g, '');
+              if (!numStr || numStr === '0') return '';
+              const parsed = parseInt(numStr, 10);
+              return isNaN(parsed) ? '' : parsed.toLocaleString('ko-KR');
             };
 
             const handleChange = (text: string) => {
-              const numericValue = text.replace(/,/g, '');
+              const numericValue = text.replace(/[^0-9]/g, '');
               onChange(numericValue);
             };
 
@@ -173,11 +174,6 @@ const RoutineFormModal = () => {
                 value={value !== undefined ? formatNumber(value) : value}
                 placeholder="벌금을 입력해주세요."
                 onChangeText={handleChange}
-                onFocus={() => {
-                  if (value === 0 || value === '0') {
-                    onChange('');
-                  }
-                }}
                 keyboardType="number-pad"
               />
             );
@@ -192,7 +188,7 @@ const RoutineFormModal = () => {
               placeholder="루틴 횟수를 입력해주세요."
               onChangeText={onChange}
               onFocus={() => {
-                if (value === 0 || value === '0' || value === 1 || value === '1') {
+                if (['0', '1'].includes(String(value))) {
                   onChange('');
                 }
               }}

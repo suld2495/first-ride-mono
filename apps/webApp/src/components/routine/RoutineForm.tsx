@@ -124,22 +124,16 @@ const RoutineForm = ({
         label="벌금"
         children={({ value, name, onChange }) => {
           const formatNumber = (num: string | number) => {
-            const numStr = String(num).replace(/,/g, '');
+            const numStr = String(num).replace(/[^0-9]/g, '');
             if (!numStr || numStr === '0') return '';
-            return parseInt(numStr).toLocaleString('ko-KR');
+            const parsed = parseInt(numStr, 10);
+            return isNaN(parsed) ? '' : parsed.toLocaleString('ko-KR');
           };
 
           const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            const numericValue = e.target.value.replace(/,/g, '');
+            const numericValue = e.target.value.replace(/[^0-9]/g, '');
             e.target.value = numericValue;
             onChange(e);
-          };
-
-          const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-            if (e.target.value === '0') {
-              e.target.value = '';
-              onChange(e);
-            }
           };
 
           return (
@@ -150,7 +144,6 @@ const RoutineForm = ({
               min={0}
               placeholder="벌금을 입력하세요."
               onChange={handleChange}
-              onFocus={handleFocus}
             />
           );
         }}
@@ -159,12 +152,11 @@ const RoutineForm = ({
         name="routineCount"
         className="flex flex-col gap-2 mt-5"
         label="루틴 횟수"
-        children={({ value, name, onChange }) => {
+        children={({ value, name, onChange, setValue }) => {
           const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
             const val = e.target.value;
             if (val === '0' || val === '1') {
-              e.target.value = '';
-              onChange(e);
+              setValue('routineCount', '');
             }
           };
 
