@@ -37,10 +37,10 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
         <span>{getDisplayFormatDate(endDate)}</span>
       </div>
       <div className="flex relative">
-        <Link to={`/routine?date=${beforeWeek(startDate)}`}>
+        <Link to={`/?date=${beforeWeek(startDate)}`}>
           <IconChevronLeft stroke={2} />
         </Link>
-        <Link to={`/routine?date=${afterWeek(startDate)}`}>
+        <Link to={`/?date=${afterWeek(startDate)}`}>
           <IconChevronRight stroke={2} />
         </Link>
         <div className="flex ml-4 gap-1 items-center">
