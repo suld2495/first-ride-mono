@@ -182,19 +182,32 @@ const RoutineFormModal = () => {
         <FormItem
           name="routineCount"
           label="루틴 횟수"
-          children={({ value, onChange }) => (
-            <ThemeTextInput
-              value={value !== undefined ? String(value) : value}
-              placeholder="루틴 횟수를 입력해주세요."
-              onChangeText={onChange}
-              onFocus={() => {
-                if (['0', '1'].includes(String(value))) {
-                  onChange('');
-                }
-              }}
-              keyboardType="number-pad"
-            />
-          )}
+          children={({ value, onChange }) => {
+            const handleChange = (text: string) => {
+              if (text === '') {
+                onChange(text);
+                return;
+              }
+              const num = Number(text);
+              if (Number.isInteger(num) && num >= 1 && num <= 7) {
+                onChange(text);
+              }
+            };
+
+            return (
+              <ThemeTextInput
+                value={value !== undefined ? String(value) : value}
+                placeholder="루틴 횟수를 입력해주세요."
+                onChangeText={handleChange}
+                onFocus={() => {
+                  if (['0', '1'].includes(String(value))) {
+                    onChange('');
+                  }
+                }}
+                keyboardType="number-pad"
+              />
+            );
+          }}
         />
         <FormItem
           name="routineCount"
