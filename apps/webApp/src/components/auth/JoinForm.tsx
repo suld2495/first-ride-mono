@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router';
 
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
+import PasswordInput from '../common/input/PasswordInput';
 import AuthForm from './AuthForm';
 import { JoinForm as JoinFormType } from '@repo/types';
 import { useJoinMutation } from '@repo/shared/hooks/useAuth';
@@ -16,6 +17,7 @@ const JoinForm = () => {
     passwordConfirm: '',
     job: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
   const join = useJoinMutation();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -33,10 +35,16 @@ const JoinForm = () => {
       return;
     }
 
+    setIsLoading(true);
     try {
       await join.mutateAsync(form);
+      alert('회원가입이 완료되었습니다.');
       navigate('/login');
-    } catch {}
+    } catch (error) {
+      alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,19 +77,17 @@ const JoinForm = () => {
         onChange={handleChange}
         required
       />
-      <Input
+      <PasswordInput
         className="w-full h-13 mb-4"
         name="password"
-        type="password"
         placeholder="비밀번호를 입력해주세요"
         value={form.password}
         onChange={handleChange}
         required
       />
-      <Input
+      <PasswordInput
         className="w-full h-13 mb-4"
         name="passwordConfirm"
-        type="password"
         placeholder="비밀번호를 다시 입력해주세요"
         value={form.passwordConfirm}
         onChange={handleChange}
@@ -95,9 +101,10 @@ const JoinForm = () => {
         value={form.job}
         onChange={handleChange}
       />
-      <Button 
-        className='w-full h-13' 
+      <Button
+        className='w-full h-13'
         type="submit"
+        loading={isLoading}
       >
         회원가입
       </Button>
