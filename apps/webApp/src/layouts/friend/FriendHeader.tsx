@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ApiError } from '@repo/shared/api/AppError';
 import {
   useAcceptFriendRequestMutation,
   useFetchFriendRequestsQuery,
@@ -64,14 +65,28 @@ const FriendHeader = () => {
     try {
       await acceptFriendMutation.mutateAsync(id);
       alert('추가 되었습니다.');
-    } catch {}
+    } catch (error) {
+      const errorMessage =
+        error instanceof ApiError
+          ? error.message
+          : '친구 요청 수락에 실패했습니다. 다시 시도해주세요.';
+
+      alert(errorMessage);
+    }
   };
 
   const handleReject = async (id: number) => {
     try {
       await rejectFriendRequestMutation.mutateAsync(id);
       alert('거절 되었습니다.');
-    } catch {}
+    } catch (error) {
+      const errorMessage =
+        error instanceof ApiError
+          ? error.message
+          : '친구 요청 거절에 실패했습니다. 다시 시도해주세요.';
+
+      alert(errorMessage);
+    }
   };
 
   if (!list) {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ApiError } from '@repo/shared/api/AppError';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import { SearchOption, User } from '@repo/types';
@@ -22,7 +23,14 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
       await addMutation.mutateAsync(nickname);
       alert('추가되었습니다.');
       close();
-    } catch {}
+    } catch (error) {
+      const errorMessage =
+        error instanceof ApiError
+          ? error.message
+          : '친구 추가에 실패했습니다. 다시 시도해주세요.';
+
+      alert(errorMessage);
+    }
   };
 
   return (

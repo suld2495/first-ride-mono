@@ -1,3 +1,4 @@
+import { ApiError } from '@repo/shared/api/AppError';
 import {
   useDeleteFriendMutation,
   useFetchFriendsQuery,
@@ -15,7 +16,14 @@ const FriendItem = ({ nickname }: Friend) => {
     try {
       await deleteMutation.mutateAsync(nickname);
       alert('삭제되었습니다.');
-    } catch {}
+    } catch (error) {
+      const errorMessage =
+        error instanceof ApiError
+          ? error.message
+          : '친구 삭제에 실패했습니다. 다시 시도해주세요.';
+
+      alert(errorMessage);
+    }
   };
 
   return (
