@@ -1,8 +1,6 @@
 import { ErrorAraryData, ErrorData } from '@repo/types';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-import { errorMessages } from '../error/error-message';
-
 import {
   ApiError,
   AppError,
