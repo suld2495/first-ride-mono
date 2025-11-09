@@ -18,6 +18,7 @@ const LoginForm = () => {
     userId: '',
     password: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
   const login = useLoginMutation();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -30,6 +31,7 @@ const LoginForm = () => {
       return;
     }
 
+    setIsLoading(true);
     try {
       const response = await login.mutateAsync(form);
 
@@ -42,6 +44,8 @@ const LoginForm = () => {
           : '로그인에 실패했습니다. 다시 시도해주세요.';
 
       alert(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -72,7 +76,7 @@ const LoginForm = () => {
           onChange={handleChange}
           required
         />
-        <Button className="w-full h-13" type="submit">
+        <Button className="w-full h-13" type="submit" loading={isLoading}>
           로그인
         </Button>
       </div>
