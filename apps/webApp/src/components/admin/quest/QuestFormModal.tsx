@@ -5,17 +5,15 @@ import {
 } from '@repo/shared/hooks/useQuest';
 import { Quest, QuestForm as QuestFormType } from '@repo/types';
 
-import { createForm } from '@/hooks/useForm';
-import { useToast } from '@/hooks/useToast';
-import { fromDateTimeLocal, toDateTimeLocal } from '@/utils/quest-utils';
-
+import RewardSelectModal from '@/components/admin/quest/RewardSelectModal';
 import Button from '@/components/common/button/Button';
 import Input from '@/components/common/input/Input';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import Select from '@/components/common/Select';
 import ToastContainer from '@/components/common/ToastContainer';
-
-import RewardSelectModal from '@/components/admin/quest/RewardSelectModal';
+import { createForm } from '@/hooks/useForm';
+import { useToast } from '@/hooks/useToast';
+import { fromDateTimeLocal, toDateTimeLocal } from '@/utils/quest-utils';
 
 interface QuestFormModalProps {
   isOpen: boolean;
@@ -32,8 +30,8 @@ const questFormInit: QuestFormType = {
   endDate: '',
   requiredLevel: 1,
   maxParticipants: 0,
-  rewardType: 'BADGE', 
-  expAmount: 0, 
+  rewardType: 'BADGE',
+  expAmount: 0,
 };
 
 const { Form, FormItem } = createForm<QuestFormType>();
@@ -69,7 +67,7 @@ const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
       requiredLevel: quest.requiredLevel,
       maxParticipants: quest.maxParticipants,
       expAmount: quest.expAmount,
-      rewardType: quest.rewardType
+      rewardType: quest.rewardType,
     };
   }, [quest, selectedReward]);
 

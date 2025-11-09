@@ -13,7 +13,7 @@ export const userHandlers = [
       {
         userId: 'yun2',
         nickname: '윤2',
-      }, 
+      },
     ]);
   }),
 ];

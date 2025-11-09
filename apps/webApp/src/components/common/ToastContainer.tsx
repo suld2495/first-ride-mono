@@ -1,7 +1,8 @@
 'use client';
 
-import { createPortal } from 'react-dom';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+
 import Toast, { ToastProps } from './Toast';
 
 interface ToastContainerProps {
@@ -29,7 +30,7 @@ const ToastContainer = ({ toasts, onClose }: ToastContainerProps) => {
         <Toast key={toast.id} {...toast} onClose={onClose} />
       ))}
     </div>,
-    document.body
+    document.body,
   );
 };
 

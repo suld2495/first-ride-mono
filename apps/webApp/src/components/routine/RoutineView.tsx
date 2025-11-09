@@ -1,9 +1,9 @@
+import { useDeleteRoutineMutation } from '@repo/shared/hooks/useRoutine';
+import { getDisplayFormatDate } from '@repo/shared/utils';
 import { Routine } from '@repo/types';
 
-import { useDeleteRoutineMutation } from '@repo/shared/hooks/useRoutine';
 import { ModalName, useModalStore } from '@/store/modal.store';
 import { useRoutineStore } from '@/store/routine.store';
-import { getDisplayFormatDate } from '@repo/shared/utils';
 
 import Button from '../common/button/Button';
 import Paragraph from '../common/paragraph/Paragraph';
@@ -57,9 +57,7 @@ const RoutineView = ({
           메이트
         </Paragraph>
         <div className="relative w-full">
-          <Paragraph>
-            {isMe ? '나' : mateNickname}
-          </Paragraph>
+          <Paragraph>{isMe ? '나' : mateNickname}</Paragraph>
         </div>
       </div>
       <div className="py-4">

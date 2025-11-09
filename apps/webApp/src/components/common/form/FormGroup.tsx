@@ -9,7 +9,7 @@ export type FormGroupProps = {
 const FormGroup = ({
   title,
   children,
-  className = "",
+  className = '',
   description,
   gap = 5,
 }: FormGroupProps) => {
@@ -17,9 +17,7 @@ const FormGroup = ({
     <div className={`form-group ${className}`}>
       {title && (
         <div className="form-group__header">
-          <h3 className={`form-group__title`}>
-            {title}
-          </h3>
+          <h3 className={`form-group__title`}>{title}</h3>
           {description && (
             <p className="form-group__description">{description}</p>
           )}
@@ -29,7 +27,6 @@ const FormGroup = ({
         {children}
       </div>
     </div>
-    
   );
 };
 

@@ -1,5 +1,5 @@
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryProvider } from '@repo/shared/components';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 interface QueryProviderProps {
   children: React.JSX.Element;

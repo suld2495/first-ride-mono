@@ -1,7 +1,9 @@
-import { Quest } from "@repo/types";
-import Paragraph from "../common/paragraph/Paragraph";
-import { COLOR } from "@/utils/color";
-import { IconAward } from "@tabler/icons-react";
+import { Quest } from '@repo/types';
+import { IconAward } from '@tabler/icons-react';
+
+import { COLOR } from '@/utils/color';
+
+import Paragraph from '../common/paragraph/Paragraph';
 
 type QuestRewards = Pick<Quest, 'rewardName' | 'rewardType'>;
 
@@ -14,11 +16,9 @@ const QuestRewards = ({ rewardName }: QuestRewards) => {
           REWARDS
         </Paragraph>
       </div>
-      <Paragraph>
-        {rewardName}
-      </Paragraph>
+      <Paragraph>{rewardName}</Paragraph>
     </div>
-  )
+  );
 };
 
 export default QuestRewards;

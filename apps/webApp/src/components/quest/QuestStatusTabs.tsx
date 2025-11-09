@@ -1,5 +1,6 @@
-import type { QuestStatus } from "@/store/quest.store";
-import Paragraph from "../common/paragraph/Paragraph";
+import type { QuestStatus } from '@/store/quest.store';
+
+import Paragraph from '../common/paragraph/Paragraph';
 
 interface QuestStatusTabsProps {
   selected: QuestStatus;
@@ -17,15 +18,18 @@ const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
     <div className="flex justify-around py-3 px-2 bg-slate-900/60 border-b border-cyan-600">
       {TABS.map((tab) => {
         const isSelected = selected === tab.value;
+
         return (
           <button
             key={tab.value}
             onClick={() => onSelect(tab.value)}
             className={`
               flex-1 py-2 px-3 rounded transition-all
-              ${isSelected
-                ? 'bg-cyan-500/10 border border-cyan-400 text-cyan-400'
-                : 'text-slate-400 hover:text-slate-300'}
+              ${
+                isSelected
+                  ? 'bg-cyan-500/10 border border-cyan-400 text-cyan-400'
+                  : 'text-slate-400 hover:text-slate-300'
+              }
             `}
           >
             <Paragraph

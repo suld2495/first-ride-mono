@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { useLoginMutation } from '@repo/shared/hooks/useAuth';
+import { AuthForm as AuthFormType } from '@repo/types';
 import axios from 'axios';
+
+import { setAuthorization } from '@/api';
 
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
 import PasswordInput from '../common/input/PasswordInput';
+
 import AuthForm from './AuthForm';
-import { AuthForm as AuthFormType } from '@repo/types';
-import { useLoginMutation } from '@repo/shared/hooks/useAuth';
-import { setAuthorization } from '@/api';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -30,13 +32,16 @@ const LoginForm = () => {
 
     try {
       const response = await login.mutateAsync(form);
+
       setAuthorization(response.accessToken);
       navigate('/');
     } catch (error) {
       const errorMessage =
-        axios.isAxiosError(error) && typeof error.response?.data?.error?.message === 'string'
+        axios.isAxiosError(error) &&
+        typeof error.response?.data?.error?.message === 'string'
           ? error.response.data.error.message
           : '로그인에 실패했습니다. 다시 시도해주세요.';
+
       alert(errorMessage);
     }
   };
@@ -49,34 +54,35 @@ const LoginForm = () => {
   };
 
   return (
-    <AuthForm 
-      title='로그인'
-      onSubmit={handleSubmit}
-    >
-      <Input
-        className="w-full h-13 mb-4"
-        name="userId"
-        type="text"
-        placeholder="아이디를 입력해주세요"
-        value={form.userId}
-        onChange={handleChange}
-        required
-      />
-      <PasswordInput
-        className="w-full h-13 mb-4"
-        name="password"
-        placeholder="비밀번호를 입력해주세요"
-        value={form.password}
-        onChange={handleChange}
-        required
-      />
-      <Button 
-        className='w-full h-13' 
-        type="submit"
+    <AuthForm title="로그인" onSubmit={handleSubmit}>
+      <div className='w-full flex flex-col gap-4'>
+        <Input
+          className="w-full h-13"
+          name="userId"
+          type="text"
+          placeholder="아이디를 입력해주세요"
+          value={form.userId}
+          onChange={handleChange}
+          required
+        />
+        <PasswordInput
+          className="w-full h-13"
+          name="password"
+          placeholder="비밀번호를 입력해주세요"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+        <Button className="w-full h-13" type="submit">
+          로그인
+        </Button>
+      </div>
+      <Link
+        className="w-full dark:text-white text-sm mt-2 text-right"
+        to="/join"
       >
-        로그인
-      </Button>
-      <Link className='w-full dark:text-white text-sm mt-2 text-right' to="/join">회원가입</Link>
+        회원가입
+      </Link>
     </AuthForm>
   );
 };

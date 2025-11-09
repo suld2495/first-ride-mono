@@ -1,7 +1,8 @@
 import { QuestTypeFilter } from '@repo/types';
-import Select from '@/components/common/Select';
-import Input from '@/components/common/input/Input';
+
 import Button from '@/components/common/button/Button';
+import Input from '@/components/common/input/Input';
+import Select from '@/components/common/Select';
 
 interface QuestFilterProps {
   selectedType: QuestTypeFilter;
@@ -21,7 +22,9 @@ const QuestFilter = ({
   return (
     <div className="flex items-center justify-between gap-4 mb-4">
       <div className="flex items-center gap-2">
-        <span className="text-gray-main dark:text-gray-200 whitespace-nowrap">타입:</span>
+        <span className="text-gray-main dark:text-gray-200 whitespace-nowrap">
+          타입:
+        </span>
         <Select
           value={selectedType}
           onChange={(e) => onTypeChange(e.target.value as QuestTypeFilter)}

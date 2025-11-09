@@ -1,6 +1,7 @@
-import { useShowModal } from "@/hooks/useModal";
-import NotificationBellButton from "./NotificationBellButton";
-import NotificationList from "./NotificationList";
+import { useShowModal } from '@/hooks/useModal';
+
+import NotificationBellButton from './NotificationBellButton';
+import NotificationList from './NotificationList';
 
 export interface Notification {
   title: string;
@@ -13,22 +14,26 @@ interface NotificationBellProps<T extends Notification> {
   renderItem: (item: T) => React.ReactNode;
 }
 
-const NotificationBell = <T extends Notification>({ list, onClick, renderItem }: NotificationBellProps<T>) => {
+const NotificationBell = <T extends Notification>({
+  list,
+  onClick,
+  renderItem,
+}: NotificationBellProps<T>) => {
   const [visible, setVisible] = useShowModal(false);
 
   return (
     <>
-      <NotificationBellButton 
-        count={list.length} 
+      <NotificationBellButton
+        count={list.length}
         onClick={(e) => {
           setVisible(true);
           e.stopPropagation();
         }}
       />
       {visible && !!list.length && (
-        <NotificationList 
-          list={list} 
-          renderItem={(item) => renderItem(item)} 
+        <NotificationList
+          list={list}
+          renderItem={(item) => renderItem(item)}
           onClick={(item, index, e) => {
             setVisible(false);
             onClick?.(item, index, e);
@@ -36,7 +41,7 @@ const NotificationBell = <T extends Notification>({ list, onClick, renderItem }:
         />
       )}
     </>
-  )
+  );
 };
 
 export default NotificationBell;

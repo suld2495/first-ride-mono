@@ -1,5 +1,6 @@
-import React from "react";
-import Label from "../input/Label";
+import React from 'react';
+
+import Label from '../input/Label';
 
 export type FormItemProps<T extends Record<string, any>, K extends keyof T> = {
   name: K;
@@ -7,10 +8,14 @@ export type FormItemProps<T extends Record<string, any>, K extends keyof T> = {
   required?: boolean;
   children: (props: {
     value: T[K];
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+    onChange: (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => void;
     onBlur?: () => void;
     name: K;
-    form: T,
+    form: T;
     setValue: <Key extends keyof T>(key: Key, value: T[Key]) => void;
   }) => React.ReactNode;
   className?: string;
@@ -31,13 +36,13 @@ export type UseFormFieldReturn = {
 
 export function createFormItem<T extends Record<string, any>>(
   useFormField: <K extends keyof T>(name: K) => UseFormFieldReturn,
-  useForm: () => any
+  useForm: () => any,
 ) {
   return function FormItem<K extends keyof T>({
     name,
     label,
     children,
-    className = "",
+    className = '',
     showErrors = true,
     helpText,
     flex = false,
@@ -46,12 +51,18 @@ export function createFormItem<T extends Record<string, any>>(
     const formContext = useForm();
     const hasError = field.touched && !field.isValid;
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleChange = (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => {
       field.set(e.target.value as any);
     };
 
     return (
-      <div className={`flex ${flex ? 'flex-1' : ''} ${hasError ? 'form-item--error' : ''} ${className}`}>
+      <div
+        className={`flex ${flex ? 'flex-1' : ''} ${hasError ? 'form-item--error' : ''} ${className}`}
+      >
         {label && (
           <Label htmlFor={String(name)} className="text-sm font-bold">
             {label}
@@ -64,12 +75,10 @@ export function createFormItem<T extends Record<string, any>>(
           onBlur: field.onBlur,
           name,
           form: formContext.form,
-          setValue: formContext.setValue
+          setValue: formContext.setValue,
         })}
 
-        {helpText && !hasError && (
-          <p className="">{helpText}</p>
-        )}
+        {helpText && !hasError && <p className="">{helpText}</p>}
 
         {showErrors && hasError && field.errors.length > 0 && (
           <div>
@@ -81,6 +90,6 @@ export function createFormItem<T extends Record<string, any>>(
           </div>
         )}
       </div>
-    )
+    );
   };
-};
+}
