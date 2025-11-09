@@ -45,8 +45,9 @@ export default function SignUp() {
       await join.mutateAsync(form);
       alert('회원가입이 완료되었습니다.');
       router.push('/sign-in');
-    } catch (error) {
-      alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.error?.message || '회원가입에 실패했습니다. 다시 시도해주세요.';
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }

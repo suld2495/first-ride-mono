@@ -44,7 +44,10 @@ export default function SignIn() {
 
       setAuthorization(response.accessToken);
       router.push('/(tabs)/(afterLogin)/(routine)');
-    } catch {}
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.error?.message || '로그인에 실패했습니다. 다시 시도해주세요.';
+      alert(errorMessage);
+    }
   };
 
   const handleChange = (key: 'userId' | 'password', value: string) => {

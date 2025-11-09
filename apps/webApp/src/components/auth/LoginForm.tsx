@@ -31,7 +31,10 @@ const LoginForm = () => {
       const response = await login.mutateAsync(form);
       setAuthorization(response.accessToken);
       navigate('/');
-    } catch {}
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.error?.message || '로그인에 실패했습니다. 다시 시도해주세요.';
+      alert(errorMessage);
+    }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
