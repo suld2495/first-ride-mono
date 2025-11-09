@@ -3,11 +3,14 @@ import { useReplyRequestMutation } from '@repo/shared/hooks/useRequest';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { RequestResponseStatus, RoutineDetail } from '@repo/types';
 
+import { useToast } from '@/hooks/useToast';
 import { useModalStore } from '@/store/modal.store';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 import Button from '../common/button/Button';
 import Label from '../common/input/Label';
 import Paragraph from '../common/paragraph/Paragraph';
+import ToastContainer from '../common/ToastContainer';
 
 const RequestView = ({
   id,
@@ -20,6 +23,7 @@ const RequestView = ({
   const [comment, setComment] = useState('');
   const replyRequest = useReplyRequestMutation(username);
   const closeModal = useModalStore((state) => state.close);
+  const { toasts, success, error, removeToast } = useToast();
 
   const handleSubmit = async (status: RequestResponseStatus) => {
     try {
@@ -32,17 +36,23 @@ const RequestView = ({
       closeModal();
 
       if (status === 'PASS') {
-        alert('승인되었습니다.');
+        success('승인되었습니다.');
       } else {
-        alert('거절되었습니다.');
+        success('거절되었습니다.');
       }
-    } catch {
-      alert('오류가 발생했습니다. 다시 시도해주세요.');
+    } catch (err) {
+      const errorMessage = getApiErrorMessage(
+        err,
+        '오류가 발생했습니다. 다시 시도해주세요.',
+      );
+
+      error(errorMessage);
     }
   };
 
   return (
-    <div>
+    <>
+      <div>
       <div className="py-4">
         <Paragraph className="mb-2" variant="h4">
           {routineName}
@@ -97,7 +107,10 @@ const RequestView = ({
           </div>
         </form>
       </div>
-    </div>
+      </div>
+
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+    </>
   );
 };
 

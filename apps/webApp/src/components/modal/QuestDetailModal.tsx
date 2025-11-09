@@ -5,11 +5,14 @@ import {
 import { Quest } from '@repo/types';
 import { IconBolt, IconSquare } from '@tabler/icons-react';
 
+import { useToast } from '@/hooks/useToast';
 import { useQuestStore } from '@/store/quest.store';
 import { COLOR } from '@/utils/color';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 import Button from '../common/button/Button';
 import Paragraph from '../common/paragraph/Paragraph';
+import ToastContainer from '../common/ToastContainer';
 import QuestInfo from '../quest/QuestInfo';
 import QuestRewards from '../quest/QuestRewards';
 import QuestTime from '../quest/QuestTime';
@@ -23,6 +26,7 @@ const QuestDetailModal = () => {
   const questId = useQuestStore((state) => state.questId);
   const { data: detail, isLoading } = useFetchQuestDetailQuery(questId);
   const acceptQuest = useAccpetQuestMutation();
+  const { toasts, success, error, removeToast } = useToast();
 
   if (isLoading || !detail) {
     return null;
@@ -40,15 +44,21 @@ const QuestDetailModal = () => {
   const handleAccpet = async () => {
     try {
       await acceptQuest.mutateAsync(detail.questId);
-      alert('수락되었습니다.');
-    } catch (e) {
-      alert('이미 수락한 퀘스트입니다.');
+      success('수락되었습니다.');
+    } catch (err) {
+      const errorMessage = getApiErrorMessage(
+        err,
+        '퀘스트 수락에 실패했습니다. 다시 시도해주세요.',
+      );
+
+      error(errorMessage);
     }
   };
 
   return (
-    <div className="bg-primary-light-text-color rounded-b-md">
-      <div className="flex flex-col gap-3 p-4">
+    <>
+      <div className="bg-primary-light-text-color rounded-b-md">
+        <div className="flex flex-col gap-3 p-4">
         <div>
           <div className={`text-sm font-bold mb-2`} color="">
             <Paragraph>[{QUEST_LABEL[questType]}]</Paragraph>
@@ -98,6 +108,9 @@ const QuestDetailModal = () => {
         </div>
       </div>
     </div>
+
+    <ToastContainer toasts={toasts} onClose={removeToast} />
+  </>
   );
 };
 
