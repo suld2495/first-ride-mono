@@ -20,6 +20,7 @@ const initial = () => ({
 export default function SignUp() {
   const router = useRouter();
   const [form, setForm] = useState<JoinFormType & { passwordConfirm: JoinFormType['password'] }>(initial());
+  const [isLoading, setIsLoading] = useState(false);
   const join = useJoinMutation();
 
   const handleJoin = async () => {
@@ -35,10 +36,16 @@ export default function SignUp() {
       return;
     }
 
+    setIsLoading(true);
     try {
       await join.mutateAsync(form);
-      router.push('/sign-in')
-    } catch {}
+      alert('회원가입이 완료되었습니다.');
+      router.push('/sign-in');
+    } catch (error) {
+      alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (key: (keyof JoinFormType) | 'passwordConfirm', value: string) => {
@@ -81,10 +88,11 @@ export default function SignUp() {
           value={form.job}
           onChangeText={(value) => handleChange('job', value)}
         />
-        <Button 
-          title="회원가입" 
+        <Button
+          title="회원가입"
           onPress={handleJoin}
           style={styles.button}
+          loading={isLoading}
         />
         <Link 
           href="/sign-in"

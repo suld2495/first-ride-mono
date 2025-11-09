@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Pressable,
   type PressableProps,
   StyleProp,
@@ -21,6 +22,7 @@ export type ButtonProps = PressableProps & {
   style?: StyleProp<ViewStyle>;
   icon?: React.ReactNode;
   iconGap?: number;
+  loading?: boolean;
 };
 
 const Button = ({
@@ -30,6 +32,8 @@ const Button = ({
   fontSize = 'button',
   icon,
   iconGap = 4,
+  loading = false,
+  disabled,
   ...props
 }: ButtonProps) => {
   const colorScheme = useColorScheme();
@@ -39,19 +43,26 @@ const Button = ({
   return (
     <Pressable
       style={[styles.container, styles[`light_${variant}`], style]}
+      disabled={disabled || loading}
       {...props}
     >
       <View style={[styles.button_container, { gap: iconGap }]}>
-        {icon && icon}
-        {title && (
-          <ThemeText
-            lightColor={textColor}
-            darkColor={textColor}
-            variant={fontSize}
-            style={styles.button_text}
-          >
-            {title}
-          </ThemeText>
+        {loading ? (
+          <ActivityIndicator color={textColor} size="small" />
+        ) : (
+          <>
+            {icon && icon}
+            {title && (
+              <ThemeText
+                lightColor={textColor}
+                darkColor={textColor}
+                variant={fontSize}
+                style={styles.button_text}
+              >
+                {title}
+              </ThemeText>
+            )}
+          </>
         )}
       </View>
     </Pressable>
