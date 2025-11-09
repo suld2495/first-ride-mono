@@ -20,19 +20,25 @@ interface RoutineFormProps {
   onSubmit: (data: RoutineFormType) => void;
 }
 
-const routineFormInit: RoutineFormType = {
+// 폼 내부에서 penalty와 routineCount를 문자열로 관리하기 위한 타입
+type InternalFormType = Omit<RoutineFormType, 'penalty' | 'routineCount'> & {
+  penalty: string | number;
+  routineCount: string | number;
+};
+
+const routineFormInit: InternalFormType = {
   nickname: '',
   routineName: '',
   routineDetail: '',
-  penalty: 0,
-  routineCount: 1,
+  penalty: '0',
+  routineCount: '1',
   startDate: '',
   endDate: '',
   mateNickname: '',
   isMe: false,
 };
 
-const { Form, FormItem, useForm } = createForm<RoutineFormType>();
+const { Form, FormItem, useForm } = createForm<InternalFormType>();
 
 const RoutineForm = ({
   nickname,
@@ -42,14 +48,26 @@ const RoutineForm = ({
   const closeModal = useModalStore((state) => state.close);
   const { data: friendList = [] } = useFetchFriendsQuery();
 
-  const form: RoutineFormType = useMemo(() => ({
+  const form: InternalFormType = useMemo(() => ({
     ...routineFormInit,
     nickname,
     ...formData,
+    penalty: formData?.penalty?.toString() ?? '0',
+    routineCount: formData?.routineCount?.toString() ?? '1',
   }), [nickname, formData]);
 
+  const handleSubmit = (data: InternalFormType) => {
+    // 문자열을 숫자로 변환해서 실제 onSubmit에 전달
+    const convertedData: RoutineFormType = {
+      ...data,
+      penalty: Number(data.penalty) || 0,
+      routineCount: Number(data.routineCount) || 1,
+    };
+    onSubmit(convertedData);
+  };
+
   return (
-    <Form form={form} onSubmit={onSubmit} validators={{
+    <Form form={form} onSubmit={handleSubmit} validators={{
       ...routineFormValidators,
       mateNickname(value, values) {
         if (values.isMe) {
