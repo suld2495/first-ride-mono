@@ -1,4 +1,3 @@
-import { ApiError } from '@repo/shared/api/AppError';
 import {
   useDeleteFriendMutation,
   useFetchFriendsQuery,
@@ -6,23 +5,32 @@ import {
 import { Friend, SearchOption } from '@repo/types';
 import { IconTrash } from '@tabler/icons-react';
 
+import { useToast } from '@/hooks/useToast';
+import { getApiErrorMessage } from '@/utils/error-utils';
+
 import IconButton from '../common/button/IconButton';
 import Paragraph from '../common/paragraph/Paragraph';
+import ToastContainer from '../common/ToastContainer';
 
-const FriendItem = ({ nickname }: Friend) => {
+interface FriendItemProps extends Friend {
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
+}
+
+const FriendItem = ({ nickname, onSuccess, onError }: FriendItemProps) => {
   const deleteMutation = useDeleteFriendMutation();
 
   const handleDelete = async () => {
     try {
       await deleteMutation.mutateAsync(nickname);
-      alert('삭제되었습니다.');
-    } catch (error) {
-      const errorMessage =
-        error instanceof ApiError
-          ? error.message
-          : '친구 삭제에 실패했습니다. 다시 시도해주세요.';
+      onSuccess('삭제되었습니다.');
+    } catch (err) {
+      const errorMessage = getApiErrorMessage(
+        err,
+        '친구 삭제에 실패했습니다. 다시 시도해주세요.',
+      );
 
-      alert(errorMessage);
+      onError(errorMessage);
     }
   };
 
@@ -42,13 +50,19 @@ const FriendItem = ({ nickname }: Friend) => {
 
 const FriendList = ({ page, keyword }: SearchOption) => {
   const { data: friends } = useFetchFriendsQuery({ page, keyword });
+  const { toasts, success, error, removeToast } = useToast();
 
   return (
     <>
       {!!friends?.length && (
         <ul>
           {friends.map((friend) => (
-            <FriendItem key={friend.nickname} {...friend} />
+            <FriendItem
+              key={friend.nickname}
+              {...friend}
+              onSuccess={success}
+              onError={error}
+            />
           ))}
         </ul>
       )}
@@ -58,6 +72,8 @@ const FriendList = ({ page, keyword }: SearchOption) => {
           친구를 추가해보세요.
         </Paragraph>
       )}
+
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 };

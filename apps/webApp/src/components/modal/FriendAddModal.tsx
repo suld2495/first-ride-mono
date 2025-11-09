@@ -1,35 +1,39 @@
 import { useState } from 'react';
-import { ApiError } from '@repo/shared/api/AppError';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import { SearchOption, User } from '@repo/types';
 import { IconPlus } from '@tabler/icons-react';
 
+import { useToast } from '@/hooks/useToast';
 import { useModalStore } from '@/store/modal.store';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 import IconButton from '../common/button/IconButton';
 import Input from '../common/input/Input';
 import Paragraph from '../common/paragraph/Paragraph';
+import ToastContainer from '../common/ToastContainer';
 
 interface UserItemProps extends User {
   close: () => void;
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
 }
 
-const UserItem = ({ nickname, close }: UserItemProps) => {
+const UserItem = ({ nickname, close, onSuccess, onError }: UserItemProps) => {
   const addMutation = useAddFriendMutation();
 
   const handleAdd = async () => {
     try {
       await addMutation.mutateAsync(nickname);
-      alert('추가되었습니다.');
+      onSuccess('추가되었습니다.');
       close();
-    } catch (error) {
-      const errorMessage =
-        error instanceof ApiError
-          ? error.message
-          : '친구 추가에 실패했습니다. 다시 시도해주세요.';
+    } catch (err) {
+      const errorMessage = getApiErrorMessage(
+        err,
+        '친구 추가에 실패했습니다. 다시 시도해주세요.',
+      );
 
-      alert(errorMessage);
+      onError(errorMessage);
     }
   };
 
@@ -54,6 +58,7 @@ const FriendAddModal = () => {
     page: 1,
     keyword: '',
   });
+  const { toasts, success, error, removeToast } = useToast();
 
   const { data: userList } = useFetchUserListQuery(searchOption);
 
@@ -81,7 +86,13 @@ const FriendAddModal = () => {
         {!!userList?.length && (
           <ul>
             {userList.map((user) => (
-              <UserItem key={user.userId} close={closeModal} {...user} />
+              <UserItem
+                key={user.userId}
+                close={closeModal}
+                onSuccess={success}
+                onError={error}
+                {...user}
+              />
             ))}
           </ul>
         )}
@@ -92,6 +103,8 @@ const FriendAddModal = () => {
           </Paragraph>
         )}
       </div>
+
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 };
