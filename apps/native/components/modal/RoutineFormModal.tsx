@@ -156,14 +156,28 @@ const RoutineFormModal = () => {
         <FormItem
           name="penalty"
           label="벌금"
-          children={({ value, onChange }) => (
-            <ThemeTextInput
-              value={value !== undefined ? String(value) : value}
-              placeholder="벌금을 입력해주세요."
-              onChangeText={onChange}
-              keyboardType="number-pad"
-            />
-          )}
+          children={({ value, onChange }) => {
+            const formatNumber = (num: string | number) => {
+              const numStr = String(num).replace(/[^0-9]/g, '');
+              if (!numStr || numStr === '0') return '';
+              const parsed = parseInt(numStr, 10);
+              return isNaN(parsed) ? '' : parsed.toLocaleString('ko-KR');
+            };
+
+            const handleChange = (text: string) => {
+              const numericValue = text.replace(/[^0-9]/g, '');
+              onChange(numericValue);
+            };
+
+            return (
+              <ThemeTextInput
+                value={value !== undefined ? formatNumber(value) : value}
+                placeholder="벌금을 입력해주세요."
+                onChangeText={handleChange}
+                keyboardType="number-pad"
+              />
+            );
+          }}
         />
         <FormItem
           name="routineCount"
@@ -173,6 +187,11 @@ const RoutineFormModal = () => {
               value={value !== undefined ? String(value) : value}
               placeholder="루틴 횟수를 입력해주세요."
               onChangeText={onChange}
+              onFocus={() => {
+                if (['0', '1'].includes(String(value))) {
+                  onChange('');
+                }
+              }}
               keyboardType="number-pad"
             />
           )}

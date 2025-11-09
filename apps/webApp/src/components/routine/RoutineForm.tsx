@@ -10,8 +10,8 @@ import RoutineSubmitButton from './RoutineSubmitButton';
 import AutoComplete from '../common/autocomplete/AutoComplete';
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
 import { createForm } from '@/hooks/useForm';
-import { routineFormValidators } from '@repo/shared/service/validatorMessage';
 import Label from '../common/input/Label';
+import { routineFormValidators } from '@repo/shared/service/validatorMessage';
 
 interface RoutineFormProps {
   nickname: string;
@@ -20,19 +20,25 @@ interface RoutineFormProps {
   onSubmit: (data: RoutineFormType) => void;
 }
 
-const routineFormInit: RoutineFormType = {
+// 폼 내부에서 penalty와 routineCount를 문자열로 관리하기 위한 타입
+type InternalFormType = Omit<RoutineFormType, 'penalty' | 'routineCount'> & {
+  penalty: string | number;
+  routineCount: string | number;
+};
+
+const routineFormInit: InternalFormType = {
   nickname: '',
   routineName: '',
   routineDetail: '',
-  penalty: 0,
-  routineCount: 1,
+  penalty: '0',
+  routineCount: '1',
   startDate: '',
   endDate: '',
   mateNickname: '',
   isMe: false,
 };
 
-const { Form, FormItem, useForm } = createForm<RoutineFormType>();
+const { Form, FormItem, useForm } = createForm<InternalFormType>();
 
 const RoutineForm = ({
   nickname,
@@ -42,24 +48,36 @@ const RoutineForm = ({
   const closeModal = useModalStore((state) => state.close);
   const { data: friendList = [] } = useFetchFriendsQuery();
 
-  const form: RoutineFormType = useMemo(() => ({
+  const form: InternalFormType = useMemo(() => ({
     ...routineFormInit,
     nickname,
     ...formData,
+    penalty: formData?.penalty?.toString() ?? '0',
+    routineCount: formData?.routineCount?.toString() ?? '1',
   }), [nickname, formData]);
 
+  const handleSubmit = (data: InternalFormType) => {
+    // 문자열을 숫자로 변환해서 실제 onSubmit에 전달
+    const convertedData: RoutineFormType = {
+      ...data,
+      penalty: Number(data.penalty) || 0,
+      routineCount: Number(data.routineCount) || 1,
+    };
+    onSubmit(convertedData);
+  };
+
   return (
-    <Form form={form} onSubmit={onSubmit} validators={{
+    <Form form={form} onSubmit={handleSubmit} validators={{
       ...routineFormValidators,
       mateNickname(value, values) {
         if (values.isMe) {
           return;
         }
-        
+
         if (!value) {
           return '메이트를 설정해주세요.';
         }
-    
+
         if (friendList.some(({ nickname }) => nickname === value)) {
           return '존재하지 않는 친구입니다.';
         }
@@ -122,32 +140,57 @@ const RoutineForm = ({
         name="penalty"
         className="flex flex-col gap-2 mt-5"
         label="벌금"
-        children={({ value, name, onChange }) => (
-          <Input
-            type="number"
-            name={name}
-            value={value}
-            min={0}
-            placeholder="벌금을 입력하세요."
-            onChange={onChange}
-          />
-        )}
+        children={({ value, name, onChange }) => {
+          const formatNumber = (num: string | number) => {
+            const numStr = String(num).replace(/[^0-9]/g, '');
+            if (!numStr || numStr === '0') return '';
+            const parsed = parseInt(numStr, 10);
+            return isNaN(parsed) ? '' : parsed.toLocaleString('ko-KR');
+          };
+
+          const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const numericValue = e.target.value.replace(/[^0-9]/g, '');
+            e.target.value = numericValue;
+            onChange(e);
+          };
+
+          return (
+            <Input
+              type="text"
+              name={name}
+              value={formatNumber(value)}
+              min={0}
+              placeholder="벌금을 입력하세요."
+              onChange={handleChange}
+            />
+          );
+        }}
       />
       <FormItem
         name="routineCount"
         className="flex flex-col gap-2 mt-5"
         label="루틴 횟수"
-        children={({ value, name, onChange }) => (
-          <Input
-            type="number"
-            name={name}
-            value={value}
-            max={7}
-            min={1}
-            placeholder="루틴 횟수를 입력하세요."
-            onChange={onChange}
-          />
-        )}
+        children={({ value, name, onChange, setValue }) => {
+          const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+            const val = e.target.value;
+            if (val === '0' || val === '1') {
+              setValue('routineCount', '');
+            }
+          };
+
+          return (
+            <Input
+              type="number"
+              name={name}
+              value={value}
+              max={7}
+              min={1}
+              placeholder="루틴 횟수를 입력하세요."
+              onChange={onChange}
+              onFocus={handleFocus}
+            />
+          );
+        }}
       />
       <FormItem
         name="startDate"
