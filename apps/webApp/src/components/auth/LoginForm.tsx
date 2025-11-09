@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useLoginMutation } from '@repo/shared/hooks/useAuth';
 import { AuthForm as AuthFormType } from '@repo/types';
-import axios from 'axios';
 
 import { setAuthorization } from '@/api';
 
@@ -11,6 +10,7 @@ import Input from '../common/input/Input';
 import PasswordInput from '../common/input/PasswordInput';
 
 import AuthForm from './AuthForm';
+import { ApiError } from '@repo/shared/api/AppError';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -37,9 +37,8 @@ const LoginForm = () => {
       navigate('/');
     } catch (error) {
       const errorMessage =
-        axios.isAxiosError(error) &&
-        typeof error.response?.data?.error?.message === 'string'
-          ? error.response.data.error.message
+        error instanceof ApiError
+          ? error.message
           : '로그인에 실패했습니다. 다시 시도해주세요.';
 
       alert(errorMessage);

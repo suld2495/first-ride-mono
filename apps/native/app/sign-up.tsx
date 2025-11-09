@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import axios from 'axios';
 import { useJoinMutation } from '@repo/shared/hooks/useAuth';
+import { ApiError } from '@repo/shared/api/AppError';
 import { JoinForm as JoinFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 
@@ -48,8 +48,8 @@ export default function SignUp() {
       router.push('/sign-in');
     } catch (error) {
       const errorMessage =
-        axios.isAxiosError(error) && typeof error.response?.data?.error?.message === 'string'
-          ? error.response.data.error.message
+        error instanceof ApiError
+          ? error.message
           : '회원가입에 실패했습니다. 다시 시도해주세요.';
       alert(errorMessage);
     } finally {
