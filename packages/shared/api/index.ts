@@ -74,17 +74,11 @@ export const toAppError = (err: unknown): AppError => {
   }
 
   if (!isErrorArary(errorData)) {
-    const { error: code } = errorData;
+    const {
+      error: { message, data: fieldError },
+    } = errorData;
 
-    return new ApiError(
-      {
-        code,
-      },
-      status,
-      url,
-      error,
-      errorMessages[code],
-    );
+    return new ApiError(fieldError || [], status, url, error, message);
   }
 
   const { errors } = errorData;
