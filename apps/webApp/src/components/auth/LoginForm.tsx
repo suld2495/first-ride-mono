@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router';
 
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
+import PasswordInput from '../common/input/PasswordInput';
 import AuthForm from './AuthForm';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { useLoginMutation } from '@repo/shared/hooks/useAuth';
@@ -54,10 +55,9 @@ const LoginForm = () => {
         onChange={handleChange}
         required
       />
-      <Input
+      <PasswordInput
         className="w-full h-13 mb-4"
         name="password"
-        type="password"
         placeholder="비밀번호를 입력해주세요"
         value={form.password}
         onChange={handleChange}
