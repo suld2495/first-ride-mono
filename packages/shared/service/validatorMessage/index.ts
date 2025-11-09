@@ -23,7 +23,9 @@ export const routineFormValidators: Validators<InternalFormType> = {
       return '벌금을 입력해주세요.';
     }
 
-    if (value < 0) {
+    const penalty = Number(value) || 0;
+
+    if (penalty < 0) {
       return '벌금은 0원 이상으로 입력해주세요.';
     }
   },
@@ -32,7 +34,9 @@ export const routineFormValidators: Validators<InternalFormType> = {
       return '루틴 횟수를 입력해주세요.';
     }
 
-    if (value < 1 || value > 7) {
+    const count = Number(value) || 0;
+
+    if (count < 1 || count > 7) {
       return '루틴 횟수는 1 에서 7 사이로 입력해주세요.';
     }
   },
