@@ -326,6 +326,7 @@ const createStyles = (colorScheme: 'light' | 'dark') =>
 
     mateField: {
       flexDirection: 'row',
-      gap: 5
+      gap: 5,
+      alignItems: 'center',
     }
   });

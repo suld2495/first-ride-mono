@@ -69,9 +69,9 @@ export default function TabLayout() {
             fontWeight: 'bold',
           },
           tabBarStyle: {
-            height: 50 + insets.bottom,
-            paddingBottom: 5 + insets.bottom,
-            paddingTop: 5,
+            height: 45 + insets.bottom,
+            paddingBottom: insets.bottom,
+            paddingTop: 2,
             paddingHorizontal: 20,
             justifyContent: 'center',
             borderTopWidth: 0,

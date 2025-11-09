@@ -42,6 +42,7 @@ const ThemeTextInput = ({
         onChangeText={onChangeText}
         style={styles.input}
         placeholderTextColor={COLORS[colorScheme].grey}
+        editable={editable}
       />
     </ThemeView>
   );
