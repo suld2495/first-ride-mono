@@ -10,7 +10,6 @@ import RoutineSubmitButton from './RoutineSubmitButton';
 import AutoComplete from '../common/autocomplete/AutoComplete';
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
 import { createForm } from '@/hooks/useForm';
-import { routineFormValidators } from '@repo/shared/service/validatorMessage';
 import Label from '../common/input/Label';
 
 interface RoutineFormProps {
@@ -68,16 +67,48 @@ const RoutineForm = ({
 
   return (
     <Form form={form} onSubmit={handleSubmit} validators={{
-      ...routineFormValidators,
+      routineName: (value) => {
+        if (!value) {
+          return '루틴 이름을 입력해주세요.';
+        }
+      },
+      routineDetail(value) {
+        if (!value) {
+          return '루틴 설명을 입력해주세요.';
+        }
+      },
+      penalty(value) {
+        const numValue = Number(value);
+        if (!value && value !== 0) {
+          return '벌금을 입력해주세요.';
+        }
+        if (numValue < 0) {
+          return '벌금은 0원 이상으로 입력해주세요.';
+        }
+      },
+      routineCount(value) {
+        const numValue = Number(value);
+        if (!value && value !== 0) {
+          return '루틴 횟수를 입력해주세요.';
+        }
+        if (numValue < 1 || numValue > 7) {
+          return '루틴 횟수는 1 에서 7 사이로 입력해주세요.';
+        }
+      },
+      startDate(value) {
+        if (!value) {
+          return '시작 날짜를 입력해주세요.';
+        }
+      },
       mateNickname(value, values) {
         if (values.isMe) {
           return;
         }
-        
+
         if (!value) {
           return '메이트를 설정해주세요.';
         }
-    
+
         if (friendList.some(({ nickname }) => nickname === value)) {
           return '존재하지 않는 친구입니다.';
         }
