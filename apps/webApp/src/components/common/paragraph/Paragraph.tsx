@@ -1,9 +1,10 @@
 import React from 'react';
-import { cn, paragraphVariants, type ParagraphVariantsProps } from '@/design-system';
+import { type VariantProps } from 'class-variance-authority';
+import { cn, paragraphVariants } from '@/design-system';
 
 export interface ParagraphProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'color'>,
-    ParagraphVariantsProps {
+    VariantProps<typeof paragraphVariants> {
   /**
    * HTML 요소 태그 (variant에서 자동 결정되지만 명시적 오버라이드 가능)
    */
