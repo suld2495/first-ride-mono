@@ -3,13 +3,11 @@ import {
   Pressable,
   type PressableProps,
   StyleProp,
-  StyleSheet,
   View,
   ViewStyle,
 } from 'react-native';
-
+import { createButtonStyle, type ButtonVariant, type ButtonSize } from '@/design-system';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { COLORS } from '@/theme/colors';
 
 import ThemeText, { ThemeTextProps } from './ThemeText';
 
@@ -17,8 +15,16 @@ export type ButtonProps = PressableProps & {
   lightColor?: string;
   darkColor?: string;
   title?: string;
-  variant?: 'filled' | 'outline' | 'plain' | 'primary' | 'danger';
-  size?: 'small' | 'very-small' | 'medium' | 'large';
+  /**
+   * Button variant (통합 토큰 기반)
+   * @default 'primary'
+   */
+  variant?: ButtonVariant | 'filled' | 'outline'; // filled = primary (legacy)
+  /**
+   * Button size (통합 토큰 기반)
+   * @default 'medium'
+   */
+  size?: ButtonSize;
   fontSize?: ThemeTextProps['variant'];
   style?: StyleProp<ViewStyle>;
   icon?: React.ReactNode;
@@ -26,12 +32,20 @@ export type ButtonProps = PressableProps & {
   loading?: boolean;
 };
 
+/**
+ * 통합 Button 컴포넌트 (React Native)
+ *
+ * @example
+ * <Button variant="primary" title="저장" />
+ * <Button variant="plain" size="small" title="취소" />
+ * <Button variant="danger" loading title="삭제중" />
+ */
 const Button = ({
-  variant = 'filled',
+  variant = 'primary',
   size = 'medium',
   title = '',
   style,
-  fontSize = 'button',
+  fontSize = 'label',
   icon,
   iconGap = 4,
   loading = false,
@@ -40,48 +54,33 @@ const Button = ({
 }: ButtonProps) => {
   const colorScheme = useColorScheme();
 
-  const getTextColor = () => {
-    if (variant === 'filled' || variant === 'primary' || variant === 'danger') {
-      return COLORS.white;
-    }
-    return COLORS[colorScheme].grey;
+  // Legacy variant 매핑
+  const getMappedVariant = (): ButtonVariant => {
+    if (variant === 'filled') return 'primary';
+    return variant as ButtonVariant;
   };
 
-  const getBackgroundColor = () => {
-    if (variant === 'primary') return COLORS[colorScheme].primary;
-    if (variant === 'danger') return COLORS[colorScheme].error;
-    return undefined;
-  };
-
-  const textColor = getTextColor();
-  const backgroundColor = getBackgroundColor();
+  const mappedVariant = getMappedVariant();
+  const buttonStyle = createButtonStyle(mappedVariant, size, colorScheme);
 
   return (
     <Pressable
-      style={[
-        styles.container,
-        styles[size],
-        variant === 'filled' && styles[`light_${variant}`],
-        variant === 'outline' && styles.light_outline,
-        variant === 'plain' && styles.light_plain,
-        backgroundColor && { backgroundColor },
-        style,
-      ]}
+      style={[buttonStyle.container, style]}
       disabled={disabled || loading}
       {...props}
     >
-      <View style={[styles.button_container, { gap: iconGap }]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: iconGap }}>
         {loading ? (
-          <ActivityIndicator color={textColor} size="small" />
+          <ActivityIndicator color={buttonStyle.text.color as string} size="small" />
         ) : (
           <>
             {icon && icon}
             {title && (
               <ThemeText
-                lightColor={textColor}
-                darkColor={textColor}
+                lightColor={buttonStyle.text.color as string}
+                darkColor={buttonStyle.text.color as string}
                 variant={fontSize}
-                style={styles.button_text}
+                style={{ marginTop: -2 }}
               >
                 {title}
               </ThemeText>
@@ -92,70 +91,5 @@ const Button = ({
     </Pressable>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-
-  button_container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  button_text: {
-    marginTop: -2,
-  },
-
-  // Size styles
-  'very-small': {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-
-  small: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-
-  medium: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-  },
-
-  large: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-  },
-
-  // Variant styles
-  light_filled: {
-    backgroundColor: COLORS.light.button,
-  },
-
-  light_outline: {
-    borderWidth: 1,
-    borderColor: COLORS.light.button,
-  },
-
-  light_plain: {
-    backgroundColor: 'transparent',
-  },
-
-  dark_filled: {
-    backgroundColor: COLORS.dark.button,
-  },
-
-  dark_outline: {
-    borderWidth: 1,
-    borderColor: COLORS.dark.button,
-  },
-
-  dark_plain: {
-    backgroundColor: 'transparent',
-  },
-});
 
 export default Button;

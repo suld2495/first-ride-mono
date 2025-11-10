@@ -38,14 +38,14 @@ const QuestItem = (quest: Quest & { onClick: (item: Quest) => void }) => {
           <div className="mt-2">
             <Paragraph
               className="w-full text-center tracking-[6px] text-shadow-[0_0_30px_rgba(0,214,256,1)] mb-3"
-              color={COLOR.quest.primaryText}
-              variant="h2"
+              style={{ color: COLOR.quest.primaryText }}
+              variant="title"
             >
               GOAL
             </Paragraph>
             <div className="flex gap-2 border-primary-quest-border-color border-[1px] p-3 rounded-sm">
               <IconSquare className="w-5 h-5 text-quest-title-color" />
-              <Paragraph className="text-sm" color={COLOR.quest.grayText}>
+              <Paragraph className="text-sm" style={{ color: COLOR.quest.grayText }}>
                 {description}
               </Paragraph>
             </div>

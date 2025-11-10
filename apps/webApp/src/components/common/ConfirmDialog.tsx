@@ -55,7 +55,7 @@ const ConfirmDialog = ({
         <Paragraph
           id="dialog-title"
           className="font-semibold text-gray-900 dark:text-gray-200 mb-4"
-          variant="h3"
+          variant="subtitle"
         >
           {title}
         </Paragraph>

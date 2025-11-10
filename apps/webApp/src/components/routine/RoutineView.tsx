@@ -57,13 +57,13 @@ const RoutineView = ({
     <>
       <div>
       <div className="py-4">
-        <Paragraph className="mb-2" variant="h4">
+        <Paragraph className="mb-2" size="xl" weight="semibold">
           {routineName}
         </Paragraph>
         <Paragraph>{routineDetail}</Paragraph>
       </div>
       <div className="py-4">
-        <Paragraph className="mb-2" variant="h4">
+        <Paragraph className="mb-2" size="xl" weight="semibold">
           메이트
         </Paragraph>
         <div className="relative w-full">
@@ -71,7 +71,7 @@ const RoutineView = ({
         </div>
       </div>
       <div className="py-4">
-        <Paragraph className="mb-2" variant="h4">
+        <Paragraph className="mb-2" size="xl" weight="semibold">
           루틴 횟수
         </Paragraph>
         <div className="relative w-full">
@@ -81,7 +81,7 @@ const RoutineView = ({
         </div>
       </div>
       <div className="py-4">
-        <Paragraph className="mb-2" variant="h4">
+        <Paragraph className="mb-2" size="xl" weight="semibold">
           벌금
         </Paragraph>
         <div className="relative w-full">
@@ -89,7 +89,7 @@ const RoutineView = ({
         </div>
       </div>
       <div className="py-4">
-        <Paragraph className="mb-2" variant="h4">
+        <Paragraph className="mb-2" size="xl" weight="semibold">
           루틴 날짜
         </Paragraph>
         <div className="relative w-full">

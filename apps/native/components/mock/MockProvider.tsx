@@ -1,4 +1,4 @@
-import { makeServer } from '@/mock/server';
+// import { makeServer } from '@/mock/server';
 import { useEffect } from 'react';
 
 const MockProvider = () => {

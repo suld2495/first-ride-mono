@@ -1,13 +1,11 @@
 import {
   StyleProp,
-  StyleSheet,
   TextInput,
   TextInputProps,
   ViewStyle,
 } from 'react-native';
-
+import { createInputStyle, type InputVariant, type InputSize } from '@/design-system';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { COLORS } from '@/theme/colors';
 
 import ThemeView from './ThemeView';
 
@@ -15,33 +13,73 @@ interface ThemeTextInputProps extends Omit<TextInputProps, 'style'> {
   style?: StyleProp<ViewStyle>;
   width?: number;
   onChangeText: (text: string) => void;
+  /**
+   * Input variant (통합 토큰 기반)
+   * @default 'primary'
+   */
+  variant?: InputVariant;
+  /**
+   * Input size (통합 토큰 기반)
+   * @default 'medium'
+   */
+  size?: InputSize;
+  /**
+   * 에러 상태
+   */
+  error?: boolean;
 }
 
+/**
+ * 통합 TextInput 컴포넌트 (React Native)
+ *
+ * @example
+ * <ThemeTextInput
+ *   variant="primary"
+ *   placeholder="입력하세요"
+ *   onChangeText={setText}
+ * />
+ *
+ * @example
+ * <ThemeTextInput
+ *   variant="outline"
+ *   error
+ *   onChangeText={setText}
+ * />
+ */
 const ThemeTextInput = ({
   style,
   width,
+  variant = 'primary',
+  size = 'medium',
+  error = false,
   onChangeText,
   editable = true,
   ...props
 }: ThemeTextInputProps) => {
   const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
+  const inputStyle = createInputStyle(variant, size, colorScheme, error);
 
   return (
     <ThemeView
       style={[
-        styles.container,
-        styles[colorScheme],
+        inputStyle.container,
         { width: width ?? '100%' },
-        { opacity: editable ? 1 :0.5 },
+        { opacity: editable ? 1 : 0.5 },
         style,
       ]}
     >
       <TextInput
         {...props}
         onChangeText={onChangeText}
-        style={styles.input}
-        placeholderTextColor={COLORS[colorScheme].grey}
+        style={[
+          inputStyle.input,
+          {
+            width: '100%',
+            height: '100%',
+            textAlignVertical: 'top',
+          },
+        ]}
+        placeholderTextColor={inputStyle.placeholderColor}
         editable={editable}
       />
     </ThemeView>
@@ -49,33 +87,3 @@ const ThemeTextInput = ({
 };
 
 export default ThemeTextInput;
-
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    container: {
-      borderWidth: StyleSheet.hairlineWidth,
-      borderRadius: 5,
-      height: 44,
-      paddingLeft: 10,
-      justifyContent: 'flex-start',
-      alignItems: 'flex-start',
-    },
-
-    light: {
-      borderColor: COLORS.light.grey,
-      color: COLORS.light.text,
-    },
-
-    dark: {
-      borderWidth: 0,
-      backgroundColor: COLORS.dark.backgroundGrey,
-    },
-
-    input: {
-      fontSize: 14,
-      width: '100%',
-      height: '100%',
-      color: COLORS[colorScheme].text,
-      textAlignVertical: 'top',
-    },
-  });

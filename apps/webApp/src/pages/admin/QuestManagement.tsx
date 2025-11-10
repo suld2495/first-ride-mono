@@ -106,7 +106,7 @@ const QuestManagement = () => {
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between mb-2">
-          <Paragraph variant="h2" className="font-bold mb-2">
+          <Paragraph variant="title" className="font-bold mb-2">
             퀘스트 관리
           </Paragraph>
           <div className="flex gap-3 items-center">

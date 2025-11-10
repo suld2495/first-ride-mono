@@ -110,7 +110,7 @@ const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
         <div className="relative z-1 p-6 bg-white dark:bg-dark-primary-color rounded-xl max-w-[var(--max-width)] w-full max-h-[90vh] overflow-y-auto">
           <Paragraph
             className="pb-5 border-b-[1px] border-b-gray-300"
-            variant="h3"
+            variant="subtitle"
           >
             {quest ? '퀘스트 수정' : '퀘스트 생성'}
           </Paragraph>

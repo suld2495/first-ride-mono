@@ -19,7 +19,7 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
   return (
     <>
       <div className="mb-5 relative">
-        <Paragraph variant="h4">루틴 리스트</Paragraph>
+        <Paragraph size="xl" weight="semibold">루틴 리스트</Paragraph>
         <Button
           type="button"
           className="absolute right-0 top-[50%] translate-y-[-50%]"

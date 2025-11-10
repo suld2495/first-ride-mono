@@ -46,7 +46,7 @@ const QuestDetail = () => {
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between mb-2">
-          <Paragraph variant="h2" className="font-bold mb-2">
+          <Paragraph variant="title" className="font-bold mb-2">
             퀘스트 상세
           </Paragraph>
           <div className="flex gap-3 items-center">
@@ -64,7 +64,7 @@ const QuestDetail = () => {
         {/* Title and Type */}
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <Paragraph variant="h3" className="font-bold mb-2">
+            <Paragraph variant="subtitle" className="font-bold mb-2">
               {quest.questName}
             </Paragraph>
             <span

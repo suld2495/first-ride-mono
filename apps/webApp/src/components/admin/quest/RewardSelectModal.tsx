@@ -70,7 +70,7 @@ const RewardSelectModal = ({
       <div className="relative z-1 p-6 bg-white dark:bg-dark-primary-color rounded-xl max-w-[var(--max-width)] w-full">
         <Paragraph
           className="pb-5 border-b-[1px] border-b-gray-300"
-          variant="h3"
+          variant="subtitle"
         >
           보상 선택
         </Paragraph>

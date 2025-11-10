@@ -69,14 +69,14 @@ const QuestDetailModal = () => {
           <div className="mt-2">
             <Paragraph
               className="w-full text-center tracking-[6px] text-shadow-[0_0_30px_rgba(0,214,256,1)] mb-3"
-              color="#1ddeff"
-              variant="h2"
+              style={{ color: '#1ddeff' }}
+              variant="title"
             >
               GOAL
             </Paragraph>
             <div className="flex gap-2 border-primary-quest-border-color border-[1px] p-3 rounded-sm">
               <IconSquare className="w-5 h-5 text-cyan-600" />
-              <Paragraph className="text-sm" color="#90a1b9">
+              <Paragraph className="text-sm" style={{ color: '#90a1b9' }}>
                 {description}
               </Paragraph>
             </div>
@@ -89,7 +89,7 @@ const QuestDetailModal = () => {
           {currentParticipants === maxParticipants && (
             <Button
               className="w-full flex gap-2 justify-center opacity-35 cursor-not-allowed"
-              background={COLOR.quest.grayText}
+              style={{ backgroundColor: COLOR.quest.grayText }}
               disabled={true}
             >
               <IconBolt stroke={2} size={20} />
@@ -99,7 +99,7 @@ const QuestDetailModal = () => {
           {currentParticipants !== maxParticipants && (
             <Button
               className="w-full"
-              background={COLOR.quest.background}
+              style={{ backgroundColor: COLOR.quest.background }}
               onClick={handleAccpet}
             >
               참여

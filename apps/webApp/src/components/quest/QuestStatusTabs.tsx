@@ -34,7 +34,7 @@ const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
           >
             <Paragraph
               className="font-semibold"
-              color={isSelected ? '#1ddeff' : '#90a1b9'}
+              style={{ color: isSelected ? '#1ddeff' : '#90a1b9' }}
             >
               {tab.label}
             </Paragraph>

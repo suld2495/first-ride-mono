@@ -133,7 +133,6 @@ const RoutineForm = ({
               />
             </div>
             <AutoComplete
-              className="flex-1"
               name={name}
               value={value}
               placeholder="메이트를 지정해주세요."

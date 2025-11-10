@@ -130,7 +130,7 @@ export const RoutineWeekList = (
                   <IconCircleCheckFilled height={24} stroke={2} />
                 ) : (
                   <Paragraph
-                    variant="span"
+                    as="span" variant="label"
                     className="text-[var(--gray-main-color)] font-bold"
                   >
                     {Math.round((~~weeklyCount / routineCount) * 100)}%
@@ -210,7 +210,7 @@ export const RoutineCountList = (
                 <IconCircleCheckFilled height={24} stroke={2} />
               ) : (
                 <Paragraph
-                  variant="span"
+                  as="span" variant="label"
                   className="text-[var(--gray-main-color)] font-bold"
                 >
                   {Math.round((~~weeklyCount / routineCount) * 100)}%

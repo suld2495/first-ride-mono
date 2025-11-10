@@ -35,7 +35,7 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
             >
               <Paragraph
                 className={`text-xs ${isSelected ? 'font-bold' : ''}`}
-                color={isSelected ? '#fbbf24' : '#90a1b9'}
+                style={{ color: isSelected ? '#fbbf24' : '#90a1b9' }}
               >
                 {filter.label}
               </Paragraph>

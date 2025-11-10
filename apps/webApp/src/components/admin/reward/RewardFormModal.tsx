@@ -82,7 +82,7 @@ const RewardFormModal = ({ isOpen, reward, onClose }: RewardFormModalProps) => {
         <div className="relative z-1 p-6 bg-white dark:bg-dark-primary-color rounded-xl max-w-[var(--max-width)] w-full max-h-[90vh] overflow-y-auto">
           <Paragraph
             className="pb-5 border-b-[1px] border-b-gray-300"
-            variant="h3"
+            variant="subtitle"
           >
             {reward ? '보상 수정' : '보상 생성'}
           </Paragraph>

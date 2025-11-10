@@ -37,8 +37,8 @@ const QuestTime = ({ endDate }: QuestTimeProps) => {
 
   return (
     <div className="flex items-center justify-center gap-2 border-primary-quest-border-color border-[1px] py-2 rounded-sm">
-      <IconClockHour4 color={COLOR.quest.primaryText} stroke={2} size={20} />
-      <Paragraph color={COLOR.quest.primaryText}>{timeRemaining}</Paragraph>
+      <IconClockHour4 style={{ color: COLOR.quest.primaryText }} stroke={2} size={20} />
+      <Paragraph style={{ color: COLOR.quest.primaryText }}>{timeRemaining}</Paragraph>
     </div>
   );
 };

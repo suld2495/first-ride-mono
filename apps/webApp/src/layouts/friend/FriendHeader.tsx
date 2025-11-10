@@ -99,7 +99,7 @@ const FriendHeader = () => {
   return (
     <>
       <Header>
-        <Paragraph variant="h3">친구 리스트</Paragraph>
+        <Paragraph variant="subtitle">친구 리스트</Paragraph>
         <div className="flex gap-3 items-center">
           <NotificationBell
             list={list.map((item) => ({

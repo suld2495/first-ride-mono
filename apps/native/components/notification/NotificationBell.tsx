@@ -43,8 +43,8 @@ const NotificationBell = <T extends Notification>({
         {list.length > 0 && (
           <View style={styles.badge}>
             <ThemeText
-              lightColor={COLORS.white}
-              darkColor={COLORS.white}
+              lightColor={'#ffffff'}
+              darkColor={'#ffffff'}
               style={styles.badgeText}
             >
               {list.length}
@@ -109,7 +109,7 @@ const createStyles = (colorScheme: 'light' | 'dark') =>
     },
     badgeText: {
       fontSize: 10,
-      color: COLORS[colorScheme].white,
+      color: '#ffffff',
       fontWeight: 'bold',
     },
     overlay: {

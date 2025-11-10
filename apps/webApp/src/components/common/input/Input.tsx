@@ -1,42 +1,41 @@
-import { twMerge } from 'tailwind-merge';
-
-type InputVariant = 'primary' | 'plain';
-type InputSize = 'small' | 'medium' | 'large';
+import React from 'react';
+import { cn, inputVariants, type InputVariantsProps } from '@/design-system';
 
 export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
-  variant?: InputVariant;
-  size?: InputSize;
-}
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
+    InputVariantsProps {}
 
-const variantStyle: Record<InputVariant, string> = {
-  primary:
-    'border-[1px] border-gray-300 dark:border-gray-400 focus:border-gray-500 dark:focus:border-gray-200 focus:ring-0 rounded-md transition-colors duration-300',
-  plain: '',
-};
-
-const sizeStyle: Record<InputSize, string> = {
-  small: 'h-7 text-[12px]',
-  medium: 'min-w-[60px] p-2 h-9 text-[14px]',
-  large: 'min-w-[100px] h-12 text-[16px]',
-};
-
+/**
+ * 통합 Input 컴포넌트
+ *
+ * @example
+ * <Input variant="primary" size="medium" placeholder="입력하세요" />
+ * <Input variant="outline" error />
+ * <Input type="date" className="w-full" />
+ *
+ * @example
+ * // className 오버라이드 (올바르게 작동)
+ * <Input className="border-blue-500 focus:border-blue-700" />
+ */
 const Input = ({
   className,
   variant = 'primary',
   size = 'medium',
+  error = false,
   type,
+  disabled,
   ...rest
 }: InputProps) => {
-  const disabledStyle = rest.disabled ? 'opacity-50 cursor-not-allowed' : '';
-
   return (
     <input
-      className={twMerge(
-        `outline-0 placeholder-gray-500 dark:placeholder-gray-400 text-gray-main dark:text-gray-200 ${type === 'date' && 'scheme-light dark:scheme-dark'}  ${variantStyle[variant]} ${sizeStyle[size]} ${disabledStyle}`,
-        className,
+      className={cn(
+        inputVariants({ variant, size, error }),
+        type === 'date' && 'scheme-light dark:scheme-dark',
+        disabled && 'opacity-50 cursor-not-allowed',
+        className
       )}
       type={type}
+      disabled={disabled}
       {...rest}
     />
   );

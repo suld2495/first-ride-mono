@@ -54,13 +54,13 @@ const RequestView = ({
     <>
       <div>
       <div className="py-4">
-        <Paragraph className="mb-2" variant="h4">
+        <Paragraph className="mb-2" size="xl" weight="semibold">
           {routineName}
         </Paragraph>
         <Paragraph>{routineDetail}</Paragraph>
       </div>
       <div className="py-5 border-t-[1px] border-gray-300">
-        <Paragraph className="mb-2" variant="h4">
+        <Paragraph className="mb-2" size="xl" weight="semibold">
           인증 내용
         </Paragraph>
         <div className="relative w-full">

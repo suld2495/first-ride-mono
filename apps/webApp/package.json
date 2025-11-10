@@ -13,6 +13,7 @@
     "test:debug": "playwright test --debug"
   },
   "dependencies": {
+    "@repo/design-system": "workspace:*",
     "@repo/shared": "workspace:*",
     "@repo/types": "workspace:*",
     "@tabler/icons": "3.17.0",

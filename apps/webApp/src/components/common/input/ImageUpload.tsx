@@ -95,7 +95,7 @@ const ImageUpload = ({
         >
           Upload
         </IconButton>
-        <Paragraph variant="span">{value?.name || images?.[0]?.name}</Paragraph>
+        <Paragraph as="span" variant="label">{value?.name || images?.[0]?.name}</Paragraph>
       </div>
 
       {isPreview && (

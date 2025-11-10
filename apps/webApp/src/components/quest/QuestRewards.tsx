@@ -11,8 +11,8 @@ const QuestRewards = ({ rewardName }: QuestRewards) => {
   return (
     <div className="bg-primary-reward-background-color border-primary-reward-border-color border-[1px] p-2 pb-3 rounded-md">
       <div className="flex items-center gap-1 mb-3 text-amber-400">
-        <IconAward stroke={2} size={20} color={COLOR.reward.primaryText} />
-        <Paragraph className="font-bold" color={COLOR.reward.primaryText}>
+        <IconAward stroke={2} size={20} style={{ color: COLOR.reward.primaryText }} />
+        <Paragraph className="font-bold" style={{ color: COLOR.reward.primaryText }}>
           REWARDS
         </Paragraph>
       </div>

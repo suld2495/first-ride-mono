@@ -1,55 +1,38 @@
-import { twMerge } from 'tailwind-merge';
-
-type ButtonVariant = 'primary' | 'plain';
-type ButtonSize = 'very-small' | 'small' | 'medium' | 'large';
+import React from 'react';
+import { cn, buttonVariants, type ButtonVariantsProps } from '@/design-system';
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
-  background?: string;
-  size?: ButtonSize;
-  children?: React.ReactNode;
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    ButtonVariantsProps {
   loading?: boolean;
 }
 
-const variantStyle: Record<ButtonVariant, string> = {
-  primary:
-    'text-white bg-primary-color dark:bg-dark-primary-color-bold hover:bg-primary-color-hover dark:hover:bg-dark-primary-color-bold-hover',
-  plain:
-    'text-gray-main dark:text-dark-primary-text-color hover:text-gray-main-hover dark:hover:text-dark-primary-text-color-hover',
-};
-
-const sizeStyle: Record<ButtonSize, string> = {
-  'very-small': 'h-5 text-[11px] rounded-sm',
-  small: 'h-7 px-1 text-[12px] rounded-sm',
-  medium: 'min-w-[60px] p-2 h-9 text-[14px] rounded-md',
-  large: 'min-w-[100px] h-12 text-[16px] rounded-xl',
-};
-
+/**
+ * 통합 Button 컴포넌트
+ *
+ * @example
+ * <Button variant="primary" size="medium">저장</Button>
+ * <Button variant="plain" size="small">취소</Button>
+ * <Button variant="danger" loading>삭제중...</Button>
+ *
+ * @example
+ * // className 오버라이드 (올바르게 작동)
+ * <Button className="bg-blue-500 hover:bg-blue-600">
+ *   커스텀 버튼
+ * </Button>
+ */
 const Button = ({
   variant = 'primary',
   size = 'medium',
-  className = '',
+  className,
   children,
-  style,
-  color,
-  background,
   loading = false,
   disabled,
   ...props
 }: ButtonProps) => {
-  const newStyle = {
-    ...style,
-    color,
-    background,
-  };
-
   return (
     <button
-      className={twMerge(
-        `cursor-pointer transition-colors duration-200 ${variantStyle[variant]} ${sizeStyle[size]} ${className}`,
-      )}
-      style={newStyle}
+      className={cn(buttonVariants({ variant, size }), className)}
       disabled={disabled || loading}
       {...props}
     >
