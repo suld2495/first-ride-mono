@@ -11,7 +11,6 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 import IconButton from '../common/button/IconButton';
 import Input from '../common/input/Input';
 import Paragraph from '../common/paragraph/Paragraph';
-import ToastContainer from '../common/ToastContainer';
 
 interface UserItemProps extends User {
   close: () => void;
@@ -58,7 +57,7 @@ const FriendAddModal = () => {
     page: 1,
     keyword: '',
   });
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   const { data: userList } = useFetchUserListQuery(searchOption);
 
@@ -103,8 +102,6 @@ const FriendAddModal = () => {
           </Paragraph>
         )}
       </div>
-
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 };

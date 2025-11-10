@@ -11,7 +11,6 @@ import Button from '../common/button/Button';
 import ImageUpload from '../common/input/ImageUpload';
 import Label from '../common/input/Label';
 import Paragraph from '../common/paragraph/Paragraph';
-import ToastContainer from '../common/ToastContainer';
 
 interface FormLabelProps {
   children: React.ReactNode;
@@ -45,7 +44,7 @@ const RequestForm = ({
   const closeModal = useModalStore((state) => state.close);
   const [image, setImage] = useState<File | null>(null);
   const enable = image !== null;
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   const saveRequest = useCreateRequestMutation();
 
@@ -126,8 +125,6 @@ const RequestForm = ({
         </Button>
       </div>
       </form>
-
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 };

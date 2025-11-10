@@ -10,7 +10,6 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 
 import IconButton from '../common/button/IconButton';
 import Paragraph from '../common/paragraph/Paragraph';
-import ToastContainer from '../common/ToastContainer';
 
 interface FriendItemProps extends Friend {
   onSuccess: (message: string) => void;
@@ -50,7 +49,7 @@ const FriendItem = ({ nickname, onSuccess, onError }: FriendItemProps) => {
 
 const FriendList = ({ page, keyword }: SearchOption) => {
   const { data: friends } = useFetchFriendsQuery({ page, keyword });
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   return (
     <>
@@ -72,8 +71,6 @@ const FriendList = ({ page, keyword }: SearchOption) => {
           친구를 추가해보세요.
         </Paragraph>
       )}
-
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 };

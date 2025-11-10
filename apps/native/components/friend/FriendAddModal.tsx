@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View, Modal, FlatList, Alert, Pressable } from 'react-native';
+import { StyleSheet, View, Modal, FlatList, Pressable } from 'react-native';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import { SearchOption, User } from '@repo/types';
@@ -10,6 +10,7 @@ import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
 import ThemeTextInput from '../common/ThemeTextInput';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useToast } from '@/contexts/ToastContext';
 import { getApiErrorMessage } from '@/utils/error-utils';
 import { COLORS } from '@/theme/colors';
 
@@ -20,12 +21,13 @@ interface UserItemProps extends User {
 const UserItem = ({ nickname, close }: UserItemProps) => {
   const addMutation = useAddFriendMutation();
   const colorScheme = useColorScheme();
+  const { showToast } = useToast();
   const styles = createStyles(colorScheme);
 
   const handleAdd = async () => {
     try {
       await addMutation.mutateAsync(nickname);
-      Alert.alert('성공', '추가되었습니다.');
+      showToast('추가되었습니다.', 'success');
       close();
     } catch (err) {
       const errorMessage = getApiErrorMessage(
@@ -33,7 +35,7 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
         '친구 추가에 실패했습니다. 다시 시도해주세요.',
       );
 
-      Alert.alert('오류', errorMessage);
+      showToast(errorMessage, 'error');
     }
   };
 

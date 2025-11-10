@@ -9,7 +9,6 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 
 import Button from '../common/button/Button';
 import Paragraph from '../common/paragraph/Paragraph';
-import ToastContainer from '../common/ToastContainer';
 
 const RoutineView = ({
   routineId,
@@ -27,7 +26,7 @@ const RoutineView = ({
   const openModal = useModalStore((state) => state.show);
   const closeModal = useModalStore((state) => state.close);
   const setRoutineId = useRoutineStore((state) => state.setRoutineId);
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   const deleteRoutine = useDeleteRoutineMutation(nickname);
 
@@ -120,8 +119,6 @@ const RoutineView = ({
         </Button>
       </div>
       </div>
-
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 };

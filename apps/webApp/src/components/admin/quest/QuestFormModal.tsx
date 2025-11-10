@@ -10,7 +10,6 @@ import Button from '@/components/common/button/Button';
 import Input from '@/components/common/input/Input';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import Select from '@/components/common/Select';
-import ToastContainer from '@/components/common/ToastContainer';
 import { createForm } from '@/hooks/useForm';
 import { useToast } from '@/hooks/useToast';
 import { getApiErrorMessage } from '@/utils/error-utils';
@@ -40,7 +39,7 @@ const { Form, FormItem } = createForm<QuestFormType>();
 const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
   const createMutation = useCreateQuestMutation();
   const updateMutation = useUpdateQuestMutation();
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
   const [selectedReward, setSelectedReward] = useState<{
@@ -304,9 +303,6 @@ const QuestFormModal = ({ isOpen, quest, onClose }: QuestFormModalProps) => {
           setIsRewardModalOpen(false);
         }}
       />
-
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 };

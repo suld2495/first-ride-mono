@@ -4,6 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useToast } from '@/contexts/ToastContext';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRoutineStore } from '@/store/routine.store';
@@ -21,6 +22,7 @@ const { Form, FormItem, useForm } = useCreateForm<{ image: string }>();
 const RequestModal = () => {
   const routineId = useRoutineStore((state) => state.routineId);
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
+  const { showToast } = useToast();
 
   const saveRequest = useCreateRequestMutation();
 
@@ -42,13 +44,13 @@ const RequestModal = () => {
       await saveRequest.mutateAsync(formData);
 
       if (detail.isMe) {
-        alert('인증이 완료되었습니다.');
+        showToast('인증이 완료되었습니다.', 'success');
       } else {
-        alert('인증 요청이 완료되었습니다.');
+        showToast('인증 요청이 완료되었습니다.', 'success');
       }
       router.push('/(tabs)/(afterLogin)/(routine)');
     } catch {
-      alert('인증 요청에 실패했습니다.');
+      showToast('인증 요청에 실패했습니다.', 'error');
     }
   };
 

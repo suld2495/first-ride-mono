@@ -6,14 +6,13 @@ import { useToast } from '@/hooks/useToast';
 import { useModalStore } from '@/store/modal.store';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
-import ToastContainer from '../common/ToastContainer';
 import RoutineForm from '../routine/RoutineForm';
 
 const RoutineAddModal = () => {
   const closeModal = useModalStore((state) => state.close);
   const user = useAuthStore((state) => state.user);
   const username = user?.nickname || '';
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   const saveMutation = useCreateRoutineMutation(username);
 
@@ -32,12 +31,7 @@ const RoutineAddModal = () => {
     }
   };
 
-  return (
-    <>
-      <RoutineForm nickname={username} onSubmit={handleSubmit} />
-      <ToastContainer toasts={toasts} onClose={removeToast} />
-    </>
-  );
+  return <RoutineForm nickname={username} onSubmit={handleSubmit} />;
 };
 
 export default RoutineAddModal;

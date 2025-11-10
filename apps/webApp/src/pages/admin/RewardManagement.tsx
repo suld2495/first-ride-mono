@@ -13,7 +13,6 @@ import ConfirmDialog from '@/components/common/ConfirmDialog';
 import DarkMode from '@/components/common/DarkMode';
 import Pagination from '@/components/common/Pagination';
 import Paragraph from '@/components/common/paragraph/Paragraph';
-import ToastContainer from '@/components/common/ToastContainer';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useToast } from '@/hooks/useToast';
 import { getApiErrorMessage } from '@/utils/error-utils';
@@ -28,7 +27,7 @@ const RewardManagement = () => {
 
   const { data: rewards = [], isLoading } = useFetchRewardsQuery(selectedType);
   const deleteMutation = useDeleteRewardMutation();
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
   const { confirmState, confirm } = useConfirm();
 
   // Debounce search query (300ms)
@@ -156,9 +155,6 @@ const RewardManagement = () => {
         reward={editingReward}
         onClose={handleCloseModal}
       />
-
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onClose={removeToast} />
 
       {/* Confirm Dialog */}
       <ConfirmDialog {...confirmState} />

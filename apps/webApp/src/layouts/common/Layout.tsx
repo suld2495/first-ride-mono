@@ -3,12 +3,15 @@ import { Outlet } from 'react-router';
 
 import AuthProvider from '@/components/providers/AuthProvider';
 import ModalProvider from '@/components/providers/ModalProvider';
+import ToastContainer from '@/components/common/ToastContainer';
+import { ToastProvider, useToastContext } from '@/contexts/ToastContext';
 import { useDarkModeStore } from '@/store/dark.store';
 
 import Footer from './Footer';
 
-const Layout = () => {
+const LayoutContent = () => {
   const isDarkMode = useDarkModeStore((state) => state.isDarkMode);
+  const { toasts, removeToast } = useToastContext();
 
   useEffect(() => {
     if (isDarkMode) {
@@ -19,12 +22,21 @@ const Layout = () => {
   }, [isDarkMode]);
 
   return (
+    <div className="h-dvh max-w-[var(--max-width)] mx-auto shadow-sm dark:shadow-white">
+      <Outlet />
+      <Footer />
+      <ModalProvider />
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+    </div>
+  );
+};
+
+const Layout = () => {
+  return (
     <AuthProvider>
-      <div className="h-dvh max-w-[var(--max-width)] mx-auto shadow-sm dark:shadow-white">
-        <Outlet />
-        <Footer />
-        <ModalProvider />
-      </div>
+      <ToastProvider>
+        <LayoutContent />
+      </ToastProvider>
     </AuthProvider>
   );
 };

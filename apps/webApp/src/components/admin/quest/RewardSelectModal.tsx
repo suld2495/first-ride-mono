@@ -6,7 +6,6 @@ import Button from '@/components/common/button/Button';
 import Input from '@/components/common/input/Input';
 import Pagination from '@/components/common/Pagination';
 import Paragraph from '@/components/common/paragraph/Paragraph';
-import ToastContainer from '@/components/common/ToastContainer';
 import { useToast } from '@/hooks/useToast';
 
 interface RewardSelectModalProps {
@@ -23,7 +22,7 @@ const RewardSelectModal = ({
   onSelect,
 }: RewardSelectModalProps) => {
   const { data: rewards = [], isLoading } = useFetchRewardsQuery();
-  const { toasts, error, removeToast } = useToast();
+  const { error } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedId, setSelectedId] = useState<number | undefined>(
@@ -162,9 +161,6 @@ const RewardSelectModal = ({
           </div>
         </div>
       </div>
-
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 };

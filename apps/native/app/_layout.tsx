@@ -9,6 +9,8 @@ import { Platform } from 'react-native';
 
 import MockProvider from '@/components/mock/MockProvider';
 import SplashScreenController from '@/components/splash';
+import ToastContainer from '@/components/common/ToastContainer';
+import { ToastProvider } from '@/contexts/ToastContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
 import { setNotificationHandler, useNotifications } from '@/hooks/useNotifications';
@@ -75,8 +77,11 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryProvider>
-        <MockProvider />
-        <StackLayout />
+        <ToastProvider>
+          <MockProvider />
+          <StackLayout />
+          <ToastContainer />
+        </ToastProvider>
       </QueryProvider>
     </GestureHandlerRootView>
   );

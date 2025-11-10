@@ -9,7 +9,6 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
 import PasswordInput from '../common/input/PasswordInput';
-import ToastContainer from '../common/ToastContainer';
 
 import AuthForm from './AuthForm';
 
@@ -26,7 +25,7 @@ const JoinForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const join = useJoinMutation();
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -124,8 +123,6 @@ const JoinForm = () => {
           로그인
         </Link>
       </AuthForm>
-
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 };

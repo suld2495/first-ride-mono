@@ -6,12 +6,11 @@ import { toAppError } from '.';
 const baseURL = '/friends';
 
 export const fetchFriends = async ({
-  page = 1,
   keyword = '',
 }: SearchOption): Promise<Friend[]> => {
   try {
     const response: Friend[] = await http.get(
-      `${baseURL}?page=${page}${keyword ? `keyword=${keyword}` : ''}`,
+      `${baseURL}?${keyword ? `nickname=${keyword}` : ''}`,
     );
 
     return response;

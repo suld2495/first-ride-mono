@@ -11,7 +11,6 @@ import Button from '@/components/common/button/Button';
 import DarkMode from '@/components/common/DarkMode';
 import NotificationBell from '@/components/common/notification-bell/NotificationBell';
 import Paragraph from '@/components/common/paragraph/Paragraph';
-import ToastContainer from '@/components/common/ToastContainer';
 import { useToast } from '@/hooks/useToast';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
@@ -62,7 +61,7 @@ const FriendHeader = () => {
   const { data: list } = useFetchFriendRequestsQuery(page);
   const acceptFriendMutation = useAcceptFriendRequestMutation();
   const rejectFriendRequestMutation = useRejectFriendRequestMutation();
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   const handleAccpet = async (id: number) => {
     try {
@@ -97,29 +96,25 @@ const FriendHeader = () => {
   }
 
   return (
-    <>
-      <Header>
-        <Paragraph variant="subtitle">친구 리스트</Paragraph>
-        <div className="flex gap-3 items-center">
-          <NotificationBell
-            list={list.map((item) => ({
-              ...item,
-              title: item.senderNickname,
-            }))}
-            renderItem={(item) => (
-              <NotificationContent
-                onAccept={handleAccpet}
-                onReject={handleReject}
-                {...item}
-              />
-            )}
-          />
-          <DarkMode />
-        </div>
-      </Header>
-
-      <ToastContainer toasts={toasts} onClose={removeToast} />
-    </>
+    <Header>
+      <Paragraph variant="subtitle">친구 리스트</Paragraph>
+      <div className="flex gap-3 items-center">
+        <NotificationBell
+          list={list.map((item) => ({
+            ...item,
+            title: item.senderNickname,
+          }))}
+          renderItem={(item) => (
+            <NotificationContent
+              onAccept={handleAccpet}
+              onReject={handleReject}
+              {...item}
+            />
+          )}
+        />
+        <DarkMode />
+      </div>
+    </Header>
   );
 };
 

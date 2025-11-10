@@ -10,6 +10,7 @@ import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
 import Button from '../common/Button';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useToast } from '@/contexts/ToastContext';
 import { COLORS } from '@/theme/colors';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
@@ -20,6 +21,7 @@ interface FriendItemProps extends Friend {
 const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
   const deleteMutation = useDeleteFriendMutation();
   const colorScheme = useColorScheme();
+  const { showToast } = useToast();
   const styles = createStyles(colorScheme);
 
   const handleDelete = async () => {
@@ -34,7 +36,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
         onPress: async () => {
           try {
             await deleteMutation.mutateAsync(nickname);
-            Alert.alert('성공', '삭제되었습니다.');
+            showToast('삭제되었습니다.', 'success');
             onDelete();
           } catch (err) {
             const errorMessage = getApiErrorMessage(
@@ -42,7 +44,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
               '친구 삭제에 실패했습니다. 다시 시도해주세요.',
             );
 
-            Alert.alert('오류', errorMessage);
+            showToast(errorMessage, 'error');
           }
         },
       },

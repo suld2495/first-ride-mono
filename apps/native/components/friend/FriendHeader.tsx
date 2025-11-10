@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View, Alert } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import {
   useAcceptFriendRequestMutation,
   useFetchFriendRequestsQuery,
@@ -13,6 +13,7 @@ import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
 import NotificationBell from '../notification/NotificationBell';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useToast } from '@/contexts/ToastContext';
 import { getApiErrorMessage } from '@/utils/error-utils';
 import { COLORS } from '@/theme/colors';
 
@@ -64,34 +65,35 @@ const FriendHeader = () => {
   const { data: list } = useFetchFriendRequestsQuery(page);
   const acceptFriendMutation = useAcceptFriendRequestMutation();
   const rejectFriendRequestMutation = useRejectFriendRequestMutation();
+  const { showToast } = useToast();
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
 
   const handleAccept = async (id: number) => {
     try {
       await acceptFriendMutation.mutateAsync(id);
-      Alert.alert('성공', '추가 되었습니다.');
+      showToast('추가 되었습니다.', 'success');
     } catch (err) {
       const errorMessage = getApiErrorMessage(
         err,
         '친구 요청 수락에 실패했습니다. 다시 시도해주세요.',
       );
 
-      Alert.alert('오류', errorMessage);
+      showToast(errorMessage, 'error');
     }
   };
 
   const handleReject = async (id: number) => {
     try {
       await rejectFriendRequestMutation.mutateAsync(id);
-      Alert.alert('성공', '거절 되었습니다.');
+      showToast('거절 되었습니다.', 'success');
     } catch (err) {
       const errorMessage = getApiErrorMessage(
         err,
         '친구 요청 거절에 실패했습니다. 다시 시도해주세요.',
       );
 
-      Alert.alert('오류', errorMessage);
+      showToast(errorMessage, 'error');
     }
   };
 

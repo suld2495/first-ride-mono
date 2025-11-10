@@ -12,7 +12,6 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 
 import Button from '../common/button/Button';
 import Paragraph from '../common/paragraph/Paragraph';
-import ToastContainer from '../common/ToastContainer';
 import QuestInfo from '../quest/QuestInfo';
 import QuestRewards from '../quest/QuestRewards';
 import QuestTime from '../quest/QuestTime';
@@ -26,7 +25,7 @@ const QuestDetailModal = () => {
   const questId = useQuestStore((state) => state.questId);
   const { data: detail, isLoading } = useFetchQuestDetailQuery(questId);
   const acceptQuest = useAccpetQuestMutation();
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   if (isLoading || !detail) {
     return null;
@@ -108,9 +107,7 @@ const QuestDetailModal = () => {
         </div>
       </div>
     </div>
-
-    <ToastContainer toasts={toasts} onClose={removeToast} />
-  </>
+    </>
   );
 };
 

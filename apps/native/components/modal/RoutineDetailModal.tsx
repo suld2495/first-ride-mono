@@ -2,6 +2,7 @@ import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useToast } from '@/contexts/ToastContext';
 import {
   useDeleteRoutineMutation,
   useRoutineDetailQuery,
@@ -17,6 +18,7 @@ import { useShallow } from 'zustand/shallow';
 
 const RoutineDetailModal = () => {
   const router = useRouter();
+  const { showToast } = useToast();
 
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
@@ -45,10 +47,10 @@ const RoutineDetailModal = () => {
         onPress: async () => {
           try {
             await deleteRoutine.mutateAsync(routineId);
-            Alert.alert('삭제되었습니다.');
+            showToast('삭제되었습니다.', 'success');
             router.push('/(tabs)/(afterLogin)/(routine)');
           } catch {
-            Alert.alert('문제가 발생하였습니다.');
+            showToast('문제가 발생하였습니다.', 'error');
           }
         },
       },

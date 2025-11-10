@@ -1,4 +1,4 @@
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   useAccpetQuestMutation,
@@ -7,6 +7,8 @@ import {
 import { useRouter } from 'expo-router';
 
 import { useQuestStore } from '@/store/quest.store';
+import { useToast } from '@/contexts/ToastContext';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 import Button from '../common/Button';
 import ThemeText from '../common/ThemeText';
@@ -23,6 +25,7 @@ const QUEST_LABEL: Record<string, string> = {
 const QuestDetailModal = () => {
   const router = useRouter();
   const questId = useQuestStore((state) => state.questId);
+  const { showToast } = useToast();
 
   const { data: detail, isLoading } = useFetchQuestDetailQuery(questId || 0);
   const acceptQuest = useAccpetQuestMutation();
@@ -50,10 +53,14 @@ const QuestDetailModal = () => {
 
     try {
       await acceptQuest.mutateAsync(questId);
-      Alert.alert('성공', '수락되었습니다.');
+      showToast('수락되었습니다.', 'success');
       router.back();
     } catch (error) {
-      Alert.alert('실패', '이미 수락한 퀘스트입니다.');
+      const errorMessage = getApiErrorMessage(
+        error,
+        '이미 수락한 퀘스트입니다.',
+      );
+      showToast(errorMessage, 'error');
     }
   };
 

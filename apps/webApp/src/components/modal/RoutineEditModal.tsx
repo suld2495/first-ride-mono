@@ -10,7 +10,6 @@ import { useModalStore } from '@/store/modal.store';
 import { useRoutineStore } from '@/store/routine.store';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
-import ToastContainer from '../common/ToastContainer';
 import RoutineForm from '../routine/RoutineForm';
 
 const RoutineEditModal = () => {
@@ -20,7 +19,7 @@ const RoutineEditModal = () => {
   const username = user?.nickname || '';
   const { data: detail } = useRoutineDetailQuery(routineId);
   const mateNickname = username === 'yunji' ? 'moon' : 'yunji';
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   const updateMutation = useUpdateRoutineMutation(username);
 
@@ -45,15 +44,12 @@ const RoutineEditModal = () => {
   if (!detail) return null;
 
   return (
-    <>
-      <RoutineForm
-        nickname={username}
-        mateNickname={mateNickname}
-        form={detail}
-        onSubmit={handleSubmit}
-      />
-      <ToastContainer toasts={toasts} onClose={removeToast} />
-    </>
+    <RoutineForm
+      nickname={username}
+      mateNickname={mateNickname}
+      form={detail}
+      onSubmit={handleSubmit}
+    />
   );
 };
 

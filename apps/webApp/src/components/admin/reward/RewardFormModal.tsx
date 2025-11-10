@@ -9,7 +9,6 @@ import Button from '@/components/common/button/Button';
 import Input from '@/components/common/input/Input';
 import Paragraph from '@/components/common/paragraph/Paragraph';
 import Select from '@/components/common/Select';
-import ToastContainer from '@/components/common/ToastContainer';
 import { createForm } from '@/hooks/useForm';
 import { useToast } from '@/hooks/useToast';
 import { getApiErrorMessage } from '@/utils/error-utils';
@@ -32,7 +31,7 @@ const { Form, FormItem } = createForm<RewardFormType>();
 const RewardFormModal = ({ isOpen, reward, onClose }: RewardFormModalProps) => {
   const createMutation = useCreateRewardMutation();
   const updateMutation = useUpdateRewardMutation();
-  const { toasts, success, error, removeToast } = useToast();
+  const { success, error } = useToast();
 
   const form: RewardFormType = useMemo(() => {
     if (!reward) {
@@ -185,9 +184,6 @@ const RewardFormModal = ({ isOpen, reward, onClose }: RewardFormModalProps) => {
           </Form>
         </div>
       </div>
-
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 };

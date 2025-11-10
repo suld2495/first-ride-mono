@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet } from 'react-native';
+import { Image, ScrollView, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Svg from 'react-native-svg';
 import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useToast } from '@/contexts/ToastContext';
 import {
   useFetchRequestDetailQuery,
   useReplyRequestMutation,
@@ -25,6 +26,7 @@ const { Form, FormItem, useForm } = useCreateForm<{ comment: string }>();
 const RequestDetailModal = () => {
   const colorScheme = useColorScheme();
   const styles = createStyles(colorScheme);
+  const { showToast } = useToast();
 
   const requestId = useRequestStore((state) => state.requestId);
   const { data: detail, isLoading } = useFetchRequestDetailQuery(requestId);
@@ -55,14 +57,14 @@ const RequestDetailModal = () => {
       });
 
       if (status === 'PASS') {
-        Alert.alert('승인되었습니다.');
+        showToast('승인되었습니다.', 'success');
       } else {
-        Alert.alert('거절되었습니다.');
+        showToast('거절되었습니다.', 'success');
       }
 
       router.back();
     } catch {
-      Alert.alert('오류가 발생했습니다. 다시 시도해주세요.');
+      showToast('오류가 발생했습니다. 다시 시도해주세요.', 'error');
     }
   };
 

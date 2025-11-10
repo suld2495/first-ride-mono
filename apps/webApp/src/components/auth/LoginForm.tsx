@@ -10,7 +10,6 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
 import PasswordInput from '../common/input/PasswordInput';
-import ToastContainer from '../common/ToastContainer';
 
 import AuthForm from './AuthForm';
 
@@ -22,7 +21,7 @@ const LoginForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const login = useLoginMutation();
-  const { toasts, error, removeToast } = useToast();
+  const { error } = useToast();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -91,8 +90,6 @@ const LoginForm = () => {
           회원가입
         </Link>
       </AuthForm>
-
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </>
   );
 };
