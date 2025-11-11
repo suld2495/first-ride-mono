@@ -65,7 +65,7 @@ interface QuestListProps {
 const QuestList = ({ quests, onClickItem }: QuestListProps) => {
   return (
     <div className="px-4 pt-3 pb-10 flex-1 overflow-y-auto">
-      {quests.length && (
+      {!!quests.length && (
         <div className="flex flex-col gap-4">
           {quests.map((quest) => (
             <QuestItem key={quest.questId} {...quest} onClick={onClickItem} />
