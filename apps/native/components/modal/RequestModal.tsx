@@ -5,10 +5,12 @@ import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useToast } from '@/contexts/ToastContext';
+import { ApiError } from '@repo/shared/api/AppError';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRoutineStore } from '@/store/routine.store';
 import { COLORS } from '@/theme/colors';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 import Button from '../common/Button';
 import ThemeText from '../common/ThemeText';
@@ -49,8 +51,20 @@ const RequestModal = () => {
         showToast('인증 요청이 완료되었습니다.', 'success');
       }
       router.push('/(tabs)/(afterLogin)/(routine)');
-    } catch {
-      showToast('인증 요청에 실패했습니다.', 'error');
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 413) {
+          showToast('용량은 1MB 이하만 업로드 가능합니다.', 'error');
+          return;
+        }
+      }
+
+      const errorMessage = getApiErrorMessage(
+        err,
+        '인증 요청에 실패했습니다. 다시 시도해주세요.',
+      );
+
+      showToast(errorMessage, 'error');
     }
   };
 
