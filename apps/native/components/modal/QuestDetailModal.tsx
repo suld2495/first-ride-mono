@@ -44,6 +44,7 @@ const QuestDetailModal = () => {
     rewardName,
     rewardType,
     endDate,
+    isAccepted,
   } = detail;
 
   const isFull = currentParticipants === maxParticipants;
@@ -128,10 +129,10 @@ const QuestDetailModal = () => {
 
         {/* Accept Button */}
         <Button
-          title={isFull ? '참여불가 (정원 초과)' : '참여'}
+          title={isAccepted ? '참여중' : isFull ? '참여불가 (정원 초과)' : '참여'}
           onPress={handleAcceptQuest}
-          disabled={isFull || acceptQuest.isPending}
-          style={[styles.acceptButton, isFull && styles.acceptButtonDisabled]}
+          disabled={isAccepted || isFull || acceptQuest.isPending}
+          style={[styles.acceptButton, (isAccepted || isFull) && styles.acceptButtonDisabled]}
         />
       </ScrollView>
     </ThemeView>

@@ -38,6 +38,7 @@ const QuestDetailModal = () => {
     endDate,
     currentParticipants,
     maxParticipants,
+    isAccepted,
   } = detail;
 
   const handleAccpet = async () => {
@@ -85,7 +86,17 @@ const QuestDetailModal = () => {
         <QuestRewards {...detail} />
         <QuestTime endDate={new Date(endDate)} />
         <div className="flex gap-2 justify-end">
-          {currentParticipants === maxParticipants && (
+          {isAccepted && (
+            <Button
+              className="w-full flex gap-2 justify-center opacity-35 cursor-not-allowed"
+              style={{ backgroundColor: COLOR.quest.grayText }}
+              disabled={true}
+            >
+              <IconBolt stroke={2} size={20} />
+              참여중
+            </Button>
+          )}
+          {!isAccepted && currentParticipants === maxParticipants && (
             <Button
               className="w-full flex gap-2 justify-center opacity-35 cursor-not-allowed"
               style={{ backgroundColor: COLOR.quest.grayText }}
@@ -95,7 +106,7 @@ const QuestDetailModal = () => {
               참여불가 (정원 초과)
             </Button>
           )}
-          {currentParticipants !== maxParticipants && (
+          {!isAccepted && currentParticipants !== maxParticipants && (
             <Button
               className="w-full"
               style={{ backgroundColor: COLOR.quest.background }}
