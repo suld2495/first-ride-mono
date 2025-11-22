@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import ThemeText from '../common/ThemeText';
@@ -12,7 +12,7 @@ interface QuestBoxProps {
 
 const QuestBox = ({ title, value, color }: QuestBoxProps) => {
   return (
-    <View style={styles.box}>
+    <ThemeView style={styles.box}>
       <ThemeText
         variant="caption"
         lightColor="#90a1b9"
@@ -29,7 +29,7 @@ const QuestBox = ({ title, value, color }: QuestBoxProps) => {
       >
         {value}
       </ThemeText>
-    </View>
+    </ThemeView>
   );
 };
 
@@ -50,7 +50,7 @@ const QuestInfo = ({
   return (
     <ThemeView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <ThemeView style={styles.header}>
         <Ionicons name="flash-outline" size={20} color="#1ddeff" />
         <ThemeText
           variant="default"
@@ -60,10 +60,10 @@ const QuestInfo = ({
         >
           QUEST INFO
         </ThemeText>
-      </View>
+      </ThemeView>
 
       {/* Info Boxes */}
-      <View style={styles.boxesContainer}>
+      <ThemeView style={styles.boxesContainer}>
         <QuestBox
           title="최소 레벨"
           value={`LV.${requiredLevel}`}
@@ -79,27 +79,27 @@ const QuestInfo = ({
           value={`${maxParticipants}명`}
           color="#3b82f6"
         />
-      </View>
+      </ThemeView>
 
       {/* Party Status */}
-      <View style={styles.partyContainer}>
-        <View style={styles.partyHeader}>
+      <ThemeView style={styles.partyContainer}>
+        <ThemeView style={styles.partyHeader}>
           <ThemeText variant="caption" lightColor="#90a1b9" darkColor="#90a1b9">
             파티현황
           </ThemeText>
           <ThemeText variant="caption" lightColor="#90a1b9" darkColor="#90a1b9">
             {`${currentParticipants}/${maxParticipants}`}
           </ThemeText>
-        </View>
+        </ThemeView>
 
         {/* Progress Bar */}
-        <View style={styles.progressBackground}>
-          <View style={[styles.progressFill, { width: `${progress}%` }]} />
-        </View>
+        <ThemeView style={styles.progressBackground}>
+          <ThemeView style={[styles.progressFill, { width: `${progress}%` }]} />
+        </ThemeView>
 
         {/* Warning Message */}
         {isFull && (
-          <View style={styles.warning}>
+          <ThemeView style={styles.warning}>
             <Ionicons name="warning" size={17} color="yellow" />
             <ThemeText
               variant="caption"
@@ -108,9 +108,9 @@ const QuestInfo = ({
             >
               파티 인원이 가득 찼습니다.
             </ThemeText>
-          </View>
+          </ThemeView>
         )}
-      </View>
+      </ThemeView>
     </ThemeView>
   );
 };

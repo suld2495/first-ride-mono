@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import {
   useAcceptFriendRequestMutation,
   useFetchFriendRequestsQuery,
@@ -33,10 +33,10 @@ const NotificationContent = ({
   const styles = createStyles(colorScheme);
 
   return (
-    <View style={styles.notificationContent}>
-      <View style={styles.notificationHeader}>
+    <ThemeView style={styles.notificationContent}>
+      <ThemeView style={styles.notificationHeader}>
         <ThemeText style={styles.senderNickname}>{senderNickname}</ThemeText>
-        <View style={styles.buttonContainer}>
+        <ThemeView style={styles.buttonContainer}>
           <Button
             title="추가"
             size="very-small"
@@ -51,12 +51,12 @@ const NotificationContent = ({
             onPress={() => onReject(id)}
             style={styles.rejectButton}
           />
-        </View>
-      </View>
-      <View style={styles.notificationFooter}>
+        </ThemeView>
+      </ThemeView>
+      <ThemeView style={styles.notificationFooter}>
         <ThemeText style={styles.dateText}>{getFormatDate(createdAt)}</ThemeText>
-      </View>
-    </View>
+      </ThemeView>
+    </ThemeView>
   );
 };
 
@@ -104,7 +104,7 @@ const FriendHeader = () => {
   return (
     <ThemeView style={styles.header}>
       <ThemeText variant="title">친구 리스트</ThemeText>
-      <View style={styles.headerRight}>
+      <ThemeView style={styles.headerRight}>
         <NotificationBell
           list={list.map((item) => ({
             ...item,
@@ -118,7 +118,7 @@ const FriendHeader = () => {
             />
           )}
         />
-      </View>
+      </ThemeView>
     </ThemeView>
   );
 };

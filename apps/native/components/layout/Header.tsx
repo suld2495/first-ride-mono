@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 
@@ -8,6 +8,7 @@ import { useColorSchemeStore } from '@/store/colorScheme.store';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { COLORS } from '@/theme/colors';
 
+import Button from '../common/Button';
 import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
 
@@ -31,7 +32,7 @@ const Header = () => {
 
       <ThemeView style={styles.icon_container}>
         <ThemeView>
-          <Pressable onPress={() => router.push('/modal?type=request-list')}>
+          <Button variant="plain" onPress={() => router.push('/modal?type=request-list')} style={{ padding: 0 }}>
             <ThemeView>
               <Ionicons
                 name="notifications-outline"
@@ -48,16 +49,16 @@ const Header = () => {
                 </ThemeText>
               </ThemeView>
             )}
-          </Pressable>
+          </Button>
         </ThemeView>
         <ThemeView>
-          <Pressable onPress={() => toggleColorScheme()}>
+          <Button variant="plain" onPress={() => toggleColorScheme()} style={{ padding: 0 }}>
             {colorScheme === 'light' ? (
               <Ionicons name="moon" size={24} color={COLORS.light.icon} />
             ) : (
               <Ionicons name="sunny" size={24} color={COLORS.dark.icon} />
             )}
-          </Pressable>
+          </Button>
         </ThemeView>
       </ThemeView>
     </ThemeView>

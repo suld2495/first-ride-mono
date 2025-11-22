@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   afterWeek,
@@ -44,7 +44,7 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
           {getDisplayFormatDate(endDate)}
         </ThemeText>
       </ThemeView>
-      <View style={styles.right}>
+      <ThemeView style={styles.right}>
         <ThemeView style={styles.date_button_container}>
           <Link
             variant="plain"
@@ -71,8 +71,8 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
             style={styles.link}
           />
         </ThemeView>
-        <View style={styles.line}></View>
-        <View style={styles.icons}>
+        <ThemeView style={styles.line}></ThemeView>
+        <ThemeView style={styles.icons}>
           {type === 'number' ? (
             <>
               <Button
@@ -120,8 +120,8 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
               />
             </>
           )}
-        </View>
-      </View>
+        </ThemeView>
+      </ThemeView>
     </ThemeView>
   );
 };

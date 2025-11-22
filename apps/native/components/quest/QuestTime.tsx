@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatTimeRemaining } from '@repo/shared/utils/date-utils';
 
-import ThemeText from '../common/ThemeText';
+import ThemeText from '../common/ThemeText'
+import ThemeView from '../common/ThemeView';;
 
 interface QuestTimeProps {
   endDate: Date;
@@ -35,7 +36,7 @@ const QuestTime = ({ endDate }: QuestTimeProps) => {
   }, [endDate]);
 
   return (
-    <View style={styles.container}>
+    <ThemeView style={styles.container}>
       <Ionicons name="time-outline" size={20} color="#1ddeff" />
       <ThemeText
         variant="default"
@@ -45,7 +46,7 @@ const QuestTime = ({ endDate }: QuestTimeProps) => {
       >
         {timeRemaining}
       </ThemeText>
-    </View>
+    </ThemeView>
   );
 };
 

@@ -1,7 +1,8 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import ThemeText from '../common/ThemeText';
+import ThemeText from '../common/ThemeText'
+import ThemeView from '../common/ThemeView';;
 
 interface QuestRewardsProps {
   rewardName: string;
@@ -10,9 +11,9 @@ interface QuestRewardsProps {
 
 const QuestRewards = ({ rewardName }: QuestRewardsProps) => {
   return (
-    <View style={styles.container}>
+    <ThemeView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <ThemeView style={styles.header}>
         <Ionicons name="trophy-outline" size={20} color="#fbbf24" />
         <ThemeText
           variant="default"
@@ -22,13 +23,13 @@ const QuestRewards = ({ rewardName }: QuestRewardsProps) => {
         >
           REWARDS
         </ThemeText>
-      </View>
+      </ThemeView>
 
       {/* Reward Name */}
       <ThemeText variant="default" lightColor="#e0f2fe" darkColor="#e0f2fe">
         {rewardName}
       </ThemeText>
-    </View>
+    </ThemeView>
   );
 };
 
