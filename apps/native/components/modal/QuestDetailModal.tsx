@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   useAccpetQuestMutation,
@@ -69,7 +69,7 @@ const QuestDetailModal = () => {
     <ThemeView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header Section */}
-        <View style={styles.headerSection}>
+        <ThemeView style={styles.headerSection}>
           {/* Type Badge */}
           <ThemeText
             variant="medium"
@@ -91,7 +91,7 @@ const QuestDetailModal = () => {
           </ThemeText>
 
           {/* GOAL Section */}
-          <View style={styles.goalSection}>
+          <ThemeView style={styles.goalSection}>
             <ThemeText
               variant="title"
               lightColor="#1ddeff"
@@ -100,7 +100,7 @@ const QuestDetailModal = () => {
             >
               GOAL
             </ThemeText>
-            <View style={styles.goalBox}>
+            <ThemeView style={styles.goalBox}>
               <Ionicons name="checkbox-outline" size={20} color="#1ddeff" />
               <ThemeText
                 variant="medium"
@@ -110,9 +110,9 @@ const QuestDetailModal = () => {
               >
                 {description}
               </ThemeText>
-            </View>
-          </View>
-        </View>
+            </ThemeView>
+          </ThemeView>
+        </ThemeView>
 
         {/* Quest Info */}
         <QuestInfo

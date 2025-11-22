@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -134,7 +134,7 @@ const RoutineFormModal = () => {
           label="메이트"
           children={({ value, onChange, form, setValue }) => (
             <>
-              <View style={styles.mateField}>
+              <ThemeView style={styles.mateField}>
                 <ThemeText variant='medium'>직접 루틴 체크</ThemeText>
                 <Checkbox
                   fillColor={COLORS[colorScheme].button}
@@ -143,7 +143,7 @@ const RoutineFormModal = () => {
                       setValue('isMe', chcked);
                   }}
                 />
-              </View>
+              </ThemeView>
               <ThemeTextInput
                 value={value !== undefined ? String(value) : value}
                 placeholder="메이트를 지정해주세요."

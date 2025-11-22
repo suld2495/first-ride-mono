@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View, Modal, FlatList, Pressable } from 'react-native';
+import { StyleSheet, Modal, FlatList, Pressable } from 'react-native';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import { SearchOption, User } from '@repo/types';
@@ -40,7 +40,7 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
   };
 
   return (
-    <View style={styles.userItem}>
+    <ThemeView style={styles.userItem}>
       <ThemeText>{nickname}</ThemeText>
       <Button
         variant="plain"
@@ -55,7 +55,7 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
         onPress={handleAdd}
         style={styles.addButton}
       />
-    </View>
+    </ThemeView>
   );
 };
 
@@ -98,7 +98,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
       <Pressable style={styles.overlay} onPress={handleClose}>
         <Pressable style={styles.modalContainer} onPress={(e) => e.stopPropagation()}>
           <ThemeView style={styles.modalContent}>
-            <View style={styles.modalHeader}>
+            <ThemeView style={styles.modalHeader}>
               <ThemeText variant="subtitle">친구 추가</ThemeText>
               <Button
                 variant="plain"
@@ -111,9 +111,9 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                 }
                 onPress={handleClose}
               />
-            </View>
+            </ThemeView>
 
-            <View style={styles.searchContainer}>
+            <ThemeView style={styles.searchContainer}>
               <ThemeTextInput
                 placeholder="유저이름을 입력해주세요."
                 value={keyword}
@@ -122,9 +122,9 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                 returnKeyType="search"
                 style={styles.searchInput}
               />
-            </View>
+            </ThemeView>
 
-            <View style={styles.userListContainer}>
+            <ThemeView style={styles.userListContainer}>
               {userList && userList.length > 0 ? (
                 <FlatList
                   data={userList}
@@ -140,7 +140,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                   </ThemeText>
                 </ThemeView>
               )}
-            </View>
+            </ThemeView>
           </ThemeView>
         </Pressable>
       </Pressable>

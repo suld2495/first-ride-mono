@@ -1,5 +1,6 @@
-import { StyleSheet, View, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
-import ThemeText from "../common/ThemeText";
+import { StyleSheet, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
+import ThemeText from "../common/ThemeText"
+import ThemeView from '../common/ThemeView';;
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { COLORS } from "@/theme/colors";
 
@@ -23,12 +24,12 @@ const AuthForm = ({ title, children }: AuthFormProps) => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.container}>
+        <ThemeView style={styles.container}>
           <ThemeText variant="title" style={styles.title}>{title}</ThemeText>
-          <View style={styles.form}>
+          <ThemeView style={styles.form}>
             {children}
-          </View>
-        </View>
+          </ThemeView>
+        </ThemeView>
       </ScrollView>
     </KeyboardAvoidingView>
   )

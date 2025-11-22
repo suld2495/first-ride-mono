@@ -1,4 +1,4 @@
-import { StyleSheet, View, FlatList, Alert } from 'react-native';
+import { StyleSheet, FlatList, Alert } from 'react-native';
 import {
   useDeleteFriendMutation,
   useFetchFriendsQuery,
@@ -52,7 +52,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
   };
 
   return (
-    <View style={styles.friendItem}>
+    <ThemeView style={styles.friendItem}>
       <ThemeText>{nickname}</ThemeText>
       <Button
         variant="plain"
@@ -67,7 +67,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
         onPress={handleDelete}
         style={styles.deleteButton}
       />
-    </View>
+    </ThemeView>
   );
 };
 

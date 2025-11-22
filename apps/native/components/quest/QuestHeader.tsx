@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
@@ -6,7 +6,7 @@ import ThemeView from '../common/ThemeView';
 const QuestHeader = () => {
   return (
     <ThemeView style={styles.container}>
-      <View style={styles.content}>
+      <ThemeView style={styles.content}>
         <ThemeText
           variant="title"
           lightColor="#e0f2fe"
@@ -23,7 +23,7 @@ const QuestHeader = () => {
         >
           Quest List
         </ThemeText>
-      </View>
+      </ThemeView>
     </ThemeView>
   );
 };

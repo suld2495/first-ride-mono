@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { useRequestStore } from '@repo/shared/store/request.store';
@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { COLORS } from '@/theme/colors';
 
+import Button from '../common/Button';
 import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
 
@@ -32,19 +33,19 @@ const RequestListModal = () => {
           data={requests}
           keyExtractor={({ id }) => id.toString()}
           renderItem={({ item }) => (
-            <Pressable onPress={() => handleMove(item.id)}>
-              <View key={item.id} style={styles.itemContainer}>
+            <Button variant="plain" onPress={() => handleMove(item.id)} style={{ padding: 0 }}>
+              <ThemeView key={item.id} style={styles.itemContainer}>
                 <ThemeText variant="button" style={styles.itemText}>
                   {item.routineName}
                 </ThemeText>
-                <View style={styles.itemInfo}>
+                <ThemeView style={styles.itemInfo}>
                   <ThemeText variant="caption">{item.nickname}</ThemeText>
                   <ThemeText variant="caption">
                     {getFormatDate(new Date(item.createdAt))}
                   </ThemeText>
-                </View>
-              </View>
-            </Pressable>
+                </ThemeView>
+              </ThemeView>
+            </Button>
           )}
           contentContainerStyle={styles.list}
         />

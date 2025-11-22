@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import ThemeView from '@/components/common/ThemeView';
 
 import Container from '@/components/layout/Container';
 import FriendHeader from '@/components/friend/FriendHeader';
@@ -26,7 +27,7 @@ const FriendPage = () => {
       <FriendHeader />
 
       <Container>
-        <View style={styles.addButtonContainer}>
+        <ThemeView style={styles.addButtonContainer}>
           <Button
             title="친구 추가"
             variant="primary"
@@ -42,9 +43,9 @@ const FriendPage = () => {
             onPress={() => setShowAddModal(true)}
             style={styles.addButton}
           />
-        </View>
+        </ThemeView>
 
-        <View style={styles.searchContainer}>
+        <ThemeView style={styles.searchContainer}>
           <ThemeTextInput
             value={input}
             placeholder="이름을 입력해주세요."
@@ -53,7 +54,7 @@ const FriendPage = () => {
             returnKeyType="search"
             style={styles.searchInput}
           />
-        </View>
+        </ThemeView>
         <FriendList page={page} keyword={keyword} />
       </Container>
 

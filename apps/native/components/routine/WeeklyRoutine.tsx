@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, FlatList } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Routine, WeeklyRoutine } from '@repo/types';
@@ -56,9 +56,9 @@ const RoutineWrapper = ({ routines, date, onShowRequestModal, onShowDetailModal,
           <ThemeView style={[styles.container, !isLast && styles.borderBottom]}>
             <ThemeView style={styles.info}>
               <ThemeView>
-                <Pressable onPress={() => onShowDetailModal(routine.routineId)}>
+                <Button variant="plain" onPress={() => onShowDetailModal(routine.routineId)} style={{ padding: 0 }}>
                   <ThemeText style={styles.title}>{routine.routineName}</ThemeText>
-                </Pressable>
+                </Button>
               </ThemeView>
               <ThemeView>
                 {date === getWeekMonday(new Date()) && (
@@ -111,14 +111,14 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
                   style={styles.column}
                 />
               ))}
-              <View style={styles.success_rate}>
+              <ThemeView style={styles.success_rate}>
                 <Ionicons
                   name="checkmark-circle"
                   size={24}
                   color={COLORS[colorScheme].buttonLight}
                   style={styles.success_rate_icon}
                 />
-              </View>
+              </ThemeView>
             </ThemeView>
             <ThemeView style={styles.row}>
               {weeklyData[routineId].map((check, index) => {
@@ -144,7 +144,7 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
                   )
                 )
               })}
-              <View style={styles.success_rate}>
+              <ThemeView style={styles.success_rate}>
                 {weeklyCount >= routineCount ? (
                   <Ionicons
                     name="checkmark-circle"
@@ -156,7 +156,7 @@ export const RoutineWeekList = (props: RoutineListProps & { routines: WeeklyRout
                     {routineCount > 0 ? `${Math.round((weeklyCount / routineCount) * 100)}%` : '0%'}
                   </ThemeText>
                 )}
-              </View>
+              </ThemeView>
             </ThemeView>
           </ThemeView>
         )
@@ -184,14 +184,14 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
                   style={styles.column}
                 />
               ))}
-            <View style={styles.success_rate}>
+            <ThemeView style={styles.success_rate}>
               <Ionicons
                 name="checkmark-circle"
                 size={24}
                 color={COLORS[colorScheme].buttonLight}
                 style={styles.success_rate_icon}
               />
-            </View>
+            </ThemeView>
           </ThemeView>
           <ThemeView style={styles.row}>
             {Array(Math.min(~~weeklyCount, routineCount))
@@ -241,7 +241,7 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
                   />
                 </WeekyView>
               ))}
-            <View style={styles.success_rate}>
+            <ThemeView style={styles.success_rate}>
               {weeklyCount >= routineCount ? (
                 <Ionicons
                   name="checkmark-circle"
@@ -253,7 +253,7 @@ export const RoutineCountList = (props: RoutineListProps & { routines: Routine[]
                   {routineCount > 0 ? `${Math.round((weeklyCount / routineCount) * 100)}%` : '0%'}
                 </ThemeText>
               )}
-            </View>
+            </ThemeView>
           </ThemeView>
         </ThemeView>
       )}

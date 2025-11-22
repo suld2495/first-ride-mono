@@ -1,7 +1,8 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Quest } from '@repo/types';
 
+import Button from '../common/Button';
 import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
 
@@ -21,7 +22,8 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
   const { questType, questName, description, endDate } = quest;
 
   return (
-    <Pressable
+    <Button
+      variant="plain"
       onPress={() => onClick(quest)}
       style={({ pressed }) => [
         styles.questCard,
@@ -29,12 +31,12 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
       ]}
     >
       {/* Top Line */}
-      <View style={styles.topLine} />
+      <ThemeView style={styles.topLine} />
 
       {/* Card Content */}
-      <View style={styles.cardContent}>
+      <ThemeView style={styles.cardContent}>
         {/* Type Badge */}
-        <View style={styles.badgeSection}>
+        <ThemeView style={styles.badgeSection}>
           <ThemeText
             variant="medium"
             lightColor="#e0f2fe"
@@ -43,7 +45,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
           >
             [{QUEST_LABEL[questType]}]
           </ThemeText>
-        </View>
+        </ThemeView>
 
         {/* Quest Name */}
         <ThemeText
@@ -56,7 +58,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
         </ThemeText>
 
         {/* GOAL Section */}
-        <View style={styles.goalSection}>
+        <ThemeView style={styles.goalSection}>
           <ThemeText
             variant="title"
             lightColor="#1ddeff"
@@ -65,7 +67,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
           >
             GOAL
           </ThemeText>
-          <View style={styles.goalBox}>
+          <ThemeView style={styles.goalBox}>
             <Ionicons name="checkbox-outline" size={20} color="#1ddeff" />
             <ThemeText
               variant="medium"
@@ -75,13 +77,13 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
             >
               {description}
             </ThemeText>
-          </View>
-        </View>
+          </ThemeView>
+        </ThemeView>
 
         {/* Quest Time */}
         <QuestTime endDate={new Date(endDate)} />
-      </View>
-    </Pressable>
+      </ThemeView>
+    </Button>
   );
 };
 

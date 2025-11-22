@@ -2,6 +2,7 @@ import {
   ActivityIndicator,
   Pressable,
   type PressableProps,
+  type PressableStateCallbackType,
   StyleProp,
   View,
   ViewStyle,
@@ -26,10 +27,14 @@ export type ButtonProps = PressableProps & {
    */
   size?: ButtonSize;
   fontSize?: ThemeTextProps['variant'];
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | ((state: PressableStateCallbackType) => StyleProp<ViewStyle>);
   icon?: React.ReactNode;
   iconGap?: number;
   loading?: boolean;
+  /**
+   * Custom children - children이 있으면 title/icon 대신 children을 렌더링
+   */
+  children?: React.ReactNode;
 };
 
 /**
@@ -39,6 +44,13 @@ export type ButtonProps = PressableProps & {
  * <Button variant="primary" title="저장" />
  * <Button variant="plain" size="small" title="취소" />
  * <Button variant="danger" loading title="삭제중" />
+ * <Button variant="primary"><ThemeText>Custom</ThemeText></Button>
+ * <Button 
+ *   variant="plain"
+ *   style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+ * >
+ *   <ThemeText>Pressable</ThemeText>
+ * </Button>
  */
 const Button = ({
   variant = 'primary',
@@ -50,6 +62,7 @@ const Button = ({
   iconGap = 4,
   loading = false,
   disabled,
+  children,
   ...props
 }: ButtonProps) => {
   const colorScheme = useColorScheme();
@@ -65,13 +78,19 @@ const Button = ({
 
   return (
     <Pressable
-      style={[buttonStyle.container, style]}
+      style={
+        typeof style === 'function'
+          ? (state) => [buttonStyle.container, style(state)]
+          : [buttonStyle.container, style]
+      }
       disabled={disabled || loading}
       {...props}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: iconGap }}>
         {loading ? (
           <ActivityIndicator color={buttonStyle.text.color as string} size="small" />
+        ) : children ? (
+          children
         ) : (
           <>
             {icon && icon}

@@ -1,8 +1,10 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import type { QuestTypeFilter as QuestTypeFilterType } from '@/store/quest.store';
 
-import ThemeText from '../common/ThemeText';
+import Button from '../common/Button';
+import ThemeText from '../common/ThemeText'
+import ThemeView from '../common/ThemeView';;
 
 interface QuestTypeFilterProps {
   selected: QuestTypeFilterType;
@@ -17,7 +19,7 @@ const FILTERS: { value: QuestTypeFilterType; label: string }[] = [
 
 const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
   return (
-    <View style={styles.container}>
+    <ThemeView style={styles.container}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -27,8 +29,9 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
           const isSelected = selected === filter.value;
 
           return (
-            <Pressable
+            <Button
               key={filter.value}
+              variant="plain"
               onPress={() => onSelect(filter.value)}
               style={({ pressed }) => [
                 styles.chip,
@@ -44,11 +47,11 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
               >
                 {filter.label}
               </ThemeText>
-            </Pressable>
+            </Button>
           );
         })}
       </ScrollView>
-    </View>
+    </ThemeView>
   );
 };
 

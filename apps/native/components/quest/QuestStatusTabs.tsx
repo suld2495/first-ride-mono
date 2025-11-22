@@ -1,8 +1,10 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import type { QuestStatus } from '@/store/quest.store';
 
-import ThemeText from '../common/ThemeText';
+import Button from '../common/Button';
+import ThemeText from '../common/ThemeText'
+import ThemeView from '../common/ThemeView';;
 
 interface QuestStatusTabsProps {
   selected: QuestStatus;
@@ -17,13 +19,14 @@ const TABS: { value: QuestStatus; label: string }[] = [
 
 const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
   return (
-    <View style={styles.container}>
+    <ThemeView style={styles.container}>
       {TABS.map((tab) => {
         const isSelected = selected === tab.value;
 
         return (
-          <Pressable
+          <Button
             key={tab.value}
+            variant="plain"
             onPress={() => onSelect(tab.value)}
             style={({ pressed }) => [
               styles.tab,
@@ -39,10 +42,10 @@ const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
             >
               {tab.label}
             </ThemeText>
-          </Pressable>
+          </Button>
         );
       })}
-    </View>
+    </ThemeView>
   );
 };
 
