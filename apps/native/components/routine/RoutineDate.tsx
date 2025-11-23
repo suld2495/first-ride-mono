@@ -8,15 +8,15 @@ import {
   getWeekSunday,
 } from '@repo/shared/utils';
 import { useShallow } from 'zustand/shallow';
+import { borderColors } from '@repo/design-system';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { COLORS } from '@/theme/colors';
-
-import Link from '../common/Link';
-import ThemeText from '../common/ThemeText';
-import ThemeView from '../common/ThemeView';
 import { useRoutineStore } from '@/store/routine.store';
-import Button from '../common/Button';
+
+import { IconButton } from '../common/IconButton';
+import Link from '../common/Link';
+import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 interface RoutineDateProps {
   date?: string;
@@ -24,8 +24,8 @@ interface RoutineDateProps {
 
 const RoutineDate = ({ date }: RoutineDateProps) => {
   const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme)
-  
+  const styles = createStyles(colorScheme);
+
   const startDate = new Date(getWeekMonday(date ? new Date(date) : new Date()));
   const endDate = new Date(getWeekSunday(startDate));
 
@@ -36,87 +36,65 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
   return (
     <ThemeView style={styles.date_container}>
       <ThemeView style={styles.currentDate}>
-        <ThemeText variant="body">
+        <Typography variant="body">
           {getDisplayFormatDate(startDate)}
-        </ThemeText>
-        <ThemeText variant="body">~</ThemeText>
-        <ThemeText variant="body">
-          {getDisplayFormatDate(endDate)}
-        </ThemeText>
+        </Typography>
+        <Typography variant="body">~</Typography>
+        <Typography variant="body">{getDisplayFormatDate(endDate)}</Typography>
       </ThemeView>
       <ThemeView style={styles.right}>
         <ThemeView style={styles.date_button_container}>
           <Link
-            variant="plain"
+            variant="ghost"
             href={`/(tabs)/(afterLogin)/(routine)?date=${beforeWeek(startDate)}`}
-            icon={
-              <Ionicons
-                name="chevron-back"
-                size={24}
-                color={COLORS[colorScheme].icon}
-              />
-            }
+            leftIcon={({ color }) => (
+              <Ionicons name="chevron-back" size={24} color={color} />
+            )}
             style={styles.link}
           />
           <Link
-            variant="plain"
+            variant="ghost"
             href={`/(tabs)/(afterLogin)/(routine)?date=${afterWeek(startDate)}`}
-            icon={
-              <Ionicons
-                name="chevron-forward"
-                size={24}
-                color={COLORS[colorScheme].icon}
-              />
-            }
+            leftIcon={({ color }) => (
+              <Ionicons name="chevron-forward" size={24} color={color} />
+            )}
             style={styles.link}
           />
         </ThemeView>
-        <ThemeView style={styles.line}></ThemeView>
+        <ThemeView style={styles.line} />
         <ThemeView style={styles.icons}>
           {type === 'number' ? (
             <>
-              <Button
-                icon={<Ionicons
-                  name="keypad-sharp"
-                  size={22}
-                  color={COLORS[colorScheme].icon}
-                />}
-                variant='plain'
+              <IconButton
+                icon={({ color }) => (
+                  <Ionicons name="keypad-sharp" size={22} color={color} />
+                )}
+                variant="ghost"
                 onPress={() => setType('number')}
-                style={styles.icon}
               />
-              <Button
-                icon={<Ionicons
-                  name="grid-outline"
-                  size={22}
-                  color={COLORS[colorScheme].icon}
-                />}
-                variant='plain'
+              <IconButton
+                icon={({ color }) => (
+                  <Ionicons name="grid-outline" size={22} color={color} />
+                )}
+                variant="ghost"
                 onPress={() => setType('week')}
-                style={styles.icon}
               />
             </>
           ) : (
             <>
-              <Button
-                icon={<Ionicons
-                  name="keypad-outline"
-                  size={22}
-                  color={COLORS[colorScheme].icon}
-                />}
-                variant='plain'
+              <IconButton
+                icon={({ color }) => (
+                  <Ionicons name="keypad-outline" size={22} color={color} />
+                )}
+                variant="ghost"
                 onPress={() => setType('number')}
-                style={styles.icon}
               />
-              <Button
-                icon={<Ionicons
-                  name="grid"
-                  size={22}
-                  color={COLORS[colorScheme].icon}
-                />}
-                variant='plain'
+              <IconButton
+                icon={({ color }) => (
+                  <Ionicons name="grid" size={22} color={color} />
+                )}
+                variant="ghost"
                 onPress={() => setType('week')}
-                style={styles.icon}
               />
             </>
           )}
@@ -128,19 +106,19 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
 
 export default RoutineDate;
 
-const createStyles = (colorScheme: 'light' | 'dark') => (
+const createStyles = (colorScheme: 'light' | 'dark') =>
   StyleSheet.create({
     date_container: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
     },
-  
+
     currentDate: {
       flexDirection: 'row',
       gap: 5,
     },
-  
+
     right: {
       flex: 1,
       flexDirection: 'row',
@@ -152,16 +130,16 @@ const createStyles = (colorScheme: 'light' | 'dark') => (
       flexDirection: 'row',
       gap: 3,
     },
-  
+
     link: {
       paddingVertical: 0,
       paddingHorizontal: 0,
     },
-  
+
     line: {
       width: 1,
       height: 17,
-      backgroundColor: COLORS[colorScheme].icon,
+      backgroundColor: borderColors.default[colorScheme],
       marginInline: 5,
     },
 
@@ -169,10 +147,4 @@ const createStyles = (colorScheme: 'light' | 'dark') => (
       flexDirection: 'row',
       gap: 5,
     },
-
-    icon: {
-      paddingVertical: 0,
-      paddingHorizontal: 0,
-    }
-  })  
-);
+  });

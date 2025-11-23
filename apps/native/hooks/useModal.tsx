@@ -1,3 +1,4 @@
+import FriendRequestListModal from '@/components/modal/FriendRequestListModal';
 import PrivacyModal from '@/components/modal/PrivacyModal';
 import QuestDetailModal from '@/components/modal/QuestDetailModal';
 import RequestDetailModal from '@/components/modal/RequestDetailModal';
@@ -15,6 +16,7 @@ export type ModalType =
   | 'request'
   | 'request-list'
   | 'request-detail'
+  | 'friend-request-list'
   | 'policies'
   | 'privacy';
 
@@ -34,6 +36,8 @@ export const useModal = (type: ModalType): [string, () => React.ReactNode] => {
       return ['인증 요청', RequestListModal];
     case 'request-detail':
       return ['인증 상세', RequestDetailModal];
+    case 'friend-request-list':
+      return ['친구 요청', FriendRequestListModal];
     case 'policies':
       return ['약관 및 정책', TermsPolicyModal];
     case 'privacy':

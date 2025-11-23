@@ -1,19 +1,36 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { contentColors } from '@repo/design-system';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { COLORS } from '@/theme/colors';
 
-import ThemeTextInput from './ThemeTextInput';
+import { Input } from './Input';
 
-interface PasswordInputProps {
+export interface PasswordInputProps {
+  /** Current password value */
   value: string;
+  /** Callback when text changes */
   onChangeText: (text: string) => void;
+  /** Placeholder text */
   placeholder?: string;
+  /** Optional width override */
   width?: number;
+  /** Auto focus on mount */
   autoFocus?: boolean;
 }
+
+/**
+ * PasswordInput component with show/hide toggle.
+ * Uses semantic tokens for consistent theming.
+ *
+ * @example
+ * <PasswordInput
+ *   value={password}
+ *   onChangeText={setPassword}
+ *   placeholder="비밀번호를 입력해주세요."
+ * />
+ */
 
 const PasswordInput = ({
   value,
@@ -30,14 +47,14 @@ const PasswordInput = ({
   };
 
   return (
-    <View style={styles.container}>
-      <ThemeTextInput
+    <View style={[styles.container, width ? { width } : undefined]}>
+      <Input
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        width={width}
         autoFocus={autoFocus}
         secureTextEntry={!showPassword}
+        fullWidth
         style={styles.input}
       />
       <Pressable
@@ -51,7 +68,7 @@ const PasswordInput = ({
         <Ionicons
           name={showPassword ? 'eye-off' : 'eye'}
           size={20}
-          color={COLORS[colorScheme].grey}
+          color={contentColors.bodySecondary[colorScheme]}
         />
       </Pressable>
     </View>
@@ -73,7 +90,7 @@ const styles = StyleSheet.create({
 
   iconContainer: {
     position: 'absolute',
-    right: 12,
+    right: 4,
     top: 0,
     bottom: 0,
     justifyContent: 'center',

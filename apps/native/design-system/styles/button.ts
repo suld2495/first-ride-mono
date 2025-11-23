@@ -1,38 +1,82 @@
 /**
  * React Native Button 스타일 헬퍼
- * 통합 토큰을 StyleSheet로 변환
+ * Semantic 토큰 기반 Button 스타일 생성
  */
 
-import type { ViewStyle, TextStyle } from 'react-native';
-import { colors, spacing, borderRadius, type ColorScheme } from '@repo/design-system';
-
-export type ButtonVariant = 'primary' | 'plain' | 'outline' | 'danger' | 'success';
-export type ButtonSize = 'very-small' | 'small' | 'medium' | 'large';
+import type { TextStyle, ViewStyle } from 'react-native';
+import {
+  actionColors,
+  borderColors,
+  borderRadius,
+  type ColorScheme,
+  contentColors,
+  spacing,
+} from '@repo/design-system';
 
 /**
- * Button Variant 스타일
+ * Button Size (웹 가이드 준수)
+ * - sm: 32px
+ * - md: 40px (기본)
+ * - lg: 48px
+ */
+export type ButtonSize = 'sm' | 'md' | 'lg';
+
+/**
+ * Button Variant (웹 가이드 준수)
+ * - primary: 주요 액션
+ * - secondary: 보조 액션
+ * - ghost: 투명 배경
+ * - outline: 테두리만
+ * - danger: 위험 액션
+ */
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'outline'
+  | 'danger';
+
+/**
+ * Button Variant 스타일 (Semantic 토큰 활용)
  */
 export const getButtonVariantStyle = (
   variant: ButtonVariant,
-  scheme: ColorScheme
-): ViewStyle => {
-  const variantStyles: Record<ButtonVariant, ViewStyle> = {
+  scheme: ColorScheme,
+): ViewStyle & { textColor: string } => {
+  const variantStyles: Record<
+    ButtonVariant,
+    ViewStyle & { textColor: string }
+  > = {
+    // Primary: 브랜드 컬러 (action.primary)
     primary: {
-      backgroundColor: scheme === 'light' ? colors.primary.light : colors.primary.darkBold,
+      backgroundColor: actionColors.primary[scheme],
+      textColor: contentColors.inverse[scheme],
     },
-    plain: {
+
+    // Secondary: 중립 gray (action.secondary)
+    secondary: {
+      backgroundColor: actionColors.secondary[scheme],
+      textColor: contentColors.inverse[scheme],
+    },
+
+    // Ghost: 투명 배경
+    ghost: {
       backgroundColor: 'transparent',
+      textColor: contentColors.body[scheme],
     },
+
+    // Outline: 테두리만
     outline: {
       backgroundColor: 'transparent',
-      borderWidth: 2,
-      borderColor: scheme === 'light' ? colors.primary.light : colors.primary.dark,
+      borderWidth: 1,
+      borderColor: borderColors.default[scheme],
+      textColor: contentColors.body[scheme],
     },
+
+    // Danger: 위험 액션 (action.destructive)
     danger: {
-      backgroundColor: scheme === 'light' ? colors.status.error.light : colors.status.error.dark,
-    },
-    success: {
-      backgroundColor: scheme === 'light' ? colors.status.success.light : colors.status.success.dark,
+      backgroundColor: actionColors.destructive[scheme],
+      textColor: contentColors.inverse[scheme],
     },
   };
 
@@ -40,56 +84,33 @@ export const getButtonVariantStyle = (
 };
 
 /**
- * Button Size 스타일
+ * Button Size 스타일 (웹 가이드 준수)
  */
-export const getButtonSizeStyle = (size: ButtonSize): ViewStyle => {
-  const sizeStyles: Record<ButtonSize, ViewStyle> = {
-    'very-small': {
-      paddingVertical: spacing[1], // 4
-      paddingHorizontal: spacing[2], // 8
-      borderRadius: borderRadius.sm,
-    },
-    small: {
-      paddingVertical: spacing[1.5], // 6
+export const getButtonSizeStyle = (
+  size: ButtonSize,
+): ViewStyle & { fontSize: number } => {
+  const sizeStyles: Record<ButtonSize, ViewStyle & { fontSize: number }> = {
+    sm: {
+      height: 32,
       paddingHorizontal: spacing[3], // 12
-      borderRadius: borderRadius.sm,
+      borderRadius: borderRadius.md, // 6
+      fontSize: 14,
     },
-    medium: {
-      paddingVertical: spacing[2.5], // 10
+    md: {
+      height: 40,
       paddingHorizontal: spacing[4], // 16
-      borderRadius: borderRadius.md,
+      borderRadius: borderRadius.lg, // 8
+      fontSize: 16,
     },
-    large: {
-      paddingVertical: spacing[3.5], // 14
-      paddingHorizontal: spacing[5], // 20
-      borderRadius: borderRadius.xl,
+    lg: {
+      height: 48,
+      paddingHorizontal: spacing[6], // 24
+      borderRadius: borderRadius.xl, // 12
+      fontSize: 18,
     },
   };
 
   return sizeStyles[size];
-};
-
-/**
- * Button 텍스트 색상
- */
-export const getButtonTextColor = (
-  variant: ButtonVariant,
-  scheme: ColorScheme
-): TextStyle => {
-  if (variant === 'primary' || variant === 'danger' || variant === 'success') {
-    return { color: colors.white };
-  }
-
-  if (variant === 'outline') {
-    return {
-      color: scheme === 'light' ? colors.primary.light : colors.primary.dark,
-    };
-  }
-
-  // plain
-  return {
-    color: scheme === 'light' ? colors.text.secondary.light : colors.text.secondary.dark,
-  };
 };
 
 /**
@@ -98,18 +119,31 @@ export const getButtonTextColor = (
 export const createButtonStyle = (
   variant: ButtonVariant,
   size: ButtonSize,
-  scheme: ColorScheme
+  scheme: ColorScheme,
 ): {
   container: ViewStyle;
   text: TextStyle;
+  iconColor: string;
 } => {
+  const { textColor, ...containerVariantStyle } = getButtonVariantStyle(
+    variant,
+    scheme,
+  );
+  const { fontSize, ...containerSizeStyle } = getButtonSizeStyle(size);
+
   return {
     container: {
       justifyContent: 'center',
       alignItems: 'center',
-      ...getButtonVariantStyle(variant, scheme),
-      ...getButtonSizeStyle(size),
+      flexDirection: 'row',
+      ...containerVariantStyle,
+      ...containerSizeStyle,
     },
-    text: getButtonTextColor(variant, scheme),
+    text: {
+      color: textColor,
+      fontSize,
+      fontWeight: '500',
+    },
+    iconColor: textColor, // 아이콘은 텍스트와 같은 색상 사용
   };
 };

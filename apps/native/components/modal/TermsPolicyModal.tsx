@@ -1,8 +1,8 @@
 import { ScrollView, StyleSheet } from 'react-native';
 import Markdown from 'react-native-markdown-display';
+import { borderColors, contentColors } from '@repo/design-system';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { COLORS } from '@/theme/colors';
 
 import ThemeView from '../common/ThemeView';
 
@@ -44,28 +44,28 @@ const createStyles = (colorScheme: 'light' | 'dark') =>
     content: {},
 
     body: {
-      color: COLORS[colorScheme].text,
+      color: contentColors.body[colorScheme],
       fontSize: 14,
       marginBottom: 50,
     },
 
     heading1: {
-      color: COLORS[colorScheme].text,
+      color: contentColors.heading[colorScheme],
       fontSize: 20,
       fontWeight: 'bold',
       marginBottom: 20,
     },
 
     heading2: {
-      color: COLORS[colorScheme].text,
+      color: contentColors.title[colorScheme],
       fontSize: 14,
       fontWeight: 'semibold',
       marginVertical: 10,
     },
 
     table: {
-      color: COLORS[colorScheme].text,
-      borderColor: COLORS[colorScheme].grey,
+      color: contentColors.body[colorScheme],
+      borderColor: borderColors.divider[colorScheme],
     },
 
     listItem: {
@@ -73,7 +73,7 @@ const createStyles = (colorScheme: 'light' | 'dark') =>
     },
 
     hr: {
-      backgroundColor: COLORS[colorScheme].grey,
+      backgroundColor: borderColors.divider[colorScheme],
       marginVertical: 20,
     },
 

@@ -2,12 +2,9 @@ import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { COLORS } from '@/theme/colors';
-
 import Link from '../common/Link';
-import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 interface ModalHeaderProps {
   title: string;
@@ -15,55 +12,41 @@ interface ModalHeaderProps {
 
 const ModalHeader = ({ title }: ModalHeaderProps) => {
   const isPresented = router.canGoBack();
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
 
   return (
-    <ThemeView style={styles.container}>
+    <ThemeView variant="raised" style={styles.container}>
       <Link
         href={isPresented ? '..' : '/'}
-        variant="plain"
+        variant="ghost"
         style={styles.backButton}
-        icon={
-          <Ionicons
-            name="chevron-back-outline"
-            size={24}
-            color={COLORS[colorScheme].icon}
-          />
-        }
+        leftIcon={({ color }) => (
+          <Ionicons name="chevron-back-outline" size={24} color={color} />
+        )}
       />
-      <ThemeText
-        lightColor={COLORS[colorScheme].text}
-        darkColor={COLORS[colorScheme].text}
-        style={styles.title}
-      >
-        {title}
-      </ThemeText>
+      <Typography style={styles.title}>{title}</Typography>
     </ThemeView>
   );
 };
 
 export default ModalHeader;
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    container: {
-      position: 'relative',
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 5,
-      paddingHorizontal: 10,
-      gap: 20,
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
-    },
+const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    gap: 20,
+  },
 
-    backButton: {
-      paddingHorizontal: 0,
-    },
+  backButton: {
+    paddingHorizontal: 0,
+  },
 
-    title: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginTop: -5,
-    },
-  });
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: -5,
+  },
+});

@@ -1,8 +1,13 @@
 /**
- * 통합 디자인 토큰 Export
- * 플랫폼 독립적인 디자인 토큰 모음
+ * 디자인 토큰 Export
+ * 2-Layer Token System: Raw → Semantic
+ *
+ * - Raw: Tailwind CSS 표준 기반 Raw 토큰
+ * - Semantic: 의미 기반 Semantic 토큰
  */
 
-export * from './colors';
-export * from './typography';
-export * from './spacing';
+// Raw Token Layer
+export * from './raw';
+
+// Semantic Token Layer
+export * from './semantic';

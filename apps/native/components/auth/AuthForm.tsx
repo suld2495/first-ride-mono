@@ -1,8 +1,12 @@
-import { StyleSheet, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
-import ThemeText from "../common/ThemeText"
-import ThemeView from '../common/ThemeView';;
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { COLORS } from "@/theme/colors";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+
+import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 interface AuthFormProps {
   title: string;
@@ -10,9 +14,6 @@ interface AuthFormProps {
 }
 
 const AuthForm = ({ title, children }: AuthFormProps) => {
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
-
   return (
     <KeyboardAvoidingView
       style={styles.keyboardView}
@@ -25,40 +26,37 @@ const AuthForm = ({ title, children }: AuthFormProps) => {
         showsVerticalScrollIndicator={false}
       >
         <ThemeView style={styles.container}>
-          <ThemeText variant="title" style={styles.title}>{title}</ThemeText>
-          <ThemeView style={styles.form}>
-            {children}
-          </ThemeView>
+          <Typography variant="title" style={styles.title}>
+            {title}
+          </Typography>
+          <ThemeView style={styles.form}>{children}</ThemeView>
         </ThemeView>
       </ScrollView>
     </KeyboardAvoidingView>
-  )
+  );
 };
 
 export default AuthForm;
 
-const createStyles = (colorScheme: 'light' | 'dark') => (
-  StyleSheet.create({
-    keyboardView: {
-      flex: 1,
-    },
+const styles = StyleSheet.create({
+  keyboardView: {
+    flex: 1,
+  },
 
-    scrollContent: {
-      flexGrow: 1,
-      justifyContent: 'center',
-    },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
 
-    container: {
-      gap: 20
-    },
+  container: {
+    gap: 20,
+  },
 
-    title: {
-      color: COLORS[colorScheme].text,
-      textAlign: 'center',
-    },
+  title: {
+    textAlign: 'center',
+  },
 
-    form: {
-      gap: 10
-    }
-  })
-);
+  form: {
+    gap: 10,
+  },
+});

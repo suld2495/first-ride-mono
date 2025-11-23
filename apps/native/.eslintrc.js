@@ -6,5 +6,8 @@ module.exports = {
   ignorePatterns: ["dist/*", "metro.config.js"],
   parserOptions: {
     project: true,
+  },
+  rules: {
+    "no-nested-ternary": "off",
   }
 }

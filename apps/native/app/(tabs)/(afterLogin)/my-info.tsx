@@ -1,19 +1,19 @@
-import { StyleSheet, Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useAuthStore } from '@repo/shared/store/auth.store';
 import Constants from 'expo-constants';
-import * as WebBrowser from 'expo-web-browser';
 import { router } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import { feedbackColors, surfaceColors } from '@repo/design-system';
 
-import Button from '@/components/common/Button';
+import { deletePushToken } from '@/api/push-token.api';
+import { Button } from '@/components/common/Button';
 import Link from '@/components/common/Link';
-import ThemeText from '@/components/common/ThemeText';
 import ThemeView from '@/components/common/ThemeView';
+import { Typography } from '@/components/common/Typography';
 import Container from '@/components/layout/Container';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useNotifications } from '@/hooks/useNotifications';
-import { deletePushToken } from '@/api/push-token.api';
-import { useAuthStore } from '@repo/shared/store/auth.store';
-import { COLORS } from '@/theme/colors';
 
 const MyInfo = () => {
   const user = useAuthStore((state) => state.user);
@@ -27,94 +27,74 @@ const MyInfo = () => {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      '로그아웃',
-      '정말 로그아웃 하시겠습니까?',
-      [
-        {
-          text: '취소',
-          style: 'cancel',
-        },
-        {
-          text: '로그아웃',
-          style: 'destructive',
-          onPress: async () => {
-            // 로그아웃 시 푸시 토큰 삭제
-            if (pushToken?.data) {
-              try {
-                await deletePushToken(pushToken.data);
-              } catch (error) {
-                console.error('Failed to delete push token on logout:', error);
-              }
+    Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
+      {
+        text: '취소',
+        style: 'cancel',
+      },
+      {
+        text: '로그아웃',
+        style: 'destructive',
+        onPress: async () => {
+          // 로그아웃 시 푸시 토큰 삭제
+          if (pushToken?.data) {
+            try {
+              await deletePushToken(pushToken.data);
+            } catch (error) {
+              console.error('Failed to delete push token on logout:', error);
             }
+          }
 
-            signOut();
-            router.replace('/');
-          },
+          signOut();
+          router.replace('/');
         },
-      ],
-    );
+      },
+    ]);
   };
 
   return (
     <Container>
       <ThemeView style={styles.container}>
-        <ThemeText variant="title">{user?.nickname}</ThemeText>
+        <Typography variant="title">{user?.nickname}</Typography>
       </ThemeView>
-      <ThemeView style={styles.linkContainer}>
+      <ThemeView style={styles.linkContainer} transparent>
         <Link
-          variant="plain"
+          variant="ghost"
           href="/modal?type=policies"
           title="약관 및 정책"
-          icon={
-            <Ionicons
-              name="newspaper-outline"
-              size={20}
-              color={COLORS[colorScheme].icon}
-            />
-          }
-          iconGap={15}
+          leftIcon={({ color }) => (
+            <Ionicons name="newspaper-outline" size={20} color={color} />
+          )}
           style={styles.link}
         />
         <Link
-          variant="plain"
+          variant="ghost"
           href="/modal?type=privacy"
           title="개인정보 처리방침"
-          icon={
-            <Ionicons
-              name="key-outline"
-              size={20}
-              color={COLORS[colorScheme].icon}
-            />
-          }
-          iconGap={15}
+          leftIcon={({ color }) => (
+            <Ionicons name="key-outline" size={20} color={color} />
+          )}
           style={styles.link}
         />
         <Button
-          variant="plain"
+          variant="ghost"
           title="처음처럼에 피드백을 남겨주세요!"
-          icon={
-            <Ionicons
-              name="heart-circle-outline"
-              size={20}
-              color={COLORS[colorScheme].icon}
-            />
-          }
-          iconGap={15}
+          leftIcon={({ color }) => (
+            <Ionicons name="heart-circle-outline" size={20} color={color} />
+          )}
           style={[styles.link, styles.feedback]}
           onPress={handleMoveFeedback}
         />
         <Button
-          variant="plain"
+          variant="ghost"
           title="로그아웃"
-          icon={
+          leftIcon={() => (
             <Ionicons
               name="log-out-outline"
               size={20}
-              color={COLORS[colorScheme].error}
+              color={feedbackColors.error.icon[colorScheme]}
             />
-          }
-          iconGap={15}
+          )}
           style={[styles.link, styles.logout]}
           onPress={handleLogout}
         />
@@ -140,11 +120,11 @@ const createStyles = (colorScheme: 'light' | 'dark') =>
     },
 
     feedback: {
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
+      backgroundColor: surfaceColors.raised[colorScheme],
     },
 
     logout: {
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
+      backgroundColor: surfaceColors.raised[colorScheme],
       marginTop: 20,
     },
   });

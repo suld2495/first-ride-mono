@@ -139,7 +139,7 @@ export function makeServer() {
           return mockQuests;
         }
 
-        return mockQuests.filter(quest => quest.questType === filter);
+        return mockQuests.filter((quest) => quest.questType === filter);
       });
 
       this.get('/quest/:id', (schema, request) => {
@@ -168,7 +168,12 @@ export function makeServer() {
       this.post('/quest', (schema, request) => {
         const body = JSON.parse(request.requestBody);
 
-        if (!body.questName || !body.questType || !body.description || !body.rewardId) {
+        if (
+          !body.questName ||
+          !body.questType ||
+          !body.description ||
+          !body.rewardId
+        ) {
           return { error: '필수 필드를 입력해주세요' };
         }
 
@@ -176,10 +181,15 @@ export function makeServer() {
       });
 
       this.put('/quest/:id', (schema, request) => {
-        const { id } = request.params;
+        const { id: _id } = request.params;
         const body = JSON.parse(request.requestBody);
 
-        if (!body.questName || !body.questType || !body.description || !body.rewardId) {
+        if (
+          !body.questName ||
+          !body.questType ||
+          !body.description ||
+          !body.rewardId
+        ) {
           return { error: '필수 필드를 입력해주세요' };
         }
 
@@ -187,12 +197,14 @@ export function makeServer() {
       });
 
       this.delete('/quest/:id', (schema, request) => {
-        const { id } = request.params;
+        const { id: _id } = request.params;
+
         return { message: '퀘스트가 삭제되었습니다' };
       });
 
       this.post('/quest/accept/:id', (schema, request) => {
         const { id } = request.params;
+
         return { message: '퀘스트를 수락했습니다', questId: Number(id) };
       });
 

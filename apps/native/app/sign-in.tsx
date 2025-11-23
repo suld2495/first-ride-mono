@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { useLoginMutation } from '@repo/shared/hooks/useAuth';
 import { ApiError } from '@repo/shared/api/AppError';
+import { useLoginMutation } from '@repo/shared/hooks/useAuth';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 
 import { setAuthorization } from '@/api';
 import AuthForm from '@/components/auth/AuthForm';
-import Button from '@/components/common/Button';
+import { Button } from '@/components/common/Button';
+import { Input } from '@/components/common/Input';
 import Link from '@/components/common/Link';
 import PasswordInput from '@/components/common/PasswordInput';
-import ThemeTextInput from '@/components/common/ThemeTextInput';
 import ThemeView from '@/components/common/ThemeView';
 import { useNotifications } from '@/hooks/useNotifications';
 
@@ -52,6 +52,7 @@ export default function SignIn() {
         error instanceof ApiError
           ? error.message
           : '로그인에 실패했습니다. 다시 시도해주세요.';
+
       alert(errorMessage);
     } finally {
       setIsLoading(false);
@@ -68,11 +69,11 @@ export default function SignIn() {
   return (
     <ThemeView style={styles.container}>
       <AuthForm title="로그인">
-        <ThemeTextInput
-          width={250}
+        <Input
           placeholder="아이디를 입력해주세요."
           value={form.userId}
           onChangeText={(value) => handleChange('userId', value)}
+          style={{ width: 250 }}
         />
         <PasswordInput
           width={250}
@@ -80,15 +81,15 @@ export default function SignIn() {
           value={form.password}
           onChangeText={(value) => handleChange('password', value)}
         />
-        <Button 
-          title="로그인" 
-          onPress={handleLogin} 
-          style={styles.button} 
+        <Button
+          title="로그인"
+          onPress={handleLogin}
+          style={styles.button}
           loading={isLoading}
         />
         <Link
           href="/sign-up"
-          variant="plain"
+          variant="ghost"
           title="회원가입"
           style={styles.link}
           onPress={() => setForm(initial())}

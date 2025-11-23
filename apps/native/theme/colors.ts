@@ -19,6 +19,9 @@ const COLORS = {
     checkbox: 'rgb(78, 19, 245)',
     input: 'rgb(249, 249, 255)',
     error: 'rgb(253, 76, 76)',
+    success: 'rgb(34, 197, 94)',
+    warning: 'rgb(245, 158, 11)',
+    info: 'rgb(59, 130, 246)',
     border: 'rgb(229, 231, 235)',
     boxShadow: '0 8px 20px rgba(0,0,0,.5),0 0 1px rgba(0,0,0,.7)',
 
@@ -40,6 +43,9 @@ const COLORS = {
     checkbox: 'rgb(78, 19, 245)',
     input: 'rgb(61, 61, 64)',
     error: 'rgb(253, 76, 76)',
+    success: 'rgb(22, 163, 74)',
+    warning: 'rgb(217, 119, 6)',
+    info: 'rgb(37, 99, 235)',
     border: 'rgb(75, 85, 99)',
     boxShadow: '0px 0 5px 0px rgba(0,0,0,0.15)',
 

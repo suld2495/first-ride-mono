@@ -2,9 +2,9 @@ import { ScrollView, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Quest } from '@repo/types';
 
-import Button from '../common/Button';
-import ThemeText from '../common/ThemeText';
+import { Button } from '../common/Button';
 import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 import QuestTime from './QuestTime';
 
@@ -23,9 +23,9 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
 
   return (
     <Button
-      variant="plain"
+      variant="ghost"
       onPress={() => onClick(quest)}
-      style={({ pressed }) => [
+      style={({ pressed }: { pressed: boolean }) => [
         styles.questCard,
         pressed && styles.questCardPressed,
       ]}
@@ -37,46 +37,26 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
       <ThemeView style={styles.cardContent}>
         {/* Type Badge */}
         <ThemeView style={styles.badgeSection}>
-          <ThemeText
-            variant="medium"
-            lightColor="#e0f2fe"
-            darkColor="#e0f2fe"
-            style={styles.badge}
-          >
+          <Typography variant="body" style={styles.badge}>
             [{QUEST_LABEL[questType]}]
-          </ThemeText>
+          </Typography>
         </ThemeView>
 
         {/* Quest Name */}
-        <ThemeText
-          variant="subtitle"
-          lightColor="#e0f2fe"
-          darkColor="#e0f2fe"
-          style={styles.questName}
-        >
+        <Typography variant="subtitle" style={styles.questName}>
           {questName}
-        </ThemeText>
+        </Typography>
 
         {/* GOAL Section */}
         <ThemeView style={styles.goalSection}>
-          <ThemeText
-            variant="title"
-            lightColor="#1ddeff"
-            darkColor="#1ddeff"
-            style={styles.goalTitle}
-          >
+          <Typography variant="title" style={styles.goalTitle}>
             GOAL
-          </ThemeText>
+          </Typography>
           <ThemeView style={styles.goalBox}>
             <Ionicons name="checkbox-outline" size={20} color="#1ddeff" />
-            <ThemeText
-              variant="medium"
-              lightColor="#90a1b9"
-              darkColor="#90a1b9"
-              style={styles.goalText}
-            >
+            <Typography variant="body" style={styles.goalText}>
               {description}
-            </ThemeText>
+            </Typography>
           </ThemeView>
         </ThemeView>
 
@@ -97,14 +77,9 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
     return (
       <ThemeView style={styles.emptyContainer}>
         <Ionicons name="briefcase-outline" size={50} color="#90a1b9" />
-        <ThemeText
-          variant="default"
-          lightColor="#90a1b9"
-          darkColor="#90a1b9"
-          style={styles.emptyText}
-        >
+        <Typography variant="body" style={styles.emptyText}>
           퀘스트가 존재하지 않습니다.
-        </ThemeText>
+        </Typography>
       </ThemeView>
     );
   }

@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 interface QuestBoxProps {
   title: string;
@@ -13,22 +13,12 @@ interface QuestBoxProps {
 const QuestBox = ({ title, value, color }: QuestBoxProps) => {
   return (
     <ThemeView style={styles.box}>
-      <ThemeText
-        variant="caption"
-        lightColor="#90a1b9"
-        darkColor="#90a1b9"
-        style={styles.boxTitle}
-      >
+      <Typography variant="caption" style={styles.boxTitle}>
         {title}
-      </ThemeText>
-      <ThemeText
-        variant="title"
-        lightColor={color}
-        darkColor={color}
-        style={styles.boxValue}
-      >
+      </Typography>
+      <Typography variant="title" style={[styles.boxValue, { color }]}>
         {value}
-      </ThemeText>
+      </Typography>
     </ThemeView>
   );
 };
@@ -52,14 +42,9 @@ const QuestInfo = ({
       {/* Header */}
       <ThemeView style={styles.header}>
         <Ionicons name="flash-outline" size={20} color="#1ddeff" />
-        <ThemeText
-          variant="default"
-          lightColor="#1ddeff"
-          darkColor="#1ddeff"
-          style={styles.headerText}
-        >
+        <Typography variant="body" style={styles.headerText}>
           QUEST INFO
-        </ThemeText>
+        </Typography>
       </ThemeView>
 
       {/* Info Boxes */}
@@ -84,12 +69,12 @@ const QuestInfo = ({
       {/* Party Status */}
       <ThemeView style={styles.partyContainer}>
         <ThemeView style={styles.partyHeader}>
-          <ThemeText variant="caption" lightColor="#90a1b9" darkColor="#90a1b9">
+          <Typography variant="caption" style={{ color: '#90a1b9' }}>
             파티현황
-          </ThemeText>
-          <ThemeText variant="caption" lightColor="#90a1b9" darkColor="#90a1b9">
+          </Typography>
+          <Typography variant="caption" style={{ color: '#90a1b9' }}>
             {`${currentParticipants}/${maxParticipants}`}
-          </ThemeText>
+          </Typography>
         </ThemeView>
 
         {/* Progress Bar */}
@@ -101,13 +86,9 @@ const QuestInfo = ({
         {isFull && (
           <ThemeView style={styles.warning}>
             <Ionicons name="warning" size={17} color="yellow" />
-            <ThemeText
-              variant="caption"
-              lightColor="#ef4444"
-              darkColor="#ef4444"
-            >
+            <Typography variant="caption">
               파티 인원이 가득 찼습니다.
-            </ThemeText>
+            </Typography>
           </ThemeView>
         )}
       </ThemeView>

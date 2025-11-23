@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { useJoinMutation } from '@repo/shared/hooks/useAuth';
 import { ApiError } from '@repo/shared/api/AppError';
+import { useJoinMutation } from '@repo/shared/hooks/useAuth';
 import { JoinForm as JoinFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 
 import AuthForm from '@/components/auth/AuthForm';
-import Button from '@/components/common/Button';
+import { Button } from '@/components/common/Button';
+import { Input } from '@/components/common/Input';
 import Link from '@/components/common/Link';
 import PasswordInput from '@/components/common/PasswordInput';
-import ThemeTextInput from '@/components/common/ThemeTextInput';
 import ThemeView from '@/components/common/ThemeView';
 
 const initial = () => ({
@@ -51,6 +51,7 @@ export default function SignUp() {
         error instanceof ApiError
           ? error.message
           : '회원가입에 실패했습니다. 다시 시도해주세요.';
+
       alert(errorMessage);
     } finally {
       setIsLoading(false);
@@ -70,17 +71,17 @@ export default function SignUp() {
   return (
     <ThemeView style={styles.container}>
       <AuthForm title="회원가입">
-        <ThemeTextInput
-          width={250}
+        <Input
           placeholder="아이디를 입력해주세요."
           value={form.userId}
           onChangeText={(value) => handleChange('userId', value)}
+          style={{ width: 250 }}
         />
-        <ThemeTextInput
-          width={250}
+        <Input
           placeholder="닉네임을 입력해주세요."
           value={form.nickname}
           onChangeText={(value) => handleChange('nickname', value)}
+          style={{ width: 250 }}
         />
         <PasswordInput
           width={250}
@@ -94,11 +95,11 @@ export default function SignUp() {
           value={form.passwordConfirm}
           onChangeText={(value) => handleChange('passwordConfirm', value)}
         />
-        <ThemeTextInput
-          width={250}
+        <Input
           placeholder="직업을 입력해주세요."
           value={form.job}
           onChangeText={(value) => handleChange('job', value)}
+          style={{ width: 250 }}
         />
         <Button
           title="회원가입"
@@ -106,9 +107,9 @@ export default function SignUp() {
           style={styles.button}
           loading={isLoading}
         />
-        <Link 
+        <Link
           href="/sign-in"
-          variant="plain"
+          variant="ghost"
           title="로그인"
           style={styles.link}
           onPress={() => setForm(initial())}

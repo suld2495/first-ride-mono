@@ -1,12 +1,12 @@
 import { useRef } from 'react';
 import { Animated, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { type BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { contentColors, surfaceColors } from '@repo/design-system';
 
 import TabBarIcon from '@/components/common/TabBarIcon';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { COLORS } from '@/theme/colors';
 
 const AnimatedTabBarButton = ({
   children,
@@ -31,6 +31,8 @@ const AnimatedTabBarButton = ({
     ]).start();
   };
 
+  const colorScheme = useColorScheme();
+
   return (
     <Pressable
       {...props}
@@ -39,7 +41,9 @@ const AnimatedTabBarButton = ({
       style={({ pressed }) => [
         {
           transform: [{ scale: pressed ? 0.9 : 1 }],
-          backgroundColor: pressed ? '#ddd' : 'transparent',
+          backgroundColor: pressed
+            ? surfaceColors.raised[colorScheme]
+            : 'transparent',
         },
         style,
       ]}
@@ -64,7 +68,7 @@ export default function TabLayout() {
           tabBarButton: (props) => <AnimatedTabBarButton {...props} />,
           tabBarIconStyle: { alignSelf: 'center' },
           tabBarLabelStyle: {
-            color: COLORS[colorScheme].text,
+            color: contentColors.body[colorScheme],
             fontSize: 12,
             fontWeight: 'bold',
           },
@@ -83,7 +87,7 @@ export default function TabLayout() {
           options={{
             title: '루틴',
             tabBarIcon: () => (
-              <TabBarIcon name="list" color={COLORS[colorScheme].icon} />
+              <TabBarIcon name="list" color={contentColors.body[colorScheme]} />
             ),
           }}
         />
@@ -92,7 +96,10 @@ export default function TabLayout() {
           options={{
             title: '퀘스트',
             tabBarIcon: () => (
-              <TabBarIcon name="trophy" color={COLORS[colorScheme].icon} />
+              <TabBarIcon
+                name="trophy"
+                color={contentColors.body[colorScheme]}
+              />
             ),
           }}
         />
@@ -101,7 +108,7 @@ export default function TabLayout() {
           options={{
             title: '친구',
             tabBarIcon: () => (
-              <TabBarIcon name="users" color={COLORS[colorScheme].icon} />
+              <TabBarIcon name="users" color={contentColors.body[colorScheme]} />
             ),
           }}
         />
@@ -110,7 +117,7 @@ export default function TabLayout() {
           options={{
             title: 'My',
             tabBarIcon: () => (
-              <TabBarIcon name="user" color={COLORS[colorScheme].icon} />
+              <TabBarIcon name="user" color={contentColors.body[colorScheme]} />
             ),
           }}
         />

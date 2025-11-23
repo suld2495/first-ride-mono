@@ -1,8 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { COLORS } from '@/theme/colors';
-
-import ThemeText from '../ThemeText';
+import { Typography } from '../Typography';
 
 export type FormItemProps<T extends Record<string, any>, K extends keyof T> = {
   name: K;
@@ -13,7 +11,7 @@ export type FormItemProps<T extends Record<string, any>, K extends keyof T> = {
     onChange: (text: string) => void;
     onBlur?: () => void;
     name: K;
-    form: T,
+    form: T;
     setValue: <Key extends keyof T>(key: Key, value: T[Key]) => void;
   }) => React.ReactNode;
   flex?: boolean;
@@ -33,7 +31,7 @@ export type UseFormFieldReturn = {
 
 export function createFormItem<T extends Record<string, any>>(
   useFormField: <K extends keyof T>(name: K) => UseFormFieldReturn,
-  useForm: () => any
+  useForm: () => any,
 ) {
   return function FormItem<K extends keyof T>({
     name,
@@ -54,9 +52,9 @@ export function createFormItem<T extends Record<string, any>>(
     return (
       <View style={[styles.container, { flex: flex ? 1 : 0 }]}>
         {label && (
-          <ThemeText style={styles.label} variant="medium">
+          <Typography style={styles.label} variant="body">
             {label}
-          </ThemeText>
+          </Typography>
         )}
 
         {children({
@@ -65,26 +63,30 @@ export function createFormItem<T extends Record<string, any>>(
           onBlur: field.onBlur,
           name,
           form: formContext.form,
-          setValue: formContext.setValue
+          setValue: formContext.setValue,
         })}
 
         {helpText && !hasError && (
-          <ThemeText variant='caption'>{helpText}</ThemeText>
+          <Typography variant="caption">{helpText}</Typography>
         )}
 
         {showErrors && hasError && field.errors.length > 0 && (
           <View>
-            {field.errors.map((error) => (
-              <ThemeText style={styles.error} variant="caption">
+            {field.errors.map((error, index) => (
+              <Typography
+                key={`${name as string}-error-${index}`}
+                color="error"
+                variant="caption"
+              >
                 {error}
-              </ThemeText>
+              </Typography>
             ))}
           </View>
         )}
       </View>
-    )
+    );
   };
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -93,9 +95,5 @@ const styles = StyleSheet.create({
 
   label: {
     width: '100%',
-  },
-
-  error: {
-    color: COLORS.light.error,
   },
 });

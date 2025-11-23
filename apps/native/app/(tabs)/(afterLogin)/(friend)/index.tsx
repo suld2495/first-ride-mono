@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import ThemeView from '@/components/common/ThemeView';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-import Container from '@/components/layout/Container';
+import { Button } from '@/components/common/Button';
+import { Input } from '@/components/common/Input';
+import ThemeView from '@/components/common/ThemeView';
+import FriendAddModal from '@/components/friend/FriendAddModal';
 import FriendHeader from '@/components/friend/FriendHeader';
 import FriendList from '@/components/friend/FriendList';
-import ThemeTextInput from '@/components/common/ThemeTextInput';
-import Button from '@/components/common/Button';
+import Container from '@/components/layout/Container';
 import { COLORS } from '@/theme/colors';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import FriendAddModal from '@/components/friend/FriendAddModal';
 
 const FriendPage = () => {
   const [page] = useState(1);
@@ -31,28 +31,23 @@ const FriendPage = () => {
           <Button
             title="친구 추가"
             variant="primary"
-            size="small"
-            icon={
-              <Ionicons
-                name="people-outline"
-                size={20}
-                color={COLORS.white}
-              />
+            size="sm"
+            leftIcon={
+              <Ionicons name="people-outline" size={20} color={COLORS.white} />
             }
-            iconGap={8}
             onPress={() => setShowAddModal(true)}
             style={styles.addButton}
           />
         </ThemeView>
 
         <ThemeView style={styles.searchContainer}>
-          <ThemeTextInput
+          <Input
             value={input}
             placeholder="이름을 입력해주세요."
             onChangeText={setInput}
             onSubmitEditing={handleSearch}
             returnKeyType="search"
-            style={styles.searchInput}
+            fullWidth
           />
         </ThemeView>
         <FriendList page={page} keyword={keyword} />

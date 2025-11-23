@@ -2,9 +2,9 @@ import { ScrollView, StyleSheet } from 'react-native';
 
 import type { QuestTypeFilter as QuestTypeFilterType } from '@/store/quest.store';
 
-import Button from '../common/Button';
-import ThemeText from '../common/ThemeText'
-import ThemeView from '../common/ThemeView';;
+import { Button } from '../common/Button';
+import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 interface QuestTypeFilterProps {
   selected: QuestTypeFilterType;
@@ -31,22 +31,20 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
           return (
             <Button
               key={filter.value}
-              variant="plain"
+              variant="ghost"
               onPress={() => onSelect(filter.value)}
-              style={({ pressed }) => [
+              style={({ pressed }: { pressed: boolean }) => [
                 styles.chip,
                 isSelected && styles.chipSelected,
                 pressed && styles.chipPressed,
               ]}
             >
-              <ThemeText
+              <Typography
                 variant="caption"
-                lightColor={isSelected ? '#fbbf24' : '#90a1b9'}
-                darkColor={isSelected ? '#fbbf24' : '#90a1b9'}
                 style={[styles.chipText, isSelected && styles.chipTextSelected]}
               >
                 {filter.label}
-              </ThemeText>
+              </Typography>
             </Button>
           );
         })}

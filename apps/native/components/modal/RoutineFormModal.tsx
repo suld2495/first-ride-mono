@@ -3,10 +3,12 @@ import { StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
 import {
   useCreateRoutineMutation,
   useUpdateRoutineMutation,
 } from '@repo/shared/hooks/useRoutine';
+import { routineFormValidators } from '@repo/shared/service/validatorMessage';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { getFormatDate } from '@repo/shared/utils';
 import { RoutineForm } from '@repo/types';
@@ -16,22 +18,19 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useCreateForm } from '@/hooks/useForm';
 import { ModalType } from '@/hooks/useModal';
 import { useRoutineStore } from '@/store/routine.store';
-import { COLORS } from '@/theme/colors';
 
-import Button from '../common/Button';
-import ThemeText from '../common/ThemeText';
-import ThemeTextInput from '../common/ThemeTextInput';
-import ThemeView from '../common/ThemeView';
-import FormButtonGroup from '../routine/routine-form/FormButtonGroup';
-import { routineFormValidators } from '@repo/shared/service/validatorMessage';
-import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
+import { Button } from '../common/Button';
 import Checkbox from '../common/Checkbox';
+import { Input } from '../common/Input';
+import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
+import FormButtonGroup from '../routine/routine-form/FormButtonGroup';
 
 const { Form, FormItem, useForm } = useCreateForm<RoutineForm>();
 
 const RoutineFormModal = () => {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
-  
+
   const routineId = useRoutineStore((state) => state.routineId);
   const routineForm = useRoutineStore((state) => state.routineForm);
 
@@ -44,8 +43,7 @@ const RoutineFormModal = () => {
 
   const router = useRouter();
 
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
+  const colorScheme = useColorScheme(); // For DateTimePicker themeVariant
 
   const { data: friendList = [] } = useFetchFriendsQuery();
 
@@ -86,24 +84,26 @@ const RoutineFormModal = () => {
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
     >
-      <Form 
-        form={routineForm} 
-        style={styles.container} 
+      <Form
+        form={routineForm}
+        style={styles.container}
         validators={{
           ...routineFormValidators,
           mateNickname(value, values) {
             if (values.isMe) {
-              return;
+              return undefined;
             }
-            
+
             if (!value) {
               return '메이트를 설정해주세요.';
             }
-        
+
             if (friendList.some(({ nickname }) => nickname === value)) {
               return '존재하지 않는 친구입니다.';
             }
-          }
+
+            return undefined;
+          },
         }}
         onSubmit={type === 'routine-add' ? handleSubmit : handleUpdateSubmit}
       >
@@ -111,7 +111,7 @@ const RoutineFormModal = () => {
           name="routineName"
           label="루틴 이름"
           children={({ value, onChange }) => (
-            <ThemeTextInput
+            <Input
               value={value !== undefined ? String(value) : value}
               placeholder="루틴 이름을 입력하세요."
               onChangeText={onChange}
@@ -122,7 +122,7 @@ const RoutineFormModal = () => {
           name="routineDetail"
           label="루틴 설명"
           children={({ value, onChange }) => (
-            <ThemeTextInput
+            <Input
               value={value !== undefined ? String(value) : value}
               placeholder="루틴 설명을 입력해주세요."
               onChangeText={onChange}
@@ -134,17 +134,15 @@ const RoutineFormModal = () => {
           label="메이트"
           children={({ value, onChange, form, setValue }) => (
             <>
-              <ThemeView style={styles.mateField}>
-                <ThemeText variant='medium'>직접 루틴 체크</ThemeText>
+              <ThemeView style={styles.mateField} transparent>
+                <Typography variant="body">직접 루틴 체크</Typography>
                 <Checkbox
-                  fillColor={COLORS[colorScheme].button}
-                  onPress={
-                    (chcked) => {
-                      setValue('isMe', chcked);
+                  onPress={(chcked) => {
+                    setValue('isMe', chcked);
                   }}
                 />
               </ThemeView>
-              <ThemeTextInput
+              <Input
                 value={value !== undefined ? String(value) : value}
                 placeholder="메이트를 지정해주세요."
                 onChangeText={onChange}
@@ -159,18 +157,21 @@ const RoutineFormModal = () => {
           children={({ value, onChange }) => {
             const formatNumber = (num: string | number) => {
               const numStr = String(num).replace(/[^0-9]/g, '');
+
               if (!numStr || numStr === '0') return '';
               const parsed = parseInt(numStr, 10);
+
               return isNaN(parsed) ? '' : parsed.toLocaleString('ko-KR');
             };
 
             const handleChange = (text: string) => {
               const numericValue = text.replace(/[^0-9]/g, '');
+
               onChange(numericValue);
             };
 
             return (
-              <ThemeTextInput
+              <Input
                 value={value !== undefined ? formatNumber(value) : value}
                 placeholder="벌금을 입력해주세요."
                 onChangeText={handleChange}
@@ -189,13 +190,14 @@ const RoutineFormModal = () => {
                 return;
               }
               const num = Number(text);
+
               if (Number.isInteger(num) && num >= 1 && num <= 7) {
                 onChange(text);
               }
             };
 
             return (
-              <ThemeTextInput
+              <Input
                 value={value !== undefined ? String(value) : value}
                 placeholder="루틴 횟수를 입력해주세요."
                 onChangeText={handleChange}
@@ -213,21 +215,20 @@ const RoutineFormModal = () => {
           name="startDate"
           label="루틴 시작 날짜"
           children={({ value, form, setValue }) => (
-            <ThemeView style={styles.dateContainer}>
-              {form.startDate && <ThemeText>{form.startDate}</ThemeText>}
+            <ThemeView style={styles.dateContainer} transparent>
+              {form.startDate && <Typography>{form.startDate}</Typography>}
               <Button
                 title="날짜 선택"
-                fontSize="caption"
+                variant="secondary"
                 onPress={() => setIsShowStartDate(!isShowStartDate)}
-                style={styles.date_button}
-                icon={
+                leftIcon={({ color }) => (
                   <Ionicons
                     name="calendar-clear-outline"
                     size={16}
-                    color={COLORS.dark.icon}
+                    color={color}
                     style={{ marginRight: 3 }}
                   />
-                }
+                )}
               />
               {isShowStartDate && (
                 <DateTimePicker
@@ -253,21 +254,20 @@ const RoutineFormModal = () => {
           name="endDate"
           label="루틴 종료 날짜"
           children={({ form, setValue }) => (
-            <ThemeView style={styles.dateContainer}>
-              {form.endDate && <ThemeText>{form.endDate}</ThemeText>}
+            <ThemeView style={styles.dateContainer} transparent>
+              {form.endDate && <Typography>{form.endDate}</Typography>}
               <Button
                 title="날짜 선택"
-                fontSize="caption"
+                variant="secondary"
                 onPress={() => setIsShowEndDate(!isShowEndDate)}
-                style={styles.date_button}
-                icon={
+                leftIcon={({ color }) => (
                   <Ionicons
                     name="calendar-clear-outline"
                     size={16}
-                    color={COLORS.dark.icon}
+                    color={color}
                     style={{ marginRight: 3 }}
                   />
-                }
+                )}
               />
               {isShowEndDate && (
                 <DateTimePicker
@@ -289,11 +289,8 @@ const RoutineFormModal = () => {
             </ThemeView>
           )}
         />
-        
-        <FormButtonGroup 
-          type={type}
-          useForm={useForm}
-        />
+
+        <FormButtonGroup type={type} useForm={useForm} />
       </Form>
     </KeyboardAwareScrollView>
   );
@@ -301,32 +298,27 @@ const RoutineFormModal = () => {
 
 export default RoutineFormModal;
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      marginTop: 30,
-      gap: 20,
-      paddingHorizontal: 10,
-    },
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 30,
+    gap: 20,
+    paddingHorizontal: 10,
+  },
 
-    dateContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 10,
-    },
+  dateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
 
-    date_button: {
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
-    },
+  button: {
+    flex: 1,
+  },
 
-    button: {
-      flex: 1,
-    },
-
-    mateField: {
-      flexDirection: 'row',
-      gap: 5,
-      alignItems: 'center',
-    }
-  });
+  mateField: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center',
+  },
+});

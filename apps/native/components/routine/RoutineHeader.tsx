@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 
 import Link from '../common/Link';
-import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 import RoutineDate from './RoutineDate';
 
@@ -11,16 +11,14 @@ interface RoutineHeaderProps {
 }
 
 const RoutineHeader = ({ date }: RoutineHeaderProps) => {
-
   return (
     <ThemeView style={styles.container}>
       <ThemeView style={styles.header}>
-        <ThemeText variant="title">루틴 리스트</ThemeText>
+        <Typography variant="title">루틴 리스트</Typography>
         <Link
           href="/modal?type=routine-add"
           title="루틴 추가 +"
           style={styles.routine_add_button}
-          fontSize="body"
         />
       </ThemeView>
       <RoutineDate date={date} />

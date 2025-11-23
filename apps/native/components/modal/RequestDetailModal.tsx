@@ -2,30 +2,27 @@ import { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Svg from 'react-native-svg';
-import { useRouter } from 'expo-router';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useToast } from '@/contexts/ToastContext';
 import {
   useFetchRequestDetailQuery,
   useReplyRequestMutation,
 } from '@repo/shared/hooks/useRequest';
-import { useRequestStore } from '@repo/shared/store/request.store';
 import { useAuthStore } from '@repo/shared/store/auth.store';
-import { COLORS } from '@/theme/colors';
-
-import ThemeText from '../common/ThemeText';
-import ThemeTextInput from '../common/ThemeTextInput';
-import ThemeView from '../common/ThemeView';
+import { useRequestStore } from '@repo/shared/store/request.store';
 import { RequestResponseStatus } from '@repo/types';
+import { useRouter } from 'expo-router';
+
+import { useToast } from '@/contexts/ToastContext';
 import { useCreateForm } from '@/hooks/useForm';
+
+import { Divider } from '../common/Divider';
+import { Input } from '../common/Input';
+import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 import ConfirmRequestButtonGroup from '../request/ConfirmRequestButtonGroup';
 
 const { Form, FormItem, useForm } = useCreateForm<{ comment: string }>();
 
 const RequestDetailModal = () => {
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
   const { showToast } = useToast();
 
   const requestId = useRequestStore((state) => state.requestId);
@@ -48,7 +45,10 @@ const RequestDetailModal = () => {
     return null;
   }
 
-  const handleSubmit = async (status: RequestResponseStatus, comment: string) => {
+  const handleSubmit = async (
+    status: RequestResponseStatus,
+    comment: string,
+  ) => {
     try {
       await replyRequest.mutateAsync({
         confirmId: detail!.id,
@@ -76,25 +76,19 @@ const RequestDetailModal = () => {
     >
       <ThemeView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scroll}>
-          <ThemeView style={styles.routinesNameContainer}>
-            <ThemeText
-              variant="subtitle"
-              style={[styles.info, styles.infoLabel]}
-            >
+          <ThemeView style={styles.routinesNameContainer} transparent>
+            <Typography variant="subtitle" style={styles.infoLabel}>
               루틴 이름
-            </ThemeText>
-            <ThemeText style={styles.info}>{detail?.routineName}</ThemeText>
-            <ThemeText
-              style={[styles.info, styles.routineDate]}
-              variant="medium"
-            >
+            </Typography>
+            <Typography>{detail?.routineName}</Typography>
+            <Typography style={styles.routineDate} variant="body">
               {detail?.createdAt}
-            </ThemeText>
+            </Typography>
           </ThemeView>
-          <ThemeView>
-            <ThemeText style={styles.info}>{detail?.routineDetail}</ThemeText>
+          <ThemeView transparent>
+            <Typography>{detail?.routineDetail}</Typography>
           </ThemeView>
-          <ThemeView style={styles.line}>
+          <ThemeView transparent>
             {detail?.imagePath.endsWith('svg') ? (
               <Svg.SvgUri
                 uri={detail?.imagePath}
@@ -106,13 +100,14 @@ const RequestDetailModal = () => {
                 style={[styles.image, { aspectRatio: ratio }]}
               />
             )}
+            <Divider spacing={20} />
           </ThemeView>
           <Form form={{ comment: '' }}>
-            <FormItem 
+            <FormItem
               name="comment"
               label="응원의 한마디"
               children={({ value, onChange }) => (
-                <ThemeTextInput
+                <Input
                   placeholder="응원의 한마디를 입력해주세요."
                   value={value}
                   onChangeText={onChange}
@@ -121,8 +116,8 @@ const RequestDetailModal = () => {
                 />
               )}
             />
-            
-            <ConfirmRequestButtonGroup 
+
+            <ConfirmRequestButtonGroup
               onSubmit={handleSubmit}
               useForm={useForm}
             />
@@ -135,59 +130,38 @@ const RequestDetailModal = () => {
 
 export default RequestDetailModal;
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      marginTop: 30,
-      paddingHorizontal: 10,
-    },
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 30,
+    paddingHorizontal: 10,
+  },
 
-    scroll: {
-      gap: 20,
-      paddingBottom: 50,
-    },
+  scroll: {
+    gap: 20,
+    paddingBottom: 50,
+  },
 
-    line: {
-      paddingBottom: 20,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: COLORS[colorScheme].grey,
-    },
+  infoLabel: {
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
 
-    infoLabel: {
-      fontWeight: 'bold',
-      marginBottom: 10,
-    },
+  routinesNameContainer: {
+    position: 'relative',
+  },
 
-    info: {
-      color: COLORS[colorScheme].text,
-    },
+  routineDate: {
+    position: 'absolute',
+    top: 5,
+    right: 0,
+  },
 
-    routinesNameContainer: {
-      position: 'relative',
-    },
+  image: {
+    width: '100%',
+  },
 
-    routineDate: {
-      position: 'absolute',
-      top: 5,
-      right: 0,
-    },
-
-    image: {
-      width: '100%',
-    },
-
-    textarea: {
-      height: 100,
-    },
-
-    dateContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 10,
-    },
-
-    date_button: {
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
-    },
-  });
+  textarea: {
+    height: 100,
+  },
+});

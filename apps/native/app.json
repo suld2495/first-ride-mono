@@ -30,7 +30,8 @@
         {
           "experimentalLauncherActivity": true
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -64,7 +65,9 @@
       },
       "package": "com.mannal.firstride",
       "jsEngine": "hermes",
-      "scheme": ["com.mannal.firstride"]
+      "scheme": [
+        "com.mannal.firstride"
+      ]
     },
     "extra": {
       "router": {},

@@ -6,13 +6,13 @@ import {
 } from '@repo/shared/hooks/useQuest';
 import { useRouter } from 'expo-router';
 
-import { useQuestStore } from '@/store/quest.store';
 import { useToast } from '@/contexts/ToastContext';
+import { useQuestStore } from '@/store/quest.store';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
-import Button from '../common/Button';
-import ThemeText from '../common/ThemeText';
+import { Button } from '../common/Button';
 import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 import QuestInfo from '../quest/QuestInfo';
 import QuestRewards from '../quest/QuestRewards';
 import QuestTime from '../quest/QuestTime';
@@ -61,6 +61,7 @@ const QuestDetailModal = () => {
         error,
         '이미 수락한 퀘스트입니다.',
       );
+
       showToast(errorMessage, 'error');
     }
   };
@@ -71,45 +72,25 @@ const QuestDetailModal = () => {
         {/* Header Section */}
         <ThemeView style={styles.headerSection}>
           {/* Type Badge */}
-          <ThemeText
-            variant="medium"
-            lightColor="#e0f2fe"
-            darkColor="#e0f2fe"
-            style={styles.badge}
-          >
+          <Typography variant="body" style={styles.badge}>
             [{QUEST_LABEL[questType]}]
-          </ThemeText>
+          </Typography>
 
           {/* Quest Name */}
-          <ThemeText
-            variant="title"
-            lightColor="#e0f2fe"
-            darkColor="#e0f2fe"
-            style={styles.questName}
-          >
+          <Typography variant="title" style={styles.questName}>
             {questName}
-          </ThemeText>
+          </Typography>
 
           {/* GOAL Section */}
           <ThemeView style={styles.goalSection}>
-            <ThemeText
-              variant="title"
-              lightColor="#1ddeff"
-              darkColor="#1ddeff"
-              style={styles.goalTitle}
-            >
+            <Typography variant="title" style={styles.goalTitle}>
               GOAL
-            </ThemeText>
+            </Typography>
             <ThemeView style={styles.goalBox}>
               <Ionicons name="checkbox-outline" size={20} color="#1ddeff" />
-              <ThemeText
-                variant="medium"
-                lightColor="#90a1b9"
-                darkColor="#90a1b9"
-                style={styles.goalText}
-              >
+              <Typography variant="body" style={styles.goalText}>
                 {description}
-              </ThemeText>
+              </Typography>
             </ThemeView>
           </ThemeView>
         </ThemeView>
@@ -129,10 +110,15 @@ const QuestDetailModal = () => {
 
         {/* Accept Button */}
         <Button
-          title={isAccepted ? '참여중' : isFull ? '참여불가 (정원 초과)' : '참여'}
+          title={
+            isAccepted ? '참여중' : isFull ? '참여불가 (정원 초과)' : '참여'
+          }
           onPress={handleAcceptQuest}
           disabled={isAccepted || isFull || acceptQuest.isPending}
-          style={[styles.acceptButton, (isAccepted || isFull) && styles.acceptButtonDisabled]}
+          style={[
+            styles.acceptButton,
+            (isAccepted || isFull) && styles.acceptButtonDisabled,
+          ]}
         />
       </ScrollView>
     </ThemeView>

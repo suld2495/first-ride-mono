@@ -1,28 +1,18 @@
 import { StyleSheet } from 'react-native';
 
-import ThemeText from '../common/ThemeText';
 import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 const QuestHeader = () => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView style={styles.content}>
-        <ThemeText
-          variant="title"
-          lightColor="#e0f2fe"
-          darkColor="#e0f2fe"
-          style={styles.title}
-        >
+        <Typography variant="title" style={styles.title}>
           퀘스트 안내
-        </ThemeText>
-        <ThemeText
-          variant="caption"
-          lightColor="#0891b2"
-          darkColor="#0891b2"
-          style={styles.caption}
-        >
+        </Typography>
+        <Typography variant="caption" style={styles.caption}>
           Quest List
-        </ThemeText>
+        </Typography>
       </ThemeView>
     </ThemeView>
   );

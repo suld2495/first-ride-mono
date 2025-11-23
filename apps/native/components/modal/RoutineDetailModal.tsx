@@ -1,32 +1,27 @@
 import { Alert, ScrollView, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useToast } from '@/contexts/ToastContext';
 import {
   useDeleteRoutineMutation,
   useRoutineDetailQuery,
 } from '@repo/shared/hooks/useRoutine';
-import { useRoutineStore } from '@/store/routine.store';
 import { useAuthStore } from '@repo/shared/store/auth.store';
-import { COLORS } from '@/theme/colors';
-
-import Button from '../common/Button';
-import ThemeText from '../common/ThemeText';
-import ThemeView from '../common/ThemeView';
+import { useRouter } from 'expo-router';
 import { useShallow } from 'zustand/shallow';
+
+import { useToast } from '@/contexts/ToastContext';
+import { useRoutineStore } from '@/store/routine.store';
+
+import { Button } from '../common/Button';
+import { Divider } from '../common/Divider';
+import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 const RoutineDetailModal = () => {
   const router = useRouter();
   const { showToast } = useToast();
 
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
-
-  const [routineId, setRoutineForm] = useRoutineStore(useShallow((state) => [
-    state.routineId,
-    state.setRoutineForm,
-  ]));
+  const [routineId, setRoutineForm] = useRoutineStore(
+    useShallow((state) => [state.routineId, state.setRoutineForm]),
+  );
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
 
   const user = useAuthStore((state) => state.user);
@@ -68,60 +63,61 @@ const RoutineDetailModal = () => {
   return (
     <ThemeView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <ThemeView style={{ marginBottom: -20 }}>
-          <ThemeText variant="subtitle" style={[styles.info, styles.infoLabel]}>
+        <ThemeView style={{ marginBottom: -20 }} transparent>
+          <Typography variant="subtitle" style={styles.infoLabel}>
             {detail?.routineName}
-          </ThemeText>
+          </Typography>
         </ThemeView>
-        <ThemeView style={styles.content}>
-          <ThemeText style={styles.info}>{detail?.routineDetail}</ThemeText>
+        <ThemeView style={styles.content} transparent>
+          <Typography>{detail?.routineDetail}</Typography>
         </ThemeView>
 
-        <ThemeView style={styles.content}>
-          <ThemeText variant="subtitle" style={[styles.info, styles.infoLabel]}>
+        <ThemeView style={styles.content} transparent>
+          <Typography variant="subtitle" style={styles.infoLabel}>
             메이트
-          </ThemeText>
-          <ThemeText style={styles.info}>
+          </Typography>
+          <Typography>
             {detail?.isMe ? '나' : detail?.mateNickname}
-          </ThemeText>
+          </Typography>
         </ThemeView>
 
-        <ThemeView style={styles.content}>
-          <ThemeText variant="subtitle" style={[styles.info, styles.infoLabel]}>
+        <ThemeView style={styles.content} transparent>
+          <Typography variant="subtitle" style={styles.infoLabel}>
             루틴 횟수
-          </ThemeText>
-          <ThemeText style={styles.info}>
+          </Typography>
+          <Typography>
             {detail?.weeklyCount || 0}/{detail?.routineCount}
-          </ThemeText>
+          </Typography>
         </ThemeView>
 
-        <ThemeView style={styles.content}>
-          <ThemeText variant="subtitle" style={[styles.info, styles.infoLabel]}>
+        <ThemeView style={styles.content} transparent>
+          <Typography variant="subtitle" style={styles.infoLabel}>
             벌금
-          </ThemeText>
-          <ThemeText style={styles.info}>
-            {detail?.penalty.toLocaleString()}
-          </ThemeText>
+          </Typography>
+          <Typography>{detail?.penalty.toLocaleString()}</Typography>
         </ThemeView>
 
-        <ThemeView style={[styles.line, styles.content]}>
-          <ThemeText variant="subtitle" style={[styles.info, styles.infoLabel]}>
+        <ThemeView style={styles.content} transparent>
+          <Typography variant="subtitle" style={styles.infoLabel}>
             루틴 날짜
-          </ThemeText>
-          <ThemeText style={styles.info}>
+          </Typography>
+          <Typography>
             {detail?.startDate} ~ {detail?.endDate}
-          </ThemeText>
+          </Typography>
+          <Divider spacing={20} />
         </ThemeView>
 
-        <ThemeView style={styles.buttonContainer}>
+        <ThemeView style={styles.buttonContainer} transparent>
           <Button
             title="수정"
-            style={[styles.cancelButton, styles.button]}
+            variant="secondary"
+            style={styles.button}
             onPress={handleMoveUpdate}
           />
           <Button
             title="삭제"
-            style={[styles.deleteButton, styles.button]}
+            variant="danger"
+            style={styles.button}
             onPress={handleDeleteRoutine}
           />
         </ThemeView>
@@ -132,83 +128,35 @@ const RoutineDetailModal = () => {
 
 export default RoutineDetailModal;
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      marginTop: 30,
-      paddingHorizontal: 10,
-    },
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 30,
+    paddingHorizontal: 10,
+  },
 
-    scroll: {
-      gap: 20,
-      paddingBottom: 50,
-    },
+  scroll: {
+    gap: 20,
+    paddingBottom: 50,
+  },
 
-    line: {
-      flex: 1,
-      paddingBottom: 20,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: COLORS[colorScheme].grey,
-    },
+  infoLabel: {
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
 
-    infoLabel: {
-      fontWeight: 'bold',
-      marginBottom: 10,
-    },
+  content: {
+    marginBottom: 10,
+  },
 
-    info: {
-      color: COLORS[colorScheme].text,
-    },
+  buttonContainer: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
 
-    content: {
-      marginBottom: 10,
-    },
-
-    routinesNameContainer: {
-      position: 'relative',
-    },
-
-    routineDate: {
-      position: 'absolute',
-      top: 5,
-      right: 0,
-    },
-
-    image: {
-      width: '100%',
-    },
-
-    textarea: {
-      height: 100,
-    },
-
-    buttonContainer: {
-      marginTop: 10,
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      gap: 10,
-    },
-
-    dateContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 10,
-    },
-
-    date_button: {
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
-    },
-
-    button: {
-      flex: 1,
-    },
-
-    cancelButton: {
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
-    },
-
-    deleteButton: {
-      backgroundColor: COLORS.red,
-    },
-  });
+  button: {
+    flex: 1,
+  },
+});

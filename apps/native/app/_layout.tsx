@@ -1,23 +1,26 @@
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
+import { QueryProvider } from '@repo/shared/components';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { QueryProvider } from '@repo/shared/components';
-import { Platform } from 'react-native';
 
+import { updatePushToken } from '@/api/push-token.api';
+import ToastContainer from '@/components/common/ToastContainer';
 import MockProvider from '@/components/mock/MockProvider';
 import SplashScreenController from '@/components/splash';
-import ToastContainer from '@/components/common/ToastContainer';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import {
+  setNotificationHandler,
+  useNotifications,
+} from '@/hooks/useNotifications';
 import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
-import { setNotificationHandler, useNotifications } from '@/hooks/useNotifications';
-import { updatePushToken } from '@/api/push-token.api';
 import { NAV_THEME } from '@/theme';
-import 'react-native-url-polyfill/auto';
 
+import 'react-native-url-polyfill/auto';
 import '@/api';
 
 const StackLayout = () => {
@@ -35,10 +38,7 @@ const StackLayout = () => {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={!!user}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="modal"
-              options={{ headerShown: false }}
-            />
+            <Stack.Screen name="modal" options={{ headerShown: false }} />
           </Stack.Protected>
           <Stack.Protected guard={!user}>
             <Stack.Screen name="sign-in" options={{ headerShown: false }} />
@@ -67,7 +67,7 @@ export default function RootLayout() {
       updatePushToken(
         user.userId,
         pushToken.data,
-        Platform.OS as 'ios' | 'android'
+        Platform.OS as 'ios' | 'android',
       ).catch((error) => {
         console.error('Failed to update push token on change:', error);
       });

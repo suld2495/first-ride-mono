@@ -1,15 +1,14 @@
 import { StyleSheet } from 'react-native';
+import { Routine } from '@repo/types';
+import { useRouter } from 'expo-router';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { COLORS } from '@/theme/colors';
+import { useRoutineStore } from '@/store/routine.store';
 
-import ThemeText from '../common/ThemeText';
+import { Card } from '../common/Card';
 import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 import { RoutineCountList, RoutineWeekList } from './WeeklyRoutine';
-import { Routine } from '@repo/types';
-import { useRoutineStore } from '@/store/routine.store';
-import { useRouter } from 'expo-router';
 
 interface RoutineListProps {
   routines: Routine[];
@@ -17,9 +16,6 @@ interface RoutineListProps {
 }
 
 const RoutineList = ({ routines, date }: RoutineListProps) => {
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
-
   const setRoutineId = useRoutineStore((state) => state.setRoutineId);
   const type = useRoutineStore((state) => state.type);
   const router = useRouter();
@@ -35,7 +31,7 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
   };
 
   return (
-    <ThemeView style={[styles.container]}>
+    <ThemeView style={styles.container}>
       {routines.length ? (
         type === 'number' ? (
           <RoutineCountList
@@ -53,11 +49,11 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
           />
         )
       ) : (
-        <ThemeView style={styles.empty}>
-          <ThemeText style={styles.emptyText}>
+        <Card variant="raised" padding="lg" style={styles.empty}>
+          <Typography style={styles.emptyText}>
             등록된 루틴이 없습니다.
-          </ThemeText>
-        </ThemeView>
+          </Typography>
+        </Card>
       )}
     </ThemeView>
   );
@@ -65,23 +61,20 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
 
 export default RoutineList;
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    container: {
-      marginTop: 40,
-      flex: 1,
-    },
-    empty: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: COLORS[colorScheme].backgroundGrey,
-      borderRadius: 10,
-      height: 100,
-    },
-    emptyText: {
-      color: COLORS[colorScheme].text,
-    },
-    list: {
-      gap: 15,
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 40,
+    flex: 1,
+  },
+  empty: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 100,
+  },
+  emptyText: {
+    textAlign: 'center',
+  },
+  list: {
+    gap: 15,
+  },
+});

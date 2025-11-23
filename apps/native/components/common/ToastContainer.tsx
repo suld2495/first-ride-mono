@@ -1,9 +1,12 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, Animated, Pressable } from 'react-native';
+import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useToast, type Toast, type ToastType } from '@/contexts/ToastContext';
+import { feedbackColors } from '@repo/design-system';
+
+import { type Toast, type ToastType, useToast } from '@/contexts/ToastContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import ThemeText from './ThemeText';
+
+import { Typography } from './Typography';
 
 interface ToastItemProps {
   toast: Toast;
@@ -51,11 +54,12 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
 
   const getBackgroundColor = () => {
     const colors = {
-      success: colorScheme === 'light' ? '#22c55e' : '#16a34a',
-      error: colorScheme === 'light' ? '#ef4444' : '#dc2626',
-      warning: colorScheme === 'light' ? '#f59e0b' : '#d97706',
-      info: colorScheme === 'light' ? '#3b82f6' : '#2563eb',
+      success: feedbackColors.success.icon[colorScheme],
+      error: feedbackColors.error.icon[colorScheme],
+      warning: feedbackColors.warning.icon[colorScheme],
+      info: feedbackColors.info.icon[colorScheme],
     };
+
     return colors[toast.type];
   };
 
@@ -66,6 +70,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
       warning: 'warning',
       info: 'information-circle',
     };
+
     return icons[toast.type];
   };
 
@@ -81,16 +86,17 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
       ]}
     >
       <View style={styles.toastContent}>
-        <Ionicons name={getIcon()} size={20} color="#ffffff" style={styles.icon} />
-        <ThemeText
-          lightColor="#ffffff"
-          darkColor="#ffffff"
-          style={styles.message}
-        >
+        <Ionicons
+          name={getIcon()}
+          size={20}
+          color="white"
+          style={styles.icon}
+        />
+        <Typography color="inverse" style={styles.message}>
           {toast.message}
-        </ThemeText>
+        </Typography>
         <Pressable onPress={handleClose} hitSlop={8}>
-          <Ionicons name="close" size={20} color="#ffffff" />
+          <Ionicons name="close" size={20} color="white" />
         </Pressable>
       </View>
     </Animated.View>

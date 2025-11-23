@@ -2,9 +2,9 @@ import { StyleSheet } from 'react-native';
 
 import type { QuestStatus } from '@/store/quest.store';
 
-import Button from '../common/Button';
-import ThemeText from '../common/ThemeText'
-import ThemeView from '../common/ThemeView';;
+import { Button } from '../common/Button';
+import ThemeView from '../common/ThemeView';
+import { Typography } from '../common/Typography';
 
 interface QuestStatusTabsProps {
   selected: QuestStatus;
@@ -26,22 +26,17 @@ const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
         return (
           <Button
             key={tab.value}
-            variant="plain"
+            variant="ghost"
             onPress={() => onSelect(tab.value)}
-            style={({ pressed }) => [
+            style={({ pressed }: { pressed: boolean }) => [
               styles.tab,
               isSelected && styles.tabSelected,
               pressed && styles.tabPressed,
             ]}
           >
-            <ThemeText
-              variant="default"
-              lightColor={isSelected ? '#1ddeff' : '#90a1b9'}
-              darkColor={isSelected ? '#1ddeff' : '#90a1b9'}
-              style={styles.tabText}
-            >
+            <Typography variant="body" style={styles.tabText}>
               {tab.label}
-            </ThemeText>
+            </Typography>
           </Button>
         );
       })}

@@ -1,6 +1,5 @@
-import { SplashScreen } from 'expo-router';
-
 import { useAuthStore } from '@repo/shared/store/auth.store';
+import { SplashScreen } from 'expo-router';
 
 export default function SplashScreenController() {
   SplashScreen.hideAsync();

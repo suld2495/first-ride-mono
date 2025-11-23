@@ -1,23 +1,22 @@
 import { Alert, Image, Linking, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useToast } from '@/contexts/ToastContext';
 import { ApiError } from '@repo/shared/api/AppError';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
+import { requestFormValidators } from '@repo/shared/service/validatorMessage';
+import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
+
+import { useToast } from '@/contexts/ToastContext';
+import { useCreateForm } from '@/hooks/useForm';
 import { useRoutineStore } from '@/store/routine.store';
-import { COLORS } from '@/theme/colors';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
-import Button from '../common/Button';
-import ThemeText from '../common/ThemeText';
+import { Button } from '../common/Button';
+import { Divider } from '../common/Divider';
 import ThemeView from '../common/ThemeView';
-import { useCreateForm } from '@/hooks/useForm';
+import { Typography } from '../common/Typography';
 import RequetButtonGroup from '../request/RequestButtonGroup';
-import { requestFormValidators } from '@repo/shared/service/validatorMessage';
 
 const { Form, FormItem, useForm } = useCreateForm<{ image: string }>();
 
@@ -29,9 +28,6 @@ const RequestModal = () => {
   const saveRequest = useCreateRequestMutation();
 
   const router = useRouter();
-
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
 
   const handleSubmit = async (submitedForm: { image: string }) => {
     if (!submitedForm.image || !detail) return;
@@ -68,7 +64,9 @@ const RequestModal = () => {
     }
   };
 
-  const pickImage = async (setValue: (name: 'image', value: string) => void) => {
+  const pickImage = async (
+    setValue: (name: 'image', value: string) => void,
+  ) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
@@ -96,7 +94,9 @@ const RequestModal = () => {
     }
   };
 
-  const takePickture = async (setValue: (name: 'image', value: string) => void) => {
+  const takePickture = async (
+    setValue: (name: 'image', value: string) => void,
+  ) => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
     if (status !== 'granted') {
@@ -130,43 +130,41 @@ const RequestModal = () => {
 
   return (
     <ThemeView style={styles.container}>
-      <ThemeView>
-        <ThemeText variant="subtitle" style={[styles.info, styles.infoLabel]}>
+      <ThemeView transparent>
+        <Typography variant="subtitle" style={styles.infoLabel}>
           루틴 이름
-        </ThemeText>
-        <ThemeText style={styles.info}>{detail?.routineName}</ThemeText>
+        </Typography>
+        <Typography>{detail?.routineName}</Typography>
       </ThemeView>
-      <ThemeView style={styles.line}>
-        <ThemeText style={styles.info}>{detail?.routineDetail}</ThemeText>
+      <ThemeView transparent>
+        <Typography>{detail?.routineDetail}</Typography>
+        <Divider spacing={20} />
       </ThemeView>
 
-      <Form form={{ image: '' }} onSubmit={handleSubmit} validators={requestFormValidators}>
+      <Form
+        form={{ image: '' }}
+        onSubmit={handleSubmit}
+        validators={requestFormValidators}
+      >
         <FormItem
           name="image"
           label="이미지 업로드"
           children={({ form, setValue }) => (
             <>
-              <ThemeView style={styles.imageContainer}>
+              <ThemeView style={styles.imageContainer} transparent>
                 <Button
-                  variant="plain"
-                  icon={
-                    <Ionicons
-                      name="image-outline"
-                      size={20}
-                      color={COLORS[colorScheme].icon}
-                    />
-                  }
+                  variant="secondary"
+                  leftIcon={({ color }) => (
+                    <Ionicons name="image-outline" size={20} color={color} />
+                  )}
                   style={styles.phone}
                   onPress={() => pickImage(setValue)}
                 />
                 <Button
-                  icon={
-                    <Ionicons
-                      name="camera-outline"
-                      size={20}
-                      color={COLORS[colorScheme].icon}
-                    />
-                  }
+                  variant="secondary"
+                  leftIcon={({ color }) => (
+                    <Ionicons name="camera-outline" size={20} color={color} />
+                  )}
                   style={styles.phone}
                   onPress={() => takePickture(setValue)}
                 />
@@ -180,57 +178,44 @@ const RequestModal = () => {
             </>
           )}
         />
-        
+
         <RequetButtonGroup useForm={useForm} />
       </Form>
-
     </ThemeView>
   );
 };
 
 export default RequestModal;
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      marginTop: 30,
-      gap: 20,
-      paddingHorizontal: 10,
-    },
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 30,
+    gap: 20,
+    paddingHorizontal: 10,
+  },
 
-    line: {
-      paddingBottom: 20,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: COLORS[colorScheme].grey,
-    },
+  infoLabel: {
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
 
-    infoLabel: {
-      fontWeight: 'bold',
-      marginBottom: 10,
-    },
+  imageContainer: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    gap: 10,
+  },
 
-    info: {
-      color: COLORS[colorScheme].text,
-    },
+  phone: {
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
-    imageContainer: {
-      alignItems: 'flex-start',
-      flexDirection: 'row',
-      gap: 10,
-    },
-
-    phone: {
-      paddingHorizontal: 8,
-      paddingVertical: 5,
-      backgroundColor: COLORS[colorScheme].grey,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-
-    preview: {
-      width: '100%',
-      aspectRatio: 1,
-      borderRadius: 5,
-    },
-  });
+  preview: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 5,
+  },
+});
