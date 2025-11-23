@@ -108,7 +108,7 @@ export default MyInfo;
 const createStyles = (colorScheme: 'light' | 'dark') =>
   StyleSheet.create({
     container: {
-      alignItems: 'center',
+      alignItems: 'stretch',
     },
 
     linkContainer: {
@@ -116,7 +116,10 @@ const createStyles = (colorScheme: 'light' | 'dark') =>
     },
 
     link: {
-      alignItems: 'flex-start',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      alignSelf: 'stretch',
     },
 
     feedback: {

@@ -68,7 +68,7 @@ const QuestDetailModal = () => {
           </Paragraph>
           <div className="mt-2">
             <Paragraph
-              className="w-full text-center tracking-[6px] text-shadow-[0_0_30px_rgba(0,214,256,1)] mb-3"
+              className="w-full text-center tracking-[6px] [text-shadow:0_0_30px_rgba(0,214,256,1)] mb-3"
               style={{ color: '#1ddeff' }}
               variant="title"
             >

@@ -1,8 +1,7 @@
-import { ScrollView, StyleSheet } from 'react-native';
+import { FlatList, Pressable, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Quest } from '@repo/types';
 
-import { Button } from '../common/Button';
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 
@@ -22,8 +21,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
   const { questType, questName, description, endDate } = quest;
 
   return (
-    <Button
-      variant="ghost"
+    <Pressable
       onPress={() => onClick(quest)}
       style={({ pressed }: { pressed: boolean }) => [
         styles.questCard,
@@ -63,7 +61,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
         {/* Quest Time */}
         <QuestTime endDate={new Date(endDate)} />
       </ThemeView>
-    </Button>
+    </Pressable>
   );
 };
 
@@ -73,26 +71,25 @@ interface QuestListProps {
 }
 
 const QuestList = ({ quests, onClickItem }: QuestListProps) => {
-  if (quests.length === 0) {
-    return (
-      <ThemeView style={styles.emptyContainer}>
-        <Ionicons name="briefcase-outline" size={50} color="#90a1b9" />
-        <Typography variant="body" style={styles.emptyText}>
-          퀘스트가 존재하지 않습니다.
-        </Typography>
-      </ThemeView>
-    );
-  }
-
   return (
-    <ScrollView
+    <FlatList
+      data={quests}
+      keyExtractor={(quest) => quest.questId.toString()}
+      renderItem={({ item }) => (
+        <QuestItem quest={item} onClick={onClickItem} />
+      )}
       style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
-    >
-      {quests.map((quest) => (
-        <QuestItem key={quest.questId} quest={quest} onClick={onClickItem} />
-      ))}
-    </ScrollView>
+      showsVerticalScrollIndicator={false}
+      ListEmptyComponent={
+        <ThemeView style={styles.emptyContainer}>
+          <Ionicons name="briefcase-outline" size={50} color="#90a1b9" />
+          <Typography variant="body" style={styles.emptyText}>
+            퀘스트가 존재하지 않습니다.
+          </Typography>
+        </ThemeView>
+      }
+    />
   );
 };
 
@@ -108,6 +105,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 40,
     gap: 16,
+    flexGrow: 1,
   },
 
   questCard: {

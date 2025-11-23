@@ -17,12 +17,9 @@ const QuestItem = (quest: Quest & { onClick: (item: Quest) => void }) => {
 
   return (
     <div
-      className={`
-        relative bg-gradient-to-br from-slate-900/95 to-slate-800/95
-        backdrop-blur-sm border-2 rounded-lg overflow-hidden
-        transition-all duration-300 cursor-pointer
-        border-primary-quest-border-color shadow-2xl shadow-cyan-500/30'}
-      `}
+      className="relative overflow-hidden rounded-lg border-2 border-primary-quest-border-color
+        bg-gradient-to-br from-slate-900/95 to-slate-800/95 backdrop-blur-sm shadow-2xl shadow-cyan-500/30
+        transition-all duration-300 cursor-pointer hover:-translate-y-0.5 hover:shadow-cyan-400/40"
       onClick={() => onClick(quest)}
     >
       <div className={`h-1 bg-gradient-to-r from-cyan-600 to-blue-800`} />
@@ -37,7 +34,7 @@ const QuestItem = (quest: Quest & { onClick: (item: Quest) => void }) => {
           </Paragraph>
           <div className="mt-2">
             <Paragraph
-              className="w-full text-center tracking-[6px] text-shadow-[0_0_30px_rgba(0,214,256,1)] mb-3"
+              className="w-full text-center tracking-[6px] [text-shadow:0_0_30px_rgba(0,214,256,1)] mb-3"
               style={{ color: COLOR.quest.primaryText }}
               variant="title"
             >

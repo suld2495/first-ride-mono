@@ -5,7 +5,7 @@ const QuestHeader = () => {
     <header className="relative flex w-full py-3 px-4 mt-4">
       <div className="w-full flex flex-col items-center">
         <Paragraph
-          className="mb-2 text-shadow-[0_0_20px_rgba(176,176,176,0.6)]"
+          className="mb-2 [text-shadow:0_0_20px_rgba(176,176,176,0.6)]"
           variant="title"
         >
           퀘스트 안내
