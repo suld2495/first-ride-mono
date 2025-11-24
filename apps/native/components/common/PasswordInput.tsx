@@ -18,6 +18,10 @@ export interface PasswordInputProps {
   width?: number;
   /** Auto focus on mount */
   autoFocus?: boolean;
+  /** Error state */
+  error?: boolean;
+  /** Helper text (error message etc) */
+  helperText?: string;
 }
 
 /**
@@ -38,6 +42,8 @@ const PasswordInput = ({
   placeholder = '비밀번호를 입력해주세요.',
   width,
   autoFocus = false,
+  error,
+  helperText,
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const colorScheme = useColorScheme();
@@ -56,6 +62,8 @@ const PasswordInput = ({
         secureTextEntry={!showPassword}
         fullWidth
         style={styles.input}
+        error={error}
+        helperText={helperText}
       />
       <Pressable
         onPress={togglePasswordVisibility}
