@@ -30,36 +30,47 @@ export default function SignUp() {
   const join = useJoinMutation();
 
   const handleJoin = async () => {
-    const isValid = form.userId && form.nickname && form.password;
+    setFieldErrors({});
 
-    if (!isValid) {
-      alert('아이디 또는 비밀번호를 입력해주세요.');
-      return;
+    // 클라이언트 측 유효성 검사
+    const errors: Record<string, string> = {};
+
+    if (!form.userId) {
+      errors.userId = '아이디를 입력해주세요.';
+    }
+    if (!form.nickname) {
+      errors.nickname = '닉네임을 입력해주세요.';
+    }
+    if (!form.password) {
+      errors.password = '비밀번호를 입력해주세요.';
+    }
+    if (!form.passwordConfirm) {
+      errors.passwordConfirm = '비밀번호 확인을 입력해주세요.';
+    } else if (form.passwordConfirm !== form.password) {
+      errors.passwordConfirm = '비밀번호가 일치하지 않습니다.';
     }
 
-    if (form.passwordConfirm !== form.password) {
-      alert('비밀번호가 다릅니다.');
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
     setIsLoading(true);
-    setFieldErrors({});
     try {
       await join.mutateAsync(form);
-      alert('회원가입이 완료되었습니다.');
       router.push('/sign-in');
     } catch (error) {
-      const errors = getFieldErrors(error);
+      const serverErrors = getFieldErrors(error);
 
-      if (Object.keys(errors).length > 0) {
-        setFieldErrors(errors);
+      if (Object.keys(serverErrors).length > 0) {
+        setFieldErrors(serverErrors);
       } else {
         const errorMessage = getApiErrorMessage(
           error,
           '회원가입에 실패했습니다. 다시 시도해주세요.',
         );
 
-        alert(errorMessage);
+        setFieldErrors({ password: errorMessage });
       }
     } finally {
       setIsLoading(false);

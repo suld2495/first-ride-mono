@@ -28,15 +28,24 @@ export default function SignIn() {
   const { pushToken } = useNotifications();
 
   const handleLogin = async () => {
-    const isValid = form.userId && form.password;
+    setFieldErrors({});
 
-    if (!isValid) {
-      alert('아이디 또는 비밀번호를 입력해주세요.');
+    // 클라이언트 측 유효성 검사
+    const errors: Record<string, string> = {};
+
+    if (!form.userId) {
+      errors.userId = '아이디를 입력해주세요.';
+    }
+    if (!form.password) {
+      errors.password = '비밀번호를 입력해주세요.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
     setIsLoading(true);
-    setFieldErrors({});
     try {
       // 로그인 요청 시 푸시 토큰 정보 포함
       const loginData: AuthFormType = {
@@ -50,17 +59,17 @@ export default function SignIn() {
       setAuthorization(response.accessToken);
       router.push('/(tabs)/(afterLogin)/(routine)');
     } catch (error) {
-      const errors = getFieldErrors(error);
+      const serverErrors = getFieldErrors(error);
 
-      if (Object.keys(errors).length > 0) {
-        setFieldErrors(errors);
+      if (Object.keys(serverErrors).length > 0) {
+        setFieldErrors(serverErrors);
       } else {
         const errorMessage = getApiErrorMessage(
           error,
           '로그인에 실패했습니다. 다시 시도해주세요.',
         );
 
-        alert(errorMessage);
+        setFieldErrors({ password: errorMessage });
       }
     } finally {
       setIsLoading(false);
