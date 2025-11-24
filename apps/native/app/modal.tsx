@@ -7,13 +7,18 @@ import Container from '@/components/layout/Container';
 import ModalHeader from '@/components/modal/ModalHeader';
 import { ModalType, useModal } from '@/hooks/useModal';
 
+const MODAL_ANIMATION_DURATION = 250;
+
 export default function Modal() {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
   const [title, ModalComponent] = useModal(type);
 
   return (
     <Container>
-      <Animated.View entering={SlideInRight} style={styles.container}>
+      <Animated.View
+        entering={SlideInRight.duration(MODAL_ANIMATION_DURATION)}
+        style={styles.container}
+      >
         <ModalHeader title={title} />
         <ThemeView style={styles.content}>
           <ModalComponent />
