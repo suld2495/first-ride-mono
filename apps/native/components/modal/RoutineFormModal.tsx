@@ -214,6 +214,7 @@ const RoutineFormModal = () => {
         <FormItem
           name="startDate"
           label="루틴 시작 날짜"
+          helpText="루틴은 월요일부터 시작됩니다"
           children={({ value, form, setValue }) => (
             <ThemeView style={styles.dateContainer} transparent>
               {form.startDate && <Typography>{form.startDate}</Typography>}

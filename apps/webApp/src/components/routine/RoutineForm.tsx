@@ -221,6 +221,7 @@ const RoutineForm = ({
         name="startDate"
         className="flex flex-col gap-2 mt-5"
         label="루틴 시작 날짜"
+        helpText="루틴은 월요일부터 시작됩니다"
         children={({ value, name, onChange, form, setValue }) => (
           <Input
             type="date"
