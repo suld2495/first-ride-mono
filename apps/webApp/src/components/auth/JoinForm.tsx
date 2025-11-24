@@ -77,10 +77,9 @@ const JoinForm = () => {
 
     if (fieldErrors[fieldName]) {
       setFieldErrors((prev) => {
-        const newErrors = { ...prev };
+        const { [fieldName]: _, ...rest } = prev;
 
-        delete newErrors[fieldName];
-        return newErrors;
+        return rest;
       });
     }
   };

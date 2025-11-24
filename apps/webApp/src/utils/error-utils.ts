@@ -26,12 +26,8 @@ export const getFieldErrors = (error: unknown): Record<string, string> => {
     const details = error.detail;
 
     if (Array.isArray(details)) {
-      return details.reduce(
-        (acc, item) => {
-          acc[item.field] = item.message;
-          return acc;
-        },
-        {} as Record<string, string>,
+      return Object.fromEntries(
+        details.map((item) => [item.field, item.message]),
       );
     }
   }
