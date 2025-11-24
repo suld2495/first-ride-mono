@@ -256,7 +256,25 @@ const RoutineFormModal = () => {
           label="루틴 종료 날짜"
           children={({ form, setValue }) => (
             <ThemeView style={styles.dateContainer} transparent>
-              {form.endDate && <Typography>{form.endDate}</Typography>}
+              {form.endDate && (
+                <>
+                  <Typography>{form.endDate}</Typography>
+                  <Button
+                    title="초기화"
+                    variant="secondary"
+                    size="sm"
+                    onPress={() => setValue('endDate', '')}
+                    leftIcon={({ color }) => (
+                      <Ionicons
+                        name="close-circle-outline"
+                        size={16}
+                        color={color}
+                        style={{ marginRight: 3 }}
+                      />
+                    )}
+                  />
+                </>
+              )}
               <Button
                 title="날짜 선택"
                 variant="secondary"
