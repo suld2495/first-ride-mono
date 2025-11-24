@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -15,10 +15,14 @@ import { RoutineForm } from '@repo/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
 import { ModalType } from '@/hooks/useModal';
 import { useRoutineStore } from '@/store/routine.store';
 
+import AutocompleteInput, {
+  type AutocompleteItem,
+} from '../common/AutocompleteInput';
 import { Button } from '../common/Button';
 import Checkbox from '../common/Checkbox';
 import { Input } from '../common/Input';
@@ -36,6 +40,7 @@ const RoutineFormModal = () => {
 
   const [isShowStartDate, setIsShowStartDate] = useState(false);
   const [isShowEndDate, setIsShowEndDate] = useState(false);
+  const [mateKeyword, setMateKeyword] = useState('');
 
   const { user } = useAuthStore();
   const saveMutation = useCreateRoutineMutation(user!.nickname);
@@ -45,7 +50,25 @@ const RoutineFormModal = () => {
 
   const colorScheme = useColorScheme(); // For DateTimePicker themeVariant
 
-  const { data: friendList = [] } = useFetchFriendsQuery();
+  // Debounce keyword for friend search
+  const debouncedKeyword = useDebounce(mateKeyword, 300);
+
+  // Fetch friends with debounced keyword
+  const { data: friendList = [], isLoading: isFriendListLoading } =
+    useFetchFriendsQuery({
+      keyword: debouncedKeyword,
+      page: 1,
+    });
+
+  // Convert friend list to autocomplete items
+  const friendAutocompleteItems: AutocompleteItem[] = useMemo(
+    () =>
+      friendList.map((friend) => ({
+        label: friend.nickname,
+        value: friend.nickname,
+      })),
+    [friendList],
+  );
 
   const handleSubmit = async (data: RoutineForm) => {
     try {
@@ -98,7 +121,7 @@ const RoutineFormModal = () => {
               return '메이트를 설정해주세요.';
             }
 
-            if (friendList.some(({ nickname }) => nickname === value)) {
+            if (!friendList.some(({ nickname }) => nickname === value)) {
               return '존재하지 않는 친구입니다.';
             }
 
@@ -142,11 +165,22 @@ const RoutineFormModal = () => {
                   }}
                 />
               </ThemeView>
-              <Input
+              <AutocompleteInput
                 value={value !== undefined ? String(value) : value}
                 placeholder="메이트를 지정해주세요."
-                onChangeText={onChange}
+                onChangeText={(text) => {
+                  onChange(text);
+                  setMateKeyword(text);
+                }}
                 editable={!form.isMe}
+                items={friendAutocompleteItems}
+                loading={isFriendListLoading}
+                onSelectItem={(item) => {
+                  onChange(item.value);
+                  setMateKeyword('');
+                }}
+                showDropdown={!form.isMe && mateKeyword.length > 0}
+                emptyMessage="친구를 찾을 수 없습니다."
               />
             </>
           )}
