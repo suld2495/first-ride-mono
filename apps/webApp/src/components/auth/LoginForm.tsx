@@ -5,7 +5,7 @@ import { AuthForm as AuthFormType } from '@repo/types';
 
 import { setAuthorization } from '@/api';
 import { useToast } from '@/hooks/useToast';
-import { getApiErrorMessage } from '@/utils/error-utils';
+import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 import Button from '../common/button/Button';
 import Input from '../common/input/Input';
@@ -20,6 +20,7 @@ const LoginForm = () => {
     password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const login = useLoginMutation();
   const { error } = useToast();
 
@@ -34,51 +35,83 @@ const LoginForm = () => {
     }
 
     setIsLoading(true);
+    setFieldErrors({});
     try {
       const response = await login.mutateAsync(form);
 
       setAuthorization(response.accessToken);
       navigate('/');
     } catch (err) {
-      const errorMessage = getApiErrorMessage(
-        err,
-        '로그인에 실패했습니다. 다시 시도해주세요.',
-      );
+      const errors = getFieldErrors(err);
 
-      error(errorMessage);
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+      } else {
+        const errorMessage = getApiErrorMessage(
+          err,
+          '로그인에 실패했습니다. 다시 시도해주세요.',
+        );
+
+        error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const fieldName = event.target.name;
+
     setForm((prev) => ({
       ...prev,
-      [event.target.name]: event.target.value,
+      [fieldName]: event.target.value,
     }));
+
+    if (fieldErrors[fieldName]) {
+      setFieldErrors((prev) => {
+        const newErrors = { ...prev };
+
+        delete newErrors[fieldName];
+        return newErrors;
+      });
+    }
   };
 
   return (
     <>
       <AuthForm title="로그인" onSubmit={handleSubmit}>
-        <div className='w-full flex flex-col gap-4'>
-          <Input
-            className="w-full h-13"
-            name="userId"
-            type="text"
-            placeholder="아이디를 입력해주세요"
-            value={form.userId}
-            onChange={handleChange}
-            required
-          />
-          <PasswordInput
-            className="w-full h-13"
-            name="password"
-            placeholder="비밀번호를 입력해주세요"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+        <div className="w-full flex flex-col gap-4">
+          <div>
+            <Input
+              className="w-full h-13"
+              name="userId"
+              type="text"
+              placeholder="아이디를 입력해주세요"
+              value={form.userId}
+              onChange={handleChange}
+              error={!!fieldErrors.userId}
+              required
+            />
+            {fieldErrors.userId && (
+              <p className="text-red-600 text-sm mt-1">{fieldErrors.userId}</p>
+            )}
+          </div>
+          <div>
+            <PasswordInput
+              className="w-full h-13"
+              name="password"
+              placeholder="비밀번호를 입력해주세요"
+              value={form.password}
+              onChange={handleChange}
+              error={!!fieldErrors.password}
+              required
+            />
+            {fieldErrors.password && (
+              <p className="text-red-600 text-sm mt-1">
+                {fieldErrors.password}
+              </p>
+            )}
+          </div>
           <Button className="w-full h-13" type="submit" loading={isLoading}>
             로그인
           </Button>

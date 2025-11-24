@@ -15,3 +15,25 @@ export const getApiErrorMessage = (
   }
   return fallbackMessage;
 };
+
+/**
+ * API 에러 객체에서 필드별 에러 메시지를 추출합니다.
+ * @param error - 발생한 에러 객체
+ * @returns 필드명을 키로 하고 에러 메시지를 값으로 하는 객체
+ */
+export const getFieldErrors = (error: unknown): Record<string, string> => {
+  if (error instanceof ApiError) {
+    const details = error.detail;
+
+    if (Array.isArray(details)) {
+      return details.reduce(
+        (acc, item) => {
+          acc[item.field] = item.message;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+    }
+  }
+  return {};
+};
