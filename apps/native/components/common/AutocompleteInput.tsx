@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
-  FlatList,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -118,9 +118,30 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
     [inputProps],
   );
 
-  const renderItem = useCallback(
-    ({ item }: { item: AutocompleteItem }) => (
+  const renderDropdownContent = useCallback(() => {
+    if (loading) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Typography variant="caption" style={styles.emptyText}>
+            검색 중...
+          </Typography>
+        </View>
+      );
+    }
+
+    if (items.length === 0) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Typography variant="caption" style={styles.emptyText}>
+            {emptyMessage}
+          </Typography>
+        </View>
+      );
+    }
+
+    return items.map((item) => (
       <TouchableOpacity
+        key={item.value}
         style={[
           styles.dropdownItem,
           {
@@ -132,31 +153,8 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       >
         <Typography>{item.label}</Typography>
       </TouchableOpacity>
-    ),
-    [colorScheme, handleSelectItem],
-  );
-
-  const renderEmptyComponent = useCallback(
-    () => (
-      <View style={styles.emptyContainer}>
-        <Typography variant="caption" style={styles.emptyText}>
-          {emptyMessage}
-        </Typography>
-      </View>
-    ),
-    [emptyMessage],
-  );
-
-  const renderLoadingComponent = useCallback(
-    () => (
-      <View style={styles.emptyContainer}>
-        <Typography variant="caption" style={styles.emptyText}>
-          검색 중...
-        </Typography>
-      </View>
-    ),
-    [],
-  );
+    ));
+  }, [loading, items, emptyMessage, colorScheme, handleSelectItem]);
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -179,18 +177,13 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
             },
           ]}
         >
-          {loading ? (
-            renderLoadingComponent()
-          ) : (
-            <FlatList
-              data={items}
-              keyExtractor={(item) => item.value}
-              renderItem={renderItem}
-              ListEmptyComponent={renderEmptyComponent}
-              keyboardShouldPersistTaps="handled"
-              nestedScrollEnabled
-            />
-          )}
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            nestedScrollEnabled={true}
+            showsVerticalScrollIndicator={true}
+          >
+            {renderDropdownContent()}
+          </ScrollView>
         </ThemeView>
       )}
     </View>
