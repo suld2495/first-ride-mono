@@ -83,6 +83,7 @@ const RoutineFormModal = () => {
       contentContainerStyle={{ flexGrow: 1 }}
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
+      enableResetScrollToCoords={false}
     >
       <Form
         form={routineForm}

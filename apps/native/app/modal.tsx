@@ -13,7 +13,10 @@ export default function Modal() {
 
   return (
     <Container>
-      <Animated.View entering={SlideInRight} style={styles.container}>
+      <Animated.View
+        entering={SlideInRight.duration(250)}
+        style={styles.container}
+      >
         <ModalHeader title={title} />
         <ThemeView style={styles.content}>
           <ModalComponent />

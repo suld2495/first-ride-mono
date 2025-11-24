@@ -73,6 +73,7 @@ const RequestDetailModal = () => {
       contentContainerStyle={{ flexGrow: 1 }}
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
+      enableResetScrollToCoords={false}
     >
       <ThemeView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scroll}>
