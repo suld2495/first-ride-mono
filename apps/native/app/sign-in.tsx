@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { ApiError } from '@repo/shared/api/AppError';
 import { useLoginMutation } from '@repo/shared/hooks/useAuth';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
@@ -13,6 +12,7 @@ import Link from '@/components/common/Link';
 import PasswordInput from '@/components/common/PasswordInput';
 import ThemeView from '@/components/common/ThemeView';
 import { useNotifications } from '@/hooks/useNotifications';
+import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 const initial = () => ({
   userId: '',
@@ -24,13 +24,24 @@ export default function SignIn() {
   const [form, setForm] = useState<AuthFormType>(initial());
   const login = useLoginMutation();
   const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { pushToken } = useNotifications();
 
   const handleLogin = async () => {
-    const isValid = form.userId && form.password;
+    setFieldErrors({});
 
-    if (!isValid) {
-      alert('아이디 또는 비밀번호를 입력해주세요.');
+    // 클라이언트 측 유효성 검사
+    const errors: Record<string, string> = {};
+
+    if (!form.userId) {
+      errors.userId = '아이디를 입력해주세요.';
+    }
+    if (!form.password) {
+      errors.password = '비밀번호를 입력해주세요.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
@@ -48,12 +59,18 @@ export default function SignIn() {
       setAuthorization(response.accessToken);
       router.push('/(tabs)/(afterLogin)/(routine)');
     } catch (error) {
-      const errorMessage =
-        error instanceof ApiError
-          ? error.message
-          : '로그인에 실패했습니다. 다시 시도해주세요.';
+      const serverErrors = getFieldErrors(error);
 
-      alert(errorMessage);
+      if (Object.keys(serverErrors).length > 0) {
+        setFieldErrors(serverErrors);
+      } else {
+        const errorMessage = getApiErrorMessage(
+          error,
+          '로그인에 실패했습니다. 다시 시도해주세요.',
+        );
+
+        setFieldErrors({ password: errorMessage });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -64,6 +81,14 @@ export default function SignIn() {
       ...prev,
       [key]: value,
     }));
+
+    if (fieldErrors[key]) {
+      setFieldErrors((prev) => {
+        const { [key]: _, ...rest } = prev;
+
+        return rest;
+      });
+    }
   };
 
   return (
@@ -74,12 +99,16 @@ export default function SignIn() {
           value={form.userId}
           onChangeText={(value) => handleChange('userId', value)}
           style={{ width: 250 }}
+          error={!!fieldErrors.userId}
+          helperText={fieldErrors.userId}
         />
         <PasswordInput
           width={250}
           placeholder="비밀번호를 입력해주세요."
           value={form.password}
           onChangeText={(value) => handleChange('password', value)}
+          error={!!fieldErrors.password}
+          helperText={fieldErrors.password}
         />
         <Button
           title="로그인"
