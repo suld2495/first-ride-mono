@@ -2,8 +2,8 @@ import { useRef } from 'react';
 import { Animated, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { type BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { Tabs } from 'expo-router';
 import { contentColors, surfaceColors } from '@repo/design-system';
+import { Tabs } from 'expo-router';
 
 import TabBarIcon from '@/components/common/TabBarIcon';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -108,7 +108,10 @@ export default function TabLayout() {
           options={{
             title: '친구',
             tabBarIcon: () => (
-              <TabBarIcon name="users" color={contentColors.body[colorScheme]} />
+              <TabBarIcon
+                name="users"
+                color={contentColors.body[colorScheme]}
+              />
             ),
           }}
         />

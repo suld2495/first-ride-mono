@@ -3,13 +3,9 @@ import { RequestList, RequestResponseForm, RoutineDetail } from '@repo/types';
 import http from './client';
 import { toAppError } from '.';
 
-export const fetchReceivedRequests = async (
-  nickname: string,
-): Promise<RequestList> => {
+export const fetchReceivedRequests = async (): Promise<RequestList> => {
   try {
-    const response: RequestList = await http.get(
-      `/routine/confirm/list?nickname=${nickname}`,
-    );
+    const response: RequestList = await http.get(`/routine/confirm/list`);
 
     return response;
   } catch (error) {

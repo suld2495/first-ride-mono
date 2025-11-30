@@ -3,14 +3,9 @@ import { Routine, RoutineForm, UpdateRoutineForm } from '@repo/types';
 import http from './client';
 import { toAppError } from '.';
 
-export const fetchRoutines = async (
-  nickname: string,
-  date: string,
-): Promise<Routine[]> => {
+export const fetchRoutines = async (date: string): Promise<Routine[]> => {
   try {
-    const response: Routine[] = await http.get(
-      `/routine/list?date=${date}&nickname=${nickname}`,
-    );
+    const response: Routine[] = await http.get(`/routine/list?date=${date}`);
 
     return response;
   } catch (error) {

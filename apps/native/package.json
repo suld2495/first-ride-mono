@@ -8,7 +8,11 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
@@ -58,9 +62,17 @@
     "@repo/eslint-config": "workspace:*",
     "@repo/types": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.3.3",
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.0.14",
+    "axios-mock-adapter": "^2.1.0",
+    "jest": "^30.2.0",
+    "jest-expo": "^54.0.13",
     "metro": "0.82.0",
     "miragejs": "^0.1.48",
+    "msw": "^2.10.5",
+    "react-test-renderer": "19.0.0",
     "typescript": "5.8.3"
   },
   "expo": {

@@ -5,15 +5,7 @@ import { Button, type ButtonProps } from './Button';
 export type LinkProps = ExpoLinkProps &
   Omit<
     ButtonProps,
-    | 'onPress'
-    | 'disabled'
-    | 'onLongPress'
-    | 'onPressIn'
-    | 'onPressOut'
-    | 'testID'
-    | 'accessibilityLabel'
-    | 'accessibilityHint'
-    | 'accessibilityRole'
+    'onPress' | 'disabled' | 'onLongPress' | 'onPressIn' | 'onPressOut'
   > & {
     /**
      * Button title text (optional)
@@ -52,10 +44,21 @@ export type LinkProps = ExpoLinkProps &
  *   Go to Profile
  * </Link>
  */
-const Link = ({ title, ...props }: LinkProps) => {
+const Link = ({
+  title,
+  accessibilityLabel,
+  accessibilityHint,
+  accessibilityRole,
+  ...props
+}: LinkProps) => {
   return (
     <RNLink {...props} asChild>
-      <Button title={title} />
+      <Button
+        title={title}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityRole={accessibilityRole}
+      />
     </RNLink>
   );
 };

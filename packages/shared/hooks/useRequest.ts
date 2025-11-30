@@ -7,7 +7,7 @@ import { requestKey } from '../types/query-keys/request';
 export const useFetchReceivedRequestsQuery = (nickname: string) => {
   return useQuery({
     queryKey: requestKey.receivedList(nickname),
-    queryFn: () => requestApi.fetchReceivedRequests(nickname),
+    queryFn: () => requestApi.fetchReceivedRequests(),
     initialData: [],
     enabled: !!nickname,
   });

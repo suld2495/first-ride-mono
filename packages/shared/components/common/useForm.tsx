@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo, useReducer } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useReducer, useRef } from "react";
 import { ValidationErrors, Validator, Validators } from ".";
 import { formReducer } from "./FormReducer";
 import { toArray } from "../../utils";
@@ -52,6 +52,16 @@ export function useCreateForm<T extends Record<string, any>>() {
       enabled: false,
     });
 
+    // 폼 상태가 변경될 때마다 전체 검증 수행
+    const prevFormRef = useRef(state.form);
+    useEffect(() => {
+      if (prevFormRef.current !== state.form) {
+        prevFormRef.current = state.form;
+        const allErrors = doAllValidators(validators, state.form);
+        dispatch({ type: 'SET_ERRORS', errors: allErrors });
+      }
+    }, [state.form, validators]);
+
     const isValid: FormContextType<T>['isValid'] = useCallback((key) => {
       if (typeof key !== 'undefined') {
         return (state.errors[key]?.length ?? 0) === 0;
@@ -60,15 +70,14 @@ export function useCreateForm<T extends Record<string, any>>() {
       return Object.keys(state.errors).length === 0;
     }, [state.errors]);
 
-    const validateField: FormContextType<T>['validateField'] = useCallback((key, form = state.form) => {
-      const errors = doValidateField(validators, form, key);
-      const allErrors = doAllValidators(validators, form);
+    const validateField: FormContextType<T>['validateField'] = useCallback((key, formValues = state.form) => {
+      const errors = doValidateField(validators, formValues, key);
 
-      dispatch({ 
-        type: 'SET_FIELD_ERRORS', 
-        key, 
-        errors, 
-        isValid: Object.keys(allErrors).length === 0 
+      dispatch({
+        type: 'SET_FIELD_ERRORS',
+        key,
+        errors,
+        isValid: false // 전체 검증은 useEffect에서 수행
       });
       return errors;
     }, [validators, state.form]);
@@ -93,7 +102,7 @@ export function useCreateForm<T extends Record<string, any>>() {
           [key]: value,
         });
       }
-    }, [dispatch, validateField]);
+    }, [dispatch, validateField, state.form]);
 
     const touch: FormContextType<T>['touch'] = useCallback((key, doValidate = true) => {
       dispatch({ type: 'TOUCH', key });
@@ -219,7 +228,9 @@ export function doAllValidators<T extends Record<string, any>>(
 ): ValidationErrors<T> {
   if (!validators) return {};
   const out: ValidationErrors<T> = {};
-  (Object.keys(values) as Array<keyof T>).forEach((key) => {
+  // validators의 키를 기준으로 순회하여 모든 필수 필드가 검증되도록 함
+  const validatorKeys = Object.keys(validators) as Array<keyof T>;
+  validatorKeys.forEach((key) => {
     const errs = doValidateField(validators, values, key);
     if (errs.length) out[key] = errs;
   });

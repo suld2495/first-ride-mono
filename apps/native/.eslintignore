@@ -1,0 +1,3 @@
+# ESLint ignore patterns
+.eslintrc.js
+app-env.d.ts

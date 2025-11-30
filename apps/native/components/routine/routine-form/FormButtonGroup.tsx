@@ -17,12 +17,7 @@ const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
 
   return (
     <ThemeView style={styles.buttonContainer}>
-      <Link
-        title="취소"
-        href=".."
-        variant="secondary"
-        style={styles.button}
-      />
+      <Link title="취소" href=".." variant="secondary" style={styles.button} />
       {type === 'routine-add' ? (
         <Button
           title="추가"

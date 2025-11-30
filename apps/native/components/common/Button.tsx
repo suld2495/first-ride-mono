@@ -41,17 +41,13 @@ export interface ButtonProps extends Omit<PressableProps, 'style'> {
    * 왼쪽 아이콘 (ReactNode 또는 render function)
    * render function을 사용하면 iconColor를 전달받을 수 있습니다
    */
-  leftIcon?:
-    | React.ReactNode
-    | ((props: { color: string }) => React.ReactNode);
+  leftIcon?: React.ReactNode | ((props: { color: string }) => React.ReactNode);
 
   /**
    * 오른쪽 아이콘 (ReactNode 또는 render function)
    * render function을 사용하면 iconColor를 전달받을 수 있습니다
    */
-  rightIcon?:
-    | React.ReactNode
-    | ((props: { color: string }) => React.ReactNode);
+  rightIcon?: React.ReactNode | ((props: { color: string }) => React.ReactNode);
 
   /**
    * 로딩 상태
@@ -116,9 +112,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   // 아이콘 렌더링 헬퍼
   const renderIcon = (
-    icon?:
-      | React.ReactNode
-      | ((props: { color: string }) => React.ReactNode),
+    icon?: React.ReactNode | ((props: { color: string }) => React.ReactNode),
   ) => {
     if (!icon) return null;
 

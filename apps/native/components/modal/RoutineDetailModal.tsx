@@ -76,9 +76,7 @@ const RoutineDetailModal = () => {
           <Typography variant="subtitle" style={styles.infoLabel}>
             메이트
           </Typography>
-          <Typography>
-            {detail?.isMe ? '나' : detail?.mateNickname}
-          </Typography>
+          <Typography>{detail?.isMe ? '나' : detail?.mateNickname}</Typography>
         </ThemeView>
 
         <ThemeView style={styles.content} transparent>

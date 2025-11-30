@@ -135,9 +135,15 @@ export const RoutineWeekList = (
             <ThemeView style={styles.row} transparent>
               {weeklyData[routineId].map((check, index) => {
                 count += +check;
+                const dayLabels = ['월', '화', '수', '목', '금', '토', '일'];
 
                 return check ? (
-                  <WeekyView key={index} style={styles.column}>
+                  <WeekyView
+                    key={index}
+                    style={styles.column}
+                    accessibilityLabel={`${dayLabels[index]}요일 달성`}
+                    accessibilityRole="image"
+                  >
                     <Ionicons
                       name="checkbox"
                       size={24}
@@ -149,7 +155,12 @@ export const RoutineWeekList = (
                     />
                   </WeekyView>
                 ) : (
-                  <WeekyView key={index} style={styles.column}>
+                  <WeekyView
+                    key={index}
+                    style={styles.column}
+                    accessibilityLabel={`${dayLabels[index]}요일 미달성`}
+                    accessibilityRole="image"
+                  >
                     <Ionicons
                       name="square-outline"
                       size={24}
@@ -158,7 +169,14 @@ export const RoutineWeekList = (
                   </WeekyView>
                 );
               })}
-              <ThemeView style={styles.success_rate} transparent>
+              <ThemeView
+                style={styles.success_rate}
+                transparent
+                accessibilityLabel={
+                  weeklyCount >= routineCount ? '목표 달성 완료' : '달성률'
+                }
+                accessibilityRole="image"
+              >
                 {weeklyCount >= routineCount ? (
                   <Ionicons
                     name="checkmark-circle"
@@ -215,7 +233,12 @@ export const RoutineCountList = (
             {Array(Math.min(~~weeklyCount, routineCount))
               .fill(0)
               .map((_, index) => (
-                <WeekyView key={index} style={styles.column}>
+                <WeekyView
+                  key={index}
+                  style={styles.column}
+                  accessibilityLabel={`${index + 1}회 달성`}
+                  accessibilityRole="image"
+                >
                   <Ionicons
                     name="checkbox"
                     size={24}
@@ -226,40 +249,75 @@ export const RoutineCountList = (
 
             {Array(Math.max(~~weeklyCount - routineCount, 0))
               .fill(0)
-              .map((_, index) => (
-                <WeekyView key={index} style={styles.column}>
-                  <Ionicons
-                    name="checkbox"
-                    size={24}
-                    color={feedbackColors.warning.icon[colorScheme]}
-                  />
-                </WeekyView>
-              ))}
+              .map((_, index) => {
+                const countIndex = routineCount + index + 1;
+
+                return (
+                  <WeekyView
+                    key={index}
+                    style={styles.column}
+                    accessibilityLabel={`${countIndex}회 초과 달성`}
+                    accessibilityRole="image"
+                  >
+                    <Ionicons
+                      name="checkbox"
+                      size={24}
+                      color={feedbackColors.warning.icon[colorScheme]}
+                    />
+                  </WeekyView>
+                );
+              })}
 
             {Array(Math.max(routineCount - ~~weeklyCount, 0))
               .fill(0)
-              .map((_, index) => (
-                <WeekyView key={index} style={styles.column}>
-                  <Ionicons
-                    name="square-outline"
-                    size={24}
-                    color={contentColors.muted[colorScheme]}
-                  />
-                </WeekyView>
-              ))}
+              .map((_, index) => {
+                const countIndex = ~~weeklyCount + index + 1;
+
+                return (
+                  <WeekyView
+                    key={index}
+                    style={styles.column}
+                    accessibilityLabel={`${countIndex}회 미달성`}
+                    accessibilityRole="image"
+                  >
+                    <Ionicons
+                      name="square-outline"
+                      size={24}
+                      color={contentColors.muted[colorScheme]}
+                    />
+                  </WeekyView>
+                );
+              })}
 
             {Array(7 - Math.max(routineCount, ~~weeklyCount))
               .fill(0)
-              .map((_, index) => (
-                <WeekyView key={index} style={styles.column}>
-                  <Ionicons
-                    name="remove-outline"
-                    size={24}
-                    color={contentColors.disabled[colorScheme]}
-                  />
-                </WeekyView>
-              ))}
-            <ThemeView style={styles.success_rate} transparent>
+              .map((_, index) => {
+                const countIndex =
+                  Math.max(routineCount, ~~weeklyCount) + index + 1;
+
+                return (
+                  <WeekyView
+                    key={index}
+                    style={styles.column}
+                    accessibilityLabel={`${countIndex}회 목표 없음`}
+                    accessibilityRole="image"
+                  >
+                    <Ionicons
+                      name="remove-outline"
+                      size={24}
+                      color={contentColors.disabled[colorScheme]}
+                    />
+                  </WeekyView>
+                );
+              })}
+            <ThemeView
+              style={styles.success_rate}
+              transparent
+              accessibilityLabel={
+                weeklyCount >= routineCount ? '목표 달성 완료' : '달성률'
+              }
+              accessibilityRole="image"
+            >
               {weeklyCount >= routineCount ? (
                 <Ionicons
                   name="checkmark-circle"

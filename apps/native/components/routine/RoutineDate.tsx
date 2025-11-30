@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { borderColors } from '@repo/design-system';
 import {
   afterWeek,
   beforeWeek,
@@ -8,7 +9,6 @@ import {
   getWeekSunday,
 } from '@repo/shared/utils';
 import { useShallow } from 'zustand/shallow';
-import { borderColors } from '@repo/design-system';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRoutineStore } from '@/store/routine.store';
@@ -51,6 +51,8 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
               <Ionicons name="chevron-back" size={24} color={color} />
             )}
             style={styles.link}
+            accessibilityLabel="이전 주"
+            accessibilityRole="button"
           />
           <Link
             variant="ghost"
@@ -59,6 +61,8 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
               <Ionicons name="chevron-forward" size={24} color={color} />
             )}
             style={styles.link}
+            accessibilityLabel="다음 주"
+            accessibilityRole="button"
           />
         </ThemeView>
         <ThemeView style={styles.line} />
@@ -71,6 +75,9 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
                 )}
                 variant="ghost"
                 onPress={() => setType('number')}
+                accessibilityLabel="회차별 보기"
+                accessibilityRole="button"
+                accessibilityState={{ selected: true }}
               />
               <IconButton
                 icon={({ color }) => (
@@ -78,6 +85,9 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
                 )}
                 variant="ghost"
                 onPress={() => setType('week')}
+                accessibilityLabel="요일별 보기"
+                accessibilityRole="button"
+                accessibilityState={{ selected: false }}
               />
             </>
           ) : (
@@ -88,6 +98,9 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
                 )}
                 variant="ghost"
                 onPress={() => setType('number')}
+                accessibilityLabel="회차별 보기"
+                accessibilityRole="button"
+                accessibilityState={{ selected: false }}
               />
               <IconButton
                 icon={({ color }) => (
@@ -95,6 +108,9 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
                 )}
                 variant="ghost"
                 onPress={() => setType('week')}
+                accessibilityLabel="요일별 보기"
+                accessibilityRole="button"
+                accessibilityState={{ selected: true }}
               />
             </>
           )}

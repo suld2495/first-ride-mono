@@ -93,10 +93,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
   const renderIcon = () => {
     if (loading) {
       return (
-        <ActivityIndicator
-          size="small"
-          color={iconButtonStyle.iconColor}
-        />
+        <ActivityIndicator size="small" color={iconButtonStyle.iconColor} />
       );
     }
 

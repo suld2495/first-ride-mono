@@ -66,9 +66,7 @@ export const truncateRewardName = (name: string, maxLength: number): string => {
  * getRewardTypeBadgeColor("BADGE") // returns "bg-blue-500 text-white"
  * getRewardTypeBadgeColor("EXP") // returns "bg-green-500 text-white"
  */
-export const getRewardTypeBadgeColor = (
-  type: Reward['rewardType'],
-): string => {
+export const getRewardTypeBadgeColor = (type: Reward['rewardType']): string => {
   switch (type) {
     case 'BADGE':
       return 'bg-blue-500 text-white';

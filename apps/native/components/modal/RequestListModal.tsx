@@ -11,7 +11,6 @@ import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 
 const RequestListModal = () => {
-
   const router = useRouter();
   const { user } = useAuthStore();
   const { data: requests } = useFetchReceivedRequestsQuery(

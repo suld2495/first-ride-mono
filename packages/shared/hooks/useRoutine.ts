@@ -13,7 +13,7 @@ import { getWeekMonday } from '../utils/date-utils';
 export const useRoutinesQuery = (nickname: string, date: string) => {
   return useQuery({
     queryKey: [...routineKey.list(nickname), { date }],
-    queryFn: () => routineApi.fetchRoutines(nickname, date),
+    queryFn: () => routineApi.fetchRoutines(date),
     initialData: [],
     enabled: !!nickname && !!date,
   });

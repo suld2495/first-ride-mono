@@ -18,7 +18,8 @@ export interface AutocompleteItem {
   value: string;
 }
 
-export interface AutocompleteInputProps extends Omit<InputProps, 'onChangeText'> {
+export interface AutocompleteInputProps
+  extends Omit<InputProps, 'onChangeText'> {
   /**
    * 자동완성 항목 목록
    */
@@ -89,7 +90,8 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   const colorScheme = useColorScheme();
   const [isFocused, setIsFocused] = useState(false);
 
-  const shouldShowDropdown = isFocused && showDropdown && (items.length > 0 || loading);
+  const shouldShowDropdown =
+    isFocused && showDropdown && (items.length > 0 || loading);
 
   const handleSelectItem = useCallback(
     (item: AutocompleteItem): void => {

@@ -26,6 +26,7 @@ const NotificationBell = ({ count, onPress, url }: NotificationBellProps) => {
     <IconButton
       variant="ghost"
       onPress={handlePress}
+      accessibilityLabel={`인증 요청 알림${count > 0 ? ` ${count}건` : ''}`}
       icon={({ color }) => (
         <View>
           <Ionicons name="notifications-outline" size={24} color={color} />
