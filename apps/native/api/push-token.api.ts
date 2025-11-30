@@ -27,10 +27,8 @@ export async function updatePushToken(
       },
     );
 
-    console.log('Push token updated successfully');
     return true;
-  } catch (error) {
-    console.error('Failed to update push token:', error);
+  } catch {
     return false;
   }
 }
@@ -51,10 +49,8 @@ export async function deletePushToken(pushToken: string): Promise<boolean> {
       },
     );
 
-    console.log('Push token deleted successfully');
     return true;
-  } catch (error) {
-    console.error('Failed to delete push token:', error);
+  } catch {
     return false;
   }
 }

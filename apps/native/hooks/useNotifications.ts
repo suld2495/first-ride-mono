@@ -76,8 +76,7 @@ export function useNotifications(handlers?: NotificationHandlers) {
         }
 
         setIsInitialized(true);
-      } catch (error) {
-        console.error('Error initializing notifications:', error);
+      } catch {
         setIsInitialized(true);
       }
     };

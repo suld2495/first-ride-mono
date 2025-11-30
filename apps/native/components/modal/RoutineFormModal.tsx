@@ -14,13 +14,15 @@ import { getFormatDate } from '@repo/shared/utils';
 import { RoutineForm } from '@repo/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { useToast } from '@/contexts/ToastContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
 import { ModalType } from '@/hooks/useModal';
 import { useRoutineStore } from '@/store/routine.store';
 
-import AutocompleteInput, {
+import {
+  AutocompleteInput,
   type AutocompleteItem,
 } from '../common/AutocompleteInput';
 import { Button } from '../common/Button';
@@ -30,6 +32,7 @@ import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 import FormButtonGroup from '../routine/routine-form/FormButtonGroup';
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RoutineForm>();
 
 const RoutineFormModal = () => {
@@ -49,6 +52,8 @@ const RoutineFormModal = () => {
   const router = useRouter();
 
   const colorScheme = useColorScheme(); // For DateTimePicker themeVariant
+
+  const toast = useToast();
 
   // Debounce keyword for friend search
   const debouncedKeyword = useDebounce(mateKeyword, 300);
@@ -78,10 +83,12 @@ const RoutineFormModal = () => {
         mateNickname: user!.nickname,
       });
 
-      alert('루틴이 생성되었습니다.');
+      toast.showToast('루틴이 생성되었습니다.');
       router.back();
-    } catch {
-      alert('루틴 생성에 실패했습니다.');
+    } catch (e: unknown) {
+      const message = (e as Error)?.message || '문제가 발생하였습니다.';
+
+      toast.showToast(message, 'error');
     }
   };
 
@@ -134,7 +141,7 @@ const RoutineFormModal = () => {
         <FormItem
           name="routineName"
           label="루틴 이름"
-          children={({ value, onChange }) => (
+          item={({ value, onChange }) => (
             <Input
               value={value !== undefined ? String(value) : value}
               placeholder="루틴 이름을 입력하세요."
@@ -145,7 +152,7 @@ const RoutineFormModal = () => {
         <FormItem
           name="routineDetail"
           label="루틴 설명"
-          children={({ value, onChange }) => (
+          item={({ value, onChange }) => (
             <Input
               value={value !== undefined ? String(value) : value}
               placeholder="루틴 설명을 입력해주세요."
@@ -156,7 +163,7 @@ const RoutineFormModal = () => {
         <FormItem
           name="mateNickname"
           label="메이트"
-          children={({ value, onChange, form, setValue }) => (
+          item={({ value, onChange, form, setValue }) => (
             <>
               <ThemeView style={styles.mateField} transparent>
                 <Typography variant="body">직접 루틴 체크</Typography>
@@ -189,7 +196,7 @@ const RoutineFormModal = () => {
         <FormItem
           name="penalty"
           label="벌금"
-          children={({ value, onChange }) => {
+          item={({ value, onChange }) => {
             const formatNumber = (num: string | number) => {
               const numStr = String(num).replace(/[^0-9]/g, '');
 
@@ -218,7 +225,7 @@ const RoutineFormModal = () => {
         <FormItem
           name="routineCount"
           label="루틴 횟수"
-          children={({ value, onChange }) => {
+          item={({ value, onChange }) => {
             const handleChange = (text: string) => {
               if (text === '') {
                 onChange(text);
@@ -250,7 +257,7 @@ const RoutineFormModal = () => {
           name="startDate"
           label="루틴 시작 날짜"
           helpText="루틴은 월요일부터 시작됩니다"
-          children={({ value, form, setValue }) => (
+          item={({ value, form, setValue }) => (
             <ThemeView style={styles.dateContainer} transparent>
               {form.startDate && <Typography>{form.startDate}</Typography>}
               <Button
@@ -289,7 +296,7 @@ const RoutineFormModal = () => {
         <FormItem
           name="endDate"
           label="루틴 종료 날짜"
-          children={({ form, setValue }) => (
+          item={({ form, setValue }) => (
             <ThemeView style={styles.dateContainer} transparent>
               {form.endDate && (
                 <>

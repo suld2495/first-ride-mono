@@ -1,4 +1,4 @@
-import { StyleSheet, View, type ViewProps } from 'react-native';
+import { View, type ViewProps } from 'react-native';
 import { borderColors } from '@repo/design-system';
 
 import { useColorScheme } from '@/hooks/useColorScheme';

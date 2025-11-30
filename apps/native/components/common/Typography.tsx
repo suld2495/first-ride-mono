@@ -5,8 +5,11 @@ import {
   type TextProps,
   type TextStyle,
 } from 'react-native';
-import type { TypographyVariant } from '@repo/design-system';
-import { contentColors, feedbackColors } from '@repo/design-system';
+import {
+  contentColors,
+  feedbackColors,
+  type TypographyVariant,
+} from '@repo/design-system';
 
 import {
   createTypographyStyle,
@@ -124,6 +127,7 @@ export const Typography: React.FC<TypographyProps> = ({
 
     // Content colors (나머지)
     const contentColorKeys = color as keyof typeof contentColors;
+
     if (contentColors[contentColorKeys]) {
       return contentColors[contentColorKeys][colorScheme];
     }
@@ -135,11 +139,7 @@ export const Typography: React.FC<TypographyProps> = ({
 
   return (
     <Text
-      style={[
-        textStyle,
-        semanticColor && { color: semanticColor },
-        style,
-      ]}
+      style={[textStyle, semanticColor && { color: semanticColor }, style]}
       {...props}
     >
       {children}

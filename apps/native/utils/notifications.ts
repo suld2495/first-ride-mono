@@ -34,8 +34,7 @@ export async function requestPermissions(): Promise<NotificationPermissionStatus
     }
 
     return finalStatus as NotificationPermissionStatus;
-  } catch (error) {
-    console.error('Error requesting notification permissions:', error);
+  } catch {
     return 'denied';
   }
 }
@@ -48,8 +47,7 @@ export async function checkPermissions(): Promise<NotificationPermissionStatus> 
     const { status } = await Notifications.getPermissionsAsync();
 
     return status as NotificationPermissionStatus;
-  } catch (error) {
-    console.error('Error checking notification permissions:', error);
+  } catch {
     return 'undetermined';
   }
 }
@@ -61,7 +59,6 @@ export async function registerForPushNotifications(): Promise<PushNotificationTo
   try {
     // 실제 디바이스에서만 푸시 토큰 획득 가능
     if (!Device.isDevice) {
-      console.warn('Push notifications only work on physical devices');
       return null;
     }
 
@@ -69,7 +66,6 @@ export async function registerForPushNotifications(): Promise<PushNotificationTo
     const permissionStatus = await requestPermissions();
 
     if (permissionStatus !== 'granted') {
-      console.warn('Notification permission not granted');
       return null;
     }
 
@@ -87,8 +83,7 @@ export async function registerForPushNotifications(): Promise<PushNotificationTo
       type: 'expo',
       data: tokenData.data,
     };
-  } catch (error) {
-    console.error('Error registering for push notifications:', error);
+  } catch {
     return null;
   }
 }
@@ -198,8 +193,7 @@ export async function scheduleLocalNotification(
     });
 
     return identifier;
-  } catch (error) {
-    console.error('Error scheduling local notification:', error);
+  } catch {
     return null;
   }
 }
@@ -223,8 +217,7 @@ export async function presentNotification(
     });
 
     return identifier;
-  } catch (error) {
-    console.error('Error presenting notification:', error);
+  } catch {
     return null;
   }
 }
@@ -236,8 +229,7 @@ export async function cancelNotification(identifier: string): Promise<boolean> {
   try {
     await Notifications.cancelScheduledNotificationAsync(identifier);
     return true;
-  } catch (error) {
-    console.error('Error canceling notification:', error);
+  } catch {
     return false;
   }
 }
@@ -249,8 +241,7 @@ export async function cancelAllNotifications(): Promise<boolean> {
   try {
     await Notifications.cancelAllScheduledNotificationsAsync();
     return true;
-  } catch (error) {
-    console.error('Error canceling all notifications:', error);
+  } catch {
     return false;
   }
 }
@@ -278,8 +269,7 @@ export async function getAllScheduledNotifications(): Promise<
       },
       trigger: notification.trigger,
     }));
-  } catch (error) {
-    console.error('Error getting scheduled notifications:', error);
+  } catch {
     return [];
   }
 }
@@ -314,8 +304,7 @@ export async function setupNotificationChannel(
       lightColor: channelConfig.lightColor,
     });
     return true;
-  } catch (error) {
-    console.error(`Error setting up notification channel ${channelId}:`, error);
+  } catch {
     return false;
   }
 }
@@ -334,8 +323,8 @@ export async function setupAllNotificationChannels(): Promise<void> {
       NOTIFICATION_CHANNELS.ROUTINE.id,
       NOTIFICATION_CHANNELS.ROUTINE,
     );
-  } catch (error) {
-    console.error('Error setting up all notification channels:', error);
+  } catch {
+    // ignore
   }
 }
 
@@ -350,8 +339,7 @@ export async function setBadgeCount(count: number): Promise<boolean> {
   try {
     await Notifications.setBadgeCountAsync(count);
     return true;
-  } catch (error) {
-    console.error('Error setting badge count:', error);
+  } catch {
     return false;
   }
 }
@@ -366,8 +354,7 @@ export async function getBadgeCount(): Promise<number> {
 
   try {
     return await Notifications.getBadgeCountAsync();
-  } catch (error) {
-    console.error('Error getting badge count:', error);
+  } catch {
     return 0;
   }
 }

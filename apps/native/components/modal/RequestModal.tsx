@@ -18,6 +18,7 @@ import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 import RequetButtonGroup from '../request/RequestButtonGroup';
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<{ image: string }>();
 
 const RequestModal = () => {
@@ -138,6 +139,12 @@ const RequestModal = () => {
       </ThemeView>
       <ThemeView transparent>
         <Typography>{detail?.routineDetail}</Typography>
+      </ThemeView>
+      <ThemeView transparent>
+        <Typography variant="subtitle" style={styles.infoLabel}>
+          인증 대상
+        </Typography>
+        <Typography>{detail?.isMe ? '나' : detail?.mateNickname}</Typography>
         <Divider spacing={20} />
       </ThemeView>
 
@@ -149,10 +156,11 @@ const RequestModal = () => {
         <FormItem
           name="image"
           label="이미지 업로드"
-          children={({ form, setValue }) => (
+          item={({ form, setValue }) => (
             <>
               <ThemeView style={styles.imageContainer} transparent>
                 <Button
+                  testID="gallery-button"
                   variant="secondary"
                   leftIcon={({ color }) => (
                     <Ionicons name="image-outline" size={20} color={color} />
@@ -161,6 +169,7 @@ const RequestModal = () => {
                   onPress={() => pickImage(setValue)}
                 />
                 <Button
+                  testID="camera-button"
                   variant="secondary"
                   leftIcon={({ color }) => (
                     <Ionicons name="camera-outline" size={20} color={color} />

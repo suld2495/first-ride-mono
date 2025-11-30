@@ -1,10 +1,10 @@
 import { Alert, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { feedbackColors, surfaceColors } from '@repo/design-system';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { feedbackColors, surfaceColors } from '@repo/design-system';
 
 import { deletePushToken } from '@/api/push-token.api';
 import { Button } from '@/components/common/Button';
@@ -38,11 +38,7 @@ const MyInfo = () => {
         onPress: async () => {
           // 로그아웃 시 푸시 토큰 삭제
           if (pushToken?.data) {
-            try {
-              await deletePushToken(pushToken.data);
-            } catch (error) {
-              console.error('Failed to delete push token on logout:', error);
-            }
+            await deletePushToken(pushToken.data);
           }
 
           signOut();

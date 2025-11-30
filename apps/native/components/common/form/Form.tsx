@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
 import { FormProviderProps } from '@repo/shared/components';
 
-export type FormProps<T extends Record<string, any>> = Omit<
+export type FormProps<T extends Record<string, unknown>> = Omit<
   FormProviderProps<T>,
   'children'
 > & {
@@ -10,7 +10,7 @@ export type FormProps<T extends Record<string, any>> = Omit<
   style?: StyleProp<ViewStyle>;
 };
 
-export function createFormComponent<T extends Record<string, any>>(
+export function createFormComponent<T extends Record<string, unknown>>(
   Provider: React.ComponentType<FormProviderProps<T>>,
 ) {
   return function Form({ children, style, ...providerProps }: FormProps<T>) {

@@ -68,11 +68,9 @@ export default function RootLayout() {
         user.userId,
         pushToken.data,
         Platform.OS as 'ios' | 'android',
-      ).catch((error) => {
-        console.error('Failed to update push token on change:', error);
-      });
+      );
     }
-  }, [pushToken?.data, user?.userId, isInitialized]);
+  }, [pushToken, user?.userId, isInitialized]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, type ViewProps } from 'react-native';
+import { View, type ViewProps } from 'react-native';
 import { borderRadius, spacing, surfaceColors } from '@repo/design-system';
 
 import { useColorScheme } from '@/hooks/useColorScheme';

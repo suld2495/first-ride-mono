@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, type ViewStyle } from 'react-native';
-import { borderRadius, feedbackColors } from '@repo/design-system';
+import { feedbackColors } from '@repo/design-system';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -94,7 +94,10 @@ export const Badge: React.FC<BadgeProps> = ({
   }
 
   // Size mappings
-  const sizeMap: Record<BadgeSize, { width: number; height: number; fontSize: number }> = {
+  const sizeMap: Record<
+    BadgeSize,
+    { width: number; height: number; fontSize: number }
+  > = {
     sm: { width: 14, height: 14, fontSize: 9 },
     md: { width: 18, height: 18, fontSize: 11 },
     lg: { width: 22, height: 22, fontSize: 13 },
@@ -105,7 +108,9 @@ export const Badge: React.FC<BadgeProps> = ({
 
   // Format count
   const displayCount =
-    typeof count === 'number' && count > maxCount ? `${maxCount}+` : String(count);
+    typeof count === 'number' && count > maxCount
+      ? `${maxCount}+`
+      : String(count);
 
   const sizeStyle = sizeMap[size];
 

@@ -2,11 +2,14 @@ import { StyleSheet, View } from 'react-native';
 
 import { Typography } from '../Typography';
 
-export type FormItemProps<T extends Record<string, any>, K extends keyof T> = {
+export type FormItemProps<
+  T extends Record<string, unknown>,
+  K extends keyof T,
+> = {
   name: K;
   label?: string;
   required?: boolean;
-  children: (props: {
+  item: (props: {
     value: T[K];
     onChange: (text: string) => void;
     onBlur?: () => void;
@@ -19,24 +22,27 @@ export type FormItemProps<T extends Record<string, any>, K extends keyof T> = {
   helpText?: string;
 };
 
-export type UseFormFieldReturn = {
+export type UseFormFieldReturn<V = unknown> = {
   errors: string[];
   touched: boolean;
   isValid: boolean;
-  set: (value: any, options?: { validate?: boolean; touch?: boolean }) => void;
+  set: (value: V, options?: { validate?: boolean; touch?: boolean }) => void;
   onBlur: () => void;
-  bindInput: () => any;
-  bindTextInput: () => any;
+  bindInput: () => { value: V };
+  bindTextInput: () => { value: string; onChangeText: (text: string) => void };
 };
 
-export function createFormItem<T extends Record<string, any>>(
-  useFormField: <K extends keyof T>(name: K) => UseFormFieldReturn,
-  useForm: () => any,
+export function createFormItem<T extends Record<string, unknown>>(
+  useFormField: <K extends keyof T>(name: K) => UseFormFieldReturn<T[K]>,
+  useForm: () => {
+    form: T;
+    setValue: <Key extends keyof T>(key: Key, value: T[Key]) => void;
+  },
 ) {
   return function FormItem<K extends keyof T>({
     name,
     label,
-    children,
+    item,
     showErrors = true,
     helpText,
     flex = false,
@@ -46,7 +52,7 @@ export function createFormItem<T extends Record<string, any>>(
     const hasError = field.touched && !field.isValid;
 
     const handleChange = (text: string) => {
-      field.set(text);
+      field.set(text as T[K]);
     };
 
     return (
@@ -57,7 +63,7 @@ export function createFormItem<T extends Record<string, any>>(
           </Typography>
         )}
 
-        {children({
+        {item({
           value: field.bindInput().value,
           onChange: handleChange,
           onBlur: field.onBlur,

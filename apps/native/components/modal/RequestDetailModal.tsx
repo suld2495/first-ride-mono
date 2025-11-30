@@ -20,6 +20,7 @@ import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 import ConfirmRequestButtonGroup from '../request/ConfirmRequestButtonGroup';
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<{ comment: string }>();
 
 const RequestDetailModal = () => {
@@ -107,7 +108,7 @@ const RequestDetailModal = () => {
             <FormItem
               name="comment"
               label="응원의 한마디"
-              children={({ value, onChange }) => (
+              item={({ value, onChange }) => (
                 <Input
                   placeholder="응원의 한마디를 입력해주세요."
                   value={value}

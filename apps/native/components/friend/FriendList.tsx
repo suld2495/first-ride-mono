@@ -1,18 +1,18 @@
 import { Alert, FlatList, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { feedbackColors } from '@repo/design-system';
 import {
   useDeleteFriendMutation,
   useFetchFriendsQuery,
 } from '@repo/shared/hooks/useFriend';
 import { Friend, SearchOption } from '@repo/types';
-import { feedbackColors } from '@repo/design-system';
 
 import { useToast } from '@/contexts/ToastContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 import { Button } from '../common/Button';
-import Divider from '../common/Divider';
+import { Divider } from '../common/Divider';
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 
