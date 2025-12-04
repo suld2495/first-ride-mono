@@ -18,8 +18,11 @@ import {
   useNotifications,
 } from '@/hooks/useNotifications';
 import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
+import { useColorSchemeStore } from '@/store/colorScheme.store';
 import { NAV_THEME } from '@/theme';
 
+// Unistyles initialization - must be imported before any component using styles
+import '@/styles/unistyles';
 import 'react-native-url-polyfill/auto';
 import '@/api';
 
@@ -54,6 +57,14 @@ export default function RootLayout() {
   useInitialAndroidBarSync();
   const { user } = useAuthStore();
   const { pushToken, isInitialized } = useNotifications();
+  const syncWithUnistyles = useColorSchemeStore(
+    (state) => state.syncWithUnistyles,
+  );
+
+  // 앱 시작 시 저장된 테마를 Unistyles에 동기화
+  useEffect(() => {
+    syncWithUnistyles();
+  }, [syncWithUnistyles]);
 
   // 알림 핸들러 초기화
   useEffect(() => {

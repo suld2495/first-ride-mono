@@ -51,7 +51,7 @@ StyleSheet.configure({
   themes: enhancedThemes,
   breakpoints: baseFoundation.breakpoints,
   settings: {
-    adaptiveThemes: true, // 디바이스 설정 따라 light/dark 자동 전환
+    initialTheme: 'dark', // 기본 테마 (Zustand에서 동기화됨)
   },
 });
 
