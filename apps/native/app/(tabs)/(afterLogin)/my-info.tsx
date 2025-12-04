@@ -54,6 +54,15 @@ const MyInfo = () => {
       <ThemeView style={styles.linkContainer} transparent>
         <Link
           variant="ghost"
+          href="/modal?type=theme"
+          title="테마 설정"
+          leftIcon={({ color }) => (
+            <Ionicons name="color-palette-outline" size={20} color={color} />
+          )}
+          style={styles.link}
+        />
+        <Link
+          variant="ghost"
           href="/modal?type=policies"
           title="약관 및 정책"
           leftIcon={({ color }) => (

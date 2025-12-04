@@ -2,7 +2,6 @@ import { StyleSheet } from 'react-native-unistyles';
 import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 
-import DarkMode from '../common/DarkMode';
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 import NotificationBell from '../notification/NotificationBell';
@@ -19,13 +18,10 @@ const Header = () => {
         <Typography variant="title">{user?.nickname}</Typography>
       </ThemeView>
 
-      <ThemeView style={styles.icon_container}>
-        <NotificationBell
-          count={requests.length}
-          url="/modal?type=request-list"
-        />
-        <DarkMode />
-      </ThemeView>
+      <NotificationBell
+        count={requests.length}
+        url="/modal?type=request-list"
+      />
     </ThemeView>
   );
 };
@@ -37,11 +33,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-
-  icon_container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
   },
 });

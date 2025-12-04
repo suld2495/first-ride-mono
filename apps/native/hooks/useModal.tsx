@@ -7,6 +7,7 @@ import RequestModal from '@/components/modal/RequestModal';
 import RoutineDetailModal from '@/components/modal/RoutineDetailModal';
 import RoutineFormModal from '@/components/modal/RoutineFormModal';
 import TermsPolicyModal from '@/components/modal/TermsPolicyModal';
+import ThemeModal from '@/components/modal/ThemeModal';
 
 export type ModalType =
   | 'routine-add'
@@ -18,7 +19,8 @@ export type ModalType =
   | 'request-detail'
   | 'friend-request-list'
   | 'policies'
-  | 'privacy';
+  | 'privacy'
+  | 'theme';
 
 export const useModal = (type: ModalType): [string, () => React.ReactNode] => {
   switch (type) {
@@ -42,6 +44,8 @@ export const useModal = (type: ModalType): [string, () => React.ReactNode] => {
       return ['약관 및 정책', TermsPolicyModal];
     case 'privacy':
       return ['개인정보 처리방침', PrivacyModal];
+    case 'theme':
+      return ['테마 설정', ThemeModal];
     default:
       throw new Error('존재하지 않은 모달입니다.');
   }
