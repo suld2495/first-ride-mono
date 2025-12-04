@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
 import type { QuestTypeFilter as QuestTypeFilterType } from '@/store/quest.store';
 

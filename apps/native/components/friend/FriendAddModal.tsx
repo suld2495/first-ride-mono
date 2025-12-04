@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet } from 'react-native';
+import { FlatList, Modal, Pressable } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import {
   useAcceptFriendRequestMutation,
   useFetchFriendRequestsQuery,
@@ -31,7 +32,7 @@ const NotificationContent = ({
   return (
     <ThemeView style={styles.notificationContent} transparent>
       <ThemeView style={styles.notificationHeader} transparent>
-        <Typography color="bodySecondary" style={styles.senderNickname}>
+        <Typography color="secondary" style={styles.senderNickname}>
           {senderNickname}
         </Typography>
         <ThemeView style={styles.buttonContainer} transparent>
@@ -52,7 +53,7 @@ const NotificationContent = ({
         </ThemeView>
       </ThemeView>
       <ThemeView style={styles.notificationFooter} transparent>
-        <Typography color="bodySecondary" style={styles.dateText}>
+        <Typography color="secondary" style={styles.dateText}>
           {getFormatDate(createdAt)}
         </Typography>
       </ThemeView>
@@ -98,7 +99,7 @@ const FriendRequestListModal = () => {
   if (!list || list.length === 0) {
     return (
       <ThemeView style={styles.emptyContainer}>
-        <Typography color="bodySecondary">친구 요청이 없습니다.</Typography>
+        <Typography color="secondary">친구 요청이 없습니다.</Typography>
       </ThemeView>
     );
   }

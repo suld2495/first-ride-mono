@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import { getWeekMonday } from '@repo/shared/utils';

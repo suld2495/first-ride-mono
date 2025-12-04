@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import { useJoinMutation } from '@repo/shared/hooks/useAuth';
 import { JoinForm as JoinFormType } from '@repo/types';
 import { useRouter } from 'expo-router';

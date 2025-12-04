@@ -1,37 +1,42 @@
 import React from 'react';
-import {
-  type StyleProp,
-  Text,
-  type TextProps,
-  type TextStyle,
-} from 'react-native';
-import {
-  contentColors,
-  feedbackColors,
-  type TypographyVariant,
-} from '@repo/design-system';
+import { Text, type TextProps } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import {
-  createTypographyStyle,
-  type TypographyOptions,
-} from '@/design-system/styles/typography';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { type UnistylesVariants } from '@/styles/unistyles';
 
 /**
- * Semantic color types for Typography
+ * Typography variant types
+ * - title: 페이지 제목 (30px, bold)
+ * - subtitle: 부제목 (20px, semibold)
+ * - body: 본문 (16px, regular)
+ * - label: 폼/UI 라벨 (14px, medium)
+ * - caption: 작은 설명 (12px, regular)
  */
-export type TypographyColor =
-  | 'heading'
+export type TypographyVariant =
   | 'title'
   | 'subtitle'
   | 'body'
-  | 'bodySecondary'
-  | 'bodyTertiary'
-  | 'muted'
-  | 'disabled'
-  | 'placeholder'
-  | 'link'
+  | 'label'
+  | 'caption';
+
+/**
+ * Typography semantic color types
+ * - primary: 기본 텍스트
+ * - secondary: 보조 텍스트
+ * - tertiary: 3차 텍스트 (더 연한)
+ * - inverse: 반전 텍스트 (다크/라이트 배경용)
+ * - link: 링크 텍스트
+ * - error: 에러 메시지
+ * - success: 성공 메시지
+ * - warning: 경고 메시지
+ * - info: 정보 메시지
+ */
+export type TypographyColor =
+  | 'primary'
+  | 'secondary'
+  | 'tertiary'
   | 'inverse'
+  | 'link'
   | 'error'
   | 'success'
   | 'warning'
@@ -39,112 +44,129 @@ export type TypographyColor =
 
 export interface TypographyProps extends TextProps {
   /**
-   * Typography variant (웹 가이드 준수)
-   * - display: 최대 크기 제목 (60px)
-   * - hero: 큰 제목 (48px)
-   * - title: 페이지 제목 (36px)
-   * - subtitle: 부제목 (24px)
-   * - body: 본문 (16px)
-   * - caption: 작은 설명 (14px)
-   * - label: 폼/UI 라벨 (12px)
+   * Typography variant
    * @default 'body'
    */
   variant?: TypographyVariant;
 
   /**
-   * Size override (웹 가이드 준수)
-   * variant의 기본 크기를 오버라이드
-   */
-  size?: TypographyOptions['size'];
-
-  /**
-   * Semantic color (optional)
-   * Uses semantic tokens from design system
-   * @example
-   * <Typography color="error">에러 메시지</Typography>
-   * <Typography color="success">성공 메시지</Typography>
+   * Semantic color
+   * @default 'primary'
    */
   color?: TypographyColor;
 
   /**
-   * 커스텀 스타일
-   */
-  style?: StyleProp<TextStyle>;
-
-  /**
-   * 텍스트 내용
+   * Children elements
    */
   children?: React.ReactNode;
 }
 
 /**
- * Typography 컴포넌트 (웹 가이드 기준)
+ * Typography component with semantic variants and automatic theme switching.
  *
  * @example
- * // 기본 사용
+ * // Basic usage
  * <Typography variant="title">페이지 제목</Typography>
  * <Typography variant="body">본문 텍스트</Typography>
  * <Typography variant="caption">작은 텍스트</Typography>
  *
- * // Size 오버라이드
- * <Typography variant="title" size="6xl">매우 큰 제목</Typography>
- * <Typography variant="body" size="lg">큰 본문</Typography>
- *
- * // Semantic color 사용
+ * @example
+ * // Semantic colors
  * <Typography color="error">에러 메시지</Typography>
  * <Typography color="success">성공 메시지</Typography>
- * <Typography color="bodySecondary">보조 텍스트</Typography>
+ * <Typography color="secondary">보조 텍스트</Typography>
  *
- * // 스타일 커스텀
+ * @example
+ * // Custom style
  * <Typography variant="title" style={{ textAlign: 'center' }}>가운데 정렬</Typography>
  */
 export const Typography: React.FC<TypographyProps> = ({
   variant = 'body',
-  size,
-  color,
+  color = 'primary',
   style,
   children,
   ...props
 }) => {
-  const colorScheme = useColorScheme();
-  const textStyle = createTypographyStyle(variant, colorScheme, { size });
-
-  // Semantic color 매핑
-  const getSemanticColor = (): string | undefined => {
-    if (!color) return undefined;
-
-    // Feedback colors (error, success, warning, info)
-    const feedbackColorMap: Record<string, string> = {
-      error: feedbackColors.error.text[colorScheme],
-      success: feedbackColors.success.text[colorScheme],
-      warning: feedbackColors.warning.text[colorScheme],
-      info: feedbackColors.info.text[colorScheme],
-    };
-
-    if (feedbackColorMap[color]) {
-      return feedbackColorMap[color];
-    }
-
-    // Content colors (나머지)
-    const contentColorKeys = color as keyof typeof contentColors;
-
-    if (contentColors[contentColorKeys]) {
-      return contentColors[contentColorKeys][colorScheme];
-    }
-
-    return undefined;
-  };
-
-  const semanticColor = getSemanticColor();
+  styles.useVariants({ variant, color } as UnistylesVariants<typeof styles>);
 
   return (
-    <Text
-      style={[textStyle, semanticColor && { color: semanticColor }, style]}
-      {...props}
-    >
+    <Text style={[styles.base, style]} {...props}>
       {children}
     </Text>
   );
 };
+
+const styles = StyleSheet.create((theme) => ({
+  base: {
+    variants: {
+      variant: {
+        title: {
+          fontSize: theme.foundation.typography.size.title,
+          fontWeight: theme.foundation.typography.weight.bold,
+          lineHeight:
+            theme.foundation.typography.size.title *
+            theme.foundation.typography.lineHeight.tight,
+        },
+        subtitle: {
+          fontSize: theme.foundation.typography.size.xl,
+          fontWeight: theme.foundation.typography.weight.semibold,
+          lineHeight:
+            theme.foundation.typography.size.xl *
+            theme.foundation.typography.lineHeight.tight,
+        },
+        body: {
+          fontSize: theme.foundation.typography.size.l,
+          fontWeight: theme.foundation.typography.weight.regular,
+          lineHeight:
+            theme.foundation.typography.size.l *
+            theme.foundation.typography.lineHeight.normal,
+        },
+        label: {
+          fontSize: theme.foundation.typography.size.m,
+          fontWeight: theme.foundation.typography.weight.medium,
+          lineHeight:
+            theme.foundation.typography.size.m *
+            theme.foundation.typography.lineHeight.normal,
+        },
+        caption: {
+          fontSize: theme.foundation.typography.size.s,
+          fontWeight: theme.foundation.typography.weight.regular,
+          lineHeight:
+            theme.foundation.typography.size.s *
+            theme.foundation.typography.lineHeight.normal,
+        },
+      },
+      color: {
+        primary: {
+          color: theme.colors.text.primary,
+        },
+        secondary: {
+          color: theme.colors.text.secondary,
+        },
+        tertiary: {
+          color: theme.colors.text.tertiary,
+        },
+        inverse: {
+          color: theme.colors.text.inverse,
+        },
+        link: {
+          color: theme.colors.text.link,
+        },
+        error: {
+          color: theme.colors.feedback.error.text,
+        },
+        success: {
+          color: theme.colors.feedback.success.text,
+        },
+        warning: {
+          color: theme.colors.feedback.warning.text,
+        },
+        info: {
+          color: theme.colors.feedback.info.text,
+        },
+      },
+    },
+  },
+}));
 
 export default Typography;

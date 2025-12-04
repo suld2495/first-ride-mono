@@ -1,7 +1,5 @@
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import { actionColors } from '@repo/design-system';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useUnistyles } from 'react-native-unistyles';
 
 export interface CheckboxProps {
   /** Checkbox size in pixels (default: 20) */
@@ -22,8 +20,8 @@ export interface CheckboxProps {
  * <Checkbox onPress={(checked) => console.log(checked)} />
  */
 const Checkbox = ({ size = 20, text, fillColor, onPress }: CheckboxProps) => {
-  const colorScheme = useColorScheme();
-  const defaultFillColor = actionColors.primary[colorScheme];
+  const { theme } = useUnistyles();
+  const defaultFillColor = theme.colors.action.primary.default;
 
   return (
     <BouncyCheckbox

@@ -1,15 +1,9 @@
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {
-  actionColors,
-  contentColors,
-  feedbackColors,
-} from '@repo/design-system';
 import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
 import { getDaysOfTheWeek, getWeekMonday } from '@repo/shared/utils';
 import { Routine, WeeklyRoutine } from '@repo/types';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
@@ -18,13 +12,10 @@ import ThemeView, { ThemedViewProps } from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 
 const WeekyView = (props: ThemedViewProps & { text?: string }) => {
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
-
   return (
     <ThemeView {...props} transparent>
       {props.text ? (
-        <Typography style={styles.view_text}>{props.text}</Typography>
+        <Typography color="secondary">{props.text}</Typography>
       ) : (
         props.children
       )}
@@ -50,9 +41,6 @@ const RoutineWrapper = ({
   onShowDetailModal,
   render,
 }: RoutineWrapperProps) => {
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
-
   return (
     <FlatList
       data={routines}
@@ -104,9 +92,7 @@ const RoutineWrapper = ({
 export const RoutineWeekList = (
   props: RoutineListProps & { routines: WeeklyRoutine[] },
 ) => {
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
-
+  const { theme } = useUnistyles();
   const { routines } = props;
   const weeklyData = useWeeklyData(routines);
 
@@ -117,7 +103,7 @@ export const RoutineWeekList = (
         let count = 0;
 
         return (
-          <Card variant="raised" padding="lg" style={styles.table}>
+          <Card variant="surface" padding="lg" style={styles.table}>
             <ThemeView style={styles.row}>
               {getDaysOfTheWeek().map((day) => (
                 <WeekyView key={day} text={day} style={styles.column} />
@@ -126,7 +112,7 @@ export const RoutineWeekList = (
                 <Ionicons
                   name="checkmark-circle"
                   size={24}
-                  color={contentColors.disabled[colorScheme]}
+                  color={theme.colors.text.disabled}
                   style={styles.success_rate_icon}
                 />
               </ThemeView>
@@ -149,8 +135,8 @@ export const RoutineWeekList = (
                       size={24}
                       color={
                         count <= routineCount
-                          ? actionColors.primary[colorScheme]
-                          : feedbackColors.warning.icon[colorScheme]
+                          ? theme.colors.action.primary.default
+                          : theme.colors.feedback.warning.text
                       }
                     />
                   </WeekyView>
@@ -164,7 +150,7 @@ export const RoutineWeekList = (
                     <Ionicons
                       name="square-outline"
                       size={24}
-                      color={contentColors.muted[colorScheme]}
+                      color={theme.colors.text.tertiary}
                     />
                   </WeekyView>
                 );
@@ -181,7 +167,7 @@ export const RoutineWeekList = (
                   <Ionicons
                     name="checkmark-circle"
                     size={24}
-                    color={feedbackColors.success.icon[colorScheme]}
+                    color={theme.colors.feedback.success.text}
                   />
                 ) : (
                   <Typography variant="body">
@@ -202,8 +188,7 @@ export const RoutineWeekList = (
 export const RoutineCountList = (
   props: RoutineListProps & { routines: Routine[] },
 ) => {
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
+  const { theme } = useUnistyles();
 
   return (
     <RoutineWrapper
@@ -224,7 +209,7 @@ export const RoutineCountList = (
               <Ionicons
                 name="checkmark-circle"
                 size={24}
-                color={feedbackColors.success.icon[colorScheme]}
+                color={theme.colors.feedback.success.text}
                 style={styles.success_rate_icon}
               />
             </ThemeView>
@@ -242,7 +227,7 @@ export const RoutineCountList = (
                   <Ionicons
                     name="checkbox"
                     size={24}
-                    color={actionColors.primary[colorScheme]}
+                    color={theme.colors.action.primary.default}
                   />
                 </WeekyView>
               ))}
@@ -262,7 +247,7 @@ export const RoutineCountList = (
                     <Ionicons
                       name="checkbox"
                       size={24}
-                      color={feedbackColors.warning.icon[colorScheme]}
+                      color={theme.colors.feedback.warning.text}
                     />
                   </WeekyView>
                 );
@@ -283,7 +268,7 @@ export const RoutineCountList = (
                     <Ionicons
                       name="square-outline"
                       size={24}
-                      color={contentColors.muted[colorScheme]}
+                      color={theme.colors.text.tertiary}
                     />
                   </WeekyView>
                 );
@@ -305,7 +290,7 @@ export const RoutineCountList = (
                     <Ionicons
                       name="remove-outline"
                       size={24}
-                      color={contentColors.disabled[colorScheme]}
+                      color={theme.colors.text.disabled}
                     />
                   </WeekyView>
                 );
@@ -322,7 +307,7 @@ export const RoutineCountList = (
                 <Ionicons
                   name="checkmark-circle"
                   size={24}
-                  color={feedbackColors.success.icon[colorScheme]}
+                  color={theme.colors.feedback.success.text}
                 />
               ) : (
                 <Typography variant="body">
@@ -339,67 +324,57 @@ export const RoutineCountList = (
   );
 };
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    list: {
-      gap: 15,
-    },
+const styles = StyleSheet.create({
+  list: {
+    gap: 15,
+  },
 
-    container: {
-      backgroundColor: 'transparent',
-      gap: 10,
-    },
+  container: {
+    backgroundColor: 'transparent',
+    gap: 10,
+  },
 
-    info: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-    },
+  info: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
 
-    table: {
-      gap: 5,
-      marginTop: 10,
-    },
+  table: {
+    gap: 5,
+    marginTop: 10,
+  },
 
-    row: {
-      flexDirection: 'row',
-      backgroundColor: 'transparent',
-      justifyContent: 'space-between',
-    },
+  row: {
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    justifyContent: 'space-between',
+  },
 
-    column: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      flex: 1,
-    },
+  column: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flex: 1,
+  },
 
-    title: {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
+  title: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
-    view_text: {
-      color: contentColors.body[colorScheme],
-    },
+  complete_button: {
+    height: 30,
+    paddingVertical: 0,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
 
-    complete_button: {
-      height: 30,
-      paddingVertical: 0,
-      paddingHorizontal: 10,
-      borderRadius: 5,
-    },
+  success_rate: {
+    width: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
-    success_rate: {
-      width: 40,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-
-    success_rate_icon: {
-      borderColor: 'red',
-      borderRadius: 100,
-    },
-
-    empty_checkbox: {
-      opacity: 0.7,
-    },
-  });
+  success_rate_icon: {
+    borderRadius: 100,
+  },
+});

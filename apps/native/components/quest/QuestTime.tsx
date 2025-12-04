@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatTimeRemaining } from '@repo/shared/utils/date-utils';
 

@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
 import { Quest } from '@repo/types';
 import { useRouter } from 'expo-router';

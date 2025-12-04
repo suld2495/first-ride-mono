@@ -1,6 +1,6 @@
-import { Alert, StyleSheet } from 'react-native';
+import { Alert } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { feedbackColors, surfaceColors } from '@repo/design-system';
 import { useAuthStore } from '@repo/shared/store/auth.store';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
@@ -12,15 +12,13 @@ import Link from '@/components/common/Link';
 import ThemeView from '@/components/common/ThemeView';
 import { Typography } from '@/components/common/Typography';
 import Container from '@/components/layout/Container';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useNotifications } from '@/hooks/useNotifications';
 
 const MyInfo = () => {
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
   const { pushToken } = useNotifications();
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
+  const { theme } = useUnistyles();
 
   const handleMoveFeedback = async () => {
     await WebBrowser.openBrowserAsync(Constants.expoConfig?.extra?.feedback);
@@ -88,7 +86,7 @@ const MyInfo = () => {
             <Ionicons
               name="log-out-outline"
               size={20}
-              color={feedbackColors.error.icon[colorScheme]}
+              color={theme.colors.feedback.error.text}
             />
           )}
           style={[styles.link, styles.logout]}
@@ -101,29 +99,28 @@ const MyInfo = () => {
 
 export default MyInfo;
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    container: {
-      alignItems: 'stretch',
-    },
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    alignItems: 'stretch',
+  },
 
-    linkContainer: {
-      marginTop: 20,
-    },
+  linkContainer: {
+    marginTop: 20,
+  },
 
-    link: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      alignSelf: 'stretch',
-    },
+  link: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignSelf: 'stretch',
+  },
 
-    feedback: {
-      backgroundColor: surfaceColors.raised[colorScheme],
-    },
+  feedback: {
+    backgroundColor: theme.colors.background.surface,
+  },
 
-    logout: {
-      backgroundColor: surfaceColors.raised[colorScheme],
-      marginTop: 20,
-    },
-  });
+  logout: {
+    backgroundColor: theme.colors.background.surface,
+    marginTop: 20,
+  },
+}));

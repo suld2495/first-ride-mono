@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import Animated, { SlideInRight } from 'react-native-reanimated';
 import { useLocalSearchParams } from 'expo-router';
 

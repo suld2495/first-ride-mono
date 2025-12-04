@@ -1,6 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { borderColors } from '@repo/design-system';
 import {
   afterWeek,
   beforeWeek,
@@ -10,7 +9,6 @@ import {
 } from '@repo/shared/utils';
 import { useShallow } from 'zustand/shallow';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRoutineStore } from '@/store/routine.store';
 
 import { IconButton } from '../common/IconButton';
@@ -23,9 +21,6 @@ interface RoutineDateProps {
 }
 
 const RoutineDate = ({ date }: RoutineDateProps) => {
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
-
   const startDate = new Date(getWeekMonday(date ? new Date(date) : new Date()));
   const endDate = new Date(getWeekSunday(startDate));
 
@@ -122,45 +117,44 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
 
 export default RoutineDate;
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    date_container: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
+const styles = StyleSheet.create((theme) => ({
+  date_container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 
-    currentDate: {
-      flexDirection: 'row',
-      gap: 5,
-    },
+  currentDate: {
+    flexDirection: 'row',
+    gap: 5,
+  },
 
-    right: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-    },
+  right: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
 
-    date_button_container: {
-      flexDirection: 'row',
-      gap: 3,
-    },
+  date_button_container: {
+    flexDirection: 'row',
+    gap: 3,
+  },
 
-    link: {
-      paddingVertical: 0,
-      paddingHorizontal: 0,
-    },
+  link: {
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+  },
 
-    line: {
-      width: 1,
-      height: 17,
-      backgroundColor: borderColors.default[colorScheme],
-      marginInline: 5,
-    },
+  line: {
+    width: 1,
+    height: 17,
+    backgroundColor: theme.colors.border.default,
+    marginInline: 5,
+  },
 
-    icons: {
-      flexDirection: 'row',
-      gap: 5,
-    },
-  });
+  icons: {
+    flexDirection: 'row',
+    gap: 5,
+  },
+}));

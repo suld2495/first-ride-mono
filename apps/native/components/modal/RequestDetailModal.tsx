@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet } from 'react-native';
+import { Image, ScrollView } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Svg from 'react-native-svg';
 import {

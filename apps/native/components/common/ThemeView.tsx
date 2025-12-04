@@ -1,92 +1,84 @@
 import { View, type ViewProps } from 'react-native';
-import { surfaceColors } from '@repo/design-system';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { type UnistylesVariants } from '@/styles/unistyles';
 
 /**
  * Surface variant types
+ * - base: 전체 화면 배경
+ * - surface: 카드, 리스트 아이템 배경
+ * - elevated: 모달, 드롭다운 배경
+ * - sunken: 입력창 내부
  */
-export type SurfaceVariant = 'base' | 'raised' | 'sunken' | 'overlay';
+export type SurfaceVariant = 'base' | 'surface' | 'elevated' | 'sunken';
 
 export type ThemedViewProps = ViewProps & {
-  /** Custom light theme background color (overrides semantic token) */
-  lightColor?: string;
-  /** Custom dark theme background color (overrides semantic token) */
-  darkColor?: string;
-  /** Set to true to make background transparent */
+  /**
+   * Set to true to make background transparent
+   */
   transparent?: boolean;
   /**
    * Surface variant (semantic token)
-   * - base: Base surface color
-   * - raised: Raised surface (cards, modals)
-   * - sunken: Sunken surface (wells, insets)
-   * - overlay: Overlay background
+   * @default 'base'
    */
   variant?: SurfaceVariant;
 };
 
 /**
  * ThemeView - A View component that automatically adapts to light/dark theme.
- * Uses semantic tokens by default, with optional color overrides.
- *
- * @remarks
- * This component uses the 'background' semantic token by default.
- * Only provide lightColor/darkColor when you need to override the theme.
+ * Uses Unistyles for automatic theme switching.
  *
  * @example
- * // Uses semantic token (recommended)
+ * // Default base surface
  * <ThemeView>
  *   <Text>Content</Text>
  * </ThemeView>
  *
  * @example
- * // Surface variants (semantic tokens)
- * <ThemeView variant="base">Base surface</ThemeView>
- * <ThemeView variant="raised">Card surface</ThemeView>
- * <ThemeView variant="sunken">Inset surface</ThemeView>
- * <ThemeView variant="overlay">Modal overlay</ThemeView>
+ * // Surface variants
+ * <ThemeView variant="base">Base background</ThemeView>
+ * <ThemeView variant="surface">Card surface</ThemeView>
+ * <ThemeView variant="elevated">Modal surface</ThemeView>
+ * <ThemeView variant="sunken">Input background</ThemeView>
  *
  * @example
- * // Custom colors (only when needed)
- * <ThemeView lightColor="#ffffff" darkColor="#000000">
- *   <Text>Content</Text>
- * </ThemeView>
- *
- * @example
- * // Transparent background (no background color)
+ * // Transparent background
  * <ThemeView transparent>
  *   <Text>Content</Text>
  * </ThemeView>
  */
 const ThemeView = ({
   style,
-  lightColor,
-  darkColor,
   transparent = false,
-  variant,
+  variant = 'base',
   ...props
 }: ThemedViewProps) => {
-  const colorScheme = useColorScheme();
-  const themeBackgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    'background',
-  );
+  styles.useVariants({
+    variant: transparent ? undefined : variant,
+  } as UnistylesVariants<typeof styles>);
 
-  // Priority: transparent > variant > custom colors > default
-  const getBackgroundColor = (): string | undefined => {
-    if (transparent) return undefined;
-
-    if (variant) {
-      return surfaceColors[variant][colorScheme];
-    }
-
-    return themeBackgroundColor;
-  };
-
-  const backgroundColor = getBackgroundColor();
-
-  return <View style={[{ backgroundColor }, style]} {...props} />;
+  return <View style={[styles.container, style]} {...props} />;
 };
+
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    variants: {
+      variant: {
+        base: {
+          backgroundColor: theme.colors.background.base,
+        },
+        surface: {
+          backgroundColor: theme.colors.background.surface,
+        },
+        elevated: {
+          backgroundColor: theme.colors.background.elevated,
+        },
+        sunken: {
+          backgroundColor: theme.colors.background.sunken,
+        },
+      },
+    },
+  },
+}));
 
 export default ThemeView;

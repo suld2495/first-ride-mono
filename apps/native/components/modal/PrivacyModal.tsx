@@ -1,19 +1,10 @@
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import {
-  borderColors,
-  contentColors,
-  surfaceColors,
-} from '@repo/design-system';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { StyleSheet } from 'react-native-unistyles';
 
 import ThemeView from '../common/ThemeView';
 
 const PrivacyModal = () => {
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme);
-
   return (
     <ThemeView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -39,58 +30,57 @@ const PrivacyModal = () => {
 
 export default PrivacyModal;
 
-const createStyles = (colorScheme: 'light' | 'dark') =>
-  StyleSheet.create({
-    container: {
-      marginTop: 10,
-      paddingHorizontal: 10,
-    },
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    marginTop: 10,
+    paddingHorizontal: 10,
+  },
 
-    content: {},
+  content: {},
 
-    body: {
-      color: contentColors.body[colorScheme],
-      fontSize: 14,
-      marginBottom: 50,
-    },
+  body: {
+    color: theme.colors.text.secondary,
+    fontSize: 14,
+    marginBottom: 50,
+  },
 
-    heading1: {
-      color: contentColors.heading[colorScheme],
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginTop: 20,
-    },
+  heading1: {
+    color: theme.colors.text.primary,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 20,
+  },
 
-    heading2: {
-      color: contentColors.title[colorScheme],
-      fontSize: 14,
-      fontWeight: 'semibold',
-      marginVertical: 10,
-    },
+  heading2: {
+    color: theme.colors.text.primary,
+    fontSize: 14,
+    fontWeight: 'semibold',
+    marginVertical: 10,
+  },
 
-    table: {
-      color: contentColors.body[colorScheme],
-      borderColor: borderColors.divider[colorScheme],
-    },
+  table: {
+    color: theme.colors.text.secondary,
+    borderColor: theme.colors.border.divider,
+  },
 
-    listItem: {
-      marginBottom: 5,
-    },
+  listItem: {
+    marginBottom: 5,
+  },
 
-    hr: {
-      backgroundColor: borderColors.divider[colorScheme],
-      marginVertical: 20,
-    },
+  hr: {
+    backgroundColor: theme.colors.border.divider,
+    marginVertical: 20,
+  },
 
-    strong: {
-      fontWeight: 'bold',
-    },
+  strong: {
+    fontWeight: 'bold',
+  },
 
-    blockquote: {
-      backgroundColor: surfaceColors.raised[colorScheme],
-      marginVertical: 10,
-    },
-  });
+  blockquote: {
+    backgroundColor: theme.colors.background.surface,
+    marginVertical: 10,
+  },
+}));
 
 const MARKDOWN = `
 # 1. 총칙

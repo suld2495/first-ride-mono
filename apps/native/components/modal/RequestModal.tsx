@@ -1,4 +1,5 @@
-import { Alert, Image, Linking, StyleSheet } from 'react-native';
+import { Alert, Image, Linking } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ApiError } from '@repo/shared/api/AppError';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';

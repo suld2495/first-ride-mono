@@ -1,6 +1,6 @@
-import { Alert, FlatList, StyleSheet } from 'react-native';
+import { Alert, FlatList } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { feedbackColors } from '@repo/design-system';
 import {
   useDeleteFriendMutation,
   useFetchFriendsQuery,
@@ -8,7 +8,6 @@ import {
 import { Friend, SearchOption } from '@repo/types';
 
 import { useToast } from '@/contexts/ToastContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 import { Button } from '../common/Button';
@@ -22,7 +21,7 @@ interface FriendItemProps extends Friend {
 
 const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
   const deleteMutation = useDeleteFriendMutation();
-  const colorScheme = useColorScheme();
+  const { theme } = useUnistyles();
   const { showToast } = useToast();
 
   const handleDelete = async () => {
@@ -66,7 +65,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
           <Ionicons
             name="trash-outline"
             size={16}
-            color={feedbackColors.error.icon[colorScheme]}
+            color={theme.colors.feedback.error.text}
           />
         )}
         onPress={handleDelete}

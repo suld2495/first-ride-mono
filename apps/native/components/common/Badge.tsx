@@ -1,10 +1,8 @@
 import React from 'react';
-import { StyleSheet, View, type ViewStyle } from 'react-native';
-import { feedbackColors } from '@repo/design-system';
+import { Text, View, type ViewStyle } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-import { Typography } from './Typography';
+import { type UnistylesVariants } from '@/styles/unistyles';
 
 /**
  * Badge variant types
@@ -86,7 +84,10 @@ export const Badge: React.FC<BadgeProps> = ({
   maxCount = 99,
   style,
 }) => {
-  const colorScheme = useColorScheme();
+  styles.useVariants({
+    variant,
+    size,
+  } as UnistylesVariants<typeof styles>);
 
   // Don't render if count is 0 and showZero is false
   if (!showZero && count === 0) {
@@ -96,15 +97,12 @@ export const Badge: React.FC<BadgeProps> = ({
   // Size mappings
   const sizeMap: Record<
     BadgeSize,
-    { width: number; height: number; fontSize: number }
+    { minWidth: number; height: number; fontSize: number }
   > = {
-    sm: { width: 14, height: 14, fontSize: 9 },
-    md: { width: 18, height: 18, fontSize: 11 },
-    lg: { width: 22, height: 22, fontSize: 13 },
+    sm: { minWidth: 14, height: 14, fontSize: 9 },
+    md: { minWidth: 18, height: 18, fontSize: 11 },
+    lg: { minWidth: 22, height: 22, fontSize: 13 },
   };
-
-  // Get semantic feedback color
-  const backgroundColor = feedbackColors[variant].icon[colorScheme];
 
   // Format count
   const displayCount =
@@ -119,33 +117,53 @@ export const Badge: React.FC<BadgeProps> = ({
       style={[
         styles.badge,
         {
-          backgroundColor,
-          minWidth: sizeStyle.width,
+          minWidth: sizeStyle.minWidth,
           height: sizeStyle.height,
           borderRadius: sizeStyle.height / 2,
         },
         style,
       ]}
     >
-      <Typography
-        style={{
-          color: 'white',
-          fontSize: sizeStyle.fontSize,
-          fontWeight: 'bold',
-        }}
+      <Text
+        style={[
+          styles.text,
+          {
+            fontSize: sizeStyle.fontSize,
+          },
+        ]}
       >
         {displayCount}
-      </Typography>
+      </Text>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   badge: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: theme.foundation.spacing.xs,
+    variants: {
+      variant: {
+        error: {
+          backgroundColor: theme.colors.feedback.error.text,
+        },
+        success: {
+          backgroundColor: theme.colors.feedback.success.text,
+        },
+        warning: {
+          backgroundColor: theme.colors.feedback.warning.text,
+        },
+        info: {
+          backgroundColor: theme.colors.feedback.info.text,
+        },
+      },
+    },
   },
-});
+  text: {
+    color: theme.colors.text.inverse,
+    fontWeight: theme.foundation.typography.weight.bold,
+  },
+}));
 
 export default Badge;

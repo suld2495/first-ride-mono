@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { Ionicons } from '@expo/vector-icons';
-import { contentColors } from '@repo/design-system';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { Input } from './Input';
 
@@ -46,7 +44,7 @@ const PasswordInput = ({
   helperText,
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const colorScheme = useColorScheme();
+  const { theme } = useUnistyles();
 
   const togglePasswordVisibility = (): void => {
     setShowPassword((prev) => !prev);
@@ -76,7 +74,7 @@ const PasswordInput = ({
         <Ionicons
           name={showPassword ? 'eye-off' : 'eye'}
           size={20}
-          color={contentColors.bodySecondary[colorScheme]}
+          color={theme.colors.text.secondary}
         />
       </Pressable>
     </View>

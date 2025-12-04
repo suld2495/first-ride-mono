@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import { Link, Stack } from 'expo-router';
 
 import { Typography } from '@/components/common/Typography';

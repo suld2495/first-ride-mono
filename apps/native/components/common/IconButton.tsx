@@ -6,13 +6,17 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import {
-  createIconButtonStyle,
-  type IconButtonSize,
-  type IconButtonVariant,
-} from '@/design-system/styles/iconButton';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { type UnistylesVariants } from '@/styles/unistyles';
+
+export type IconButtonSize = 'sm' | 'md' | 'lg';
+export type IconButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'ghost'
+  | 'outline'
+  | 'danger';
 
 export interface IconButtonProps extends Omit<PressableProps, 'style'> {
   /**
@@ -78,6 +82,12 @@ export interface IconButtonProps extends Omit<PressableProps, 'style'> {
  * <IconButton variant="primary" size="lg" icon={<Icon />} />
  * <IconButton variant="danger" size="sm" icon={<Icon />} />
  */
+const SIZE_MAP: Record<IconButtonSize, { size: number; iconSize: number }> = {
+  sm: { size: 32, iconSize: 16 },
+  md: { size: 40, iconSize: 20 },
+  lg: { size: 48, iconSize: 24 },
+};
+
 export const IconButton: React.FC<IconButtonProps> = ({
   size = 'md',
   variant = 'ghost',
@@ -87,20 +97,37 @@ export const IconButton: React.FC<IconButtonProps> = ({
   style,
   ...props
 }) => {
-  const colorScheme = useColorScheme();
-  const iconButtonStyle = createIconButtonStyle(variant, size, colorScheme);
+  const { theme } = useUnistyles();
+
+  styles.useVariants({ size, variant } as UnistylesVariants<typeof styles>);
+
+  const getIconColor = (): string => {
+    switch (variant) {
+      case 'primary':
+        return theme.colors.action.primary.label;
+      case 'secondary':
+        return theme.colors.action.secondary.label;
+      case 'danger':
+        return theme.colors.feedback.error.text;
+      case 'outline':
+      case 'ghost':
+      default:
+        return theme.colors.action.ghost.label;
+    }
+  };
+
+  const iconColor = getIconColor();
+  const iconSize = SIZE_MAP[size].iconSize;
 
   const renderIcon = () => {
     if (loading) {
-      return (
-        <ActivityIndicator size="small" color={iconButtonStyle.iconColor} />
-      );
+      return <ActivityIndicator size="small" color={iconColor} />;
     }
 
     if (typeof icon === 'function') {
       return icon({
-        color: iconButtonStyle.iconColor,
-        size: iconButtonStyle.iconSize,
+        color: iconColor,
+        size: iconSize,
       });
     }
 
@@ -110,7 +137,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
   return (
     <Pressable
       style={({ pressed }) => [
-        iconButtonStyle.container,
+        styles.container,
         pressed && { opacity: 0.8 },
         (disabled || loading) && { opacity: 0.5 },
         typeof style === 'function' ? style({ pressed }) : style,
@@ -124,3 +151,46 @@ export const IconButton: React.FC<IconButtonProps> = ({
 };
 
 export default IconButton;
+
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: theme.foundation.radii.m,
+    variants: {
+      size: {
+        sm: {
+          width: SIZE_MAP.sm.size,
+          height: SIZE_MAP.sm.size,
+        },
+        md: {
+          width: SIZE_MAP.md.size,
+          height: SIZE_MAP.md.size,
+        },
+        lg: {
+          width: SIZE_MAP.lg.size,
+          height: SIZE_MAP.lg.size,
+        },
+      },
+      variant: {
+        primary: {
+          backgroundColor: theme.colors.action.primary.default,
+        },
+        secondary: {
+          backgroundColor: theme.colors.action.secondary.default,
+        },
+        ghost: {
+          backgroundColor: 'transparent',
+        },
+        outline: {
+          backgroundColor: 'transparent',
+          borderWidth: 1,
+          borderColor: theme.colors.border.default,
+        },
+        danger: {
+          backgroundColor: theme.colors.feedback.error.bg,
+        },
+      },
+    },
+  },
+}));

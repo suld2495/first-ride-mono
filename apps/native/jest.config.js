@@ -8,7 +8,6 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
     '^expo-secure-store$': '<rootDir>/__tests__/mocks/expo-secure-store.js',
-    '^@repo/design-system$': '<rootDir>/__tests__/mocks/design-system.js',
     '^@expo/vector-icons/Ionicons$': '<rootDir>/__tests__/mocks/ionicons.js',
     '^@expo/vector-icons$': '<rootDir>/__tests__/mocks/vector-icons.js',
   },

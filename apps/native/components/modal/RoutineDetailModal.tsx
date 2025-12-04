@@ -1,4 +1,5 @@
-import { Alert, ScrollView, StyleSheet } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import {
   useDeleteRoutineMutation,
   useRoutineDetailQuery,

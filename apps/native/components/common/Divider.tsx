@@ -1,10 +1,14 @@
-import { View, type ViewProps } from 'react-native';
-import { borderColors } from '@repo/design-system';
+import React from 'react';
+import { View, type ViewProps, type ViewStyle } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { type UnistylesVariants } from '@/styles/unistyles';
 
 /**
  * Divider variant types
+ * - subtle: 연한 구분선
+ * - default: 기본 구분선
+ * - emphasis: 강조 구분선
  */
 export type DividerVariant = 'subtle' | 'default' | 'emphasis';
 
@@ -16,9 +20,6 @@ export type DividerOrientation = 'horizontal' | 'vertical';
 export interface DividerProps extends Omit<ViewProps, 'style'> {
   /**
    * Divider variant (semantic token)
-   * - subtle: Light divider
-   * - default: Default divider
-   * - emphasis: Emphasized divider
    * @default 'default'
    */
   variant?: DividerVariant;
@@ -69,33 +70,43 @@ export const Divider: React.FC<DividerProps> = ({
   spacing = 0,
   ...props
 }) => {
-  const colorScheme = useColorScheme();
+  styles.useVariants({
+    variant,
+  } as UnistylesVariants<typeof styles>);
 
-  // Get semantic border color
-  const borderColorMap: Record<DividerVariant, string> = {
-    subtle: borderColors.subtle[colorScheme],
-    default: borderColors.divider[colorScheme],
-    emphasis: borderColors.dividerEmphasis[colorScheme],
-  };
-
-  const backgroundColor = borderColorMap[variant];
-
-  const style =
+  // 동적 스타일 (thickness와 spacing은 props로 받음)
+  const dynamicStyle: ViewStyle =
     orientation === 'horizontal'
       ? {
           height: thickness,
           width: '100%',
-          backgroundColor,
           marginVertical: spacing,
         }
       : {
           width: thickness,
           height: '100%',
-          backgroundColor,
           marginHorizontal: spacing,
         };
 
-  return <View style={style} {...props} />;
+  return <View style={[styles.base, dynamicStyle]} {...props} />;
 };
+
+const styles = StyleSheet.create((theme) => ({
+  base: {
+    variants: {
+      variant: {
+        subtle: {
+          backgroundColor: theme.colors.border.subtle,
+        },
+        default: {
+          backgroundColor: theme.colors.border.default,
+        },
+        emphasis: {
+          backgroundColor: theme.colors.border.strong,
+        },
+      },
+    },
+  },
+}));
 
 export default Divider;

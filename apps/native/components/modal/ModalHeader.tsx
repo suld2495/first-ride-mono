@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 
@@ -14,7 +14,7 @@ const ModalHeader = ({ title }: ModalHeaderProps) => {
   const isPresented = router.canGoBack();
 
   return (
-    <ThemeView variant="raised" style={styles.container}>
+    <ThemeView variant="surface" style={styles.container}>
       <Link
         href={isPresented ? '..' : '/'}
         variant="ghost"

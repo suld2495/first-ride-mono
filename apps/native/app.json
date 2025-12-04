@@ -12,6 +12,7 @@
     },
     "plugins": [
       "expo-router",
+      "react-native-edge-to-edge",
       [
         "expo-dev-launcher",
         {

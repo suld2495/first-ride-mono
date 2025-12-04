@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export interface TabBarIconProps {
@@ -15,9 +15,9 @@ export interface TabBarIconProps {
  * Uses semantic tokens for consistent theming.
  *
  * @example
- * import { contentColors } from '@repo/design-system';
- * const colorScheme = useColorScheme();
- * <TabBarIcon name="list" color={contentColors.body[colorScheme]} />
+ * import { useUnistyles } from 'react-native-unistyles';
+ * const { theme } = useUnistyles();
+ * <TabBarIcon name="list" color={theme.colors.text.primary} />
  */
 const TabBarIcon = ({ name, size = 20, color }: TabBarIconProps) => {
   return (

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import { useLoginMutation } from '@repo/shared/hooks/useAuth';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';

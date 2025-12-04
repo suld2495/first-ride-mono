@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { Animated, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Pressable, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { feedbackColors } from '@repo/design-system';
 
 import { type Toast, type ToastType, useToast } from '@/contexts/ToastContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { Typography } from './Typography';
 
@@ -14,7 +13,7 @@ interface ToastItemProps {
 }
 
 const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useUnistyles();
   const opacity = React.useRef(new Animated.Value(0)).current;
   const translateY = React.useRef(new Animated.Value(-20)).current;
 
@@ -54,10 +53,10 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
 
   const getBackgroundColor = () => {
     const colors = {
-      success: feedbackColors.success.icon[colorScheme],
-      error: feedbackColors.error.icon[colorScheme],
-      warning: feedbackColors.warning.icon[colorScheme],
-      info: feedbackColors.info.icon[colorScheme],
+      success: theme.colors.feedback.success.text,
+      error: theme.colors.feedback.error.text,
+      warning: theme.colors.feedback.warning.text,
+      info: theme.colors.feedback.info.text,
     };
 
     return colors[toast.type];

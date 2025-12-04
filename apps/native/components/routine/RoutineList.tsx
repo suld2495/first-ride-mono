@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 import { Routine } from '@repo/types';
 import { useRouter } from 'expo-router';
 
@@ -49,7 +49,7 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
           />
         )
       ) : (
-        <Card variant="raised" padding="lg" style={styles.empty}>
+        <Card variant="surface" padding="lg" style={styles.empty}>
           <Typography style={styles.emptyText}>
             등록된 루틴이 없습니다.
           </Typography>
