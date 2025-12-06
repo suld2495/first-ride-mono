@@ -1,8 +1,8 @@
+import { join, login } from '@repo/shared/api';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
-import { join, login } from '../api/auth.api';
-import { useAuthStore } from '../store/auth.store';
+import { useAuthStore } from '@/store/auth.store';
 
 export const useLoginMutation = () => {
   const authStore = useAuthStore();

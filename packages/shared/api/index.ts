@@ -92,6 +92,7 @@ export const isRetryable = (error: AppError) =>
 export default axiosInstance;
 
 export * from './AppError';
+export { join, login } from './auth.api';
 export {
   createRequest,
   fetchReceivedRequests,

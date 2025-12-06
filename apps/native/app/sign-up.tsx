@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { StyleSheet } from 'react-native-unistyles';
-import { useJoinMutation } from '@repo/shared/hooks/useAuth';
 import { JoinForm as JoinFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 
@@ -10,6 +9,7 @@ import { Input } from '@/components/common/Input';
 import Link from '@/components/common/Link';
 import PasswordInput from '@/components/common/PasswordInput';
 import ThemeView from '@/components/common/ThemeView';
+import { useJoinMutation } from '@/hooks/useAuth';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 const initial = () => ({

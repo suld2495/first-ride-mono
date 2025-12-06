@@ -13,7 +13,7 @@ declare const mockPush: jest.Mock;
 // requestStore mock
 const mockSetRequestId = jest.fn();
 
-jest.mock('@repo/shared/store/request.store', () => ({
+jest.mock('@/store/request.store', () => ({
   useRequestStore: (selector: (state: any) => any) =>
     selector({
       requestId: 0,

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"**/*.ts\"",
+    "lint": "eslint \"**/*.ts\" --fix",
     "dev": "tsc -p tsconfig.json --watch",
     "build": "tsc -b tsconfig.json"
   },

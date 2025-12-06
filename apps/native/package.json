@@ -11,7 +11,7 @@
     "eject": "expo eject",
     "test": "jest",
     "test:watch": "jest --watch",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "test:coverage": "jest --coverage"
   },
   "dependencies": {

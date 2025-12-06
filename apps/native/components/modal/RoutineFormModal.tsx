@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native-unistyles';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { StyleSheet } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
@@ -9,7 +9,6 @@ import {
   useUpdateRoutineMutation,
 } from '@repo/shared/hooks/useRoutine';
 import { routineFormValidators } from '@repo/shared/service/validatorMessage';
-import { useAuthStore } from '@repo/shared/store/auth.store';
 import { getFormatDate } from '@repo/shared/utils';
 import { RoutineForm } from '@repo/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,6 +18,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
 import { ModalType } from '@/hooks/useModal';
+import { useAuthStore } from '@/store/auth.store';
 import { useRoutineStore } from '@/store/routine.store';
 
 import {

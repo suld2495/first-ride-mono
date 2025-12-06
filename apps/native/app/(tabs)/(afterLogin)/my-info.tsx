@@ -1,7 +1,6 @@
 import { Alert } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAuthStore } from '@repo/shared/store/auth.store';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -13,6 +12,7 @@ import ThemeView from '@/components/common/ThemeView';
 import { Typography } from '@/components/common/Typography';
 import Container from '@/components/layout/Container';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useAuthStore } from '@/store/auth.store';
 
 const MyInfo = () => {
   const user = useAuthStore((state) => state.user);

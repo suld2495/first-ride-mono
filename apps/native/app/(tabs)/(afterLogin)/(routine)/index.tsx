@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native-unistyles';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
-import { useAuthStore } from '@repo/shared/store/auth.store';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -8,6 +7,7 @@ import Container from '@/components/layout/Container';
 import Header from '@/components/layout/Header';
 import RoutineHeader from '@/components/routine/RoutineHeader';
 import RoutineList from '@/components/routine/RoutineList';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function Index() {
   const router = useRouter();

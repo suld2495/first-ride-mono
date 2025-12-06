@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Platform } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
-import { useLoginMutation } from '@repo/shared/hooks/useAuth';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 
@@ -12,6 +11,7 @@ import { Input } from '@/components/common/Input';
 import Link from '@/components/common/Link';
 import PasswordInput from '@/components/common/PasswordInput';
 import ThemeView from '@/components/common/ThemeView';
+import { useLoginMutation } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 

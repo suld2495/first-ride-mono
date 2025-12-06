@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native-unistyles';
 import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
-import { useAuthStore } from '@repo/shared/store/auth.store';
+
+import { useAuthStore } from '@/store/auth.store';
 
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';

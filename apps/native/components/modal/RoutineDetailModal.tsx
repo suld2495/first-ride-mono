@@ -4,11 +4,11 @@ import {
   useDeleteRoutineMutation,
   useRoutineDetailQuery,
 } from '@repo/shared/hooks/useRoutine';
-import { useAuthStore } from '@repo/shared/store/auth.store';
 import { useRouter } from 'expo-router';
 import { useShallow } from 'zustand/shallow';
 
 import { useToast } from '@/contexts/ToastContext';
+import { useAuthStore } from '@/store/auth.store';
 import { useRoutineStore } from '@/store/routine.store';
 
 import { Button } from '../common/Button';

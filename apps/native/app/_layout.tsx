@@ -3,7 +3,6 @@ import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
-import { useAuthStore } from '@repo/shared/store/auth.store';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
@@ -18,6 +17,7 @@ import {
   useNotifications,
 } from '@/hooks/useNotifications';
 import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
+import { useAuthStore } from '@/store/auth.store';
 import { useColorSchemeStore } from '@/store/colorScheme.store';
 import { NAV_THEME } from '@/theme';
 

@@ -2,7 +2,7 @@ import { UnistylesRuntime } from 'react-native-unistyles';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { storage } from '.';
+import { storage } from './storage-provider';
 
 type ColorScheme = 'light' | 'dark';
 
@@ -27,6 +27,7 @@ export const useColorSchemeStore = create<ColorSchemeState & Action>()(
       syncWithUnistyles: () => {
         // 앱 시작 시 저장된 테마를 Unistyles에 동기화
         const { colorScheme } = get();
+
         UnistylesRuntime.setTheme(colorScheme);
       },
     }),

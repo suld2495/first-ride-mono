@@ -88,7 +88,7 @@ global.mockAuthStore = {
   signOut: jest.fn(),
 };
 
-jest.mock('@repo/shared/store/auth.store', () => ({
+jest.mock('./store/auth.store', () => ({
   useAuthStore: () => global.mockAuthStore,
 }));
 
@@ -112,7 +112,7 @@ global.mockRequestStore = {
   setRequestId: jest.fn(),
 };
 
-jest.mock('@repo/shared/store/request.store', () => ({
+jest.mock('./store/request.store', () => ({
   useRequestStore: (selector) => selector(global.mockRequestStore),
 }));
 
