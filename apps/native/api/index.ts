@@ -1,5 +1,8 @@
 import { createHttp, UN_AUTHORIZATION_URL } from '@repo/shared/api';
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+
+import { useAuthStore } from '@/store/auth.store';
 
 export const BASE_URL = `${process.env.EXPO_PUBLIC_VITE_BASE_URL || ''}/api`;
 
@@ -11,6 +14,11 @@ createHttp({
     }
 
     return config;
+  },
+  onUnauthorized() {
+    useAuthStore.getState().signOut();
+    SecureStore.deleteItemAsync('token');
+    router.replace('/sign-in');
   },
 });
 
