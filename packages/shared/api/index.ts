@@ -19,7 +19,11 @@ interface HttpConfig {
     | ((
         config: InternalAxiosRequestConfig,
       ) => Promise<InternalAxiosRequestConfig>);
+  onUnauthorized?: () => void;
 }
+
+let unauthorizedCallback: (() => void) | null = null;
+let isRedirecting = false;
 
 const axiosInstance = axios.create({
   headers: {
@@ -32,6 +36,10 @@ const axiosInstance = axios.create({
 export const createHttp = (config: HttpConfig) => {
   axiosInstance.defaults.baseURL = config.baseURL;
   axiosInstance.interceptors.request.use(config.request);
+
+  if (config.onUnauthorized) {
+    unauthorizedCallback = config.onUnauthorized;
+  }
 };
 
 axiosInstance.interceptors.response.use(
@@ -39,6 +47,17 @@ axiosInstance.interceptors.response.use(
     return response.data.data;
   },
   async (error: AxiosError) => {
+    if (
+      error.response?.status === 401 &&
+      unauthorizedCallback &&
+      !isRedirecting
+    ) {
+      isRedirecting = true;
+      unauthorizedCallback();
+      setTimeout(() => {
+        isRedirecting = false;
+      }, 1000);
+    }
     throw error;
   },
 );
