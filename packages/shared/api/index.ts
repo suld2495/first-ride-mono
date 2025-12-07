@@ -19,10 +19,11 @@ interface HttpConfig {
     | ((
         config: InternalAxiosRequestConfig,
       ) => Promise<InternalAxiosRequestConfig>);
-  onUnauthorized?: () => void;
+  onUnauthorized?: () => Promise<void> | void;
 }
 
-let unauthorizedCallback: (() => void) | null = null;
+const REDIRECT_DEBOUNCE_MS = 1000;
+let unauthorizedCallback: (() => Promise<void> | void) | null = null;
 let isRedirecting = false;
 
 const axiosInstance = axios.create({
@@ -56,7 +57,7 @@ axiosInstance.interceptors.response.use(
       unauthorizedCallback();
       setTimeout(() => {
         isRedirecting = false;
-      }, 1000);
+      }, REDIRECT_DEBOUNCE_MS);
     }
     throw error;
   },

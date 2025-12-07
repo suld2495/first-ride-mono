@@ -15,9 +15,13 @@ createHttp({
 
     return config;
   },
-  onUnauthorized() {
+  async onUnauthorized() {
     useAuthStore.getState().signOut();
-    SecureStore.deleteItemAsync('token');
+    try {
+      await SecureStore.deleteItemAsync('token');
+    } catch (error) {
+      console.error('Failed to delete token:', error);
+    }
     router.replace('/sign-in');
   },
 });
