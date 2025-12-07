@@ -16,6 +16,7 @@ export const useRoutinesQuery = (nickname: string, date: string) => {
     queryFn: () => routineApi.fetchRoutines(date),
     initialData: [],
     enabled: !!nickname && !!date,
+    refetchOnMount: 'always',
   });
 };
 
