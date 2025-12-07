@@ -10,7 +10,7 @@ import {
   UnknownError,
 } from './AppError';
 
-export const UN_AUTHORIZATION_URL = ['/login', '/join'];
+export const UN_AUTHORIZATION_URL = ['/auth/login', '/auth/join'];
 
 interface HttpConfig {
   baseURL: string;

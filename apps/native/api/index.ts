@@ -8,9 +8,11 @@ export const BASE_URL = `${process.env.EXPO_PUBLIC_VITE_BASE_URL || ''}/api`;
 
 createHttp({
   baseURL: BASE_URL,
-  request(config) {
+  async request(config) {
     if (!UN_AUTHORIZATION_URL.includes(config.url || '')) {
-      config.headers.Authorization = `Bearer ${getAuthorization()}`;
+      const token = await getAuthorization();
+
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
@@ -26,10 +28,10 @@ createHttp({
   },
 });
 
-export const setAuthorization = (token: string) => {
-  SecureStore.setItem('token', token);
+export const setAuthorization = (token: string): Promise<void> => {
+  return SecureStore.setItemAsync('token', token);
 };
 
-export const getAuthorization = () => {
-  return SecureStore.getItem('token');
+export const getAuthorization = (): Promise<string | null> => {
+  return SecureStore.getItemAsync('token');
 };

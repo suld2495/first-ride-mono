@@ -4,7 +4,6 @@ import { StyleSheet } from 'react-native-unistyles';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 
-import { setAuthorization } from '@/api';
 import AuthForm from '@/components/auth/AuthForm';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
@@ -55,9 +54,7 @@ export default function SignIn() {
         deviceType: Platform.OS as 'ios' | 'android',
       };
 
-      const response = await login.mutateAsync(loginData);
-
-      setAuthorization(response.accessToken);
+      await login.mutateAsync(loginData);
       router.push('/(tabs)/(afterLogin)/(routine)');
     } catch (error) {
       const serverErrors = getFieldErrors(error);
