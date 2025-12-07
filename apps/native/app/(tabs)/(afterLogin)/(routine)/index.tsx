@@ -3,6 +3,7 @@ import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import Loading from '@/components/common/Loading';
 import Container from '@/components/layout/Container';
 import Header from '@/components/layout/Header';
 import RoutineHeader from '@/components/routine/RoutineHeader';
@@ -16,7 +17,7 @@ export default function Index() {
   const date = (searchParams.date as string) || getWeekMonday(new Date());
   const { user } = useAuthStore();
 
-  const { data: routines, isLoading } = useRoutinesQuery(
+  const { data: routines = [], isLoading } = useRoutinesQuery(
     user?.nickname || '',
     date,
   );
@@ -26,15 +27,15 @@ export default function Index() {
     return null;
   }
 
-  if (isLoading) {
-    return null;
-  }
-
   return (
     <Container style={styles.container}>
       <Header />
       <RoutineHeader date={date} />
-      <RoutineList routines={routines} date={date} />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <RoutineList routines={routines} date={date} />
+      )}
     </Container>
   );
 }
