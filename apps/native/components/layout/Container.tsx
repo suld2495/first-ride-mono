@@ -1,6 +1,6 @@
 import { StyleProp, ViewStyle } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet } from 'react-native-unistyles';
 
 import ThemeView from '../common/ThemeView';
 

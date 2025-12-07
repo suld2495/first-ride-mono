@@ -38,7 +38,9 @@ const ThemeOption = ({
           name={icon}
           size={24}
           style={styles.optionIcon}
-          color={isSelected ? styles.selectedIcon.color : styles.optionIcon.color}
+          color={
+            isSelected ? styles.selectedIcon.color : styles.optionIcon.color
+          }
         />
         <Typography
           style={[styles.optionLabel, isSelected && styles.selectedLabel]}
@@ -57,7 +59,11 @@ const ThemeOption = ({
   );
 };
 
-const THEME_OPTIONS: { name: ThemeName; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+const THEME_OPTIONS: {
+  name: ThemeName;
+  label: string;
+  icon: keyof typeof Ionicons.glyphMap;
+}[] = [
   { name: 'light', label: '라이트', icon: 'sunny-outline' },
   { name: 'dark', label: '다크', icon: 'moon-outline' },
 ];

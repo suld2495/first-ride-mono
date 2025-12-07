@@ -5,8 +5,9 @@
  * 스킨마다 UI 밀도(density), radius 스타일, 타이포 스케일을 변경할 수 있도록 한다.
  */
 
-import { baseFoundation } from './foundation.base';
 import type { ThemeContract } from '../themes/theme.contract';
+
+import { baseFoundation } from './foundation.base';
 
 export const createFoundation = (theme: ThemeContract) => {
   // UI 밀도에 따른 spacing 스케일
@@ -23,7 +24,7 @@ export const createFoundation = (theme: ThemeContract) => {
     Object.entries(baseFoundation.spacing).map(([k, v]) => [
       k,
       (v as number) * densityScale,
-    ])
+    ]),
   ) as typeof baseFoundation.spacing;
 
   type RadiiType = {
@@ -64,7 +65,7 @@ export const createFoundation = (theme: ThemeContract) => {
       Object.entries(baseFoundation.typography.size).map(([k, v]) => [
         k,
         (v as number) * typographyScale,
-      ])
+      ]),
     ) as typeof baseFoundation.typography.size,
     // 스킨별 폰트 패밀리
     fontFamily: theme.typography?.fontFamily ?? {
@@ -75,15 +76,8 @@ export const createFoundation = (theme: ThemeContract) => {
   };
 
   // 스킨 불변 토큰들
-  const {
-    shadow,
-    motion,
-    zIndex,
-    breakpoints,
-    opacity,
-    iconSize,
-    responsive,
-  } = baseFoundation;
+  const { shadow, motion, zIndex, breakpoints, opacity, iconSize, responsive } =
+    baseFoundation;
 
   return {
     spacing,

@@ -49,3 +49,9 @@ sessions/tasks
 
 expo-env.d.ts
 # @end expo-cli
+
+.claude/commands/core
+.claude/commands/shared
+.claude/commands/specialists
+.claude/commands/templates
+.claude/workflows
