@@ -22,6 +22,7 @@ interface HttpConfig {
   onUnauthorized?: () => Promise<void> | void;
 }
 
+const UN_AUTHORIZATION_CODE = 403;
 const REDIRECT_DEBOUNCE_MS = 1000;
 let unauthorizedCallback: (() => Promise<void> | void) | null = null;
 let isRedirecting = false;
@@ -49,7 +50,7 @@ axiosInstance.interceptors.response.use(
   },
   async (error: AxiosError) => {
     if (
-      error.response?.status === 401 &&
+      error.response?.status === UN_AUTHORIZATION_CODE &&
       unauthorizedCallback &&
       !isRedirecting
     ) {
