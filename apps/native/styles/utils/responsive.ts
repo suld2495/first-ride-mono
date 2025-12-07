@@ -3,7 +3,7 @@
  * 반응형 값 resolve 유틸리티
  */
 
-import type { ResponsiveValue, BreakpointKey } from '../tokens/responsive';
+import type { BreakpointKey, ResponsiveValue } from '../tokens/responsive';
 
 const breakpointOrder: BreakpointKey[] = ['xs', 'sm', 'md', 'lg', 'xl'];
 
@@ -20,13 +20,14 @@ const breakpointOrder: BreakpointKey[] = ['xs', 'sm', 'md', 'lg', 'xl'];
  */
 export const resolveResponsive = <T>(
   values: ResponsiveValue<T>,
-  currentBreakpoint: BreakpointKey
+  currentBreakpoint: BreakpointKey,
 ): T => {
   const currentIndex = breakpointOrder.indexOf(currentBreakpoint);
 
   // 현재 → xs 방향으로 순회하며 정의된 값 찾기
   for (let i = currentIndex; i >= 0; i--) {
     const key = breakpointOrder[i];
+
     if (values[key] !== undefined) {
       return values[key]!;
     }
@@ -39,7 +40,7 @@ export const resolveResponsive = <T>(
  * 반응형 값인지 체크
  */
 export const isResponsiveValue = <T>(
-  value: T | ResponsiveValue<T>
+  value: T | ResponsiveValue<T>,
 ): value is ResponsiveValue<T> => {
   return typeof value === 'object' && value !== null && 'xs' in value;
 };
