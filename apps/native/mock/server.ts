@@ -7,31 +7,35 @@ export function makeServer() {
       this.urlPrefix = process.env.EXPO_PUBLIC_VITE_BASE_URL || '';
       this.namespace = '/api';
 
-      this.post<AuthResponse>('/auth/login', () => {
+      this.post<{ data: AuthResponse }>('/auth/login', () => {
         return {
-          accessToken: 'accessToken',
-          userInfo: {
-            userId: 'moon',
-            nickname: '용사',
+          data: {
+            accessToken: 'accessToken',
+            userInfo: {
+              userId: 'moon',
+              nickname: '용사',
+            },
           },
         };
       });
 
       this.get('/routine/list', () => {
-        return [
-          {
-            routineId: 2,
-            nickname: 'yunji',
-            routineName: '퇴근 후 공부 루틴',
-            endDate: '2025-10-30',
-            routineDetail: '일주일 3회 이상 퇴근 후 공부하고 인증사진 보내기',
-            penalty: 5000,
-            routineCount: 3,
-            weeklyCount: 4,
-            mateNickname: 'moon',
-            successDate: ['250826', '250827', '250829', '250830'],
-          },
-        ];
+        return {
+          data: [
+            {
+              routineId: 2,
+              nickname: 'yunji',
+              routineName: '퇴근 후 공부 루틴',
+              endDate: '2025-10-30',
+              routineDetail: '일주일 3회 이상 퇴근 후 공부하고 인증사진 보내기',
+              penalty: 5000,
+              routineCount: 3,
+              weeklyCount: 4,
+              mateNickname: 'moon',
+              successDate: ['250826', '250827', '250829', '250830'],
+            },
+          ],
+        };
       });
 
       this.get('/routine/details', () => {
