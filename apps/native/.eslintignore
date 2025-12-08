@@ -1,3 +1,4 @@
 # ESLint ignore patterns
 .eslintrc.js
 app-env.d.ts
+expo-env.d.ts
