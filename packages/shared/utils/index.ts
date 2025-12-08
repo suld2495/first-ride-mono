@@ -4,6 +4,7 @@ export {
   getDaysOfTheWeek,
   getDisplayFormatDate,
   getFormatDate,
+  getThisWeekMonday,
   getToday,
   getWeekMonday,
   getWeekSunday,
