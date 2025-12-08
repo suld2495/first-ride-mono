@@ -9,7 +9,7 @@ import {
   useUpdateRoutineMutation,
 } from '@repo/shared/hooks/useRoutine';
 import { routineFormValidators } from '@repo/shared/service/validatorMessage';
-import { getFormatDate } from '@repo/shared/utils';
+import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
 import { RoutineForm } from '@repo/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -278,6 +278,7 @@ const RoutineFormModal = () => {
                   themeVariant={colorScheme}
                   value={value ? new Date(value) : new Date()}
                   mode="date"
+                  minimumDate={getThisWeekMonday()}
                   onChange={(_, startDate = new Date()) => {
                     setValue('startDate', getFormatDate(startDate));
 
@@ -335,6 +336,7 @@ const RoutineFormModal = () => {
                   themeVariant={colorScheme}
                   value={form.endDate ? new Date(form.endDate) : new Date()}
                   mode="date"
+                  minimumDate={getThisWeekMonday()}
                   onChange={(_, endDate = new Date()) => {
                     setValue('endDate', getFormatDate(endDate));
 

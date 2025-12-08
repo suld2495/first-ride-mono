@@ -24,10 +24,11 @@ export const getDisplayFormatDate = (date: Date) => {
 };
 
 export const getWeekMonday = (date: Date) => {
-  const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  const newDate = new Date(date);
+  const day = newDate.getDay();
+  const diff = newDate.getDate() - day + (day === 0 ? -6 : 1);
 
-  return getFormatDate(new Date(date.setDate(diff)));
+  return getFormatDate(new Date(newDate.setDate(diff)));
 };
 
 export const getWeekSunday = (date: Date) => {
@@ -90,3 +91,7 @@ export const getDaysOfTheWeek = () => [
   '토',
   '일',
 ];
+
+export const getThisWeekMonday = (): Date => {
+  return new Date(getWeekMonday(new Date()));
+};
