@@ -22,7 +22,7 @@ interface HttpConfig {
   onUnauthorized?: () => Promise<void> | void;
 }
 
-const UN_AUTHORIZATION_CODE = 403;
+const UN_AUTHORIZATION_CODE = 401;
 const REDIRECT_DEBOUNCE_MS = 1000;
 let unauthorizedCallback: (() => Promise<void> | void) | null = null;
 let isRedirecting = false;
