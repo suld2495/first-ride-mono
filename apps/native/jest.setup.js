@@ -25,6 +25,130 @@ jest.mock('expo-status-bar', () => ({
   setStatusBarBackgroundColor: jest.fn(),
 }));
 
+// react-native-unistyles 모킹
+const mockTheme = {
+  colors: {
+    background: {
+      base: '#FFFFFF',
+      surface: '#F5F5F5',
+      elevated: '#FFFFFF',
+      sunken: '#F0F0F0',
+      overlay: 'rgba(0,0,0,0.5)',
+    },
+    text: {
+      primary: '#000000',
+      secondary: '#666666',
+      tertiary: '#999999',
+      disabled: '#CCCCCC',
+      inverse: '#FFFFFF',
+      link: '#0000FF',
+    },
+    action: {
+      primary: {
+        default: '#007AFF',
+        pressed: '#005BBF',
+        disabled: '#CCCCCC',
+        label: '#FFFFFF',
+      },
+      secondary: {
+        default: '#F5F5F5',
+        pressed: '#E0E0E0',
+        disabled: '#CCCCCC',
+        label: '#000000',
+      },
+      ghost: {
+        default: 'transparent',
+        pressed: '#F5F5F5',
+        disabled: 'transparent',
+        label: '#000000',
+      },
+    },
+    feedback: {
+      success: { bg: '#E8F5E9', text: '#2E7D32', border: '#66BB6A' },
+      error: { bg: '#FFEBEE', text: '#FF0000', border: '#EF5350' },
+      warning: { bg: '#FFF3E0', text: '#E65100', border: '#FF9800' },
+      info: { bg: '#E3F2FD', text: '#1976D2', border: '#42A5F5' },
+    },
+    border: {
+      default: '#E0E0E0',
+      strong: '#BDBDBD',
+      subtle: '#F5F5F5',
+      focus: '#007AFF',
+      divider: '#E0E0E0',
+    },
+  },
+  foundation: {
+    spacing: {
+      xs: 4,
+      s: 8,
+      m: 16,
+      l: 24,
+      xl: 32,
+    },
+    radii: {
+      xs: 4,
+      s: 8,
+      m: 12,
+      l: 16,
+      xl: 20,
+    },
+    typography: {
+      size: {
+        xs: 10,
+        s: 12,
+        m: 14,
+        l: 16,
+        xl: 20,
+        xxl: 24,
+        title: 32,
+      },
+      weight: {
+        regular: '400',
+        medium: '500',
+        semibold: '600',
+        bold: '700',
+      },
+      lineHeight: {
+        tight: 1.2,
+        normal: 1.5,
+        relaxed: 1.75,
+      },
+    },
+  },
+};
+
+jest.mock('react-native-unistyles', () => ({
+  StyleSheet: {
+    create: (styles) => {
+      const mockStyles = typeof styles === 'function' ? styles(mockTheme) : styles;
+      return {
+        ...mockStyles,
+        useVariants: jest.fn(() => mockStyles),
+      };
+    },
+  },
+  useUnistyles: () => ({
+    theme: mockTheme,
+  }),
+  UnistylesRuntime: {},
+}));
+
+// expo-constants 모킹
+jest.mock('expo-constants', () => ({
+  default: {
+    expoConfig: {
+      extra: {
+        feedback: 'https://example.com/feedback',
+      },
+    },
+  },
+}));
+
+// expo-web-browser 모킹
+jest.mock('expo-web-browser', () => ({
+  openBrowserAsync: jest.fn(),
+}));
+
 // ========================================
 // 공통 Mock 설정 (전역에서 사용 가능)
 // ========================================

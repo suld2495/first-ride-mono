@@ -2,7 +2,7 @@ import { join, login } from '@repo/shared/api';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
-import { setAuthorization } from '@/api';
+import { setAuthorization, setRefreshToken } from '@/api';
 import { useAuthStore } from '@/store/auth.store';
 
 export const useLoginMutation = () => {
@@ -12,7 +12,10 @@ export const useLoginMutation = () => {
     mutationFn: login,
 
     onSuccess: async (response) => {
-      await setAuthorization(response.accessToken);
+      await Promise.all([
+        setAuthorization(response.accessToken),
+        setRefreshToken(response.refreshToken),
+      ]);
       authStore.signIn(response.userInfo);
       return response.accessToken;
     },

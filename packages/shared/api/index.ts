@@ -12,6 +12,16 @@ import {
 
 export const UN_AUTHORIZATION_URL = ['/auth/login', '/auth/join'];
 
+const REQUEST_TIMEOUT_MS = 10_000;
+
+interface TokenManager {
+  getAccessToken: () => Promise<string | null>;
+  getRefreshToken: () => Promise<string | null>;
+  saveTokens: (accessToken: string, refreshToken: string) => Promise<void>;
+  clearTokens: () => Promise<void>;
+  updateUser: (userInfo: unknown) => void;
+}
+
 interface HttpConfig {
   baseURL: string;
   request:
@@ -19,20 +29,29 @@ interface HttpConfig {
     | ((
         config: InternalAxiosRequestConfig,
       ) => Promise<InternalAxiosRequestConfig>);
-  onUnauthorized?: () => Promise<void> | void;
+  onUnauthorized?: () => Promise<void>;
+  tokenManager?: TokenManager;
+}
+
+// _retry 속성을 포함한 커스텀 요청 타입
+interface RetryableAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
 }
 
 const UN_AUTHORIZATION_CODE = 401;
 const REDIRECT_DEBOUNCE_MS = 1000;
-let unauthorizedCallback: (() => Promise<void> | void) | null = null;
+let unauthorizedCallback: (() => Promise<void>) | null = null;
+let tokenManager: TokenManager | null = null;
 let isRedirecting = false;
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string) => void> = [];
 
 const axiosInstance = axios.create({
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
   },
-  timeout: 10_000,
+  timeout: REQUEST_TIMEOUT_MS,
 });
 
 export const createHttp = (config: HttpConfig) => {
@@ -42,6 +61,30 @@ export const createHttp = (config: HttpConfig) => {
   if (config.onUnauthorized) {
     unauthorizedCallback = config.onUnauthorized;
   }
+
+  if (config.tokenManager) {
+    tokenManager = config.tokenManager;
+  }
+};
+
+const onRefreshed = (newAccessToken: string) => {
+  refreshSubscribers.forEach((callback) => callback(newAccessToken));
+  refreshSubscribers = [];
+};
+
+const addRefreshSubscriber = (callback: (token: string) => void) => {
+  refreshSubscribers.push(callback);
+};
+
+// 401 에러 발생 시 로그아웃 처리 헬퍼 함수
+const handleUnauthorized = async () => {
+  if (unauthorizedCallback && !isRedirecting) {
+    isRedirecting = true;
+    await unauthorizedCallback();
+    setTimeout(() => {
+      isRedirecting = false;
+    }, REDIRECT_DEBOUNCE_MS);
+  }
 };
 
 axiosInstance.interceptors.response.use(
@@ -49,17 +92,81 @@ axiosInstance.interceptors.response.use(
     return response.data.data;
   },
   async (error: AxiosError) => {
-    if (
-      error.response?.status === UN_AUTHORIZATION_CODE &&
-      unauthorizedCallback &&
-      !isRedirecting
-    ) {
-      isRedirecting = true;
-      unauthorizedCallback();
-      setTimeout(() => {
-        isRedirecting = false;
-      }, REDIRECT_DEBOUNCE_MS);
+    const originalRequest = error.config as RetryableAxiosRequestConfig;
+
+    if (error.response?.status === UN_AUTHORIZATION_CODE && originalRequest) {
+      // refresh 요청 자체는 제외
+      if (originalRequest.url?.includes('/auth/refresh')) {
+        await handleUnauthorized();
+        throw error;
+      }
+
+      // tokenManager가 없으면 기존 로직 사용
+      if (!tokenManager) {
+        await handleUnauthorized();
+        throw error;
+      }
+
+      // 이미 재시도한 요청이면 로그아웃 처리
+      if (originalRequest._retry) {
+        await handleUnauthorized();
+        throw error;
+      }
+
+      if (isRefreshing) {
+        // 이미 갱신 중이면 대기
+        return new Promise((resolve) => {
+          addRefreshSubscriber((newAccessToken: string) => {
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            resolve(axiosInstance(originalRequest));
+          });
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const storedRefreshToken = await tokenManager.getRefreshToken();
+
+        if (!storedRefreshToken) {
+          // refreshToken이 없으면 로그아웃 처리
+          await tokenManager.clearTokens();
+          if (unauthorizedCallback) {
+            await unauthorizedCallback();
+          }
+          throw error;
+        }
+
+        // refreshToken API 호출
+        const { refreshToken: refreshTokenFn } = await import('./auth.api');
+        const response = await refreshTokenFn({
+          refreshToken: storedRefreshToken,
+        });
+
+        // 새 토큰 저장
+        await tokenManager.saveTokens(
+          response.accessToken,
+          response.refreshToken,
+        );
+        tokenManager.updateUser(response.userInfo);
+
+        // 대기 중인 요청들에 새 토큰 전달
+        onRefreshed(response.accessToken);
+
+        // 원래 요청 재시도
+        originalRequest.headers.Authorization = `Bearer ${response.accessToken}`;
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        // 토큰 갱신 실패 -> 로그아웃 처리
+        await tokenManager.clearTokens();
+        await handleUnauthorized();
+        throw refreshError;
+      } finally {
+        isRefreshing = false;
+      }
     }
+
     throw error;
   },
 );
@@ -113,7 +220,7 @@ export const isRetryable = (error: AppError) =>
 export default axiosInstance;
 
 export * from './AppError';
-export { join, login } from './auth.api';
+export { join, login, logout, refreshToken } from './auth.api';
 export {
   createRequest,
   fetchReceivedRequests,

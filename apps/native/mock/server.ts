@@ -11,6 +11,7 @@ export function makeServer() {
         return {
           data: {
             accessToken: 'accessToken',
+            refreshToken: 'refreshToken',
             userInfo: {
               userId: 'moon',
               nickname: '용사',

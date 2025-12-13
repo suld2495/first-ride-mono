@@ -8,9 +8,10 @@ import { render } from '../setup/test-utils';
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
 
-// setAuthorization mock
+// setAuthorization, setRefreshToken mock
 jest.mock('@/api', () => ({
   setAuthorization: jest.fn(),
+  setRefreshToken: jest.fn(),
 }));
 
 // useNotifications mock
@@ -134,6 +135,7 @@ describe('SignIn 페이지', () => {
         mockAxios.onPost('/auth/login').reply(200, {
           data: {
             accessToken: 'mock-access-token',
+            refreshToken: 'mock-refresh-token',
             userInfo: {
               userId: 'testuser',
               nickname: 'testnick',
