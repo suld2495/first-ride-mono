@@ -85,6 +85,7 @@ const RoutineWrapper = ({
       }}
       keyExtractor={(item) => item.routineId.toString()}
       contentContainerStyle={styles.list}
+      scrollEnabled={false}
     />
   );
 };
