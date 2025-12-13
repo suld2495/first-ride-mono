@@ -17,6 +17,7 @@ export const useFetchFriendsQuery = (
   return useQuery({
     queryKey: friendKey.list(option),
     queryFn: () => fetchFriends(option),
+    refetchOnMount: 'always',
   });
 };
 
