@@ -7,21 +7,20 @@ export type AuthForm = Pick<Auth, 'userId' | 'password'> & {
 
 export type JoinForm = Pick<Auth, 'userId' | 'nickname' | 'password' | 'job'>;
 
-export type AuthResponse = {
+// 토큰 응답 공통 타입
+export type TokenResponse = {
   userInfo: User;
   accessToken: string;
   refreshToken: string;
 };
+
+export type AuthResponse = TokenResponse;
 
 export type RefreshTokenRequest = {
   refreshToken: string;
 };
 
-export type RefreshTokenResponse = {
-  userInfo: User;
-  accessToken: string;
-  refreshToken: string;
-};
+export type RefreshTokenResponse = TokenResponse;
 
 export type LogoutResponse = {
   message: string;

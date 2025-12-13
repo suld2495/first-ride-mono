@@ -16,7 +16,7 @@ const REQUEST_TIMEOUT_MS = 10_000;
 
 // 순환 참조 방지를 위한 별도 axios 인스턴스 (인터셉터 없이)
 const refreshAxios = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_BASE_URL,
+  baseURL: `${process.env.EXPO_PUBLIC_VITE_BASE_URL || ''}/api`,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',

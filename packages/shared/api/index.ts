@@ -33,6 +33,11 @@ interface HttpConfig {
   tokenManager?: TokenManager;
 }
 
+// _retry 속성을 포함한 커스텀 요청 타입
+interface RetryableAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
 const UN_AUTHORIZATION_CODE = 401;
 const REDIRECT_DEBOUNCE_MS = 1000;
 let unauthorizedCallback: (() => Promise<void>) | null = null;
@@ -71,47 +76,40 @@ const addRefreshSubscriber = (callback: (token: string) => void) => {
   refreshSubscribers.push(callback);
 };
 
+// 401 에러 발생 시 로그아웃 처리 헬퍼 함수
+const handleUnauthorized = async () => {
+  if (unauthorizedCallback && !isRedirecting) {
+    isRedirecting = true;
+    await unauthorizedCallback();
+    setTimeout(() => {
+      isRedirecting = false;
+    }, REDIRECT_DEBOUNCE_MS);
+  }
+};
+
 axiosInstance.interceptors.response.use(
   (response) => {
     return response.data.data;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as RetryableAxiosRequestConfig;
 
     if (error.response?.status === UN_AUTHORIZATION_CODE && originalRequest) {
       // refresh 요청 자체는 제외
       if (originalRequest.url?.includes('/auth/refresh')) {
-        if (unauthorizedCallback && !isRedirecting) {
-          isRedirecting = true;
-          await unauthorizedCallback();
-          setTimeout(() => {
-            isRedirecting = false;
-          }, REDIRECT_DEBOUNCE_MS);
-        }
+        await handleUnauthorized();
         throw error;
       }
 
       // tokenManager가 없으면 기존 로직 사용
       if (!tokenManager) {
-        if (unauthorizedCallback && !isRedirecting) {
-          isRedirecting = true;
-          await unauthorizedCallback();
-          setTimeout(() => {
-            isRedirecting = false;
-          }, REDIRECT_DEBOUNCE_MS);
-        }
+        await handleUnauthorized();
         throw error;
       }
 
       // 이미 재시도한 요청이면 로그아웃 처리
-      if ((originalRequest as any)._retry) {
-        if (unauthorizedCallback && !isRedirecting) {
-          isRedirecting = true;
-          await unauthorizedCallback();
-          setTimeout(() => {
-            isRedirecting = false;
-          }, REDIRECT_DEBOUNCE_MS);
-        }
+      if (originalRequest._retry) {
+        await handleUnauthorized();
         throw error;
       }
 
@@ -125,7 +123,7 @@ axiosInstance.interceptors.response.use(
         });
       }
 
-      (originalRequest as any)._retry = true;
+      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
@@ -162,13 +160,7 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         // 토큰 갱신 실패 -> 로그아웃 처리
         await tokenManager.clearTokens();
-        if (unauthorizedCallback && !isRedirecting) {
-          isRedirecting = true;
-          await unauthorizedCallback();
-          setTimeout(() => {
-            isRedirecting = false;
-          }, REDIRECT_DEBOUNCE_MS);
-        }
+        await handleUnauthorized();
         throw refreshError;
       } finally {
         isRefreshing = false;
