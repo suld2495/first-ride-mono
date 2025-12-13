@@ -39,7 +39,7 @@ const MyInfo = () => {
             await deletePushToken(pushToken.data);
           }
 
-          signOut();
+          await signOut();
           router.replace('/');
         },
       },
