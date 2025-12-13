@@ -1,8 +1,8 @@
-import React from 'react';
+import { act } from '@testing-library/react-native';
 import { Text, View } from 'react-native';
 
 import { PullToRefresh } from '../../../components/common/PullToRefresh';
-import { fireEvent, render } from '../../setup/test-utils';
+import { render } from '../../setup/test-utils';
 
 describe('PullToRefresh', () => {
   describe('렌더링', () => {
@@ -40,127 +40,65 @@ describe('PullToRefresh', () => {
   });
 
   describe('RefreshControl', () => {
-    it('refreshing=true일 때 RefreshControl이 활성화 상태다', () => {
-      const mockRefresh = jest.fn();
+    it('초기 상태에서 RefreshControl이 비활성화 상태다', () => {
+      const mockRefresh = jest.fn().mockResolvedValue(undefined);
 
-      const { UNSAFE_getByType } = render(
-        <PullToRefresh onRefresh={mockRefresh} refreshing={true}>
-          <Text>Test Content</Text>
-        </PullToRefresh>,
-      );
-
-      // ScrollView가 렌더링되었는지 확인
-      const scrollView = UNSAFE_getByType(
-        require('react-native').ScrollView,
-      );
-      expect(scrollView).toBeTruthy();
-
-      // refreshControl prop이 설정되어 있는지 확인
-      expect(scrollView.props.refreshControl).toBeTruthy();
-      expect(scrollView.props.refreshControl.props.refreshing).toBe(true);
-    });
-
-    it('refreshing=false일 때 RefreshControl이 비활성화 상태다', () => {
-      const mockRefresh = jest.fn();
-
-      const { UNSAFE_getByType } = render(
-        <PullToRefresh onRefresh={mockRefresh} refreshing={false}>
-          <Text>Test Content</Text>
-        </PullToRefresh>,
-      );
-
-      const scrollView = UNSAFE_getByType(
-        require('react-native').ScrollView,
-      );
-      expect(scrollView.props.refreshControl.props.refreshing).toBe(false);
-    });
-
-    it('refreshing prop이 없으면 기본값 false로 동작한다', () => {
-      const mockRefresh = jest.fn();
-
-      const { UNSAFE_getByType } = render(
+      const { getByTestId } = render(
         <PullToRefresh onRefresh={mockRefresh}>
           <Text>Test Content</Text>
         </PullToRefresh>,
       );
 
-      const scrollView = UNSAFE_getByType(
-        require('react-native').ScrollView,
-      );
+      const scrollView = getByTestId('pull-to-refresh-scroll-view');
+      expect(scrollView.props.refreshControl).toBeTruthy();
       expect(scrollView.props.refreshControl.props.refreshing).toBe(false);
     });
 
     it('onRefresh가 없으면 RefreshControl이 렌더링되지 않는다', () => {
-      const { UNSAFE_getByType } = render(
+      const { getByTestId } = render(
         <PullToRefresh>
           <Text>Test Content</Text>
         </PullToRefresh>,
       );
 
-      const scrollView = UNSAFE_getByType(
-        require('react-native').ScrollView,
-      );
+      const scrollView = getByTestId('pull-to-refresh-scroll-view');
       expect(scrollView.props.refreshControl).toBeUndefined();
     });
   });
 
   describe('onRefresh 호출', () => {
-    it('Pull 동작 시 onRefresh가 호출된다', () => {
-      const mockRefresh = jest.fn();
+    it('onRefresh prop이 RefreshControl에 전달되어 호출된다', () => {
+      const mockRefresh = jest.fn().mockResolvedValue(undefined);
 
-      const { UNSAFE_getByType } = render(
-        <PullToRefresh onRefresh={mockRefresh} refreshing={false}>
+      const { getByTestId } = render(
+        <PullToRefresh onRefresh={mockRefresh}>
           <Text>Test Content</Text>
         </PullToRefresh>,
       );
 
-      const scrollView = UNSAFE_getByType(
-        require('react-native').ScrollView,
-      );
+      const scrollView = getByTestId('pull-to-refresh-scroll-view');
 
-      // RefreshControl의 onRefresh 직접 호출
-      scrollView.props.refreshControl.props.onRefresh();
+      act(() => {
+        scrollView.props.refreshControl.props.onRefresh();
+      });
 
       expect(mockRefresh).toHaveBeenCalledTimes(1);
     });
 
-    it('onRefresh는 동기 함수도 처리할 수 있다', () => {
-      let callCount = 0;
-      const mockRefresh = () => {
-        callCount++;
-      };
-
-      const { UNSAFE_getByType } = render(
-        <PullToRefresh onRefresh={mockRefresh} refreshing={false}>
-          <Text>Test Content</Text>
-        </PullToRefresh>,
-      );
-
-      const scrollView = UNSAFE_getByType(
-        require('react-native').ScrollView,
-      );
-
-      // RefreshControl의 onRefresh 직접 호출
-      scrollView.props.refreshControl.props.onRefresh();
-
-      expect(callCount).toBe(1);
-    });
-
-    it('onRefresh는 비동기 함수도 처리할 수 있다', async () => {
+    it('onRefresh는 비동기 함수를 처리할 수 있다', async () => {
       const mockRefresh = jest.fn().mockResolvedValue(undefined);
 
-      const { UNSAFE_getByType } = render(
-        <PullToRefresh onRefresh={mockRefresh} refreshing={false}>
+      const { getByTestId } = render(
+        <PullToRefresh onRefresh={mockRefresh}>
           <Text>Test Content</Text>
         </PullToRefresh>,
       );
 
-      const scrollView = UNSAFE_getByType(
-        require('react-native').ScrollView,
-      );
+      const scrollView = getByTestId('pull-to-refresh-scroll-view');
 
-      // RefreshControl의 onRefresh 직접 호출
-      scrollView.props.refreshControl.props.onRefresh();
+      await act(async () => {
+        scrollView.props.refreshControl.props.onRefresh();
+      });
 
       expect(mockRefresh).toHaveBeenCalledTimes(1);
       await expect(mockRefresh.mock.results[0].value).resolves.toBeUndefined();
@@ -169,28 +107,24 @@ describe('PullToRefresh', () => {
 
   describe('ScrollView 속성', () => {
     it('contentContainerStyle이 flexGrow: 1로 설정된다', () => {
-      const { UNSAFE_getByType } = render(
+      const { getByTestId } = render(
         <PullToRefresh>
           <Text>Test Content</Text>
         </PullToRefresh>,
       );
 
-      const scrollView = UNSAFE_getByType(
-        require('react-native').ScrollView,
-      );
+      const scrollView = getByTestId('pull-to-refresh-scroll-view');
       expect(scrollView.props.contentContainerStyle).toEqual({ flexGrow: 1 });
     });
 
     it('showsVerticalScrollIndicator가 false로 설정된다', () => {
-      const { UNSAFE_getByType } = render(
+      const { getByTestId } = render(
         <PullToRefresh>
           <Text>Test Content</Text>
         </PullToRefresh>,
       );
 
-      const scrollView = UNSAFE_getByType(
-        require('react-native').ScrollView,
-      );
+      const scrollView = getByTestId('pull-to-refresh-scroll-view');
       expect(scrollView.props.showsVerticalScrollIndicator).toBe(false);
     });
   });

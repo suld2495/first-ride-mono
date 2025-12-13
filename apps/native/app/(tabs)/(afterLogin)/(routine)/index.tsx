@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { StyleSheet } from 'react-native-unistyles';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
@@ -34,6 +34,10 @@ export default function Index() {
 
   const showLoading = isLoading && isFirstLoadRef.current;
 
+  const handleRefresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
+
   if (!user) {
     router.push('/sign-in');
     return null;
@@ -42,7 +46,7 @@ export default function Index() {
   return (
     <Container style={styles.container}>
       <Header />
-      <PullToRefresh onRefresh={refetch}>
+      <PullToRefresh onRefresh={handleRefresh}>
         <RoutineHeader date={date} />
         {showLoading ? (
           <Loading />
