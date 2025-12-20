@@ -389,12 +389,16 @@ export function getDeepLinkPath(
 }
 
 /**
- * 알림 응답에서 딥링크 데이터 추출
+ * 알림에서 딥링크 데이터 추출
  */
 export function extractDeepLinkData(
-  response: Notifications.NotificationResponse,
+  notification: Notifications.Notification,
 ): NotificationDeepLinkData | undefined {
-  return response.notification.request.content.data as
-    | NotificationDeepLinkData
-    | undefined;
+  const data: unknown = notification.request.content.data;
+
+  if (data && typeof data === 'object') {
+    return data as NotificationDeepLinkData;
+  }
+
+  return undefined;
 }

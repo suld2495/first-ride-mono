@@ -77,9 +77,7 @@ export default function RootLayout() {
         return;
       }
 
-      const data = extractDeepLinkData(
-        response as Parameters<typeof extractDeepLinkData>[0],
-      );
+      const data = extractDeepLinkData(response.notification);
       const path = getDeepLinkPath(data);
 
       // 해당 화면으로 이동
