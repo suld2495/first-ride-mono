@@ -53,6 +53,27 @@ apps/
 - **Alert**: 사용자의 명시적 확인이 필요한 경우에만 사용
 - **Toast**: 작업 결과 피드백, 상태 알림 등 정보성 메시지에 사용
 
+## 푸시 알림 데이터 구조
+
+서버에서 푸시 알림 전송 시 사용하는 데이터 구조:
+
+| 필드 | 설명 |
+|------|------|
+| `title` | 알림 제목 |
+| `body` | 알림 본문 |
+| `data.screen` | 클릭 시 이동할 화면 경로 (예: `/(tabs)/(afterLogin)/(routine)`) |
+| `data.category` | 알림 카테고리 (`routine`) - screen 미지정 시 기본 화면으로 매핑 |
+
+**사용 가능한 화면 경로**: `constants/notifications.ts`의 `DEEP_LINK_SCREENS` 참조
+
+```json
+{
+  "title": "인증 요청",
+  "body": "아침 운동 루틴을 인증해주세요",
+  "data": { "screen": "/(tabs)/(afterLogin)/(routine)", "routineId": 42 }
+}
+```
+
 ## 테스트 작성 규칙
 
 ### React Native Testing Library 테스트 패턴

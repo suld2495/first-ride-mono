@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
-import { Stack } from 'expo-router';
+import { Href, Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { updatePushToken } from '@/api/push-token.api';
@@ -20,6 +20,8 @@ import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
 import { useAuthStore } from '@/store/auth.store';
 import { useColorSchemeStore } from '@/store/colorScheme.store';
 import { NAV_THEME } from '@/theme';
+import type { NotificationHandlers } from '@/types/notification.types';
+import { extractDeepLinkData, getDeepLinkPath } from '@/utils/notifications';
 
 // Unistyles initialization - must be imported before any component using styles
 import '@/styles/unistyles';
@@ -55,11 +57,43 @@ const StackLayout = () => {
 
 export default function RootLayout() {
   useInitialAndroidBarSync();
+  const router = useRouter();
   const { user } = useAuthStore();
-  const { pushToken, isInitialized } = useNotifications();
   const syncWithUnistyles = useColorSchemeStore(
     (state) => state.syncWithUnistyles,
   );
+
+  /**
+   * 알림 탭 시 딥링크 처리
+   */
+  const handleNotificationResponse = useCallback(
+    (
+      response: Parameters<
+        NonNullable<NotificationHandlers['onResponseReceived']>
+      >[0],
+    ) => {
+      // 로그인된 상태에서만 딥링크 처리
+      if (!user) {
+        return;
+      }
+
+      const data = extractDeepLinkData(response.notification);
+      const path = getDeepLinkPath(data);
+
+      // 해당 화면으로 이동
+      router.push(path as Href);
+    },
+    [user, router],
+  );
+
+  const notificationHandlers: NotificationHandlers = useMemo(
+    () => ({
+      onResponseReceived: handleNotificationResponse,
+    }),
+    [handleNotificationResponse],
+  );
+
+  const { pushToken, isInitialized } = useNotifications(notificationHandlers);
 
   // 앱 시작 시 저장된 테마를 Unistyles에 동기화
   useEffect(() => {
@@ -74,7 +108,6 @@ export default function RootLayout() {
   // 푸시 토큰 변경 감지 및 자동 업데이트
   useEffect(() => {
     if (isInitialized && pushToken && user?.userId) {
-      // 토큰이 변경되면 서버에 업데이트
       updatePushToken(
         user.userId,
         pushToken.data,
