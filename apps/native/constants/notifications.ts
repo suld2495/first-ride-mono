@@ -85,3 +85,26 @@ export const NOTIFICATION_DATA_KEYS = {
   SCREEN: 'screen',
   ACTION: 'action',
 } as const;
+
+/**
+ * 딥링크 가능한 화면 목록
+ */
+export const DEEP_LINK_SCREENS = {
+  ROUTINE: '/(tabs)/(afterLogin)/(routine)',
+  FRIEND: '/(tabs)/(afterLogin)/(friend)',
+  QUEST: '/(tabs)/(afterLogin)/(quest)',
+  MY_INFO: '/(tabs)/(afterLogin)/my-info',
+} as const;
+
+export type DeepLinkScreen =
+  (typeof DEEP_LINK_SCREENS)[keyof typeof DEEP_LINK_SCREENS];
+
+/**
+ * 알림 타입별 기본 딥링크 화면 매핑
+ */
+export const NOTIFICATION_TYPE_TO_SCREEN: Record<
+  NotificationCategory,
+  DeepLinkScreen
+> = {
+  routine: DEEP_LINK_SCREENS.ROUTINE,
+};

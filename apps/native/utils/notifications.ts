@@ -4,12 +4,15 @@ import * as Notifications from 'expo-notifications';
 
 import {
   CATEGORY_TO_CHANNEL,
+  DEEP_LINK_SCREENS,
   DEFAULT_NOTIFICATION_CONFIG,
   NOTIFICATION_CHANNELS,
+  NOTIFICATION_TYPE_TO_SCREEN,
   PRIORITY_MAPPING,
 } from '@/constants/notifications';
 import type {
   NotificationContent,
+  NotificationDeepLinkData,
   NotificationOptions,
   NotificationPermissionStatus,
   NotificationTrigger,
@@ -211,7 +214,7 @@ export async function presentNotification(
         body: content.body,
         data: content.data || {},
         sound: content.sound ?? true,
-        badge: content.badge,
+        ...(content.badge !== undefined && { badge: content.badge }),
       },
       trigger: null, // 즉시 표시
     });
@@ -357,4 +360,41 @@ export async function getBadgeCount(): Promise<number> {
   } catch {
     return 0;
   }
+}
+
+/**
+ * 알림 데이터에서 딥링크 경로 추출
+ *
+ * 우선순위:
+ * 1. data.screen이 직접 지정된 경우
+ * 2. data.category로 기본 화면 매핑
+ * 3. 기본값 (루틴 화면)
+ */
+export function getDeepLinkPath(
+  data: NotificationDeepLinkData | undefined,
+): string {
+  if (!data) {
+    return DEEP_LINK_SCREENS.ROUTINE;
+  }
+
+  if (data.screen && typeof data.screen === 'string') {
+    return data.screen;
+  }
+
+  if (data.category && data.category in NOTIFICATION_TYPE_TO_SCREEN) {
+    return NOTIFICATION_TYPE_TO_SCREEN[data.category];
+  }
+
+  return DEEP_LINK_SCREENS.ROUTINE;
+}
+
+/**
+ * 알림 응답에서 딥링크 데이터 추출
+ */
+export function extractDeepLinkData(
+  response: Notifications.NotificationResponse,
+): NotificationDeepLinkData | undefined {
+  return response.notification.request.content.data as
+    | NotificationDeepLinkData
+    | undefined;
 }

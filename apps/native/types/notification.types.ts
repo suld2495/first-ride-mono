@@ -94,3 +94,20 @@ export interface NotificationHandlers {
   onReceived?: (notification: Notifications.Notification) => void;
   onResponseReceived?: (response: NotificationResponse) => void;
 }
+
+/**
+ * 알림 딥링크 데이터
+ * 서버에서 푸시 알림에 포함하여 전송하는 데이터 구조
+ */
+export interface NotificationDeepLinkData {
+  /** 이동할 화면 경로 */
+  screen?: string;
+  /** 알림 카테고리 */
+  category?: 'routine';
+  /** 관련 루틴 ID */
+  routineId?: number;
+  /** 추가 액션 */
+  action?: string;
+  /** 기타 데이터 */
+  [key: string]: unknown;
+}
