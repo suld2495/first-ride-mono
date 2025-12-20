@@ -32,7 +32,14 @@
           "experimentalLauncherActivity": true
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "color": "#7edcd5",
+          "defaultChannel": "routine-channel"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
@@ -53,7 +60,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.mannal.firstride",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSUserNotificationsUsageDescription": "알림을 통해 메이트의 루틴 인증 요청을 받을 수 있습니다."
       },
       "config": {
         "usesNonExemptEncryption": false
