@@ -61,6 +61,7 @@ export default function TabLayout() {
   return (
     <>
       <Tabs
+        initialRouteName="(afterLogin)/(routine)/index"
         screenOptions={{
           headerShown: false,
           tabBarButton: (props) => <AnimatedTabBarButton {...props} />,

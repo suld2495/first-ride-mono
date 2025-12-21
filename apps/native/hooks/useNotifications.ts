@@ -59,7 +59,12 @@ export function useNotifications(handlers?: NotificationHandlers) {
     const initialize = async () => {
       try {
         // 권한 확인
-        const status = await checkPermissions();
+        let status = await checkPermissions();
+
+        // 권한이 없으면 요청
+        if (status !== 'granted') {
+          status = await requestPermissions();
+        }
 
         setPermissionStatus(status);
 
