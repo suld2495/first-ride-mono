@@ -64,6 +64,8 @@ export const logout = async (): Promise<LogoutResponse> => {
 
     return response;
   } catch (error) {
+    // 로그아웃 API 실패 시에도 로컬 로그아웃은 진행
+    console.warn('Logout API failed, but proceeding with local logout:', error);
     return { message: 'Logged out locally' };
   }
 };
