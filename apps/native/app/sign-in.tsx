@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Platform } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 
 import AuthForm from '@/components/auth/AuthForm';
+import { KakaoLoginButton } from '@/components/auth/KakaoLoginButton';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import Link from '@/components/common/Link';
@@ -12,6 +13,7 @@ import PasswordInput from '@/components/common/PasswordInput';
 import ThemeView from '@/components/common/ThemeView';
 import { useLoginMutation } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 const initial = () => ({
@@ -26,6 +28,19 @@ export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { pushToken } = useNotifications();
+  const { login: socialLogin, isLoading: isSocialLoading } = useSocialAuth();
+
+  const handleKakaoLogin = async () => {
+    try {
+      await socialLogin('kakao');
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(
+        error,
+        '카카오 로그인에 실패했습니다. 다시 시도해주세요.',
+      );
+      setFieldErrors({ password: errorMessage });
+    }
+  };
 
   const handleLogin = async () => {
     setFieldErrors({});
@@ -121,12 +136,25 @@ export default function SignIn() {
           style={styles.link}
           onPress={() => setForm(initial())}
         />
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>또는</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <KakaoLoginButton
+          onPress={handleKakaoLogin}
+          loading={isSocialLoading}
+          disabled={isLoading}
+          style={styles.kakaoButton}
+        />
       </AuthForm>
     </ThemeView>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     gap: 10,
@@ -141,4 +169,27 @@ const styles = StyleSheet.create({
   link: {
     alignItems: 'flex-end',
   },
-});
+
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 250,
+    marginVertical: 16,
+  },
+
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.colors.border.default,
+  },
+
+  dividerText: {
+    marginHorizontal: 12,
+    fontSize: 14,
+    color: theme.colors.text.tertiary,
+  },
+
+  kakaoButton: {
+    width: 250,
+  },
+}));

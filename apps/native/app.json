@@ -39,6 +39,13 @@
           "color": "#7edcd5",
           "defaultChannel": "routine-channel"
         }
+      ],
+      [
+        "@react-native-seoul/kakao-login",
+        {
+          "kakaoAppKey": "YOUR_KAKAO_NATIVE_APP_KEY",
+          "overrideKakaoSDKVersion": "2.20.0"
+        }
       ]
     ],
     "experiments": {
@@ -61,7 +68,13 @@
       "bundleIdentifier": "com.mannal.firstride",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSUserNotificationsUsageDescription": "알림을 통해 메이트의 루틴 인증 요청을 받을 수 있습니다."
+        "NSUserNotificationsUsageDescription": "알림을 통해 메이트의 루틴 인증 요청을 받을 수 있습니다.",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["kakaoYOUR_KAKAO_NATIVE_APP_KEY"]
+          }
+        ],
+        "LSApplicationQueriesSchemes": ["kakaokompassauth", "kakaolink"]
       },
       "config": {
         "usesNonExemptEncryption": false
