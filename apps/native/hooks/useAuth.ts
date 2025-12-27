@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Platform } from 'react-native';
 import { join } from '@repo/shared/api';
 import { completeProfile } from '@repo/shared/api/social-auth.api';
 import { useMutation } from '@tanstack/react-query';
@@ -8,6 +7,7 @@ import { useRouter } from 'expo-router';
 
 import { setAuthorization, setRefreshToken } from '@/api';
 import {
+  getDeviceType,
   type AuthProviderType,
   type CredentialsParams,
   type SocialProviderType,
@@ -44,7 +44,7 @@ export function useAuth(): UseAuthReturn {
     try {
       const deviceInfo = {
         pushToken: pushToken?.data,
-        deviceType: Platform.OS as 'ios' | 'android',
+        deviceType: getDeviceType(),
       };
 
       const result = await authManager.login(providerType, deviceInfo, params);

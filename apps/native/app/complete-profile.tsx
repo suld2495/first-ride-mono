@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Platform } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -11,6 +10,11 @@ import ThemeView from '@/components/common/ThemeView';
 import { Typography } from '@/components/common/Typography';
 import { useCompleteProfileMutation } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
+import {
+  AUTH_PROVIDER_NAMES,
+  getDeviceType,
+  SocialProviderType,
+} from '@/providers/auth';
 import { useAuthStore } from '@/store/auth.store';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
@@ -37,16 +41,8 @@ export default function CompleteProfile() {
   const completeProfileMutation = useCompleteProfileMutation();
 
   const getProviderName = () => {
-    switch (provider) {
-      case 'kakao':
-        return '카카오';
-      case 'apple':
-        return 'Apple';
-      case 'google':
-        return 'Google';
-      default:
-        return 'SNS';
-    }
+    if (!provider) return 'SNS';
+    return AUTH_PROVIDER_NAMES[provider as SocialProviderType] || 'SNS';
   };
 
   const handleSubmit = async () => {
@@ -78,7 +74,7 @@ export default function CompleteProfile() {
         nickname: form.nickname,
         job: form.job,
         pushToken: pushToken?.data,
-        deviceType: Platform.OS as 'ios' | 'android',
+        deviceType: getDeviceType(),
       });
 
       // 로그인 완료 처리

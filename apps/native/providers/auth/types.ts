@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { User } from '@repo/types';
 
 // Provider 타입
@@ -8,6 +9,14 @@ export type AuthProviderType =
   | 'google'
   | 'naver';
 export type SocialProviderType = Exclude<AuthProviderType, 'credentials'>;
+
+export const AUTH_PROVIDER_NAMES: Record<AuthProviderType, string> = {
+  credentials: '아이디/비밀번호',
+  kakao: '카카오',
+  apple: 'Apple',
+  google: 'Google',
+  naver: '네이버',
+};
 
 // 인증 Payload
 export interface CredentialsPayload {
@@ -29,6 +38,10 @@ export type AuthPayload = CredentialsPayload | SocialPayload;
 export interface DeviceInfo {
   pushToken?: string;
   deviceType: 'ios' | 'android';
+}
+
+export function getDeviceType(): DeviceInfo['deviceType'] {
+  return Platform.OS === 'ios' ? 'ios' : 'android';
 }
 
 // 인증 응답 (공통)

@@ -11,21 +11,18 @@ import Link from '@/components/common/Link';
 import PasswordInput from '@/components/common/PasswordInput';
 import ThemeView from '@/components/common/ThemeView';
 import { useAuth } from '@/hooks/useAuth';
-import { AuthProviderType, CredentialsParams, SocialProviderType } from '@/providers/auth';
+import {
+  AUTH_PROVIDER_NAMES,
+  AuthProviderType,
+  CredentialsParams,
+  SocialProviderType,
+} from '@/providers/auth';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 const initial = () => ({
   userId: '',
   password: '',
 });
-
-const PROVIDER_NAMES: Record<AuthProviderType, string> = {
-  credentials: '아이디/비밀번호',
-  kakao: '카카오',
-  apple: 'Apple',
-  google: 'Google',
-  naver: '네이버',
-};
 
 // 필드 에러를 전달하기 위한 커스텀 에러
 class FieldError extends Error {
@@ -57,7 +54,7 @@ export default function SignIn() {
       }
 
       // 일반 에러는 여기서 처리
-      const providerName = PROVIDER_NAMES[providerType];
+      const providerName = AUTH_PROVIDER_NAMES[providerType];
       const errorMessage = getApiErrorMessage(
         error,
         `${providerName} 로그인에 실패했습니다. 다시 시도해주세요.`,
