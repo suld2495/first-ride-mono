@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, type ViewProps, type ViewStyle } from 'react-native';
+import { Text, View, type ViewProps, type ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { type UnistylesVariants } from '@/styles/unistyles';
@@ -41,33 +41,20 @@ export interface DividerProps extends Omit<ViewProps, 'style'> {
    * @default 0
    */
   spacing?: number;
+
+  /**
+   * Text to display in the center of the divider
+   * Only works with horizontal orientation
+   */
+  text?: string;
 }
 
-/**
- * Divider component using semantic border tokens.
- *
- * @example
- * // Horizontal divider (default)
- * <Divider />
- *
- * @example
- * // Vertical divider
- * <Divider orientation="vertical" />
- *
- * @example
- * // Different variants
- * <Divider variant="subtle" />
- * <Divider variant="emphasis" />
- *
- * @example
- * // With spacing
- * <Divider spacing={16} />
- */
 export const Divider: React.FC<DividerProps> = ({
   variant = 'default',
   orientation = 'horizontal',
   thickness = 1,
   spacing = 0,
+  text,
   ...props
 }) => {
   styles.useVariants({
@@ -75,18 +62,37 @@ export const Divider: React.FC<DividerProps> = ({
   } as UnistylesVariants<typeof styles>);
 
   // 동적 스타일 (thickness와 spacing은 props로 받음)
-  const dynamicStyle: ViewStyle =
+  const lineStyle: ViewStyle =
     orientation === 'horizontal'
       ? {
           height: thickness,
-          width: '100%',
-          marginVertical: spacing,
+          flex: text ? 1 : undefined,
+          width: text ? undefined : '100%',
         }
       : {
           width: thickness,
           height: '100%',
-          marginHorizontal: spacing,
         };
+
+  // text가 있는 경우 컨테이너로 감싸서 렌더링
+  if (text && orientation === 'horizontal') {
+    return (
+      <View
+        style={[styles.textContainer, { marginVertical: spacing }]}
+        {...props}
+      >
+        <View style={[styles.base, lineStyle]} />
+        <Text style={styles.text}>{text}</Text>
+        <View style={[styles.base, lineStyle]} />
+      </View>
+    );
+  }
+
+  // 기본 단순 divider
+  const dynamicStyle: ViewStyle =
+    orientation === 'horizontal'
+      ? { ...lineStyle, marginVertical: spacing }
+      : { ...lineStyle, marginHorizontal: spacing };
 
   return <View style={[styles.base, dynamicStyle]} {...props} />;
 };
@@ -106,6 +112,16 @@ const styles = StyleSheet.create((theme) => ({
         },
       },
     },
+  },
+  textContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  text: {
+    marginHorizontal: 12,
+    fontSize: theme.foundation.typography.size.m,
+    color: theme.colors.text.tertiary,
   },
 }));
 

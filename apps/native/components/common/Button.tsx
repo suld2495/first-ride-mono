@@ -49,6 +49,16 @@ export interface ButtonProps extends Omit<PressableProps, 'style'> {
   variant?: ButtonVariant;
 
   /**
+   * 커스텀 배경색 (variant 색상 대신 사용)
+   */
+  backgroundColor?: string;
+
+  /**
+   * 커스텀 텍스트/아이콘 색상 (variant 색상 대신 사용)
+   */
+  textColor?: string;
+
+  /**
    * 왼쪽 아이콘 (ReactNode 또는 render function)
    * render function을 사용하면 iconColor를 전달받을 수 있습니다
    */
@@ -89,27 +99,11 @@ export interface ButtonProps extends Omit<PressableProps, 'style'> {
   title?: string;
 }
 
-/**
- * Button component with semantic variants and automatic theme switching.
- *
- * @example
- * // Basic usage
- * <Button size="md" variant="primary">저장</Button>
- * <Button size="sm" variant="secondary">취소</Button>
- * <Button size="lg" variant="danger">삭제</Button>
- *
- * @example
- * // With icons
- * <Button variant="primary" leftIcon={<Icon />}>저장</Button>
- * <Button variant="ghost" rightIcon={<ChevronIcon />}>더보기</Button>
- *
- * @example
- * // Loading state
- * <Button loading>처리중...</Button>
- */
 export const Button: React.FC<ButtonProps> = ({
   size = 'md',
   variant = 'primary',
+  backgroundColor,
+  textColor,
   leftIcon,
   rightIcon,
   loading,
@@ -127,8 +121,10 @@ export const Button: React.FC<ButtonProps> = ({
     variant,
   } as UnistylesVariants<typeof styles>);
 
-  // 아이콘 색상 가져오기
+  // 아이콘/텍스트 색상 가져오기 (textColor가 있으면 우선 사용)
   const getIconColor = (): string => {
+    if (textColor) return textColor;
+
     switch (variant) {
       case 'primary':
       case 'secondary':
@@ -183,6 +179,7 @@ export const Button: React.FC<ButtonProps> = ({
     <Pressable
       style={({ pressed }) => [
         styles.container,
+        backgroundColor && { backgroundColor },
         fullWidth && internalStyles.fullWidth,
         pressed && internalStyles.pressed,
         (disabled || loading) && internalStyles.disabled,
