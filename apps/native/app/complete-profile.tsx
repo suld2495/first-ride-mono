@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { Platform, Text } from 'react-native';
+import { Platform } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
-import { completeProfile } from '@repo/shared/api/social-auth.api';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
+import { setAuthorization, setRefreshToken } from '@/api';
 import AuthForm from '@/components/auth/AuthForm';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import ThemeView from '@/components/common/ThemeView';
+import { Typography } from '@/components/common/Typography';
+import { useCompleteProfileMutation } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
-import { setAuthorization, setRefreshToken } from '@/api';
 import { useAuthStore } from '@/store/auth.store';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
@@ -30,10 +31,10 @@ export default function CompleteProfile() {
     provider: string;
   }>();
   const [form, setForm] = useState<ProfileForm>(initial());
-  const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { pushToken } = useNotifications();
   const { signIn } = useAuthStore();
+  const completeProfileMutation = useCompleteProfileMutation();
 
   const getProviderName = () => {
     switch (provider) {
@@ -71,9 +72,8 @@ export default function CompleteProfile() {
       return;
     }
 
-    setIsLoading(true);
     try {
-      const response = await completeProfile({
+      const response = await completeProfileMutation.mutateAsync({
         tempToken,
         nickname: form.nickname,
         job: form.job,
@@ -102,8 +102,6 @@ export default function CompleteProfile() {
 
         setFieldErrors({ nickname: errorMessage });
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -124,10 +122,10 @@ export default function CompleteProfile() {
   return (
     <ThemeView style={styles.container}>
       <AuthForm title="추가 정보 입력">
-        <Text style={styles.description}>
+        <Typography variant="label" color="secondary" style={styles.description}>
           {getProviderName()} 계정으로 가입합니다.{'\n'}
           추가 정보를 입력해주세요.
-        </Text>
+        </Typography>
 
         <Input
           placeholder="닉네임을 입력해주세요."
@@ -149,7 +147,7 @@ export default function CompleteProfile() {
           title="가입 완료"
           onPress={handleSubmit}
           style={styles.button}
-          loading={isLoading}
+          loading={completeProfileMutation.isPending}
         />
       </AuthForm>
     </ThemeView>
@@ -165,14 +163,11 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   description: {
-    fontSize: 14,
-    color: theme.colors.text.secondary,
     textAlign: 'center',
-    marginBottom: 8,
-    lineHeight: 20,
+    marginBottom: theme.foundation.spacing.s,
   },
 
   button: {
-    marginTop: 10,
+    marginTop: theme.foundation.spacing.s,
   },
 }));

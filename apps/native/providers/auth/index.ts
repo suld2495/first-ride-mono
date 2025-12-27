@@ -9,6 +9,7 @@ import {
 
 export * from './types';
 export * from './base/social.provider';
+export * from './auth-manager';
 export type { CredentialsParams } from './credentials.provider';
 
 // 런타임에서 사용할 Provider 인터페이스

@@ -1,89 +1,52 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  type PressableProps,
-  type StyleProp,
-  Text,
-  View,
-  type ViewStyle,
-} from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { StyleSheet } from 'react-native-unistyles';
+
+import { Typography } from '@/components/common/Typography';
+
+import { SocialLoginButton } from './SocialLoginButton';
+
+// 카카오 브랜드 색상 (변경 불가)
+const KAKAO_YELLOW = '#FEE500';
+const KAKAO_BLACK = '#000000';
 
 interface KakaoLoginButtonProps extends Omit<PressableProps, 'style'> {
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
-// 카카오 로고 아이콘
 function KakaoIcon() {
   return (
     <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
       <Path
         d="M12 3C6.48 3 2 6.58 2 11c0 2.83 1.89 5.31 4.71 6.73L5.58 21.5c-.09.37.28.68.62.52l4.79-2.63c.33.03.67.05 1.01.05 5.52 0 10-3.58 10-8s-4.48-8-10-8z"
-        fill="#000000"
+        fill={KAKAO_BLACK}
       />
     </Svg>
   );
 }
 
-export function KakaoLoginButton({
-  loading,
-  disabled,
-  style,
-  ...props
-}: KakaoLoginButtonProps) {
+export function KakaoLoginButton({ ...props }: KakaoLoginButtonProps) {
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.container,
-        pressed && styles.pressed,
-        (disabled || loading) && styles.disabled,
-        style,
-      ]}
-      disabled={disabled || loading}
-      accessibilityRole="button"
+    <SocialLoginButton
+      backgroundColor={KAKAO_YELLOW}
+      textColor={KAKAO_BLACK}
       accessibilityLabel="카카오로 로그인"
       {...props}
     >
-      <View style={styles.content}>
-        {loading ? (
-          <ActivityIndicator size="small" color="#000000" />
-        ) : (
-          <>
-            <KakaoIcon />
-            <Text style={styles.text}>카카오로 로그인</Text>
-          </>
-        )}
-      </View>
-    </Pressable>
+      <KakaoIcon />
+      <Typography variant="body" style={styles.text}>
+        카카오로 로그인
+      </Typography>
+    </SocialLoginButton>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    height: 48,
-    backgroundColor: '#FEE500', // 카카오 브랜드 노란색
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
+const styles = StyleSheet.create((theme) => ({
   text: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000000',
+    fontWeight: theme.foundation.typography.weight.medium,
+    color: KAKAO_BLACK,
   },
-  pressed: {
-    opacity: 0.8,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-});
+}));
 
 export default KakaoLoginButton;
