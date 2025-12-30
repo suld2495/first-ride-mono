@@ -1,6 +1,9 @@
 import { ConfigContext, ExpoConfig } from 'expo/config';
 
-const KAKAO_NATIVE_APP_KEY = process.env.KAKAO_NATIVE_APP_KEY ?? '';
+// EAS CLI가 config를 파싱할 때 환경변수가 없을 수 있으므로 placeholder 사용
+// 실제 빌드 시에는 eas.json의 env 또는 EAS Secrets에서 주입됨
+const KAKAO_NATIVE_APP_KEY =
+  process.env.KAKAO_NATIVE_APP_KEY || 'KAKAO_KEY_PLACEHOLDER';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
