@@ -27,8 +27,8 @@ export const useAuthStore = create<State & Actions>()(
           try {
             // 서버에 로그아웃 요청 (API 실패 시에도 로컬 로그아웃 진행)
             await logout();
-          } catch (error) {
-            console.warn('Logout API failed:', error);
+          } catch {
+            // API 실패 시 무시
           } finally {
             // 토큰 삭제 및 상태 초기화
             await clearTokens();

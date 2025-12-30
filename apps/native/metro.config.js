@@ -8,6 +8,9 @@ const projectRoot = __dirname;
 
 const config = getDefaultConfig(projectRoot);
 
+// ESM 패키지 지원 (query-string 등)
+config.resolver.unstable_enablePackageExports = true;
+
 // 1. Watch all files within the monorepo
 config.watchFolders = [workspaceRoot];
 // 2. Let Metro know where to resolve packages, and in what order

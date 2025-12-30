@@ -1,15 +1,14 @@
 import { User } from '../models';
-import { TokenResponse } from './auth';
+
+import { AuthForm, TokenResponse } from './auth';
 
 export type SocialProvider = 'kakao' | 'apple' | 'google' | 'naver';
 
 export interface SocialLoginRequest {
   provider: SocialProvider;
-  socialId: string;
   accessToken: string;
-  idToken?: string;
-  pushToken?: string;
-  deviceType?: 'ios' | 'android';
+  pushToken?: AuthForm['pushToken'];
+  deviceType?: AuthForm['deviceType'];
 }
 
 export interface SocialLoginResponse {

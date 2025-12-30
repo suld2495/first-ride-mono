@@ -1,4 +1,7 @@
-import { socialLogin } from '@repo/shared/api/social-auth.api';
+import {
+  socialLogin,
+  socialLoginCheck,
+} from '@repo/shared/api/social-auth.api';
 
 import {
   AuthProvider,
@@ -27,14 +30,22 @@ export abstract class SocialAuthProvider
     payload: SocialPayload,
     deviceInfo: DeviceInfo,
   ): Promise<AuthResponse> {
-    return socialLogin({
+    const param = {
       provider: payload.provider,
       socialId: payload.socialId,
       accessToken: payload.accessToken,
       idToken: payload.idToken,
       pushToken: deviceInfo.pushToken,
       deviceType: deviceInfo.deviceType,
-    });
+    };
+
+    const check = await socialLoginCheck(param);
+
+    if (!check.isNewUser) {
+      return socialLogin(param);
+    }
+
+    return check;
   }
 
   // 소셜 로그아웃 (optional, override 가능)

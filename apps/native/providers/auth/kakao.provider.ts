@@ -1,4 +1,4 @@
-import { login, logout, getProfile } from '@react-native-seoul/kakao-login';
+import { login, logout, me } from '@react-native-kakao/user';
 
 import { SocialAuthProvider } from './base/social.provider';
 import { SocialPayload } from './types';
@@ -8,15 +8,12 @@ class KakaoAuthProvider extends SocialAuthProvider {
   name = '카카오';
 
   async authenticate(): Promise<SocialPayload> {
-    // 카카오 SDK로 로그인
     const tokenResult = await login();
-
-    // 사용자 ID 조회
-    const profile = await getProfile();
+    const user = await me();
 
     return {
       provider: 'kakao',
-      socialId: String(profile.id),
+      socialId: String(user.id),
       accessToken: tokenResult.accessToken,
     };
   }

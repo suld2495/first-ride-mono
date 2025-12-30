@@ -4,7 +4,13 @@
     "appVersionSource": "remote"
   },
   "build": {
+    "base": {
+      "env": {
+        "KAKAO_NATIVE_APP_KEY": "@kakao-native-app-key"
+      }
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
       "android": { "buildType": "apk" }
@@ -16,8 +22,10 @@
       }
     },
     "preview": {
+      "extends": "base"
     },
     "production": {
+      "extends": "base",
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_VITE_BASE_URL": "https://port-0-firstride-m9fo6v759f8f10a9.sel4.cloudtype.app"

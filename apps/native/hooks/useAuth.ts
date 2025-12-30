@@ -7,9 +7,9 @@ import { useRouter } from 'expo-router';
 
 import { setAuthorization, setRefreshToken } from '@/api';
 import {
-  getDeviceType,
   type AuthProviderType,
   type CredentialsParams,
+  getDeviceType,
   type SocialProviderType,
 } from '@/providers/auth';
 import { authManager } from '@/providers/auth/auth-manager';
@@ -31,7 +31,8 @@ export function useAuth(): UseAuthReturn {
   const router = useRouter();
   const { signIn, signOut: authSignOut } = useAuthStore();
   const { pushToken } = useNotifications();
-  const [loadingProvider, setLoadingProvider] = useState<AuthProviderType | null>(null);
+  const [loadingProvider, setLoadingProvider] =
+    useState<AuthProviderType | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const login = async (
@@ -70,6 +71,7 @@ export function useAuth(): UseAuthReturn {
     } catch (err) {
       const authError =
         err instanceof Error ? err : new Error('로그인에 실패했습니다.');
+
       setError(authError);
       throw authError;
     } finally {

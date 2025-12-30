@@ -1,4 +1,5 @@
 import { createHttp, UN_AUTHORIZATION_URL } from '@repo/shared/api';
+import { REQUEST_TIMEOUT_MS } from '@repo/shared/api/auth.api';
 import type { User } from '@repo/types';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -42,6 +43,7 @@ createHttp({
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    config.timeout = REQUEST_TIMEOUT_MS;
     return config;
   },
   async onUnauthorized() {

@@ -7,10 +7,10 @@ import {
   DeviceInfo,
 } from './types';
 
-export * from './types';
-export * from './base/social.provider';
 export * from './auth-manager';
+export * from './base/social.provider';
 export type { CredentialsParams } from './credentials.provider';
+export * from './types';
 
 // 런타임에서 사용할 Provider 인터페이스
 export interface RuntimeAuthProvider {
@@ -33,6 +33,7 @@ const providers: Partial<Record<AuthProviderType, RuntimeAuthProvider>> = {
 
 export function getProvider(type: AuthProviderType): RuntimeAuthProvider {
   const provider = providers[type];
+
   if (!provider) {
     throw new Error(`Auth provider '${type}' is not available`);
   }

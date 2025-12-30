@@ -33,18 +33,19 @@ interface HttpConfig {
   tokenManager?: TokenManager;
 }
 
-// _retry 속성을 포함한 커스텀 요청 타입
-interface RetryableAxiosRequestConfig extends InternalAxiosRequestConfig {
-  _retry?: boolean;
-}
-
 const UN_AUTHORIZATION_CODE = 401;
 const REDIRECT_DEBOUNCE_MS = 1000;
+const REQUEST_ID_HEADER = 'X-Request-ID';
 let unauthorizedCallback: (() => Promise<void>) | null = null;
 let tokenManager: TokenManager | null = null;
 let isRedirecting = false;
 let isRefreshing = false;
-let refreshSubscribers: Array<(token: string) => void> = [];
+let refreshSubscribers: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+// 재시도한 요청의 ID를 추적
+const retriedRequestIds = new Set<string>();
 
 const axiosInstance = axios.create({
   headers: {
@@ -52,6 +53,14 @@ const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: REQUEST_TIMEOUT_MS,
+});
+
+// 각 요청에 고유 ID 부여
+axiosInstance.interceptors.request.use((config) => {
+  if (!config.headers[REQUEST_ID_HEADER]) {
+    config.headers[REQUEST_ID_HEADER] = `${Date.now()}-${Math.random()}`;
+  }
+  return config;
 });
 
 export const createHttp = (config: HttpConfig) => {
@@ -68,12 +77,20 @@ export const createHttp = (config: HttpConfig) => {
 };
 
 const onRefreshed = (newAccessToken: string) => {
-  refreshSubscribers.forEach((callback) => callback(newAccessToken));
+  refreshSubscribers.forEach(({ resolve }) => resolve(newAccessToken));
   refreshSubscribers = [];
 };
 
-const addRefreshSubscriber = (callback: (token: string) => void) => {
-  refreshSubscribers.push(callback);
+const onRefreshFailed = (error: unknown) => {
+  refreshSubscribers.forEach(({ reject }) => reject(error));
+  refreshSubscribers = [];
+};
+
+const addRefreshSubscriber = (
+  resolve: (token: string) => void,
+  reject: (error: unknown) => void,
+) => {
+  refreshSubscribers.push({ resolve, reject });
 };
 
 // 401 에러 발생 시 로그아웃 처리 헬퍼 함수
@@ -92,12 +109,14 @@ axiosInstance.interceptors.response.use(
     return response.data.data;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as RetryableAxiosRequestConfig;
+    const originalRequest = error.config as InternalAxiosRequestConfig;
 
     if (error.response?.status === UN_AUTHORIZATION_CODE && originalRequest) {
-      // refresh 요청 자체는 제외
-      if (originalRequest.url?.includes('/auth/refresh')) {
-        await handleUnauthorized();
+      // refresh, logout 요청은 제외
+      if (
+        originalRequest.url?.includes('/auth/refresh') ||
+        originalRequest.url?.includes('/auth/logout')
+      ) {
         throw error;
       }
 
@@ -107,23 +126,33 @@ axiosInstance.interceptors.response.use(
         throw error;
       }
 
+      const requestId = originalRequest.headers[REQUEST_ID_HEADER] as string;
+
       // 이미 재시도한 요청이면 로그아웃 처리
-      if (originalRequest._retry) {
+      if (requestId && retriedRequestIds.has(requestId)) {
+        retriedRequestIds.delete(requestId);
         await handleUnauthorized();
         throw error;
       }
 
       if (isRefreshing) {
         // 이미 갱신 중이면 대기
-        return new Promise((resolve) => {
-          addRefreshSubscriber((newAccessToken: string) => {
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            resolve(axiosInstance(originalRequest));
-          });
+        return new Promise((resolve, reject) => {
+          addRefreshSubscriber(
+            (newAccessToken: string) => {
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+              resolve(axiosInstance(originalRequest));
+            },
+            (refreshError: unknown) => {
+              reject(refreshError);
+            },
+          );
         });
       }
 
-      originalRequest._retry = true;
+      if (requestId) {
+        retriedRequestIds.add(requestId);
+      }
       isRefreshing = true;
 
       try {
@@ -131,7 +160,10 @@ axiosInstance.interceptors.response.use(
 
         if (!storedRefreshToken) {
           // refreshToken이 없으면 로그아웃 처리
+          isRefreshing = false;
+          onRefreshFailed(error);
           await tokenManager.clearTokens();
+
           if (unauthorizedCallback) {
             await unauthorizedCallback();
           }
@@ -152,18 +184,22 @@ axiosInstance.interceptors.response.use(
         tokenManager.updateUser(response.userInfo);
 
         // 대기 중인 요청들에 새 토큰 전달
+        isRefreshing = false;
         onRefreshed(response.accessToken);
 
         // 원래 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${response.accessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        // 토큰 갱신 실패 -> 로그아웃 처리
+        // 토큰 갱신 실패 -> 대기 중인 요청들에 에러 전달
+        isRefreshing = false;
+        onRefreshFailed(refreshError);
+        if (requestId) {
+          retriedRequestIds.delete(requestId);
+        }
         await tokenManager.clearTokens();
         await handleUnauthorized();
         throw refreshError;
-      } finally {
-        isRefreshing = false;
       }
     }
 

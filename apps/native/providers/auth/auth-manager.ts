@@ -7,7 +7,6 @@ export interface AuthResult extends AuthResponse {
 }
 
 class AuthManager {
-
   async login(
     providerType: AuthProviderType,
     deviceInfo: DeviceInfo,
@@ -30,6 +29,7 @@ class AuthManager {
   async logout(providerType?: AuthProviderType): Promise<void> {
     if (providerType && providerType !== 'credentials') {
       const provider = getProvider(providerType);
+
       await provider.signOut?.();
     }
   }

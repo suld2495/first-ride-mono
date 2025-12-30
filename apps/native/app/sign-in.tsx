@@ -49,6 +49,7 @@ export default function SignIn() {
     } catch (error) {
       // 필드 에러가 있으면 throw해서 caller가 처리하도록
       const serverErrors = getFieldErrors(error);
+
       if (Object.keys(serverErrors).length > 0) {
         throw new FieldError(serverErrors);
       }
@@ -59,6 +60,7 @@ export default function SignIn() {
         error,
         `${providerName} 로그인에 실패했습니다. 다시 시도해주세요.`,
       );
+
       setFieldErrors({ password: errorMessage });
     }
   };
@@ -106,6 +108,7 @@ export default function SignIn() {
     if (fieldErrors[key]) {
       setFieldErrors((prev) => {
         const { [key]: _, ...rest } = prev;
+
         return rest;
       });
     }
