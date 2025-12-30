@@ -1,7 +1,5 @@
 import { ConfigContext, ExpoConfig } from 'expo/config';
 
-import 'dotenv/config';
-
 const KAKAO_NATIVE_APP_KEY = process.env.KAKAO_NATIVE_APP_KEY ?? '';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
