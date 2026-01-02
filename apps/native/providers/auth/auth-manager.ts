@@ -22,6 +22,7 @@ class AuthManager {
 
     return {
       ...response,
+      accessToken: 'accessToken' in payload ? payload.accessToken : '',
       providerType,
     };
   }

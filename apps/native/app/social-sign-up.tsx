@@ -8,7 +8,7 @@ import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import ThemeView from '@/components/common/ThemeView';
 import { Typography } from '@/components/common/Typography';
-import { useCompleteProfileMutation } from '@/hooks/useAuth';
+import { useSocialSignUpMutation } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import {
   AUTH_PROVIDER_NAMES,
@@ -28,17 +28,17 @@ const initial = (): ProfileForm => ({
   job: '',
 });
 
-export default function CompleteProfile() {
+export default function SocialSignUp() {
   const router = useRouter();
-  const { tempToken, provider } = useLocalSearchParams<{
-    tempToken: string;
+  const { provider, accessToken } = useLocalSearchParams<{
     provider: string;
+    accessToken: string;
   }>();
   const [form, setForm] = useState<ProfileForm>(initial());
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { pushToken } = useNotifications();
   const { signIn } = useAuthStore();
-  const completeProfileMutation = useCompleteProfileMutation();
+  const socialSignUpMutation = useSocialSignUpMutation();
 
   const getProviderName = () => {
     if (!provider) return 'SNS';
@@ -63,14 +63,10 @@ export default function CompleteProfile() {
       return;
     }
 
-    if (!tempToken) {
-      setFieldErrors({ nickname: '잘못된 접근입니다. 다시 로그인해주세요.' });
-      return;
-    }
-
     try {
-      const response = await completeProfileMutation.mutateAsync({
-        tempToken,
+      const response = await socialSignUpMutation.mutateAsync({
+        provider: provider as SocialProviderType,
+        accessToken: accessToken!,
         nickname: form.nickname,
         job: form.job,
         pushToken: pushToken?.data,
@@ -110,6 +106,7 @@ export default function CompleteProfile() {
     if (fieldErrors[key]) {
       setFieldErrors((prev) => {
         const { [key]: _, ...rest } = prev;
+
         return rest;
       });
     }
@@ -118,7 +115,11 @@ export default function CompleteProfile() {
   return (
     <ThemeView style={styles.container}>
       <AuthForm title="추가 정보 입력">
-        <Typography variant="label" color="secondary" style={styles.description}>
+        <Typography
+          variant="label"
+          color="secondary"
+          style={styles.description}
+        >
           {getProviderName()} 계정으로 가입합니다.{'\n'}
           추가 정보를 입력해주세요.
         </Typography>
@@ -140,11 +141,12 @@ export default function CompleteProfile() {
           helperText={fieldErrors.job}
         />
         <Button
-          title="가입 완료"
           onPress={handleSubmit}
           style={styles.button}
-          loading={completeProfileMutation.isPending}
-        />
+          loading={socialSignUpMutation.isPending}
+        >
+          가입 완료
+        </Button>
       </AuthForm>
     </ThemeView>
   );

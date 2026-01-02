@@ -13,18 +13,18 @@ export interface SocialLoginRequest {
 
 export interface SocialLoginResponse {
   isNewUser: boolean;
-  userInfo?: User;
+  kakaoUserInfo?: User;
   accessToken?: string;
   refreshToken?: string;
-  tempToken?: string;
 }
 
-export interface CompleteProfileRequest {
-  tempToken: string;
+export interface SocialSignUpRequest {
+  provider: SocialProvider;
+  accessToken: string;
   nickname: string;
   job: string;
   pushToken?: string;
   deviceType?: 'ios' | 'android';
 }
 
-export type CompleteProfileResponse = TokenResponse;
+export type SocialSignUpResponse = TokenResponse;

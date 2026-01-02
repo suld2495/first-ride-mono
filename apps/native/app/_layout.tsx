@@ -52,7 +52,7 @@ const StackLayout = () => {
             <Stack.Screen name="sign-in" options={{ headerShown: false }} />
             <Stack.Screen name="sign-up" options={{ headerShown: false }} />
             <Stack.Screen
-              name="complete-profile"
+              name="social-sign-up"
               options={{ headerShown: false }}
             />
           </Stack.Protected>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { join } from '@repo/shared/api';
-import { completeProfile } from '@repo/shared/api/social-auth.api';
+import { socialSignUp } from '@repo/shared/api/social-auth.api';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useRouter } from 'expo-router';
@@ -53,10 +53,10 @@ export function useAuth(): UseAuthReturn {
       if (result.isNewUser) {
         // 신규 회원: 추가 정보 입력 화면으로
         router.push({
-          pathname: '/complete-profile',
+          pathname: '/social-sign-up',
           params: {
-            tempToken: result.tempToken,
             provider: providerType,
+            accessToken: result.accessToken,
           },
         });
       } else {
@@ -109,8 +109,8 @@ export const useJoinMutation = () => {
   });
 };
 
-export const useCompleteProfileMutation = () => {
+export const useSocialSignUpMutation = () => {
   return useMutation({
-    mutationFn: completeProfile,
+    mutationFn: socialSignUp,
   });
 };

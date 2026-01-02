@@ -1,6 +1,6 @@
 import {
-  CompleteProfileRequest,
-  CompleteProfileResponse,
+  SocialSignUpRequest,
+  SocialSignUpResponse,
   SocialLoginRequest,
   SocialLoginResponse,
 } from '@repo/types';
@@ -13,7 +13,7 @@ const baseURL = '/auth';
 export const socialLoginCheck = async ({
   provider,
   accessToken,
-}: SocialLoginRequest): Promise<SocialLoginResponse> => {
+}: SocialLoginRequest): Promise<Pick<SocialLoginResponse, 'isNewUser' | 'kakaoUserInfo'>> => {
   try {
     return await http.post(`${baseURL}/${provider}/check`, { accessToken });
   } catch (error) {
@@ -32,11 +32,11 @@ export const socialLogin = async ({
   }
 };
 
-export const completeProfile = async (
-  request: CompleteProfileRequest,
-): Promise<CompleteProfileResponse> => {
+export const socialSignUp = async (
+  request: SocialSignUpRequest,
+): Promise<SocialSignUpResponse> => {
   try {
-    return await http.post(`${baseURL}/complete-profile`, request);
+    return await http.post(`${baseURL}/${request.provider}/signup`, request);
   } catch (error) {
     throw toAppError(error);
   }

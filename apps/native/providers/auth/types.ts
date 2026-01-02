@@ -50,7 +50,6 @@ export interface AuthResponse {
   userInfo?: User;
   accessToken?: string;
   refreshToken?: string;
-  tempToken?: string;
 }
 
 // Provider 인터페이스 - 각 Provider가 자신의 Payload 타입을 정의
