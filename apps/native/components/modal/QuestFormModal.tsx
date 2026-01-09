@@ -259,40 +259,49 @@ const QuestFormModal = () => {
           name="startDate"
           label="시작 날짜 및 시간"
           item={({ value, form, setValue }) => (
-            <ThemeView style={styles.dateTimeWrapper} transparent>
-              <ThemeView style={styles.dateTimeDisplay} transparent>
-                {form.startDate && (
-                  <Typography style={styles.dateTimeText} numberOfLines={1}>
-                    {value ? formatDateTime(new Date(value)) : form.startDate}
-                  </Typography>
-                )}
-                {!form.startDate && (
-                  <Typography style={styles.placeholderText}>
-                    날짜/시간 미선택
-                  </Typography>
-                )}
+            <ThemeView transparent>
+              <ThemeView style={styles.dateTimeWrapper} transparent>
+                <ThemeView style={styles.dateTimeDisplay} transparent>
+                  {form.startDate && (
+                    <Typography style={styles.dateTimeText} numberOfLines={1}>
+                      {value ? formatDateTime(new Date(value)) : form.startDate}
+                    </Typography>
+                  )}
+                  {!form.startDate && (
+                    <Typography style={styles.placeholderText}>
+                      날짜/시간 미선택
+                    </Typography>
+                  )}
+                </ThemeView>
+                <Button
+                  title="선택"
+                  variant="secondary"
+                  size="sm"
+                  onPress={() => setIsShowStartDate(!isShowStartDate)}
+                  leftIcon={({ color }) => (
+                    <Ionicons
+                      name="calendar-clear-outline"
+                      size={16}
+                      color={color}
+                    />
+                  )}
+                  style={styles.dateButton}
+                />
               </ThemeView>
-              <Button
-                title="선택"
-                variant="secondary"
-                size="sm"
-                onPress={() => setIsShowStartDate(!isShowStartDate)}
-                leftIcon={({ color }) => (
-                  <Ionicons
-                    name="calendar-clear-outline"
-                    size={16}
-                    color={color}
-                  />
-                )}
-                style={styles.dateButton}
-              />
               {isShowStartDate && (
                 <DateTimePicker
                   themeVariant={colorScheme}
                   value={value ? new Date(value) : new Date()}
                   mode="datetime"
                   minimumDate={new Date()}
-                  onChange={(_, startDate = new Date()) => {
+                  onChange={(event, startDate = new Date()) => {
+                    // Android: 확인 버튼 클릭 시에만 닫기
+                    // iOS: 날짜 변경할 때마다 호출
+                    if (event.type === 'dismissed') {
+                      setIsShowStartDate(false);
+                      return;
+                    }
+
                     setValue('startDate', toISOStringWithoutMs(startDate));
 
                     const endDate = new Date(form.endDate || startDate);
@@ -300,7 +309,11 @@ const QuestFormModal = () => {
                     if (form.endDate && endDate < startDate) {
                       setValue('endDate', toISOStringWithoutMs(startDate));
                     }
-                    setIsShowStartDate(false);
+
+                    // Android에서 확인 버튼 클릭 시에만 닫기
+                    if (event.type === 'set') {
+                      setIsShowStartDate(false);
+                    }
                   }}
                 />
               )}
@@ -313,33 +326,35 @@ const QuestFormModal = () => {
           name="endDate"
           label="종료 날짜 및 시간"
           item={({ value, form, setValue }) => (
-            <ThemeView style={styles.dateTimeWrapper} transparent>
-              <ThemeView style={styles.dateTimeDisplay} transparent>
-                {form.endDate && (
-                  <Typography style={styles.dateTimeText} numberOfLines={1}>
-                    {value ? formatDateTime(new Date(value)) : form.endDate}
-                  </Typography>
-                )}
-                {!form.endDate && (
-                  <Typography style={styles.placeholderText}>
-                    날짜/시간 미선택
-                  </Typography>
-                )}
+            <ThemeView transparent>
+              <ThemeView style={styles.dateTimeWrapper} transparent>
+                <ThemeView style={styles.dateTimeDisplay} transparent>
+                  {form.endDate && (
+                    <Typography style={styles.dateTimeText} numberOfLines={1}>
+                      {value ? formatDateTime(new Date(value)) : form.endDate}
+                    </Typography>
+                  )}
+                  {!form.endDate && (
+                    <Typography style={styles.placeholderText}>
+                      날짜/시간 미선택
+                    </Typography>
+                  )}
+                </ThemeView>
+                <Button
+                  title="선택"
+                  variant="secondary"
+                  size="sm"
+                  onPress={() => setIsShowEndDate(!isShowEndDate)}
+                  leftIcon={({ color }) => (
+                    <Ionicons
+                      name="calendar-clear-outline"
+                      size={16}
+                      color={color}
+                    />
+                  )}
+                  style={styles.dateButton}
+                />
               </ThemeView>
-              <Button
-                title="선택"
-                variant="secondary"
-                size="sm"
-                onPress={() => setIsShowEndDate(!isShowEndDate)}
-                leftIcon={({ color }) => (
-                  <Ionicons
-                    name="calendar-clear-outline"
-                    size={16}
-                    color={color}
-                  />
-                )}
-                style={styles.dateButton}
-              />
               {isShowEndDate && (
                 <DateTimePicker
                   themeVariant={colorScheme}
@@ -352,9 +367,20 @@ const QuestFormModal = () => {
                   minimumDate={
                     form.startDate ? new Date(form.startDate) : new Date()
                   }
-                  onChange={(_, endDate = new Date()) => {
+                  onChange={(event, endDate = new Date()) => {
+                    // Android: 확인 버튼 클릭 시에만 닫기
+                    // iOS: 날짜 변경할 때마다 호출
+                    if (event.type === 'dismissed') {
+                      setIsShowEndDate(false);
+                      return;
+                    }
+
                     setValue('endDate', toISOStringWithoutMs(endDate));
-                    setIsShowEndDate(false);
+
+                    // Android에서 확인 버튼 클릭 시에만 닫기
+                    if (event.type === 'set') {
+                      setIsShowEndDate(false);
+                    }
                   }}
                 />
               )}
