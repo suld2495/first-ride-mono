@@ -10,6 +10,7 @@ import { Input } from '@/components/common/Input';
 import Link from '@/components/common/Link';
 import PasswordInput from '@/components/common/PasswordInput';
 import ThemeView from '@/components/common/ThemeView';
+import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/hooks/useAuth';
 import {
   AUTH_PROVIDER_NAMES,
@@ -35,6 +36,7 @@ export default function SignIn() {
   const [form, setForm] = useState<AuthFormType>(initial());
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { login, loadingProvider } = useAuth();
+  const { showToast } = useToast();
 
   const handleAuth = async (
     providerType: AuthProviderType,
@@ -61,7 +63,7 @@ export default function SignIn() {
         `${providerName} 로그인에 실패했습니다. 다시 시도해주세요.`,
       );
 
-      setFieldErrors({ password: errorMessage });
+      showToast(errorMessage, 'error');
     }
   };
 

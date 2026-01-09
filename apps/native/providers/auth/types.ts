@@ -41,7 +41,11 @@ export interface DeviceInfo {
 }
 
 export function getDeviceType(): DeviceInfo['deviceType'] {
-  return Platform.OS === 'ios' ? 'ios' : 'android';
+  return Platform.select({
+    ios: 'ios' as const,
+    android: 'android' as const,
+    default: 'android' as const,
+  });
 }
 
 // 인증 응답 (공통)

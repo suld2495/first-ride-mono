@@ -8,6 +8,7 @@ import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import ThemeView from '@/components/common/ThemeView';
 import { Typography } from '@/components/common/Typography';
+import { useToast } from '@/contexts/ToastContext';
 import { useSocialSignUpMutation } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import {
@@ -39,6 +40,7 @@ export default function SocialSignUp() {
   const { pushToken } = useNotifications();
   const { signIn } = useAuthStore();
   const socialSignUpMutation = useSocialSignUpMutation();
+  const { showToast } = useToast();
 
   const getProviderName = () => {
     if (!provider) return 'SNS';
@@ -92,7 +94,7 @@ export default function SocialSignUp() {
           '프로필 등록에 실패했습니다. 다시 시도해주세요.',
         );
 
-        setFieldErrors({ nickname: errorMessage });
+        showToast(errorMessage, 'error');
       }
     }
   };
