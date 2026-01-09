@@ -5,4 +5,8 @@ export interface Auth {
   job: string;
 }
 
-export type User = Pick<Auth, 'userId' | 'nickname'>;
+export type UserRole = 'USER' | 'ADMIN';
+
+export type User = Pick<Auth, 'userId' | 'nickname'> & {
+  role: UserRole;
+};

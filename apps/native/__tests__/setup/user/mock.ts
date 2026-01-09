@@ -1,4 +1,4 @@
-import type { User } from '@repo/types';
+import type { User, UserRole } from '@repo/types';
 
 // ========================================
 // User Mock Factory
@@ -7,11 +7,13 @@ import type { User } from '@repo/types';
 export interface CreateMockUserOptions {
   userId?: string;
   nickname?: string;
+  role?: UserRole;
 }
 
 export const createMockUser = (options: CreateMockUserOptions = {}): User => ({
   userId: options.userId ?? 'test123',
   nickname: options.nickname ?? 'testuser',
+  role: options.role ?? 'USER',
 });
 
 export const createMockUsers = (
