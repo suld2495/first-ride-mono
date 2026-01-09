@@ -8,5 +8,13 @@ module.exports = {
   },
   rules: {
     'consistent-return': 'off'
-  }
+  },
+  overrides: [
+    {
+      files: ['**/__tests__/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
+      env: {
+        jest: true,
+      },
+    },
+  ],
 };

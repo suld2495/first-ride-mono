@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
 import { Href, Stack, useRouter } from 'expo-router';
@@ -28,6 +29,8 @@ import '@/styles/unistyles';
 import 'react-native-url-polyfill/auto';
 import '@/api';
 
+initializeKakaoSDK(process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY!);
+
 const StackLayout = () => {
   const { user } = useAuthStore();
   const colorScheme = useColorScheme();
@@ -48,6 +51,10 @@ const StackLayout = () => {
           <Stack.Protected guard={!user}>
             <Stack.Screen name="sign-in" options={{ headerShown: false }} />
             <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="social-sign-up"
+              options={{ headerShown: false }}
+            />
           </Stack.Protected>
         </Stack>
       </NavThemeProvider>

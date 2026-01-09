@@ -12,7 +12,8 @@ import http from './client';
 import axiosInstance, { toAppError } from '.';
 
 const baseURL = '/auth';
-const REQUEST_TIMEOUT_MS = 10_000;
+
+export const REQUEST_TIMEOUT_MS = 10_000;
 
 // 순환 참조 방지를 위한 별도 axios 인스턴스 (인터셉터 없이)
 const refreshAxios = axios.create({
@@ -65,7 +66,6 @@ export const logout = async (): Promise<LogoutResponse> => {
     return response;
   } catch (error) {
     // 로그아웃 API 실패 시에도 로컬 로그아웃은 진행
-    console.warn('Logout API failed, but proceeding with local logout:', error);
     return { message: 'Logged out locally' };
   }
 };

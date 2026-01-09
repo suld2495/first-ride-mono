@@ -1,17 +1,23 @@
 import { useState } from 'react';
-import { Platform } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { AuthForm as AuthFormType } from '@repo/types';
-import { useRouter } from 'expo-router';
 
 import AuthForm from '@/components/auth/AuthForm';
+import { KakaoLoginButton } from '@/components/auth/KakaoLoginButton';
 import { Button } from '@/components/common/Button';
+import { Divider } from '@/components/common/Divider';
 import { Input } from '@/components/common/Input';
 import Link from '@/components/common/Link';
 import PasswordInput from '@/components/common/PasswordInput';
 import ThemeView from '@/components/common/ThemeView';
-import { useLoginMutation } from '@/hooks/useAuth';
-import { useNotifications } from '@/hooks/useNotifications';
+import { useToast } from '@/contexts/ToastContext';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  AUTH_PROVIDER_NAMES,
+  AuthProviderType,
+  CredentialsParams,
+  SocialProviderType,
+} from '@/providers/auth';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 const initial = () => ({
@@ -19,13 +25,47 @@ const initial = () => ({
   password: '',
 });
 
+// 필드 에러를 전달하기 위한 커스텀 에러
+class FieldError extends Error {
+  constructor(public fieldErrors: Record<string, string>) {
+    super('Field validation error');
+  }
+}
+
 export default function SignIn() {
-  const router = useRouter();
   const [form, setForm] = useState<AuthFormType>(initial());
-  const login = useLoginMutation();
-  const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const { pushToken } = useNotifications();
+  const { login, loadingProvider } = useAuth();
+  const { showToast } = useToast();
+
+  const handleAuth = async (
+    providerType: AuthProviderType,
+    params?: CredentialsParams,
+  ) => {
+    try {
+      if (providerType === 'credentials') {
+        await login('credentials', params!);
+      } else {
+        await login(providerType);
+      }
+    } catch (error) {
+      // 필드 에러가 있으면 throw해서 caller가 처리하도록
+      const serverErrors = getFieldErrors(error);
+
+      if (Object.keys(serverErrors).length > 0) {
+        throw new FieldError(serverErrors);
+      }
+
+      // 일반 에러는 여기서 처리
+      const providerName = AUTH_PROVIDER_NAMES[providerType];
+      const errorMessage = getApiErrorMessage(
+        error,
+        `${providerName} 로그인에 실패했습니다. 다시 시도해주세요.`,
+      );
+
+      showToast(errorMessage, 'error');
+    }
+  };
 
   const handleLogin = async () => {
     setFieldErrors({});
@@ -45,33 +85,20 @@ export default function SignIn() {
       return;
     }
 
-    setIsLoading(true);
     try {
-      // 로그인 요청 시 푸시 토큰 정보 포함
-      const loginData: AuthFormType = {
-        ...form,
-        pushToken: pushToken?.data,
-        deviceType: Platform.OS as 'ios' | 'android',
-      };
-
-      await login.mutateAsync(loginData);
-      router.push('/(tabs)/(afterLogin)/(routine)');
+      await handleAuth('credentials', {
+        userId: form.userId,
+        password: form.password,
+      });
     } catch (error) {
-      const serverErrors = getFieldErrors(error);
-
-      if (Object.keys(serverErrors).length > 0) {
-        setFieldErrors(serverErrors);
-      } else {
-        const errorMessage = getApiErrorMessage(
-          error,
-          '로그인에 실패했습니다. 다시 시도해주세요.',
-        );
-
-        setFieldErrors({ password: errorMessage });
+      if (error instanceof FieldError) {
+        setFieldErrors(error.fieldErrors);
       }
-    } finally {
-      setIsLoading(false);
     }
+  };
+
+  const handleSocialLogin = (providerType: SocialProviderType) => {
+    handleAuth(providerType);
   };
 
   const handleChange = (key: 'userId' | 'password', value: string) => {
@@ -88,6 +115,8 @@ export default function SignIn() {
       });
     }
   };
+
+  const isLoading = loadingProvider !== null;
 
   return (
     <ThemeView style={styles.container}>
@@ -112,7 +141,8 @@ export default function SignIn() {
           title="로그인"
           onPress={handleLogin}
           style={styles.button}
-          loading={isLoading}
+          loading={loadingProvider === 'credentials'}
+          disabled={isLoading && loadingProvider !== 'credentials'}
         />
         <Link
           href="/sign-up"
@@ -120,6 +150,15 @@ export default function SignIn() {
           title="회원가입"
           style={styles.link}
           onPress={() => setForm(initial())}
+        />
+
+        <Divider text="또는" spacing={16} />
+
+        <KakaoLoginButton
+          onPress={() => handleSocialLogin('kakao')}
+          loading={loadingProvider === 'kakao'}
+          disabled={isLoading && loadingProvider !== 'kakao'}
+          style={styles.kakaoButton}
         />
       </AuthForm>
     </ThemeView>
@@ -140,5 +179,9 @@ const styles = StyleSheet.create({
 
   link: {
     alignItems: 'flex-end',
+  },
+
+  kakaoButton: {
+    width: 250,
   },
 });
