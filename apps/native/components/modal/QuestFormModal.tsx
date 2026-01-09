@@ -83,6 +83,8 @@ const QuestFormModal = () => {
 
   const [isShowStartDate, setIsShowStartDate] = useState(false);
   const [isShowEndDate, setIsShowEndDate] = useState(false);
+  const [tempStartDate, setTempStartDate] = useState<Date | null>(null);
+  const [tempEndDate, setTempEndDate] = useState<Date | null>(null);
 
   // Mutations & Queries
   const createQuestMutation = useCreateQuestMutation();
@@ -289,33 +291,59 @@ const QuestFormModal = () => {
                 />
               </ThemeView>
               {isShowStartDate && (
-                <DateTimePicker
-                  themeVariant={colorScheme}
-                  value={value ? new Date(value) : new Date()}
-                  mode="datetime"
-                  minimumDate={new Date()}
-                  onChange={(event, startDate = new Date()) => {
-                    // Android: 확인 버튼 클릭 시에만 닫기
-                    // iOS: 날짜 변경할 때마다 호출
-                    if (event.type === 'dismissed') {
-                      setIsShowStartDate(false);
-                      return;
+                <ThemeView transparent style={styles.datePickerContainer}>
+                  <DateTimePicker
+                    themeVariant={colorScheme}
+                    value={
+                      tempStartDate || (value ? new Date(value) : new Date())
                     }
+                    mode="datetime"
+                    minimumDate={new Date()}
+                    onChange={(event, startDate = new Date()) => {
+                      // 취소 시
+                      if (event.type === 'dismissed') {
+                        setIsShowStartDate(false);
+                        setTempStartDate(null);
+                        return;
+                      }
 
-                    setValue('startDate', toISOStringWithoutMs(startDate));
+                      // 날짜/시간 변경 시 임시 저장 (아직 확정하지 않음)
+                      setTempStartDate(startDate);
+                    }}
+                  />
+                  <ThemeView style={styles.datePickerButtonRow} transparent>
+                    <Button
+                      title="취소"
+                      variant="secondary"
+                      size="sm"
+                      onPress={() => {
+                        setIsShowStartDate(false);
+                        setTempStartDate(null);
+                      }}
+                      style={styles.datePickerButton}
+                    />
+                    <Button
+                      title="확인"
+                      variant="primary"
+                      size="sm"
+                      onPress={() => {
+                        const finalDate =
+                          tempStartDate ||
+                          (value ? new Date(value) : new Date());
+                        setValue('startDate', toISOStringWithoutMs(finalDate));
 
-                    const endDate = new Date(form.endDate || startDate);
+                        const endDate = new Date(form.endDate || finalDate);
+                        if (form.endDate && endDate < finalDate) {
+                          setValue('endDate', toISOStringWithoutMs(finalDate));
+                        }
 
-                    if (form.endDate && endDate < startDate) {
-                      setValue('endDate', toISOStringWithoutMs(startDate));
-                    }
-
-                    // Android에서 확인 버튼 클릭 시에만 닫기
-                    if (event.type === 'set') {
-                      setIsShowStartDate(false);
-                    }
-                  }}
-                />
+                        setIsShowStartDate(false);
+                        setTempStartDate(null);
+                      }}
+                      style={styles.datePickerButton}
+                    />
+                  </ThemeView>
+                </ThemeView>
               )}
             </ThemeView>
           )}
@@ -356,33 +384,61 @@ const QuestFormModal = () => {
                 />
               </ThemeView>
               {isShowEndDate && (
-                <DateTimePicker
-                  themeVariant={colorScheme}
-                  value={
-                    value
-                      ? new Date(value)
-                      : new Date(form.startDate || Date.now())
-                  }
-                  mode="datetime"
-                  minimumDate={
-                    form.startDate ? new Date(form.startDate) : new Date()
-                  }
-                  onChange={(event, endDate = new Date()) => {
-                    // Android: 확인 버튼 클릭 시에만 닫기
-                    // iOS: 날짜 변경할 때마다 호출
-                    if (event.type === 'dismissed') {
-                      setIsShowEndDate(false);
-                      return;
+                <ThemeView transparent style={styles.datePickerContainer}>
+                  <DateTimePicker
+                    themeVariant={colorScheme}
+                    value={
+                      tempEndDate ||
+                      (value
+                        ? new Date(value)
+                        : new Date(form.startDate || Date.now()))
                     }
-
-                    setValue('endDate', toISOStringWithoutMs(endDate));
-
-                    // Android에서 확인 버튼 클릭 시에만 닫기
-                    if (event.type === 'set') {
-                      setIsShowEndDate(false);
+                    mode="datetime"
+                    minimumDate={
+                      form.startDate ? new Date(form.startDate) : new Date()
                     }
-                  }}
-                />
+                    onChange={(event, endDate = new Date()) => {
+                      // 취소 시
+                      if (event.type === 'dismissed') {
+                        setIsShowEndDate(false);
+                        setTempEndDate(null);
+                        return;
+                      }
+
+                      // 날짜/시간 변경 시 임시 저장 (아직 확정하지 않음)
+                      setTempEndDate(endDate);
+                    }}
+                  />
+                  <ThemeView style={styles.datePickerButtonRow} transparent>
+                    <Button
+                      title="취소"
+                      variant="secondary"
+                      size="sm"
+                      onPress={() => {
+                        setIsShowEndDate(false);
+                        setTempEndDate(null);
+                      }}
+                      style={styles.datePickerButton}
+                    />
+                    <Button
+                      title="확인"
+                      variant="primary"
+                      size="sm"
+                      onPress={() => {
+                        const finalDate =
+                          tempEndDate ||
+                          (value
+                            ? new Date(value)
+                            : new Date(form.startDate || Date.now()));
+                        setValue('endDate', toISOStringWithoutMs(finalDate));
+
+                        setIsShowEndDate(false);
+                        setTempEndDate(null);
+                      }}
+                      style={styles.datePickerButton}
+                    />
+                  </ThemeView>
+                </ThemeView>
               )}
             </ThemeView>
           )}
@@ -479,6 +535,21 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   dateButton: {
+    minWidth: 80,
+  },
+
+  datePickerContainer: {
+    marginTop: 10,
+    gap: 10,
+  },
+
+  datePickerButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
+
+  datePickerButton: {
     minWidth: 80,
   },
 
