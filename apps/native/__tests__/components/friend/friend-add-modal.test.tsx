@@ -154,7 +154,7 @@ describe('친구 추가 모달', () => {
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith(
-            '추가되었습니다.',
+            '친구 요청을 보냈습니다.',
             'success',
           );
           expect(defaultProps.onClose).toHaveBeenCalled();
