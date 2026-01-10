@@ -120,7 +120,8 @@ const mockTheme = {
 jest.mock('react-native-unistyles', () => ({
   StyleSheet: {
     create: (styles) => {
-      const mockStyles = typeof styles === 'function' ? styles(mockTheme) : styles;
+      const mockStyles =
+        typeof styles === 'function' ? styles(mockTheme) : styles;
       return {
         ...mockStyles,
         useVariants: jest.fn(() => mockStyles),
@@ -147,6 +148,40 @@ jest.mock('expo-constants', () => ({
 // expo-web-browser 모킹
 jest.mock('expo-web-browser', () => ({
   openBrowserAsync: jest.fn(),
+}));
+
+// expo-device 모킹
+jest.mock('expo-device', () => ({
+  isDevice: true,
+  brand: 'Apple',
+  manufacturer: 'Apple',
+  modelName: 'iPhone 14',
+  osName: 'iOS',
+  osVersion: '16.0',
+}));
+
+// expo-notifications 모킹
+jest.mock('expo-notifications', () => ({
+  AndroidImportance: {
+    MIN: 1,
+    LOW: 2,
+    DEFAULT: 3,
+    HIGH: 4,
+    MAX: 5,
+  },
+  getPermissionsAsync: jest.fn(),
+  requestPermissionsAsync: jest.fn(),
+  getExpoPushTokenAsync: jest.fn(),
+  setNotificationChannelAsync: jest.fn(),
+  scheduleNotificationAsync: jest.fn(),
+  cancelScheduledNotificationAsync: jest.fn(),
+  cancelAllScheduledNotificationsAsync: jest.fn(),
+  getAllScheduledNotificationsAsync: jest.fn(),
+  setBadgeCountAsync: jest.fn(),
+  getBadgeCountAsync: jest.fn(),
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
 }));
 
 // ========================================
