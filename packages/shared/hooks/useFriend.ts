@@ -36,16 +36,8 @@ export const useDeleteFriendMutation = () => {
 };
 
 export const useAddFriendMutation = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: addFriend,
-
-    onSuccess() {
-      queryClient.invalidateQueries({
-        queryKey: friendKey.all,
-      });
-    },
   });
 };
 
@@ -72,6 +64,9 @@ export const useAcceptFriendRequestMutation = () => {
     onSuccess() {
       queryClient.invalidateQueries({
         queryKey: friendRequestKey.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: friendKey.all,
       });
     },
   });
