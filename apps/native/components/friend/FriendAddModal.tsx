@@ -26,7 +26,7 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
   const handleAdd = async () => {
     try {
       await addMutation.mutateAsync(nickname);
-      showToast('추가되었습니다.', 'success');
+      showToast('친구 요청을 보냈습니다.', 'success');
       close();
     } catch (err) {
       const errorMessage = getApiErrorMessage(
