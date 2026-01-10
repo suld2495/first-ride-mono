@@ -246,11 +246,11 @@ const QuestFormModal = () => {
         <FormItem
           name="rewardId"
           label="보상"
-          item={({ value, onChange }) => (
+          item={({ value, setValue }) => (
             <Select<number>
               value={value as number | undefined}
               items={rewardOptions}
-              onSelect={(val) => onChange(val as any)}
+              onSelect={(val) => setValue('rewardId', val)}
               placeholder="보상 선택"
             />
           )}

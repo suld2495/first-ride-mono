@@ -1,8 +1,8 @@
 import {
-  SocialSignUpRequest,
-  SocialSignUpResponse,
   SocialLoginRequest,
   SocialLoginResponse,
+  SocialSignUpRequest,
+  SocialSignUpResponse,
 } from '@repo/types';
 
 import http from './client';
@@ -13,7 +13,9 @@ const baseURL = '/auth';
 export const socialLoginCheck = async ({
   provider,
   accessToken,
-}: SocialLoginRequest): Promise<Pick<SocialLoginResponse, 'isNewUser' | 'kakaoUserInfo'>> => {
+}: SocialLoginRequest): Promise<
+  Pick<SocialLoginResponse, 'isNewUser' | 'kakaoUserInfo'>
+> => {
   try {
     return await http.post(`${baseURL}/${provider}/check`, { accessToken });
   } catch (error) {

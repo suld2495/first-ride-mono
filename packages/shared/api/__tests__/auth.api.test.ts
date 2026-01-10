@@ -1,7 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
 
+import { join, login, logout, refreshToken } from '../auth.api';
 import axiosInstance from '../index';
-import { login, join, refreshToken, logout } from '../auth.api';
 
 let mockAxios: MockAdapter;
 
@@ -47,7 +47,12 @@ describe('auth.api', () => {
         mockAxios.onPost('/auth/login').reply(400, {
           error: {
             message: '로그인 실패',
-            data: [{ field: 'userId', message: '아이디 또는 비밀번호가 잘못되었습니다' }],
+            data: [
+              {
+                field: 'userId',
+                message: '아이디 또는 비밀번호가 잘못되었습니다',
+              },
+            ],
           },
         });
       });
