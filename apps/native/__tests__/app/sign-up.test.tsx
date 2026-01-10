@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 
 import SignUp from '../../app/sign-up';
 import { render } from '../setup/test-utils';
+import { JobType } from '../../constants/jobs';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
@@ -181,10 +182,7 @@ describe('SignUp 페이지', () => {
 
   describe('API 통합 테스트', () => {
     // 직업 선택 헬퍼 함수
-    const selectJob = (
-      getByText: (text: string) => any,
-      job: '마법사' | '궁수' | '검사',
-    ) => {
+    const selectJob = (getByText: (text: string) => any, job: JobType) => {
       // Select 버튼 클릭 (placeholder로 찾기)
       const selectButton = getByText('직업을 선택해주세요.');
 
@@ -205,7 +203,7 @@ describe('SignUp 페이지', () => {
         nickname: string;
         password: string;
         confirmPassword: string;
-        job: '마법사' | '궁수' | '검사';
+        job: JobType;
       },
     ) => {
       fireEvent.changeText(
