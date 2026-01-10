@@ -8,7 +8,9 @@ import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import Link from '@/components/common/Link';
 import PasswordInput from '@/components/common/PasswordInput';
+import { Select } from '@/components/common/Select';
 import ThemeView from '@/components/common/ThemeView';
+import { JOB_OPTIONS, JobType } from '@/constants/jobs';
 import { useJoinMutation } from '@/hooks/useAuth';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
@@ -48,6 +50,9 @@ export default function SignUp() {
       errors.passwordConfirm = '비밀번호 확인을 입력해주세요.';
     } else if (form.passwordConfirm !== form.password) {
       errors.passwordConfirm = '비밀번호가 일치하지 않습니다.';
+    }
+    if (!form.job) {
+      errors.job = '직업을 선택해주세요.';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -130,13 +135,14 @@ export default function SignUp() {
           error={!!fieldErrors.passwordConfirm}
           helperText={fieldErrors.passwordConfirm}
         />
-        <Input
-          placeholder="직업을 입력해주세요."
-          value={form.job}
-          onChangeText={(value) => handleChange('job', value)}
-          style={{ width: 250 }}
+        <Select<JobType>
+          value={form.job as JobType | undefined}
+          items={JOB_OPTIONS}
+          onSelect={(value) => handleChange('job', value)}
+          placeholder="직업을 선택해주세요."
           error={!!fieldErrors.job}
           helperText={fieldErrors.job}
+          containerStyle={{ width: 250 }}
         />
         <Button
           title="회원가입"
