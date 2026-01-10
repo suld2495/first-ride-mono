@@ -5,7 +5,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import ThemeView from './ThemeView';
@@ -92,6 +92,7 @@ export function Select<T = string | number>({
   containerStyle,
   dropdownMaxHeight = 250,
 }: SelectProps<T>) {
+  const { theme } = useUnistyles();
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedItem = items.find((item) => item.value === value);
@@ -133,7 +134,9 @@ export function Select<T = string | number>({
         <Ionicons
           name={isOpen ? 'chevron-up' : 'chevron-down'}
           size={20}
-          color={disabled ? '#9ca3af' : '#6b7280'}
+          color={
+            disabled ? theme.colors.text.disabled : theme.colors.text.secondary
+          }
         />
       </TouchableOpacity>
 
@@ -191,7 +194,11 @@ export function Select<T = string | number>({
                   )}
                 </View>
                 {item.value === value && (
-                  <Ionicons name="checkmark" size={20} color="#3b82f6" />
+                  <Ionicons
+                    name="checkmark"
+                    size={20}
+                    color={theme.colors.action.primary.default}
+                  />
                 )}
               </TouchableOpacity>
             ))}
