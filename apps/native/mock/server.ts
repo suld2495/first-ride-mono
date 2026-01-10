@@ -15,6 +15,7 @@ export function makeServer() {
             userInfo: {
               userId: 'moon',
               nickname: '용사',
+              role: 'ADMIN',
             },
           },
         };
