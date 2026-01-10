@@ -69,7 +69,17 @@ export interface ScheduledNotification {
 /**
  * 알림 카테고리 타입
  */
-export type NotificationCategory = 'routine';
+export type NotificationCategory = 'routine' | 'friend';
+
+/**
+ * 푸시 알림 타입 (서버에서 전송하는 알림 종류)
+ */
+export type PushNotificationType =
+  | 'routine-request' // 루틴 인증 요청
+  | 'routine-approved' // 인증 승인
+  | 'routine-rejected' // 인증 거부
+  | 'friend-request' // 친구 요청
+  | 'friend-accepted'; // 친구 수락
 
 /**
  * 알림 우선순위 (Android)
@@ -103,9 +113,13 @@ export interface NotificationDeepLinkData {
   /** 이동할 화면 경로 */
   screen?: string;
   /** 알림 카테고리 */
-  category?: 'routine';
+  category?: NotificationCategory;
+  /** 푸시 알림 타입 */
+  type?: PushNotificationType;
   /** 관련 루틴 ID */
   routineId?: number;
+  /** 관련 요청 ID */
+  requestId?: number;
   /** 추가 액션 */
   action?: string;
   /** 기타 데이터 */

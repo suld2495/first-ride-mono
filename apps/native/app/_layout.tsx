@@ -20,6 +20,8 @@ import {
 import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
 import { useAuthStore } from '@/store/auth.store';
 import { useColorSchemeStore } from '@/store/colorScheme.store';
+import { useRequestStore } from '@/store/request.store';
+import { useRoutineStore } from '@/store/routine.store';
 import { NAV_THEME } from '@/theme';
 import type { NotificationHandlers } from '@/types/notification.types';
 import { extractDeepLinkData, getDeepLinkPath } from '@/utils/notifications';
@@ -66,6 +68,8 @@ export default function RootLayout() {
   useInitialAndroidBarSync();
   const router = useRouter();
   const { user } = useAuthStore();
+  const setRequestId = useRequestStore((state) => state.setRequestId);
+  const setRoutineId = useRoutineStore((state) => state.setRoutineId);
   const syncWithUnistyles = useColorSchemeStore(
     (state) => state.syncWithUnistyles,
   );
@@ -87,10 +91,18 @@ export default function RootLayout() {
       const data = extractDeepLinkData(response.notification);
       const path = getDeepLinkPath(data);
 
+      // 알림 타입에 따라 store 설정
+      if (data?.requestId) {
+        setRequestId(data.requestId);
+      }
+      if (data?.routineId) {
+        setRoutineId(data.routineId);
+      }
+
       // 해당 화면으로 이동
       router.push(path as Href);
     },
-    [user, router],
+    [user, router, setRequestId, setRoutineId],
   );
 
   const notificationHandlers: NotificationHandlers = useMemo(

@@ -6,9 +6,10 @@ import {
   CATEGORY_TO_CHANNEL,
   DEEP_LINK_SCREENS,
   DEFAULT_NOTIFICATION_CONFIG,
+  NOTIFICATION_CATEGORY_TO_SCREEN,
   NOTIFICATION_CHANNELS,
-  NOTIFICATION_TYPE_TO_SCREEN,
   PRIORITY_MAPPING,
+  PUSH_NOTIFICATION_ROUTES,
 } from '@/constants/notifications';
 import type {
   NotificationContent,
@@ -367,8 +368,9 @@ export async function getBadgeCount(): Promise<number> {
  *
  * 우선순위:
  * 1. data.screen이 직접 지정된 경우
- * 2. data.category로 기본 화면 매핑
- * 3. 기본값 (루틴 화면)
+ * 2. data.type으로 푸시 알림 타입별 화면 매핑
+ * 3. data.category로 기본 화면 매핑
+ * 4. 기본값 (루틴 화면)
  */
 export function getDeepLinkPath(
   data: NotificationDeepLinkData | undefined,
@@ -377,12 +379,19 @@ export function getDeepLinkPath(
     return DEEP_LINK_SCREENS.ROUTINE;
   }
 
+  // 1. screen이 직접 지정된 경우
   if (data.screen && typeof data.screen === 'string') {
     return data.screen;
   }
 
-  if (data.category && data.category in NOTIFICATION_TYPE_TO_SCREEN) {
-    return NOTIFICATION_TYPE_TO_SCREEN[data.category];
+  // 2. type으로 푸시 알림 타입별 화면 매핑
+  if (data.type && data.type in PUSH_NOTIFICATION_ROUTES) {
+    return PUSH_NOTIFICATION_ROUTES[data.type];
+  }
+
+  // 3. category로 기본 화면 매핑
+  if (data.category && data.category in NOTIFICATION_CATEGORY_TO_SCREEN) {
+    return NOTIFICATION_CATEGORY_TO_SCREEN[data.category];
   }
 
   return DEEP_LINK_SCREENS.ROUTINE;
