@@ -43,6 +43,11 @@ describe('SignUp 페이지', () => {
       expect(
         await findByText('비밀번호 확인을 입력해주세요.'),
       ).toBeOnTheScreen();
+      // '직업을 선택해주세요.'는 placeholder와 에러 메시지 모두에서 사용됨
+      // getAllByText로 2개가 존재하는지 확인 (placeholder + 에러 메시지)
+      const jobTexts = getAllByText('직업을 선택해주세요.');
+
+      expect(jobTexts.length).toBe(2);
     });
 
     it('아이디만 입력하고 회원가입 버튼을 누르면 나머지 필드에서 에러가 표시된다', async () => {
@@ -175,14 +180,32 @@ describe('SignUp 페이지', () => {
   });
 
   describe('API 통합 테스트', () => {
+    // 직업 선택 헬퍼 함수
+    const selectJob = (
+      getByText: (text: string) => any,
+      job: '마법사' | '궁수' | '검사',
+    ) => {
+      // Select 버튼 클릭 (placeholder로 찾기)
+      const selectButton = getByText('직업을 선택해주세요.');
+
+      fireEvent.press(selectButton);
+
+      // 드롭다운에서 직업 선택
+      const jobOption = getByText(job);
+
+      fireEvent.press(jobOption);
+    };
+
     // 폼 입력 헬퍼 함수
     const fillForm = (
       getByPlaceholderText: (text: string) => any,
+      getByText: (text: string) => any,
       data: {
         userId: string;
         nickname: string;
         password: string;
         confirmPassword: string;
+        job: '마법사' | '궁수' | '검사';
       },
     ) => {
       fireEvent.changeText(
@@ -204,6 +227,8 @@ describe('SignUp 페이지', () => {
         getByPlaceholderText('비밀번호를 다시 입력해주세요.'),
         data.confirmPassword,
       );
+
+      selectJob(getByText, data.job);
     };
 
     describe('회원가입 성공 시', () => {
@@ -212,13 +237,16 @@ describe('SignUp 페이지', () => {
       });
 
       it('로그인 페이지로 이동한다', async () => {
-        const { getByPlaceholderText, getAllByText } = render(<SignUp />);
+        const { getByPlaceholderText, getAllByText, getByText } = render(
+          <SignUp />,
+        );
 
-        fillForm(getByPlaceholderText, {
+        fillForm(getByPlaceholderText, getByText, {
           userId: 'newuser',
           nickname: 'newnick',
           password: 'password123',
           confirmPassword: 'password123',
+          job: '마법사',
         });
 
         const submitButton = getSubmitButton(getAllByText);
@@ -242,15 +270,15 @@ describe('SignUp 페이지', () => {
       });
 
       it('에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignUp />,
-        );
+        const { getByPlaceholderText, getAllByText, findByText, getByText } =
+          render(<SignUp />);
 
-        fillForm(getByPlaceholderText, {
+        fillForm(getByPlaceholderText, getByText, {
           userId: 'duplicate',
           nickname: 'testnick',
           password: 'password123',
           confirmPassword: 'password123',
+          job: '마법사',
         });
 
         const submitButton = getSubmitButton(getAllByText);
@@ -276,15 +304,15 @@ describe('SignUp 페이지', () => {
       });
 
       it('에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignUp />,
-        );
+        const { getByPlaceholderText, getAllByText, findByText, getByText } =
+          render(<SignUp />);
 
-        fillForm(getByPlaceholderText, {
+        fillForm(getByPlaceholderText, getByText, {
           userId: 'testuser',
           nickname: 'duplicatenick',
           password: 'password123',
           confirmPassword: 'password123',
+          job: '궁수',
         });
 
         const submitButton = getSubmitButton(getAllByText);
@@ -314,15 +342,15 @@ describe('SignUp 페이지', () => {
         });
 
         it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
+          const { getByPlaceholderText, getAllByText, findByText, getByText } =
+            render(<SignUp />);
 
-          fillForm(getByPlaceholderText, {
+          fillForm(getByPlaceholderText, getByText, {
             userId: 'abc',
             nickname: 'testnick',
             password: 'password123',
             confirmPassword: 'password123',
+            job: '검사',
           });
 
           const submitButton = getSubmitButton(getAllByText);
@@ -351,15 +379,15 @@ describe('SignUp 페이지', () => {
         });
 
         it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
+          const { getByPlaceholderText, getAllByText, findByText, getByText } =
+            render(<SignUp />);
 
-          fillForm(getByPlaceholderText, {
+          fillForm(getByPlaceholderText, getByText, {
             userId: 'verylonguser',
             nickname: 'testnick',
             password: 'password123',
             confirmPassword: 'password123',
+            job: '마법사',
           });
 
           const submitButton = getSubmitButton(getAllByText);
@@ -390,15 +418,15 @@ describe('SignUp 페이지', () => {
         });
 
         it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
+          const { getByPlaceholderText, getAllByText, findByText, getByText } =
+            render(<SignUp />);
 
-          fillForm(getByPlaceholderText, {
+          fillForm(getByPlaceholderText, getByText, {
             userId: 'testuser',
             nickname: 'a',
             password: 'password123',
             confirmPassword: 'password123',
+            job: '궁수',
           });
 
           const submitButton = getSubmitButton(getAllByText);
@@ -427,15 +455,15 @@ describe('SignUp 페이지', () => {
         });
 
         it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
+          const { getByPlaceholderText, getAllByText, findByText, getByText } =
+            render(<SignUp />);
 
-          fillForm(getByPlaceholderText, {
+          fillForm(getByPlaceholderText, getByText, {
             userId: 'testuser',
             nickname: 'verylongnickname',
             password: 'password123',
             confirmPassword: 'password123',
+            job: '검사',
           });
 
           const submitButton = getSubmitButton(getAllByText);
@@ -466,15 +494,15 @@ describe('SignUp 페이지', () => {
         });
 
         it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
+          const { getByPlaceholderText, getAllByText, findByText, getByText } =
+            render(<SignUp />);
 
-          fillForm(getByPlaceholderText, {
+          fillForm(getByPlaceholderText, getByText, {
             userId: 'testuser',
             nickname: 'testnick',
             password: 'short',
             confirmPassword: 'short',
+            job: '마법사',
           });
 
           const submitButton = getSubmitButton(getAllByText);
@@ -503,15 +531,15 @@ describe('SignUp 페이지', () => {
         });
 
         it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
+          const { getByPlaceholderText, getAllByText, findByText, getByText } =
+            render(<SignUp />);
 
-          fillForm(getByPlaceholderText, {
+          fillForm(getByPlaceholderText, getByText, {
             userId: 'testuser',
             nickname: 'testnick',
             password: 'verylongpassword123',
             confirmPassword: 'verylongpassword123',
+            job: '궁수',
           });
 
           const submitButton = getSubmitButton(getAllByText);
@@ -541,15 +569,15 @@ describe('SignUp 페이지', () => {
       });
 
       it('에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignUp />,
-        );
+        const { getByPlaceholderText, getAllByText, findByText, getByText } =
+          render(<SignUp />);
 
-        fillForm(getByPlaceholderText, {
+        fillForm(getByPlaceholderText, getByText, {
           userId: 'testuser',
           nickname: 'testnick',
           password: 'password123',
           confirmPassword: 'password123',
+          job: '검사',
         });
 
         const submitButton = getSubmitButton(getAllByText);
@@ -572,15 +600,15 @@ describe('SignUp 페이지', () => {
       });
 
       it('일반 에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignUp />,
-        );
+        const { getByPlaceholderText, getAllByText, findByText, getByText } =
+          render(<SignUp />);
 
-        fillForm(getByPlaceholderText, {
+        fillForm(getByPlaceholderText, getByText, {
           userId: 'testuser',
           nickname: 'testnick',
           password: 'password123',
           confirmPassword: 'password123',
+          job: '마법사',
         });
 
         const submitButton = getSubmitButton(getAllByText);

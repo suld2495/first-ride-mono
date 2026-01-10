@@ -3,6 +3,37 @@ import '@testing-library/jest-native/extend-expect';
 // alert 모킹
 global.alert = jest.fn();
 
+// @react-native-kakao/user 모킹
+jest.mock('@react-native-kakao/user', () => ({
+  login: jest.fn(),
+  logout: jest.fn(),
+  me: jest.fn(),
+}));
+
+// expo-notifications 모킹
+jest.mock('expo-notifications', () => ({
+  getExpoPushTokenAsync: jest.fn(),
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  requestPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted' }),
+  ),
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  addNotificationResponseReceivedListener: jest.fn(() => ({
+    remove: jest.fn(),
+  })),
+  AndroidImportance: { MAX: 5 },
+  setNotificationChannelAsync: jest.fn(),
+}));
+
+// useNotifications 모킹
+jest.mock('@/hooks/useNotifications', () => ({
+  useNotifications: () => ({
+    pushToken: null,
+    notification: null,
+  }),
+}));
+
 // useColorScheme 모킹
 jest.mock('@/hooks/useColorScheme', () => ({
   useColorScheme: () => 'light',
@@ -114,13 +145,22 @@ const mockTheme = {
         relaxed: 1.75,
       },
     },
+    opacity: {
+      disabled: 0.5,
+    },
+    shadow: {
+      s: {},
+      m: {},
+      l: {},
+    },
   },
 };
 
 jest.mock('react-native-unistyles', () => ({
   StyleSheet: {
     create: (styles) => {
-      const mockStyles = typeof styles === 'function' ? styles(mockTheme) : styles;
+      const mockStyles =
+        typeof styles === 'function' ? styles(mockTheme) : styles;
       return {
         ...mockStyles,
         useVariants: jest.fn(() => mockStyles),
