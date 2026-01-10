@@ -6,8 +6,10 @@ import { setAuthorization, setRefreshToken } from '@/api';
 import AuthForm from '@/components/auth/AuthForm';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
+import { Select } from '@/components/common/Select';
 import ThemeView from '@/components/common/ThemeView';
 import { Typography } from '@/components/common/Typography';
+import { JOB_OPTIONS, JobType } from '@/constants/jobs';
 import { useToast } from '@/contexts/ToastContext';
 import { useSocialSignUpMutation } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -57,7 +59,7 @@ export default function SocialSignUp() {
       errors.nickname = '닉네임을 입력해주세요.';
     }
     if (!form.job) {
-      errors.job = '직업을 입력해주세요.';
+      errors.job = '직업을 선택해주세요.';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -134,13 +136,14 @@ export default function SocialSignUp() {
           error={!!fieldErrors.nickname}
           helperText={fieldErrors.nickname}
         />
-        <Input
-          placeholder="직업을 입력해주세요."
-          value={form.job}
-          onChangeText={(value) => handleChange('job', value)}
-          style={{ width: 250 }}
+        <Select<JobType>
+          value={form.job as JobType | undefined}
+          items={JOB_OPTIONS}
+          onSelect={(value) => handleChange('job', value)}
+          placeholder="직업을 선택해주세요."
           error={!!fieldErrors.job}
           helperText={fieldErrors.job}
+          containerStyle={{ width: 250 }}
         />
         <Button
           onPress={handleSubmit}
