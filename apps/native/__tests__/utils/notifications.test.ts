@@ -1,7 +1,4 @@
-import {
-  DEEP_LINK_SCREENS,
-  PUSH_NOTIFICATION_ROUTES,
-} from '../../constants/notifications';
+import { DEEP_LINK_SCREENS } from '../../constants/notifications';
 import { NotificationDeepLinkData } from '../../types/notification.types';
 import { getDeepLinkPath } from '../../utils/notifications';
 
@@ -35,9 +32,6 @@ describe('getDeepLinkPath', () => {
         type: 'routine-request',
         requestId: 123,
       };
-      expect(getDeepLinkPath(data)).toBe(
-        PUSH_NOTIFICATION_ROUTES['routine-request'],
-      );
       expect(getDeepLinkPath(data)).toBe('/modal?type=request-detail');
     });
 
@@ -46,9 +40,6 @@ describe('getDeepLinkPath', () => {
         type: 'routine-approved',
         routineId: 456,
       };
-      expect(getDeepLinkPath(data)).toBe(
-        PUSH_NOTIFICATION_ROUTES['routine-approved'],
-      );
       expect(getDeepLinkPath(data)).toBe(DEEP_LINK_SCREENS.ROUTINE);
     });
 
@@ -57,9 +48,6 @@ describe('getDeepLinkPath', () => {
         type: 'routine-rejected',
         routineId: 789,
       };
-      expect(getDeepLinkPath(data)).toBe(
-        PUSH_NOTIFICATION_ROUTES['routine-rejected'],
-      );
       expect(getDeepLinkPath(data)).toBe(DEEP_LINK_SCREENS.ROUTINE);
     });
 
@@ -67,9 +55,6 @@ describe('getDeepLinkPath', () => {
       const data: NotificationDeepLinkData = {
         type: 'friend-request',
       };
-      expect(getDeepLinkPath(data)).toBe(
-        PUSH_NOTIFICATION_ROUTES['friend-request'],
-      );
       expect(getDeepLinkPath(data)).toBe('/modal?type=friend-request-list');
     });
 
@@ -77,9 +62,6 @@ describe('getDeepLinkPath', () => {
       const data: NotificationDeepLinkData = {
         type: 'friend-accepted',
       };
-      expect(getDeepLinkPath(data)).toBe(
-        PUSH_NOTIFICATION_ROUTES['friend-accepted'],
-      );
       expect(getDeepLinkPath(data)).toBe(DEEP_LINK_SCREENS.FRIEND);
     });
   });
