@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { FlatList, Modal, Pressable } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Modal, Pressable } from 'react-native';
+import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view';
 import { StyleSheet } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
@@ -95,53 +95,54 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
           onPress={(e) => e.stopPropagation()}
         >
           <ThemeView style={styles.modalContent}>
-            <KeyboardAwareScrollView
+            <KeyboardAwareFlatList
+              data={userList ?? []}
+              keyExtractor={(item) => item.userId.toString()}
+              renderItem={({ item }) => (
+                <UserItem {...item} close={handleClose} />
+              )}
+              ItemSeparatorComponent={() => <Divider />}
+              ListHeaderComponent={
+                <>
+                  <ThemeView style={styles.modalHeader} transparent>
+                    <Typography variant="subtitle">친구 추가</Typography>
+                    <Button
+                      variant="ghost"
+                      leftIcon={({ color }) => (
+                        <Ionicons
+                          name="close-outline"
+                          size={24}
+                          color={color}
+                        />
+                      )}
+                      onPress={handleClose}
+                    />
+                  </ThemeView>
+
+                  <ThemeView style={styles.searchContainer} transparent>
+                    <Input
+                      placeholder="유저이름을 입력해주세요."
+                      value={keyword}
+                      onChangeText={setKeyword}
+                      onSubmitEditing={handleSearch}
+                      returnKeyType="search"
+                      fullWidth
+                    />
+                  </ThemeView>
+                </>
+              }
+              ListEmptyComponent={
+                <ThemeView style={styles.emptyContainer} transparent>
+                  <Typography style={styles.emptyText}>
+                    유저가 존재하지 않습니다.
+                  </Typography>
+                </ThemeView>
+              }
               contentContainerStyle={{ flexGrow: 1 }}
               enableOnAndroid={true}
               keyboardShouldPersistTaps="handled"
               enableResetScrollToCoords={false}
-            >
-              <ThemeView style={styles.modalHeader} transparent>
-                <Typography variant="subtitle">친구 추가</Typography>
-                <Button
-                  variant="ghost"
-                  leftIcon={({ color }) => (
-                    <Ionicons name="close-outline" size={24} color={color} />
-                  )}
-                  onPress={handleClose}
-                />
-              </ThemeView>
-
-              <ThemeView style={styles.searchContainer} transparent>
-                <Input
-                  placeholder="유저이름을 입력해주세요."
-                  value={keyword}
-                  onChangeText={setKeyword}
-                  onSubmitEditing={handleSearch}
-                  returnKeyType="search"
-                  fullWidth
-                />
-              </ThemeView>
-
-              <ThemeView style={styles.userListContainer} transparent>
-                {userList && userList.length > 0 ? (
-                  <FlatList
-                    data={userList}
-                    keyExtractor={(item) => item.userId.toString()}
-                    renderItem={({ item }) => (
-                      <UserItem {...item} close={handleClose} />
-                    )}
-                    ItemSeparatorComponent={() => <Divider />}
-                  />
-                ) : (
-                  <ThemeView style={styles.emptyContainer} transparent>
-                    <Typography style={styles.emptyText}>
-                      유저가 존재하지 않습니다.
-                    </Typography>
-                  </ThemeView>
-                )}
-              </ThemeView>
-            </KeyboardAwareScrollView>
+            />
           </ThemeView>
         </Pressable>
       </Pressable>
@@ -174,12 +175,6 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     marginBottom: 16,
-  },
-  searchInput: {
-    width: '100%',
-  },
-  userListContainer: {
-    maxHeight: 400,
   },
   userItem: {
     height: 50,
