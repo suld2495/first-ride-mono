@@ -73,4 +73,16 @@ export const palette = {
     800: '#F9A825',
     900: '#F57F17',
   },
+
+  rpg: {
+    strength: '#e74c3c',
+    agility: '#2ecc71',
+    intelligence: '#3498db',
+    luck: '#f1c40f',
+    vitality: '#e91e63',
+    mana: '#9b59b6',
+    exp: '#ffd700',
+    frame: '#8b7355',
+    frameDark: '#5d4e37',
+  },
 } as const;

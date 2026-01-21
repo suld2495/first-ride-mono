@@ -62,6 +62,7 @@ const formatDateTime = (date: Date) => {
   const day = String(date.getDate()).padStart(2, '0');
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
+
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
@@ -73,6 +74,7 @@ const toISOStringWithoutMs = (date: Date) => {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
+
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 };
 
@@ -118,6 +120,7 @@ const QuestFormModal = () => {
       router.back();
     } catch (error) {
       const message = getApiErrorMessage(error, '퀘스트 생성에 실패했습니다.');
+
       showToast(message, 'error');
     }
   };
@@ -166,8 +169,10 @@ const QuestFormModal = () => {
           startDate: (value) => {
             if (!value) return '시작 날짜를 선택해주세요.';
             const today = new Date();
+
             today.setHours(0, 0, 0, 0);
             const selectedDate = new Date(value);
+
             selectedDate.setHours(0, 0, 0, 0);
             if (selectedDate < today) {
               return '시작 날짜는 오늘 이후여야 합니다.';
@@ -184,6 +189,7 @@ const QuestFormModal = () => {
           requiredLevel: (value) => {
             if (!value) return '필요 레벨을 입력해주세요.';
             const num = Number(value);
+
             if (num < 1 || num > 10000) {
               return '레벨은 1~10000 사이여야 합니다.';
             }
@@ -192,6 +198,7 @@ const QuestFormModal = () => {
           maxParticipants: (value) => {
             if (!value) return '최대 참여자 수를 입력해주세요.';
             const num = Number(value);
+
             if (num < 1 || num > 10000) {
               return '참여자 수는 1~10000 사이여야 합니다.';
             }
@@ -330,9 +337,11 @@ const QuestFormModal = () => {
                         const finalDate =
                           tempStartDate ||
                           (value ? new Date(value) : new Date());
+
                         setValue('startDate', toISOStringWithoutMs(finalDate));
 
                         const endDate = new Date(form.endDate || finalDate);
+
                         if (form.endDate && endDate < finalDate) {
                           setValue('endDate', toISOStringWithoutMs(finalDate));
                         }
@@ -430,6 +439,7 @@ const QuestFormModal = () => {
                           (value
                             ? new Date(value)
                             : new Date(form.startDate || Date.now()));
+
                         setValue('endDate', toISOStringWithoutMs(finalDate));
 
                         setIsShowEndDate(false);
@@ -451,6 +461,7 @@ const QuestFormModal = () => {
           item={({ value, onChange }) => {
             const handleChange = (text: string) => {
               const numericValue = text.replace(/[^0-9]/g, '');
+
               onChange(numericValue);
             };
 
@@ -472,6 +483,7 @@ const QuestFormModal = () => {
           item={({ value, onChange }) => {
             const handleChange = (text: string) => {
               const numericValue = text.replace(/[^0-9]/g, '');
+
               onChange(numericValue);
             };
 

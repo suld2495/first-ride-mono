@@ -1,5 +1,5 @@
-import { act } from '@testing-library/react-native';
 import { Text, View } from 'react-native';
+import { act } from '@testing-library/react-native';
 
 import { PullToRefresh } from '../../../components/common/PullToRefresh';
 import { render } from '../../setup/test-utils';
@@ -50,6 +50,7 @@ describe('PullToRefresh', () => {
       );
 
       const scrollView = getByTestId('pull-to-refresh-scroll-view');
+
       expect(scrollView.props.refreshControl).toBeTruthy();
       expect(scrollView.props.refreshControl.props.refreshing).toBe(false);
     });
@@ -62,6 +63,7 @@ describe('PullToRefresh', () => {
       );
 
       const scrollView = getByTestId('pull-to-refresh-scroll-view');
+
       expect(scrollView.props.refreshControl).toBeUndefined();
     });
   });
@@ -114,6 +116,7 @@ describe('PullToRefresh', () => {
       );
 
       const scrollView = getByTestId('pull-to-refresh-scroll-view');
+
       expect(scrollView.props.contentContainerStyle).toEqual({ flexGrow: 1 });
     });
 
@@ -125,6 +128,7 @@ describe('PullToRefresh', () => {
       );
 
       const scrollView = getByTestId('pull-to-refresh-scroll-view');
+
       expect(scrollView.props.showsVerticalScrollIndicator).toBe(false);
     });
   });
