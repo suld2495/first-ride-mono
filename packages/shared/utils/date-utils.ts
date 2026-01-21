@@ -60,7 +60,7 @@ export const getSecondsBetween = (startDate: Date, endDate: Date) => {
 export const formatTimeRemaining = (startDate: Date, endDate: Date) => {
   const seconds = getSecondsBetween(startDate, endDate);
 
-  const isNegative = seconds < 0;
+  const isPast = seconds < 0;
   const absSeconds = Math.abs(seconds);
 
   // 각 단위로 변환
@@ -77,9 +77,14 @@ export const formatTimeRemaining = (startDate: Date, endDate: Date) => {
   ].join(':');
 
   // 일수가 있으면 포함
-  const result = days > 0 ? `D-${days} ${timeString}` : timeString;
+  // 마감 이후(과거): D+N, 마감 이전(미래): D-N
+  if (days > 0) {
+    const prefix = isPast ? 'D+' : 'D-';
+    return `${prefix}${days} ${timeString}`;
+  }
 
-  return isNegative ? `-${result}` : result;
+  // 시간만 표시 (당일)
+  return isPast ? `-${timeString}` : timeString;
 };
 
 export const getDaysOfTheWeek = () => [
