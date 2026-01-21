@@ -270,3 +270,4 @@ export {
   fetchRoutines,
   updateRoutine,
 } from './routine.api';
+export { distributeStats, fetchMyStats } from './stat.api';
