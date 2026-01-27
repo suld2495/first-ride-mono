@@ -10,7 +10,6 @@ export const useFetchQuestsQuery = (filter: QuestTypeFilter = 'ALL') => {
   return useQuery({
     queryKey: questKeys.list(filter),
     queryFn: () => questApi.fetchQuests(filter),
-    initialData: [],
   });
 };
 
@@ -79,7 +78,6 @@ export const useFetchRewardsQuery = (filter: RewardTypeFilter = 'ALL') => {
   return useQuery({
     queryKey: rewardKeys.list(filter),
     queryFn: () => rewardApi.fetchRewards(filter),
-    initialData: [],
   });
 };
 

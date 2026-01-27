@@ -43,48 +43,102 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="mt-2 text-gray-600">관리자 로그인</p>
+    <div className="flex min-h-screen items-center justify-center">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -left-1/4 -top-1/4 h-1/2 w-1/2 rounded-full bg-[rgba(8,145,178,0.1)] blur-3xl"></div>
+        <div className="absolute -bottom-1/4 -right-1/4 h-1/2 w-1/2 rounded-full bg-[rgba(251,191,36,0.1)] blur-3xl"></div>
+      </div>
+
+      <div className="relative w-full max-w-md">
+        {/* Login Card */}
+        <div className="quest-card space-y-8 p-8">
+          {/* Header */}
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl border-2 border-[#0891b2] bg-[rgba(8,145,178,0.2)]">
+              <span className="text-3xl">🎮</span>
+            </div>
+            <h1 className="text-glow text-2xl font-bold text-[#1ddeff]">
+              First Ride Admin
+            </h1>
+            <p className="mt-2 text-[#90a1b9]">관리자 계정으로 로그인하세요</p>
+          </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="userId" className="text-[#e0f2fe]">
+                아이디
+              </Label>
+              <Input
+                id="userId"
+                type="text"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                required
+                disabled={isLoading}
+                placeholder="아이디를 입력하세요"
+                className="border-[#0891b2] bg-[rgba(15,23,42,0.8)] text-[#e0f2fe] placeholder:text-[#90a1b9] focus:border-[#1ddeff] focus:ring-[#1ddeff]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-[#e0f2fe]">
+                비밀번호
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={isLoading}
+                placeholder="비밀번호를 입력하세요"
+                className="border-[#0891b2] bg-[rgba(15,23,42,0.8)] text-[#e0f2fe] placeholder:text-[#90a1b9] focus:border-[#1ddeff] focus:ring-[#1ddeff]"
+              />
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="flex items-center gap-2 rounded-lg border border-[#ef4444] bg-[rgba(239,68,68,0.1)] p-3">
+                <span>⚠️</span>
+                <p className="text-sm text-[#ef4444]">{error}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="btn-quest w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  <span>로그인 중...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span>🔐</span>
+                  <span>로그인</span>
+                </div>
+              )}
+            </Button>
+          </form>
+
+          {/* Footer */}
+          <div className="text-center">
+            <p className="text-xs text-[#90a1b9]">
+              관리자 계정이 필요하신가요?{' '}
+              <span className="text-[#0891b2]">시스템 관리자에게 문의하세요</span>
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="userId">아이디</Label>
-            <Input
-              id="userId"
-              type="text"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">비밀번호</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-
-          {error && (
-            <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
-
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? '로그인 중...' : '로그인'}
-          </Button>
-        </form>
+        {/* Version Info */}
+        <p className="mt-4 text-center text-xs text-[#90a1b9]">
+          First Ride Admin v1.0.0
+        </p>
       </div>
     </div>
   );
