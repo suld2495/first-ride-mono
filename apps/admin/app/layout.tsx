@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import './globals.css';
+
 export const metadata: Metadata = {
   title: 'First Ride Admin',
   description: 'First Ride Admin Dashboard',
