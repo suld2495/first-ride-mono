@@ -48,7 +48,7 @@ export default function QuestEditPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateMutation.mutateAsync({ ...formData, questId });
+    await updateMutation.mutateAsync({ ...formData, id: questId });
     router.push('/quests');
   };
 
