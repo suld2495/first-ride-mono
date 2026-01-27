@@ -29,6 +29,8 @@ export default function QuestEditPage() {
     requiredLevel: 1,
     maxParticipants: 100,
     rewardId: 1,
+    rewardType: 'EXP' as 'BADGE' | 'EXP',
+    expAmount: 0,
   });
 
   useEffect(() => {
@@ -42,6 +44,8 @@ export default function QuestEditPage() {
         requiredLevel: quest.requiredLevel,
         maxParticipants: quest.maxParticipants,
         rewardId: quest.rewardId,
+        rewardType: quest.rewardType,
+        expAmount: quest.expAmount,
       });
     }
   }, [quest]);
