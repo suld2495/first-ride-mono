@@ -76,15 +76,9 @@ export const formatTimeRemaining = (startDate: Date, endDate: Date) => {
     secs.toString().padStart(2, '0'),
   ].join(':');
 
-  // 일수가 있으면 포함
-  // 마감 이후(과거): D+N, 마감 이전(미래): D-N
-  if (days > 0) {
-    const prefix = isPast ? 'D+' : 'D-';
-    return `${prefix}${days} ${timeString}`;
-  }
-
-  // 시간만 표시 (당일)
-  return isPast ? `-${timeString}` : timeString;
+  // 마감 이후(과거): D+N, 마감 이전(미래): D-N, 당일: D-0
+  const prefix = isPast ? 'D+' : 'D-';
+  return `${prefix}${days} ${timeString}`;
 };
 
 export const getDaysOfTheWeek = () => [

@@ -38,28 +38,28 @@ describe('formatTimeRemaining', () => {
   describe('당일 (마감일 당일)', () => {
     const testCases = [
       {
-        description: '마감까지 12시간 남은 경우 시간만 표시한다',
+        description: '마감까지 12시간 남은 경우 D-0 형식으로 표시한다',
         startDate: '2024-01-01T00:00:00',
         endDate: '2024-01-01T12:00:00',
-        expected: '12:00:00',
+        expected: 'D-0 12:00:00',
       },
       {
-        description: '마감까지 1시간 남은 경우 시간만 표시한다',
+        description: '마감까지 1시간 남은 경우 D-0 형식으로 표시한다',
         startDate: '2024-01-01T10:00:00',
         endDate: '2024-01-01T11:30:45',
-        expected: '01:30:45',
+        expected: 'D-0 01:30:45',
       },
       {
-        description: '마감까지 1분 남은 경우 시간만 표시한다',
+        description: '마감까지 1분 남은 경우 D-0 형식으로 표시한다',
         startDate: '2024-01-01T10:00:00',
         endDate: '2024-01-01T10:01:00',
-        expected: '00:01:00',
+        expected: 'D-0 00:01:00',
       },
       {
-        description: '마감까지 1초 남은 경우 시간만 표시한다',
+        description: '마감까지 1초 남은 경우 D-0 형식으로 표시한다',
         startDate: '2024-01-01T10:00:00',
         endDate: '2024-01-01T10:00:01',
-        expected: '00:00:01',
+        expected: 'D-0 00:00:01',
       },
     ];
 
@@ -90,22 +90,22 @@ describe('formatTimeRemaining', () => {
         expected: 'D+19 04:10:15',
       },
       {
-        description: '당일에 마감을 지난 경우 - 접두사와 함께 시간을 표시한다',
+        description: '당일에 마감을 지난 경우 D+0 형식으로 표시한다',
         startDate: '2024-01-01T12:00:00',
         endDate: '2024-01-01T10:30:15',
-        expected: '-01:29:45',
+        expected: 'D+0 01:29:45',
       },
       {
-        description: '당일에 1시간 지난 경우',
+        description: '당일에 1시간 지난 경우 D+0 형식으로 표시한다',
         startDate: '2024-01-01T11:00:00',
         endDate: '2024-01-01T10:00:00',
-        expected: '-01:00:00',
+        expected: 'D+0 01:00:00',
       },
       {
-        description: '당일에 수 분 지난 경우',
+        description: '당일에 수 분 지난 경우 D+0 형식으로 표시한다',
         startDate: '2024-01-01T10:05:30',
         endDate: '2024-01-01T10:00:00',
-        expected: '-00:05:30',
+        expected: 'D+0 00:05:30',
       },
     ];
 
@@ -130,16 +130,16 @@ describe('formatTimeRemaining', () => {
         expected: 'D+1 00:00:00',
       },
       {
-        description: '시작일과 종료일이 동일한 경우 00:00:00을 표시한다',
+        description: '시작일과 종료일이 동일한 경우 D-0 00:00:00을 표시한다',
         startDate: '2024-01-01T10:00:00',
         endDate: '2024-01-01T10:00:00',
-        expected: '00:00:00',
+        expected: 'D-0 00:00:00',
       },
       {
-        description: '23시간 59분 59초 남은 경우 시간만 표시한다',
+        description: '23시간 59분 59초 남은 경우 D-0 형식으로 표시한다',
         startDate: '2024-01-01T00:00:00',
         endDate: '2024-01-01T23:59:59',
-        expected: '23:59:59',
+        expected: 'D-0 23:59:59',
       },
       {
         description: '24시간 1초 남은 경우 D-1로 표시한다',

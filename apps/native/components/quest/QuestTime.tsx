@@ -11,7 +11,9 @@ interface QuestTimeProps {
 }
 
 const QuestTime = ({ endDate }: QuestTimeProps) => {
-  const [timeRemaining, setTimeRemaining] = useState('D-0');
+  const [timeRemaining, setTimeRemaining] = useState(() =>
+    formatTimeRemaining(new Date(), endDate)
+  );
 
   useEffect(() => {
     let start = 0;
