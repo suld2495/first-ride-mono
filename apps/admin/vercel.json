@@ -1,5 +1,6 @@
 {
   "framework": "nextjs",
   "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && pnpm turbo run build --filter=first-ride-admin"
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=first-ride-admin",
+  "outputDirectory": ".next"
 }
