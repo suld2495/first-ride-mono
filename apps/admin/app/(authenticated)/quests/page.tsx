@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
 import { QuestTypeFilter } from '@repo/types';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 
@@ -17,6 +17,17 @@ const getStatusBadgeClass = (status: string) => {
       return 'quest-badge-inactive';
     default:
       return 'quest-badge';
+  }
+};
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'ACTIVE':
+      return '진행중';
+    case 'COMPLETED':
+      return '완료';
+    default:
+      return '비활성';
   }
 };
 
@@ -209,10 +220,13 @@ export default function QuestsPage() {
                     <td>
                       <div className="text-sm">
                         <p className="text-[#e0f2fe]">
-                          {new Date(quest.startDate).toLocaleDateString('ko-KR')}
+                          {new Date(quest.startDate).toLocaleDateString(
+                            'ko-KR',
+                          )}
                         </p>
                         <p className="text-[#90a1b9]">
-                          ~ {new Date(quest.endDate).toLocaleDateString('ko-KR')}
+                          ~{' '}
+                          {new Date(quest.endDate).toLocaleDateString('ko-KR')}
                         </p>
                       </div>
                     </td>
@@ -220,11 +234,7 @@ export default function QuestsPage() {
                       <span
                         className={`quest-badge ${getStatusBadgeClass(quest.status)}`}
                       >
-                        {quest.status === 'ACTIVE'
-                          ? '진행중'
-                          : quest.status === 'COMPLETED'
-                            ? '완료'
-                            : '비활성'}
+                        {getStatusLabel(quest.status)}
                       </span>
                     </td>
                     <td>

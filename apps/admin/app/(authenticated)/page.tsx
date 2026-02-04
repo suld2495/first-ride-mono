@@ -1,17 +1,34 @@
 'use client';
 
+import {
+  useFetchQuestsQuery,
+  useFetchRewardsQuery,
+} from '@repo/shared/hooks/useQuest';
 import Link from 'next/link';
-import { useFetchQuestsQuery, useFetchRewardsQuery } from '@repo/shared/hooks/useQuest';
 
 import { Button } from '@/components/ui/button';
+
+function getStatusLabel(status: string) {
+  if (status === 'ACTIVE') return '진행중';
+  if (status === 'COMPLETED') return '완료';
+  return '비활성';
+}
+
+function getStatusBadgeClass(status: string) {
+  if (status === 'ACTIVE') return 'quest-badge-active';
+  if (status === 'COMPLETED') return 'quest-badge-completed';
+  return 'quest-badge-inactive';
+}
 
 export default function DashboardPage() {
   const { data: quests } = useFetchQuestsQuery('ALL');
   const { data: rewards } = useFetchRewardsQuery('ALL');
 
   const activeQuests = quests?.filter((q) => q.status === 'ACTIVE').length ?? 0;
-  const completedQuests = quests?.filter((q) => q.status === 'COMPLETED').length ?? 0;
-  const totalParticipants = quests?.reduce((acc, q) => acc + q.currentParticipants, 0) ?? 0;
+  const completedQuests =
+    quests?.filter((q) => q.status === 'COMPLETED').length ?? 0;
+  const totalParticipants =
+    quests?.reduce((acc, q) => acc + q.currentParticipants, 0) ?? 0;
 
   return (
     <div className="space-y-8">
@@ -44,7 +61,9 @@ export default function DashboardPage() {
             <span className="text-2xl">📋</span>
             <span className="quest-badge text-xs">TOTAL</span>
           </div>
-          <p className="text-3xl font-bold text-[#1ddeff]">{quests?.length ?? 0}</p>
+          <p className="text-3xl font-bold text-[#1ddeff]">
+            {quests?.length ?? 0}
+          </p>
           <p className="text-sm text-[#90a1b9]">전체 퀘스트</p>
         </div>
 
@@ -62,7 +81,9 @@ export default function DashboardPage() {
             <span className="text-2xl">🏆</span>
             <span className="quest-badge-completed text-xs">REWARDS</span>
           </div>
-          <p className="text-3xl font-bold text-[#fbbf24]">{rewards?.length ?? 0}</p>
+          <p className="text-3xl font-bold text-[#fbbf24]">
+            {rewards?.length ?? 0}
+          </p>
           <p className="text-sm text-[#90a1b9]">등록된 리워드</p>
         </div>
 
@@ -71,7 +92,9 @@ export default function DashboardPage() {
             <span className="text-2xl">👥</span>
             <span className="quest-badge text-xs">USERS</span>
           </div>
-          <p className="text-3xl font-bold text-[#f97316]">{totalParticipants}</p>
+          <p className="text-3xl font-bold text-[#f97316]">
+            {totalParticipants}
+          </p>
           <p className="text-sm text-[#90a1b9]">총 참여자</p>
         </div>
       </div>
@@ -112,19 +135,9 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <span
-                    className={`quest-badge text-xs ${
-                      quest.status === 'ACTIVE'
-                        ? 'quest-badge-active'
-                        : quest.status === 'COMPLETED'
-                          ? 'quest-badge-completed'
-                          : 'quest-badge-inactive'
-                    }`}
+                    className={`quest-badge text-xs ${getStatusBadgeClass(quest.status)}`}
                   >
-                    {quest.status === 'ACTIVE'
-                      ? '진행중'
-                      : quest.status === 'COMPLETED'
-                        ? '완료'
-                        : '비활성'}
+                    {getStatusLabel(quest.status)}
                   </span>
                 </div>
               ))}
@@ -134,7 +147,9 @@ export default function DashboardPage() {
               <span className="text-4xl">🔍</span>
               <p className="mt-3 text-[#90a1b9]">퀘스트가 없습니다</p>
               <Link href="/quests">
-                <Button className="btn-quest-outline mt-4">퀘스트 만들기</Button>
+                <Button className="btn-quest-outline mt-4">
+                  퀘스트 만들기
+                </Button>
               </Link>
             </div>
           )}

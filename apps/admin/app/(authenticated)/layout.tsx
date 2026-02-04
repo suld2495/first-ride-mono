@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { useAuthStore } from '@/store/auth.store';
-import { getAuthorization } from '@/lib/api';
+import { usePathname, useRouter } from 'next/navigation';
+
 import { Button } from '@/components/ui/button';
+import { getAuthorization } from '@/lib/api';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function AuthenticatedLayout({
   children,
@@ -19,10 +20,12 @@ export default function AuthenticatedLayout({
   useEffect(() => {
     const checkAuth = async () => {
       const token = getAuthorization();
+
       if (!token || !user) {
         router.push('/login');
       }
     };
+
     checkAuth();
   }, [user, router]);
 
@@ -53,6 +56,7 @@ export default function AuthenticatedLayout({
             <div className="flex items-center gap-2">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
+
                 return (
                   <Link
                     key={item.href}

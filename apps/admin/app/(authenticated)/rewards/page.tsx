@@ -21,7 +21,11 @@ export default function RewardsPage() {
   const [filter, setFilter] = useState<RewardTypeFilter>('ALL');
   const { data: rewards, isLoading, error } = useFetchRewardsQuery(filter);
 
-  const filterOptions: { value: RewardTypeFilter; label: string; icon: string }[] = [
+  const filterOptions: {
+    value: RewardTypeFilter;
+    label: string;
+    icon: string;
+  }[] = [
     { value: 'ALL', label: '전체', icon: '📦' },
     { value: 'BADGE', label: '배지', icon: '🎖️' },
     { value: 'EXP', label: '경험치', icon: '✨' },
@@ -35,7 +39,9 @@ export default function RewardsPage() {
           <h1 className="text-glow text-3xl font-bold text-[#1ddeff]">
             🏆 리워드 관리
           </h1>
-          <p className="mt-1 text-[#90a1b9]">퀘스트 보상을 설정하고 관리합니다</p>
+          <p className="mt-1 text-[#90a1b9]">
+            퀘스트 보상을 설정하고 관리합니다
+          </p>
         </div>
         <Button className="btn-amber flex items-center gap-2">
           <span>+</span>
@@ -183,7 +189,9 @@ export default function RewardsPage() {
                     </td>
                     <td>
                       <div className="flex items-center gap-2">
-                        <span className="text-[#fbbf24]">+{reward.expAmount}</span>
+                        <span className="text-[#fbbf24]">
+                          +{reward.expAmount}
+                        </span>
                         <span className="text-xs text-[#90a1b9]">EXP</span>
                       </div>
                     </td>

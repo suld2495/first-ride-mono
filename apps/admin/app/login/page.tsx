@@ -36,8 +36,11 @@ export default function LoginPage() {
       setRefreshToken(response.refreshToken);
       signIn(response.userInfo);
       router.push('/');
-    } catch (err: any) {
-      setError(err.message || '로그인에 실패했습니다');
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : '로그인에 실패했습니다';
+
+      setError(message);
       setIsLoading(false);
     }
   };
@@ -130,7 +133,9 @@ export default function LoginPage() {
           <div className="text-center">
             <p className="text-xs text-[#90a1b9]">
               관리자 계정이 필요하신가요?{' '}
-              <span className="text-[#0891b2]">시스템 관리자에게 문의하세요</span>
+              <span className="text-[#0891b2]">
+                시스템 관리자에게 문의하세요
+              </span>
             </p>
           </div>
         </div>

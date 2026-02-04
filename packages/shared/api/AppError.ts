@@ -2,7 +2,7 @@ import { ErrorAraryData, FieldErrorReason } from '@repo/types';
 
 export abstract class AppError extends Error {
   constructor(
-    protected cause: unknown,
+    readonly originalError: unknown,
     message?: string,
   ) {
     super(message);
