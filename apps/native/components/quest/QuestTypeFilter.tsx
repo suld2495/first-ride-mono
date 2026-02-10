@@ -56,11 +56,11 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
 
 export default QuestTypeFilter;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
-    backgroundColor: 'rgba(15, 23, 42, 0.4)',
+    backgroundColor: theme.colors.background.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#0891b2',
+    borderBottomColor: theme.colors.action.primary.default,
     paddingVertical: 8,
   },
 
@@ -74,13 +74,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#0891b2',
-    backgroundColor: 'rgba(8, 145, 178, 0.1)',
+    borderColor: theme.colors.action.primary.default,
+    backgroundColor: theme.colors.action.secondary.default,
   },
 
   chipSelected: {
-    borderColor: '#fbbf24',
-    backgroundColor: 'rgba(251, 191, 36, 0.2)',
+    borderColor: theme.colors.feedback.warning.text,
+    backgroundColor: theme.colors.feedback.warning.bg,
   },
 
   chipPressed: {
@@ -94,4 +94,4 @@ const styles = StyleSheet.create({
   chipTextSelected: {
     fontWeight: 'bold',
   },
-});
+}));

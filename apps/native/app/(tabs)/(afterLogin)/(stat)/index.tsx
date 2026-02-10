@@ -166,11 +166,11 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
   },
   content: {
-    padding: 16,
-    paddingBottom: 32,
+    padding: theme.foundation.spacing.m,
+    paddingBottom: theme.foundation.spacing.xl,
   },
   statContainer: {
-    marginTop: 8,
+    marginTop: theme.foundation.spacing.s,
   },
   loadingOverlay: {
     position: 'absolute',

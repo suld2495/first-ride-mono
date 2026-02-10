@@ -58,9 +58,9 @@ export default function Index() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
-    paddingHorizontal: 10,
+    paddingHorizontal: theme.foundation.spacing.s,
     flex: 1,
   },
-});
+}));

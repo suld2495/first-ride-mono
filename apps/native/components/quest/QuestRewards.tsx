@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import ThemeView from '../common/ThemeView';
@@ -10,18 +10,20 @@ interface QuestRewardsProps {
 }
 
 const QuestRewards = ({ rewardName }: QuestRewardsProps) => {
+  const { theme } = useUnistyles();
+
   return (
     <ThemeView style={styles.container}>
       {/* Header */}
       <ThemeView style={styles.header}>
-        <Ionicons name="trophy-outline" size={20} color="#fbbf24" />
+        <Ionicons name="trophy-outline" size={20} color={theme.colors.feedback.warning.text} />
         <Typography variant="body" style={styles.headerText}>
           REWARDS
         </Typography>
       </ThemeView>
 
       {/* Reward Name */}
-      <Typography variant="body" style={{ color: '#e0f2fe' }}>
+      <Typography variant="body">
         {rewardName}
       </Typography>
     </ThemeView>
@@ -30,14 +32,14 @@ const QuestRewards = ({ rewardName }: QuestRewardsProps) => {
 
 export default QuestRewards;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
-    backgroundColor: 'rgba(251, 191, 36, 0.1)',
-    borderColor: '#f59e0b',
+    backgroundColor: theme.colors.feedback.warning.bg,
+    borderColor: theme.colors.feedback.warning.border,
     borderWidth: 1,
     padding: 8,
     paddingBottom: 12,
-    borderRadius: 8,
+    borderRadius: theme.foundation.radii.m,
   },
 
   header: {
@@ -50,4 +52,4 @@ const styles = StyleSheet.create({
   headerText: {
     fontWeight: 'bold',
   },
-});
+}));

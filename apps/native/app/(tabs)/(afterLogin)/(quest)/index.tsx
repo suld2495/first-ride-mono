@@ -3,6 +3,7 @@ import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
 import { Quest } from '@repo/types';
 import { useRouter } from 'expo-router';
 
+import Loading from '@/components/common/Loading';
 import Container from '@/components/layout/Container';
 import QuestHeader from '@/components/quest/QuestHeader';
 import QuestList from '@/components/quest/QuestList';
@@ -21,7 +22,12 @@ export default function QuestPage() {
   const { data: quests, isLoading } = useFetchQuestsQuery();
 
   if (isLoading) {
-    return null;
+    return (
+      <Container style={styles.container}>
+        <QuestHeader />
+        <Loading />
+      </Container>
+    );
   }
 
   // Apply filters
@@ -58,9 +64,9 @@ export default function QuestPage() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
-    paddingHorizontal: 10,
+    paddingHorizontal: theme.foundation.spacing.s,
     flex: 1,
   },
-});
+}));

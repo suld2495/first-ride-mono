@@ -125,7 +125,7 @@ export default function SignIn() {
           placeholder="아이디를 입력해주세요."
           value={form.userId}
           onChangeText={(value) => handleChange('userId', value)}
-          style={{ width: 250 }}
+          style={styles.input}
           error={!!fieldErrors.userId}
           helperText={fieldErrors.userId}
         />
@@ -165,16 +165,20 @@ export default function SignIn() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    gap: 10,
+    gap: theme.foundation.spacing.s,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
+  input: {
+    width: 250,
+  },
+
   button: {
-    marginTop: 10,
+    marginTop: theme.foundation.spacing.s,
   },
 
   link: {
@@ -184,4 +188,4 @@ const styles = StyleSheet.create({
   kakaoButton: {
     width: 250,
   },
-});
+}));

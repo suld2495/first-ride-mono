@@ -54,7 +54,7 @@ const RoutineWrapper = ({
                 <Button
                   variant="ghost"
                   onPress={() => onShowDetailModal(routine.routineId)}
-                  style={{ padding: 0 }}
+                  style={styles.titleButton}
                 >
                   <Typography style={styles.title}>
                     {routine.routineName}
@@ -325,14 +325,14 @@ export const RoutineCountList = (
   );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   list: {
-    gap: 15,
+    gap: theme.foundation.spacing.m,
   },
 
   container: {
     backgroundColor: 'transparent',
-    gap: 10,
+    gap: theme.foundation.spacing.s,
   },
 
   info: {
@@ -341,8 +341,8 @@ const styles = StyleSheet.create({
   },
 
   table: {
-    gap: 5,
-    marginTop: 10,
+    gap: theme.foundation.spacing.xs,
+    marginTop: theme.foundation.spacing.s,
   },
 
   row: {
@@ -362,8 +362,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  titleButton: {
+    padding: 0,
+  },
+
   complete_button: {
-    height: 30,
+    height: 36,
     paddingVertical: 0,
     paddingHorizontal: 10,
     borderRadius: 5,
@@ -378,4 +382,4 @@ const styles = StyleSheet.create({
   success_rate_icon: {
     borderRadius: 100,
   },
-});
+}));

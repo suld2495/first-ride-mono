@@ -41,7 +41,7 @@ const QuestHeader = () => {
 
 export default QuestHeader;
 
-const styles = StyleSheet.create(() => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     width: '100%',
     paddingVertical: 12,
@@ -57,7 +57,7 @@ const styles = StyleSheet.create(() => ({
 
   title: {
     marginBottom: 8,
-    textShadowColor: 'rgba(176, 176, 176, 0.6)',
+    textShadowColor: theme.colors.text.tertiary,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
   },

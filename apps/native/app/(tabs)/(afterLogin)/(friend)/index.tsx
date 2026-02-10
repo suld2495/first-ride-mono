@@ -9,14 +9,12 @@ import FriendAddModal from '@/components/friend/FriendAddModal';
 import FriendHeader from '@/components/friend/FriendHeader';
 import FriendList from '@/components/friend/FriendList';
 import Container from '@/components/layout/Container';
-import { COLORS } from '@/theme/colors';
 
 const FriendPage = () => {
   const [page] = useState(1);
   const [input, setInput] = useState('');
   const [keyword, setKeyword] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const styles = createStyles();
 
   const handleSearch = () => {
     setKeyword(input);
@@ -32,9 +30,9 @@ const FriendPage = () => {
             title="친구 추가"
             variant="primary"
             size="sm"
-            leftIcon={
-              <Ionicons name="people-outline" size={20} color={COLORS.white} />
-            }
+            leftIcon={({ color }) => (
+              <Ionicons name="people-outline" size={20} color={color} />
+            )}
             onPress={() => setShowAddModal(true)}
             style={styles.addButton}
           />
@@ -63,24 +61,23 @@ const FriendPage = () => {
 
 export default FriendPage;
 
-const createStyles = () =>
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      width: '100%',
-    },
-    addButtonContainer: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-    },
-    addButton: {
-      paddingHorizontal: 12,
-    },
-    searchContainer: {
-      marginTop: 12,
-      marginBottom: 12,
-    },
-    searchInput: {
-      width: '100%',
-    },
-  });
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    flex: 1,
+    width: '100%',
+  },
+  addButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  addButton: {
+    paddingHorizontal: theme.foundation.spacing.s,
+  },
+  searchContainer: {
+    marginTop: theme.foundation.spacing.s,
+    marginBottom: theme.foundation.spacing.s,
+  },
+  searchInput: {
+    width: '100%',
+  },
+}));

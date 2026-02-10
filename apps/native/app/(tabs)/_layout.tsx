@@ -3,6 +3,7 @@ import { Animated, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnistyles } from 'react-native-unistyles';
 import { type BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
+import * as Haptics from 'expo-haptics';
 import { Tabs } from 'expo-router';
 
 import TabBarIcon from '@/components/common/TabBarIcon';
@@ -17,6 +18,7 @@ const AnimatedTabBarButton = ({
   const { theme } = useUnistyles();
 
   const handlePressOut = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     Animated.sequence([
       Animated.spring(scaleValue, {
         toValue: 1.05,
@@ -66,8 +68,9 @@ export default function TabLayout() {
           headerShown: false,
           tabBarButton: (props) => <AnimatedTabBarButton {...props} />,
           tabBarIconStyle: { alignSelf: 'center' },
+          tabBarActiveTintColor: theme.colors.action.primary.default,
+          tabBarInactiveTintColor: theme.colors.text.tertiary,
           tabBarLabelStyle: {
-            color: theme.colors.text.primary,
             fontSize: 12,
             fontWeight: 'bold',
           },
@@ -85,8 +88,8 @@ export default function TabLayout() {
           name="(afterLogin)/(routine)/index"
           options={{
             title: '루틴',
-            tabBarIcon: () => (
-              <TabBarIcon name="list" color={theme.colors.text.primary} />
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon name="list" color={color} />
             ),
           }}
         />
@@ -94,8 +97,8 @@ export default function TabLayout() {
           name="(afterLogin)/(quest)/index"
           options={{
             title: '퀘스트',
-            tabBarIcon: () => (
-              <TabBarIcon name="trophy" color={theme.colors.text.primary} />
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon name="trophy" color={color} />
             ),
           }}
         />
@@ -103,8 +106,8 @@ export default function TabLayout() {
           name="(afterLogin)/(stat)/index"
           options={{
             title: '스탯',
-            tabBarIcon: () => (
-              <TabBarIcon name="star" color={theme.colors.text.primary} />
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon name="star" color={color} />
             ),
           }}
         />
@@ -112,8 +115,8 @@ export default function TabLayout() {
           name="(afterLogin)/(friend)/index"
           options={{
             title: '친구',
-            tabBarIcon: () => (
-              <TabBarIcon name="users" color={theme.colors.text.primary} />
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon name="users" color={color} />
             ),
           }}
         />
@@ -121,8 +124,8 @@ export default function TabLayout() {
           name="(afterLogin)/my-info"
           options={{
             title: 'My',
-            tabBarIcon: () => (
-              <TabBarIcon name="user" color={theme.colors.text.primary} />
+            tabBarIcon: ({ color }) => (
+              <TabBarIcon name="user" color={color} />
             ),
           }}
         />

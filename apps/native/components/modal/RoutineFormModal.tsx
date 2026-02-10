@@ -101,10 +101,12 @@ const RoutineFormModal = () => {
         mateNickname: user!.nickname,
       });
 
-      alert('루틴이 수정되었습니다.');
+      toast.showToast('루틴이 수정되었습니다.');
       router.back();
-    } catch {
-      alert('루틴 수정에 실패했습니다.');
+    } catch (e: unknown) {
+      const message = (e as Error)?.message || '루틴 수정에 실패했습니다.';
+
+      toast.showToast(message, 'error');
     }
   };
 
@@ -361,18 +363,18 @@ const RoutineFormModal = () => {
 
 export default RoutineFormModal;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    marginTop: 30,
-    gap: 20,
-    paddingHorizontal: 10,
+    marginTop: theme.foundation.spacing.xl,
+    gap: theme.foundation.spacing.l,
+    paddingHorizontal: theme.foundation.spacing.s,
   },
 
   dateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: theme.foundation.spacing.s,
   },
 
   button: {
@@ -381,7 +383,7 @@ const styles = StyleSheet.create({
 
   mateField: {
     flexDirection: 'row',
-    gap: 5,
+    gap: theme.foundation.spacing.xs,
     alignItems: 'center',
   },
-});
+}));

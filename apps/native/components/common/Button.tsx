@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import * as Haptics from 'expo-haptics';
 
 import { type UnistylesVariants } from '@/styles/unistyles';
 
@@ -175,6 +176,11 @@ export const Button: React.FC<ButtonProps> = ({
     );
   };
 
+  const handlePress = (e: any) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    props.onPress?.(e);
+  };
+
   return (
     <Pressable
       style={({ pressed }) => [
@@ -187,6 +193,7 @@ export const Button: React.FC<ButtonProps> = ({
       ]}
       disabled={disabled || loading}
       {...props}
+      onPress={handlePress}
     >
       {renderContent()}
     </Pressable>

@@ -46,15 +46,15 @@ const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
 
 export default QuestStatusTabs;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: 12,
     paddingHorizontal: 8,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    backgroundColor: theme.colors.background.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#0891b2',
+    borderBottomColor: theme.colors.action.primary.default,
   },
 
   tab: {
@@ -62,12 +62,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     alignItems: 'center',
-    borderRadius: 4,
+    borderRadius: theme.foundation.radii.s,
   },
 
   tabSelected: {
-    backgroundColor: 'rgba(29, 222, 255, 0.1)',
-    borderColor: '#1ddeff',
+    backgroundColor: theme.colors.action.secondary.default,
+    borderColor: theme.colors.action.primary.default,
     borderWidth: 1,
   },
 
@@ -78,4 +78,4 @@ const styles = StyleSheet.create({
   tabText: {
     fontWeight: '600',
   },
-});
+}));

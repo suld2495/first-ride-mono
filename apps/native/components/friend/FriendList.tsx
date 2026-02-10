@@ -12,6 +12,8 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 
 import { Button } from '../common/Button';
 import { Divider } from '../common/Divider';
+import EmptyState from '../common/EmptyState';
+import Loading from '../common/Loading';
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 
@@ -69,6 +71,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
           />
         )}
         onPress={handleDelete}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         style={styles.deleteButton}
       />
     </ThemeView>
@@ -76,17 +79,19 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
 };
 
 const FriendList = ({ page, keyword }: SearchOption) => {
-  const { data: friends, refetch } = useFetchFriendsQuery({ page, keyword });
+  const { data: friends, isLoading, refetch } = useFetchFriendsQuery({ page, keyword });
 
   const handleDelete = () => {
     refetch();
   };
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   if (!friends || friends.length === 0) {
     return (
-      <ThemeView style={styles.emptyContainer}>
-        <Typography style={styles.emptyText}>친구를 추가해보세요.</Typography>
-      </ThemeView>
+      <EmptyState icon="people-outline" message="친구를 추가해보세요." />
     );
   }
 
@@ -117,14 +122,5 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     paddingHorizontal: 8,
-  },
-  emptyContainer: {
-    height: 100,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyText: {
-    textAlign: 'center',
   },
 });

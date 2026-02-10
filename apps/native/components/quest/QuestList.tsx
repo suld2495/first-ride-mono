@@ -1,8 +1,9 @@
 import { FlatList, Pressable } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Quest } from '@repo/types';
 
+import EmptyState from '../common/EmptyState';
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 
@@ -19,6 +20,7 @@ interface QuestItemProps {
 }
 
 const QuestItem = ({ quest, onClick }: QuestItemProps) => {
+  const { theme } = useUnistyles();
   const { questType, questName, description, endDate } = quest;
 
   return (
@@ -52,7 +54,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
             GOAL
           </Typography>
           <ThemeView style={styles.goalBox}>
-            <Ionicons name="checkbox-outline" size={20} color="#1ddeff" />
+            <Ionicons name="checkbox-outline" size={20} color={theme.colors.action.primary.default} />
             <Typography variant="body" style={styles.goalText}>
               {description}
             </Typography>
@@ -83,12 +85,7 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
-        <ThemeView style={styles.emptyContainer}>
-          <Ionicons name="briefcase-outline" size={50} color="#90a1b9" />
-          <Typography variant="body" style={styles.emptyText}>
-            퀘스트가 존재하지 않습니다.
-          </Typography>
-        </ThemeView>
+        <EmptyState icon="briefcase-outline" message="퀘스트가 존재하지 않습니다." />
       }
     />
   );
@@ -96,7 +93,7 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
 
 export default QuestList;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   scrollView: {
     flex: 1,
   },
@@ -110,16 +107,12 @@ const styles = StyleSheet.create({
   },
 
   questCard: {
-    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+    backgroundColor: theme.colors.background.surface,
     borderWidth: 2,
-    borderColor: '#0891b2',
-    borderRadius: 8,
+    borderColor: theme.colors.action.primary.default,
+    borderRadius: theme.foundation.radii.m,
     overflow: 'hidden',
-    shadowColor: 'rgba(0, 214, 256, 0.3)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    elevation: 8,
+    ...theme.foundation.shadow.m,
   },
 
   questCardPressed: {
@@ -128,7 +121,7 @@ const styles = StyleSheet.create({
 
   topLine: {
     height: 4,
-    backgroundColor: '#0891b2',
+    backgroundColor: theme.colors.action.primary.default,
   },
 
   cardContent: {
@@ -156,18 +149,15 @@ const styles = StyleSheet.create({
   goalTitle: {
     textAlign: 'center',
     letterSpacing: 6,
-    textShadowColor: 'rgba(0, 214, 256, 1)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 30,
   },
 
   goalBox: {
     flexDirection: 'row',
     gap: 8,
-    borderColor: '#0891b2',
+    borderColor: theme.colors.action.primary.default,
     borderWidth: 1,
     padding: 12,
-    borderRadius: 4,
+    borderRadius: theme.foundation.radii.s,
     alignItems: 'flex-start',
   },
 
@@ -175,14 +165,4 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16,
-  },
-
-  emptyText: {
-    // Style applied via variant and color props
-  },
-});
+}));

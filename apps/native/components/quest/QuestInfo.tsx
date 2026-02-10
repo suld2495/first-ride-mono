@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import ThemeView from '../common/ThemeView';
@@ -34,6 +34,7 @@ const QuestInfo = ({
   currentParticipants,
   maxParticipants,
 }: QuestInfoProps) => {
+  const { theme } = useUnistyles();
   const progress = (currentParticipants / maxParticipants) * 100;
   const isFull = currentParticipants === maxParticipants;
 
@@ -41,7 +42,7 @@ const QuestInfo = ({
     <ThemeView style={styles.container}>
       {/* Header */}
       <ThemeView style={styles.header}>
-        <Ionicons name="flash-outline" size={20} color="#1ddeff" />
+        <Ionicons name="flash-outline" size={20} color={theme.colors.action.primary.default} />
         <Typography variant="body" style={styles.headerText}>
           QUEST INFO
         </Typography>
@@ -52,27 +53,27 @@ const QuestInfo = ({
         <QuestBox
           title="최소 레벨"
           value={`LV.${requiredLevel}`}
-          color="#1ddeff"
+          color={theme.colors.action.primary.default}
         />
         <QuestBox
           title="현재 인원"
           value={`${currentParticipants}명`}
-          color="#f97316"
+          color={theme.colors.feedback.warning.text}
         />
         <QuestBox
           title="최대 인원"
           value={`${maxParticipants}명`}
-          color="#3b82f6"
+          color={theme.colors.feedback.info.text}
         />
       </ThemeView>
 
       {/* Party Status */}
       <ThemeView style={styles.partyContainer}>
         <ThemeView style={styles.partyHeader}>
-          <Typography variant="caption" style={{ color: '#90a1b9' }}>
+          <Typography variant="caption" color="secondary">
             파티현황
           </Typography>
-          <Typography variant="caption" style={{ color: '#90a1b9' }}>
+          <Typography variant="caption" color="secondary">
             {`${currentParticipants}/${maxParticipants}`}
           </Typography>
         </ThemeView>
@@ -85,7 +86,7 @@ const QuestInfo = ({
         {/* Warning Message */}
         {isFull && (
           <ThemeView style={styles.warning}>
-            <Ionicons name="warning" size={17} color="yellow" />
+            <Ionicons name="warning" size={17} color={theme.colors.feedback.warning.text} />
             <Typography variant="caption">
               파티 인원이 가득 찼습니다.
             </Typography>
@@ -98,13 +99,13 @@ const QuestInfo = ({
 
 export default QuestInfo;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
-    borderColor: '#0891b2',
+    borderColor: theme.colors.action.primary.default,
     borderWidth: 1,
     padding: 8,
     paddingBottom: 12,
-    borderRadius: 8,
+    borderRadius: theme.foundation.radii.m,
   },
 
   header: {
@@ -129,9 +130,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: '#0891b2',
+    borderColor: theme.colors.action.primary.default,
     borderWidth: 1,
-    borderRadius: 4,
+    borderRadius: theme.foundation.radii.s,
     paddingVertical: 12,
   },
 
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
 
   partyContainer: {
     gap: 8,
-    borderTopColor: '#0891b2',
+    borderTopColor: theme.colors.action.primary.default,
     borderTopWidth: 1,
     marginTop: 12,
     paddingTop: 8,
@@ -159,14 +160,14 @@ const styles = StyleSheet.create({
   progressBackground: {
     width: '100%',
     height: 8,
-    backgroundColor: '#374151',
-    borderRadius: 4,
+    backgroundColor: theme.colors.background.sunken,
+    borderRadius: theme.foundation.radii.s,
     overflow: 'hidden',
   },
 
   progressFill: {
     height: '100%',
-    backgroundColor: '#f97316',
+    backgroundColor: theme.colors.feedback.warning.text,
   },
 
   warning: {
@@ -175,4 +176,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-});
+}));

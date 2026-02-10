@@ -4,9 +4,8 @@ import { useRouter } from 'expo-router';
 
 import { useRoutineStore } from '@/store/routine.store';
 
-import { Card } from '../common/Card';
+import EmptyState from '../common/EmptyState';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 import { RoutineCountList, RoutineWeekList } from './WeeklyRoutine';
 
@@ -49,11 +48,7 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
           />
         )
       ) : (
-        <Card variant="surface" padding="lg" style={styles.empty}>
-          <Typography style={styles.emptyText}>
-            등록된 루틴이 없습니다.
-          </Typography>
-        </Card>
+        <EmptyState icon="list-outline" message="등록된 루틴이 없습니다." />
       )}
     </ThemeView>
   );
@@ -61,20 +56,12 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
 
 export default RoutineList;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
-    marginTop: 40,
+    marginTop: theme.foundation.spacing.xxl,
     flex: 1,
   },
-  empty: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 100,
-  },
-  emptyText: {
-    textAlign: 'center',
-  },
   list: {
-    gap: 15,
+    gap: theme.foundation.spacing.m,
   },
-});
+}));
