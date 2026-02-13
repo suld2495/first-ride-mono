@@ -162,19 +162,19 @@ export default function SignUp() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    gap: 10,
+    gap: theme.foundation.spacing.s,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   button: {
-    marginTop: 10,
+    marginTop: theme.foundation.spacing.s,
   },
 
   link: {
     alignItems: 'flex-end',
   },
-});
+}));

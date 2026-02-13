@@ -6,16 +6,16 @@ import { getDaysOfTheWeek, getWeekMonday } from '@repo/shared/utils';
 import { Routine, WeeklyRoutine } from '@repo/types';
 
 import { Button } from '../common/Button';
-import { Card } from '../common/Card';
 import { Divider } from '../common/Divider';
+import PixelCard from '../common/PixelCard';
+import PixelText from '../common/PixelText';
 import ThemeView, { ThemedViewProps } from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 const WeekyView = (props: ThemedViewProps & { text?: string }) => {
   return (
     <ThemeView {...props} transparent>
       {props.text ? (
-        <Typography color="secondary">{props.text}</Typography>
+        <PixelText variant="label">{props.text}</PixelText>
       ) : (
         props.children
       )}
@@ -56,9 +56,9 @@ const RoutineWrapper = ({
                   onPress={() => onShowDetailModal(routine.routineId)}
                   style={styles.titleButton}
                 >
-                  <Typography style={styles.title}>
+                  <PixelText variant="body" style={styles.title}>
                     {routine.routineName}
-                  </Typography>
+                  </PixelText>
                 </Button>
               </ThemeView>
               <ThemeView>
@@ -104,7 +104,7 @@ export const RoutineWeekList = (
         let count = 0;
 
         return (
-          <Card variant="surface" padding="lg" style={styles.table}>
+          <PixelCard style={styles.table}>
             <ThemeView style={styles.row}>
               {getDaysOfTheWeek().map((day) => (
                 <WeekyView key={day} text={day} style={styles.column} />
@@ -171,15 +171,15 @@ export const RoutineWeekList = (
                     color={theme.colors.feedback.success.text}
                   />
                 ) : (
-                  <Typography variant="body">
+                  <PixelText variant="label">
                     {routineCount > 0
                       ? `${Math.round((weeklyCount / routineCount) * 100)}%`
                       : '0%'}
-                  </Typography>
+                  </PixelText>
                 )}
               </ThemeView>
             </ThemeView>
-          </Card>
+          </PixelCard>
         );
       }}
     />
@@ -311,11 +311,11 @@ export const RoutineCountList = (
                   color={theme.colors.feedback.success.text}
                 />
               ) : (
-                <Typography variant="body">
+                <PixelText variant="label">
                   {routineCount > 0
                     ? `${Math.round((weeklyCount / routineCount) * 100)}%`
                     : '0%'}
-                </Typography>
+                </PixelText>
               )}
             </ThemeView>
           </ThemeView>
@@ -370,7 +370,8 @@ const styles = StyleSheet.create((theme) => ({
     height: 36,
     paddingVertical: 0,
     paddingHorizontal: 10,
-    borderRadius: 5,
+    borderRadius: 4,
+    borderWidth: 2,
   },
 
   success_rate: {

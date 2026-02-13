@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
+import PixelText from './PixelText';
 import ThemeView from './ThemeView';
-import { Typography } from './Typography';
 
 interface EmptyStateProps {
   icon?: keyof typeof Ionicons.glyphMap;
@@ -23,9 +23,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         size={48}
         color={theme.colors.text.tertiary}
       />
-      <Typography variant="body" color="secondary" style={styles.message}>
+      <PixelText variant="body" style={styles.message}>
         {message}
-      </Typography>
+      </PixelText>
     </ThemeView>
   );
 };

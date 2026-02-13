@@ -58,7 +58,7 @@ export default RoutineList;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    marginTop: theme.foundation.spacing.xxl,
+    marginTop: theme.foundation.spacing.m,
     flex: 1,
   },
   list: {

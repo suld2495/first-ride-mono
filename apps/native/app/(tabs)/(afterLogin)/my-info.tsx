@@ -8,8 +8,9 @@ import * as WebBrowser from 'expo-web-browser';
 import { deletePushToken } from '@/api/push-token.api';
 import { Button } from '@/components/common/Button';
 import Link from '@/components/common/Link';
+import PixelCard from '@/components/common/PixelCard';
+import PixelText from '@/components/common/PixelText';
 import ThemeView from '@/components/common/ThemeView';
-import { Typography } from '@/components/common/Typography';
 import Container from '@/components/layout/Container';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAuthStore } from '@/store/auth.store';
@@ -49,9 +50,9 @@ const MyInfo = () => {
   return (
     <Container>
       <ThemeView style={styles.container}>
-        <Typography variant="title">{user?.nickname}</Typography>
+        <PixelText variant="title" glow>{user?.nickname}</PixelText>
       </ThemeView>
-      <ThemeView style={styles.linkContainer} transparent>
+      <PixelCard style={styles.linkContainer}>
         <Link
           variant="ghost"
           href="/modal?type=theme"
@@ -85,9 +86,11 @@ const MyInfo = () => {
           leftIcon={({ color }) => (
             <Ionicons name="heart-circle-outline" size={20} color={color} />
           )}
-          style={[styles.link, styles.feedback]}
+          style={styles.link}
           onPress={handleMoveFeedback}
         />
+      </PixelCard>
+      <PixelCard style={styles.logoutContainer}>
         <Button
           variant="ghost"
           title="로그아웃"
@@ -98,10 +101,10 @@ const MyInfo = () => {
               color={theme.colors.feedback.error.text}
             />
           )}
-          style={[styles.link, styles.logout]}
+          style={styles.link}
           onPress={handleLogout}
         />
-      </ThemeView>
+      </PixelCard>
     </Container>
   );
 };
@@ -111,10 +114,15 @@ export default MyInfo;
 const styles = StyleSheet.create((theme) => ({
   container: {
     alignItems: 'stretch',
+    paddingHorizontal: theme.foundation.spacing.m,
   },
 
   linkContainer: {
-    marginTop: 20,
+    marginTop: theme.foundation.spacing.l,
+  },
+
+  logoutContainer: {
+    marginTop: theme.foundation.spacing.m,
   },
 
   link: {
@@ -122,14 +130,5 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'flex-start',
     alignSelf: 'stretch',
-  },
-
-  feedback: {
-    backgroundColor: theme.colors.background.surface,
-  },
-
-  logout: {
-    backgroundColor: theme.colors.background.surface,
-    marginTop: 20,
   },
 }));

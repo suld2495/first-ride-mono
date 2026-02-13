@@ -28,16 +28,16 @@ export default function Modal() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    paddingTop: 5,
-    paddingBottom: 15,
+    paddingTop: theme.foundation.spacing.s,
+    paddingBottom: theme.foundation.spacing.m,
   },
 
   content: {
     flex: 1,
-    borderRadius: 10,
-    paddingHorizontal: 5,
+    borderRadius: 4,
+    paddingHorizontal: theme.foundation.spacing.s,
   },
-});
+}));

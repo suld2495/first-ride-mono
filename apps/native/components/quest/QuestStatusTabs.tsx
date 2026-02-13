@@ -3,8 +3,8 @@ import { StyleSheet } from 'react-native-unistyles';
 import type { QuestStatus } from '@/store/quest.store';
 
 import { Button } from '../common/Button';
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 interface QuestStatusTabsProps {
   selected: QuestStatus;
@@ -34,9 +34,9 @@ const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
               pressed && styles.tabPressed,
             ]}
           >
-            <Typography variant="body" style={styles.tabText}>
+            <PixelText variant="label">
               {tab.label}
-            </Typography>
+            </PixelText>
           </Button>
         );
       })}
@@ -50,8 +50,8 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingVertical: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing.m,
     backgroundColor: theme.colors.background.surface,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.action.primary.default,
@@ -59,23 +59,19 @@ const styles = StyleSheet.create((theme) => ({
 
   tab: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing.m,
     alignItems: 'center',
-    borderRadius: theme.foundation.radii.s,
+    borderRadius: 2,
   },
 
   tabSelected: {
     backgroundColor: theme.colors.action.secondary.default,
     borderColor: theme.colors.action.primary.default,
-    borderWidth: 1,
+    borderWidth: 2,
   },
 
   tabPressed: {
     opacity: 0.7,
-  },
-
-  tabText: {
-    fontWeight: '600',
   },
 }));

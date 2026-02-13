@@ -1,8 +1,9 @@
 import { StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
+import PixelCard from '../common/PixelCard';
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 interface AuthFormProps {
   title: string;
@@ -19,10 +20,12 @@ const AuthForm = ({ title, children }: AuthFormProps) => {
       showsVerticalScrollIndicator={false}
     >
       <ThemeView style={styles.container}>
-        <Typography variant="title" style={styles.title}>
+        <PixelText variant="title" glow style={styles.title}>
           {title}
-        </Typography>
-        <ThemeView style={styles.form}>{children}</ThemeView>
+        </PixelText>
+        <PixelCard>
+          <ThemeView style={styles.form}>{children}</ThemeView>
+        </PixelCard>
       </ThemeView>
     </KeyboardAwareScrollView>
   );

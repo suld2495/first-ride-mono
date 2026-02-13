@@ -60,7 +60,7 @@ export default function Index() {
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    paddingHorizontal: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing.m,
     flex: 1,
   },
 }));

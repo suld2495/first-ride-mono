@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native-unistyles';
 
 import Link from '../common/Link';
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 import RoutineDate from './RoutineDate';
 
@@ -14,7 +14,7 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView style={styles.header}>
-        <Typography variant="title">루틴 리스트</Typography>
+        <PixelText variant="title">루틴 리스트</PixelText>
         <Link
           href="/modal?type=routine-add"
           title="루틴 추가 +"
@@ -28,10 +28,10 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
 
 export default RoutineHeader;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
-    gap: 20,
-    marginTop: 19,
+    gap: theme.foundation.spacing.l,
+    marginTop: theme.foundation.spacing.m,
   },
 
   header: {
@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
   routine_add_button: {
     height: 35,
     paddingVertical: 0,
-    borderRadius: 5,
+    borderRadius: 4,
+    borderWidth: 2,
   },
-});
+}));

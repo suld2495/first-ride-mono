@@ -13,8 +13,8 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 import { Button } from '../common/Button';
 import { Divider } from '../common/Divider';
 import { Input } from '../common/Input';
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 interface UserItemProps extends User {
   close: () => void;
@@ -41,7 +41,7 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
 
   return (
     <ThemeView style={styles.userItem} transparent>
-      <Typography>{nickname}</Typography>
+      <PixelText variant="body">{nickname}</PixelText>
       <Button
         variant="ghost"
         size="sm"
@@ -105,7 +105,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
               ListHeaderComponent={
                 <>
                   <ThemeView style={styles.modalHeader} transparent>
-                    <Typography variant="subtitle">친구 추가</Typography>
+                    <PixelText variant="subtitle">친구 추가</PixelText>
                     <Button
                       variant="ghost"
                       leftIcon={({ color }) => (
@@ -133,9 +133,9 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
               }
               ListEmptyComponent={
                 <ThemeView style={styles.emptyContainer} transparent>
-                  <Typography style={styles.emptyText}>
+                  <PixelText variant="body" style={styles.emptyText}>
                     유저가 존재하지 않습니다.
-                  </Typography>
+                  </PixelText>
                 </ThemeView>
               }
               contentContainerStyle={{ flexGrow: 1 }}
@@ -152,7 +152,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
 
 export default FriendAddModal;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -164,26 +164,27 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
   },
   modalContent: {
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 4,
+    borderWidth: 3,
+    padding: theme.foundation.spacing.l,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: theme.foundation.spacing.m,
   },
   searchContainer: {
-    marginBottom: 16,
+    marginBottom: theme.foundation.spacing.m,
   },
   userItem: {
-    height: 50,
+    paddingVertical: theme.foundation.spacing.s,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   addButton: {
-    paddingHorizontal: 8,
+    paddingHorizontal: theme.foundation.spacing.s,
   },
   emptyContainer: {
     height: 100,
@@ -194,4 +195,4 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
   },
-});
+}));

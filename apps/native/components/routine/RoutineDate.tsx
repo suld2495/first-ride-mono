@@ -13,8 +13,8 @@ import { useRoutineStore } from '@/store/routine.store';
 
 import { IconButton } from '../common/IconButton';
 import Link from '../common/Link';
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 interface RoutineDateProps {
   date?: string;
@@ -31,11 +31,11 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
   return (
     <ThemeView style={styles.date_container}>
       <ThemeView style={styles.currentDate}>
-        <Typography variant="body">
+        <PixelText variant="label">
           {getDisplayFormatDate(startDate)}
-        </Typography>
-        <Typography variant="body">~</Typography>
-        <Typography variant="body">{getDisplayFormatDate(endDate)}</Typography>
+        </PixelText>
+        <PixelText variant="label">~</PixelText>
+        <PixelText variant="label">{getDisplayFormatDate(endDate)}</PixelText>
       </ThemeView>
       <ThemeView style={styles.right}>
         <ThemeView style={styles.date_button_container}>
@@ -126,7 +126,7 @@ const styles = StyleSheet.create((theme) => ({
 
   currentDate: {
     flexDirection: 'row',
-    gap: 5,
+    gap: theme.foundation.spacing.xs,
   },
 
   right: {
@@ -138,7 +138,7 @@ const styles = StyleSheet.create((theme) => ({
 
   date_button_container: {
     flexDirection: 'row',
-    gap: 3,
+    gap: theme.foundation.spacing.xs,
   },
 
   link: {
@@ -147,14 +147,14 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   line: {
-    width: 1,
+    width: 2,
     height: 17,
     backgroundColor: theme.colors.border.default,
-    marginInline: 5,
+    marginInline: theme.foundation.spacing.xs,
   },
 
   icons: {
     flexDirection: 'row',
-    gap: 5,
+    gap: theme.foundation.spacing.xs,
   },
 }));

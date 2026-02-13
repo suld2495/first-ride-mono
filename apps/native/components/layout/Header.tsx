@@ -3,8 +3,8 @@ import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
 
 import { useAuthStore } from '@/store/auth.store';
 
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 import NotificationBell from '../notification/NotificationBell';
 
 const Header = () => {
@@ -16,7 +16,7 @@ const Header = () => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView>
-        <Typography variant="title">{user?.nickname}</Typography>
+        <PixelText variant="title" glow>{user?.nickname}</PixelText>
       </ThemeView>
 
       <NotificationBell
@@ -29,10 +29,11 @@ const Header = () => {
 
 export default Header;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: theme.foundation.spacing.s,
   },
-});
+}));

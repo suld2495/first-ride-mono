@@ -24,7 +24,7 @@ const FriendPage = () => {
     <Container style={styles.container}>
       <FriendHeader />
 
-      <Container>
+      <ThemeView style={styles.innerContainer}>
         <ThemeView style={styles.addButtonContainer}>
           <Button
             title="친구 추가"
@@ -49,7 +49,7 @@ const FriendPage = () => {
           />
         </ThemeView>
         <FriendList page={page} keyword={keyword} />
-      </Container>
+      </ThemeView>
 
       <FriendAddModal
         visible={showAddModal}
@@ -65,6 +65,10 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     width: '100%',
+    paddingHorizontal: theme.foundation.spacing.m,
+  },
+  innerContainer: {
+    flex: 1,
   },
   addButtonContainer: {
     flexDirection: 'row',
@@ -74,8 +78,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.foundation.spacing.s,
   },
   searchContainer: {
-    marginTop: theme.foundation.spacing.s,
-    marginBottom: theme.foundation.spacing.s,
+    marginVertical: theme.foundation.spacing.m,
   },
   searchInput: {
     width: '100%',

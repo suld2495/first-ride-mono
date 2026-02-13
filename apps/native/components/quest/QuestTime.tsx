@@ -3,8 +3,8 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatTimeRemaining } from '@repo/shared/utils/date-utils';
 
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 interface QuestTimeProps {
   endDate: Date;
@@ -41,9 +41,9 @@ const QuestTime = ({ endDate }: QuestTimeProps) => {
   return (
     <ThemeView style={styles.container}>
       <Ionicons name="time-outline" size={20} color={theme.colors.action.primary.default} />
-      <Typography variant="body" style={styles.text}>
+      <PixelText variant="label" style={styles.text}>
         {timeRemaining}
-      </Typography>
+      </PixelText>
     </ThemeView>
   );
 };
@@ -55,11 +55,11 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: theme.foundation.spacing.s,
     borderColor: theme.colors.action.primary.default,
-    borderWidth: 1,
-    paddingVertical: 8,
-    borderRadius: theme.foundation.radii.s,
+    borderWidth: 2,
+    paddingVertical: theme.foundation.spacing.s,
+    borderRadius: 2,
   },
 
   text: {

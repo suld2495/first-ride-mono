@@ -4,6 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Quest } from '@repo/types';
 
 import EmptyState from '../common/EmptyState';
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 
@@ -38,21 +39,21 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
       <ThemeView style={styles.cardContent}>
         {/* Type Badge */}
         <ThemeView style={styles.badgeSection}>
-          <Typography variant="body" style={styles.badge}>
+          <PixelText variant="label" style={styles.badge}>
             [{QUEST_LABEL[questType]}]
-          </Typography>
+          </PixelText>
         </ThemeView>
 
         {/* Quest Name */}
-        <Typography variant="subtitle" style={styles.questName}>
+        <PixelText variant="subtitle" style={styles.questName}>
           {questName}
-        </Typography>
+        </PixelText>
 
         {/* GOAL Section */}
         <ThemeView style={styles.goalSection}>
-          <Typography variant="title" style={styles.goalTitle}>
+          <PixelText variant="subtitle" style={styles.goalTitle}>
             GOAL
-          </Typography>
+          </PixelText>
           <ThemeView style={styles.goalBox}>
             <Ionicons name="checkbox-outline" size={20} color={theme.colors.action.primary.default} />
             <Typography variant="body" style={styles.goalText}>
@@ -99,10 +100,10 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 40,
-    gap: 16,
+    paddingHorizontal: theme.foundation.spacing.m,
+    paddingTop: theme.foundation.spacing.m,
+    paddingBottom: theme.foundation.spacing.xl,
+    gap: theme.foundation.spacing.m,
     flexGrow: 1,
   },
 
@@ -110,7 +111,7 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.background.surface,
     borderWidth: 2,
     borderColor: theme.colors.action.primary.default,
-    borderRadius: theme.foundation.radii.m,
+    borderRadius: 4,
     overflow: 'hidden',
     ...theme.foundation.shadow.m,
   },
@@ -125,8 +126,8 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   cardContent: {
-    padding: 16,
-    gap: 16,
+    padding: theme.foundation.spacing.m,
+    gap: theme.foundation.spacing.m,
   },
 
   badgeSection: {
@@ -143,7 +144,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   goalSection: {
-    gap: 12,
+    gap: theme.foundation.spacing.s,
   },
 
   goalTitle: {
@@ -153,11 +154,11 @@ const styles = StyleSheet.create((theme) => ({
 
   goalBox: {
     flexDirection: 'row',
-    gap: 8,
+    gap: theme.foundation.spacing.s,
     borderColor: theme.colors.action.primary.default,
     borderWidth: 1,
-    padding: 12,
-    borderRadius: theme.foundation.radii.s,
+    padding: theme.foundation.spacing.s,
+    borderRadius: 2,
     alignItems: 'flex-start',
   },
 

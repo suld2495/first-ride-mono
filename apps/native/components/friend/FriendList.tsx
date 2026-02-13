@@ -14,8 +14,8 @@ import { Button } from '../common/Button';
 import { Divider } from '../common/Divider';
 import EmptyState from '../common/EmptyState';
 import Loading from '../common/Loading';
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 interface FriendItemProps extends Friend {
   onDelete: () => void;
@@ -59,7 +59,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
 
   return (
     <ThemeView style={styles.friendItem}>
-      <Typography>{nickname}</Typography>
+      <PixelText variant="body">{nickname}</PixelText>
       <Button
         variant="ghost"
         size="sm"
@@ -110,17 +110,17 @@ const FriendList = ({ page, keyword }: SearchOption) => {
 
 export default FriendList;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   list: {
     flex: 1,
   },
   friendItem: {
-    height: 50,
+    paddingVertical: theme.foundation.spacing.s,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   deleteButton: {
-    paddingHorizontal: 8,
+    paddingHorizontal: theme.foundation.spacing.s,
   },
-});
+}));

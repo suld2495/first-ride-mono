@@ -3,8 +3,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 
 import Link from '../common/Link';
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 interface ModalHeaderProps {
   title: string;
@@ -23,7 +23,7 @@ const ModalHeader = ({ title }: ModalHeaderProps) => {
           <Ionicons name="chevron-back-outline" size={24} color={color} />
         )}
       />
-      <Typography style={styles.title}>{title}</Typography>
+      <PixelText variant="subtitle" style={styles.title}>{title}</PixelText>
     </ThemeView>
   );
 };
@@ -45,8 +45,6 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
     marginTop: -5,
   },
 });

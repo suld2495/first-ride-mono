@@ -33,7 +33,7 @@ export const PixelCard: React.FC<PixelCardProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    marginVertical: 4,
+    marginVertical: 8,
   },
   borderOuter: {
     borderWidth: 3,
@@ -56,7 +56,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   content: {
     paddingVertical: 12,
-    paddingHorizontal: 4,
+    paddingHorizontal: 12,
   },
 }));
 

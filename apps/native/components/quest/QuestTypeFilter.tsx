@@ -4,8 +4,8 @@ import { StyleSheet } from 'react-native-unistyles';
 import type { QuestTypeFilter as QuestTypeFilterType } from '@/store/quest.store';
 
 import { Button } from '../common/Button';
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 interface QuestTypeFilterProps {
   selected: QuestTypeFilterType;
@@ -40,12 +40,9 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
                 pressed && styles.chipPressed,
               ]}
             >
-              <Typography
-                variant="caption"
-                style={[styles.chipText, isSelected && styles.chipTextSelected]}
-              >
+              <PixelText variant="label">
                 {filter.label}
-              </Typography>
+              </PixelText>
             </Button>
           );
         })}
@@ -61,19 +58,19 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.background.surface,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.action.primary.default,
-    paddingVertical: 8,
+    paddingVertical: theme.foundation.spacing.s,
   },
 
   scrollContent: {
-    paddingHorizontal: 12,
-    gap: 8,
+    paddingHorizontal: theme.foundation.spacing.m,
+    gap: theme.foundation.spacing.s,
   },
 
   chip: {
     paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 16,
-    borderWidth: 1,
+    paddingHorizontal: theme.foundation.spacing.m,
+    borderRadius: 4,
+    borderWidth: 2,
     borderColor: theme.colors.action.primary.default,
     backgroundColor: theme.colors.action.secondary.default,
   },
@@ -85,13 +82,5 @@ const styles = StyleSheet.create((theme) => ({
 
   chipPressed: {
     opacity: 0.7,
-  },
-
-  chipText: {
-    fontSize: 13,
-  },
-
-  chipTextSelected: {
-    fontWeight: 'bold',
   },
 }));

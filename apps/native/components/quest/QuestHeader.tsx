@@ -4,8 +4,8 @@ import { useRouter } from 'expo-router';
 import { Button } from '@/components/common/Button';
 import { useAuthStore } from '@/store/auth.store';
 
+import PixelText from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 
 const QuestHeader = () => {
   const router = useRouter();
@@ -17,12 +17,12 @@ const QuestHeader = () => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView style={styles.content}>
-        <Typography variant="title" style={styles.title}>
+        <PixelText variant="title" glow style={styles.title}>
           퀘스트 안내
-        </Typography>
-        <Typography variant="caption" style={styles.caption}>
+        </PixelText>
+        <PixelText variant="label" style={styles.caption}>
           Quest List
-        </Typography>
+        </PixelText>
       </ThemeView>
 
       {/* ADMIN 전용 추가 버튼 */}
@@ -44,9 +44,9 @@ export default QuestHeader;
 const styles = StyleSheet.create((theme) => ({
   container: {
     width: '100%',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginTop: 16,
+    paddingVertical: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing.m,
+    marginTop: theme.foundation.spacing.m,
     position: 'relative',
   },
 
@@ -56,7 +56,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   title: {
-    marginBottom: 8,
+    marginBottom: theme.foundation.spacing.s,
     textShadowColor: theme.colors.text.tertiary,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
