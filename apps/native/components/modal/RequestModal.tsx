@@ -1,4 +1,4 @@
-import { Alert, Image, Linking } from 'react-native';
+import { Alert, Image, Linking, ScrollView } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ApiError } from '@repo/shared/api/AppError';
@@ -132,65 +132,67 @@ const RequestModal = () => {
 
   return (
     <ThemeView style={styles.container}>
-      <ThemeView transparent>
-        <Typography variant="subtitle" style={styles.infoLabel}>
-          루틴 이름
-        </Typography>
-        <Typography>{detail?.routineName}</Typography>
-      </ThemeView>
-      <ThemeView transparent>
-        <Typography>{detail?.routineDetail}</Typography>
-      </ThemeView>
-      <ThemeView transparent>
-        <Typography variant="subtitle" style={styles.infoLabel}>
-          인증 대상
-        </Typography>
-        <Typography>{detail?.isMe ? '나' : detail?.mateNickname}</Typography>
-        <Divider spacing={20} />
-      </ThemeView>
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <ThemeView transparent>
+          <Typography variant="subtitle" style={styles.infoLabel}>
+            루틴 이름
+          </Typography>
+          <Typography>{detail?.routineName}</Typography>
+        </ThemeView>
+        <ThemeView transparent>
+          <Typography>{detail?.routineDetail}</Typography>
+        </ThemeView>
+        <ThemeView transparent>
+          <Typography variant="subtitle" style={styles.infoLabel}>
+            인증 대상
+          </Typography>
+          <Typography>{detail?.isMe ? '나' : detail?.mateNickname}</Typography>
+          <Divider spacing={20} />
+        </ThemeView>
 
-      <Form
-        form={{ image: '' }}
-        onSubmit={handleSubmit}
-        validators={requestFormValidators}
-      >
-        <FormItem
-          name="image"
-          label="이미지 업로드"
-          item={({ form, setValue }) => (
-            <>
-              <ThemeView style={styles.imageContainer} transparent>
-                <Button
-                  testID="gallery-button"
-                  variant="secondary"
-                  leftIcon={({ color }) => (
-                    <Ionicons name="image-outline" size={20} color={color} />
-                  )}
-                  style={styles.phone}
-                  onPress={() => pickImage(setValue)}
-                />
-                <Button
-                  testID="camera-button"
-                  variant="secondary"
-                  leftIcon={({ color }) => (
-                    <Ionicons name="camera-outline" size={20} color={color} />
-                  )}
-                  style={styles.phone}
-                  onPress={() => takePickture(setValue)}
-                />
-              </ThemeView>
-              {form.image && (
-                <Image
-                  source={{ uri: `data:image/jpeg;base64,${form.image}` }}
-                  style={styles.preview}
-                />
-              )}
-            </>
-          )}
-        />
+        <Form
+          form={{ image: '' }}
+          onSubmit={handleSubmit}
+          validators={requestFormValidators}
+        >
+          <FormItem
+            name="image"
+            label="이미지 업로드"
+            item={({ form, setValue }) => (
+              <>
+                <ThemeView style={styles.imageContainer} transparent>
+                  <Button
+                    testID="gallery-button"
+                    variant="secondary"
+                    leftIcon={({ color }) => (
+                      <Ionicons name="image-outline" size={20} color={color} />
+                    )}
+                    style={styles.phone}
+                    onPress={() => pickImage(setValue)}
+                  />
+                  <Button
+                    testID="camera-button"
+                    variant="secondary"
+                    leftIcon={({ color }) => (
+                      <Ionicons name="camera-outline" size={20} color={color} />
+                    )}
+                    style={styles.phone}
+                    onPress={() => takePickture(setValue)}
+                  />
+                </ThemeView>
+                {form.image && (
+                  <Image
+                    source={{ uri: `data:image/jpeg;base64,${form.image}` }}
+                    style={styles.preview}
+                  />
+                )}
+              </>
+            )}
+          />
 
-        <RequetButtonGroup useForm={useForm} />
-      </Form>
+          <RequetButtonGroup useForm={useForm} />
+        </Form>
+      </ScrollView>
     </ThemeView>
   );
 };
@@ -201,8 +203,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 30,
-    gap: 20,
     paddingHorizontal: 10,
+  },
+
+  scroll: {
+    gap: 20,
+    paddingBottom: 50,
   },
 
   infoLabel: {
