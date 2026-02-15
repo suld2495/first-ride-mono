@@ -1,9 +1,9 @@
-import { StyleSheet } from 'react-native-unistyles';
+import { Pressable } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 
-import Link from '../common/Link';
-import PixelText from '../common/PixelText';
+import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 
 interface ModalHeaderProps {
@@ -11,40 +11,77 @@ interface ModalHeaderProps {
 }
 
 const ModalHeader = ({ title }: ModalHeaderProps) => {
+  const { theme } = useUnistyles();
   const isPresented = router.canGoBack();
 
+  const handleBack = () => {
+    if (isPresented) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
+  };
+
   return (
-    <ThemeView variant="surface" style={styles.container}>
-      <Link
-        href={isPresented ? '..' : '/'}
-        variant="ghost"
-        style={styles.backButton}
-        leftIcon={({ color }) => (
-          <Ionicons name="chevron-back-outline" size={24} color={color} />
-        )}
-      />
-      <PixelText variant="subtitle" style={styles.title}>{title}</PixelText>
+    <ThemeView style={styles.container}>
+      {/* Back Button */}
+      <Pressable
+        onPress={handleBack}
+        hitSlop={8}
+        style={({ pressed }) => [
+          styles.backButton,
+          pressed && { opacity: 0.5 },
+        ]}
+      >
+        <Ionicons
+          name="chevron-back-outline"
+          size={22}
+          color={theme.colors.text.primary}
+        />
+      </Pressable>
+
+      {/* Centered Title */}
+      <PixelText variant="subtitle" style={styles.title}>
+        {title}
+      </PixelText>
+
+      {/* Spacer (same width as back button for centering) */}
+      <ThemeView style={styles.spacer} transparent />
     </ThemeView>
   );
 };
 
 export default ModalHeader;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
-    position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    gap: 20,
+    justifyContent: 'space-between',
+    paddingVertical: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing.m,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.default,
+    backgroundColor: theme.colors.background.surface,
   },
 
   backButton: {
-    paddingHorizontal: 0,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   title: {
-    marginTop: -5,
+    flex: 1,
+    textAlign: 'center',
+    fontWeight: '700',
+    letterSpacing: -0.3,
   },
-});
+
+  spacer: {
+    width: 40,
+    height: 40,
+  },
+}));

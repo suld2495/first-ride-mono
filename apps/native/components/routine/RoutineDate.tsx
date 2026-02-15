@@ -122,6 +122,7 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: theme.foundation.spacing.m,
   },
 
   currentDate: {

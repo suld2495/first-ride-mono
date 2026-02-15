@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
-import type { UserStats } from '@repo/types';
 import {
-  useMyStatsQuery,
   useDistributeStatsMutation,
+  useMyStatsQuery,
 } from '@repo/shared/hooks/useStat';
+import type { UserStats } from '@repo/types';
 import { useRouter } from 'expo-router';
 
 import Loading from '@/components/common/Loading';
@@ -52,6 +52,7 @@ export default function StatPage() {
 
   const handleConfirm = useCallback(() => {
     const distributions = getDistributions();
+
     if (Object.keys(distributions).length === 0) return;
 
     distributeStats(
@@ -90,7 +91,7 @@ export default function StatPage() {
 
   if (isLoading || !data) {
     return (
-      <Container style={styles.container}>
+      <Container style={styles.container} noPadding>
         <Header />
         <Loading />
       </Container>
@@ -117,11 +118,13 @@ export default function StatPage() {
         return <GridStatList {...commonProps} />;
       case 'radar':
         return <RadarStatView {...commonProps} />;
+      default:
+        return null;
     }
   };
 
   return (
-    <Container style={styles.container}>
+    <Container style={styles.container} noPadding>
       <Header />
       <ScrollView
         style={styles.scrollView}

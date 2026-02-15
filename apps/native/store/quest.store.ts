@@ -1,18 +1,18 @@
+import { QuestStatusFilter, QuestTypeFilter } from '@repo/types';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-export type QuestStatus = 'ALL' | 'ACTIVE' | 'INACTIVE' | 'COMPLETED';
-export type QuestTypeFilter = 'ALL' | 'DAILY' | 'WEEKLY';
+export type { QuestStatusFilter, QuestTypeFilter };
 
 interface State {
   questId: number | null;
-  statusFilter: QuestStatus;
+  statusFilter: QuestStatusFilter;
   typeFilter: QuestTypeFilter;
 }
 
 interface Action {
   setQuestId: (id: number) => void;
-  setStatusFilter: (status: QuestStatus) => void;
+  setStatusFilter: (status: QuestStatusFilter) => void;
   setTypeFilter: (type: QuestTypeFilter) => void;
 }
 

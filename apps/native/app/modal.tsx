@@ -1,9 +1,10 @@
+import { Platform } from 'react-native';
 import Animated, { SlideInRight } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
 import { useLocalSearchParams } from 'expo-router';
 
 import ThemeView from '@/components/common/ThemeView';
-import Container from '@/components/layout/Container';
 import ModalHeader from '@/components/modal/ModalHeader';
 import { ModalType, useModal } from '@/hooks/useModal';
 
@@ -12,9 +13,20 @@ const MODAL_ANIMATION_DURATION = 250;
 export default function Modal() {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
   const [title, ModalComponent] = useModal(type);
+  const insets = useSafeAreaInsets();
 
   return (
-    <Container>
+    <ThemeView
+      style={[
+        styles.wrapper,
+        {
+          paddingTop: Platform.select({
+            ios: insets.top, // iOS Modal Sheet handles transparency, but usually needs spacing if full screen
+            android: insets.top,
+          }),
+        },
+      ]}
+    >
       <Animated.View
         entering={SlideInRight.duration(MODAL_ANIMATION_DURATION)}
         style={styles.container}
@@ -24,11 +36,15 @@ export default function Modal() {
           <ModalComponent />
         </ThemeView>
       </Animated.View>
-    </Container>
+    </ThemeView>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
+  wrapper: {
+    flex: 1,
+  },
+
   container: {
     flex: 1,
     paddingTop: theme.foundation.spacing.s,
@@ -37,7 +53,7 @@ const styles = StyleSheet.create((theme) => ({
 
   content: {
     flex: 1,
-    borderRadius: 4,
+    borderRadius: theme.foundation.radii.l,
     paddingHorizontal: theme.foundation.spacing.s,
   },
 }));

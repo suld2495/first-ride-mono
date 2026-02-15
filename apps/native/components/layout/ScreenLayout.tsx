@@ -1,25 +1,21 @@
 import React from 'react';
 import { View, ViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { StatusBar } from 'expo-status-bar';
+import { StyleSheet } from 'react-native-unistyles';
 
-interface ContainerProps extends ViewProps {
+interface ScreenLayoutProps extends ViewProps {
   children: React.ReactNode;
   noPadding?: boolean;
 }
 
-const Container: React.FC<ContainerProps> = ({
+export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   children,
   style,
   noPadding = false,
   ...props
 }) => {
-  const { theme } = useUnistyles();
-
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <StatusBar style={theme.name === 'dark' ? 'light' : 'dark'} />
       <View
         style={[styles.container, noPadding && styles.noPadding, style]}
         {...props}
@@ -47,4 +43,4 @@ const styles = StyleSheet.create((theme) => ({
   },
 }));
 
-export default Container;
+export default ScreenLayout;

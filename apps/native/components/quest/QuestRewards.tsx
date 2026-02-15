@@ -15,17 +15,19 @@ const QuestRewards = ({ rewardName }: QuestRewardsProps) => {
   return (
     <ThemeView style={styles.container}>
       {/* Header */}
-      <ThemeView style={styles.header}>
-        <Ionicons name="trophy-outline" size={20} color={theme.colors.feedback.warning.text} />
+      <ThemeView style={styles.header} transparent>
+        <Ionicons
+          name="trophy-outline"
+          size={20}
+          color={theme.colors.action.primary.default}
+        />
         <Typography variant="body" style={styles.headerText}>
           REWARDS
         </Typography>
       </ThemeView>
 
       {/* Reward Name */}
-      <Typography variant="body">
-        {rewardName}
-      </Typography>
+      <Typography variant="body">{rewardName}</Typography>
     </ThemeView>
   );
 };
@@ -34,11 +36,8 @@ export default QuestRewards;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    backgroundColor: theme.colors.feedback.warning.bg,
-    borderColor: theme.colors.feedback.warning.border,
-    borderWidth: 1,
-    padding: 8,
-    paddingBottom: 12,
+    backgroundColor: theme.colors.background.surface,
+    padding: theme.foundation.spacing.m,
     borderRadius: theme.foundation.radii.m,
   },
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { View, type LayoutChangeEvent, type ViewStyle } from 'react-native';
+import { type LayoutChangeEvent, View, type ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -28,12 +28,8 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
   const { theme } = useUnistyles();
   const isDark = theme.name === 'dark';
 
-  const {
-    getAnimatedScale,
-    handlePressIn,
-    handlePressOut,
-    setActiveIndex,
-  } = useDockMagnification();
+  const { getAnimatedScale, handlePressIn, handlePressOut, setActiveIndex } =
+    useDockMagnification();
 
   const tabLayouts = useRef<TabLayout[]>([]);
   const indicatorX = useSharedValue(0);
@@ -43,13 +39,13 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
   const handleTabLayout = useCallback(
     (index: number) => (event: LayoutChangeEvent) => {
       const { x, width } = event.nativeEvent.layout;
+
       tabLayouts.current[index] = { x, width };
 
       // Check if all tabs have been measured
-      if (
-        tabLayouts.current.filter(Boolean).length === state.routes.length
-      ) {
+      if (tabLayouts.current.filter(Boolean).length === state.routes.length) {
         const activeLayout = tabLayouts.current[state.index];
+
         if (activeLayout) {
           indicatorX.value = activeLayout.x;
           indicatorWidth.value = activeLayout.width;
@@ -64,6 +60,7 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
     setActiveIndex(state.index);
 
     const layout = tabLayouts.current[state.index];
+
     if (layout && isReady.value === 1) {
       indicatorX.value = withSpring(layout.x, INDICATOR_SPRING);
       indicatorWidth.value = withSpring(layout.width, INDICATOR_SPRING);
@@ -151,12 +148,10 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
               }
               focused={focused}
               activeColor={
-                options.tabBarActiveTintColor ??
-                theme.colors.action.primary.default
+                options.tabBarActiveTintColor ?? theme.colors.text.primary
               }
               inactiveColor={
-                options.tabBarInactiveTintColor ??
-                theme.colors.text.tertiary
+                options.tabBarInactiveTintColor ?? theme.colors.text.secondary
               }
               animatedStyle={animatedScale as unknown as ViewStyle}
               onPress={onPress}

@@ -85,4 +85,45 @@ export const palette = {
     frame: '#8b7355',
     frameDark: '#5d4e37',
   },
+  retro: {
+    // Neo-Retro Light (Clean but styled)
+    neolight: {
+      bg: '#F5F7FA', // Solid Off-White/Cloud
+      surface: '#FFFFFF',
+      border: '#2D3436', // Dark Charcoal (High Contrast)
+      text: '#2D3436',
+      highlight: '#DFE6E9',
+    },
+    // Neo-Retro Dark (Deep Solid)
+    neodark: {
+      bg: '#1e272e', // Solid Deep Navy
+      surface: '#2f3640', // Lighter Navy
+      border: '#d2dae2', // Soft Gray-White
+      text: '#d2dae2',
+      highlight: '#485460',
+    },
+    // Accents (Vibrant 8-bit)
+    primary: '#0984e3', // Electron Blue
+    success: '#00b894', // Mint Leaf
+    warning: '#fdcb6e', // Bright Yolk
+    error: '#d63031', // Chi-Gong Red
+    accent: '#6c5ce7', // Shy Moment
+  },
+  stitch: {
+    primary: '#1313ec', // Vibrant Blue
+    light: {
+      bg: '#f6f6f8', // Soft Gray/White
+      surface: '#FFFFFF',
+      border: '#f1f5f9', // Slate 100
+      text: '#0f172a', // Slate 900
+      secondary: '#64748b', // Slate 500
+    },
+    dark: {
+      bg: '#101022', // Deep Navy/Black
+      surface: '#1e293b', // Slate 800
+      border: '#334155', // Slate 700
+      text: '#f8fafc', // Slate 50
+      secondary: '#94a3b8', // Slate 400
+    },
+  },
 } as const;

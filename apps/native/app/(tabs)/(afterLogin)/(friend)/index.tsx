@@ -9,6 +9,7 @@ import FriendAddModal from '@/components/friend/FriendAddModal';
 import FriendHeader from '@/components/friend/FriendHeader';
 import FriendList from '@/components/friend/FriendList';
 import Container from '@/components/layout/Container';
+import Header from '@/components/layout/Header';
 
 const FriendPage = () => {
   const [page] = useState(1);
@@ -21,7 +22,8 @@ const FriendPage = () => {
   };
 
   return (
-    <Container style={styles.container}>
+    <Container style={styles.container} noPadding>
+      <Header />
       <FriendHeader />
 
       <ThemeView style={styles.innerContainer}>
@@ -65,14 +67,15 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     width: '100%',
-    paddingHorizontal: theme.foundation.spacing.m,
   },
   innerContainer: {
     flex: 1,
+    paddingHorizontal: theme.foundation.spacing.m,
   },
   addButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
+    marginTop: theme.foundation.spacing.m,
   },
   addButton: {
     paddingHorizontal: theme.foundation.spacing.s,

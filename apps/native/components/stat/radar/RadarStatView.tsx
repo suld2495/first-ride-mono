@@ -3,10 +3,10 @@ import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import type { UserStats } from '@repo/types';
 
-import PixelCard from '@/components/common/PixelCard';
+import { PixelCard } from '@/components/common/PixelCard';
 
-import RadarChart from './RadarChart';
-import RadarStatList from './RadarStatList';
+import { RadarChart } from './RadarChart';
+import { RadarStatList } from './RadarStatList';
 
 interface RadarStatViewProps {
   stats: UserStats;

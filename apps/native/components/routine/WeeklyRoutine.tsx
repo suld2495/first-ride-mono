@@ -1,4 +1,5 @@
 import { FlatList } from 'react-native';
+import Animated, { ZoomIn } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
@@ -7,8 +8,8 @@ import { Routine, WeeklyRoutine } from '@repo/types';
 
 import { Button } from '../common/Button';
 import { Divider } from '../common/Divider';
-import PixelCard from '../common/PixelCard';
-import PixelText from '../common/PixelText';
+import { PixelCard } from '../common/PixelCard';
+import { PixelText } from '../common/PixelText';
 import ThemeView, { ThemedViewProps } from '../common/ThemeView';
 
 const WeekyView = (props: ThemedViewProps & { text?: string }) => {
@@ -44,13 +45,11 @@ const RoutineWrapper = ({
   return (
     <FlatList
       data={routines}
-      renderItem={({ item: routine, index }) => {
-        const isLast = index === routines.length - 1;
-
+      renderItem={({ item: routine }) => {
         return (
-          <ThemeView style={styles.container}>
-            <ThemeView style={styles.info}>
-              <ThemeView>
+          <PixelCard style={styles.cardContainer}>
+            <ThemeView style={styles.header}>
+              <ThemeView transparent>
                 <Button
                   variant="ghost"
                   onPress={() => onShowDetailModal(routine.routineId)}
@@ -61,11 +60,12 @@ const RoutineWrapper = ({
                   </PixelText>
                 </Button>
               </ThemeView>
-              <ThemeView>
+              <ThemeView transparent>
                 {date === getWeekMonday(new Date()) && (
                   <Button
                     title="인증 요청"
-                    style={styles.complete_button}
+                    size="sm"
+                    variant="secondary"
                     leftIcon={({ color }) => (
                       <Ionicons
                         name="checkmark-circle"
@@ -79,8 +79,7 @@ const RoutineWrapper = ({
               </ThemeView>
             </ThemeView>
             {render(routine)}
-            {!isLast && <Divider />}
-          </ThemeView>
+          </PixelCard>
         );
       }}
       keyExtractor={(item) => item.routineId.toString()}
@@ -104,7 +103,7 @@ export const RoutineWeekList = (
         let count = 0;
 
         return (
-          <PixelCard style={styles.table}>
+          <ThemeView style={styles.table}>
             <ThemeView style={styles.row}>
               {getDaysOfTheWeek().map((day) => (
                 <WeekyView key={day} text={day} style={styles.column} />
@@ -131,15 +130,17 @@ export const RoutineWeekList = (
                     accessibilityLabel={`${dayLabels[index]}요일 달성`}
                     accessibilityRole="image"
                   >
-                    <Ionicons
-                      name="checkbox"
-                      size={24}
-                      color={
-                        count <= routineCount
-                          ? theme.colors.action.primary.default
-                          : theme.colors.feedback.warning.text
-                      }
-                    />
+                    <Animated.View entering={ZoomIn.duration(300)}>
+                      <Ionicons
+                        name="checkbox"
+                        size={24}
+                        color={
+                          count <= routineCount
+                            ? theme.colors.action.primary.default
+                            : theme.colors.feedback.warning.text
+                        }
+                      />
+                    </Animated.View>
                   </WeekyView>
                 ) : (
                   <WeekyView
@@ -165,11 +166,13 @@ export const RoutineWeekList = (
                 accessibilityRole="image"
               >
                 {weeklyCount >= routineCount ? (
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={24}
-                    color={theme.colors.feedback.success.text}
-                  />
+                  <Animated.View entering={ZoomIn.duration(300)}>
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={24}
+                      color={theme.colors.feedback.success.text}
+                    />
+                  </Animated.View>
                 ) : (
                   <PixelText variant="label">
                     {routineCount > 0
@@ -179,7 +182,7 @@ export const RoutineWeekList = (
                 )}
               </ThemeView>
             </ThemeView>
-          </PixelCard>
+          </ThemeView>
         );
       }}
     />
@@ -225,11 +228,13 @@ export const RoutineCountList = (
                   accessibilityLabel={`${index + 1}회 달성`}
                   accessibilityRole="image"
                 >
-                  <Ionicons
-                    name="checkbox"
-                    size={24}
-                    color={theme.colors.action.primary.default}
-                  />
+                  <Animated.View entering={ZoomIn.duration(300)}>
+                    <Ionicons
+                      name="checkbox"
+                      size={24}
+                      color={theme.colors.action.primary.default}
+                    />
+                  </Animated.View>
                 </WeekyView>
               ))}
 
@@ -245,11 +250,13 @@ export const RoutineCountList = (
                     accessibilityLabel={`${countIndex}회 초과 달성`}
                     accessibilityRole="image"
                   >
-                    <Ionicons
-                      name="checkbox"
-                      size={24}
-                      color={theme.colors.feedback.warning.text}
-                    />
+                    <Animated.View entering={ZoomIn.duration(300)}>
+                      <Ionicons
+                        name="checkbox"
+                        size={24}
+                        color={theme.colors.feedback.warning.text}
+                      />
+                    </Animated.View>
                   </WeekyView>
                 );
               })}
@@ -305,11 +312,13 @@ export const RoutineCountList = (
               accessibilityRole="image"
             >
               {weeklyCount >= routineCount ? (
-                <Ionicons
-                  name="checkmark-circle"
-                  size={24}
-                  color={theme.colors.feedback.success.text}
-                />
+                <Animated.View entering={ZoomIn.duration(300)}>
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={24}
+                    color={theme.colors.feedback.success.text}
+                  />
+                </Animated.View>
               ) : (
                 <PixelText variant="label">
                   {routineCount > 0
@@ -330,19 +339,20 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing.m,
   },
 
-  container: {
-    backgroundColor: 'transparent',
-    gap: theme.foundation.spacing.s,
+  cardContainer: {
+    marginVertical: 0,
+    marginBottom: theme.foundation.spacing.m,
   },
 
-  info: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: theme.foundation.spacing.s,
+    backgroundColor: 'transparent',
   },
 
   table: {
     gap: theme.foundation.spacing.xs,
-    marginTop: theme.foundation.spacing.s,
   },
 
   row: {

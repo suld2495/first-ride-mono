@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native-unistyles';
 
 import Link from '../common/Link';
-import PixelText from '../common/PixelText';
+import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 
 import RoutineDate from './RoutineDate';
@@ -12,13 +12,13 @@ interface RoutineHeaderProps {
 
 const RoutineHeader = ({ date }: RoutineHeaderProps) => {
   return (
-    <ThemeView style={styles.container}>
-      <ThemeView style={styles.header}>
+    <ThemeView style={styles.container} transparent>
+      <ThemeView style={styles.header} transparent>
         <PixelText variant="title">루틴 리스트</PixelText>
         <Link
           href="/modal?type=routine-add"
           title="루틴 추가 +"
-          style={styles.routine_add_button}
+          style={styles.routineButton}
         />
       </ThemeView>
       <RoutineDate date={date} />
@@ -38,12 +38,14 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: theme.foundation.spacing.m,
   },
 
-  routine_add_button: {
-    height: 35,
+  routineButton: {
+    height: 36,
     paddingVertical: 0,
-    borderRadius: 4,
-    borderWidth: 2,
+    borderRadius: theme.foundation.radii.s,
+    borderWidth: 1,
+    borderColor: theme.colors.border.default,
   },
 }));

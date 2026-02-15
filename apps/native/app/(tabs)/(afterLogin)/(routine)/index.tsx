@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
@@ -44,14 +45,16 @@ export default function Index() {
   }
 
   return (
-    <Container style={styles.container}>
+    <Container style={styles.container} noPadding>
       <Header />
       <PullToRefresh onRefresh={handleRefresh}>
         <RoutineHeader date={date} />
         {showLoading ? (
           <Loading />
         ) : (
-          <RoutineList routines={routines} date={date} />
+          <View style={styles.content}>
+            <RoutineList routines={routines} date={date} />
+          </View>
         )}
       </PullToRefresh>
     </Container>
@@ -60,7 +63,9 @@ export default function Index() {
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    paddingHorizontal: theme.foundation.spacing.m,
     flex: 1,
+  },
+  content: {
+    paddingHorizontal: theme.foundation.spacing.m,
   },
 }));

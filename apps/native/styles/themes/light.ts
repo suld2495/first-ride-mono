@@ -22,28 +22,28 @@ export const lightTheme: ThemeContract = {
 
   colors: {
     background: {
-      base: palette.white,
-      surface: palette.gray[50],
-      elevated: palette.white,
-      sunken: palette.gray[100],
-      overlay: 'rgba(0, 0, 0, 0.5)',
+      base: palette.stitch.light.bg, // Soft Gray/White
+      surface: palette.stitch.light.surface, // Pure White
+      elevated: palette.stitch.light.surface,
+      sunken: '#f1f5f9', // Slate 100
+      overlay: 'rgba(15, 23, 42, 0.5)', // Slate 900 overlay
     },
 
     text: {
-      primary: palette.gray[900],
-      secondary: palette.gray[600],
-      tertiary: palette.gray[400],
-      disabled: palette.gray[300],
-      inverse: palette.white,
-      link: palette.blue[600],
+      primary: palette.stitch.light.text, // Slate 900
+      secondary: palette.stitch.light.secondary, // Slate 500
+      tertiary: '#94a3b8', // Slate 400
+      disabled: '#cbd5e1',
+      inverse: '#FFFFFF',
+      link: palette.stitch.primary,
     },
 
     action: {
       primary: {
-        default: palette.blue[600],
-        pressed: palette.blue[800],
-        disabled: palette.gray[300],
-        label: palette.white,
+        default: palette.stitch.primary,
+        pressed: '#0f0fdb', // Slightly darker blue
+        disabled: '#cbd5e1',
+        label: '#FFFFFF',
       },
       secondary: {
         default: palette.blue[50],
@@ -83,11 +83,11 @@ export const lightTheme: ThemeContract = {
     },
 
     border: {
-      default: palette.gray[300],
-      strong: palette.gray[500],
-      subtle: palette.gray[200],
-      focus: palette.blue[500],
-      divider: palette.gray[200],
+      default: palette.stitch.light.border, // Slate 100
+      strong: '#e2e8f0', // Slate 200
+      subtle: '#f8fafc',
+      focus: palette.stitch.primary,
+      divider: '#f1f5f9',
     },
   },
 };

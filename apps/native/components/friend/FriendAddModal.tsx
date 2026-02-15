@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Modal, Pressable } from 'react-native';
 import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
@@ -13,7 +13,7 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 import { Button } from '../common/Button';
 import { Divider } from '../common/Divider';
 import { Input } from '../common/Input';
-import PixelText from '../common/PixelText';
+import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 
 interface UserItemProps extends User {
@@ -61,6 +61,7 @@ interface FriendAddModalProps {
 }
 
 const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
+  const { theme } = useUnistyles();
   const [keyword, setKeyword] = useState('');
   const [searchOption, setSearchOption] = useState<SearchOption>({
     page: 1,
@@ -106,17 +107,17 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                 <>
                   <ThemeView style={styles.modalHeader} transparent>
                     <PixelText variant="subtitle">친구 추가</PixelText>
-                    <Button
-                      variant="ghost"
-                      leftIcon={({ color }) => (
-                        <Ionicons
-                          name="close-outline"
-                          size={24}
-                          color={color}
-                        />
-                      )}
+                    <Pressable
                       onPress={handleClose}
-                    />
+                      hitSlop={8}
+                      style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                    >
+                      <Ionicons
+                        name="close-outline"
+                        size={24}
+                        color={theme.colors.text.primary}
+                      />
+                    </Pressable>
                   </ThemeView>
 
                   <ThemeView style={styles.searchContainer} transparent>
@@ -155,7 +156,7 @@ export default FriendAddModal;
 const styles = StyleSheet.create((theme) => ({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Slightly darker overlay for better contrast
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -164,24 +165,35 @@ const styles = StyleSheet.create((theme) => ({
     maxHeight: '80%',
   },
   modalContent: {
-    borderRadius: 4,
-    borderWidth: 3,
+    backgroundColor: theme.colors.background.surface,
+    borderRadius: theme.foundation.radii.xl,
     padding: theme.foundation.spacing.l,
+    shadowColor: theme.colors.border.default,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 5,
+    maxHeight: 500, // Limit height to avoid taking up full screen if list is long
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: theme.foundation.spacing.m,
+    marginBottom: theme.foundation.spacing.l,
+    marginHorizontal: -theme.foundation.spacing.s, // Pull header closer to edges
+    paddingHorizontal: theme.foundation.spacing.s,
   },
   searchContainer: {
     marginBottom: theme.foundation.spacing.m,
   },
   userItem: {
-    paddingVertical: theme.foundation.spacing.s,
+    paddingVertical: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing.s,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.background.sunken,
   },
   addButton: {
     paddingHorizontal: theme.foundation.spacing.s,

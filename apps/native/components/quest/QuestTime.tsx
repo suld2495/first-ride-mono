@@ -3,7 +3,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatTimeRemaining } from '@repo/shared/utils/date-utils';
 
-import PixelText from '../common/PixelText';
+import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 
 interface QuestTimeProps {
@@ -13,7 +13,7 @@ interface QuestTimeProps {
 const QuestTime = ({ endDate }: QuestTimeProps) => {
   const { theme } = useUnistyles();
   const [timeRemaining, setTimeRemaining] = useState(() =>
-    formatTimeRemaining(new Date(), endDate)
+    formatTimeRemaining(new Date(), endDate),
   );
 
   useEffect(() => {
@@ -39,11 +39,13 @@ const QuestTime = ({ endDate }: QuestTimeProps) => {
   }, [endDate]);
 
   return (
-    <ThemeView style={styles.container}>
-      <Ionicons name="time-outline" size={20} color={theme.colors.action.primary.default} />
-      <PixelText variant="label" style={styles.text}>
-        {timeRemaining}
-      </PixelText>
+    <ThemeView style={styles.container} transparent>
+      <Ionicons
+        name="time-outline"
+        size={14}
+        color={theme.colors.text.secondary}
+      />
+      <PixelText style={styles.text}>{timeRemaining}</PixelText>
     </ThemeView>
   );
 };
@@ -54,15 +56,12 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.foundation.spacing.s,
-    borderColor: theme.colors.action.primary.default,
-    borderWidth: 2,
-    paddingVertical: theme.foundation.spacing.s,
-    borderRadius: 2,
+    gap: 4,
   },
 
   text: {
-    // Style applied via variant and color props
+    fontSize: 12,
+    fontWeight: '500',
+    color: theme.colors.text.secondary,
   },
 }));

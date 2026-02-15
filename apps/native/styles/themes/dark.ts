@@ -22,28 +22,28 @@ export const darkTheme: ThemeContract = {
 
   colors: {
     background: {
-      base: palette.gray[900],
-      surface: palette.gray[800],
-      elevated: palette.gray[800],
-      sunken: palette.black,
+      base: palette.stitch.dark.bg, // Deep Navy/Black
+      surface: palette.stitch.dark.surface, // Slate 800
+      elevated: palette.stitch.dark.surface,
+      sunken: '#0f172a', // Slate 900
       overlay: 'rgba(0, 0, 0, 0.7)',
     },
 
     text: {
-      primary: palette.gray[50],
-      secondary: palette.gray[400],
-      tertiary: palette.gray[600],
-      disabled: palette.gray[700],
-      inverse: palette.gray[900],
-      link: palette.blue[400],
+      primary: palette.stitch.dark.text, // Slate 50
+      secondary: palette.stitch.dark.secondary, // Slate 400
+      tertiary: '#64748b', // Slate 500
+      disabled: '#334155',
+      inverse: '#0f172a',
+      link: palette.stitch.primary,
     },
 
     action: {
       primary: {
-        default: palette.blue[500],
-        pressed: palette.blue[600],
-        disabled: palette.gray[700],
-        label: palette.white,
+        default: palette.stitch.primary,
+        pressed: '#1f1fff', // Slightly lighter blue for dark mode
+        disabled: '#334155',
+        label: '#FFFFFF',
       },
       secondary: {
         default: palette.blue[900],
@@ -83,11 +83,11 @@ export const darkTheme: ThemeContract = {
     },
 
     border: {
-      default: palette.gray[700],
-      strong: palette.gray[500],
-      subtle: palette.gray[800],
-      focus: palette.blue[400],
-      divider: palette.gray[700],
+      default: palette.stitch.dark.border, // Slate 700
+      strong: '#475569', // Slate 600
+      subtle: '#1e293b',
+      focus: palette.stitch.primary,
+      divider: '#334155',
     },
   },
 };

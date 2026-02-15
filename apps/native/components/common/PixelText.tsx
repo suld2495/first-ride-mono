@@ -1,11 +1,6 @@
 import React from 'react';
 import { Text, type TextProps } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
-import {
-  useFonts,
-  PixelifySans_400Regular,
-  PixelifySans_700Bold,
-} from '@expo-google-fonts/pixelify-sans';
 
 import { type UnistylesVariants } from '@/styles/unistyles';
 
@@ -31,16 +26,7 @@ export const PixelText: React.FC<PixelTextProps> = ({
   children,
   ...props
 }) => {
-  const [fontsLoaded] = useFonts({
-    PixelifySans_400Regular,
-    PixelifySans_700Bold,
-  });
-
   styles.useVariants({ variant } as UnistylesVariants<typeof styles>);
-
-  if (!fontsLoaded) {
-    return null;
-  }
 
   return (
     <Text
@@ -59,36 +45,39 @@ export const PixelText: React.FC<PixelTextProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   base: {
-    fontFamily: 'PixelifySans_400Regular',
+    fontFamily: 'System',
     color: theme.colors.text.primary,
     variants: {
       variant: {
         title: {
-          fontFamily: 'PixelifySans_700Bold',
+          fontFamily: 'System',
+          fontWeight: 'bold',
           fontSize: 28,
-          letterSpacing: 1,
+          letterSpacing: 0.5,
         },
         subtitle: {
-          fontFamily: 'PixelifySans_700Bold',
+          fontFamily: 'System',
+          fontWeight: 'bold',
           fontSize: 20,
-          letterSpacing: 0.5,
+          letterSpacing: 0.2,
         },
         body: {
           fontSize: 16,
         },
         label: {
           fontSize: 14,
-          letterSpacing: 0.5,
+          letterSpacing: 0.2,
         },
         value: {
-          fontFamily: 'PixelifySans_700Bold',
+          fontFamily: 'System',
+          fontWeight: 'bold',
           fontSize: 24,
         },
       },
     },
   },
   glow: {
-    textShadowColor: 'rgba(255, 255, 255, 0.5)',
+    textShadowColor: theme.colors.action.primary.default,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },

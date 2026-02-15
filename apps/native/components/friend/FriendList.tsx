@@ -11,10 +11,10 @@ import { useToast } from '@/contexts/ToastContext';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 import { Button } from '../common/Button';
-import { Divider } from '../common/Divider';
-import EmptyState from '../common/EmptyState';
-import Loading from '../common/Loading';
-import PixelText from '../common/PixelText';
+import { EmptyState } from '../common/EmptyState';
+import { Loading } from '../common/Loading';
+import { PixelCard } from '../common/PixelCard';
+import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 
 interface FriendItemProps extends Friend {
@@ -58,28 +58,45 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
   };
 
   return (
-    <ThemeView style={styles.friendItem}>
-      <PixelText variant="body">{nickname}</PixelText>
-      <Button
-        variant="ghost"
-        size="sm"
-        leftIcon={() => (
-          <Ionicons
-            name="trash-outline"
-            size={16}
-            color={theme.colors.feedback.error.text}
-          />
-        )}
-        onPress={handleDelete}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        style={styles.deleteButton}
-      />
-    </ThemeView>
+    <PixelCard style={styles.card}>
+      <ThemeView style={styles.cardInner} transparent>
+        <ThemeView style={styles.friendInfo} transparent>
+          <ThemeView style={styles.avatar}>
+            <Ionicons
+              name="person"
+              size={20}
+              color={theme.colors.action.secondary.label}
+            />
+          </ThemeView>
+          <PixelText variant="body" style={styles.nickname}>
+            {nickname}
+          </PixelText>
+        </ThemeView>
+        <Button
+          variant="ghost"
+          size="sm"
+          leftIcon={() => (
+            <Ionicons
+              name="trash-outline"
+              size={20}
+              color={theme.colors.text.tertiary}
+            />
+          )}
+          onPress={handleDelete}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.deleteButton}
+        />
+      </ThemeView>
+    </PixelCard>
   );
 };
 
 const FriendList = ({ page, keyword }: SearchOption) => {
-  const { data: friends, isLoading, refetch } = useFetchFriendsQuery({ page, keyword });
+  const {
+    data: friends,
+    isLoading,
+    refetch,
+  } = useFetchFriendsQuery({ page, keyword });
 
   const handleDelete = () => {
     refetch();
@@ -90,9 +107,7 @@ const FriendList = ({ page, keyword }: SearchOption) => {
   }
 
   if (!friends || friends.length === 0) {
-    return (
-      <EmptyState icon="people-outline" message="친구를 추가해보세요." />
-    );
+    return <EmptyState icon="people-outline" message="친구를 추가해보세요." />;
   }
 
   return (
@@ -102,7 +117,7 @@ const FriendList = ({ page, keyword }: SearchOption) => {
       renderItem={({ item }) => (
         <FriendItem {...item} onDelete={handleDelete} />
       )}
-      ItemSeparatorComponent={() => <Divider />}
+      contentContainerStyle={styles.listContent}
       style={styles.list}
     />
   );
@@ -114,11 +129,35 @@ const styles = StyleSheet.create((theme) => ({
   list: {
     flex: 1,
   },
-  friendItem: {
-    paddingVertical: theme.foundation.spacing.s,
+  listContent: {
+    paddingVertical: theme.foundation.spacing.m,
+    gap: theme.foundation.spacing.s,
+  },
+  card: {
+    marginVertical: 0,
+    padding: 0, // Remove padding from card as inner content has it or PixelCard has it
+  },
+  cardInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    width: '100%',
+  },
+  friendInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing.m,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.colors.action.secondary.default,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  nickname: {
+    fontWeight: 'bold',
   },
   deleteButton: {
     paddingHorizontal: theme.foundation.spacing.s,

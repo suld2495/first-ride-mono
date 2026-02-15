@@ -27,7 +27,7 @@ const TabBarIcon = ({ name, size = 20, color }: TabBarIconProps) => {
 
 const styles = StyleSheet.create({
   icon: {
-    marginBottom: -3,
+    // marginBottom removed to fix inconsistent icon alignment
   },
 });
 

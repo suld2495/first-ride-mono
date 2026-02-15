@@ -81,7 +81,7 @@ const styles = StyleSheet.create((theme) => ({
   itemContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 2,
+    gap: 4,
   },
   label: {
     fontSize: 10,

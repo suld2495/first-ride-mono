@@ -17,8 +17,8 @@ export default function TabLayout() {
       tabBar={(props) => <DockTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.colors.action.primary.default,
-        tabBarInactiveTintColor: theme.colors.text.tertiary,
+        tabBarActiveTintColor: theme.colors.text.primary,
+        tabBarInactiveTintColor: theme.colors.text.secondary,
         sceneStyle: {
           paddingBottom: DOCK_HEIGHT + insets.bottom,
         },
@@ -35,45 +35,35 @@ export default function TabLayout() {
         name="(afterLogin)/(routine)/index"
         options={{
           title: '루틴',
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="list" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
         }}
       />
       <Tabs.Screen
         name="(afterLogin)/(quest)/index"
         options={{
           title: '퀘스트',
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="trophy" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="trophy" color={color} />,
         }}
       />
       <Tabs.Screen
         name="(afterLogin)/(stat)/index"
         options={{
           title: '스탯',
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="star" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="star" color={color} />,
         }}
       />
       <Tabs.Screen
         name="(afterLogin)/(friend)/index"
         options={{
           title: '친구',
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="users" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="users" color={color} />,
         }}
       />
       <Tabs.Screen
         name="(afterLogin)/my-info"
         options={{
           title: 'My',
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="user" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
     </Tabs>

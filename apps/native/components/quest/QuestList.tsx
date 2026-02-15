@@ -3,8 +3,9 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Quest } from '@repo/types';
 
-import EmptyState from '../common/EmptyState';
-import PixelText from '../common/PixelText';
+import { EmptyState } from '../common/EmptyState';
+import { PixelCard } from '../common/PixelCard';
+import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 
@@ -27,44 +28,42 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
   return (
     <Pressable
       onPress={() => onClick(quest)}
-      style={({ pressed }: { pressed: boolean }) => [
-        styles.questCard,
-        pressed && styles.questCardPressed,
-      ]}
+      style={({ pressed }) => [pressed && { opacity: 0.9 }]}
     >
-      {/* Top Line */}
-      <ThemeView style={styles.topLine} />
-
-      {/* Card Content */}
-      <ThemeView style={styles.cardContent}>
+      <PixelCard style={styles.card}>
         {/* Type Badge */}
-        <ThemeView style={styles.badgeSection}>
-          <PixelText variant="label" style={styles.badge}>
-            [{QUEST_LABEL[questType]}]
-          </PixelText>
+        <ThemeView style={styles.headerRow} transparent>
+          <ThemeView style={styles.badge}>
+            <PixelText
+              variant="label"
+              color={theme.colors.action.secondary.label}
+              style={styles.badgeText}
+            >
+              {QUEST_LABEL[questType]}
+            </PixelText>
+          </ThemeView>
+          <QuestTime endDate={new Date(endDate)} />
         </ThemeView>
 
         {/* Quest Name */}
-        <PixelText variant="subtitle" style={styles.questName}>
+        <PixelText variant="body" style={styles.questName}>
           {questName}
         </PixelText>
 
         {/* GOAL Section */}
-        <ThemeView style={styles.goalSection}>
-          <PixelText variant="subtitle" style={styles.goalTitle}>
-            GOAL
-          </PixelText>
-          <ThemeView style={styles.goalBox}>
-            <Ionicons name="checkbox-outline" size={20} color={theme.colors.action.primary.default} />
-            <Typography variant="body" style={styles.goalText}>
-              {description}
-            </Typography>
+        <ThemeView style={styles.goalSection} transparent>
+          <ThemeView style={styles.goalIcon} transparent>
+            <Ionicons
+              name="flag-outline"
+              size={14}
+              color={theme.colors.text.secondary}
+            />
           </ThemeView>
+          <Typography variant="label" style={styles.goalText}>
+            {description}
+          </Typography>
         </ThemeView>
-
-        {/* Quest Time */}
-        <QuestTime endDate={new Date(endDate)} />
-      </ThemeView>
+      </PixelCard>
     </Pressable>
   );
 };
@@ -86,7 +85,10 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
-        <EmptyState icon="briefcase-outline" message="퀘스트가 존재하지 않습니다." />
+        <EmptyState
+          icon="briefcase-outline"
+          message="퀘스트가 존재하지 않습니다."
+        />
       }
     />
   );
@@ -100,70 +102,59 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   scrollContent: {
-    paddingHorizontal: theme.foundation.spacing.m,
+    // paddingHorizontal removed to fix double padding
     paddingTop: theme.foundation.spacing.m,
     paddingBottom: theme.foundation.spacing.xl,
     gap: theme.foundation.spacing.m,
     flexGrow: 1,
   },
 
-  questCard: {
-    backgroundColor: theme.colors.background.surface,
-    borderWidth: 2,
-    borderColor: theme.colors.action.primary.default,
-    borderRadius: 4,
-    overflow: 'hidden',
-    ...theme.foundation.shadow.m,
-  },
-
-  questCardPressed: {
-    opacity: 0.8,
-  },
-
-  topLine: {
-    height: 4,
-    backgroundColor: theme.colors.action.primary.default,
-  },
-
-  cardContent: {
+  card: {
     padding: theme.foundation.spacing.m,
-    gap: theme.foundation.spacing.m,
+    marginVertical: 0,
   },
 
-  badgeSection: {
-    marginBottom: 0,
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.foundation.spacing.s,
   },
 
   badge: {
+    backgroundColor: theme.colors.action.secondary.default,
+    paddingHorizontal: theme.foundation.spacing.s,
+    paddingVertical: 4,
+    borderRadius: theme.foundation.radii.s,
+  },
+
+  badgeText: {
+    fontSize: 12,
     fontWeight: 'bold',
   },
 
   questName: {
-    fontWeight: '600',
-    marginBottom: 8,
+    fontWeight: 'bold',
+    marginBottom: theme.foundation.spacing.m,
   },
 
   goalSection: {
-    gap: theme.foundation.spacing.s,
-  },
-
-  goalTitle: {
-    textAlign: 'center',
-    letterSpacing: 6,
-  },
-
-  goalBox: {
     flexDirection: 'row',
-    gap: theme.foundation.spacing.s,
-    borderColor: theme.colors.action.primary.default,
-    borderWidth: 1,
-    padding: theme.foundation.spacing.s,
-    borderRadius: 2,
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    gap: theme.foundation.spacing.s, // Restored to s for better breathing room
+    // backgroundColor removed
+    // padding removed or reduced
+    marginTop: theme.foundation.spacing.s,
+  },
+
+  goalIcon: {
+    marginTop: 0,
   },
 
   goalText: {
     flex: 1,
+    color: theme.colors.text.tertiary,
+    fontSize: 12,
+    lineHeight: 18, // Increased for better readability
   },
-
 }));

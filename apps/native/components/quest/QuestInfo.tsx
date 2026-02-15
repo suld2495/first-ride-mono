@@ -41,8 +41,12 @@ const QuestInfo = ({
   return (
     <ThemeView style={styles.container}>
       {/* Header */}
-      <ThemeView style={styles.header}>
-        <Ionicons name="flash-outline" size={20} color={theme.colors.action.primary.default} />
+      <ThemeView style={styles.header} transparent>
+        <Ionicons
+          name="flash-outline"
+          size={20}
+          color={theme.colors.action.primary.default}
+        />
         <Typography variant="body" style={styles.headerText}>
           QUEST INFO
         </Typography>
@@ -86,7 +90,11 @@ const QuestInfo = ({
         {/* Warning Message */}
         {isFull && (
           <ThemeView style={styles.warning}>
-            <Ionicons name="warning" size={17} color={theme.colors.feedback.warning.text} />
+            <Ionicons
+              name="warning"
+              size={17}
+              color={theme.colors.feedback.warning.text}
+            />
             <Typography variant="caption">
               파티 인원이 가득 찼습니다.
             </Typography>
@@ -101,10 +109,9 @@ export default QuestInfo;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    borderColor: theme.colors.action.primary.default,
-    borderWidth: 1,
-    padding: 8,
-    paddingBottom: 12,
+    // Border removed
+    backgroundColor: theme.colors.background.surface,
+    padding: theme.foundation.spacing.m,
     borderRadius: theme.foundation.radii.m,
   },
 
@@ -130,26 +137,25 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: theme.colors.action.primary.default,
-    borderWidth: 1,
+    backgroundColor: theme.colors.background.base,
     borderRadius: theme.foundation.radii.s,
     paddingVertical: 12,
   },
 
   boxTitle: {
     marginBottom: 8,
+    color: theme.colors.text.tertiary,
   },
 
   boxValue: {
-    // Style applied via variant and color props
+    fontWeight: '600',
   },
 
   partyContainer: {
     gap: 8,
-    borderTopColor: theme.colors.action.primary.default,
-    borderTopWidth: 1,
     marginTop: 12,
     paddingTop: 8,
+    paddingHorizontal: theme.foundation.spacing.s,
   },
 
   partyHeader: {

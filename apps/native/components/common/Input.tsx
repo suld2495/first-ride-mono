@@ -14,9 +14,9 @@ import { type UnistylesVariants } from '@/styles/unistyles';
 /**
  * Input size types
  * - xs: 28px - 인라인, 필터
- * - sm: 32px - 컴팩트 폼
- * - md: 40px - 기본
- * - lg: 48px - 랜딩 페이지, CTA
+ * - sm: 36px - 컴팩트 폼
+ * - md: 44px - 기본
+ * - lg: 56px - 랜딩 페이지, CTA (stitch h-14)
  */
 export type InputSize = 'xs' | 'sm' | 'md' | 'lg';
 
@@ -146,30 +146,29 @@ const styles = StyleSheet.create((theme) => ({
           paddingHorizontal: theme.foundation.spacing.xs,
         },
         sm: {
-          height: 32,
+          height: 36,
           paddingHorizontal: theme.foundation.spacing.s,
         },
         md: {
-          height: 40,
+          height: 44,
           paddingHorizontal: theme.foundation.spacing.m,
         },
         lg: {
-          height: 48,
-          paddingHorizontal: theme.foundation.spacing.l,
+          height: 56,
+          paddingHorizontal: theme.foundation.spacing.m,
         },
       },
       variant: {
         outlined: {
           borderWidth: 1,
-          borderColor: theme.colors.border.default,
-          backgroundColor: theme.colors.background.base,
-          borderRadius: theme.foundation.radii.m,
+          borderColor: theme.colors.border.strong,
+          backgroundColor: theme.colors.background.surface,
+          borderRadius: theme.foundation.radii.s,
         },
         filled: {
           borderWidth: 0,
           backgroundColor: theme.colors.background.sunken,
-          borderTopLeftRadius: theme.foundation.radii.m,
-          borderTopRightRadius: theme.foundation.radii.m,
+          borderRadius: theme.foundation.radii.s,
         },
         underlined: {
           borderWidth: 0,
@@ -215,9 +214,10 @@ const styles = StyleSheet.create((theme) => ({
   },
   label: {
     fontSize: theme.foundation.typography.size.m,
-    fontWeight: theme.foundation.typography.weight.medium,
-    marginBottom: theme.foundation.spacing.xs,
-    color: theme.colors.text.primary,
+    fontWeight: '600',
+    marginBottom: 6,
+    marginLeft: 4,
+    color: theme.colors.text.secondary,
   },
   helperText: {
     fontSize: theme.foundation.typography.size.s,

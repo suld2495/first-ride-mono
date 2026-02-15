@@ -1,5 +1,5 @@
 import { ScrollView } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   useAccpetQuestMutation,
@@ -12,6 +12,7 @@ import { useQuestStore } from '@/store/quest.store';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 import { Button } from '../common/Button';
+import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 import QuestInfo from '../quest/QuestInfo';
@@ -24,6 +25,7 @@ const QUEST_LABEL: Record<string, string> = {
 };
 
 const QuestDetailModal = () => {
+  const { theme } = useUnistyles();
   const router = useRouter();
   const questId = useQuestStore((state) => state.questId);
   const { showToast } = useToast();
@@ -73,26 +75,31 @@ const QuestDetailModal = () => {
         {/* Header Section */}
         <ThemeView style={styles.headerSection}>
           {/* Type Badge */}
-          <Typography variant="body" style={styles.badge}>
-            [{QUEST_LABEL[questType]}]
-          </Typography>
+          <ThemeView style={styles.badgeContainer}>
+            <PixelText
+              variant="label"
+              color={theme.colors.action.secondary.label}
+              style={styles.badgeText}
+            >
+              {QUEST_LABEL[questType]}
+            </PixelText>
+          </ThemeView>
 
           {/* Quest Name */}
-          <Typography variant="title" style={styles.questName}>
+          <PixelText variant="title" style={styles.questName}>
             {questName}
-          </Typography>
+          </PixelText>
 
           {/* GOAL Section */}
           <ThemeView style={styles.goalSection}>
-            <Typography variant="title" style={styles.goalTitle}>
-              GOAL
+            <Ionicons
+              name="flag-outline"
+              size={20}
+              color={theme.colors.text.secondary}
+            />
+            <Typography variant="body" style={styles.goalText}>
+              {description}
             </Typography>
-            <ThemeView style={styles.goalBox}>
-              <Ionicons name="checkbox-outline" size={20} color="#1ddeff" />
-              <Typography variant="body" style={styles.goalText}>
-                {description}
-              </Typography>
-            </ThemeView>
           </ThemeView>
         </ThemeView>
 
@@ -128,60 +135,61 @@ const QuestDetailModal = () => {
 
 export default QuestDetailModal;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
+    backgroundColor: theme.colors.background.base, // Ensure background is set
   },
 
   scrollContent: {
-    padding: 16,
-    gap: 16,
+    padding: theme.foundation.spacing.m,
+    gap: theme.foundation.spacing.m,
   },
 
   headerSection: {
-    gap: 16,
+    alignItems: 'center',
+    gap: theme.foundation.spacing.m,
+    marginBottom: theme.foundation.spacing.l,
   },
 
-  badge: {
+  badgeContainer: {
+    backgroundColor: theme.colors.action.secondary.default,
+    paddingHorizontal: theme.foundation.spacing.m,
+    paddingVertical: 4,
+    borderRadius: theme.foundation.radii.l,
+  },
+
+  badgeText: {
     fontWeight: 'bold',
   },
 
   questName: {
-    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: theme.foundation.spacing.s,
   },
 
   goalSection: {
-    gap: 12,
-  },
-
-  goalTitle: {
-    textAlign: 'center',
-    letterSpacing: 6,
-    textShadowColor: 'rgba(0, 214, 256, 1)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 30,
-  },
-
-  goalBox: {
     flexDirection: 'row',
-    gap: 8,
-    borderColor: '#0891b2',
-    borderWidth: 1,
-    padding: 12,
-    borderRadius: 4,
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    gap: theme.foundation.spacing.s,
+    backgroundColor: theme.colors.background.sunken,
+    padding: theme.foundation.spacing.m,
+    borderRadius: theme.foundation.radii.m,
+    width: '100%',
   },
 
   goalText: {
     flex: 1,
+    color: theme.colors.text.secondary,
+    lineHeight: 20,
   },
 
   acceptButton: {
-    backgroundColor: '#0891b2',
+    marginTop: theme.foundation.spacing.m,
   },
 
   acceptButtonDisabled: {
-    backgroundColor: '#90a1b9',
-    opacity: 0.35,
+    opacity: 0.5,
+    backgroundColor: theme.colors.text.tertiary, // Fallback to tertiary
   },
-});
+}));

@@ -1,23 +1,26 @@
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import type { QuestStatus } from '@/store/quest.store';
+import type { QuestStatusFilter } from '@/store/quest.store';
 
 import { Button } from '../common/Button';
-import PixelText from '../common/PixelText';
+import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 
 interface QuestStatusTabsProps {
-  selected: QuestStatus;
-  onSelect: (status: QuestStatus) => void;
+  selected: QuestStatusFilter;
+  onSelect: (status: QuestStatusFilter) => void;
 }
 
-const TABS: { value: QuestStatus; label: string }[] = [
+const TABS: { value: QuestStatusFilter; label: string }[] = [
   { value: 'ALL', label: '전체' },
   { value: 'ACTIVE', label: '진행중' },
-  { value: 'COMPLETED', label: '완료' },
+  { value: 'EXPIRED', label: '만료' },
+  { value: 'UPCOMING', label: '예정' },
 ];
 
 const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
+  const { theme } = useUnistyles();
+
   return (
     <ThemeView style={styles.container}>
       {TABS.map((tab) => {
@@ -34,7 +37,12 @@ const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
               pressed && styles.tabPressed,
             ]}
           >
-            <PixelText variant="label">
+            <PixelText
+              variant="label"
+              color={
+                isSelected ? theme.colors.action.secondary.label : undefined
+              }
+            >
               {tab.label}
             </PixelText>
           </Button>
@@ -51,10 +59,7 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingVertical: theme.foundation.spacing.s,
-    paddingHorizontal: theme.foundation.spacing.m,
-    backgroundColor: theme.colors.background.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.action.primary.default,
+    // paddingHorizontal removed to fix double padding
   },
 
   tab: {
@@ -62,13 +67,11 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.foundation.spacing.s,
     paddingHorizontal: theme.foundation.spacing.m,
     alignItems: 'center',
-    borderRadius: 2,
+    borderRadius: theme.foundation.radii.m,
   },
 
   tabSelected: {
     backgroundColor: theme.colors.action.secondary.default,
-    borderColor: theme.colors.action.primary.default,
-    borderWidth: 2,
   },
 
   tabPressed: {

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  GestureResponderEvent,
   Pressable,
   type PressableProps,
   type StyleProp,
@@ -176,7 +177,7 @@ export const Button: React.FC<ButtonProps> = ({
     );
   };
 
-  const handlePress = (e: any) => {
+  const handlePress = (e: GestureResponderEvent) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     props.onPress?.(e);
   };
@@ -206,20 +207,25 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    shadowColor: theme.colors.border.strong,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
     variants: {
       size: {
         sm: {
           height: 32,
           paddingHorizontal: theme.foundation.spacing.s,
-          borderRadius: theme.foundation.radii.s,
+          borderRadius: theme.foundation.radii.m,
         },
         md: {
-          height: 40,
+          height: 44,
           paddingHorizontal: theme.foundation.spacing.m,
           borderRadius: theme.foundation.radii.m,
         },
         lg: {
-          height: 48,
+          height: 52,
           paddingHorizontal: theme.foundation.spacing.l,
           borderRadius: theme.foundation.radii.l,
         },
@@ -227,17 +233,26 @@ const styles = StyleSheet.create((theme) => ({
       variant: {
         primary: {
           backgroundColor: theme.colors.action.primary.default,
+          shadowColor: theme.colors.action.primary.default,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 4,
         },
         secondary: {
           backgroundColor: theme.colors.action.secondary.default,
         },
         ghost: {
-          backgroundColor: theme.colors.action.ghost.default,
+          backgroundColor: 'transparent',
+          elevation: 0,
+          shadowOpacity: 0,
         },
         outline: {
           backgroundColor: 'transparent',
           borderWidth: 1,
-          borderColor: theme.colors.border.default,
+          borderColor: theme.colors.action.primary.default,
+          elevation: 0,
+          shadowOpacity: 0,
         },
         danger: {
           backgroundColor: theme.colors.feedback.error.bg,
@@ -246,7 +261,7 @@ const styles = StyleSheet.create((theme) => ({
     },
   },
   text: {
-    fontWeight: '500',
+    fontWeight: '600',
     variants: {
       size: {
         sm: {
@@ -292,6 +307,7 @@ const internalStyles = {
   },
   pressed: {
     opacity: 0.8,
+    transform: [{ scale: 0.98 }],
   },
   disabled: {
     opacity: 0.5,

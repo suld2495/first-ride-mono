@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
+import Svg, { Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import Svg, { Polygon, Line, Circle, Text as SvgText } from 'react-native-svg';
 import type { UserStats } from '@repo/types';
 
 import { STAT_CONFIGS, STAT_MAX_VALUE } from '@/constants/stats';
@@ -17,10 +17,12 @@ const getHexagonPoints = (
   radius: number,
 ): string => {
   const points: string[] = [];
+
   for (let i = 0; i < 6; i++) {
     const angle = (Math.PI / 3) * i - Math.PI / 2;
     const x = centerX + radius * Math.cos(angle);
     const y = centerY + radius * Math.sin(angle);
+
     points.push(`${x},${y}`);
   }
   return points.join(' ');
@@ -42,6 +44,7 @@ const getStatPoints = (
   ];
 
   const points: string[] = [];
+
   for (let i = 0; i < 6; i++) {
     const statValue = stats[keys[i]] || 0;
     const ratio = Math.min(statValue / STAT_MAX_VALUE, 1);
@@ -49,6 +52,7 @@ const getStatPoints = (
     const angle = (Math.PI / 3) * i - Math.PI / 2;
     const x = centerX + radius * Math.cos(angle);
     const y = centerY + radius * Math.sin(angle);
+
     points.push(`${x},${y}`);
   }
   return points.join(' ');
@@ -65,6 +69,15 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   const labelRadius = maxRadius + 20;
 
   const gridLevels = [0.25, 0.5, 0.75, 1];
+
+  // Convert hex to rgba for fill
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
@@ -83,6 +96,7 @@ export const RadarChart: React.FC<RadarChartProps> = ({
           const angle = (Math.PI / 3) * index - Math.PI / 2;
           const x = centerX + maxRadius * Math.cos(angle);
           const y = centerY + maxRadius * Math.sin(angle);
+
           return (
             <Line
               key={index}
@@ -98,7 +112,7 @@ export const RadarChart: React.FC<RadarChartProps> = ({
 
         <Polygon
           points={getStatPoints(stats, centerX, centerY, maxRadius)}
-          fill="rgba(33, 150, 243, 0.3)"
+          fill={hexToRgba(theme.colors.action.primary.default, 0.3)}
           stroke={theme.colors.action.primary.default}
           strokeWidth={2}
         />
@@ -107,6 +121,7 @@ export const RadarChart: React.FC<RadarChartProps> = ({
           const angle = (Math.PI / 3) * index - Math.PI / 2;
           const x = centerX + labelRadius * Math.cos(angle);
           const y = centerY + labelRadius * Math.sin(angle);
+
           return (
             <SvgText
               key={config.key}

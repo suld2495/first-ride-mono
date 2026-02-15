@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+import { Alert, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Constants from 'expo-constants';
@@ -9,14 +9,12 @@ import { deletePushToken } from '@/api/push-token.api';
 import { Button } from '@/components/common/Button';
 import Link from '@/components/common/Link';
 import PixelCard from '@/components/common/PixelCard';
-import PixelText from '@/components/common/PixelText';
-import ThemeView from '@/components/common/ThemeView';
 import Container from '@/components/layout/Container';
+import Header from '@/components/layout/Header';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAuthStore } from '@/store/auth.store';
 
 const MyInfo = () => {
-  const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
   const { pushToken } = useNotifications();
   const { theme } = useUnistyles();
@@ -48,63 +46,63 @@ const MyInfo = () => {
   };
 
   return (
-    <Container>
-      <ThemeView style={styles.container}>
-        <PixelText variant="title" glow>{user?.nickname}</PixelText>
-      </ThemeView>
-      <PixelCard style={styles.linkContainer}>
-        <Link
-          variant="ghost"
-          href="/modal?type=theme"
-          title="테마 설정"
-          leftIcon={({ color }) => (
-            <Ionicons name="color-palette-outline" size={20} color={color} />
-          )}
-          style={styles.link}
-        />
-        <Link
-          variant="ghost"
-          href="/modal?type=policies"
-          title="약관 및 정책"
-          leftIcon={({ color }) => (
-            <Ionicons name="newspaper-outline" size={20} color={color} />
-          )}
-          style={styles.link}
-        />
-        <Link
-          variant="ghost"
-          href="/modal?type=privacy"
-          title="개인정보 처리방침"
-          leftIcon={({ color }) => (
-            <Ionicons name="key-outline" size={20} color={color} />
-          )}
-          style={styles.link}
-        />
-        <Button
-          variant="ghost"
-          title="처음처럼에 피드백을 남겨주세요!"
-          leftIcon={({ color }) => (
-            <Ionicons name="heart-circle-outline" size={20} color={color} />
-          )}
-          style={styles.link}
-          onPress={handleMoveFeedback}
-        />
-      </PixelCard>
-      <PixelCard style={styles.logoutContainer}>
-        <Button
-          variant="ghost"
-          title="로그아웃"
-          leftIcon={() => (
-            <Ionicons
-              name="log-out-outline"
-              size={20}
-              color={theme.colors.feedback.error.text}
-            />
-          )}
-          style={styles.link}
-          onPress={handleLogout}
-        />
-      </PixelCard>
+    <Container noPadding>
+      <Header />
+      <View style={styles.content}>
+        <PixelCard style={styles.linkContainer}>
+          <Link
+            variant="ghost"
+            href="/modal?type=theme"
+            title="테마 설정"
+            leftIcon={({ color }) => (
+              <Ionicons name="color-palette-outline" size={20} color={color} />
+            )}
+            style={styles.link}
+          />
+          <Link
+            variant="ghost"
+            href="/modal?type=policies"
+            title="약관 및 정책"
+            leftIcon={({ color }) => (
+              <Ionicons name="newspaper-outline" size={20} color={color} />
+            )}
+            style={styles.link}
+          />
+          <Link
+            variant="ghost"
+            href="/modal?type=privacy"
+            title="개인정보 처리방침"
+            leftIcon={({ color }) => (
+              <Ionicons name="key-outline" size={20} color={color} />
+            )}
+            style={styles.link}
+          />
+          <Button
+            variant="ghost"
+            title="처음처럼에 피드백을 남겨주세요!"
+            leftIcon={({ color }) => (
+              <Ionicons name="heart-circle-outline" size={20} color={color} />
+            )}
+            style={styles.link}
+            onPress={handleMoveFeedback}
+          />
+        </PixelCard>
+        <PixelCard style={styles.logoutContainer}>
+          <Button
+            variant="ghost"
+            title="로그아웃"
+            leftIcon={() => (
+              <Ionicons
+                name="log-out-outline"
+                size={20}
+                color={theme.colors.feedback.error.text}
+              />
+            )}
+            style={styles.link}
+            onPress={handleLogout}
+          />
+        </PixelCard>
+      </View>
     </Container>
   );
 };
@@ -114,6 +112,8 @@ export default MyInfo;
 const styles = StyleSheet.create((theme) => ({
   container: {
     alignItems: 'stretch',
+  },
+  content: {
     paddingHorizontal: theme.foundation.spacing.m,
   },
 

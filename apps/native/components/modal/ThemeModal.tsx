@@ -148,19 +148,20 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   selectedIcon: {
-    color: theme.colors.action.primary.default,
+    color: theme.colors.action.secondary.label,
   },
 
   optionLabel: {
     fontSize: 16,
+    color: theme.colors.text.primary,
   },
 
   selectedLabel: {
     fontWeight: '600',
-    color: theme.colors.action.primary.default,
+    color: theme.colors.action.secondary.label,
   },
 
   checkIcon: {
-    color: theme.colors.action.primary.default,
+    color: theme.colors.action.secondary.label,
   },
 }));

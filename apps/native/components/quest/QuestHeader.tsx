@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Button } from '@/components/common/Button';
 import { useAuthStore } from '@/store/auth.store';
 
-import PixelText from '../common/PixelText';
+import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
 
 const QuestHeader = () => {
@@ -17,11 +17,8 @@ const QuestHeader = () => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView style={styles.content}>
-        <PixelText variant="title" glow style={styles.title}>
-          퀘스트 안내
-        </PixelText>
-        <PixelText variant="label" style={styles.caption}>
-          Quest List
+        <PixelText variant="title" style={styles.title}>
+          퀘스트 리스트
         </PixelText>
       </ThemeView>
 
@@ -44,26 +41,20 @@ export default QuestHeader;
 const styles = StyleSheet.create((theme) => ({
   container: {
     width: '100%',
-    paddingVertical: theme.foundation.spacing.m,
-    paddingHorizontal: theme.foundation.spacing.m,
-    marginTop: theme.foundation.spacing.m,
+    paddingVertical: theme.foundation.spacing.s,
+    // paddingHorizontal removed
+    marginTop: theme.foundation.spacing.s,
     position: 'relative',
+    marginBottom: theme.foundation.spacing.s,
   },
 
   content: {
     width: '100%',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
 
   title: {
-    marginBottom: theme.foundation.spacing.s,
-    textShadowColor: theme.colors.text.tertiary,
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 20,
-  },
-
-  caption: {
-    // Style already applied via variant and color props
+    // marginBottom removed
   },
 
   addButton: {
