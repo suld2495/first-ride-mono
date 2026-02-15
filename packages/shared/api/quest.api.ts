@@ -88,3 +88,12 @@ export const acceptQuest = async (questId: number): Promise<void> => {
     throw toAppError(error);
   }
 };
+
+// 출석 체크
+export const recordVisit = async (): Promise<void> => {
+  try {
+    await http.post('/quest/visit');
+  } catch {
+    // 출석 체크 실패는 사용자 경험에 영향 없음
+  }
+};

@@ -8,6 +8,7 @@ import { Href, Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { updatePushToken } from '@/api/push-token.api';
+import { useVisitCheck } from '@/hooks/useVisitCheck';
 import ToastContainer from '@/components/common/ToastContainer';
 import MockProvider from '@/components/mock/MockProvider';
 import SplashScreenController from '@/components/splash';
@@ -123,6 +124,9 @@ export default function RootLayout() {
   useEffect(() => {
     setNotificationHandler();
   }, []);
+
+  // 출석 체크
+  useVisitCheck(!!user);
 
   // 푸시 토큰 변경 감지 및 자동 업데이트
   useEffect(() => {
