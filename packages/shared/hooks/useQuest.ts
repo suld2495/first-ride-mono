@@ -1,15 +1,16 @@
-import { QuestTypeFilter, RewardTypeFilter } from '@repo/types';
+import { RewardTypeFilter } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import * as questApi from '../api/quest.api';
+import type { FetchQuestsParams } from '../api/quest.api';
 import * as rewardApi from '../api/reward.api';
 import { questKeys, rewardKeys } from '../types/query-keys/quest';
 
 // 목록 조회
-export const useFetchQuestsQuery = (filter: QuestTypeFilter = 'ALL') => {
+export const useFetchQuestsQuery = (params: FetchQuestsParams = {}) => {
   return useQuery({
-    queryKey: questKeys.list(filter),
-    queryFn: () => questApi.fetchQuests(filter),
+    queryKey: questKeys.list(params),
+    queryFn: () => questApi.fetchQuests(params),
   });
 };
 

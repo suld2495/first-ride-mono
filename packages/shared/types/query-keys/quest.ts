@@ -1,9 +1,10 @@
-import { QuestTypeFilter } from '@repo/types';
+import type { FetchQuestsParams } from '../../api/quest.api';
 
 export const questKeys = {
   all: ['quest'] as const,
   lists: () => [...questKeys.all, 'list'] as const,
-  list: (filter: QuestTypeFilter) => [...questKeys.lists(), filter] as const,
+  list: (params: FetchQuestsParams = {}) =>
+    [...questKeys.lists(), params.status ?? 'ALL', params.questType ?? 'ALL'] as const,
   details: () => [...questKeys.all, 'detail'] as const,
   detail: (id: number) => [...questKeys.details(), id] as const,
 };

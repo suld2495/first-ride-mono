@@ -41,4 +41,5 @@ export type QuestForm = Omit<
 >;
 
 // 필터 타입
+export type QuestStatusFilter = 'ALL' | 'ACTIVE' | 'EXPIRED' | 'UPCOMING';
 export type QuestTypeFilter = 'ALL' | 'DAILY' | 'WEEKLY';

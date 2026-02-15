@@ -1,6 +1,7 @@
 import {
   Quest,
   QuestForm,
+  QuestStatusFilter,
   QuestTypeFilter,
   UpdateQuestForm,
 } from '@repo/types';
@@ -8,13 +9,26 @@ import {
 import http from './client';
 import { toAppError } from '.';
 
-// 목록 조회 (필터 포함)
+export interface FetchQuestsParams {
+  status?: QuestStatusFilter;
+  questType?: QuestTypeFilter;
+}
+
+// 목록 조회
 export const fetchQuests = async (
-  filter: QuestTypeFilter = 'ALL',
+  params: FetchQuestsParams = {},
 ): Promise<Quest[]> => {
   try {
+    const searchParams = new URLSearchParams();
+    if (params.status && params.status !== 'ALL') {
+      searchParams.append('status', params.status);
+    }
+    if (params.questType && params.questType !== 'ALL') {
+      searchParams.append('questType', params.questType);
+    }
+    const query = searchParams.toString();
     const response: Quest[] = await http.get(
-      `/quest/list${filter !== 'ALL' ? `?filter=${filter}` : ''}`,
+      `/quest/list${query ? `?${query}` : ''}`,
     );
 
     return response;
