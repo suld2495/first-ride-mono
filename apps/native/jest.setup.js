@@ -189,6 +189,23 @@ jest.mock('expo-web-browser', () => ({
   openBrowserAsync: jest.fn(),
 }));
 
+// expo-haptics 모킹
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(),
+  notificationAsync: jest.fn(),
+  selectionAsync: jest.fn(),
+  ImpactFeedbackStyle: {
+    Light: 'Light',
+    Medium: 'Medium',
+    Heavy: 'Heavy',
+  },
+  NotificationFeedbackType: {
+    Success: 'Success',
+    Warning: 'Warning',
+    Error: 'Error',
+  },
+}));
+
 // expo-device 모킹
 jest.mock('expo-device', () => ({
   isDevice: true,

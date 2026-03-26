@@ -8,7 +8,8 @@ import {
   useCreateQuestMutation,
   useFetchRewardsQuery,
 } from '@repo/shared/hooks/useQuest';
-import { QuestForm } from '@repo/types';
+import { getMondayDate, getNextMonday } from '@repo/shared/utils';
+import { CreateQuestForm, VerificationType } from '@repo/types';
 import { useRouter } from 'expo-router';
 
 import { Button } from '@/components/common/Button';
@@ -22,17 +23,18 @@ import { useCreateForm } from '@/hooks/useForm';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
-const { Form, FormItem, useForm } = useCreateForm<QuestForm>();
+const { Form, FormItem, useForm } = useCreateForm<CreateQuestForm>();
 
-// 퀘스트 타입 옵션
-const QUEST_TYPE_OPTIONS: SelectItem<'DAILY' | 'WEEKLY'>[] = [
-  { label: '일일 퀘스트', value: 'DAILY' },
-  { label: '주간 퀘스트', value: 'WEEKLY' },
+// 인증 유형 옵션
+const VERIFICATION_TYPE_OPTIONS: SelectItem<VerificationType>[] = [
+  { label: '주간 앱 방문', value: 'WEEKLY_APP_VISIT' },
+  { label: '주간 메이트 루틴 리뷰', value: 'WEEKLY_MATE_ROUTINE_REVIEW' },
+  { label: '주간 본인 루틴 인증', value: 'WEEKLY_SELF_ROUTINE_PASS' },
 ];
 
 // 제출 버튼 컴포넌트 (useForm을 props로 받음)
 interface QuestFormButtonGroupProps {
-  useForm: () => FormContextType<QuestForm>;
+  useForm: () => FormContextType<CreateQuestForm>;
   loading: boolean;
 }
 
@@ -55,15 +57,12 @@ const QuestFormButtonGroup = ({
   );
 };
 
-// 날짜/시간 포맷 헬퍼
-const formatDateTime = (date: Date) => {
+const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
 
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
+  return `${year}-${month}-${day}`;
 };
 
 // ISO 8601 형식으로 변환 (밀리초 제거, 초 단위까지만)
@@ -78,15 +77,28 @@ const toISOStringWithoutMs = (date: Date) => {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 };
 
+const getStartOfDay = (date: Date) => {
+  const normalizedDate = new Date(date);
+
+  normalizedDate.setHours(0, 0, 0, 0);
+  return normalizedDate;
+};
+
+const getQuestStartMonday = (date: Date) => {
+  return getStartOfDay(getMondayDate(date));
+};
+
+const getFirstSelectableMonday = () => {
+  return getStartOfDay(getNextMonday(new Date()));
+};
+
 const QuestFormModal = () => {
   const router = useRouter();
   const { showToast } = useToast();
   const colorScheme = useColorScheme();
 
   const [isShowStartDate, setIsShowStartDate] = useState(false);
-  const [isShowEndDate, setIsShowEndDate] = useState(false);
   const [tempStartDate, setTempStartDate] = useState<Date | null>(null);
-  const [tempEndDate, setTempEndDate] = useState<Date | null>(null);
 
   // Mutations & Queries
   const createQuestMutation = useCreateQuestMutation();
@@ -100,22 +112,23 @@ const QuestFormModal = () => {
   }));
 
   // 폼 제출 핸들러
-  const handleSubmit = async (data: QuestForm) => {
+  const handleSubmit = async (data: CreateQuestForm) => {
     try {
       // rewardType, expAmount는 서버에서 자동 설정하므로 제외
       // 날짜는 이미 ISO 8601 형식 (DateTimePicker에서 toISOString() 사용)
       const payload = {
         questName: data.questName,
-        questType: data.questType,
+        questType: 'WEEKLY' as const,
         description: data.description,
         rewardId: data.rewardId,
         startDate: data.startDate,
-        endDate: data.endDate,
         requiredLevel: data.requiredLevel,
         maxParticipants: data.maxParticipants,
+        verificationType: data.verificationType,
+        verificationTargetCount: data.verificationTargetCount,
       };
 
-      await createQuestMutation.mutateAsync(payload as QuestForm);
+      await createQuestMutation.mutateAsync(payload);
       showToast('퀘스트가 생성되었습니다.', 'success');
       router.back();
     } catch (error) {
@@ -126,15 +139,16 @@ const QuestFormModal = () => {
   };
 
   // 초기 폼 값
-  const initialForm: Partial<QuestForm> = {
+  const initialForm: Partial<CreateQuestForm> = {
     questName: '',
-    questType: undefined,
+    questType: 'WEEKLY',
     description: '',
     rewardId: undefined,
     startDate: '',
-    endDate: '',
     requiredLevel: undefined,
     maxParticipants: undefined,
+    verificationType: undefined,
+    verificationTargetCount: undefined,
   };
 
   return (
@@ -145,16 +159,12 @@ const QuestFormModal = () => {
       enableResetScrollToCoords={false}
     >
       <Form
-        form={initialForm as QuestForm}
+        form={initialForm as CreateQuestForm}
         style={styles.container}
         validators={{
           questName: (value) => {
             if (!value) return '퀘스트 이름을 입력해주세요.';
             if (value.length > 100) return '100자 이하로 입력해주세요.';
-            return undefined;
-          },
-          questType: (value) => {
-            if (!value) return '퀘스트 타입을 선택해주세요.';
             return undefined;
           },
           description: (value) => {
@@ -179,13 +189,6 @@ const QuestFormModal = () => {
             }
             return undefined;
           },
-          endDate: (value, form) => {
-            if (!value) return '종료 날짜를 선택해주세요.';
-            if (new Date(value) <= new Date(form.startDate)) {
-              return '종료 날짜는 시작 날짜보다 이후여야 합니다.';
-            }
-            return undefined;
-          },
           requiredLevel: (value) => {
             if (!value) return '필요 레벨을 입력해주세요.';
             const num = Number(value);
@@ -204,6 +207,17 @@ const QuestFormModal = () => {
             }
             return undefined;
           },
+          verificationType: (value) => {
+            if (!value) return '인증 유형을 선택해주세요.';
+            return undefined;
+          },
+          verificationTargetCount: (value) => {
+            if (!value) return '목표 횟수를 입력해주세요.';
+            const num = Number(value);
+
+            if (num < 1) return '목표 횟수는 1 이상이어야 합니다.';
+            return undefined;
+          },
         }}
         onSubmit={handleSubmit}
       >
@@ -216,20 +230,6 @@ const QuestFormModal = () => {
               value={value !== undefined ? String(value) : ''}
               placeholder="퀘스트 이름을 입력하세요"
               onChangeText={onChange}
-            />
-          )}
-        />
-
-        {/* 퀘스트 타입 */}
-        <FormItem
-          name="questType"
-          label="퀘스트 타입"
-          item={({ value, onChange }) => (
-            <Select
-              value={value as 'DAILY' | 'WEEKLY' | undefined}
-              items={QUEST_TYPE_OPTIONS}
-              onSelect={onChange}
-              placeholder="퀘스트 타입 선택"
             />
           )}
         />
@@ -263,23 +263,22 @@ const QuestFormModal = () => {
           )}
         />
 
-        {/* 시작 날짜 및 시간 */}
+        {/* 시작 날짜 */}
         <FormItem
           name="startDate"
-          label="시작 날짜 및 시간"
+          label="시작 날짜"
+          helpText="퀘스트는 월요일부터 시작됩니다"
           item={({ value, form, setValue }) => (
             <ThemeView transparent>
               <ThemeView style={styles.dateTimeWrapper} transparent>
                 <ThemeView style={styles.dateTimeDisplay} transparent>
                   {form.startDate && (
                     <Typography style={styles.dateTimeText} numberOfLines={1}>
-                      {value ? formatDateTime(new Date(value)) : form.startDate}
+                      {value ? formatDate(new Date(value)) : form.startDate}
                     </Typography>
                   )}
                   {!form.startDate && (
-                    <Typography style={styles.placeholderText}>
-                      날짜/시간 미선택
-                    </Typography>
+                    <Typography style={styles.placeholderText}>날짜 미선택</Typography>
                   )}
                 </ThemeView>
                 <Button
@@ -302,10 +301,13 @@ const QuestFormModal = () => {
                   <DateTimePicker
                     themeVariant={colorScheme}
                     value={
-                      tempStartDate || (value ? new Date(value) : new Date())
+                      tempStartDate ||
+                      (value
+                        ? getQuestStartMonday(new Date(value))
+                        : getFirstSelectableMonday())
                     }
-                    mode="datetime"
-                    minimumDate={new Date()}
+                    mode="date"
+                    minimumDate={getFirstSelectableMonday()}
                     onChange={(event, startDate = new Date()) => {
                       // 취소 시
                       if (event.type === 'dismissed') {
@@ -314,8 +316,8 @@ const QuestFormModal = () => {
                         return;
                       }
 
-                      // 날짜/시간 변경 시 임시 저장 (아직 확정하지 않음)
-                      setTempStartDate(startDate);
+                      // 선택값은 항상 같은 주 월요일로 맞춘다.
+                      setTempStartDate(getQuestStartMonday(startDate));
                     }}
                   />
                   <ThemeView style={styles.datePickerButtonRow} transparent>
@@ -334,116 +336,15 @@ const QuestFormModal = () => {
                       variant="primary"
                       size="sm"
                       onPress={() => {
-                        const finalDate =
+                        const finalDate = getQuestStartMonday(
                           tempStartDate ||
-                          (value ? new Date(value) : new Date());
+                            (value ? new Date(value) : new Date()),
+                        );
 
                         setValue('startDate', toISOStringWithoutMs(finalDate));
 
-                        const endDate = new Date(form.endDate || finalDate);
-
-                        if (form.endDate && endDate < finalDate) {
-                          setValue('endDate', toISOStringWithoutMs(finalDate));
-                        }
-
                         setIsShowStartDate(false);
                         setTempStartDate(null);
-                      }}
-                      style={styles.datePickerButton}
-                    />
-                  </ThemeView>
-                </ThemeView>
-              )}
-            </ThemeView>
-          )}
-        />
-
-        {/* 종료 날짜 및 시간 */}
-        <FormItem
-          name="endDate"
-          label="종료 날짜 및 시간"
-          item={({ value, form, setValue }) => (
-            <ThemeView transparent>
-              <ThemeView style={styles.dateTimeWrapper} transparent>
-                <ThemeView style={styles.dateTimeDisplay} transparent>
-                  {form.endDate && (
-                    <Typography style={styles.dateTimeText} numberOfLines={1}>
-                      {value ? formatDateTime(new Date(value)) : form.endDate}
-                    </Typography>
-                  )}
-                  {!form.endDate && (
-                    <Typography style={styles.placeholderText}>
-                      날짜/시간 미선택
-                    </Typography>
-                  )}
-                </ThemeView>
-                <Button
-                  title="선택"
-                  variant="secondary"
-                  size="sm"
-                  onPress={() => setIsShowEndDate(!isShowEndDate)}
-                  leftIcon={({ color }) => (
-                    <Ionicons
-                      name="calendar-clear-outline"
-                      size={16}
-                      color={color}
-                    />
-                  )}
-                  style={styles.dateButton}
-                />
-              </ThemeView>
-              {isShowEndDate && (
-                <ThemeView transparent style={styles.datePickerContainer}>
-                  <DateTimePicker
-                    themeVariant={colorScheme}
-                    value={
-                      tempEndDate ||
-                      (value
-                        ? new Date(value)
-                        : new Date(form.startDate || Date.now()))
-                    }
-                    mode="datetime"
-                    minimumDate={
-                      form.startDate ? new Date(form.startDate) : new Date()
-                    }
-                    onChange={(event, endDate = new Date()) => {
-                      // 취소 시
-                      if (event.type === 'dismissed') {
-                        setIsShowEndDate(false);
-                        setTempEndDate(null);
-                        return;
-                      }
-
-                      // 날짜/시간 변경 시 임시 저장 (아직 확정하지 않음)
-                      setTempEndDate(endDate);
-                    }}
-                  />
-                  <ThemeView style={styles.datePickerButtonRow} transparent>
-                    <Button
-                      title="취소"
-                      variant="secondary"
-                      size="sm"
-                      onPress={() => {
-                        setIsShowEndDate(false);
-                        setTempEndDate(null);
-                      }}
-                      style={styles.datePickerButton}
-                    />
-                    <Button
-                      title="확인"
-                      variant="primary"
-                      size="sm"
-                      onPress={() => {
-                        const finalDate =
-                          tempEndDate ||
-                          (value
-                            ? new Date(value)
-                            : new Date(form.startDate || Date.now()));
-
-                        setValue('endDate', toISOStringWithoutMs(finalDate));
-
-                        setIsShowEndDate(false);
-                        setTempEndDate(null);
                       }}
                       style={styles.datePickerButton}
                     />
@@ -491,6 +392,42 @@ const QuestFormModal = () => {
               <Input
                 value={value !== undefined ? String(value) : ''}
                 placeholder="최대 참여자 수 입력 (1-10000)"
+                onChangeText={handleChange}
+                keyboardType="number-pad"
+              />
+            );
+          }}
+        />
+
+        {/* 인증 유형 */}
+        <FormItem
+          name="verificationType"
+          label="인증 유형"
+          item={({ value, onChange }) => (
+            <Select<VerificationType>
+              value={value as VerificationType | undefined}
+              items={VERIFICATION_TYPE_OPTIONS}
+              onSelect={onChange}
+              placeholder="인증 유형 선택"
+            />
+          )}
+        />
+
+        {/* 목표 횟수 */}
+        <FormItem
+          name="verificationTargetCount"
+          label="목표 횟수"
+          item={({ value, onChange }) => {
+            const handleChange = (text: string) => {
+              const numericValue = text.replace(/[^0-9]/g, '');
+
+              onChange(numericValue);
+            };
+
+            return (
+              <Input
+                value={value !== undefined ? String(value) : ''}
+                placeholder="목표 횟수 입력 (예: 7)"
                 onChangeText={handleChange}
                 keyboardType="number-pad"
               />

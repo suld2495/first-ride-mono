@@ -6,6 +6,7 @@ import {
   useFetchQuestDetailQuery,
   useUpdateQuestMutation,
 } from '@repo/shared/hooks/useQuest';
+import { VerificationType } from '@repo/types';
 import { useParams, useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,11 @@ export default function QuestEditPage() {
     rewardId: 1,
     rewardType: 'EXP' as 'BADGE' | 'EXP',
     expAmount: 0,
+    verificationType: 'WEEKLY_APP_VISIT' as
+      | 'WEEKLY_APP_VISIT'
+      | 'WEEKLY_MATE_ROUTINE_REVIEW'
+      | 'WEEKLY_SELF_ROUTINE_PASS',
+    verificationTargetCount: 1,
   });
 
   useEffect(() => {
@@ -47,6 +53,8 @@ export default function QuestEditPage() {
         rewardId: quest.rewardId,
         rewardType: quest.rewardType,
         expAmount: quest.expAmount,
+        verificationType: quest.verificationType,
+        verificationTargetCount: quest.verificationTargetCount,
       });
     }
   }, [quest]);
@@ -87,6 +95,44 @@ export default function QuestEditPage() {
             onChange={(e) =>
               setFormData({ ...formData, description: e.target.value })
             }
+          />
+        </div>
+        <div>
+          <Label htmlFor="verificationType">인증 유형</Label>
+          <select
+            id="verificationType"
+            value={formData.verificationType}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                verificationType: e.target.value as VerificationType,
+              })
+            }
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="WEEKLY_APP_VISIT">주간 앱 방문</option>
+            <option value="WEEKLY_MATE_ROUTINE_REVIEW">
+              주간 메이트 루틴 리뷰
+            </option>
+            <option value="WEEKLY_SELF_ROUTINE_PASS">
+              주간 본인 루틴 인증
+            </option>
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="verificationTargetCount">목표 횟수</Label>
+          <Input
+            id="verificationTargetCount"
+            type="number"
+            min={1}
+            value={formData.verificationTargetCount}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                verificationTargetCount: Number(e.target.value),
+              })
+            }
+            required
           />
         </div>
         <div className="flex gap-4">

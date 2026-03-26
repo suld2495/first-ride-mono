@@ -21,7 +21,7 @@ function getStatusBadgeClass(status: string) {
 }
 
 export default function DashboardPage() {
-  const { data: quests } = useFetchQuestsQuery('ALL');
+  const { data: quests } = useFetchQuestsQuery();
   const { data: rewards } = useFetchRewardsQuery('ALL');
 
   const activeQuests = quests?.filter((q) => q.status === 'ACTIVE').length ?? 0;

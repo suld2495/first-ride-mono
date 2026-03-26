@@ -44,7 +44,11 @@ const getTypeBadgeClass = (type: string) => {
 
 export default function QuestsPage() {
   const [filter, setFilter] = useState<QuestTypeFilter>('ALL');
-  const { data: quests, isLoading, error } = useFetchQuestsQuery({ questType: filter });
+  const {
+    data: quests,
+    isLoading,
+    error,
+  } = useFetchQuestsQuery({ questType: filter });
 
   const filterOptions: { value: QuestTypeFilter; label: string }[] = [
     { value: 'ALL', label: '전체' },

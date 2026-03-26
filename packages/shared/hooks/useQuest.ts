@@ -74,6 +74,21 @@ export const useAccpetQuestMutation = () => {
   });
 };
 
+// 완료
+export const useCompleteQuestMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: questApi.completeQuest,
+    onSuccess: (_, questId) => {
+      queryClient.invalidateQueries({ queryKey: questKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: questKeys.detail(questId),
+      });
+    },
+  });
+};
+
 // 보상 목록 조회 (필터 포함)
 export const useFetchRewardsQuery = (filter: RewardTypeFilter = 'ALL') => {
   return useQuery({

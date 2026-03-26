@@ -94,3 +94,24 @@ export const getDaysOfTheWeek = () => [
 export const getThisWeekMonday = (): Date => {
   return new Date(getWeekMonday(new Date()));
 };
+
+export const isMonday = (date: Date) => {
+  return date.getDay() === 1;
+};
+
+export const getMondayDate = (date: Date) => {
+  return new Date(getWeekMonday(date));
+};
+
+export const getNextMonday = (date: Date) => {
+  const monday = getMondayDate(date);
+
+  if (monday >= date) {
+    return monday;
+  }
+
+  const nextMonday = new Date(monday);
+
+  nextMonday.setDate(nextMonday.getDate() + 7);
+  return nextMonday;
+};

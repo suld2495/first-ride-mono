@@ -1,6 +1,6 @@
 import {
+  CreateQuestForm,
   Quest,
-  QuestForm,
   QuestStatusFilter,
   QuestTypeFilter,
   UpdateQuestForm,
@@ -49,7 +49,7 @@ export const fetchQuestDetail = async (id: number): Promise<Quest> => {
 };
 
 // 생성
-export const createQuest = async (form: QuestForm): Promise<void> => {
+export const createQuest = async (form: CreateQuestForm): Promise<void> => {
   try {
     await http.post('/quest', form);
   } catch (error) {
@@ -82,6 +82,17 @@ export const deleteQuest = async (id: number): Promise<void> => {
 export const acceptQuest = async (questId: number): Promise<void> => {
   try {
     await http.post(`/quest/accept`, {
+      questId,
+    });
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+// 완료
+export const completeQuest = async (questId: number): Promise<void> => {
+  try {
+    await http.post('/quest/complete', {
       questId,
     });
   } catch (error) {

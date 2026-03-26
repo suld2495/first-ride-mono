@@ -9,9 +9,13 @@ export interface CreateMockQuestOptions {
   status?: Quest['status'];
   isAccepted?: boolean;
   isCompleted?: boolean;
+  endDate?: Quest['endDate'];
   requiredLevel?: number;
   maxParticipants?: number;
   currentParticipants?: number;
+  verificationType?: Quest['verificationType'];
+  currentVerificationCount?: number;
+  verificationTargetCount?: Quest['verificationTargetCount'];
 }
 
 export const createMockQuest = (
@@ -27,13 +31,18 @@ export const createMockQuest = (
   rewardType: 'EXP',
   expAmount: 100,
   startDate: new Date().toISOString(),
-  endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+  endDate:
+    options.endDate ??
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   requiredLevel: options.requiredLevel ?? 1,
   maxParticipants: options.maxParticipants ?? 100,
   currentParticipants: options.currentParticipants ?? 10,
   completedCount: 0,
   myRank: 0,
   status: options.status ?? 'ACTIVE',
+  verificationType: options.verificationType ?? 'WEEKLY_APP_VISIT',
+  currentVerificationCount: options.currentVerificationCount ?? 0,
+  verificationTargetCount: options.verificationTargetCount ?? 1,
   isAccepted: options.isAccepted ?? false,
   isCompleted: options.isCompleted ?? false,
 });

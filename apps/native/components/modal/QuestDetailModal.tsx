@@ -1,8 +1,8 @@
 import { ScrollView } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   useAccpetQuestMutation,
+  useCompleteQuestMutation,
   useFetchQuestDetailQuery,
 } from '@repo/shared/hooks/useQuest';
 import { useRouter } from 'expo-router';
@@ -14,7 +14,6 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 import { Button } from '../common/Button';
 import { PixelText } from '../common/PixelText';
 import ThemeView from '../common/ThemeView';
-import { Typography } from '../common/Typography';
 import QuestInfo from '../quest/QuestInfo';
 import QuestRewards from '../quest/QuestRewards';
 import QuestTime from '../quest/QuestTime';
@@ -32,6 +31,7 @@ const QuestDetailModal = () => {
 
   const { data: detail, isLoading } = useFetchQuestDetailQuery(questId || 0);
   const acceptQuest = useAccpetQuestMutation();
+  const completeQuest = useCompleteQuestMutation();
 
   if (isLoading || !detail) {
     return null;
@@ -40,20 +40,45 @@ const QuestDetailModal = () => {
   const {
     questType,
     questName,
-    description,
-    requiredLevel,
     currentParticipants,
     maxParticipants,
     rewardName,
     rewardType,
     endDate,
     isAccepted,
+    isCompleted,
+    verificationType,
+    currentVerificationCount,
+    verificationTargetCount,
   } = detail;
 
   const isFull = currentParticipants === maxParticipants;
+  const isExpired = new Date(endDate).getTime() < Date.now();
+  const isActionDisabled =
+    isExpired ||
+    isCompleted ||
+    isFull ||
+    acceptQuest.isPending ||
+    completeQuest.isPending;
 
-  const handleAcceptQuest = async () => {
+  const handleQuestAction = async () => {
     if (!questId) return;
+
+    if (isAccepted && !isCompleted) {
+      try {
+        await completeQuest.mutateAsync(questId);
+        showToast('완료되었습니다.', 'success');
+        router.back();
+      } catch (error) {
+        const errorMessage = getApiErrorMessage(
+          error,
+          '퀘스트 완료에 실패했습니다.',
+        );
+
+        showToast(errorMessage, 'error');
+      }
+      return;
+    }
 
     try {
       await acceptQuest.mutateAsync(questId);
@@ -89,25 +114,13 @@ const QuestDetailModal = () => {
           <PixelText variant="title" style={styles.questName}>
             {questName}
           </PixelText>
-
-          {/* GOAL Section */}
-          <ThemeView style={styles.goalSection}>
-            <Ionicons
-              name="flag-outline"
-              size={20}
-              color={theme.colors.text.secondary}
-            />
-            <Typography variant="body" style={styles.goalText}>
-              {description}
-            </Typography>
-          </ThemeView>
         </ThemeView>
 
         {/* Quest Info */}
         <QuestInfo
-          requiredLevel={requiredLevel}
-          currentParticipants={currentParticipants}
-          maxParticipants={maxParticipants}
+          verificationType={verificationType}
+          currentVerificationCount={currentVerificationCount ?? 0}
+          verificationTargetCount={verificationTargetCount}
         />
 
         {/* Rewards */}
@@ -119,13 +132,21 @@ const QuestDetailModal = () => {
         {/* Accept Button */}
         <Button
           title={
-            isAccepted ? '참여중' : isFull ? '참여불가 (정원 초과)' : '참여'
+            isExpired
+              ? '만료'
+              : isCompleted
+              ? '완료됨'
+              : isAccepted
+                ? '완료'
+                : isFull
+                  ? '참여불가 (정원 초과)'
+                  : '참여'
           }
-          onPress={handleAcceptQuest}
-          disabled={isAccepted || isFull || acceptQuest.isPending}
+          onPress={handleQuestAction}
+          disabled={isActionDisabled}
           style={[
             styles.acceptButton,
-            (isAccepted || isFull) && styles.acceptButtonDisabled,
+            (isExpired || isCompleted || isFull) && styles.acceptButtonDisabled,
           ]}
         />
       </ScrollView>
@@ -167,23 +188,6 @@ const styles = StyleSheet.create((theme) => ({
     textAlign: 'center',
     marginBottom: theme.foundation.spacing.s,
   },
-
-  goalSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: theme.foundation.spacing.s,
-    backgroundColor: theme.colors.background.sunken,
-    padding: theme.foundation.spacing.m,
-    borderRadius: theme.foundation.radii.m,
-    width: '100%',
-  },
-
-  goalText: {
-    flex: 1,
-    color: theme.colors.text.secondary,
-    lineHeight: 20,
-  },
-
   acceptButton: {
     marginTop: theme.foundation.spacing.m,
   },

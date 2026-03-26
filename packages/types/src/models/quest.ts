@@ -2,6 +2,10 @@
 type QuestStatus = 'ACTIVE' | 'INACTIVE' | 'COMPLETED';
 type QuestType = 'DAILY' | 'WEEKLY';
 type RewardType = 'BADGE' | 'EXP';
+export type VerificationType =
+  | 'WEEKLY_APP_VISIT'
+  | 'WEEKLY_MATE_ROUTINE_REVIEW'
+  | 'WEEKLY_SELF_ROUTINE_PASS';
 
 export interface Quest {
   questId: number;
@@ -20,6 +24,9 @@ export interface Quest {
   completedCount: number;
   myRank: number;
   status: QuestStatus;
+  verificationType: VerificationType;
+  currentVerificationCount?: number;
+  verificationTargetCount: number;
   isAccepted: boolean;
   isCompleted: boolean;
 }
@@ -37,8 +44,10 @@ export interface Reward {
 // 폼 타입
 export type QuestForm = Omit<
   Quest,
-  'questId' | 'rewardName' | 'createdAt' | 'updatedAt' | 'currentParticipants' | 'currentParticipants' | 'completedCount' | 'myRank' | 'status' | 'isAccepted' | 'isCompleted'
+  'questId' | 'rewardName' | 'createdAt' | 'updatedAt' | 'currentParticipants' | 'currentParticipants' | 'completedCount' | 'myRank' | 'status' | 'isAccepted' | 'isCompleted' | 'currentVerificationCount'
 >;
+
+export type CreateQuestForm = Omit<QuestForm, 'endDate'>;
 
 // 필터 타입
 export type QuestStatusFilter = 'ALL' | 'ACTIVE' | 'EXPIRED' | 'UPCOMING';

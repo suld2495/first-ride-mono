@@ -5,6 +5,8 @@
 
 import type { QuestForm } from '@repo/types';
 
+import { isMonday } from './date-utils';
+
 /**
  * Formats an ISO 8601 date string to "MM/DD" format
  *
@@ -110,7 +112,7 @@ export const isEndDateValid = (startDate: string, endDate: string): boolean => {
  * @returns {Record<string, string>} Object with field names as keys and error messages as values
  *
  * @example
- * validateQuestForm({ questName: "", questType: "DAILY", ... })
+ * validateQuestForm({ questName: "", ... })
  * // returns { questName: "퀘스트명을 입력해주세요" }
  */
 export const validateQuestForm = (
@@ -126,9 +128,11 @@ export const validateQuestForm = (
   }
 
   // Quest type validation
-  if (!form.questType) {
-    errors.questType = '퀘스트 타입을 선택해주세요';
-  } else if (form.questType !== 'DAILY' && form.questType !== 'WEEKLY') {
+  if (
+    form.questType &&
+    form.questType !== 'DAILY' &&
+    form.questType !== 'WEEKLY'
+  ) {
     errors.questType = '퀘스트 타입을 선택해주세요';
   }
 
@@ -147,6 +151,8 @@ export const validateQuestForm = (
   // Start date validation
   if (!form.startDate || form.startDate.trim() === '') {
     errors.startDate = '시작일을 입력해주세요';
+  } else if (!isMonday(new Date(form.startDate))) {
+    errors.startDate = '시작일은 월요일만 선택할 수 있습니다';
   }
 
   // End date validation

@@ -1,105 +1,127 @@
+import { VerificationType } from '@repo/types';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import ThemeView from '../common/ThemeView';
 import { Typography } from '../common/Typography';
 
-interface QuestBoxProps {
-  title: string;
-  value: string | number;
-  color: string;
+interface QuestInfoProps {
+  verificationType: VerificationType;
+  currentVerificationCount: number;
+  verificationTargetCount: number;
 }
 
-const QuestBox = ({ title, value, color }: QuestBoxProps) => {
-  return (
-    <ThemeView style={styles.box}>
-      <Typography variant="caption" style={styles.boxTitle}>
-        {title}
-      </Typography>
-      <Typography variant="title" style={[styles.boxValue, { color }]}>
-        {value}
-      </Typography>
-    </ThemeView>
-  );
+const VERIFICATION_CONTENT: Record<
+  VerificationType,
+  {
+    title: string;
+    currentLabel: string;
+    description: string;
+    icon: keyof typeof Ionicons.glyphMap;
+    colorKey: 'success' | 'warning' | 'info';
+  }
+> = {
+  WEEKLY_APP_VISIT: {
+    title: '앱 방문 진행률',
+    currentLabel: '방문 횟수',
+    description: '이번 주 앱 방문 횟수를 기준으로 달성 여부를 확인해요.',
+    icon: 'phone-portrait-outline',
+    colorKey: 'info',
+  },
+  WEEKLY_MATE_ROUTINE_REVIEW: {
+    title: '메이트 리뷰 진행률',
+    currentLabel: '리뷰 처리 횟수',
+    description:
+      '메이트 루틴 인증 요청을 처리한 횟수를 기준으로 달성 여부를 확인해요.',
+    icon: 'people-outline',
+    colorKey: 'warning',
+  },
+  WEEKLY_SELF_ROUTINE_PASS: {
+    title: '내 루틴 인증 진행률',
+    currentLabel: '인증 성공 횟수',
+    description: '내 루틴 인증이 승인된 횟수를 기준으로 달성 여부를 확인해요.',
+    icon: 'checkmark-done-outline',
+    colorKey: 'success',
+  },
 };
 
-interface QuestInfoProps {
-  requiredLevel: number;
-  currentParticipants: number;
-  maxParticipants: number;
-}
+const DEFAULT_VERIFICATION_CONTENT = {
+  title: '퀘스트 진행률',
+  currentLabel: '진행 횟수',
+  description: '현재 누적된 진행 횟수를 기준으로 달성 여부를 확인해요.',
+  icon: 'analytics-outline' as keyof typeof Ionicons.glyphMap,
+  colorKey: 'info' as const,
+};
 
 const QuestInfo = ({
-  requiredLevel,
-  currentParticipants,
-  maxParticipants,
+  verificationType,
+  currentVerificationCount,
+  verificationTargetCount,
 }: QuestInfoProps) => {
   const { theme } = useUnistyles();
-  const progress = (currentParticipants / maxParticipants) * 100;
-  const isFull = currentParticipants === maxParticipants;
+  const verificationInfo =
+    VERIFICATION_CONTENT[verificationType] ?? DEFAULT_VERIFICATION_CONTENT;
+  const verificationProgress =
+    verificationTargetCount > 0
+      ? Math.min(
+          (currentVerificationCount / verificationTargetCount) * 100,
+          100,
+        )
+      : 0;
+  const verificationProgressLabel = `${Math.round(verificationProgress)}%`;
+  const verificationCountLabel = `${currentVerificationCount}회 / ${verificationTargetCount}회`;
+  const verificationColor =
+    verificationInfo.colorKey === 'success'
+      ? theme.colors.feedback.success.text
+      : verificationInfo.colorKey === 'warning'
+        ? theme.colors.feedback.warning.text
+        : theme.colors.feedback.info.text;
 
   return (
     <ThemeView style={styles.container}>
-      {/* Header */}
-      <ThemeView style={styles.header} transparent>
-        <Ionicons
-          name="flash-outline"
-          size={20}
-          color={theme.colors.action.primary.default}
-        />
-        <Typography variant="body" style={styles.headerText}>
-          QUEST INFO
-        </Typography>
-      </ThemeView>
-
-      {/* Info Boxes */}
-      <ThemeView style={styles.boxesContainer}>
-        <QuestBox
-          title="최소 레벨"
-          value={`LV.${requiredLevel}`}
-          color={theme.colors.action.primary.default}
-        />
-        <QuestBox
-          title="현재 인원"
-          value={`${currentParticipants}명`}
-          color={theme.colors.feedback.warning.text}
-        />
-        <QuestBox
-          title="최대 인원"
-          value={`${maxParticipants}명`}
-          color={theme.colors.feedback.info.text}
-        />
-      </ThemeView>
-
-      {/* Party Status */}
-      <ThemeView style={styles.partyContainer}>
-        <ThemeView style={styles.partyHeader}>
-          <Typography variant="caption" color="secondary">
-            파티현황
-          </Typography>
-          <Typography variant="caption" color="secondary">
-            {`${currentParticipants}/${maxParticipants}`}
-          </Typography>
-        </ThemeView>
-
-        {/* Progress Bar */}
-        <ThemeView style={styles.progressBackground}>
-          <ThemeView style={[styles.progressFill, { width: `${progress}%` }]} />
-        </ThemeView>
-
-        {/* Warning Message */}
-        {isFull && (
-          <ThemeView style={styles.warning}>
+      <ThemeView style={styles.verificationContainer} transparent>
+        <ThemeView style={styles.verificationHeader} transparent>
+          <ThemeView style={styles.verificationTitleRow} transparent>
             <Ionicons
-              name="warning"
-              size={17}
-              color={theme.colors.feedback.warning.text}
+              name={verificationInfo.icon}
+              size={18}
+              color={verificationColor}
             />
-            <Typography variant="caption">
-              파티 인원이 가득 찼습니다.
+            <Typography variant="label" style={styles.verificationTitle}>
+              {verificationInfo.title}
             </Typography>
           </ThemeView>
-        )}
+          <Typography variant="label" style={{ color: verificationColor }}>
+            {verificationProgressLabel}
+          </Typography>
+        </ThemeView>
+
+        <Typography variant="caption" color="secondary">
+          {verificationInfo.description}
+        </Typography>
+
+        <ThemeView style={styles.progressSection} transparent>
+          <ThemeView style={styles.partyHeader} transparent>
+            <Typography variant="caption" color="secondary">
+              현재 달성률
+            </Typography>
+            <Typography variant="caption" color="secondary">
+              {verificationCountLabel}
+            </Typography>
+          </ThemeView>
+
+          <ThemeView style={styles.progressBackground}>
+            <ThemeView
+              style={[
+                styles.progressFill,
+                {
+                  width: `${verificationProgress}%`,
+                  backgroundColor: verificationColor,
+                },
+              ]}
+            />
+          </ThemeView>
+        </ThemeView>
       </ThemeView>
     </ThemeView>
   );
@@ -114,48 +136,33 @@ const styles = StyleSheet.create((theme) => ({
     padding: theme.foundation.spacing.m,
     borderRadius: theme.foundation.radii.m,
   },
-
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: 12,
+  verificationContainer: {
+    gap: 10,
+    padding: 0,
   },
 
-  headerText: {
-    fontWeight: 'bold',
-  },
-
-  boxesContainer: {
+  verificationHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 8,
-  },
-
-  box: {
-    flex: 1,
-    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.background.base,
-    borderRadius: theme.foundation.radii.s,
-    paddingVertical: 12,
   },
 
-  boxTitle: {
-    marginBottom: 8,
-    color: theme.colors.text.tertiary,
+  verificationTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
 
-  boxValue: {
-    fontWeight: '600',
+  verificationTitle: {
+    fontWeight: '700',
   },
 
-  partyContainer: {
+  progressSection: {
+    marginTop: 4,
+    paddingTop: theme.foundation.spacing.s,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.background.sunken,
     gap: 8,
-    marginTop: 12,
-    paddingTop: 8,
-    paddingHorizontal: theme.foundation.spacing.s,
   },
 
   partyHeader: {
@@ -174,12 +181,5 @@ const styles = StyleSheet.create((theme) => ({
   progressFill: {
     height: '100%',
     backgroundColor: theme.colors.feedback.warning.text,
-  },
-
-  warning: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
   },
 }));

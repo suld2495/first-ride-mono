@@ -54,121 +54,140 @@ export function makeServer() {
         };
       });
 
-      // Quest APIs
-      this.get('/quest/list', (schema, request) => {
-        const filter = request.queryParams.filter || 'ALL';
-
-        const mockQuests = [
-          {
-            questId: 1,
-            questName: '일일 루틴 3회 완료',
-            questType: 'DAILY',
-            status: 'ACTIVE',
-            description: '하루에 루틴을 3회 완료하세요',
-            rewardId: 1,
-            rewardName: '골드 100',
-            startDate: '2025-01-01T00:00:00Z',
-            endDate: '2025-12-31T23:59:59Z',
-            requiredLevel: 1,
-            currentParticipants: 23,
-            maxParticipants: 100,
-            createdAt: '2025-01-01T00:00:00Z',
-            updatedAt: '2025-01-01T00:00:00Z',
-          },
-          {
-            questId: 2,
-            questName: '주간 루틴 마스터',
-            questType: 'WEEKLY',
-            status: 'ACTIVE',
-            description: '일주일 동안 루틴을 완벽하게 수행하세요',
-            rewardId: 2,
-            rewardName: '젬 50',
-            startDate: '2025-01-01T00:00:00Z',
-            endDate: '2025-12-31T23:59:59Z',
-            requiredLevel: 5,
-            currentParticipants: 50,
-            maxParticipants: 50,
-            createdAt: '2025-01-01T00:00:00Z',
-            updatedAt: '2025-01-01T00:00:00Z',
-          },
-          {
-            questId: 3,
-            questName: '일일 운동 챌린지',
-            questType: 'DAILY',
-            status: 'INACTIVE',
-            description: '매일 30분 이상 운동하세요',
-            rewardId: 3,
-            rewardName: '경험치 200',
-            startDate: '2025-01-01T00:00:00Z',
-            endDate: '2025-12-31T23:59:59Z',
-            requiredLevel: 3,
-            currentParticipants: 15,
-            maxParticipants: 30,
-            createdAt: '2025-01-01T00:00:00Z',
-            updatedAt: '2025-01-01T00:00:00Z',
-          },
-          {
-            questId: 4,
-            questName: '주간 독서 챌린지',
-            questType: 'WEEKLY',
-            status: 'COMPLETED',
-            description: '일주일 동안 책 3권 읽기',
-            rewardId: 4,
-            rewardName: '특별 칭호',
-            startDate: '2025-01-01T00:00:00Z',
-            endDate: '2025-01-31T23:59:59Z',
-            requiredLevel: 10,
-            currentParticipants: 30,
-            maxParticipants: 50,
-            createdAt: '2025-01-01T00:00:00Z',
-            updatedAt: '2025-01-01T00:00:00Z',
-          },
-          {
-            questId: 5,
-            questName: '주간 명상 챌린지',
-            questType: 'WEEKLY',
-            status: 'INACTIVE',
-            description: '매일 10분 명상하기',
-            rewardId: 2,
-            rewardName: '젬 30',
-            startDate: '2025-01-01T00:00:00Z',
-            endDate: '2025-12-31T23:59:59Z',
-            requiredLevel: 1,
-            currentParticipants: 8,
-            maxParticipants: 20,
-            createdAt: '2025-01-01T00:00:00Z',
-            updatedAt: '2025-01-01T00:00:00Z',
-          },
-        ];
-
-        if (filter === 'ALL') {
-          return mockQuests;
-        }
-
-        return mockQuests.filter((quest) => quest.questType === filter);
-      });
-
-      this.get('/quest/:id', (schema, request) => {
-        const { id } = request.params;
-
-        const mockQuest = {
-          questId: Number(id),
+      const mockQuests = [
+        {
+          questId: 1,
           questName: '일일 루틴 3회 완료',
           questType: 'DAILY',
           status: 'ACTIVE',
           description: '하루에 루틴을 3회 완료하세요',
           rewardId: 1,
           rewardName: '골드 100',
+          rewardType: 'EXP',
+          expAmount: 100,
           startDate: '2025-01-01T00:00:00Z',
           endDate: '2025-12-31T23:59:59Z',
           requiredLevel: 1,
           currentParticipants: 23,
           maxParticipants: 100,
-          createdAt: '2025-01-01T00:00:00Z',
-          updatedAt: '2025-01-01T00:00:00Z',
-        };
+          completedCount: 12,
+          myRank: 4,
+          verificationType: 'WEEKLY_APP_VISIT',
+          currentVerificationCount: 2,
+          verificationTargetCount: 7,
+          isAccepted: false,
+          isCompleted: false,
+        },
+        {
+          questId: 2,
+          questName: '주간 루틴 마스터',
+          questType: 'WEEKLY',
+          status: 'ACTIVE',
+          description: '일주일 동안 루틴을 완벽하게 수행하세요',
+          rewardId: 2,
+          rewardName: '젬 50',
+          rewardType: 'EXP',
+          expAmount: 50,
+          startDate: '2025-01-01T00:00:00Z',
+          endDate: '2025-12-31T23:59:59Z',
+          requiredLevel: 5,
+          currentParticipants: 50,
+          maxParticipants: 50,
+          completedCount: 18,
+          myRank: 2,
+          verificationType: 'WEEKLY_MATE_ROUTINE_REVIEW',
+          currentVerificationCount: 1,
+          verificationTargetCount: 3,
+          isAccepted: true,
+          isCompleted: false,
+        },
+        {
+          questId: 3,
+          questName: '일일 운동 챌린지',
+          questType: 'DAILY',
+          status: 'INACTIVE',
+          description: '매일 30분 이상 운동하세요',
+          rewardId: 3,
+          rewardName: '경험치 200',
+          rewardType: 'EXP',
+          expAmount: 200,
+          startDate: '2025-01-01T00:00:00Z',
+          endDate: '2025-12-31T23:59:59Z',
+          requiredLevel: 3,
+          currentParticipants: 15,
+          maxParticipants: 30,
+          completedCount: 0,
+          myRank: 0,
+          verificationType: 'WEEKLY_APP_VISIT',
+          currentVerificationCount: 0,
+          verificationTargetCount: 5,
+          isAccepted: false,
+          isCompleted: false,
+        },
+        {
+          questId: 4,
+          questName: '주간 독서 챌린지',
+          questType: 'WEEKLY',
+          status: 'COMPLETED',
+          description: '일주일 동안 책 3권 읽기',
+          rewardId: 4,
+          rewardName: '특별 칭호',
+          rewardType: 'BADGE',
+          expAmount: 0,
+          startDate: '2025-01-01T00:00:00Z',
+          endDate: '2025-01-31T23:59:59Z',
+          requiredLevel: 10,
+          currentParticipants: 30,
+          maxParticipants: 50,
+          completedCount: 30,
+          myRank: 1,
+          verificationType: 'WEEKLY_SELF_ROUTINE_PASS',
+          currentVerificationCount: 3,
+          verificationTargetCount: 3,
+          isAccepted: true,
+          isCompleted: true,
+        },
+        {
+          questId: 5,
+          questName: '주간 명상 챌린지',
+          questType: 'WEEKLY',
+          status: 'INACTIVE',
+          description: '매일 10분 명상하기',
+          rewardId: 2,
+          rewardName: '젬 30',
+          rewardType: 'EXP',
+          expAmount: 30,
+          startDate: '2025-01-01T00:00:00Z',
+          endDate: '2025-12-31T23:59:59Z',
+          requiredLevel: 1,
+          currentParticipants: 8,
+          maxParticipants: 20,
+          completedCount: 1,
+          myRank: 11,
+          verificationType: 'WEEKLY_APP_VISIT',
+          currentVerificationCount: 1,
+          verificationTargetCount: 4,
+          isAccepted: false,
+          isCompleted: false,
+        },
+      ];
 
-        return mockQuest;
+      // Quest APIs
+      this.get('/quest/list', (schema, request) => {
+        const questType = request.queryParams.questType || 'ALL';
+
+        if (questType === 'ALL') {
+          return mockQuests;
+        }
+
+        return mockQuests.filter((quest) => quest.questType === questType);
+      });
+
+      this.get('/quest/:id', (schema, request) => {
+        const { id } = request.params;
+        return (
+          mockQuests.find((quest) => quest.questId === Number(id)) ?? mockQuests[0]
+        );
       });
 
       this.post('/quest', (schema, request) => {
@@ -178,7 +197,9 @@ export function makeServer() {
           !body.questName ||
           !body.questType ||
           !body.description ||
-          !body.rewardId
+          !body.rewardId ||
+          !body.verificationType ||
+          !body.verificationTargetCount
         ) {
           return { error: '필수 필드를 입력해주세요' };
         }
@@ -194,7 +215,9 @@ export function makeServer() {
           !body.questName ||
           !body.questType ||
           !body.description ||
-          !body.rewardId
+          !body.rewardId ||
+          !body.verificationType ||
+          !body.verificationTargetCount
         ) {
           return { error: '필수 필드를 입력해주세요' };
         }
@@ -208,10 +231,16 @@ export function makeServer() {
         return { message: '퀘스트가 삭제되었습니다' };
       });
 
-      this.post('/quest/accept/:id', (schema, request) => {
-        const { id } = request.params;
+      this.post('/quest/accept', (schema, request) => {
+        const body = JSON.parse(request.requestBody);
 
-        return { message: '퀘스트를 수락했습니다', questId: Number(id) };
+        return { message: '퀘스트를 수락했습니다', questId: Number(body.questId) };
+      });
+
+      this.post('/quest/complete', (schema, request) => {
+        const body = JSON.parse(request.requestBody);
+
+        return { message: '퀘스트를 완료했습니다', questId: Number(body.questId) };
       });
 
       // Reward API
