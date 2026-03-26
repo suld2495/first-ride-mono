@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { Modal, Pressable } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StyleSheet } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { FormContextType } from '@repo/shared/components';
 import {
   useCreateQuestMutation,
@@ -17,8 +17,8 @@ import { Input } from '@/components/common/Input';
 import { Select, SelectItem } from '@/components/common/Select';
 import ThemeView from '@/components/common/ThemeView';
 import { Typography } from '@/components/common/Typography';
+import QuestStartDateCalendar from '@/components/quest/QuestStartDateCalendar';
 import { useToast } from '@/contexts/ToastContext';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useCreateForm } from '@/hooks/useForm';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
@@ -95,7 +95,6 @@ const getFirstSelectableMonday = () => {
 const QuestFormModal = () => {
   const router = useRouter();
   const { showToast } = useToast();
-  const colorScheme = useColorScheme();
 
   const [isShowStartDate, setIsShowStartDate] = useState(false);
   const [tempStartDate, setTempStartDate] = useState<Date | null>(null);
@@ -285,7 +284,10 @@ const QuestFormModal = () => {
                   title="선택"
                   variant="secondary"
                   size="sm"
-                  onPress={() => setIsShowStartDate(!isShowStartDate)}
+                  onPress={() => {
+                    setTempStartDate(value ? getQuestStartMonday(new Date(value)) : null);
+                    setIsShowStartDate((prev) => !prev);
+                  }}
                   leftIcon={({ color }) => (
                     <Ionicons
                       name="calendar-clear-outline"
@@ -296,61 +298,57 @@ const QuestFormModal = () => {
                   style={styles.dateButton}
                 />
               </ThemeView>
-              {isShowStartDate && (
-                <ThemeView transparent style={styles.datePickerContainer}>
-                  <DateTimePicker
-                    themeVariant={colorScheme}
-                    value={
-                      tempStartDate ||
-                      (value
-                        ? getQuestStartMonday(new Date(value))
-                        : getFirstSelectableMonday())
-                    }
-                    mode="date"
-                    minimumDate={getFirstSelectableMonday()}
-                    onChange={(event, startDate = new Date()) => {
-                      // 취소 시
-                      if (event.type === 'dismissed') {
-                        setIsShowStartDate(false);
-                        setTempStartDate(null);
-                        return;
-                      }
+              <Modal
+                visible={isShowStartDate}
+                animationType="slide"
+                transparent
+                onRequestClose={() => {
+                  setIsShowStartDate(false);
+                  setTempStartDate(null);
+                }}
+              >
+                <Pressable
+                  style={styles.dateSheetOverlay}
+                  onPress={() => {
+                    setIsShowStartDate(false);
+                    setTempStartDate(null);
+                  }}
+                  accessibilityLabel="날짜 선택 닫기"
+                >
+                  <Pressable
+                    style={styles.dateSheetContainer}
+                    onPress={(event) => event?.stopPropagation?.()}
+                  >
+                    <ThemeView style={styles.dateSheetContent} transparent>
+                      <ThemeView transparent style={styles.dateSheetHandle} />
+                      <QuestStartDateCalendar
+                        minimumDate={getFirstSelectableMonday()}
+                        selectedDate={tempStartDate}
+                        onSelectDate={setTempStartDate}
+                        onCancel={() => {
+                          setIsShowStartDate(false);
+                          setTempStartDate(null);
+                        }}
+                        onConfirm={() => {
+                          if (!tempStartDate) {
+                            return;
+                          }
 
-                      // 선택값은 항상 같은 주 월요일로 맞춘다.
-                      setTempStartDate(getQuestStartMonday(startDate));
-                    }}
-                  />
-                  <ThemeView style={styles.datePickerButtonRow} transparent>
-                    <Button
-                      title="취소"
-                      variant="secondary"
-                      size="sm"
-                      onPress={() => {
-                        setIsShowStartDate(false);
-                        setTempStartDate(null);
-                      }}
-                      style={styles.datePickerButton}
-                    />
-                    <Button
-                      title="확인"
-                      variant="primary"
-                      size="sm"
-                      onPress={() => {
-                        const finalDate = getQuestStartMonday(
-                          tempStartDate ||
-                            (value ? new Date(value) : new Date()),
-                        );
+                          setValue(
+                            'startDate',
+                            toISOStringWithoutMs(
+                              getQuestStartMonday(tempStartDate),
+                            ),
+                          );
 
-                        setValue('startDate', toISOStringWithoutMs(finalDate));
-
-                        setIsShowStartDate(false);
-                        setTempStartDate(null);
-                      }}
-                      style={styles.datePickerButton}
-                    />
-                  </ThemeView>
-                </ThemeView>
-              )}
+                          setIsShowStartDate(false);
+                          setTempStartDate(null);
+                        }}
+                      />
+                    </ThemeView>
+                  </Pressable>
+                </Pressable>
+              </Modal>
             </ThemeView>
           )}
         />
@@ -489,17 +487,31 @@ const styles = StyleSheet.create((theme) => ({
 
   datePickerContainer: {
     marginTop: 10,
-    gap: 10,
   },
 
-  datePickerButtonRow: {
-    flexDirection: 'row',
+  dateSheetOverlay: {
+    flex: 1,
     justifyContent: 'flex-end',
-    gap: 10,
+    backgroundColor: 'rgba(15, 23, 42, 0.38)',
   },
 
-  datePickerButton: {
-    minWidth: 80,
+  dateSheetContainer: {
+    width: '100%',
+    paddingHorizontal: theme.foundation.spacing.m,
+    paddingBottom: theme.foundation.spacing.l,
+  },
+
+  dateSheetContent: {
+    gap: theme.foundation.spacing.s,
+  },
+
+  dateSheetHandle: {
+    alignSelf: 'center',
+    width: 44,
+    height: 5,
+    borderRadius: theme.foundation.radii.full,
+    backgroundColor: theme.colors.border.strong,
+    opacity: 0.7,
   },
 
   buttonContainer: {

@@ -1,4 +1,5 @@
 import axiosInstance from '@repo/shared/api';
+import { getNextMonday } from '@repo/shared/utils';
 import { Reward } from '@repo/types';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
@@ -9,32 +10,22 @@ import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 declare const mockBack: jest.Mock;
 declare const mockShowToast: jest.Mock;
 
-let mockDateTimePickerOnChange: ((event: unknown, date?: Date) => void) | null =
-  null;
-let mockDateTimePickerMode: 'date' | 'time' | 'datetime' | undefined;
-
-jest.mock('@react-native-community/datetimepicker', () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const React = require('react');
-
-  return {
-    __esModule: true,
-    default: ({
-      onChange,
-      mode,
-    }: {
-      onChange: (event: unknown, date?: Date) => void;
-      mode?: 'date' | 'time' | 'datetime';
-    }) => {
-      mockDateTimePickerOnChange = onChange;
-      mockDateTimePickerMode = mode;
-
-      return React.createElement('RNDateTimePicker', { testID: 'date-picker' });
-    },
-  };
-});
-
 let mockAxios: MockAdapter;
+
+const formatDateKey = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
+const getNextTuesday = (date: Date) => {
+  const nextTuesday = new Date(date);
+
+  nextTuesday.setDate(nextTuesday.getDate() + 1);
+  return nextTuesday;
+};
 
 const mockRewards: Reward[] = [
   {
@@ -52,8 +43,6 @@ describe('QuestFormModal', () => {
     resetAuthMocks();
     mockAxios = new MockAdapter(axiosInstance);
     mockAxios.onGet('/quest/reward/list').reply(200, { data: mockRewards });
-    mockDateTimePickerOnChange = null;
-    mockDateTimePickerMode = undefined;
     mockBack.mockClear();
     mockShowToast.mockClear();
   });
@@ -63,10 +52,15 @@ describe('QuestFormModal', () => {
   });
 
   const renderModal = () => render(<QuestFormModal />);
+  const nextMonday = getNextMonday(new Date());
+  const mondayLabel = `${formatDateKey(nextMonday)} 선택 가능`;
+  const nextTuesday = getNextTuesday(nextMonday);
+  const tuesdayLabel = `${formatDateKey(nextTuesday)} 선택 불가`;
 
   const fillRequiredFields = async (
     getByPlaceholderText: (text: string) => any,
     getByText: (text: string) => any,
+    getByLabelText: (text: string) => any,
     getAllByText: (text: string) => any[],
   ) => {
     await waitFor(() => {
@@ -114,7 +108,7 @@ describe('QuestFormModal', () => {
       fireEvent.press(getAllByText('선택')[0]);
     });
     await act(async () => {
-      mockDateTimePickerOnChange?.({}, new Date('2099-01-05T09:00:00'));
+      fireEvent.press(getByLabelText(mondayLabel));
     });
     await act(async () => {
       fireEvent.press(getByText('확인'));
@@ -152,8 +146,9 @@ describe('QuestFormModal', () => {
       mockAxios.onPost('/quest').reply(200, { data: null });
     });
 
-    it('날짜 선택기는 날짜만 선택할 수 있다', async () => {
-      const { getAllByText } = renderModal();
+    it('년월 영역을 누르면 월 선택 피커를 열고 적용할 수 있다', async () => {
+      const { getAllByText, getByLabelText, getByText, queryByText } =
+        renderModal();
 
       await waitFor(() => {
         expect(mockAxios.history.get.length).toBeGreaterThan(0);
@@ -163,13 +158,48 @@ describe('QuestFormModal', () => {
         fireEvent.press(getAllByText('선택')[0]);
       });
 
-      expect(mockDateTimePickerMode).toBe('date');
+      await act(async () => {
+        fireEvent.press(getByLabelText('년월 선택 열기'));
+      });
+
+      expect(getByText('적용')).toBeOnTheScreen();
+
+      await act(async () => {
+        fireEvent.press(getByText('12월'));
+      });
+
+      await act(async () => {
+        fireEvent.press(getByText('적용'));
+      });
+
+      expect(queryByText(/12월/)).toBeOnTheScreen();
+    });
+
+    it('커스텀 캘린더에서 월요일만 활성화된다', async () => {
+      const { getAllByText, getByLabelText } = renderModal();
+
+      await waitFor(() => {
+        expect(mockAxios.history.get.length).toBeGreaterThan(0);
+      });
+
+      await act(async () => {
+        fireEvent.press(getAllByText('선택')[0]);
+      });
+
+      expect(getByLabelText(mondayLabel)).toBeEnabled();
+      expect(getByLabelText(tuesdayLabel)).toBeDisabled();
     });
 
     it('생성 요청 시 questType을 WEEKLY로 전송한다', async () => {
-      const { getByPlaceholderText, getByText, getAllByText } = renderModal();
+      const { getByPlaceholderText, getByText, getByLabelText, getAllByText } =
+        renderModal();
 
-      await fillRequiredFields(getByPlaceholderText, getByText, getAllByText);
+      await fillRequiredFields(
+        getByPlaceholderText,
+        getByText,
+        getByLabelText,
+        getAllByText,
+      );
 
       await act(async () => {
         fireEvent.press(getByText('생성하기'));
@@ -182,7 +212,7 @@ describe('QuestFormModal', () => {
       expect(JSON.parse(mockAxios.history.post[0].data)).toMatchObject({
         questName: '주간 출석 퀘스트',
         questType: 'WEEKLY',
-        startDate: '2099-01-05T00:00:00',
+        startDate: `${formatDateKey(nextMonday)}T00:00:00`,
         verificationType: 'WEEKLY_APP_VISIT',
       });
       expect(JSON.parse(mockAxios.history.post[0].data)).not.toHaveProperty(
@@ -195,8 +225,9 @@ describe('QuestFormModal', () => {
       expect(mockBack).toHaveBeenCalled();
     });
 
-    it('월요일이 아닌 날짜를 고르면 같은 주 월요일로 맞춰진다', async () => {
-      const { getAllByText, getByText, findByText, queryByText } = renderModal();
+    it('월요일이 아닌 날짜는 아예 선택되지 않는다', async () => {
+      const { getAllByText, getByLabelText, getByText, queryByText } =
+        renderModal();
 
       await waitFor(() => {
         expect(mockAxios.history.get.length).toBeGreaterThan(0);
@@ -206,16 +237,18 @@ describe('QuestFormModal', () => {
         fireEvent.press(getAllByText('선택')[0]);
       });
 
-      await act(async () => {
-        mockDateTimePickerOnChange?.({}, new Date('2099-01-06T09:00:00'));
-      });
+      const disabledDate = getByLabelText(tuesdayLabel);
+      const confirmButton = getByText('확인');
+
+      expect(disabledDate).toBeDisabled();
+      expect(confirmButton).toBeDisabled();
 
       await act(async () => {
-        fireEvent.press(getByText('확인'));
+        fireEvent.press(disabledDate);
       });
 
-      expect(await findByText('2099-01-05')).toBeOnTheScreen();
-      expect(queryByText('2099-01-06')).not.toBeOnTheScreen();
+      expect(queryByText(formatDateKey(nextMonday))).not.toBeOnTheScreen();
+      expect(queryByText(formatDateKey(nextTuesday))).not.toBeOnTheScreen();
     });
   });
 });
