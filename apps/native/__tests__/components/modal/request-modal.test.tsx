@@ -1,3 +1,4 @@
+import { ScrollView } from 'react-native';
 import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
@@ -103,6 +104,16 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       const { findByText } = render(<RequestModal />);
 
       expect(await findByText('인증 대상')).toBeOnTheScreen();
+    });
+
+    it('스크롤은 가능하지만 스크롤 UI는 표시하지 않는다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      const scrollView = screen.UNSAFE_getByType(ScrollView);
+
+      expect(scrollView.props.showsVerticalScrollIndicator).toBe(false);
     });
   });
 

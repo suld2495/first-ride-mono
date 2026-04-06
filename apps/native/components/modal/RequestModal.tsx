@@ -132,7 +132,10 @@ const RequestModal = () => {
 
   return (
     <ThemeView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
         <ThemeView transparent>
           <Typography variant="subtitle" style={styles.infoLabel}>
             루틴 이름
