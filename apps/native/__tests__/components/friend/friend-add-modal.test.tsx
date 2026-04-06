@@ -1,4 +1,5 @@
-import { Pressable } from 'react-native';
+import { FlatList, Pressable } from 'react-native';
+import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view';
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -55,6 +56,14 @@ describe('친구 추가 모달', () => {
       await waitFor(() => {
         expect(queryByText('친구 추가')).not.toBeOnTheScreen();
       });
+    });
+
+    it('키보드 대응을 위해 내부 컨텐츠만 따로 이동시키는 리스트를 사용하지 않는다', async () => {
+      const screen = render(<FriendAddModal {...defaultProps} />);
+
+      expect(await screen.findByText('친구 추가')).toBeOnTheScreen();
+      expect(screen.UNSAFE_getByType(FlatList)).toBeTruthy();
+      expect(screen.UNSAFE_queryByType(KeyboardAwareFlatList)).toBeNull();
     });
   });
 

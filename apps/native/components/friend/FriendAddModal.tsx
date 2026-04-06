@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Modal, Pressable } from 'react-native';
-import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view';
+import { FlatList, Modal, Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
@@ -96,7 +95,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
           onPress={(e) => e.stopPropagation()}
         >
           <ThemeView style={styles.modalContent}>
-            <KeyboardAwareFlatList
+            <FlatList
               data={userList ?? []}
               keyExtractor={(item) => item.userId.toString()}
               renderItem={({ item }) => (
@@ -140,9 +139,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                 </ThemeView>
               }
               contentContainerStyle={{ flexGrow: 1 }}
-              enableOnAndroid={true}
               keyboardShouldPersistTaps="handled"
-              enableResetScrollToCoords={false}
             />
           </ThemeView>
         </Pressable>
