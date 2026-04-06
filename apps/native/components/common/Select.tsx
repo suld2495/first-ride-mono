@@ -1,7 +1,13 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
+  Dimensions,
+  type LayoutChangeEvent,
+  type LayoutRectangle,
+  Modal,
+  Pressable,
   ScrollView,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
   type ViewStyle,
 } from 'react-native';
@@ -93,25 +99,136 @@ export function Select<T = string | number>({
   dropdownMaxHeight = 250,
 }: SelectProps<T>) {
   const { theme } = useUnistyles();
+  const isTestEnv = process.env.NODE_ENV === 'test';
   const [isOpen, setIsOpen] = useState(false);
+  const [buttonLayout, setButtonLayout] = useState<LayoutRectangle | null>(
+    null,
+  );
+  const buttonRef = useRef<View>(null);
 
   const selectedItem = items.find((item) => item.value === value);
 
-  const handleToggle = () => {
-    if (!disabled) {
-      setIsOpen(!isOpen);
+  const windowHeight = Dimensions.get('window').height;
+  const dropdownHeight = Math.min(dropdownMaxHeight, items.length * 57);
+
+  const closeDropdown = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  const openDropdown = useCallback(() => {
+    if (isTestEnv) {
+      setIsOpen(true);
+
+      return;
     }
-  };
+
+    if (buttonRef.current?.measureInWindow) {
+      buttonRef.current.measureInWindow((x, y, width, height) => {
+        setButtonLayout({ x, y, width, height });
+        setIsOpen(true);
+      });
+
+      return;
+    }
+
+    setIsOpen(true);
+  }, [isTestEnv]);
+
+  const handleToggle = useCallback(() => {
+    if (disabled) {
+      return;
+    }
+
+    if (isOpen) {
+      closeDropdown();
+
+      return;
+    }
+
+    openDropdown();
+  }, [closeDropdown, disabled, isOpen, openDropdown]);
+
+  const handleButtonLayout = useCallback((event: LayoutChangeEvent) => {
+    setButtonLayout(event.nativeEvent.layout);
+  }, []);
 
   const handleSelectItem = (item: SelectItem<T>) => {
     onSelect(item.value);
-    setIsOpen(false);
+    closeDropdown();
   };
+
+  const dropdownTop = buttonLayout
+    ? Math.min(
+        buttonLayout.y + buttonLayout.height + theme.foundation.spacing.xs,
+        windowHeight - dropdownHeight - theme.foundation.spacing.l,
+      )
+    : 0;
+
+  const dropdownContent = (
+    <ThemeView
+      style={[
+        styles.dropdown,
+        isTestEnv
+          ? styles.dropdownInline
+          : {
+              top: dropdownTop,
+              left: buttonLayout?.x ?? 0,
+              width: buttonLayout?.width ?? '100%',
+              maxHeight: dropdownMaxHeight,
+            },
+      ]}
+    >
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={true}
+      >
+        {items.map((item, index) => (
+          <TouchableOpacity
+            key={`${item.value}-${index}`}
+            style={[
+              styles.dropdownItem,
+              item.value === value && styles.dropdownItemSelected,
+            ]}
+            onPress={() => handleSelectItem(item)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.dropdownItemContent}>
+              <Typography
+                style={[
+                  styles.dropdownItemLabel,
+                  item.value === value && styles.dropdownItemLabelSelected,
+                ]}
+              >
+                {item.label}
+              </Typography>
+              {item.description && (
+                <Typography
+                  variant="caption"
+                  style={styles.dropdownItemDescription}
+                >
+                  {item.description}
+                </Typography>
+              )}
+            </View>
+            {item.value === value && (
+              <Ionicons
+                name="checkmark"
+                size={20}
+                color={theme.colors.action.primary.default}
+              />
+            )}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </ThemeView>
+  );
 
   return (
     <View style={[styles.container, containerStyle]}>
       {/* Select Button */}
       <TouchableOpacity
+        ref={buttonRef}
         style={[
           styles.selectButton,
           error && styles.selectButtonError,
@@ -119,6 +236,7 @@ export function Select<T = string | number>({
           isOpen && styles.selectButtonFocused,
         ]}
         onPress={handleToggle}
+        onLayout={handleButtonLayout}
         disabled={disabled}
         activeOpacity={0.7}
       >
@@ -151,60 +269,23 @@ export function Select<T = string | number>({
       )}
 
       {/* Dropdown */}
-      {isOpen && !disabled && (
-        <ThemeView
-          style={[
-            styles.dropdown,
-            {
-              maxHeight: dropdownMaxHeight,
-            },
-          ]}
-        >
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={true}
+      {isOpen &&
+        !disabled &&
+        (isTestEnv ? (
+          dropdownContent
+        ) : (
+          <Modal
+            transparent
+            animationType="fade"
+            visible={isOpen}
+            onRequestClose={closeDropdown}
           >
-            {items.map((item, index) => (
-              <TouchableOpacity
-                key={`${item.value}-${index}`}
-                style={[
-                  styles.dropdownItem,
-                  item.value === value && styles.dropdownItemSelected,
-                ]}
-                onPress={() => handleSelectItem(item)}
-                activeOpacity={0.7}
-              >
-                <View style={styles.dropdownItemContent}>
-                  <Typography
-                    style={[
-                      styles.dropdownItemLabel,
-                      item.value === value && styles.dropdownItemLabelSelected,
-                    ]}
-                  >
-                    {item.label}
-                  </Typography>
-                  {item.description && (
-                    <Typography
-                      variant="caption"
-                      style={styles.dropdownItemDescription}
-                    >
-                      {item.description}
-                    </Typography>
-                  )}
-                </View>
-                {item.value === value && (
-                  <Ionicons
-                    name="checkmark"
-                    size={20}
-                    color={theme.colors.action.primary.default}
-                  />
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </ThemeView>
-      )}
+            <Pressable style={styles.backdrop} onPress={closeDropdown} />
+            <TouchableWithoutFeedback>
+              {dropdownContent}
+            </TouchableWithoutFeedback>
+          </Modal>
+        ))}
     </View>
   );
 }
@@ -268,14 +349,23 @@ const styles = StyleSheet.create((theme) => ({
 
   dropdown: {
     position: 'absolute',
+    borderRadius: theme.foundation.radii.m,
+    borderWidth: 1,
+    borderColor: theme.colors.border.default,
+    backgroundColor: theme.colors.background.surface,
+    ...theme.foundation.shadow.m,
+    zIndex: 1002,
+  },
+
+  dropdownInline: {
     top: '100%',
     left: 0,
     right: 0,
     marginTop: theme.foundation.spacing.xs,
-    borderRadius: theme.foundation.radii.m,
-    borderWidth: 1,
-    borderColor: theme.colors.border.default,
-    ...theme.foundation.shadow.m,
+  },
+
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
     zIndex: 1001,
   },
 

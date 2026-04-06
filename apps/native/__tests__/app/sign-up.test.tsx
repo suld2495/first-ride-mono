@@ -3,8 +3,8 @@ import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
 import SignUp from '../../app/sign-up';
-import { render } from '../setup/test-utils';
 import { JobType } from '../../constants/jobs';
+import { render } from '../setup/test-utils';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
@@ -615,6 +615,18 @@ describe('SignUp 페이지', () => {
 
         expect(await findByText('서버 오류가 발생했습니다.')).toBeOnTheScreen();
       });
+    });
+  });
+
+  describe('직업 선택 UI', () => {
+    it('드롭다운이 열리면 모든 직업 옵션을 확인할 수 있다', async () => {
+      const { getByText, findByText } = render(<SignUp />);
+
+      fireEvent.press(getByText('직업을 선택해주세요.'));
+
+      expect(await findByText('마법사')).toBeOnTheScreen();
+      expect(await findByText('궁수')).toBeOnTheScreen();
+      expect(await findByText('검사')).toBeOnTheScreen();
     });
   });
 });
