@@ -1,4 +1,4 @@
-import { SearchOption } from '@repo/types';
+import { FriendRequestResponse, SearchOption } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -10,6 +10,17 @@ import {
   rejectFriendRequest,
 } from '../api/friend';
 import { friendKey, friendRequestKey } from '../types/query-keys/friend';
+
+const removeFriendRequestFromCache = (
+  requests: FriendRequestResponse[] | undefined,
+  requestId: number,
+) => {
+  if (!requests) {
+    return requests;
+  }
+
+  return requests.filter((request) => request.id !== requestId);
+};
 
 export const useFetchFriendsQuery = (
   option: SearchOption = { page: 1, keyword: '' },
@@ -61,7 +72,13 @@ export const useAcceptFriendRequestMutation = () => {
   return useMutation({
     mutationFn: acceptFriendRequest,
 
-    onSuccess() {
+    onSuccess(_, requestId) {
+      queryClient.setQueriesData<FriendRequestResponse[]>(
+        {
+          queryKey: friendRequestKey.all,
+        },
+        (requests) => removeFriendRequestFromCache(requests, requestId),
+      );
       queryClient.invalidateQueries({
         queryKey: friendRequestKey.all,
       });
@@ -78,7 +95,13 @@ export const useRejectFriendRequestMutation = () => {
   return useMutation({
     mutationFn: rejectFriendRequest,
 
-    onSuccess() {
+    onSuccess(_, requestId) {
+      queryClient.setQueriesData<FriendRequestResponse[]>(
+        {
+          queryKey: friendRequestKey.all,
+        },
+        (requests) => removeFriendRequestFromCache(requests, requestId),
+      );
       queryClient.invalidateQueries({
         queryKey: friendRequestKey.all,
       });
