@@ -1,14 +1,13 @@
-import { StyleSheet } from 'react-native-unistyles';
 import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
+import { StyleSheet } from 'react-native-unistyles';
 
-import { useAuthStore } from '@/store/auth.store';
-
-import { PixelText } from '../common/PixelText';
-import ThemeView from '../common/ThemeView';
-import NotificationBell from '../notification/NotificationBell';
+import NotificationBell from '@/components/notification/notification-bell';
+import { PixelText } from '@/components/ui/pixel-text';
+import ThemeView from '@/components/ui/theme-view';
+import { useAuthUser } from '@/hooks/useAuthSession';
 
 const Header = () => {
-  const { user } = useAuthStore();
+  const user = useAuthUser();
   const { data: requests } = useFetchReceivedRequestsQuery(
     user?.nickname || '',
   );
@@ -16,9 +15,7 @@ const Header = () => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView>
-        <PixelText variant="title">
-          {user?.nickname}
-        </PixelText>
+        <PixelText variant="title">{user?.nickname}</PixelText>
       </ThemeView>
 
       <NotificationBell

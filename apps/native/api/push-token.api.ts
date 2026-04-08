@@ -1,6 +1,9 @@
+import { ApiError } from '@repo/shared/api/AppError';
 import axios from 'axios';
 
-import { BASE_URL, getAuthorization } from '@/api';
+import { BASE_URL, getAuthorization } from '@/api/token-storage.api';
+
+const INTERNAL_SERVER_ERROR_STATUS = 500;
 
 /**
  * 푸시 토큰 업데이트 (서버에)
@@ -11,7 +14,7 @@ export async function updatePushToken(
   deviceType: 'ios' | 'android',
 ): Promise<boolean> {
   try {
-    const token = getAuthorization();
+    const token = await getAuthorization();
 
     await axios.put(
       `${BASE_URL}/push-tokens`,
@@ -28,8 +31,14 @@ export async function updatePushToken(
     );
 
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    throw new ApiError(
+      [],
+      INTERNAL_SERVER_ERROR_STATUS,
+      '/push-tokens',
+      error,
+      '푸시 토큰 업데이트에 실패했습니다.',
+    );
   }
 }
 
@@ -38,7 +47,7 @@ export async function updatePushToken(
  */
 export async function deletePushToken(pushToken: string): Promise<boolean> {
   try {
-    const token = getAuthorization();
+    const token = await getAuthorization();
 
     await axios.delete(
       `${BASE_URL}/push-tokens/${encodeURIComponent(pushToken)}`,
@@ -50,7 +59,13 @@ export async function deletePushToken(pushToken: string): Promise<boolean> {
     );
 
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    throw new ApiError(
+      [],
+      INTERNAL_SERVER_ERROR_STATUS,
+      `/push-tokens/${encodeURIComponent(pushToken)}`,
+      error,
+      '푸시 토큰 삭제에 실패했습니다.',
+    );
   }
 }

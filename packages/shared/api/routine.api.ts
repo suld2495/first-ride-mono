@@ -1,7 +1,7 @@
-import { Routine, RoutineForm, UpdateRoutineForm } from '@repo/types';
+import type { Routine, RoutineForm, UpdateRoutineForm } from '@repo/types';
 
-import http from './client';
 import { toAppError } from '.';
+import http from './client';
 
 export const fetchRoutines = async (date: string): Promise<Routine[]> => {
   try {

@@ -97,12 +97,12 @@ export const useStatStore = create<StatState & StatActions>()(
 
       const distributions: Partial<Record<StatKey, number>> = {};
 
-      (Object.keys(originalStats) as Array<keyof UserStats>).forEach((key) => {
+      for (const key of Object.keys(originalStats) as Array<keyof UserStats>) {
         const diff = pendingStats[key] - originalStats[key];
         if (diff > 0) {
           distributions[statKeyToApiKey[key]] = diff;
         }
-      });
+      }
 
       return distributions;
     },

@@ -1,30 +1,30 @@
-import { useCallback, useState } from 'react';
-import { ScrollView, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 import {
   useDistributeStatsMutation,
   useMyStatsQuery,
 } from '@repo/shared/hooks/useStat';
 import type { UserStats } from '@repo/types';
 import { useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ScrollView, View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import Loading from '@/components/common/Loading';
-import Container from '@/components/layout/Container';
-import Header from '@/components/layout/Header';
-import ClassicStatList from '@/components/stat/classic/ClassicStatList';
-import GridStatList from '@/components/stat/grid/GridStatList';
-import RadarStatView from '@/components/stat/radar/RadarStatView';
+import Container from '@/components/layout/container';
+import Header from '@/components/layout/header';
+import ClassicStatList from '@/components/stat/classic/classic-stat-list';
+import GridStatList from '@/components/stat/grid/grid-stat-list';
+import RadarStatView from '@/components/stat/radar/radar-stat-view';
 import StatDesignTabs, {
   type StatDesignType,
-} from '@/components/stat/StatDesignTabs';
-import StatHeader from '@/components/stat/StatHeader';
-import StatPointsBar from '@/components/stat/StatPointsBar';
-import { useAuthStore } from '@/store/auth.store';
-import { useStatStore } from '@/store/stat.store';
+} from '@/components/stat/stat-design-tabs';
+import StatHeader from '@/components/stat/stat-header';
+import StatPointsBar from '@/components/stat/stat-points-bar';
+import Loading from '@/components/ui/loading';
+import { useAuthUser } from '@/hooks/useAuthSession';
+import { useStatEditor } from '@/hooks/useStatEditor';
 
 export default function StatPage() {
   const router = useRouter();
-  const { user } = useAuthStore();
+  const user = useAuthUser();
   const [activeTab, setActiveTab] = useState<StatDesignType>('classic');
 
   const { data, isLoading, refetch } = useMyStatsQuery();
@@ -42,7 +42,7 @@ export default function StatPage() {
     resetChanges,
     finishEditing,
     getDistributions,
-  } = useStatStore();
+  } = useStatEditor();
 
   const handleEdit = useCallback(() => {
     if (data) {

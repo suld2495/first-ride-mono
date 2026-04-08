@@ -1,12 +1,12 @@
-import {
+import type {
   SocialLoginRequest,
   SocialLoginResponse,
   SocialSignUpRequest,
   SocialSignUpResponse,
 } from '@repo/types';
 
-import http from './client';
 import { toAppError } from '.';
+import http from './client';
 
 const baseURL = '/auth';
 

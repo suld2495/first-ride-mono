@@ -1,10 +1,10 @@
 import axiosInstance from '@repo/shared/api';
 import { getNextMonday } from '@repo/shared/utils';
-import { Reward } from '@repo/types';
+import type { Reward } from '@repo/types';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
-import QuestFormModal from '../../../components/modal/QuestFormModal';
+import QuestFormModal from '../../../components/modal/quest-form-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 
 declare const mockBack: jest.Mock;
@@ -84,10 +84,7 @@ describe('QuestFormModal', () => {
         getByPlaceholderText('최대 참여자 수 입력 (1-10000)'),
         '50',
       );
-      fireEvent.changeText(
-        getByPlaceholderText('목표 횟수 입력 (예: 7)'),
-        '7',
-      );
+      fireEvent.changeText(getByPlaceholderText('목표 횟수 입력 (예: 7)'), '7');
     });
 
     await act(async () => {

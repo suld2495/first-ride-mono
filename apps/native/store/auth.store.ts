@@ -1,11 +1,11 @@
 import { logout } from '@repo/shared/api/auth.api';
-import { User } from '@repo/types';
+import type { User } from '@repo/types';
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-import { clearTokens } from '@/api';
+import { clearTokens } from '@/api/token-storage.api';
 
-import { storage } from './storage-provider';
+import { storage } from './storage-provider.store';
 
 interface State {
   user: User | null;

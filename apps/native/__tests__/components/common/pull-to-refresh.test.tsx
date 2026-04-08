@@ -1,7 +1,7 @@
-import { Text, View } from 'react-native';
 import { act } from '@testing-library/react-native';
+import { Text, View } from 'react-native';
 
-import { PullToRefresh } from '../../../components/common/PullToRefresh';
+import { PullToRefresh } from '../../../components/ui/pull-to-refresh';
 import { render } from '../../setup/test-utils';
 
 describe('PullToRefresh', () => {

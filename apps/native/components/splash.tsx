@@ -1,10 +1,10 @@
 import { SplashScreen } from 'expo-router';
 
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthIsLoading } from '@/hooks/useAuthSession';
 
 export default function SplashScreenController() {
   SplashScreen.hideAsync();
-  const { isLoading } = useAuthStore();
+  const isLoading = useAuthIsLoading();
 
   if (!isLoading) {
     SplashScreen.hideAsync();

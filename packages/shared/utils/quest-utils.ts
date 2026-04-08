@@ -7,6 +7,11 @@ import type { QuestForm } from '@repo/types';
 
 import { isMonday } from './date-utils';
 
+const PAD_LENGTH = 2;
+const MAX_QUEST_NAME_LENGTH = 50;
+const MAX_DESCRIPTION_LENGTH = 200;
+const MIN_REQUIRED_LEVEL = 1;
+
 /**
  * Formats an ISO 8601 date string to "MM/DD" format
  *
@@ -29,8 +34,8 @@ export const formatDate = (isoDate: string): string => {
     throw new Error('Invalid date format');
   }
 
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(PAD_LENGTH, '0');
+  const day = String(date.getDate()).padStart(PAD_LENGTH, '0');
 
   return `${month}/${day}`;
 };
@@ -119,62 +124,64 @@ export const validateQuestForm = (
   form: Partial<QuestForm>,
 ): Record<string, string> => {
   const errors: Record<string, string> = {};
+  const {
+    description,
+    endDate,
+    maxParticipants,
+    questName,
+    questType,
+    requiredLevel,
+    rewardId,
+    startDate,
+  } = form;
 
   // Quest name validation
-  if (!form.questName || form.questName.trim() === '') {
+  if (!questName || questName.trim() === '') {
     errors.questName = '퀘스트명을 입력해주세요';
-  } else if (form.questName.length > 50) {
-    errors.questName = '퀘스트명은 50자 이내로 입력해주세요';
+  } else if (questName.length > MAX_QUEST_NAME_LENGTH) {
+    errors.questName = `퀘스트명은 ${MAX_QUEST_NAME_LENGTH}자 이내로 입력해주세요`;
   }
 
   // Quest type validation
-  if (
-    form.questType &&
-    form.questType !== 'DAILY' &&
-    form.questType !== 'WEEKLY'
-  ) {
+  if (!questType) {
     errors.questType = '퀘스트 타입을 선택해주세요';
   }
 
   // Description validation
-  if (!form.description || form.description.trim() === '') {
+  if (!description || description.trim() === '') {
     errors.description = '설명을 입력해주세요';
-  } else if (form.description.length > 200) {
-    errors.description = '설명은 200자 이내로 입력해주세요';
+  } else if (description.length > MAX_DESCRIPTION_LENGTH) {
+    errors.description = `설명은 ${MAX_DESCRIPTION_LENGTH}자 이내로 입력해주세요`;
   }
 
   // Reward ID validation
-  if (form.rewardId === undefined || form.rewardId === null) {
+  if (rewardId === undefined) {
     errors.rewardId = '보상을 선택해주세요';
   }
 
   // Start date validation
-  if (!form.startDate || form.startDate.trim() === '') {
+  if (!startDate || startDate.trim() === '') {
     errors.startDate = '시작일을 입력해주세요';
-  } else if (!isMonday(new Date(form.startDate))) {
+  } else if (!isMonday(new Date(startDate))) {
     errors.startDate = '시작일은 월요일만 선택할 수 있습니다';
   }
 
   // End date validation
-  if (!form.endDate || form.endDate.trim() === '') {
+  if (!endDate || endDate.trim() === '') {
     errors.endDate = '종료일을 입력해주세요';
-  } else if (form.startDate && !isEndDateValid(form.startDate, form.endDate)) {
+  } else if (startDate !== undefined && !isEndDateValid(startDate, endDate)) {
     errors.endDate = '종료일은 시작일 이후여야 합니다';
   }
 
   // Required level validation
-  if (form.requiredLevel === undefined || form.requiredLevel === null) {
+  if (requiredLevel === undefined) {
     errors.requiredLevel = '필요 레벨을 입력해주세요';
-  } else if (form.requiredLevel < 1) {
-    errors.requiredLevel = '1 이상의 숫자를 입력해주세요';
+  } else if (requiredLevel < MIN_REQUIRED_LEVEL) {
+    errors.requiredLevel = `${MIN_REQUIRED_LEVEL} 이상의 숫자를 입력해주세요`;
   }
 
   // Max participants validation (optional field)
-  if (
-    form.maxParticipants !== undefined &&
-    form.maxParticipants !== null &&
-    form.maxParticipants < 0
-  ) {
+  if (maxParticipants !== undefined && maxParticipants < 0) {
     errors.maxParticipants = '0 이상의 숫자를 입력해주세요';
   }
 

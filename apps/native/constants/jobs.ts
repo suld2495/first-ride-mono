@@ -1,4 +1,4 @@
-import { SelectItem } from '@/components/common/Select';
+import type { SelectItem } from '@/components/ui/select';
 
 /**
  * 직업 타입 정의

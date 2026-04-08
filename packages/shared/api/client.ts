@@ -1,40 +1,93 @@
-import { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import axiosInstance from '.';
+import axiosInstance, { toAppError } from '.';
 
-const get = <R, D>(url: string, config?: AxiosRequestConfig<D>): Promise<R> => {
-  return axiosInstance.get(url, config);
+const get = async <R, D>(
+  url: string,
+  config?: AxiosRequestConfig<D>,
+): Promise<R> => {
+  try {
+    const response = await axiosInstance.get<
+      { data: R },
+      AxiosResponse<{ data: R }>,
+      D
+    >(url, config);
+
+    return response.data.data;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
-const post = <R, D>(
+const post = async <R, D>(
   url: string,
   data?: D,
   config?: AxiosRequestConfig<D>,
 ): Promise<R> => {
-  return axiosInstance.post(url, data, config);
+  try {
+    const response = await axiosInstance.post<
+      { data: R },
+      AxiosResponse<{ data: R }>,
+      D
+    >(url, data, config);
+
+    return response.data.data;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
-const put = <R, D>(
+const put = async <R, D>(
   url: string,
   data?: D,
   config?: AxiosRequestConfig<D>,
 ): Promise<R> => {
-  return axiosInstance.put(url, data, config);
+  try {
+    const response = await axiosInstance.put<
+      { data: R },
+      AxiosResponse<{ data: R }>,
+      D
+    >(url, data, config);
+
+    return response.data.data;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
-const patch = <R, D>(
+const patch = async <R, D>(
   url: string,
   data?: D,
   config?: AxiosRequestConfig<D>,
 ): Promise<R> => {
-  return axiosInstance.patch(url, data, config);
+  try {
+    const response = await axiosInstance.patch<
+      { data: R },
+      AxiosResponse<{ data: R }>,
+      D
+    >(url, data, config);
+
+    return response.data.data;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
-const deleteApi = <R, D>(
+const deleteApi = async <R, D>(
   url: string,
   config?: AxiosRequestConfig<D>,
 ): Promise<R> => {
-  return axiosInstance.delete(url, config);
+  try {
+    const response = await axiosInstance.delete<
+      { data: R },
+      AxiosResponse<{ data: R }>,
+      D
+    >(url, config);
+
+    return response.data.data;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
 const http = {

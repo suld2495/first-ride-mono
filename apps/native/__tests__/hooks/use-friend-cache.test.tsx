@@ -1,13 +1,13 @@
-import React from 'react';
 import * as friendApi from '@repo/shared/api/friend';
 import {
   useAcceptFriendRequestMutation,
   useRejectFriendRequestMutation,
 } from '@repo/shared/hooks/useFriend';
 import { friendRequestKey } from '@repo/shared/types/query-keys/friend';
-import { FriendRequestResponse } from '@repo/types';
+import type { FriendRequestResponse } from '@repo/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react-native';
+import React from 'react';
 
 const createTestQueryClient = () =>
   new QueryClient({

@@ -1,24 +1,25 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native-unistyles';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { setAuthorization, setRefreshToken } from '@/api';
-import AuthForm from '@/components/auth/AuthForm';
-import { Button } from '@/components/common/Button';
-import { Input } from '@/components/common/Input';
-import { Select } from '@/components/common/Select';
-import ThemeView from '@/components/common/ThemeView';
-import { Typography } from '@/components/common/Typography';
-import { JOB_OPTIONS, JobType } from '@/constants/jobs';
+import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
+import AuthForm from '@/components/auth/auth-form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
+import type { JobType } from '@/constants/JOBS';
+import { JOB_OPTIONS } from '@/constants/JOBS';
 import { useToast } from '@/contexts/ToastContext';
 import { useSocialSignUpMutation } from '@/hooks/useAuth';
+import { useAuthSignIn } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
 import {
   AUTH_PROVIDER_NAMES,
   getDeviceType,
-  SocialProviderType,
-} from '@/providers/auth';
-import { useAuthStore } from '@/store/auth.store';
+  type SocialProviderType,
+} from '@/providers/auth/types';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 interface ProfileForm {
@@ -40,7 +41,7 @@ export default function SocialSignUp() {
   const [form, setForm] = useState<ProfileForm>(initial());
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { pushToken } = useNotifications();
-  const { signIn } = useAuthStore();
+  const signIn = useAuthSignIn();
   const socialSignUpMutation = useSocialSignUpMutation();
   const { showToast } = useToast();
 
@@ -70,7 +71,7 @@ export default function SocialSignUp() {
     try {
       const response = await socialSignUpMutation.mutateAsync({
         provider: provider as SocialProviderType,
-        accessToken: accessToken!,
+        accessToken,
         nickname: form.nickname,
         job: form.job,
         pushToken: pushToken?.data,

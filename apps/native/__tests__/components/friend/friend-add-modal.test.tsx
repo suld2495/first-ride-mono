@@ -1,9 +1,9 @@
-import { FlatList, Pressable } from 'react-native';
-import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view';
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
+import { FlatList, Pressable } from 'react-native';
+import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view';
 
-import FriendAddModal from '../../../components/friend/FriendAddModal';
+import FriendAddModal from '../../../components/friend/friend-add-modal';
 import {
   act,
   fireEvent,
@@ -141,7 +141,6 @@ describe('친구 추가 모달', () => {
       });
 
       it('성공 토스트가 표시되고 모달이 닫힌다', async () => {
-        // eslint-disable-next-line camelcase
         const { findByText, getByPlaceholderText, UNSAFE_getAllByType } =
           render(<FriendAddModal {...defaultProps} />);
 
@@ -184,7 +183,6 @@ describe('친구 추가 모달', () => {
       });
 
       it('에러 토스트가 표시된다', async () => {
-        // eslint-disable-next-line camelcase
         const { findByText, getByPlaceholderText, UNSAFE_getAllByType } =
           render(<FriendAddModal {...defaultProps} />);
 
@@ -222,7 +220,6 @@ describe('친구 추가 모달', () => {
       });
 
       it('에러 토스트가 표시된다', async () => {
-        // eslint-disable-next-line camelcase
         const { findByText, getByPlaceholderText, UNSAFE_getAllByType } =
           render(<FriendAddModal {...defaultProps} />);
 
@@ -256,7 +253,6 @@ describe('친구 추가 모달', () => {
       });
 
       it('기본 에러 메시지가 표시된다', async () => {
-        // eslint-disable-next-line camelcase
         const { findByText, getByPlaceholderText, UNSAFE_getAllByType } =
           render(<FriendAddModal {...defaultProps} />);
 
@@ -284,7 +280,6 @@ describe('친구 추가 모달', () => {
 
   describe('모달 닫기 테스트', () => {
     it('X 버튼 클릭 시 모달이 닫힌다', async () => {
-      // eslint-disable-next-line camelcase
       const { findByText, UNSAFE_getAllByType } = render(
         <FriendAddModal {...defaultProps} />,
       );
@@ -302,7 +297,6 @@ describe('친구 추가 모달', () => {
     });
 
     it('overlay 클릭 시 모달이 닫힌다', async () => {
-      // eslint-disable-next-line camelcase
       const { findByText, UNSAFE_getAllByType } = render(
         <FriendAddModal {...defaultProps} />,
       );
@@ -327,11 +321,10 @@ describe('친구 추가 모달', () => {
     });
 
     it('모달을 닫으면 입력값이 초기화된다', async () => {
-      // eslint-disable-next-line camelcase
       const {
         findByText,
         getByPlaceholderText,
-        // eslint-disable-next-line camelcase
+
         UNSAFE_getAllByType,
         rerender,
       } = render(<FriendAddModal {...defaultProps} />);

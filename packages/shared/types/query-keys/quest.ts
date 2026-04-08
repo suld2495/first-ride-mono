@@ -4,7 +4,11 @@ export const questKeys = {
   all: ['quest'] as const,
   lists: () => [...questKeys.all, 'list'] as const,
   list: (params: FetchQuestsParams = {}) =>
-    [...questKeys.lists(), params.status ?? 'ALL', params.questType ?? 'ALL'] as const,
+    [
+      ...questKeys.lists(),
+      params.status ?? 'ALL',
+      params.questType ?? 'ALL',
+    ] as const,
   details: () => [...questKeys.all, 'detail'] as const,
   detail: (id: number) => [...questKeys.details(), id] as const,
 };

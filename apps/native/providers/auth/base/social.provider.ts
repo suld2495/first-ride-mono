@@ -3,13 +3,13 @@ import {
   socialLoginCheck,
 } from '@repo/shared/api/social-auth.api';
 
-import {
+import type {
   AuthProvider,
   AuthResponse,
   DeviceInfo,
   SocialPayload,
   SocialProviderType,
-} from '../types';
+} from '@/providers/auth/types';
 
 export abstract class SocialAuthProvider
   implements AuthProvider<SocialProviderType, SocialPayload, void>

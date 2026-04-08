@@ -16,7 +16,7 @@ export function makeServer({ environment = 'test' } = {}) {
       this.namespace = '';
 
       // 회원가입 API
-      this.post('/auth/signup', (schema, request) => {
+      this.post('/auth/signup', (_schema, request) => {
         const body = JSON.parse(request.requestBody) as JoinRequestBody;
 
         // 아이디 중복 시뮬레이션

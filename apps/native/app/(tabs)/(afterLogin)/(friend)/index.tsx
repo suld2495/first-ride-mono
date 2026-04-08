@@ -1,15 +1,15 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native-unistyles';
-import Ionicons from '@expo/vector-icons/Ionicons';
 
-import { Button } from '@/components/common/Button';
-import { Input } from '@/components/common/Input';
-import ThemeView from '@/components/common/ThemeView';
-import FriendAddModal from '@/components/friend/FriendAddModal';
-import FriendHeader from '@/components/friend/FriendHeader';
-import FriendList from '@/components/friend/FriendList';
-import Container from '@/components/layout/Container';
-import Header from '@/components/layout/Header';
+import FriendAddModal from '@/components/friend/friend-add-modal';
+import FriendHeader from '@/components/friend/friend-header';
+import FriendList from '@/components/friend/friend-list';
+import Container from '@/components/layout/container';
+import Header from '@/components/layout/header';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import ThemeView from '@/components/ui/theme-view';
 
 const FriendPage = () => {
   const [page] = useState(1);

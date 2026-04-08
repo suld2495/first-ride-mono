@@ -7,6 +7,7 @@ import type { Quest } from '@repo/types';
 export interface CreateMockQuestOptions {
   questType?: Quest['questType'];
   status?: Quest['status'];
+  description?: Quest['description'];
   isAccepted?: boolean;
   isCompleted?: boolean;
   endDate?: Quest['endDate'];
@@ -25,7 +26,7 @@ export const createMockQuest = (
   questId: index + 1,
   questName: `테스트 퀘스트 ${index + 1}`,
   questType: options.questType ?? 'DAILY',
-  description: `테스트 퀘스트 ${index + 1} 설명`,
+  description: options.description ?? `테스트 퀘스트 ${index + 1} 설명`,
   rewardId: index + 1,
   rewardName: `리워드 ${index + 1}`,
   rewardType: 'EXP',

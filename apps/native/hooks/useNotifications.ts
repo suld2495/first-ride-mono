@@ -1,12 +1,12 @@
+import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
 
 import type {
   NotificationHandlers,
   NotificationPermissionStatus,
   PushNotificationToken,
-} from '@/types/notification.types';
+} from '@/types/notification-types';
 import {
   checkPermissions,
   registerForPushNotifications,

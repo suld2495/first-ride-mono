@@ -1,9 +1,10 @@
-import { Alert, AlertButton } from 'react-native';
 import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import { Alert } from 'react-native';
+import type { AlertButton } from 'react-native';
 
-import RoutineDetailModal from '../../../components/modal/RoutineDetailModal';
+import RoutineDetailModal from '../../../components/modal/routine-detail-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockRoutine } from '../../setup/routine/mock';
 

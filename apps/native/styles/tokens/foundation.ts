@@ -5,7 +5,7 @@
  * 스킨마다 UI 밀도(density), radius 스타일, 타이포 스케일을 변경할 수 있도록 한다.
  */
 
-import type { ThemeContract } from '../themes/theme.contract';
+import type { ThemeContract } from '@/styles/themes/theme.contract';
 
 import { baseFoundation } from './foundation.base';
 

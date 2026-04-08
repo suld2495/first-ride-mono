@@ -1,5 +1,5 @@
-import { DEEP_LINK_SCREENS } from '../../constants/notifications';
-import { NotificationDeepLinkData } from '../../types/notification.types';
+import { DEEP_LINK_SCREENS } from '../../constants/NOTIFICATIONS';
+import type { NotificationDeepLinkData } from '../../types/notification-types';
 import { getDeepLinkPath } from '../../utils/notifications';
 
 describe('getDeepLinkPath', () => {

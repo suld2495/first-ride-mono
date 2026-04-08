@@ -3,7 +3,10 @@
  * 반응형 값 resolve 유틸리티
  */
 
-import type { BreakpointKey, ResponsiveValue } from '../tokens/responsive';
+import type {
+  BreakpointKey,
+  ResponsiveValue,
+} from '@/styles/tokens/responsive';
 
 const breakpointOrder: BreakpointKey[] = ['xs', 'sm', 'md', 'lg', 'xl'];
 

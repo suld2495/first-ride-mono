@@ -1,12 +1,12 @@
-import {
+import type {
   Reward,
   RewardForm,
   RewardTypeFilter,
   UpdateRewardForm,
 } from '@repo/types';
 
-import http from './client';
 import { toAppError } from '.';
+import http from './client';
 
 // 보상 목록 조회 (필터 포함)
 export const fetchRewards = async (

@@ -30,7 +30,10 @@ describe('formatTimeRemaining', () => {
     ];
 
     it.each(testCases)('$description', ({ startDate, endDate, expected }) => {
-      const result = formatTimeRemaining(new Date(startDate), new Date(endDate));
+      const result = formatTimeRemaining(
+        new Date(startDate),
+        new Date(endDate),
+      );
       expect(result).toBe(expected);
     });
   });
@@ -64,7 +67,10 @@ describe('formatTimeRemaining', () => {
     ];
 
     it.each(testCases)('$description', ({ startDate, endDate, expected }) => {
-      const result = formatTimeRemaining(new Date(startDate), new Date(endDate));
+      const result = formatTimeRemaining(
+        new Date(startDate),
+        new Date(endDate),
+      );
       expect(result).toBe(expected);
     });
   });
@@ -110,7 +116,10 @@ describe('formatTimeRemaining', () => {
     ];
 
     it.each(testCases)('$description', ({ startDate, endDate, expected }) => {
-      const result = formatTimeRemaining(new Date(startDate), new Date(endDate));
+      const result = formatTimeRemaining(
+        new Date(startDate),
+        new Date(endDate),
+      );
       expect(result).toBe(expected);
     });
   });
@@ -150,7 +159,10 @@ describe('formatTimeRemaining', () => {
     ];
 
     it.each(testCases)('$description', ({ startDate, endDate, expected }) => {
-      const result = formatTimeRemaining(new Date(startDate), new Date(endDate));
+      const result = formatTimeRemaining(
+        new Date(startDate),
+        new Date(endDate),
+      );
       expect(result).toBe(expected);
     });
   });
@@ -178,7 +190,10 @@ describe('formatTimeRemaining', () => {
     ];
 
     it.each(testCases)('$description', ({ startDate, endDate, expected }) => {
-      const result = formatTimeRemaining(new Date(startDate), new Date(endDate));
+      const result = formatTimeRemaining(
+        new Date(startDate),
+        new Date(endDate),
+      );
       expect(result).toBe(expected);
     });
   });

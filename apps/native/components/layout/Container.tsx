@@ -1,8 +1,9 @@
+import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { View, ViewProps } from 'react-native';
+import type { ViewProps } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { StatusBar } from 'expo-status-bar';
 
 interface ContainerProps extends ViewProps {
   children: React.ReactNode;

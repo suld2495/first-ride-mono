@@ -13,7 +13,7 @@ const SCALE_DEFAULT = 1.0;
 const SCALE_ACTIVE_IDLE = 1.1;
 
 interface UseDockMagnificationReturn {
-  getAnimatedScale: (itemIndex: number) => ReturnType<typeof useAnimatedStyle>;
+  useAnimatedScale: (itemIndex: number) => ReturnType<typeof useAnimatedStyle>;
   handlePressIn: (index: number) => void;
   handlePressOut: () => void;
   setActiveIndex: (index: number) => void;
@@ -23,7 +23,7 @@ export function useDockMagnification(): UseDockMagnificationReturn {
   const pressedIndex = useSharedValue(-1);
   const activeIndex = useSharedValue(0);
 
-  const getAnimatedScale = (itemIndex: number) => {
+  const useAnimatedScale = (itemIndex: number) => {
     return useAnimatedStyle(() => {
       let targetScale = SCALE_DEFAULT;
 
@@ -67,7 +67,7 @@ export function useDockMagnification(): UseDockMagnificationReturn {
   );
 
   return {
-    getAnimatedScale,
+    useAnimatedScale,
     handlePressIn,
     handlePressOut,
     setActiveIndex,

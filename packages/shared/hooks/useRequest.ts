@@ -1,4 +1,4 @@
-import { CreateRequestResponseDto } from '@repo/types';
+import type { CreateRequestResponseDto } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import * as requestApi from '../api/request.api';
@@ -22,8 +22,15 @@ export const useFetchRequestDetailQuery = (requestId: number) => {
 };
 
 export const useCreateRequestMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (data: FormData) => requestApi.createRequest(data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: requestKey.all(),
+      });
+    },
   });
 };
 
@@ -34,8 +41,8 @@ export const useReplyRequestMutation = (user: string) => {
     mutationFn: (data: CreateRequestResponseDto) =>
       requestApi.replyRequest(data),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: requestKey.receivedList(user),
       });
     },

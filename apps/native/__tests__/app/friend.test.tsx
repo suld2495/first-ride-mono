@@ -1,6 +1,6 @@
-import { Alert, Pressable } from 'react-native';
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
+import { Alert, Pressable } from 'react-native';
 
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
 import {
@@ -128,7 +128,6 @@ describe('친구 리스트 페이지', () => {
     });
 
     it('삭제 버튼 클릭 시 확인 Alert이 표시된다', async () => {
-      // eslint-disable-next-line camelcase
       const { findByText, UNSAFE_getAllByType } = render(<FriendPage />);
 
       expect(await findByText('friend1')).toBeOnTheScreen();

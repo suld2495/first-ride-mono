@@ -1,0 +1,427 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useCallback, useRef, useState } from 'react';
+import {
+  Dimensions,
+  type LayoutChangeEvent,
+  type LayoutRectangle,
+  Modal,
+  Pressable,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+  type ViewStyle,
+} from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+import { FlashList, type ListRenderItem } from './flash-list';
+import ThemeView from './theme-view';
+import { Typography } from './typography';
+
+export interface SelectItem<T = string | number> {
+  label: string;
+  value: T;
+  description?: string;
+}
+
+export interface SelectProps<T = string | number> {
+  /**
+   * 선택된 값
+   */
+  value?: T;
+
+  /**
+   * 선택 가능한 항목 목록
+   */
+  items: SelectItem<T>[];
+
+  /**
+   * 항목 선택 핸들러
+   */
+  onSelect: (value: T) => void;
+
+  /**
+   * placeholder 텍스트
+   */
+  placeholder?: string;
+
+  /**
+   * 에러 상태
+   */
+  error?: boolean;
+
+  /**
+   * 도움말 텍스트 (에러 메시지 등)
+   */
+  helperText?: string;
+
+  /**
+   * 비활성화 상태
+   */
+  disabled?: boolean;
+
+  /**
+   * 컨테이너 스타일
+   */
+  containerStyle?: ViewStyle;
+
+  /**
+   * 드롭다운 최대 높이
+   */
+  dropdownMaxHeight?: number;
+}
+
+const DROPDOWN_ITEM_HEIGHT = 57;
+
+/**
+ * Select 컴포넌트
+ *
+ * 드롭다운 선택 UI를 제공하는 컴포넌트
+ * 디자인 시스템을 준수하여 구현됨
+ *
+ * @example
+ * <Select
+ *   value={selectedValue}
+ *   items={[
+ *     { label: '옵션 1', value: '1', description: '설명 1' },
+ *     { label: '옵션 2', value: '2', description: '설명 2' },
+ *   ]}
+ *   onSelect={(value) => setSelectedValue(value)}
+ *   placeholder="옵션을 선택하세요"
+ * />
+ */
+export function Select<T = string | number>({
+  value,
+  items = [],
+  onSelect,
+  placeholder = '선택하세요',
+  error = false,
+  helperText,
+  disabled = false,
+  containerStyle,
+  dropdownMaxHeight = 250,
+}: SelectProps<T>) {
+  const { theme } = useUnistyles();
+  const isTestEnv = process.env.NODE_ENV === 'test';
+  const [isOpen, setIsOpen] = useState(false);
+  const [buttonLayout, setButtonLayout] = useState<LayoutRectangle | null>(
+    null,
+  );
+  const buttonRef = useRef<View>(null);
+
+  const selectedItem = items.find((item) => item.value === value);
+
+  const windowHeight = Dimensions.get('window').height;
+  const dropdownHeight = Math.min(dropdownMaxHeight, items.length * 57);
+
+  const closeDropdown = useCallback(() => {
+    setIsOpen(false);
+  }, []);
+
+  const openDropdown = useCallback(() => {
+    if (isTestEnv) {
+      setIsOpen(true);
+
+      return;
+    }
+
+    if (buttonRef.current?.measureInWindow) {
+      buttonRef.current.measureInWindow((x, y, width, height) => {
+        setButtonLayout({ x, y, width, height });
+        setIsOpen(true);
+      });
+
+      return;
+    }
+
+    setIsOpen(true);
+  }, [isTestEnv]);
+
+  const handleToggle = useCallback(() => {
+    if (disabled) {
+      return;
+    }
+
+    if (isOpen) {
+      closeDropdown();
+
+      return;
+    }
+
+    openDropdown();
+  }, [closeDropdown, disabled, isOpen, openDropdown]);
+
+  const handleButtonLayout = useCallback((event: LayoutChangeEvent) => {
+    setButtonLayout(event.nativeEvent.layout);
+  }, []);
+
+  const handleSelectItem = useCallback(
+    (item: SelectItem<T>) => {
+      onSelect(item.value);
+      closeDropdown();
+    },
+    [closeDropdown, onSelect],
+  );
+
+  const getDropdownItemLayout = (_: SelectItem<T>[] | null, index: number) => ({
+    length: DROPDOWN_ITEM_HEIGHT,
+    offset: DROPDOWN_ITEM_HEIGHT * index,
+    index,
+  });
+
+  const renderDropdownItem = useCallback<ListRenderItem<SelectItem<T>>>(
+    ({ item }) => (
+      <TouchableOpacity
+        style={[
+          styles.dropdownItem,
+          item.value === value && styles.dropdownItemSelected,
+        ]}
+        onPress={() => handleSelectItem(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.dropdownItemContent}>
+          <Typography
+            style={[
+              styles.dropdownItemLabel,
+              item.value === value && styles.dropdownItemLabelSelected,
+            ]}
+          >
+            {item.label}
+          </Typography>
+          {item.description && (
+            <Typography
+              variant="caption"
+              style={styles.dropdownItemDescription}
+            >
+              {item.description}
+            </Typography>
+          )}
+        </View>
+        {item.value === value && (
+          <Ionicons
+            name="checkmark"
+            size={20}
+            color={theme.colors.action.primary.default}
+          />
+        )}
+      </TouchableOpacity>
+    ),
+    [handleSelectItem, theme.colors.action.primary.default, value],
+  );
+
+  const dropdownTop = buttonLayout
+    ? Math.min(
+        buttonLayout.y + buttonLayout.height + theme.foundation.spacing.xs,
+        windowHeight - dropdownHeight - theme.foundation.spacing.l,
+      )
+    : 0;
+
+  const dropdownContent = (
+    <ThemeView
+      style={[
+        styles.dropdown,
+        isTestEnv
+          ? styles.dropdownInline
+          : {
+              top: dropdownTop,
+              left: buttonLayout?.x ?? 0,
+              width: buttonLayout?.width ?? '100%',
+              maxHeight: dropdownMaxHeight,
+            },
+      ]}
+    >
+      <FlashList
+        data={items}
+        keyExtractor={(item) => String(item.value)}
+        renderItem={renderDropdownItem}
+        estimatedItemSize={DROPDOWN_ITEM_HEIGHT}
+        getItemLayout={getDropdownItemLayout}
+        removeClippedSubviews
+        maxToRenderPerBatch={10}
+        windowSize={5}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={true}
+      />
+    </ThemeView>
+  );
+
+  return (
+    <View style={[styles.container, containerStyle]}>
+      {/* Select Button */}
+      <TouchableOpacity
+        ref={buttonRef}
+        style={[
+          styles.selectButton,
+          error && styles.selectButtonError,
+          disabled && styles.selectButtonDisabled,
+          isOpen && styles.selectButtonFocused,
+        ]}
+        onPress={handleToggle}
+        onLayout={handleButtonLayout}
+        disabled={disabled}
+        activeOpacity={0.7}
+      >
+        <Typography
+          style={[
+            styles.selectText,
+            !selectedItem && styles.selectPlaceholder,
+            disabled && styles.selectTextDisabled,
+          ]}
+        >
+          {selectedItem ? selectedItem.label : placeholder}
+        </Typography>
+        <Ionicons
+          name={isOpen ? 'chevron-up' : 'chevron-down'}
+          size={20}
+          color={
+            disabled ? theme.colors.text.disabled : theme.colors.text.secondary
+          }
+        />
+      </TouchableOpacity>
+
+      {/* Helper Text */}
+      {helperText && (
+        <Typography
+          variant="caption"
+          style={[styles.helperText, error && styles.helperTextError]}
+        >
+          {helperText}
+        </Typography>
+      )}
+
+      {/* Dropdown */}
+      {isOpen &&
+        !disabled &&
+        (isTestEnv ? (
+          dropdownContent
+        ) : (
+          <Modal
+            transparent
+            animationType="fade"
+            visible={isOpen}
+            onRequestClose={closeDropdown}
+          >
+            <Pressable style={styles.backdrop} onPress={closeDropdown} />
+            <TouchableWithoutFeedback>
+              {dropdownContent}
+            </TouchableWithoutFeedback>
+          </Modal>
+        ))}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create((theme) => ({
+  container: {
+    position: 'relative',
+    zIndex: 1000,
+  },
+
+  selectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 48,
+    paddingHorizontal: theme.foundation.spacing.m,
+    paddingVertical: theme.foundation.spacing.s,
+    backgroundColor: theme.colors.background.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border.default,
+    borderRadius: theme.foundation.radii.m,
+  },
+
+  selectButtonFocused: {
+    borderColor: theme.colors.border.focus,
+    borderWidth: 2,
+  },
+
+  selectButtonError: {
+    borderColor: theme.colors.feedback.error.border,
+  },
+
+  selectButtonDisabled: {
+    backgroundColor: theme.colors.background.sunken,
+    opacity: theme.foundation.opacity.disabled,
+  },
+
+  selectText: {
+    flex: 1,
+    color: theme.colors.text.primary,
+    fontSize: theme.foundation.typography.size.m,
+  },
+
+  selectPlaceholder: {
+    color: theme.colors.text.tertiary,
+  },
+
+  selectTextDisabled: {
+    color: theme.colors.text.tertiary,
+  },
+
+  helperText: {
+    marginTop: theme.foundation.spacing.xs,
+    marginLeft: theme.foundation.spacing.s,
+    color: theme.colors.text.secondary,
+  },
+
+  helperTextError: {
+    color: theme.colors.feedback.error.text,
+  },
+
+  dropdown: {
+    position: 'absolute',
+    borderRadius: theme.foundation.radii.m,
+    borderWidth: 1,
+    borderColor: theme.colors.border.default,
+    backgroundColor: theme.colors.background.surface,
+    ...theme.foundation.shadow.m,
+    zIndex: 1002,
+  },
+
+  dropdownInline: {
+    top: '100%',
+    left: 0,
+    right: 0,
+    marginTop: theme.foundation.spacing.xs,
+  },
+
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1001,
+  },
+
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.foundation.spacing.m,
+    paddingVertical: theme.foundation.spacing.m,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.subtle,
+  },
+
+  dropdownItemSelected: {
+    backgroundColor: theme.colors.action.secondary.default,
+  },
+
+  dropdownItemContent: {
+    flex: 1,
+    gap: theme.foundation.spacing.xs,
+  },
+
+  dropdownItemLabel: {
+    color: theme.colors.text.primary,
+    fontSize: theme.foundation.typography.size.m,
+  },
+
+  dropdownItemLabelSelected: {
+    color: theme.colors.action.secondary.label,
+    fontWeight: theme.foundation.typography.weight.semibold,
+  },
+
+  dropdownItemDescription: {
+    color: theme.colors.text.secondary,
+  },
+}));
+
+export default Select;

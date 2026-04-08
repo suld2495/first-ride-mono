@@ -1,5 +1,5 @@
-import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
 import MockAdapter from 'axios-mock-adapter';
 import React from 'react';
 
@@ -8,6 +8,9 @@ import * as authApi from '../../api/auth.api';
 import { useLogoutMutation } from '../useAuth';
 
 let mockAxios: MockAdapter;
+const LOGGED_OUT_SUCCESSFULLY_MESSAGE = { message: 'Logged out successfully' };
+const LOGGED_OUT_LOCALLY_MESSAGE = { message: 'Logged out locally' };
+const AUTH_LOGOUT_URL = '/auth/logout';
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -23,9 +26,8 @@ const createTestQueryClient = () =>
 
 const createWrapper = () => {
   const queryClient = createTestQueryClient();
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
 };
 
 describe('useAuth', () => {
@@ -40,8 +42,8 @@ describe('useAuth', () => {
   describe('useLogoutMutation', () => {
     describe('성공 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/auth/logout').reply(200, {
-          data: { message: 'Logged out successfully' },
+        mockAxios.onPost(AUTH_LOGOUT_URL).reply(200, {
+          data: LOGGED_OUT_SUCCESSFULLY_MESSAGE,
         });
       });
 
@@ -59,7 +61,7 @@ describe('useAuth', () => {
         });
 
         expect(logoutSpy).toHaveBeenCalled();
-        expect(result.current.data).toEqual({ message: 'Logged out successfully' });
+        expect(result.current.data).toEqual(LOGGED_OUT_SUCCESSFULLY_MESSAGE);
 
         logoutSpy.mockRestore();
       });
@@ -67,7 +69,7 @@ describe('useAuth', () => {
 
     describe('실패 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/auth/logout').reply(500, {
+        mockAxios.onPost(AUTH_LOGOUT_URL).reply(500, {
           error: {
             message: 'Server error',
           },
@@ -75,8 +77,6 @@ describe('useAuth', () => {
       });
 
       it('로컬 로그아웃 메시지를 반환한다', async () => {
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-
         const { result } = renderHook(() => useLogoutMutation(), {
           wrapper: createWrapper(),
         });
@@ -87,21 +87,16 @@ describe('useAuth', () => {
           expect(result.current.isSuccess).toBe(true);
         });
 
-        expect(result.current.data).toEqual({ message: 'Logged out locally' });
-        expect(consoleWarnSpy).toHaveBeenCalled();
-
-        consoleWarnSpy.mockRestore();
+        expect(result.current.data).toEqual(LOGGED_OUT_LOCALLY_MESSAGE);
       });
     });
 
     describe('네트워크 오류 발생 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/auth/logout').networkError();
+        mockAxios.onPost(AUTH_LOGOUT_URL).networkError();
       });
 
       it('로컬 로그아웃 메시지를 반환한다', async () => {
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-
         const { result } = renderHook(() => useLogoutMutation(), {
           wrapper: createWrapper(),
         });
@@ -112,10 +107,7 @@ describe('useAuth', () => {
           expect(result.current.isSuccess).toBe(true);
         });
 
-        expect(result.current.data).toEqual({ message: 'Logged out locally' });
-        expect(consoleWarnSpy).toHaveBeenCalled();
-
-        consoleWarnSpy.mockRestore();
+        expect(result.current.data).toEqual(LOGGED_OUT_LOCALLY_MESSAGE);
       });
     });
   });

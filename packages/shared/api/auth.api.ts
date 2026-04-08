@@ -1,4 +1,4 @@
-import {
+import type {
   AuthForm,
   AuthResponse,
   JoinForm,
@@ -8,8 +8,8 @@ import {
 } from '@repo/types';
 import axios from 'axios';
 
-import http from './client';
 import axiosInstance, { toAppError } from '.';
+import http from './client';
 
 const baseURL = '/auth';
 
@@ -48,7 +48,7 @@ export const refreshToken = async (
   request: RefreshTokenRequest,
 ): Promise<RefreshTokenResponse> => {
   try {
-    const dynamicBaseURL = axiosInstance.defaults.baseURL || '';
+    const dynamicBaseURL = axiosInstance.defaults.baseURL ?? '';
     const response = await refreshAxios.post<{
       data: RefreshTokenResponse;
     }>(`${dynamicBaseURL}${baseURL}/refresh`, request);
@@ -64,7 +64,7 @@ export const logout = async (): Promise<LogoutResponse> => {
     const response: LogoutResponse = await http.post(`${baseURL}/logout`);
 
     return response;
-  } catch (error) {
+  } catch {
     // 로그아웃 API 실패 시에도 로컬 로그아웃은 진행
     return { message: 'Logged out locally' };
   }

@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
 import { isRetryable } from '../../api';
 import { AppError } from '../../api/AppError';
 
@@ -7,27 +8,27 @@ interface QueryProviderProps {
 }
 
 export const QueryProvider = ({ children }: QueryProviderProps) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        refetchOnWindowFocus: false,
-        retry: (failureCount, error) => {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            retry: (failureCount, error) => {
+              if (error instanceof AppError) {
+                return isRetryable(error) && failureCount < 3;
+              }
 
-          if (error instanceof AppError) {
-            return isRetryable(error) && failureCount < 3;
-          }
-
-          return false;
+              return false;
+            },
+            retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10_000),
+          },
+          mutations: {
+            retry: 0,
+          },
         },
-
-        retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10_000),
-      },
-
-      mutations: {
-        retry: 0,
-      }
-    },
-  });
+      }),
+  );
 
   return (
     <QueryClientProvider client={queryClient}>

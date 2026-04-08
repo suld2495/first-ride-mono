@@ -1,9 +1,14 @@
-import { ErrorAraryData, ErrorData } from '@repo/types';
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import type { ErrorAraryData, ErrorData } from '@repo/types';
+import type {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 
+import type { AppError } from './AppError';
 import {
   ApiError,
-  AppError,
   HttpError,
   NetworkError,
   TimeoutError,
@@ -36,6 +41,8 @@ interface HttpConfig {
 const UN_AUTHORIZATION_CODE = 401;
 const REDIRECT_DEBOUNCE_MS = 1000;
 const REQUEST_ID_HEADER = 'X-Request-ID';
+const AUTHORIZATION_HEADER = 'Authorization';
+const INTERNAL_SERVER_ERROR_STATUS = 500;
 let unauthorizedCallback: (() => Promise<void>) | null = null;
 let tokenManager: TokenManager | null = null;
 let isRedirecting = false;
@@ -55,33 +62,69 @@ const axiosInstance = axios.create({
   timeout: REQUEST_TIMEOUT_MS,
 });
 
+const getHeaders = (config: InternalAxiosRequestConfig): AxiosHeaders => {
+  return AxiosHeaders.from(config.headers);
+};
+
+const getHeaderValue = (
+  config: InternalAxiosRequestConfig,
+  headerName: string,
+): string | undefined => {
+  const headerValue = getHeaders(config).get(headerName);
+
+  return typeof headerValue === 'string' ? headerValue : undefined;
+};
+
+const setHeaderValue = (
+  config: InternalAxiosRequestConfig,
+  headerName: string,
+  headerValue: string,
+): void => {
+  const headers = getHeaders(config);
+
+  headers.set(headerName, headerValue);
+  config.headers = headers;
+};
+
+const createRequestId = (): string => {
+  return `${Date.now()}-${Math.random()}`;
+};
+
 // 각 요청에 고유 ID 부여
-axiosInstance.interceptors.request.use((config) => {
-  if (!config.headers[REQUEST_ID_HEADER]) {
-    config.headers[REQUEST_ID_HEADER] = `${Date.now()}-${Math.random()}`;
+axiosInstance.interceptors.request.use((config): InternalAxiosRequestConfig => {
+  if (!getHeaderValue(config, REQUEST_ID_HEADER)) {
+    setHeaderValue(config, REQUEST_ID_HEADER, createRequestId());
   }
+
   return config;
 });
 
-export const createHttp = (config: HttpConfig) => {
-  axiosInstance.defaults.baseURL = config.baseURL;
-  axiosInstance.interceptors.request.use(config.request);
+export const createHttp = (config: HttpConfig): void => {
+  const {
+    baseURL,
+    onUnauthorized,
+    request,
+    tokenManager: nextTokenManager,
+  } = config;
 
-  if (config.onUnauthorized) {
-    unauthorizedCallback = config.onUnauthorized;
+  axiosInstance.defaults.baseURL = baseURL;
+  axiosInstance.interceptors.request.use(request);
+
+  if (onUnauthorized) {
+    unauthorizedCallback = onUnauthorized;
   }
 
-  if (config.tokenManager) {
-    tokenManager = config.tokenManager;
+  if (nextTokenManager) {
+    tokenManager = nextTokenManager;
   }
 };
 
-const onRefreshed = (newAccessToken: string) => {
+const onRefreshed = (newAccessToken: string): void => {
   refreshSubscribers.forEach(({ resolve }) => resolve(newAccessToken));
   refreshSubscribers = [];
 };
 
-const onRefreshFailed = (error: unknown) => {
+const onRefreshFailed = (error: unknown): void => {
   refreshSubscribers.forEach(({ reject }) => reject(error));
   refreshSubscribers = [];
 };
@@ -89,12 +132,12 @@ const onRefreshFailed = (error: unknown) => {
 const addRefreshSubscriber = (
   resolve: (token: string) => void,
   reject: (error: unknown) => void,
-) => {
+): void => {
   refreshSubscribers.push({ resolve, reject });
 };
 
 // 401 에러 발생 시 로그아웃 처리 헬퍼 함수
-const handleUnauthorized = async () => {
+const handleUnauthorized = async (): Promise<void> => {
   if (unauthorizedCallback && !isRedirecting) {
     isRedirecting = true;
     await unauthorizedCallback();
@@ -104,106 +147,128 @@ const handleUnauthorized = async () => {
   }
 };
 
+const shouldSkipTokenRefresh = (
+  originalRequest: InternalAxiosRequestConfig,
+): boolean => {
+  return (
+    originalRequest.url?.includes('/auth/refresh') === true ||
+    originalRequest.url?.includes('/auth/logout') === true
+  );
+};
+
+const retryWithRefreshedToken = async (
+  originalRequest: InternalAxiosRequestConfig,
+): Promise<unknown> => {
+  return new Promise((resolve, reject) => {
+    addRefreshSubscriber(
+      (newAccessToken: string) => {
+        setHeaderValue(
+          originalRequest,
+          AUTHORIZATION_HEADER,
+          `Bearer ${newAccessToken}`,
+        );
+        resolve(axiosInstance(originalRequest));
+      },
+      (refreshError: unknown) => {
+        reject(refreshError);
+      },
+    );
+  });
+};
+
+const handleMissingRefreshToken = async (
+  error: AxiosError,
+  activeTokenManager: TokenManager,
+): Promise<never> => {
+  isRefreshing = false;
+  onRefreshFailed(error);
+  await activeTokenManager.clearTokens();
+
+  if (unauthorizedCallback) {
+    await unauthorizedCallback();
+  }
+
+  throw error;
+};
+
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response.data.data;
+  (response: AxiosResponse): AxiosResponse => {
+    return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig;
+    const originalRequest = error.config;
 
-    if (error.response?.status === UN_AUTHORIZATION_CODE && originalRequest) {
-      // refresh, logout 요청은 제외
-      if (
-        originalRequest.url?.includes('/auth/refresh') ||
-        originalRequest.url?.includes('/auth/logout')
-      ) {
-        throw error;
-      }
-
-      // tokenManager가 없으면 기존 로직 사용
-      if (!tokenManager) {
-        await handleUnauthorized();
-        throw error;
-      }
-
-      const requestId = originalRequest.headers[REQUEST_ID_HEADER] as string;
-
-      // 이미 재시도한 요청이면 로그아웃 처리
-      if (requestId && retriedRequestIds.has(requestId)) {
-        retriedRequestIds.delete(requestId);
-        await handleUnauthorized();
-        throw error;
-      }
-
-      if (isRefreshing) {
-        // 이미 갱신 중이면 대기
-        return new Promise((resolve, reject) => {
-          addRefreshSubscriber(
-            (newAccessToken: string) => {
-              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-              resolve(axiosInstance(originalRequest));
-            },
-            (refreshError: unknown) => {
-              reject(refreshError);
-            },
-          );
-        });
-      }
-
-      if (requestId) {
-        retriedRequestIds.add(requestId);
-      }
-      isRefreshing = true;
-
-      try {
-        const storedRefreshToken = await tokenManager.getRefreshToken();
-
-        if (!storedRefreshToken) {
-          // refreshToken이 없으면 로그아웃 처리
-          isRefreshing = false;
-          onRefreshFailed(error);
-          await tokenManager.clearTokens();
-
-          if (unauthorizedCallback) {
-            await unauthorizedCallback();
-          }
-          throw error;
-        }
-
-        // refreshToken API 호출
-        const { refreshToken: refreshTokenFn } = await import('./auth.api');
-        const response = await refreshTokenFn({
-          refreshToken: storedRefreshToken,
-        });
-
-        // 새 토큰 저장
-        await tokenManager.saveTokens(
-          response.accessToken,
-          response.refreshToken,
-        );
-        tokenManager.updateUser(response.userInfo);
-
-        // 대기 중인 요청들에 새 토큰 전달
-        isRefreshing = false;
-        onRefreshed(response.accessToken);
-
-        // 원래 요청 재시도
-        originalRequest.headers.Authorization = `Bearer ${response.accessToken}`;
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // 토큰 갱신 실패 -> 대기 중인 요청들에 에러 전달
-        isRefreshing = false;
-        onRefreshFailed(refreshError);
-        if (requestId) {
-          retriedRequestIds.delete(requestId);
-        }
-        await tokenManager.clearTokens();
-        await handleUnauthorized();
-        throw refreshError;
-      }
+    if (error.response?.status !== UN_AUTHORIZATION_CODE || !originalRequest) {
+      throw error;
     }
 
-    throw error;
+    if (shouldSkipTokenRefresh(originalRequest)) {
+      throw error;
+    }
+
+    if (!tokenManager) {
+      await handleUnauthorized();
+      throw error;
+    }
+
+    const requestId = getHeaderValue(originalRequest, REQUEST_ID_HEADER);
+
+    if (requestId && retriedRequestIds.has(requestId)) {
+      retriedRequestIds.delete(requestId);
+      await handleUnauthorized();
+      throw error;
+    }
+
+    if (isRefreshing) {
+      return retryWithRefreshedToken(originalRequest);
+    }
+
+    if (requestId) {
+      retriedRequestIds.add(requestId);
+    }
+
+    isRefreshing = true;
+
+    try {
+      const activeTokenManager = tokenManager;
+
+      const storedRefreshToken = await activeTokenManager.getRefreshToken();
+
+      if (!storedRefreshToken) {
+        return handleMissingRefreshToken(error, activeTokenManager);
+      }
+
+      const { refreshToken: refreshTokenFn } = await import('./auth.api');
+      const response = await refreshTokenFn({
+        refreshToken: storedRefreshToken,
+      });
+
+      await activeTokenManager.saveTokens(
+        response.accessToken,
+        response.refreshToken,
+      );
+      activeTokenManager.updateUser(response.userInfo);
+
+      isRefreshing = false;
+      onRefreshed(response.accessToken);
+
+      setHeaderValue(
+        originalRequest,
+        AUTHORIZATION_HEADER,
+        `Bearer ${response.accessToken}`,
+      );
+
+      return axiosInstance(originalRequest);
+    } catch (refreshError) {
+      isRefreshing = false;
+      onRefreshFailed(refreshError);
+      if (requestId) {
+        retriedRequestIds.delete(requestId);
+      }
+      await tokenManager.clearTokens();
+      await handleUnauthorized();
+      throw refreshError;
+    }
   },
 );
 
@@ -212,6 +277,18 @@ const isErrorArary = (errorData: ErrorData): errorData is ErrorAraryData => {
 };
 
 export const toAppError = (err: unknown): AppError => {
+  if (err instanceof Error && 'name' in err && err.name.endsWith('Error')) {
+    if (
+      err instanceof ApiError ||
+      err instanceof HttpError ||
+      err instanceof NetworkError ||
+      err instanceof TimeoutError ||
+      err instanceof UnknownError
+    ) {
+      return err;
+    }
+  }
+
   if (!axios.isAxiosError(err)) {
     return new UnknownError(err);
   }
@@ -229,7 +306,7 @@ export const toAppError = (err: unknown): AppError => {
 
   const url = error.config?.url;
   const { status, data } = error.response;
-  const errorData = data as ErrorData;
+  const errorData = data as ErrorData | undefined;
 
   if (!errorData) {
     return new HttpError(status, url, error, `HTTP ${status}`);
@@ -240,7 +317,7 @@ export const toAppError = (err: unknown): AppError => {
       error: { message, data: fieldError },
     } = errorData;
 
-    return new ApiError(fieldError || [], status, url, error, message);
+    return new ApiError(fieldError ?? [], status, url, error, message);
   }
 
   const { errors } = errorData;
@@ -248,10 +325,10 @@ export const toAppError = (err: unknown): AppError => {
   return new ApiError({ errors }, status, url, error);
 };
 
-export const isRetryable = (error: AppError) =>
+export const isRetryable = (error: AppError): boolean =>
   error instanceof NetworkError ||
   error instanceof TimeoutError ||
-  (error instanceof HttpError && error.status >= 500);
+  (error instanceof HttpError && error.status >= INTERNAL_SERVER_ERROR_STATUS);
 
 export default axiosInstance;
 

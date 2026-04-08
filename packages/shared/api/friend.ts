@@ -1,7 +1,12 @@
-import { Friend, FriendRequestResponse, SearchOption, User } from '@repo/types';
+import type {
+  Friend,
+  FriendRequestResponse,
+  SearchOption,
+  User,
+} from '@repo/types';
 
-import http from './client';
 import { toAppError } from '.';
+import http from './client';
 
 const baseURL = '/friends';
 

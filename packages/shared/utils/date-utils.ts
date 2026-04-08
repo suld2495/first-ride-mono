@@ -1,24 +1,37 @@
+const PAD_LENGTH = 2;
+const DAYS_PER_WEEK = 7;
+const MONDAY_INDEX = 1;
+const SUNDAY_INDEX = 0;
+const MONDAY_OFFSET_FROM_SUNDAY = -6;
+const SHORT_YEAR_START_INDEX = -2;
+const SECONDS_PER_MINUTE = 60;
+const MINUTES_PER_HOUR = 60;
+const HOURS_PER_DAY = 24;
+const MILLISECONDS_PER_SECOND = 1000;
+const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
+const SECONDS_PER_DAY = HOURS_PER_DAY * SECONDS_PER_HOUR;
+
 export const getToday = () => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(PAD_LENGTH, '0');
+  const day = String(today.getDate()).padStart(PAD_LENGTH, '0');
 
   return `${year}-${month}-${day}`;
 };
 
 export const getFormatDate = (date: Date) => {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(PAD_LENGTH, '0');
+  const day = String(date.getDate()).padStart(PAD_LENGTH, '0');
 
   return `${year}-${month}-${day}`;
 };
 
 export const getDisplayFormatDate = (date: Date) => {
-  const year = String(date.getFullYear()).slice(-2); // 년도를 2자리로 변경
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const year = String(date.getFullYear()).slice(SHORT_YEAR_START_INDEX);
+  const month = String(date.getMonth() + 1).padStart(PAD_LENGTH, '0');
+  const day = String(date.getDate()).padStart(PAD_LENGTH, '0');
 
   return `${year}년 ${month}월 ${day}일`;
 };
@@ -26,7 +39,10 @@ export const getDisplayFormatDate = (date: Date) => {
 export const getWeekMonday = (date: Date) => {
   const newDate = new Date(date);
   const day = newDate.getDay();
-  const diff = newDate.getDate() - day + (day === 0 ? -6 : 1);
+  const diff =
+    newDate.getDate() -
+    day +
+    (day === SUNDAY_INDEX ? MONDAY_OFFSET_FROM_SUNDAY : MONDAY_INDEX);
 
   return getFormatDate(new Date(newDate.setDate(diff)));
 };
@@ -34,7 +50,8 @@ export const getWeekMonday = (date: Date) => {
 export const getWeekSunday = (date: Date) => {
   const newDate = new Date(date);
   const day = newDate.getDay();
-  const diff = newDate.getDate() - day + (day === 0 ? 0 : 7);
+  const diff =
+    newDate.getDate() - day + (day === SUNDAY_INDEX ? 0 : DAYS_PER_WEEK);
 
   return getFormatDate(new Date(newDate.setDate(diff)));
 };
@@ -42,19 +59,19 @@ export const getWeekSunday = (date: Date) => {
 export const beforeWeek = (date: Date) => {
   const newDate = new Date(date);
 
-  newDate.setDate(newDate.getDate() - 7);
+  newDate.setDate(newDate.getDate() - DAYS_PER_WEEK);
   return getFormatDate(newDate);
 };
 
 export const afterWeek = (date: Date) => {
   const newDate = new Date(date);
 
-  newDate.setDate(newDate.getDate() + 7);
+  newDate.setDate(newDate.getDate() + DAYS_PER_WEEK);
   return getFormatDate(newDate);
 };
 
 export const getSecondsBetween = (startDate: Date, endDate: Date) => {
-  return (endDate.getTime() - startDate.getTime()) / 1000;
+  return (endDate.getTime() - startDate.getTime()) / MILLISECONDS_PER_SECOND;
 };
 
 export const formatTimeRemaining = (startDate: Date, endDate: Date) => {
@@ -64,16 +81,18 @@ export const formatTimeRemaining = (startDate: Date, endDate: Date) => {
   const absSeconds = Math.abs(seconds);
 
   // 각 단위로 변환
-  const days = Math.floor(absSeconds / (24 * 60 * 60));
-  const hours = Math.floor((absSeconds % (24 * 60 * 60)) / (60 * 60));
-  const minutes = Math.floor((absSeconds % (60 * 60)) / 60);
-  const secs = Math.floor(absSeconds % 60);
+  const days = Math.floor(absSeconds / SECONDS_PER_DAY);
+  const hours = Math.floor((absSeconds % SECONDS_PER_DAY) / SECONDS_PER_HOUR);
+  const minutes = Math.floor(
+    (absSeconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE,
+  );
+  const secs = Math.floor(absSeconds % SECONDS_PER_MINUTE);
 
   // 시:분:초 포맷 (2자리로 패딩)
   const timeString = [
-    hours.toString().padStart(2, '0'),
-    minutes.toString().padStart(2, '0'),
-    secs.toString().padStart(2, '0'),
+    hours.toString().padStart(PAD_LENGTH, '0'),
+    minutes.toString().padStart(PAD_LENGTH, '0'),
+    secs.toString().padStart(PAD_LENGTH, '0'),
   ].join(':');
 
   // 마감 이후(과거): D+N, 마감 이전(미래): D-N, 당일: D-0
@@ -96,7 +115,7 @@ export const getThisWeekMonday = (): Date => {
 };
 
 export const isMonday = (date: Date) => {
-  return date.getDay() === 1;
+  return date.getDay() === MONDAY_INDEX;
 };
 
 export const getMondayDate = (date: Date) => {
@@ -112,6 +131,6 @@ export const getNextMonday = (date: Date) => {
 
   const nextMonday = new Date(monday);
 
-  nextMonday.setDate(nextMonday.getDate() + 7);
+  nextMonday.setDate(nextMonday.getDate() + DAYS_PER_WEEK);
   return nextMonday;
 };

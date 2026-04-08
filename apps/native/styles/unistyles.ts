@@ -3,11 +3,18 @@
  * 앱 최상단에서 import하여 설정 초기화
  */
 
-import { StyleSheet, UnistylesVariants } from 'react-native-unistyles';
+import type { UnistylesVariants } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
+import { darkTheme } from './themes/dark';
+import { lightTheme } from './themes/light';
 import { createFoundation } from './tokens/foundation';
 import { baseFoundation } from './tokens/foundation.base';
-import { themes } from './themes';
+
+const themes = {
+  light: lightTheme,
+  dark: darkTheme,
+} as const;
 
 // ─────────────────────────────────────────────────────────────
 // 테마 타입 정의

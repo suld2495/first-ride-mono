@@ -3,7 +3,7 @@ import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
 import SignUp from '../../app/sign-up';
-import { JobType } from '../../constants/jobs';
+import type { JobType } from '../../constants/JOBS';
 import { render } from '../setup/test-utils';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)

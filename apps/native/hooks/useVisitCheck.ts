@@ -1,6 +1,8 @@
+import { recordVisit } from '@repo/shared/api/quest.api';
+import { questKeys } from '@repo/shared/types/query-keys/quest';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
-import { recordVisit } from '@repo/shared/api/quest.api';
 
 const getToday = () => new Date().toDateString();
 
@@ -13,6 +15,14 @@ const getMsUntilMidnight = () => {
 
 export const useVisitCheck = (enabled: boolean) => {
   const lastCallDate = useRef<string | null>(null);
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation({
+    mutationFn: recordVisit,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: questKeys.lists() });
+    },
+    onError: () => {},
+  });
 
   useEffect(() => {
     if (!enabled) {
@@ -24,7 +34,7 @@ export const useVisitCheck = (enabled: boolean) => {
       const today = getToday();
       if (lastCallDate.current === today) return;
       lastCallDate.current = today;
-      recordVisit();
+      mutate();
     };
 
     // 1. 마운트 시 즉시 호출
@@ -53,5 +63,5 @@ export const useVisitCheck = (enabled: boolean) => {
       subscription.remove();
       clearTimeout(midnightTimer);
     };
-  }, [enabled]);
+  }, [enabled, mutate]);
 };

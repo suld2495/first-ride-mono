@@ -7,8 +7,8 @@ export class NumberValidator implements Validator {
   readonly #max: number;
 
   constructor({ min, max }: { min?: number; max?: number }) {
-    this.#min = min || Number.MIN_SAFE_INTEGER;
-    this.#max = max || Number.MAX_SAFE_INTEGER;
+    this.#min = min ?? Number.MIN_SAFE_INTEGER;
+    this.#max = max ?? Number.MAX_SAFE_INTEGER;
   }
 
   validate(value: string): boolean {
@@ -29,8 +29,8 @@ export class StringValidator implements Validator {
   readonly #maxLength: number;
 
   constructor({ maxLength, minLength }: StringValidatorOptions) {
-    this.#minLength = minLength || 0;
-    this.#maxLength = maxLength || Number.MAX_SAFE_INTEGER;
+    this.#minLength = minLength ?? 0;
+    this.#maxLength = maxLength ?? Number.MAX_SAFE_INTEGER;
   }
 
   validate(value: string): boolean {

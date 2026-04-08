@@ -1,23 +1,23 @@
+import type { AuthForm as AuthFormType } from '@repo/types';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native-unistyles';
-import { AuthForm as AuthFormType } from '@repo/types';
 
-import AuthForm from '@/components/auth/AuthForm';
-import { KakaoLoginButton } from '@/components/auth/KakaoLoginButton';
-import { Button } from '@/components/common/Button';
-import { Divider } from '@/components/common/Divider';
-import { Input } from '@/components/common/Input';
-import Link from '@/components/common/Link';
-import PasswordInput from '@/components/common/PasswordInput';
-import ThemeView from '@/components/common/ThemeView';
+import AuthForm from '@/components/auth/auth-form';
+import { KakaoLoginButton } from '@/components/auth/kakao-login-button';
+import { Button } from '@/components/ui/button';
+import { Divider } from '@/components/ui/divider';
+import { Input } from '@/components/ui/input';
+import Link from '@/components/ui/link';
+import PasswordInput from '@/components/ui/password-input';
+import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  AUTH_PROVIDER_NAMES,
+import type { CredentialsParams } from '@/providers/auth/credentials.provider';
+import type {
   AuthProviderType,
-  CredentialsParams,
   SocialProviderType,
-} from '@/providers/auth';
+} from '@/providers/auth/types';
+import { AUTH_PROVIDER_NAMES } from '@/providers/auth/types';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 const initial = () => ({
@@ -43,11 +43,9 @@ export default function SignIn() {
     params?: CredentialsParams,
   ) => {
     try {
-      if (providerType === 'credentials') {
-        await login('credentials', params!);
-      } else {
-        await login(providerType);
-      }
+      await (providerType === 'credentials'
+        ? login('credentials', params!)
+        : login(providerType));
     } catch (error) {
       // 필드 에러가 있으면 throw해서 caller가 처리하도록
       const serverErrors = getFieldErrors(error);

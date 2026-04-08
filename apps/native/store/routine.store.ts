@@ -1,4 +1,4 @@
-import { RoutineForm } from '@repo/types';
+import type { RoutineForm } from '@repo/types';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 

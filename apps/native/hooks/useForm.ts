@@ -1,19 +1,18 @@
-import React from 'react';
-import {
+import type {
+  FormContextType,
   FormProviderProps,
-  useCreateForm as useCreateFormProvider,
 } from '@repo/shared/components';
+import { useCreateForm as useCreateFormProvider } from '@repo/shared/components';
+import type React from 'react';
 
-import { createFormComponent } from '@/components/common/form/Form';
-import {
-  createFormItem,
-  UseFormFieldReturn,
-} from '@/components/common/form/FormItem';
+import { createFormComponent } from '@/components/ui/form/form';
+import type { UseFormFieldReturn } from '@/components/ui/form/form-item';
+import { createFormItem } from '@/components/ui/form/form-item';
 
 export type FormHooks<T extends Record<string, unknown>> = {
   Provider: React.ComponentType<FormProviderProps<T>>;
-  useForm: () => unknown;
-  useFormField: <K extends keyof T>(name: K) => UseFormFieldReturn;
+  useForm: () => FormContextType<T>;
+  useFormField: <K extends keyof T>(name: K) => UseFormFieldReturn<T[K]>;
 };
 
 export function createFormComponents<T extends Record<string, unknown>>(

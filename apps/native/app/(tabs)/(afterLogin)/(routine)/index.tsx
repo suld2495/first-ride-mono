@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef } from 'react';
+import { View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
 
-import Loading from '@/components/common/Loading';
-import { PullToRefresh } from '@/components/common/PullToRefresh';
-import Container from '@/components/layout/Container';
-import Header from '@/components/layout/Header';
-import RoutineHeader from '@/components/routine/RoutineHeader';
-import RoutineList from '@/components/routine/RoutineList';
-import { useAuthStore } from '@/store/auth.store';
+import Container from '@/components/layout/container';
+import Header from '@/components/layout/header';
+import RoutineHeader from '@/components/routine/routine-header';
+import RoutineList from '@/components/routine/routine-list';
+import Loading from '@/components/ui/loading';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
+import { useAuthUser } from '@/hooks/useAuthSession';
 
 export default function Index() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function Index() {
 
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
-  const { user } = useAuthStore();
+  const user = useAuthUser();
 
   const {
     data: routines = [],

@@ -5,6 +5,18 @@ import axiosInstance from '../index';
 
 let mockAxios: MockAdapter;
 
+const TEST_USER_INFO = { userId: 'testuser', nickname: 'Test User' };
+const TEST_PASSWORD = 'password123';
+const ACCESS_TOKEN = 'access-token';
+const REFRESH_TOKEN = 'refresh-token';
+const LOGGED_OUT_LOCALLY_MESSAGE = { message: 'Logged out locally' };
+const LOGGED_OUT_SUCCESSFULLY_MESSAGE = { message: 'Logged out successfully' };
+const NEW_ACCESS_TOKEN = 'new-access-token';
+const NEW_REFRESH_TOKEN = 'new-refresh-token';
+const THROW_ERROR_TEST_NAME = '에러를 throw한다';
+const AUTH_REFRESH_URL = '/auth/refresh';
+const AUTH_LOGOUT_URL = '/auth/logout';
+
 describe('auth.api', () => {
   beforeEach(() => {
     mockAxios = new MockAdapter(axiosInstance);
@@ -17,16 +29,16 @@ describe('auth.api', () => {
   describe('login', () => {
     const loginForm = {
       userId: 'testuser',
-      password: 'password123',
+      password: TEST_PASSWORD,
     };
 
     describe('성공 시', () => {
       beforeEach(() => {
         mockAxios.onPost('/auth/login').reply(200, {
           data: {
-            userInfo: { userId: 'testuser', nickname: 'Test User' },
-            accessToken: 'access-token',
-            refreshToken: 'refresh-token',
+            userInfo: TEST_USER_INFO,
+            accessToken: ACCESS_TOKEN,
+            refreshToken: REFRESH_TOKEN,
           },
         });
       });
@@ -35,9 +47,9 @@ describe('auth.api', () => {
         const result = await login(loginForm);
 
         expect(result).toEqual({
-          userInfo: { userId: 'testuser', nickname: 'Test User' },
-          accessToken: 'access-token',
-          refreshToken: 'refresh-token',
+          userInfo: TEST_USER_INFO,
+          accessToken: ACCESS_TOKEN,
+          refreshToken: REFRESH_TOKEN,
         });
       });
     });
@@ -57,7 +69,7 @@ describe('auth.api', () => {
         });
       });
 
-      it('에러를 throw한다', async () => {
+      it(THROW_ERROR_TEST_NAME, async () => {
         await expect(login(loginForm)).rejects.toThrow();
       });
     });
@@ -66,7 +78,7 @@ describe('auth.api', () => {
   describe('join', () => {
     const joinForm = {
       userId: 'newuser',
-      password: 'password123',
+      password: TEST_PASSWORD,
       nickname: 'New User',
       job: '개발자',
     };
@@ -93,7 +105,7 @@ describe('auth.api', () => {
         });
       });
 
-      it('에러를 throw한다', async () => {
+      it(THROW_ERROR_TEST_NAME, async () => {
         await expect(join(joinForm)).rejects.toThrow();
       });
     });
@@ -106,11 +118,11 @@ describe('auth.api', () => {
 
     describe('성공 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/auth/refresh').reply(200, {
+        mockAxios.onPost(AUTH_REFRESH_URL).reply(200, {
           data: {
-            userInfo: { userId: 'testuser', nickname: 'Test User' },
-            accessToken: 'new-access-token',
-            refreshToken: 'new-refresh-token',
+            userInfo: TEST_USER_INFO,
+            accessToken: NEW_ACCESS_TOKEN,
+            refreshToken: NEW_REFRESH_TOKEN,
           },
         });
       });
@@ -119,9 +131,9 @@ describe('auth.api', () => {
         const result = await refreshToken(refreshTokenRequest);
 
         expect(result).toEqual({
-          userInfo: { userId: 'testuser', nickname: 'Test User' },
-          accessToken: 'new-access-token',
-          refreshToken: 'new-refresh-token',
+          userInfo: TEST_USER_INFO,
+          accessToken: NEW_ACCESS_TOKEN,
+          refreshToken: NEW_REFRESH_TOKEN,
         });
       });
     });
@@ -129,28 +141,28 @@ describe('auth.api', () => {
     describe('실패 시', () => {
       describe('유효하지 않은 refreshToken인 경우', () => {
         beforeEach(() => {
-          mockAxios.onPost('/auth/refresh').reply(401, {
+          mockAxios.onPost(AUTH_REFRESH_URL).reply(401, {
             error: {
               message: 'Invalid refresh token',
             },
           });
         });
 
-        it('에러를 throw한다', async () => {
+        it(THROW_ERROR_TEST_NAME, async () => {
           await expect(refreshToken(refreshTokenRequest)).rejects.toThrow();
         });
       });
 
       describe('만료된 refreshToken인 경우', () => {
         beforeEach(() => {
-          mockAxios.onPost('/auth/refresh').reply(401, {
+          mockAxios.onPost(AUTH_REFRESH_URL).reply(401, {
             error: {
               message: 'Refresh token expired',
             },
           });
         });
 
-        it('에러를 throw한다', async () => {
+        it(THROW_ERROR_TEST_NAME, async () => {
           await expect(refreshToken(refreshTokenRequest)).rejects.toThrow();
         });
       });
@@ -160,21 +172,21 @@ describe('auth.api', () => {
   describe('logout', () => {
     describe('성공 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/auth/logout').reply(200, {
-          data: { message: 'Logged out successfully' },
+        mockAxios.onPost(AUTH_LOGOUT_URL).reply(200, {
+          data: LOGGED_OUT_SUCCESSFULLY_MESSAGE,
         });
       });
 
       it('로그아웃 응답을 반환한다', async () => {
         const result = await logout();
 
-        expect(result).toEqual({ message: 'Logged out successfully' });
+        expect(result).toEqual(LOGGED_OUT_SUCCESSFULLY_MESSAGE);
       });
     });
 
     describe('실패 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/auth/logout').reply(500, {
+        mockAxios.onPost(AUTH_LOGOUT_URL).reply(500, {
           error: {
             message: 'Server error',
           },
@@ -182,31 +194,21 @@ describe('auth.api', () => {
       });
 
       it('로컬 로그아웃 메시지를 반환한다', async () => {
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-
         const result = await logout();
 
-        expect(result).toEqual({ message: 'Logged out locally' });
-        expect(consoleWarnSpy).toHaveBeenCalled();
-
-        consoleWarnSpy.mockRestore();
+        expect(result).toEqual(LOGGED_OUT_LOCALLY_MESSAGE);
       });
     });
 
     describe('네트워크 오류 발생 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/auth/logout').networkError();
+        mockAxios.onPost(AUTH_LOGOUT_URL).networkError();
       });
 
       it('로컬 로그아웃 메시지를 반환한다', async () => {
-        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-
         const result = await logout();
 
-        expect(result).toEqual({ message: 'Logged out locally' });
-        expect(consoleWarnSpy).toHaveBeenCalled();
-
-        consoleWarnSpy.mockRestore();
+        expect(result).toEqual(LOGGED_OUT_LOCALLY_MESSAGE);
       });
     });
   });

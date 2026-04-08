@@ -1,26 +1,35 @@
-import { Alert, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { Alert, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { deletePushToken } from '@/api/push-token.api';
-import { Button } from '@/components/common/Button';
-import Link from '@/components/common/Link';
-import PixelCard from '@/components/common/PixelCard';
-import Container from '@/components/layout/Container';
-import Header from '@/components/layout/Header';
+import Container from '@/components/layout/container';
+import Header from '@/components/layout/header';
+import { Button } from '@/components/ui/button';
+import Link from '@/components/ui/link';
+import PixelCard from '@/components/ui/pixel-card';
+import { useAuthSignOut } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useAuthStore } from '@/store/auth.store';
 
 const MyInfo = () => {
-  const signOut = useAuthStore((state) => state.signOut);
+  const signOut = useAuthSignOut();
   const { pushToken } = useNotifications();
   const { theme } = useUnistyles();
 
   const handleMoveFeedback = async () => {
-    await WebBrowser.openBrowserAsync(Constants.expoConfig?.extra?.feedback);
+    const extra = Constants.expoConfig?.extra as
+      | { feedback?: string }
+      | undefined;
+    const feedbackUrl = extra?.feedback;
+
+    if (typeof feedbackUrl !== 'string' || feedbackUrl.length === 0) {
+      return;
+    }
+
+    await WebBrowser.openBrowserAsync(feedbackUrl);
   };
 
   const handleLogout = () => {

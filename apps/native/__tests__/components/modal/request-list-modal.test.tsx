@@ -1,4 +1,4 @@
-import RequestListModal from '../../../components/modal/RequestListModal';
+import RequestListModal from '../../../components/modal/request-list-modal';
 import {
   fireEvent,
   render,

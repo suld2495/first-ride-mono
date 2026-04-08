@@ -1,7 +1,9 @@
-import React, { ReactElement } from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, RenderOptions } from '@testing-library/react-native';
+import type { RenderOptions } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
+import type { ReactElement } from 'react';
+import React from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const createTestQueryClient = () =>
   new QueryClient({

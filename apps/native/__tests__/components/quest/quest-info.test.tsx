@@ -1,4 +1,4 @@
-import QuestInfo from '../../../components/quest/QuestInfo';
+import QuestInfo from '../../../components/quest/quest-info';
 import { render } from '../../setup/test-utils';
 
 describe('QuestInfo', () => {
@@ -17,7 +17,8 @@ describe('QuestInfo', () => {
       verificationType: 'WEEKLY_MATE_ROUTINE_REVIEW' as const,
       title: '메이트 리뷰 진행률',
       currentLabel: '리뷰 처리 횟수',
-      description: '메이트 루틴 인증 요청을 처리한 횟수를 기준으로 달성 여부를 확인해요.',
+      description:
+        '메이트 루틴 인증 요청을 처리한 횟수를 기준으로 달성 여부를 확인해요.',
       currentVerificationCount: 1,
       verificationTargetCount: 3,
       progressLabel: '33%',
@@ -27,7 +28,8 @@ describe('QuestInfo', () => {
       verificationType: 'WEEKLY_SELF_ROUTINE_PASS' as const,
       title: '내 루틴 인증 진행률',
       currentLabel: '인증 성공 횟수',
-      description: '내 루틴 인증이 승인된 횟수를 기준으로 달성 여부를 확인해요.',
+      description:
+        '내 루틴 인증이 승인된 횟수를 기준으로 달성 여부를 확인해요.',
       currentVerificationCount: 4,
       verificationTargetCount: 5,
       progressLabel: '80%',
@@ -46,9 +48,6 @@ describe('QuestInfo', () => {
     }) => {
       const { getByText } = render(
         <QuestInfo
-          requiredLevel={3}
-          currentParticipants={5}
-          maxParticipants={10}
           verificationType={verificationType}
           currentVerificationCount={currentVerificationCount}
           verificationTargetCount={verificationTargetCount}
@@ -65,9 +64,6 @@ describe('QuestInfo', () => {
   it('verificationType 이 없더라도 기본 진행 정보로 안전하게 렌더된다', () => {
     const { getByText } = render(
       <QuestInfo
-        requiredLevel={3}
-        currentParticipants={5}
-        maxParticipants={10}
         verificationType={undefined as never}
         currentVerificationCount={2}
         verificationTargetCount={7}
@@ -85,9 +81,6 @@ describe('QuestInfo', () => {
   it('레벨과 인원 관련 정보는 표시하지 않는다', () => {
     const { queryByText } = render(
       <QuestInfo
-        requiredLevel={3}
-        currentParticipants={5}
-        maxParticipants={10}
         verificationType="WEEKLY_APP_VISIT"
         currentVerificationCount={2}
         verificationTargetCount={7}
@@ -104,9 +97,6 @@ describe('QuestInfo', () => {
   it('방문 횟수와 목표 횟수 요약 박스는 표시하지 않는다', () => {
     const { queryByText } = render(
       <QuestInfo
-        requiredLevel={3}
-        currentParticipants={5}
-        maxParticipants={10}
         verificationType="WEEKLY_APP_VISIT"
         currentVerificationCount={2}
         verificationTargetCount={7}

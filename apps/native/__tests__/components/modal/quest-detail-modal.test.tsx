@@ -2,7 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
-import QuestDetailModal from '../../../components/modal/QuestDetailModal';
+import QuestDetailModal from '../../../components/modal/quest-detail-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockQuest } from '../../setup/quest/mock';
 
@@ -23,22 +23,22 @@ jest.mock('@/store/quest.store', () => ({
     selector(mockQuestStore),
 }));
 
-jest.mock('../../../components/quest/QuestInfo', () => ({
+jest.mock('../../../components/quest/quest-info', () => ({
   __esModule: true,
   default: () => null,
 }));
 
-jest.mock('../../../components/quest/QuestRewards', () => ({
+jest.mock('../../../components/quest/quest-rewards', () => ({
   __esModule: true,
   default: () => null,
 }));
 
-jest.mock('../../../components/quest/QuestTime', () => ({
+jest.mock('../../../components/quest/quest-time', () => ({
   __esModule: true,
   default: () => null,
 }));
 
-jest.mock('../../../components/common/Button', () => ({
+jest.mock('../../../components/ui/button', () => ({
   __esModule: true,
   Button: ({
     title,
@@ -49,7 +49,6 @@ jest.mock('../../../components/common/Button', () => ({
     onPress?: () => void;
     disabled?: boolean;
   }) => {
-    const React = require('react');
     const { Pressable, Text } = require('react-native');
 
     return (
@@ -103,7 +102,6 @@ describe('QuestDetailModal', () => {
   it('타이틀 아래 설명 박스는 표시하지 않는다', async () => {
     const mockDetail = createMockQuest(0, {
       questType: 'WEEKLY',
-      description: '주간 퀘스트',
     });
 
     mockAxios.onGet('/quest/1').reply(200, { data: mockDetail });
@@ -120,7 +118,9 @@ describe('QuestDetailModal', () => {
     });
 
     mockAxios.onGet('/quest/1').reply(200, { data: mockDetail });
-    mockAxios.onPost('/quest/complete', { questId: 1 }).reply(200, { data: null });
+    mockAxios
+      .onPost('/quest/complete', { questId: 1 })
+      .reply(200, { data: null });
 
     const { findByText, getByText } = render(<QuestDetailModal />);
 

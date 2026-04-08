@@ -1,5 +1,5 @@
+import type { User } from '@repo/types';
 import { Platform } from 'react-native';
-import { User } from '@repo/types';
 
 // Provider 타입
 export type AuthProviderType =

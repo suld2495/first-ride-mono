@@ -1,6 +1,6 @@
-import type { ComponentProps } from 'react';
 import type Ionicons from '@expo/vector-icons/Ionicons';
 import type { StatKey, UserStats } from '@repo/types';
+import type { ComponentProps } from 'react';
 
 type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 

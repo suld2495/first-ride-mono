@@ -1,6 +1,6 @@
 import { login as apiLogin } from '@repo/shared/api/auth.api';
 
-import {
+import type {
   AuthProvider,
   AuthResponse,
   CredentialsPayload,

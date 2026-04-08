@@ -2,7 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
-import RoutineFormModal from '../../../components/modal/RoutineFormModal';
+import RoutineFormModal from '../../../components/modal/routine-form-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockFriends } from '../../setup/friend/mock';
 
@@ -24,7 +24,6 @@ let mockDateTimePickerOnChange: ((event: unknown, date?: Date) => void) | null =
   null;
 
 jest.mock('@react-native-community/datetimepicker', () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const React = require('react');
 
   return {
@@ -45,9 +44,8 @@ jest.mock('@react-native-community/datetimepicker', () => {
 (global as any).mockCheckboxChecked = false;
 
 jest.mock('react-native-bouncy-checkbox', () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const React = require('react');
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+
   const { TouchableOpacity, Text } = require('react-native');
 
   return {

@@ -1,4 +1,4 @@
-import { SearchOption } from '@repo/types';
+import type { SearchOption } from '@repo/types';
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchUserList } from '../api/user.api';

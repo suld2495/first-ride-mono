@@ -1,4 +1,4 @@
-import { FriendRequestResponse, SearchOption } from '@repo/types';
+import type { FriendRequestResponse, SearchOption } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -38,17 +38,24 @@ export const useDeleteFriendMutation = () => {
   return useMutation({
     mutationFn: deleteFriend,
 
-    onSuccess() {
-      queryClient.invalidateQueries({
-        queryKey: friendKey.all,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: friendKey.all(),
       });
     },
   });
 };
 
 export const useAddFriendMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: addFriend,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: friendKey.all(),
+      });
+    },
   });
 };
 
@@ -72,18 +79,18 @@ export const useAcceptFriendRequestMutation = () => {
   return useMutation({
     mutationFn: acceptFriendRequest,
 
-    onSuccess(_, requestId) {
+    onSuccess: async (_, requestId) => {
       queryClient.setQueriesData<FriendRequestResponse[]>(
         {
-          queryKey: friendRequestKey.all,
+          queryKey: friendRequestKey.all(),
         },
         (requests) => removeFriendRequestFromCache(requests, requestId),
       );
-      queryClient.invalidateQueries({
-        queryKey: friendRequestKey.all,
+      await queryClient.invalidateQueries({
+        queryKey: friendRequestKey.all(),
       });
-      queryClient.invalidateQueries({
-        queryKey: friendKey.all,
+      await queryClient.invalidateQueries({
+        queryKey: friendKey.all(),
       });
     },
   });
@@ -95,15 +102,15 @@ export const useRejectFriendRequestMutation = () => {
   return useMutation({
     mutationFn: rejectFriendRequest,
 
-    onSuccess(_, requestId) {
+    onSuccess: async (_, requestId) => {
       queryClient.setQueriesData<FriendRequestResponse[]>(
         {
-          queryKey: friendRequestKey.all,
+          queryKey: friendRequestKey.all(),
         },
         (requests) => removeFriendRequestFromCache(requests, requestId),
       );
-      queryClient.invalidateQueries({
-        queryKey: friendRequestKey.all,
+      await queryClient.invalidateQueries({
+        queryKey: friendRequestKey.all(),
       });
     },
   });

@@ -1,6 +1,6 @@
-import { Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
 
 import {
   CATEGORY_TO_CHANNEL,
@@ -10,7 +10,7 @@ import {
   NOTIFICATION_CHANNELS,
   PRIORITY_MAPPING,
   PUSH_NOTIFICATION_ROUTES,
-} from '@/constants/notifications';
+} from '@/constants/NOTIFICATIONS';
 import type {
   NotificationContent,
   NotificationDeepLinkData,
@@ -19,7 +19,7 @@ import type {
   NotificationTrigger,
   PushNotificationToken,
   ScheduledNotification,
-} from '@/types/notification.types';
+} from '@/types/notification-types';
 
 /**
  * 알림 권한 요청
@@ -403,7 +403,7 @@ export function getDeepLinkPath(
 export function extractDeepLinkData(
   notification: Notifications.Notification,
 ): NotificationDeepLinkData | undefined {
-  const data: unknown = notification.request.content.data;
+  const { data } = notification.request.content;
 
   if (data && typeof data === 'object') {
     return data as NotificationDeepLinkData;

@@ -1,12 +1,13 @@
+import { useLocalSearchParams } from 'expo-router';
 import { Platform } from 'react-native';
 import Animated, { SlideInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
-import { useLocalSearchParams } from 'expo-router';
 
-import ThemeView from '@/components/common/ThemeView';
-import ModalHeader from '@/components/modal/ModalHeader';
-import { ModalType, useModal } from '@/hooks/useModal';
+import ModalHeader from '@/components/modal/modal-header';
+import ThemeView from '@/components/ui/theme-view';
+import type { ModalType } from '@/hooks/useModal';
+import { useModal } from '@/hooks/useModal';
 
 const MODAL_ANIMATION_DURATION = 250;
 

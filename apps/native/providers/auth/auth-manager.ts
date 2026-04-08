@@ -1,5 +1,5 @@
-import { getProvider } from './index';
-import { AuthProviderType, AuthResponse, DeviceInfo } from './types';
+import { getProvider } from './provider-registry';
+import type { AuthProviderType, AuthResponse, DeviceInfo } from './types';
 
 // AuthManager 결과 타입 (providerType 포함)
 export interface AuthResult extends AuthResponse {

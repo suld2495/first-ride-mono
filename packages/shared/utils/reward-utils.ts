@@ -5,6 +5,8 @@
 
 import type { Reward } from '@repo/types';
 
+const PAD_LENGTH = 2;
+
 /**
  * Formats an ISO 8601 date string to "MM/DD" format
  *
@@ -27,8 +29,8 @@ export const formatRewardDate = (isoDate: string): string => {
     throw new Error('Invalid date format');
   }
 
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(PAD_LENGTH, '0');
+  const day = String(date.getDate()).padStart(PAD_LENGTH, '0');
 
   return `${month}/${day}`;
 };

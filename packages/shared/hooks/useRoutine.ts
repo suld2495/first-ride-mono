@@ -1,4 +1,4 @@
-import {
+import type {
   Routine,
   RoutineForm,
   UpdateRoutineForm,
@@ -10,9 +10,13 @@ import * as routineApi from '../api/routine.api';
 import { routineKey } from '../types/query-keys/routine';
 import { getWeekMonday } from '../utils/date-utils';
 
+const DAYS_PER_WEEK = 7;
+const SHORT_YEAR_OFFSET = 2000;
+const PAD_LENGTH = 2;
+
 export const useRoutinesQuery = (nickname: string, date: string) => {
   return useQuery({
-    queryKey: [...routineKey.list(nickname), { date }],
+    queryKey: routineKey.listByDate(nickname, date),
     queryFn: () => routineApi.fetchRoutines(date),
     enabled: !!nickname && !!date,
     refetchOnMount: 'always',
@@ -25,9 +29,9 @@ export const useCreateRoutineMutation = (nickname: string) => {
   return useMutation({
     mutationFn: (data: RoutineForm) => routineApi.createRoutine(data),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [...routineKey.list(nickname)],
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: routineKey.list(nickname),
       });
     },
   });
@@ -39,9 +43,9 @@ export const useUpdateRoutineMutation = (nickname: string) => {
   return useMutation({
     mutationFn: (data: UpdateRoutineForm) => routineApi.updateRoutine(data),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [...routineKey.list(nickname)],
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: routineKey.list(nickname),
       });
     },
   });
@@ -61,9 +65,9 @@ export const useDeleteRoutineMutation = (nickname: string) => {
   return useMutation({
     mutationFn: (routineId: number) => routineApi.deleteRoutine(routineId),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [...routineKey.list(nickname)],
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: routineKey.list(nickname),
       });
     },
   });
@@ -72,13 +76,13 @@ export const useDeleteRoutineMutation = (nickname: string) => {
 const createWeeklyData = (startDate: string): string[] => {
   const date = new Date(startDate);
 
-  return Array.from({ length: 7 }, (_, i) => {
+  return Array.from({ length: DAYS_PER_WEEK }, (_, i) => {
     const newDate = new Date(date);
 
     newDate.setDate(newDate.getDate() + i);
 
-    const year = newDate.getFullYear() - 2000;
-    const month = (newDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = newDate.getFullYear() - SHORT_YEAR_OFFSET;
+    const month = (newDate.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
     const day = newDate.getDate();
 
     return `${year}${month}${day}`;
@@ -88,15 +92,17 @@ const createWeeklyData = (startDate: string): string[] => {
 export const useWeeklyData = (
   routines: WeeklyRoutine[],
 ): Record<Routine['routineId'], boolean[]> => {
-  return routines.reduce(
-    (acc, { routineId, successDate }) => {
-      const data = createWeeklyData(getWeekMonday(new Date())).map((date) =>
-        successDate.includes(date),
-      );
+  const weeklyDataByRoutineId = Object.create(null) as Record<
+    Routine['routineId'],
+    boolean[]
+  >;
+  const weekDates = createWeeklyData(getWeekMonday(new Date()));
 
-      acc[routineId] = data;
-      return acc;
-    },
-    {} as Record<Routine['routineId'], boolean[]>,
-  );
+  return routines.reduce((acc, { routineId, successDate }) => {
+    const successDateSet = new Set(successDate);
+    const data = weekDates.map((date) => successDateSet.has(date));
+
+    acc[routineId] = data;
+    return acc;
+  }, weeklyDataByRoutineId);
 };

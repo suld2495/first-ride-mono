@@ -1,14 +1,14 @@
-import FriendRequestListModal from '@/components/modal/FriendRequestListModal';
-import PrivacyModal from '@/components/modal/PrivacyModal';
-import QuestDetailModal from '@/components/modal/QuestDetailModal';
-import QuestFormModal from '@/components/modal/QuestFormModal';
-import RequestDetailModal from '@/components/modal/RequestDetailModal';
-import RequestListModal from '@/components/modal/RequestListModal';
-import RequestModal from '@/components/modal/RequestModal';
-import RoutineDetailModal from '@/components/modal/RoutineDetailModal';
-import RoutineFormModal from '@/components/modal/RoutineFormModal';
-import TermsPolicyModal from '@/components/modal/TermsPolicyModal';
-import ThemeModal from '@/components/modal/ThemeModal';
+import FriendRequestListModal from '@/components/modal/friend-request-list-modal';
+import PrivacyModal from '@/components/modal/privacy-modal';
+import QuestDetailModal from '@/components/modal/quest-detail-modal';
+import QuestFormModal from '@/components/modal/quest-form-modal';
+import RequestDetailModal from '@/components/modal/request-detail-modal';
+import RequestListModal from '@/components/modal/request-list-modal';
+import RequestModal from '@/components/modal/request-modal';
+import RoutineDetailModal from '@/components/modal/routine-detail-modal';
+import RoutineFormModal from '@/components/modal/routine-form-modal';
+import TermsPolicyModal from '@/components/modal/terms-policy-modal';
+import ThemeModal from '@/components/modal/theme-modal';
 
 export type ModalType =
   | 'routine-add'

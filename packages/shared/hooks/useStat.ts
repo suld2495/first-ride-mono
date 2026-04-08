@@ -18,8 +18,8 @@ export const useDistributeStatsMutation = () => {
   return useMutation({
     mutationFn: (request: DistributeStatsRequest) =>
       statApi.distributeStats(request),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: statKey.me(),
       });
     },

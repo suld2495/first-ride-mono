@@ -2,7 +2,7 @@
  * Light Theme
  */
 
-import { palette } from '../tokens/palette';
+import { palette } from '@/styles/tokens/palette';
 
 import type { ThemeContract } from './theme.contract';
 

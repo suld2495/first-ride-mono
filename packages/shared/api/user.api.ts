@@ -1,7 +1,7 @@
-import { SearchOption, User } from '@repo/types';
+import type { SearchOption, User } from '@repo/types';
 
-import http from './client';
 import { toAppError } from '.';
+import http from './client';
 
 const baseURL = '/users';
 

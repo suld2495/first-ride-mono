@@ -1,7 +1,11 @@
-import { RequestList, RequestResponseForm, RoutineDetail } from '@repo/types';
+import type {
+  RequestList,
+  RequestResponseForm,
+  RoutineDetail,
+} from '@repo/types';
 
-import http from './client';
 import { toAppError } from '.';
+import http from './client';
 
 export const fetchReceivedRequests = async (): Promise<RequestList> => {
   try {

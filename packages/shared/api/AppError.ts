@@ -1,4 +1,4 @@
-import { ErrorAraryData, FieldErrorReason } from '@repo/types';
+import type { ErrorAraryData, FieldErrorReason } from '@repo/types';
 
 export abstract class AppError extends Error {
   constructor(
@@ -46,7 +46,7 @@ export class HttpError extends AppError {
 
 export class ApiError extends HttpError {
   constructor(
-    private details: FieldErrorReason[] | ErrorAraryData,
+    private readonly details: FieldErrorReason[] | ErrorAraryData,
     status: number,
     url: string = '',
     cause: unknown,
@@ -55,7 +55,7 @@ export class ApiError extends HttpError {
     super(status, url, cause, message);
   }
 
-  get detail() {
+  get detail(): FieldErrorReason[] | ErrorAraryData {
     return this.details;
   }
 }

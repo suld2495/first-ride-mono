@@ -1,6 +1,6 @@
+import * as NavigationBar from 'expo-navigation-bar';
 import * as React from 'react';
 import { Platform } from 'react-native';
-import * as NavigationBar from 'expo-navigation-bar';
 
 import { COLORS } from '@/theme/colors';
 
@@ -13,11 +13,7 @@ export function useThemeColor(
   const theme = useColorScheme();
   const colorFromProps = props[theme];
 
-  if (colorFromProps) {
-    return colorFromProps;
-  } else {
-    return COLORS[theme][colorName];
-  }
+  return colorFromProps ? colorFromProps : COLORS[theme][colorName];
 }
 
 /**

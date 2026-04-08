@@ -1,9 +1,9 @@
+import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnistyles } from 'react-native-unistyles';
-import { Tabs } from 'expo-router';
 
-import TabBarIcon from '@/components/common/TabBarIcon';
-import { DockTabBar } from '@/components/navigation/DockTabBar';
+import { DockTabBar } from '@/components/navigation/dock-tab-bar';
+import TabBarIcon from '@/components/ui/tab-bar-icon';
 
 const DOCK_HEIGHT = 60;
 

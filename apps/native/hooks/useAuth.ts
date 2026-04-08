@@ -1,19 +1,19 @@
-import { useState } from 'react';
 import { join } from '@repo/shared/api';
 import { socialSignUp } from '@repo/shared/api/social-auth.api';
-import { useMutation } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 
-import { setAuthorization, setRefreshToken } from '@/api';
-import {
-  type AuthProviderType,
-  type CredentialsParams,
-  getDeviceType,
-  type SocialProviderType,
-} from '@/providers/auth';
+import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
+import { useAuthSignIn, useAuthSignOut } from '@/hooks/useAuthSession';
 import { authManager } from '@/providers/auth/auth-manager';
-import { useAuthStore } from '@/store/auth.store';
+import type { CredentialsParams } from '@/providers/auth/credentials.provider';
+import {
+  getDeviceType,
+  type AuthProviderType,
+  type SocialProviderType,
+} from '@/providers/auth/types';
 
 import { useNotifications } from './useNotifications';
 
@@ -29,7 +29,8 @@ interface UseAuthReturn {
 
 export function useAuth(): UseAuthReturn {
   const router = useRouter();
-  const { signIn, signOut: authSignOut } = useAuthStore();
+  const signIn = useAuthSignIn();
+  const authSignOut = useAuthSignOut();
   const { pushToken } = useNotifications();
   const [loadingProvider, setLoadingProvider] =
     useState<AuthProviderType | null>(null);
@@ -93,8 +94,17 @@ export function useAuth(): UseAuthReturn {
 }
 
 export const useJoinMutation = () => {
+  const queryClient = useQueryClient();
+  const authQueryKeys = {
+    join: () => ['auth', 'join'],
+    socialSignUp: () => ['auth', 'social-sign-up'],
+  } as const;
+
   return useMutation({
     mutationFn: join,
+    onSuccess: () => {
+      queryClient.setQueryData(authQueryKeys.join(), true);
+    },
 
     onError: (error: AxiosError) => {
       if (error.status !== 400) {
@@ -110,7 +120,20 @@ export const useJoinMutation = () => {
 };
 
 export const useSocialSignUpMutation = () => {
+  const queryClient = useQueryClient();
+  const authQueryKeys = {
+    socialSignUp: () => ['auth', 'social-sign-up'],
+  } as const;
+
   return useMutation({
     mutationFn: socialSignUp,
+    onSuccess: () => {
+      queryClient.setQueryData(authQueryKeys.socialSignUp(), true);
+    },
+    onError: () => {
+      queryClient.invalidateQueries({
+        queryKey: authQueryKeys.socialSignUp(),
+      });
+    },
   });
 };

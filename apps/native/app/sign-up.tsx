@@ -1,16 +1,17 @@
+import type { JoinForm as JoinFormType } from '@repo/types';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native-unistyles';
-import { JoinForm as JoinFormType } from '@repo/types';
-import { useRouter } from 'expo-router';
 
-import AuthForm from '@/components/auth/AuthForm';
-import { Button } from '@/components/common/Button';
-import { Input } from '@/components/common/Input';
-import Link from '@/components/common/Link';
-import PasswordInput from '@/components/common/PasswordInput';
-import { Select } from '@/components/common/Select';
-import ThemeView from '@/components/common/ThemeView';
-import { JOB_OPTIONS, JobType } from '@/constants/jobs';
+import AuthForm from '@/components/auth/auth-form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import Link from '@/components/ui/link';
+import PasswordInput from '@/components/ui/password-input';
+import { Select } from '@/components/ui/select';
+import ThemeView from '@/components/ui/theme-view';
+import type { JobType } from '@/constants/JOBS';
+import { JOB_OPTIONS } from '@/constants/JOBS';
 import { useJoinMutation } from '@/hooks/useAuth';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 

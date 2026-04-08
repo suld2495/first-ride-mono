@@ -1,4 +1,4 @@
-import { QuestStatusFilter, QuestTypeFilter } from '@repo/types';
+import type { QuestStatusFilter, QuestTypeFilter } from '@repo/types';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
@@ -27,7 +27,8 @@ export const useQuestStore = create<State & Action>()(
     ...initialState,
 
     setQuestId: (id: number) => set({ questId: id }),
-    setStatusFilter: (status: QuestStatus) => set({ statusFilter: status }),
+    setStatusFilter: (status: QuestStatusFilter) =>
+      set({ statusFilter: status }),
     setTypeFilter: (type: QuestTypeFilter) => set({ typeFilter: type }),
   })),
 );

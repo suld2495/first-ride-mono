@@ -2,7 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
-import RequestDetailModal from '../../../components/modal/RequestDetailModal';
+import RequestDetailModal from '../../../components/modal/request-detail-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockRoutineDetail } from '../../setup/routine/mock';
 

@@ -1,6 +1,6 @@
 import { credentialsProvider } from './credentials.provider';
 import { kakaoProvider } from './kakao.provider';
-import {
+import type {
   AuthPayload,
   AuthProviderType,
   AuthResponse,
@@ -42,7 +42,8 @@ export function getProvider(type: AuthProviderType): RuntimeAuthProvider {
 
 export function getAvailableProviders(): RuntimeAuthProvider[] {
   return Object.values(providers).filter(
-    (p): p is RuntimeAuthProvider => p != null && p.isAvailable(),
+    (provider): provider is RuntimeAuthProvider =>
+      provider?.isAvailable() === true,
   );
 }
 

@@ -1,10 +1,10 @@
 import { AndroidImportance } from 'expo-notifications';
 
-import {
+import type {
   NotificationCategory,
   NotificationPriority,
   PushNotificationType,
-} from '@/types/notification.types';
+} from '@/types/notification-types';
 
 /**
  * Android 알림 채널 설정

@@ -1,41 +1,42 @@
-import { useCallback, useEffect, useMemo } from 'react';
-import { Platform } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
-import { Href, Stack, useRouter } from 'expo-router';
+import type { Href } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useCallback, useEffect, useMemo } from 'react';
+import { Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { updatePushToken } from '@/api/push-token.api';
-import { useVisitCheck } from '@/hooks/useVisitCheck';
-import ToastContainer from '@/components/common/ToastContainer';
-import MockProvider from '@/components/mock/MockProvider';
+import MockProvider from '@/components/mock/mock-provider';
 import SplashScreenController from '@/components/splash';
+import ToastContainer from '@/components/ui/toast-container';
 import { ToastProvider } from '@/contexts/ToastContext';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {
   setNotificationHandler,
   useNotifications,
 } from '@/hooks/useNotifications';
+import { useSetRequestId } from '@/hooks/useRequestSelection';
+import { useSetRoutineId } from '@/hooks/useRoutineSelection';
 import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
-import { useAuthStore } from '@/store/auth.store';
-import { useColorSchemeStore } from '@/store/colorScheme.store';
-import { useRequestStore } from '@/store/request.store';
-import { useRoutineStore } from '@/store/routine.store';
-import { NAV_THEME } from '@/theme';
-import type { NotificationHandlers } from '@/types/notification.types';
+import { useSyncAppColorScheme } from '@/hooks/useThemePreference';
+import { useVisitCheck } from '@/hooks/useVisitCheck';
+import { NAV_THEME } from '@/theme/nav-theme';
+import type { NotificationHandlers } from '@/types/notification-types';
 import { extractDeepLinkData, getDeepLinkPath } from '@/utils/notifications';
 
 // Unistyles initialization - must be imported before any component using styles
+import '@/api/bootstrap.api';
 import '@/styles/unistyles';
 import 'react-native-url-polyfill/auto';
-import '@/api';
 
 initializeKakaoSDK(process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY!);
 
 const StackLayout = () => {
-  const { user } = useAuthStore();
+  const user = useAuthUser();
   const colorScheme = useColorScheme();
 
   return (
@@ -65,15 +66,13 @@ const StackLayout = () => {
   );
 };
 
-export default function RootLayout() {
+function AppShell() {
   useInitialAndroidBarSync();
   const router = useRouter();
-  const { user } = useAuthStore();
-  const setRequestId = useRequestStore((state) => state.setRequestId);
-  const setRoutineId = useRoutineStore((state) => state.setRoutineId);
-  const syncWithUnistyles = useColorSchemeStore(
-    (state) => state.syncWithUnistyles,
-  );
+  const user = useAuthUser();
+  const setRequestId = useSetRequestId();
+  const setRoutineId = useSetRoutineId();
+  const syncWithUnistyles = useSyncAppColorScheme();
 
   /**
    * 알림 탭 시 딥링크 처리
@@ -140,12 +139,20 @@ export default function RootLayout() {
   }, [pushToken, user?.userId, isInitialized]);
 
   return (
+    <>
+      <MockProvider />
+      <StackLayout />
+      <ToastContainer />
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryProvider>
         <ToastProvider>
-          <MockProvider />
-          <StackLayout />
-          <ToastContainer />
+          <AppShell />
         </ToastProvider>
       </QueryProvider>
     </GestureHandlerRootView>

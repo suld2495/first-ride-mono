@@ -1,4 +1,4 @@
-import {
+import type {
   CreateQuestForm,
   Quest,
   QuestStatusFilter,
@@ -6,8 +6,8 @@ import {
   UpdateQuestForm,
 } from '@repo/types';
 
-import http from './client';
 import { toAppError } from '.';
+import http from './client';
 
 export interface FetchQuestsParams {
   status?: QuestStatusFilter;

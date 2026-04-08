@@ -1,7 +1,7 @@
-import { SearchOption } from '@repo/types';
+import type { SearchOption } from '@repo/types';
 
 export const userKey = {
-  all: ['user'],
-  list: (option: SearchOption) => [...userKey.all, option],
-  detail: (userId: number) => [...userKey.all, userId],
+  all: () => ['user'] as const,
+  list: (option: SearchOption) => [...userKey.all(), option] as const,
+  detail: (userId: number) => [...userKey.all(), userId] as const,
 };

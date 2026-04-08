@@ -1,12 +1,12 @@
-import { SearchOption } from '@repo/types';
+import type { SearchOption } from '@repo/types';
 
 export const friendKey = {
-  all: ['friend'],
-  list: (option: SearchOption) => [...friendKey.all, option],
-  detail: (friendId: number) => [...friendKey.all, friendId],
+  all: () => ['friend'] as const,
+  list: (option: SearchOption) => [...friendKey.all(), option] as const,
+  detail: (friendId: number) => [...friendKey.all(), friendId] as const,
 };
 
 export const friendRequestKey = {
-  all: ['friend-request'],
-  list: (page: number) => [...friendRequestKey.all, page],
+  all: () => ['friend-request'] as const,
+  list: (page: number) => [...friendRequestKey.all(), page] as const,
 };

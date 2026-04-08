@@ -1,4 +1,4 @@
-import { RewardTypeFilter } from '@repo/types';
+import type { RewardTypeFilter } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import * as questApi from '../api/quest.api';
@@ -29,8 +29,8 @@ export const useCreateQuestMutation = () => {
 
   return useMutation({
     mutationFn: questApi.createQuest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: questKeys.lists() });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: questKeys.lists() });
     },
   });
 };
@@ -41,9 +41,9 @@ export const useUpdateQuestMutation = () => {
 
   return useMutation({
     mutationFn: questApi.updateQuest,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: questKeys.lists() });
-      queryClient.invalidateQueries({
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: questKeys.lists() });
+      await queryClient.invalidateQueries({
         queryKey: questKeys.detail(variables.id),
       });
     },
@@ -56,8 +56,8 @@ export const useDeleteQuestMutation = () => {
 
   return useMutation({
     mutationFn: questApi.deleteQuest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: questKeys.lists() });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: questKeys.lists() });
     },
   });
 };
@@ -68,8 +68,8 @@ export const useAccpetQuestMutation = () => {
 
   return useMutation({
     mutationFn: questApi.acceptQuest,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: questKeys.lists() });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: questKeys.lists() });
     },
   });
 };
@@ -80,9 +80,9 @@ export const useCompleteQuestMutation = () => {
 
   return useMutation({
     mutationFn: questApi.completeQuest,
-    onSuccess: (_, questId) => {
-      queryClient.invalidateQueries({ queryKey: questKeys.lists() });
-      queryClient.invalidateQueries({
+    onSuccess: async (_, questId) => {
+      await queryClient.invalidateQueries({ queryKey: questKeys.lists() });
+      await queryClient.invalidateQueries({
         queryKey: questKeys.detail(questId),
       });
     },
@@ -112,8 +112,8 @@ export const useCreateRewardMutation = () => {
 
   return useMutation({
     mutationFn: rewardApi.createReward,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: rewardKeys.lists() });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: rewardKeys.lists() });
     },
   });
 };
@@ -124,9 +124,9 @@ export const useUpdateRewardMutation = () => {
 
   return useMutation({
     mutationFn: rewardApi.updateReward,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: rewardKeys.lists() });
-      queryClient.invalidateQueries({
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({ queryKey: rewardKeys.lists() });
+      await queryClient.invalidateQueries({
         queryKey: rewardKeys.detail(variables.rewardId),
       });
     },
@@ -139,8 +139,8 @@ export const useDeleteRewardMutation = () => {
 
   return useMutation({
     mutationFn: rewardApi.deleteReward,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: rewardKeys.lists() });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: rewardKeys.lists() });
     },
   });
 };

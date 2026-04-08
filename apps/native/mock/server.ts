@@ -1,4 +1,4 @@
-import { AuthResponse } from '@repo/types';
+import type { AuthResponse } from '@repo/types';
 import { createServer } from 'miragejs';
 
 export function makeServer() {
@@ -173,7 +173,7 @@ export function makeServer() {
       ];
 
       // Quest APIs
-      this.get('/quest/list', (schema, request) => {
+      this.get('/quest/list', (_schema, request) => {
         const questType = request.queryParams.questType || 'ALL';
 
         if (questType === 'ALL') {
@@ -183,14 +183,15 @@ export function makeServer() {
         return mockQuests.filter((quest) => quest.questType === questType);
       });
 
-      this.get('/quest/:id', (schema, request) => {
+      this.get('/quest/:id', (_schema, request) => {
         const { id } = request.params;
         return (
-          mockQuests.find((quest) => quest.questId === Number(id)) ?? mockQuests[0]
+          mockQuests.find((quest) => quest.questId === Number(id)) ??
+          mockQuests[0]
         );
       });
 
-      this.post('/quest', (schema, request) => {
+      this.post('/quest', (_schema, request) => {
         const body = JSON.parse(request.requestBody);
 
         if (
@@ -207,7 +208,7 @@ export function makeServer() {
         return { message: '퀘스트가 생성되었습니다' };
       });
 
-      this.put('/quest/:id', (schema, request) => {
+      this.put('/quest/:id', (_schema, request) => {
         const { id: _id } = request.params;
         const body = JSON.parse(request.requestBody);
 
@@ -225,22 +226,28 @@ export function makeServer() {
         return { message: '퀘스트가 수정되었습니다' };
       });
 
-      this.delete('/quest/:id', (schema, request) => {
+      this.delete('/quest/:id', (_schema, request) => {
         const { id: _id } = request.params;
 
         return { message: '퀘스트가 삭제되었습니다' };
       });
 
-      this.post('/quest/accept', (schema, request) => {
+      this.post('/quest/accept', (_schema, request) => {
         const body = JSON.parse(request.requestBody);
 
-        return { message: '퀘스트를 수락했습니다', questId: Number(body.questId) };
+        return {
+          message: '퀘스트를 수락했습니다',
+          questId: Number(body.questId),
+        };
       });
 
-      this.post('/quest/complete', (schema, request) => {
+      this.post('/quest/complete', (_schema, request) => {
         const body = JSON.parse(request.requestBody);
 
-        return { message: '퀘스트를 완료했습니다', questId: Number(body.questId) };
+        return {
+          message: '퀘스트를 완료했습니다',
+          questId: Number(body.questId),
+        };
       });
 
       // Reward API

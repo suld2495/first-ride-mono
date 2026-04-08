@@ -1,7 +1,12 @@
-import { useColorSchemeStore } from '@/store/colorScheme.store';
+import {
+  useColorSchemeValue,
+  useSetAppColorScheme,
+} from '@/hooks/useThemePreference';
 
 export const useColorScheme = () => {
-  const { colorScheme } = useColorSchemeStore();
+  return useColorSchemeValue();
+};
 
-  return colorScheme;
+export const useSetColorScheme = () => {
+  return useSetAppColorScheme();
 };

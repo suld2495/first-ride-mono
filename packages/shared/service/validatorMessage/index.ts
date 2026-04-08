@@ -1,11 +1,13 @@
-import { RoutineForm } from '@repo/types';
+import type { RoutineForm } from '@repo/types';
 
-import { Validators } from '../../components';
+import type { Validators } from '../../components';
 
 type InternalFormType = Omit<RoutineForm, 'penalty' | 'routineCount'> & {
   penalty: string | number;
   routineCount: string | number;
 };
+
+const MAX_ROUTINE_COUNT = 7;
 
 export const routineFormValidators: Validators<InternalFormType> = {
   routineName: (value) => {
@@ -36,8 +38,8 @@ export const routineFormValidators: Validators<InternalFormType> = {
 
     const count = Number(value) || 0;
 
-    if (count < 1 || count > 7) {
-      return '루틴 횟수는 1 에서 7 사이로 입력해주세요.';
+    if (count < 1 || count > MAX_ROUTINE_COUNT) {
+      return `루틴 횟수는 1 에서 ${MAX_ROUTINE_COUNT} 사이로 입력해주세요.`;
     }
   },
   startDate(value) {

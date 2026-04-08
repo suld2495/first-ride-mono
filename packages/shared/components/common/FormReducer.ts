@@ -1,5 +1,5 @@
-import { FormState } from './useForm';
-import { ValidationErrors } from '.';
+import type { ValidationErrors } from '.';
+import type { FormState } from './useForm';
 
 export type Action<T> =
   | { type: 'SET_VALUE'; key: keyof T; value: unknown }

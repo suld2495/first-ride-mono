@@ -22,6 +22,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  const hideToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
   const showToast = useCallback(
     (message: string, type: ToastType = 'info', duration = 3000) => {
       const id = Date.now().toString();
@@ -36,12 +40,8 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
         }, duration);
       }
     },
-    [],
+    [hideToast],
   );
-
-  const hideToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
 
   return (
     <ToastContext.Provider value={{ toasts, showToast, hideToast }}>

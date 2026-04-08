@@ -1,9 +1,9 @@
-import { ScrollView } from 'react-native';
 import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import { ScrollView } from 'react-native';
 
-import RequestModal from '../../../components/modal/RequestModal';
+import RequestModal from '../../../components/modal/request-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockRoutine } from '../../setup/routine/mock';
 
