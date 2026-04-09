@@ -65,7 +65,11 @@ const RoutineWeekList = ({
                 onPress={() => onShowDetailModal(routineId)}
                 style={styles.titleButton}
               >
-                <PixelText variant="body" style={styles.title}>
+                <PixelText
+                  variant="body"
+                  color={theme.colors.text.primary}
+                  style={styles.title}
+                >
                   {routineName}
                 </PixelText>
               </Button>
