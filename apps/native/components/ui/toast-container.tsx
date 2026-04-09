@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect } from 'react';
 import { Animated, Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { type Toast, type ToastType, useToast } from '@/contexts/ToastContext';
 

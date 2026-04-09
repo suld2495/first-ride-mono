@@ -1,8 +1,6 @@
 import React from 'react';
 import { Text, View, type ViewProps, type ViewStyle } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
-import { type UnistylesVariants } from '@/styles/unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 /**
  * Divider variant types
@@ -57,9 +55,12 @@ export const Divider: React.FC<DividerProps> = ({
   text,
   ...props
 }) => {
-  styles.useVariants({
-    variant,
-  } as UnistylesVariants<typeof styles>);
+  const { theme } = useUnistyles();
+  const backgroundColor = {
+    subtle: theme.colors.border.subtle,
+    default: theme.colors.border.default,
+    emphasis: theme.colors.border.strong,
+  }[variant];
 
   // 동적 스타일 (thickness와 spacing은 props로 받음)
   const lineStyle: ViewStyle =
@@ -68,10 +69,12 @@ export const Divider: React.FC<DividerProps> = ({
           height: thickness,
           flex: text ? 1 : undefined,
           width: text ? undefined : '100%',
+          backgroundColor,
         }
       : {
           width: thickness,
           height: '100%',
+          backgroundColor,
         };
 
   // text가 있는 경우 컨테이너로 감싸서 렌더링
@@ -98,21 +101,7 @@ export const Divider: React.FC<DividerProps> = ({
 };
 
 const styles = StyleSheet.create((theme) => ({
-  base: {
-    variants: {
-      variant: {
-        subtle: {
-          backgroundColor: theme.colors.border.subtle,
-        },
-        default: {
-          backgroundColor: theme.colors.border.default,
-        },
-        emphasis: {
-          backgroundColor: theme.colors.border.strong,
-        },
-      },
-    },
-  },
+  base: {},
   textContainer: {
     flexDirection: 'row',
     alignItems: 'center',

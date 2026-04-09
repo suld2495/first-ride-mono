@@ -6,7 +6,7 @@ import {
   getWeekMonday,
   getWeekSunday,
 } from '@repo/shared/utils';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import { IconButton } from '@/components/ui/icon-button';
 import Link from '@/components/ui/link';

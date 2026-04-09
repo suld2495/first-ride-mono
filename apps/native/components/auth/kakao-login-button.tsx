@@ -4,7 +4,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import { Typography } from '@/components/ui/typography';
 

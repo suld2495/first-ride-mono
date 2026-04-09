@@ -7,9 +7,7 @@ import type {
   StyleProp,
   ViewStyle,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-import { type UnistylesVariants } from '@/styles/unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 /**
  * Button size types
@@ -114,11 +112,30 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const { theme } = useUnistyles();
-
-  styles.useVariants({
-    size,
-    variant,
-  } as UnistylesVariants<typeof styles>);
+  const sizeStyle = {
+    sm: styles.sizeSm,
+    md: styles.sizeMd,
+    lg: styles.sizeLg,
+  }[size];
+  const variantStyle = {
+    primary: styles.variantPrimary,
+    secondary: styles.variantSecondary,
+    ghost: styles.variantGhost,
+    outline: styles.variantOutline,
+    danger: styles.variantDanger,
+  }[variant];
+  const textSizeStyle = {
+    sm: styles.textSm,
+    md: styles.textMd,
+    lg: styles.textLg,
+  }[size];
+  const textVariantStyle = {
+    primary: styles.textPrimary,
+    secondary: styles.textSecondary,
+    ghost: styles.textGhost,
+    outline: styles.textOutline,
+    danger: styles.textDanger,
+  }[variant];
 
   // 아이콘/텍스트 색상 가져오기 (textColor가 있으면 우선 사용)
   const getIconColor = (): string => {
@@ -165,7 +182,9 @@ export const Button: React.FC<ButtonProps> = ({
       <View style={internalStyles.contentWrapper}>
         {renderIcon(leftIcon)}
         {typeof content === 'string' ? (
-          <Text style={styles.text}>{content}</Text>
+          <Text style={[styles.text, textSizeStyle, textVariantStyle]}>
+            {content}
+          </Text>
         ) : (
           content
         )}
@@ -183,6 +202,8 @@ export const Button: React.FC<ButtonProps> = ({
     <Pressable
       style={({ pressed }) => [
         styles.container,
+        sizeStyle,
+        variantStyle,
         backgroundColor && { backgroundColor },
         fullWidth && internalStyles.fullWidth,
         pressed && internalStyles.pressed,
@@ -198,7 +219,6 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-// Unistyles variants를 사용하는 스타일
 const styles = StyleSheet.create((theme) => ({
   container: {
     justifyContent: 'center',
@@ -209,86 +229,74 @@ const styles = StyleSheet.create((theme) => ({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
-    variants: {
-      size: {
-        sm: {
-          height: 32,
-          paddingHorizontal: theme.foundation.spacing.s,
-          borderRadius: theme.foundation.radii.m,
-        },
-        md: {
-          height: 44,
-          paddingHorizontal: theme.foundation.spacing.m,
-          borderRadius: theme.foundation.radii.m,
-        },
-        lg: {
-          height: 52,
-          paddingHorizontal: theme.foundation.spacing.l,
-          borderRadius: theme.foundation.radii.l,
-        },
-      },
-      variant: {
-        primary: {
-          backgroundColor: theme.colors.action.primary.default,
-          shadowColor: theme.colors.action.primary.default,
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 4,
-        },
-        secondary: {
-          backgroundColor: theme.colors.action.secondary.default,
-        },
-        ghost: {
-          backgroundColor: 'transparent',
-          elevation: 0,
-          shadowOpacity: 0,
-        },
-        outline: {
-          backgroundColor: 'transparent',
-          borderWidth: 1,
-          borderColor: theme.colors.action.primary.default,
-          elevation: 0,
-          shadowOpacity: 0,
-        },
-        danger: {
-          backgroundColor: theme.colors.feedback.error.bg,
-        },
-      },
-    },
+  },
+  sizeSm: {
+    height: 32,
+    paddingHorizontal: theme.foundation.spacing.s,
+    borderRadius: theme.foundation.radii.m,
+  },
+  sizeMd: {
+    height: 44,
+    paddingHorizontal: theme.foundation.spacing.m,
+    borderRadius: theme.foundation.radii.m,
+  },
+  sizeLg: {
+    height: 52,
+    paddingHorizontal: theme.foundation.spacing.l,
+    borderRadius: theme.foundation.radii.l,
+  },
+  variantPrimary: {
+    backgroundColor: theme.colors.action.primary.default,
+    shadowColor: theme.colors.action.primary.default,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  variantSecondary: {
+    backgroundColor: theme.colors.action.secondary.default,
+  },
+  variantGhost: {
+    backgroundColor: 'transparent',
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  variantOutline: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: theme.colors.action.primary.default,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  variantDanger: {
+    backgroundColor: theme.colors.feedback.error.bg,
   },
   text: {
     fontWeight: '600',
-    variants: {
-      size: {
-        sm: {
-          fontSize: theme.foundation.typography.size.m,
-        },
-        md: {
-          fontSize: theme.foundation.typography.size.l,
-        },
-        lg: {
-          fontSize: theme.foundation.typography.size.xl,
-        },
-      },
-      variant: {
-        primary: {
-          color: theme.colors.action.primary.label,
-        },
-        secondary: {
-          color: theme.colors.action.secondary.label,
-        },
-        ghost: {
-          color: theme.colors.action.ghost.label,
-        },
-        outline: {
-          color: theme.colors.text.primary,
-        },
-        danger: {
-          color: theme.colors.feedback.error.text,
-        },
-      },
-    },
+  },
+  textSm: {
+    fontSize: theme.foundation.typography.size.m,
+  },
+  textMd: {
+    fontSize: theme.foundation.typography.size.l,
+  },
+  textLg: {
+    fontSize: theme.foundation.typography.size.xl,
+  },
+  textPrimary: {
+    color: theme.colors.action.primary.label,
+  },
+  textSecondary: {
+    color: theme.colors.action.secondary.label,
+  },
+  textGhost: {
+    color: theme.colors.action.ghost.label,
+  },
+  textOutline: {
+    color: theme.colors.text.primary,
+  },
+  textDanger: {
+    color: theme.colors.feedback.error.text,
   },
 }));
 

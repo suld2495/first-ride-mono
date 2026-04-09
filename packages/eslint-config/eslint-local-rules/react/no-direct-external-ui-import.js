@@ -1,5 +1,10 @@
 'use strict';
-const { isThemeFile, isUiLayerFile } = require('../path-groups');
+const {
+  isComponentFile,
+  isFeatureComponentFile,
+  isThemeFile,
+  isUiLayerFile,
+} = require('../path-groups');
 
 // ─────────────────────────────────────────────
 //  기본 금지 패키지 목록
@@ -35,6 +40,12 @@ function matchForbiddenPackage(importSource, forbiddenPackages) {
 // ─────────────────────────────────────────────
 function isAllowedFile(context, filename) {
   return isUiLayerFile(context, filename) || isThemeFile(context, filename);
+}
+
+function isTargetFile(context, filename) {
+  return (
+    isComponentFile(context, filename) || isFeatureComponentFile(context, filename)
+  );
 }
 
 // ─────────────────────────────────────────────
@@ -80,6 +91,11 @@ module.exports = {
       typeof context.filename === 'string'
         ? context.filename
         : context.getFilename();
+
+    // components, feature/components 외부는 검사하지 않음
+    if (!isTargetFile(context, filename)) {
+      return {};
+    }
 
     // 허용 경로(ui 래퍼, 테마)에서는 직접 import 허용
     if (isAllowedFile(context, filename)) {

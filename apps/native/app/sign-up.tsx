@@ -1,7 +1,7 @@
 import type { JoinForm as JoinFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import AuthForm from '@/components/auth/auth-form';
 import { Button } from '@/components/ui/button';

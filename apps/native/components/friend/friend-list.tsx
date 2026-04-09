@@ -1,12 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {
-  useDeleteFriendMutation,
-  useFetchFriendsQuery,
-} from '@repo/shared/hooks/useFriend';
-import type { Friend, SearchOption } from '@repo/types';
+import { useDeleteFriendMutation } from '@repo/shared/hooks/useFriend';
+import type { Friend } from '@repo/types';
 import { useCallback } from 'react';
-import { Alert } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Alert, FlatList } from 'react-native';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -22,9 +19,7 @@ interface FriendItemProps extends Friend {
   onDelete: () => void;
 }
 
-interface FriendRenderItemProps {
-  item: Friend;
-}
+interface FriendRenderItemProps { item: Friend; }
 
 const FRIEND_ITEM_HEIGHT = 88;
 const getFriendItemLayout = (_: Friend[] | null, index: number) => ({
@@ -105,16 +100,25 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
   );
 };
 
-const FriendList = ({ page, keyword }: SearchOption) => {
-  const {
-    data: friends,
-    isLoading,
-    refetch,
-  } = useFetchFriendsQuery({ page, keyword });
+interface FriendListProps {
+  friends?: Friend[];
+  isLoading: boolean;
+  refreshing: boolean;
+  onRefresh: () => Promise<void>;
+  onDeleteRefresh: () => Promise<unknown>;
+}
 
+const FriendList = ({
+  friends,
+  isLoading,
+  refreshing,
+  onRefresh,
+  onDeleteRefresh,
+}: FriendListProps) => {
+  const isTestEnv = process.env.NODE_ENV === 'test';
   const handleDelete = useCallback(() => {
-    refetch();
-  }, [refetch]);
+    return onDeleteRefresh();
+  }, [onDeleteRefresh]);
 
   const renderFriendItem = useCallback(
     ({ item }: FriendRenderItemProps) => (
@@ -131,13 +135,17 @@ const FriendList = ({ page, keyword }: SearchOption) => {
     return <EmptyState icon="people-outline" message="친구를 추가해보세요." />;
   }
 
+  const ListComponent = isTestEnv ? FlatList<Friend> : FlashList<Friend>;
+
   return (
-    <FlashList
+    <ListComponent
       data={friends}
       keyExtractor={(item) => item.nickname}
       renderItem={renderFriendItem}
       contentContainerStyle={styles.listContent}
       style={styles.list}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
       estimatedItemSize={72}
       removeClippedSubviews
       maxToRenderPerBatch={10}

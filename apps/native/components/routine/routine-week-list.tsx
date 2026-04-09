@@ -4,7 +4,7 @@ import { getDaysOfTheWeek, getWeekMonday } from '@repo/shared/utils';
 import type { WeeklyRoutine } from '@repo/types';
 import { useCallback } from 'react';
 import Animated, { ZoomIn } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';

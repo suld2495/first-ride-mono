@@ -1,5 +1,5 @@
 import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import Container from '@/components/layout/container';
 import { Typography } from '@/components/ui/typography';

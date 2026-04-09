@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';

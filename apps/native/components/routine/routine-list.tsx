@@ -1,6 +1,6 @@
 import type { Routine } from '@repo/types';
 import { useRouter } from 'expo-router';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import EmptyState from '@/components/ui/empty-state';
 import ThemeView from '@/components/ui/theme-view';

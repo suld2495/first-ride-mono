@@ -3,13 +3,14 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      'react-native-reanimated/plugin', // must be last
       [
-        'react-native-unistyles/plugin',
+        '@tamagui/babel-plugin',
         {
-          root: 'src',
+          components: ['tamagui'],
+          config: './theme/tamagui.config.ts',
         },
       ],
+      'react-native-reanimated/plugin', // must be last
     ],
   };
 };

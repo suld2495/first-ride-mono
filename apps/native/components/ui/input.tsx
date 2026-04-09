@@ -7,9 +7,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-import { type UnistylesVariants } from '@/styles/unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 /**
  * Input size types
@@ -115,102 +113,121 @@ export const Input: React.FC<InputProps> = ({
 
   // 상태 결정
   const state: InputState = error ? 'error' : success ? 'success' : 'default';
-
-  styles.useVariants({
-    size,
-    variant,
-    state,
-  } as UnistylesVariants<typeof styles>);
+  const sizeContainerStyle = {
+    xs: styles.containerXs,
+    sm: styles.containerSm,
+    md: styles.containerMd,
+    lg: styles.containerLg,
+  }[size];
+  const sizeInputStyle = {
+    xs: styles.inputXs,
+    sm: styles.inputSm,
+    md: styles.inputMd,
+    lg: styles.inputLg,
+  }[size];
+  const variantStyle = {
+    outlined: styles.variantOutlined,
+    filled: styles.variantFilled,
+    underlined: styles.variantUnderlined,
+    ghost: styles.variantGhost,
+  }[variant];
+  const stateStyle = {
+    default: null,
+    error: styles.stateError,
+    success: styles.stateSuccess,
+  }[state];
+  const helperStyle = {
+    default: styles.helperDefault,
+    error: styles.helperError,
+    success: styles.helperSuccess,
+  }[state];
 
   return (
     <View style={fullWidth && internalStyles.fullWidth}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={[styles.container, style]}>
+      <View
+        style={[
+          styles.container,
+          sizeContainerStyle,
+          variantStyle,
+          stateStyle,
+          style,
+        ]}
+      >
         <TextInput
-          style={styles.input}
+          style={[styles.input, sizeInputStyle]}
           placeholderTextColor={theme.colors.text.tertiary}
           {...props}
         />
       </View>
-      {helperText && <Text style={styles.helperText}>{helperText}</Text>}
+      {helperText && (
+        <Text style={[styles.helperText, helperStyle]}>{helperText}</Text>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    variants: {
-      size: {
-        xs: {
-          height: 28,
-          paddingHorizontal: theme.foundation.spacing.xs,
-        },
-        sm: {
-          height: 36,
-          paddingHorizontal: theme.foundation.spacing.s,
-        },
-        md: {
-          height: 44,
-          paddingHorizontal: theme.foundation.spacing.m,
-        },
-        lg: {
-          height: 56,
-          paddingHorizontal: theme.foundation.spacing.m,
-        },
-      },
-      variant: {
-        outlined: {
-          borderWidth: 1,
-          borderColor: theme.colors.border.strong,
-          backgroundColor: theme.colors.background.surface,
-          borderRadius: theme.foundation.radii.s,
-        },
-        filled: {
-          borderWidth: 0,
-          backgroundColor: theme.colors.background.sunken,
-          borderRadius: theme.foundation.radii.s,
-        },
-        underlined: {
-          borderWidth: 0,
-          borderBottomWidth: 1,
-          borderBottomColor: theme.colors.border.default,
-          backgroundColor: 'transparent',
-        },
-        ghost: {
-          borderWidth: 0,
-          backgroundColor: 'transparent',
-        },
-      },
-      state: {
-        default: {},
-        error: {
-          borderColor: theme.colors.feedback.error.border,
-        },
-        success: {
-          borderColor: theme.colors.feedback.success.border,
-        },
-      },
-    },
+  },
+  containerXs: {
+    height: 28,
+    paddingHorizontal: theme.foundation.spacing.xs,
+  },
+  containerSm: {
+    height: 36,
+    paddingHorizontal: theme.foundation.spacing.s,
+  },
+  containerMd: {
+    height: 44,
+    paddingHorizontal: theme.foundation.spacing.m,
+  },
+  containerLg: {
+    height: 56,
+    paddingHorizontal: theme.foundation.spacing.m,
+  },
+  variantOutlined: {
+    borderWidth: 1,
+    borderColor: theme.colors.border.strong,
+    backgroundColor: theme.colors.background.surface,
+    borderRadius: theme.foundation.radii.s,
+  },
+  variantFilled: {
+    borderWidth: 0,
+    backgroundColor: theme.colors.background.sunken,
+    borderRadius: theme.foundation.radii.s,
+  },
+  variantUnderlined: {
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.default,
+    backgroundColor: 'transparent',
+  },
+  variantGhost: {
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+  },
+  stateError: {
+    borderColor: theme.colors.feedback.error.border,
+  },
+  stateSuccess: {
+    borderColor: theme.colors.feedback.success.border,
   },
   input: {
     flex: 1,
     color: theme.colors.text.primary,
-    variants: {
-      size: {
-        xs: {
-          fontSize: theme.foundation.typography.size.s,
-        },
-        sm: {
-          fontSize: theme.foundation.typography.size.m,
-        },
-        md: {
-          fontSize: theme.foundation.typography.size.l,
-        },
-        lg: {
-          fontSize: theme.foundation.typography.size.xl,
-        },
-      },
-    },
+  },
+  inputXs: {
+    fontSize: theme.foundation.typography.size.s,
+  },
+  inputSm: {
+    fontSize: theme.foundation.typography.size.m,
+  },
+  inputMd: {
+    fontSize: theme.foundation.typography.size.l,
+  },
+  inputLg: {
+    fontSize: theme.foundation.typography.size.xl,
   },
   label: {
     fontSize: theme.foundation.typography.size.m,
@@ -222,19 +239,15 @@ const styles = StyleSheet.create((theme) => ({
   helperText: {
     fontSize: theme.foundation.typography.size.s,
     marginTop: theme.foundation.spacing.xs,
-    variants: {
-      state: {
-        default: {
-          color: theme.colors.text.secondary,
-        },
-        error: {
-          color: theme.colors.feedback.error.text,
-        },
-        success: {
-          color: theme.colors.feedback.success.text,
-        },
-      },
-    },
+  },
+  helperDefault: {
+    color: theme.colors.text.secondary,
+  },
+  helperError: {
+    color: theme.colors.feedback.error.text,
+  },
+  helperSuccess: {
+    color: theme.colors.feedback.success.text,
   },
 }));
 

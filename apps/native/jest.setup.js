@@ -56,7 +56,7 @@ jest.mock('expo-status-bar', () => ({
   setStatusBarBackgroundColor: jest.fn(),
 }));
 
-// react-native-unistyles 모킹
+// local style adapter 모킹
 const mockTheme = {
   colors: {
     background: {
@@ -156,7 +156,7 @@ const mockTheme = {
   },
 };
 
-jest.mock('react-native-unistyles', () => ({
+jest.mock('@/lib/unistyles', () => ({
   StyleSheet: {
     create: (styles) => {
       const mockStyles =
@@ -171,6 +171,42 @@ jest.mock('react-native-unistyles', () => ({
     theme: mockTheme,
   }),
   UnistylesRuntime: {},
+}));
+
+jest.mock('tamagui', () => {
+  const React = require('react');
+  const {
+    ActivityIndicator,
+    Pressable,
+    Text,
+    TextInput,
+    View,
+  } = require('react-native');
+
+  const createComponent = (Component) =>
+    React.forwardRef(({ children, ...props }, ref) =>
+      React.createElement(Component, { ref, ...props }, children),
+    );
+
+  return {
+    TamaguiProvider: ({ children }) => children,
+    Theme: ({ children }) => children,
+    Text: createComponent(Text),
+    Stack: createComponent(View),
+    XStack: createComponent(View),
+    YStack: createComponent(View),
+    Button: createComponent(Pressable),
+    Input: createComponent(TextInput),
+    Spinner: createComponent(ActivityIndicator),
+    createAnimations: (value) => value,
+    createFont: (value) => value,
+    createTamagui: (value) => value,
+    createTokens: (value) => value,
+  };
+});
+
+jest.mock('@tamagui/animations-react-native', () => ({
+  createAnimations: (value) => value,
 }));
 
 // expo-constants 모킹

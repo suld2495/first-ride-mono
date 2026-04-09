@@ -7,7 +7,7 @@ import {
   type NativeSyntheticEvent,
   View,
 } from 'react-native';
-import { StyleSheet, type UnistylesThemes } from 'react-native-unistyles';
+import { StyleSheet, type UnistylesThemes } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import {

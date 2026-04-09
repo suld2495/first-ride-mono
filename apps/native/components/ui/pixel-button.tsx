@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ViewStyle } from 'react-native';
 import { Pressable, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { PixelText } from './pixel-text';
 
@@ -20,9 +20,49 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
   disabled = false,
   style,
 }) => {
-  styles.useVariants({
-    variant,
-  });
+  const { theme } = useUnistyles();
+
+  const outerStyle = {
+    primary: {
+      borderColor: theme.colors.border.strong,
+      backgroundColor: theme.colors.action.primary.default,
+    },
+    secondary: {
+      borderColor: theme.colors.border.strong,
+      backgroundColor: theme.colors.action.secondary.default,
+    },
+    danger: {
+      borderColor: theme.colors.border.strong,
+      backgroundColor: theme.colors.feedback.error.bg,
+    },
+  }[variant];
+
+  const innerStyle = {
+    primary: {
+      borderColor: theme.colors.action.primary.label,
+      backgroundColor: theme.colors.action.primary.default,
+    },
+    secondary: {
+      borderColor: theme.colors.action.secondary.label,
+      backgroundColor: theme.colors.action.secondary.default,
+    },
+    danger: {
+      borderColor: theme.colors.feedback.error.text,
+      backgroundColor: theme.colors.feedback.error.bg,
+    },
+  }[variant];
+
+  const labelStyle = {
+    primary: {
+      color: theme.colors.action.primary.label,
+    },
+    secondary: {
+      color: theme.colors.action.secondary.label,
+    },
+    danger: {
+      color: theme.colors.feedback.error.text,
+    },
+  }[variant];
 
   return (
     <Pressable
@@ -35,9 +75,9 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
         style,
       ]}
     >
-      <View style={styles.borderOuter}>
-        <View style={styles.borderInner}>
-          <PixelText variant="subtitle" style={styles.label}>
+      <View style={[styles.borderOuter, outerStyle]}>
+        <View style={[styles.borderInner, innerStyle]}>
+          <PixelText variant="subtitle" style={[styles.label, labelStyle]}>
             {label}
           </PixelText>
         </View>
@@ -46,7 +86,7 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
   );
 };
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create(() => ({
   container: {
     minWidth: 120,
     marginVertical: 4,
@@ -61,22 +101,6 @@ const styles = StyleSheet.create((theme) => ({
     borderWidth: 4,
     borderRadius: 0,
     padding: 2,
-    variants: {
-      variant: {
-        primary: {
-          borderColor: theme.colors.border.strong,
-          backgroundColor: theme.colors.action.primary.default,
-        },
-        secondary: {
-          borderColor: theme.colors.border.strong,
-          backgroundColor: theme.colors.action.secondary.default,
-        },
-        danger: {
-          borderColor: theme.colors.border.strong,
-          backgroundColor: theme.colors.feedback.error.bg,
-        },
-      },
-    },
   },
   borderInner: {
     borderWidth: 2,
@@ -86,39 +110,10 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     borderStyle: 'solid',
-    variants: {
-      variant: {
-        primary: {
-          borderColor: theme.colors.action.primary.label,
-          backgroundColor: theme.colors.action.primary.default,
-        },
-        secondary: {
-          borderColor: theme.colors.action.secondary.label,
-          backgroundColor: theme.colors.action.secondary.default,
-        },
-        danger: {
-          borderColor: theme.colors.feedback.error.text,
-          backgroundColor: theme.colors.feedback.error.bg,
-        },
-      },
-    },
   },
   label: {
     textAlign: 'center',
     textTransform: 'uppercase',
-    variants: {
-      variant: {
-        primary: {
-          color: theme.colors.action.primary.label,
-        },
-        secondary: {
-          color: theme.colors.action.secondary.label,
-        },
-        danger: {
-          color: theme.colors.feedback.error.text,
-        },
-      },
-    },
   },
 }));
 

@@ -2,7 +2,7 @@ import type { UserStats } from '@repo/types';
 import React from 'react';
 import { View } from 'react-native';
 import Svg, { Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { STAT_CONFIGS, STAT_MAX_VALUE } from '@/constants/STATS';
 

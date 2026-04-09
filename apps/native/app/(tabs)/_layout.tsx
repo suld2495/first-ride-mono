@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useUnistyles } from 'react-native-unistyles';
+import { useUnistyles } from '@/lib/unistyles';
 
 import { DockTabBar } from '@/components/navigation/dock-tab-bar';
 import TabBarIcon from '@/components/ui/tab-bar-icon';

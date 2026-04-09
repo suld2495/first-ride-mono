@@ -1,6 +1,6 @@
 import type { QuestTypeFilter as QuestTypeFilterType } from '@repo/types';
 import { useCallback } from 'react';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';

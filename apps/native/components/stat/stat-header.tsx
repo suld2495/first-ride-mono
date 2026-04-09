@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import PixelCard from '@/components/ui/pixel-card';
 import PixelProgressBar from '@/components/ui/pixel-progress-bar';

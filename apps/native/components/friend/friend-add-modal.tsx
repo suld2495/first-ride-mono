@@ -3,8 +3,8 @@ import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import type { SearchOption, User } from '@repo/types';
 import { useCallback, useState } from 'react';
-import { Modal, Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { FlatList, Modal, Pressable, RefreshControl } from 'react-native';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
@@ -24,7 +24,10 @@ interface UserRenderItemProps {
 }
 
 const USER_ITEM_HEIGHT = 73;
-const getUserItemLayout = (_: User[] | null, index: number) => ({
+const getUserItemLayout = (
+  _: ArrayLike<User> | User[] | null | undefined,
+  index: number,
+) => ({
   length: USER_ITEM_HEIGHT,
   offset: USER_ITEM_HEIGHT * index,
   index,
@@ -74,13 +77,15 @@ interface FriendAddModalProps {
 
 const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
   const { theme } = useUnistyles();
+  const isTestEnv = process.env.NODE_ENV === 'test';
   const [keyword, setKeyword] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const [searchOption, setSearchOption] = useState<SearchOption>({
     page: 1,
     keyword: '',
   });
 
-  const { data: userList } = useFetchUserListQuery(searchOption);
+  const { data: userList, refetch } = useFetchUserListQuery(searchOption);
 
   const handleSearch = () => {
     setSearchOption((option) => ({
@@ -102,6 +107,20 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
     [handleClose],
   );
 
+  const handleRefresh = useCallback(async () => {
+    if (!searchOption.keyword) return;
+
+    setRefreshing(true);
+
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch, searchOption.keyword]);
+
+  const ListComponent = isTestEnv ? FlatList<User> : FlashList<User>;
+
   return (
     <Modal
       visible={visible}
@@ -114,56 +133,65 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
           style={styles.modalContainer}
           onPress={(e) => e.stopPropagation()}
         >
-          <ThemeView style={styles.modalContent}>
-            <FlashList
-              data={userList ?? []}
-              keyExtractor={(item) => item.userId.toString()}
-              renderItem={renderUserItem}
-              ItemSeparatorComponent={() => <Divider />}
-              ListHeaderComponent={
-                <>
-                  <ThemeView style={styles.modalHeader} transparent>
-                    <PixelText variant="subtitle">친구 추가</PixelText>
-                    <Pressable
-                      onPress={handleClose}
-                      hitSlop={8}
-                      style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-                    >
-                      <Ionicons
-                        name="close-outline"
-                        size={24}
-                        color={theme.colors.text.primary}
-                      />
-                    </Pressable>
-                  </ThemeView>
+          <ThemeView style={styles.modalContent} variant="elevated">
+            <ThemeView style={styles.modalHeader} transparent>
+              <PixelText variant="subtitle">친구 추가</PixelText>
+              <Pressable
+                onPress={handleClose}
+                hitSlop={8}
+                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+              >
+                <Ionicons
+                  name="close-outline"
+                  size={24}
+                  color={theme.colors.text.primary}
+                />
+              </Pressable>
+            </ThemeView>
 
-                  <ThemeView style={styles.searchContainer} transparent>
-                    <Input
-                      placeholder="유저이름을 입력해주세요."
-                      value={keyword}
-                      onChangeText={setKeyword}
-                      onSubmitEditing={handleSearch}
-                      returnKeyType="search"
-                      fullWidth
-                    />
+            <ThemeView style={styles.searchContainer} transparent>
+              <Input
+                placeholder="유저이름을 입력해주세요."
+                value={keyword}
+                onChangeText={setKeyword}
+                onSubmitEditing={handleSearch}
+                returnKeyType="search"
+                fullWidth
+              />
+            </ThemeView>
+
+            <ThemeView style={styles.listContainer} transparent>
+              <ListComponent
+                data={userList ?? []}
+                keyExtractor={(item) => item.userId.toString()}
+                renderItem={renderUserItem}
+                ItemSeparatorComponent={() => <Divider />}
+                ListEmptyComponent={
+                  <ThemeView style={styles.emptyContainer} transparent>
+                    <PixelText variant="body" style={styles.emptyText}>
+                      유저가 존재하지 않습니다.
+                    </PixelText>
                   </ThemeView>
-                </>
-              }
-              ListEmptyComponent={
-                <ThemeView style={styles.emptyContainer} transparent>
-                  <PixelText variant="body" style={styles.emptyText}>
-                    유저가 존재하지 않습니다.
-                  </PixelText>
-                </ThemeView>
-              }
-              contentContainerStyle={{ flexGrow: 1 }}
-              keyboardShouldPersistTaps="handled"
-              estimatedItemSize={72}
-              removeClippedSubviews
-              maxToRenderPerBatch={10}
-              windowSize={5}
-              getItemLayout={getUserItemLayout}
-            />
+                }
+                contentContainerStyle={
+                  isTestEnv ? undefined : styles.listContentFlash
+                }
+                keyboardShouldPersistTaps="handled"
+                refreshControl={
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                  />
+                }
+                estimatedItemSize={72}
+                removeClippedSubviews={false}
+                maxToRenderPerBatch={10}
+                windowSize={5}
+                getItemLayout={getUserItemLayout}
+                showsVerticalScrollIndicator={false}
+                style={styles.list}
+              />
+            </ThemeView>
           </ThemeView>
         </Pressable>
       </Pressable>
@@ -182,10 +210,10 @@ const styles = StyleSheet.create((theme) => ({
   },
   modalContainer: {
     width: '90%',
+    maxWidth: 420,
     maxHeight: '80%',
   },
   modalContent: {
-    backgroundColor: theme.colors.background.surface,
     borderRadius: theme.foundation.radii.xl,
     padding: theme.foundation.spacing.l,
     shadowColor: theme.colors.border.default,
@@ -193,18 +221,27 @@ const styles = StyleSheet.create((theme) => ({
     shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 5,
-    maxHeight: 500, // Limit height to avoid taking up full screen if list is long
+    minHeight: 320,
+    maxHeight: 560,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: theme.foundation.spacing.l,
-    marginHorizontal: -theme.foundation.spacing.s, // Pull header closer to edges
-    paddingHorizontal: theme.foundation.spacing.s,
   },
   searchContainer: {
     marginBottom: theme.foundation.spacing.m,
+  },
+  listContainer: {
+    flex: 1,
+    minHeight: 180,
+  },
+  list: {
+    flex: 1,
+  },
+  listContentFlash: {
+    paddingBottom: theme.foundation.spacing.xs,
   },
   userItem: {
     paddingVertical: theme.foundation.spacing.m,
@@ -219,7 +256,8 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.foundation.spacing.s,
   },
   emptyContainer: {
-    height: 100,
+    flex: 1,
+    minHeight: 140,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',

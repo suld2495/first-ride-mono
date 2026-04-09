@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View, type ViewProps } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 export interface PixelCardProps extends ViewProps {
   title?: string;

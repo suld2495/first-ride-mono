@@ -1,6 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
-import { Alert, Pressable } from 'react-native';
+import { Alert, FlatList, Pressable } from 'react-native';
 
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
 import {
@@ -151,6 +151,49 @@ describe('친구 리스트 페이지', () => {
           expect.objectContaining({ text: '삭제', style: 'destructive' }),
         ]),
       );
+    });
+  });
+
+  describe('당겨서 새로고침 테스트', () => {
+    beforeEach(() => {
+      const allFriends = createMockFriends(2);
+
+      mockAxios
+        .onGet(/\/friends\/requests/)
+        .reply(200, wrapResponse(createMockFriendRequestResponse(1)));
+      mockAxios.onGet(/\/friends$/).reply(200, wrapResponse(allFriends));
+      mockAxios.onGet(/\/friends\?/).reply(200, wrapResponse(allFriends));
+    });
+
+    it('아래로 당기면 친구 목록과 친구 요청 알림을 함께 다시 조회한다', async () => {
+      const screen = render(<FriendPage />);
+
+      expect(await screen.findByText('friend1')).toBeOnTheScreen();
+      expect(
+        mockAxios.history.get.filter(
+          ({ url }) => url?.startsWith('/friends?') && !url?.includes('/requests'),
+        ).length,
+      ).toBe(1);
+      expect(
+        mockAxios.history.get.filter(({ url }) => url?.includes('/friends/requests')).length,
+      ).toBe(1);
+
+      const list = screen.UNSAFE_getByType(FlatList);
+
+      await act(async () => {
+        await list.props.onRefresh();
+      });
+
+      await waitFor(() => {
+        expect(
+          mockAxios.history.get.filter(
+            ({ url }) => url?.startsWith('/friends?') && !url?.includes('/requests'),
+          ).length,
+        ).toBe(2);
+        expect(
+          mockAxios.history.get.filter(({ url }) => url?.includes('/friends/requests')).length,
+        ).toBe(2);
+      });
     });
   });
 });

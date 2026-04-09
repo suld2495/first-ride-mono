@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import { Badge } from '@/components/ui/badge';
 import { IconButton } from '@/components/ui/icon-button';

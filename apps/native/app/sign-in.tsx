@@ -1,6 +1,6 @@
 import type { AuthForm as AuthFormType } from '@repo/types';
 import { useState } from 'react';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import AuthForm from '@/components/auth/auth-form';
 import { KakaoLoginButton } from '@/components/auth/kakao-login-button';

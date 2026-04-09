@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { PixelText } from '@/components/ui/pixel-text';

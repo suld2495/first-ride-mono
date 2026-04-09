@@ -1,7 +1,7 @@
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import { PixelCard } from '@/components/ui/pixel-card';
 

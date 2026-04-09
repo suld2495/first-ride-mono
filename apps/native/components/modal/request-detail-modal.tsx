@@ -1,9 +1,10 @@
 import { useFetchRequestDetailQuery } from '@repo/shared/hooks/useRequest';
+import { getFormatDateTime } from '@repo/shared/utils';
 import { useEffect, useState } from 'react';
 import { Image, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Svg from 'react-native-svg';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import ConfirmRequestButtonGroup from '@/components/request/confirm-request-button-group';
 import { Divider } from '@/components/ui/divider';
@@ -56,7 +57,7 @@ const RequestDetailModal = () => {
             </Typography>
             <Typography>{detail?.routineName}</Typography>
             <Typography style={styles.routineDate} variant="body">
-              {detail?.createdAt}
+              {detail?.createdAt ? getFormatDateTime(detail.createdAt) : ''}
             </Typography>
           </ThemeView>
           <ThemeView transparent>

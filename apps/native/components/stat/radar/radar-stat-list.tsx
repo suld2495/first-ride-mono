@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import PixelText from '@/components/ui/pixel-text';
 import { STAT_CONFIGS } from '@/constants/STATS';

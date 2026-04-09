@@ -2,7 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Platform } from 'react-native';
 import Animated, { SlideInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import ModalHeader from '@/components/modal/modal-header';
 import ThemeView from '@/components/ui/theme-view';

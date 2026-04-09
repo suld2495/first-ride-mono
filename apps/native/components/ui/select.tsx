@@ -11,7 +11,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { FlashList, type ListRenderItem } from './flash-list';
 import ThemeView from './theme-view';

@@ -1,0 +1,66 @@
+import { createTokens } from 'tamagui';
+
+import { lightTheme } from '@/styles/themes/light';
+import { baseFoundation } from '@/styles/tokens/foundation.base';
+
+export const tokens = createTokens({
+  color: {
+    white: '#FFFFFF',
+    black: '#000000',
+    true: lightTheme.colors.text.primary,
+  },
+  space: {
+    none: baseFoundation.spacing.none,
+    xs: baseFoundation.spacing.xs,
+    s: baseFoundation.spacing.s,
+    m: baseFoundation.spacing.m,
+    l: baseFoundation.spacing.l,
+    xl: baseFoundation.spacing.xl,
+    xxl: baseFoundation.spacing.xxl,
+    true: baseFoundation.spacing.m,
+  },
+  size: {
+    none: 0,
+    xs: baseFoundation.typography.size.xs,
+    s: baseFoundation.typography.size.s,
+    m: baseFoundation.typography.size.m,
+    l: baseFoundation.typography.size.l,
+    xl: baseFoundation.typography.size.xl,
+    xxl: baseFoundation.typography.size.xxl,
+    title: baseFoundation.typography.size.title,
+    buttonSm: 32,
+    buttonMd: 44,
+    buttonLg: 52,
+    inputXs: 28,
+    inputSm: 36,
+    inputMd: 44,
+    inputLg: 56,
+    iconXs: baseFoundation.iconSize.xs,
+    iconS: baseFoundation.iconSize.s,
+    iconM: baseFoundation.iconSize.m,
+    iconL: baseFoundation.iconSize.l,
+    iconXl: baseFoundation.iconSize.xl,
+    true: baseFoundation.typography.size.l,
+  },
+  radius: {
+    none: baseFoundation.radii.none,
+    s: baseFoundation.radii.s,
+    m: baseFoundation.radii.m,
+    l: baseFoundation.radii.l,
+    xl: baseFoundation.radii.xl,
+    round: baseFoundation.radii.round,
+    true: baseFoundation.radii.m,
+  },
+  zIndex: {
+    base: baseFoundation.zIndex.base,
+    dropdown: baseFoundation.zIndex.dropdown,
+    sticky: baseFoundation.zIndex.sticky,
+    fixed: baseFoundation.zIndex.fixed,
+    modalBackdrop: baseFoundation.zIndex.modalBackdrop,
+    modal: baseFoundation.zIndex.modal,
+    popover: baseFoundation.zIndex.popover,
+    tooltip: baseFoundation.zIndex.tooltip,
+    toast: baseFoundation.zIndex.toast,
+    true: baseFoundation.zIndex.base,
+  },
+});

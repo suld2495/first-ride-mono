@@ -1,7 +1,7 @@
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRouter } from 'expo-router';
 import { Alert, ScrollView } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';

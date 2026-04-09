@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Quest } from '@repo/types';
 import { useCallback } from 'react';
 import { Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';

@@ -1,8 +1,6 @@
 import React from 'react';
 import { Text, type TextProps } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
-import { type UnistylesVariants } from '@/styles/unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 export type PixelTextVariant =
   | 'title'
@@ -26,12 +24,22 @@ export const PixelText: React.FC<PixelTextProps> = ({
   children,
   ...props
 }) => {
-  styles.useVariants({ variant } as UnistylesVariants<typeof styles>);
+  const { theme } = useUnistyles();
+
+  const variantStyle = {
+    title: styles.title,
+    subtitle: styles.subtitle,
+    body: styles.body,
+    label: styles.label,
+    value: styles.value,
+  }[variant];
 
   return (
     <Text
       style={[
         styles.base,
+        { color: theme.colors.text.primary },
+        variantStyle,
         color ? { color } : undefined,
         glow ? styles.glow : undefined,
         style,
@@ -46,35 +54,30 @@ export const PixelText: React.FC<PixelTextProps> = ({
 const styles = StyleSheet.create((theme) => ({
   base: {
     fontFamily: 'System',
-    color: theme.colors.text.primary,
-    variants: {
-      variant: {
-        title: {
-          fontFamily: 'System',
-          fontWeight: 'bold',
-          fontSize: 28,
-          letterSpacing: 0.5,
-        },
-        subtitle: {
-          fontFamily: 'System',
-          fontWeight: 'bold',
-          fontSize: 20,
-          letterSpacing: 0.2,
-        },
-        body: {
-          fontSize: 16,
-        },
-        label: {
-          fontSize: 14,
-          letterSpacing: 0.2,
-        },
-        value: {
-          fontFamily: 'System',
-          fontWeight: 'bold',
-          fontSize: 24,
-        },
-      },
-    },
+  },
+  title: {
+    fontFamily: 'System',
+    fontWeight: 'bold',
+    fontSize: 28,
+    letterSpacing: 0.5,
+  },
+  subtitle: {
+    fontFamily: 'System',
+    fontWeight: 'bold',
+    fontSize: 20,
+    letterSpacing: 0.2,
+  },
+  body: {
+    fontSize: 16,
+  },
+  label: {
+    fontSize: 14,
+    letterSpacing: 0.2,
+  },
+  value: {
+    fontFamily: 'System',
+    fontWeight: 'bold',
+    fontSize: 24,
   },
   glow: {
     textShadowColor: theme.colors.action.primary.default,

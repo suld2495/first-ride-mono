@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { requestFormValidators } from '@repo/shared/service/validatorMessage';
 import { Image, ScrollView } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import RequetButtonGroup from '@/components/request/request-button-group';
 import { Button } from '@/components/ui/button';

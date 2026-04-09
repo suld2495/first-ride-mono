@@ -1,6 +1,6 @@
 import { useFetchQuestDetailQuery } from '@repo/shared/hooks/useQuest';
 import { ScrollView } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import QuestInfo from '@/components/quest/quest-info';
 import QuestRewards from '@/components/quest/quest-rewards';

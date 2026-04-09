@@ -2,7 +2,7 @@ import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
 import { getFormatDate } from '@repo/shared/utils';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';

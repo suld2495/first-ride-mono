@@ -1,5 +1,9 @@
 'use strict';
-const { isUiLayerFile } = require('../path-groups');
+const {
+  isComponentFile,
+  isFeatureComponentFile,
+  isUiLayerFile,
+} = require('../path-groups');
 
 const DEFAULT_FORBIDDEN_PACKAGES = ['tamagui', '@tamagui/'];
 
@@ -21,6 +25,14 @@ function matchForbiddenPackage(importSource, forbiddenPackages) {
 function isAllowedFile(context, filename) {
   if (!filename || filename === '<input>') return false;
   return isUiLayerFile(context, filename);
+}
+
+function isTargetFile(context, filename) {
+  if (!filename || filename === '<input>') return false;
+
+  return (
+    isComponentFile(context, filename) || isFeatureComponentFile(context, filename)
+  );
 }
 
 module.exports = {
@@ -51,6 +63,7 @@ module.exports = {
 
   create(context) {
     const filename = context.filename ?? context.getFilename?.() ?? '';
+    if (!isTargetFile(context, filename)) return {};
     if (isAllowedFile(context, filename)) return {};
 
     const [{ packages = [] } = {}] = context.options;

@@ -6,7 +6,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { useUnistyles } from 'react-native-unistyles';
+import { useUnistyles } from '@/lib/unistyles';
 
 import { useDockMagnification } from '@/hooks/useDockMagnification';
 

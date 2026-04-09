@@ -28,6 +28,23 @@ export const getFormatDate = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+export const getFormatDateTime = (dateInput: Date | string) => {
+  const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(PAD_LENGTH, '0');
+  const day = String(date.getDate()).padStart(PAD_LENGTH, '0');
+  const hour = String(date.getHours()).padStart(PAD_LENGTH, '0');
+  const minute = String(date.getMinutes()).padStart(PAD_LENGTH, '0');
+  const second = String(date.getSeconds()).padStart(PAD_LENGTH, '0');
+
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+};
+
 export const getDisplayFormatDate = (date: Date) => {
   const year = String(date.getFullYear()).slice(SHORT_YEAR_START_INDEX);
   const month = String(date.getMonth() + 1).padStart(PAD_LENGTH, '0');

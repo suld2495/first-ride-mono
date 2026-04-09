@@ -3,7 +3,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef } from 'react';
 import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import Container from '@/components/layout/container';
 import Header from '@/components/layout/header';
@@ -39,8 +39,13 @@ export default function Index() {
     await refetch();
   }, [refetch]);
 
+  useEffect(() => {
+    if (!user) {
+      router.push('/sign-in');
+    }
+  }, [router, user]);
+
   if (!user) {
-    router.push('/sign-in');
     return null;
   }
 

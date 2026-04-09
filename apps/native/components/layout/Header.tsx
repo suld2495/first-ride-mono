@@ -1,5 +1,5 @@
 import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import NotificationBell from '@/components/notification/notification-bell';
 import { PixelText } from '@/components/ui/pixel-text';

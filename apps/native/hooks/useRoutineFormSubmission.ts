@@ -54,7 +54,6 @@ export const useRoutineFormSubmission = ({
           ...data,
           routineId,
           nickname,
-          mateNickname: nickname,
         },
         {
           onSuccess: () => {

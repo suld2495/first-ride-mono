@@ -4,9 +4,9 @@ import {
 } from '@repo/shared/hooks/useStat';
 import type { UserStats } from '@repo/types';
 import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import Container from '@/components/layout/container';
 import Header from '@/components/layout/header';
@@ -84,8 +84,13 @@ export default function StatPage() {
     [decrementStat],
   );
 
+  useEffect(() => {
+    if (!user) {
+      router.push('/sign-in');
+    }
+  }, [router, user]);
+
   if (!user) {
-    router.push('/sign-in');
     return null;
   }
 

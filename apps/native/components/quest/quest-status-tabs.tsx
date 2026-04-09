@@ -1,5 +1,5 @@
 import type { QuestStatusFilter } from '@repo/types';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { PixelText } from '@/components/ui/pixel-text';

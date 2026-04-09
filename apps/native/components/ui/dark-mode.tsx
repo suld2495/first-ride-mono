@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useUnistyles } from 'react-native-unistyles';
+import { useUnistyles } from '@/lib/unistyles';
 
 import { useColorScheme, useSetColorScheme } from '@/hooks/useColorScheme';
 

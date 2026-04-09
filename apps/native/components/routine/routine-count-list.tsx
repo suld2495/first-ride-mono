@@ -3,7 +3,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
 import { useCallback } from 'react';
 import Animated, { ZoomIn } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';

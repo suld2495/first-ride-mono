@@ -1,6 +1,10 @@
+import {
+  useFetchFriendRequestsQuery,
+  useFetchFriendsQuery,
+} from '@repo/shared/hooks/useFriend';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useState } from 'react';
-import { StyleSheet } from 'react-native-unistyles';
+import { useCallback, useState } from 'react';
+import { StyleSheet } from '@/lib/unistyles';
 
 import FriendAddModal from '@/components/friend/friend-add-modal';
 import FriendHeader from '@/components/friend/friend-header';
@@ -16,15 +20,34 @@ const FriendPage = () => {
   const [input, setInput] = useState('');
   const [keyword, setKeyword] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const { data: requests = [], refetch: refetchRequests } =
+    useFetchFriendRequestsQuery(page);
+  const {
+    data: friends,
+    isLoading,
+    refetch: refetchFriends,
+  } = useFetchFriendsQuery({ page, keyword });
 
   const handleSearch = () => {
     setKeyword(input);
   };
 
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+
+    try {
+      await Promise.all([refetchFriends(), refetchRequests()]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchFriends, refetchRequests]);
+
   return (
     <Container style={styles.container} noPadding>
       <Header />
-      <FriendHeader />
+      <FriendHeader requestCount={requests.length} />
 
       <ThemeView style={styles.innerContainer}>
         <ThemeView style={styles.addButtonContainer}>
@@ -50,7 +73,13 @@ const FriendPage = () => {
             fullWidth
           />
         </ThemeView>
-        <FriendList page={page} keyword={keyword} />
+        <FriendList
+          friends={friends}
+          isLoading={isLoading}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+          onDeleteRefresh={refetchFriends}
+        />
       </ThemeView>
 
       <FriendAddModal

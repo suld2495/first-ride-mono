@@ -1,5 +1,5 @@
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import { useUnistyles } from 'react-native-unistyles';
+import { useUnistyles } from '@/lib/unistyles';
 
 export interface CheckboxProps {
   /** Checkbox size in pixels (default: 20) */

@@ -6,7 +6,7 @@ import type { CreateQuestForm, VerificationType } from '@repo/types';
 import { useState } from 'react';
 import { Modal, Pressable } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { StyleSheet, type UnistylesThemes } from 'react-native-unistyles';
+import { StyleSheet, type UnistylesThemes } from '@/lib/unistyles';
 
 import QuestStartDateCalendar from '@/components/quest/quest-start-date-calendar';
 import { Button } from '@/components/ui/button';

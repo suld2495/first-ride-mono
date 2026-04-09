@@ -35,7 +35,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
       const mockDetail = createMockRoutineDetail(0, {
         routineName: '매일 운동하기',
         routineDetail: '30분 이상 운동',
-        createdAt: '2025-01-15',
+        createdAt: '2025-01-15T10:05:09',
       });
 
       mockAxios
@@ -58,7 +58,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
     it('날짜가 화면에 표시된다', async () => {
       const { findByText } = render(<RequestDetailModal />);
 
-      expect(await findByText('2025-01-15')).toBeOnTheScreen();
+      expect(await findByText('2025-01-15 10:05:09')).toBeOnTheScreen();
     });
 
     it('루틴 이름 라벨이 표시된다', async () => {

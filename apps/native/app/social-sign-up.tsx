@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
 import AuthForm from '@/components/auth/auth-form';

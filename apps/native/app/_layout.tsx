@@ -11,6 +11,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { updatePushToken } from '@/api/push-token.api';
 import MockProvider from '@/components/mock/mock-provider';
 import SplashScreenController from '@/components/splash';
+import AppTamaguiProvider from '@/components/ui/tamagui-provider';
 import ToastContainer from '@/components/ui/toast-container';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
@@ -26,14 +27,18 @@ import { useSyncAppColorScheme } from '@/hooks/useThemePreference';
 import { useVisitCheck } from '@/hooks/useVisitCheck';
 import { NAV_THEME } from '@/theme/nav-theme';
 import type { NotificationHandlers } from '@/types/notification-types';
+import { getKakaoNativeAppKey } from '@/utils/env';
 import { extractDeepLinkData, getDeepLinkPath } from '@/utils/notifications';
 
 // Unistyles initialization - must be imported before any component using styles
 import '@/api/bootstrap.api';
-import '@/styles/unistyles';
 import 'react-native-url-polyfill/auto';
 
-initializeKakaoSDK(process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY!);
+const kakaoNativeAppKey = getKakaoNativeAppKey();
+
+if (kakaoNativeAppKey) {
+  initializeKakaoSDK(kakaoNativeAppKey);
+}
 
 const StackLayout = () => {
   const user = useAuthUser();
@@ -150,11 +155,13 @@ function AppShell() {
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryProvider>
-        <ToastProvider>
-          <AppShell />
-        </ToastProvider>
-      </QueryProvider>
+      <AppTamaguiProvider>
+        <QueryProvider>
+          <ToastProvider>
+            <AppShell />
+          </ToastProvider>
+        </QueryProvider>
+      </AppTamaguiProvider>
     </GestureHandlerRootView>
   );
 }

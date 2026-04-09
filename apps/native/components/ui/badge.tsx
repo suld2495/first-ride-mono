@@ -1,8 +1,6 @@
 import React from 'react';
 import { Text, View, type ViewStyle } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
-import { type UnistylesVariants } from '@/styles/unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 /**
  * Badge variant types
@@ -84,10 +82,7 @@ export const Badge: React.FC<BadgeProps> = ({
   maxCount = 99,
   style,
 }) => {
-  styles.useVariants({
-    variant,
-    size,
-  } as UnistylesVariants<typeof styles>);
+  const { theme } = useUnistyles();
 
   // Don't render if count is 0 and showZero is false
   if (!showZero && count === 0) {
@@ -111,12 +106,19 @@ export const Badge: React.FC<BadgeProps> = ({
       : String(count);
 
   const sizeStyle = sizeMap[size];
+  const backgroundColor = {
+    error: theme.colors.feedback.error.text,
+    success: theme.colors.feedback.success.text,
+    warning: theme.colors.feedback.warning.text,
+    info: theme.colors.feedback.info.text,
+  }[variant];
 
   return (
     <View
       style={[
         styles.badge,
         {
+          backgroundColor,
           minWidth: sizeStyle.minWidth,
           height: sizeStyle.height,
           borderRadius: sizeStyle.height / 2,
@@ -143,22 +145,6 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: theme.foundation.spacing.xs,
-    variants: {
-      variant: {
-        error: {
-          backgroundColor: theme.colors.feedback.error.text,
-        },
-        success: {
-          backgroundColor: theme.colors.feedback.success.text,
-        },
-        warning: {
-          backgroundColor: theme.colors.feedback.warning.text,
-        },
-        info: {
-          backgroundColor: theme.colors.feedback.info.text,
-        },
-      },
-    },
   },
   text: {
     color: theme.colors.text.inverse,

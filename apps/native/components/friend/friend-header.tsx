@@ -1,27 +1,22 @@
-import { useFetchFriendRequestsQuery } from '@repo/shared/hooks/useFriend';
-import { useState } from 'react';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import NotificationBell from '@/components/notification/notification-bell';
 import { Divider } from '@/components/ui/divider';
 import PixelText from '@/components/ui/pixel-text';
 import ThemeView from '@/components/ui/theme-view';
 
-const FriendHeader = () => {
-  const [page] = useState(1);
-  const { data: list } = useFetchFriendRequestsQuery(page);
+interface FriendHeaderProps {
+  requestCount: number;
+}
 
-  if (!list) {
-    return null;
-  }
-
+const FriendHeader = ({ requestCount }: FriendHeaderProps) => {
   return (
     <>
       <ThemeView style={styles.header}>
         <PixelText variant="title">친구 리스트</PixelText>
         <ThemeView style={styles.headerRight} transparent>
           <NotificationBell
-            count={list.length}
+            count={requestCount}
             url="/modal?type=friend-request-list"
           />
         </ThemeView>

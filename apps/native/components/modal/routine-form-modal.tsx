@@ -7,7 +7,7 @@ import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
 import {

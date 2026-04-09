@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import Link from '@/components/ui/link';
 import { PixelText } from '@/components/ui/pixel-text';

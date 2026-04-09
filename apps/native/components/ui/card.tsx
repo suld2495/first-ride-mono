@@ -1,8 +1,6 @@
 import React from 'react';
 import { View, type ViewProps } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
-import { type UnistylesVariants } from '@/styles/unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 /**
  * Card variant types
@@ -80,48 +78,43 @@ export const Card: React.FC<CardProps> = ({
   children,
   ...props
 }) => {
-  styles.useVariants({
-    variant,
-    padding,
-    radius,
-  } as UnistylesVariants<typeof styles>);
+  const { theme } = useUnistyles();
+
+  const variantStyle = {
+    base: { backgroundColor: theme.colors.background.base },
+    surface: { backgroundColor: theme.colors.background.surface },
+    sunken: { backgroundColor: theme.colors.background.sunken },
+  }[variant];
+
+  const paddingStyle = {
+    none: { padding: 0 },
+    sm: { padding: theme.foundation.spacing.s },
+    md: { padding: theme.foundation.spacing.m },
+    lg: { padding: theme.foundation.spacing.l },
+    xl: { padding: theme.foundation.spacing.xl },
+  }[padding];
+
+  const radiusStyle = {
+    none: { borderRadius: theme.foundation.radii.none },
+    s: { borderRadius: theme.foundation.radii.s },
+    m: { borderRadius: theme.foundation.radii.m },
+    l: { borderRadius: theme.foundation.radii.l },
+    xl: { borderRadius: theme.foundation.radii.xl },
+  }[radius];
 
   return (
-    <View style={[styles.container, style]} {...props}>
+    <View
+      style={[styles.container, variantStyle, paddingStyle, radiusStyle, style]}
+      {...props}
+    >
       {children}
     </View>
   );
 };
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create(() => ({
   container: {
-    variants: {
-      variant: {
-        base: {
-          backgroundColor: theme.colors.background.base,
-        },
-        surface: {
-          backgroundColor: theme.colors.background.surface,
-        },
-        sunken: {
-          backgroundColor: theme.colors.background.sunken,
-        },
-      },
-      padding: {
-        none: { padding: 0 },
-        sm: { padding: theme.foundation.spacing.s },
-        md: { padding: theme.foundation.spacing.m },
-        lg: { padding: theme.foundation.spacing.l },
-        xl: { padding: theme.foundation.spacing.xl },
-      },
-      radius: {
-        none: { borderRadius: theme.foundation.radii.none },
-        s: { borderRadius: theme.foundation.radii.s },
-        m: { borderRadius: theme.foundation.radii.m },
-        l: { borderRadius: theme.foundation.radii.l },
-        xl: { borderRadius: theme.foundation.radii.xl },
-      },
-    },
+    overflow: 'hidden',
   },
 }));
 

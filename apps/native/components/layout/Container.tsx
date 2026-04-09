@@ -3,7 +3,7 @@ import React from 'react';
 import type { ViewProps } from 'react-native';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 interface ContainerProps extends ViewProps {
   children: React.ReactNode;

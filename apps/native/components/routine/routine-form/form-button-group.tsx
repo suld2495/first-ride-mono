@@ -1,6 +1,6 @@
 import type { FormContextType } from '@repo/shared/components';
 import type { RoutineForm } from '@repo/types';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import Link from '@/components/ui/link';

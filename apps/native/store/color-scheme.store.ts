@@ -1,4 +1,3 @@
-import { UnistylesRuntime } from 'react-native-unistyles';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -21,14 +20,10 @@ export const useColorSchemeStore = create<ColorSchemeState & Action>()(
       colorScheme: 'dark',
       setColorScheme: (colorScheme: ColorScheme) => {
         set({ colorScheme });
-        // Unistyles 테마도 함께 변경
-        UnistylesRuntime.setTheme(colorScheme);
       },
       syncWithUnistyles: () => {
-        // 앱 시작 시 저장된 테마를 Unistyles에 동기화
-        const { colorScheme } = get();
-
-        UnistylesRuntime.setTheme(colorScheme);
+        // Tamagui Provider가 store를 직접 구독하므로 별도 런타임 동기화는 필요 없다.
+        get();
       },
     }),
     {

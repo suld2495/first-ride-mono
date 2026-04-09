@@ -6,9 +6,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-import { type UnistylesVariants } from '@/styles/unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 export type IconButtonSize = 'sm' | 'md' | 'lg';
 export type IconButtonVariant =
@@ -98,8 +96,18 @@ export const IconButton: React.FC<IconButtonProps> = ({
   ...props
 }) => {
   const { theme } = useUnistyles();
-
-  styles.useVariants({ size, variant } as UnistylesVariants<typeof styles>);
+  const sizeStyle = {
+    sm: styles.sizeSm,
+    md: styles.sizeMd,
+    lg: styles.sizeLg,
+  }[size];
+  const variantStyle = {
+    primary: styles.variantPrimary,
+    secondary: styles.variantSecondary,
+    ghost: styles.variantGhost,
+    outline: styles.variantOutline,
+    danger: styles.variantDanger,
+  }[variant];
 
   const getIconColor = (): string => {
     switch (variant) {
@@ -138,6 +146,8 @@ export const IconButton: React.FC<IconButtonProps> = ({
     <Pressable
       style={({ pressed }) => [
         styles.container,
+        sizeStyle,
+        variantStyle,
         pressed && { opacity: 0.8 },
         (disabled || loading) && { opacity: 0.5 },
         typeof style === 'function' ? style({ pressed }) : style,
@@ -157,40 +167,34 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: theme.foundation.radii.m,
-    variants: {
-      size: {
-        sm: {
-          width: SIZE_MAP.sm.size,
-          height: SIZE_MAP.sm.size,
-        },
-        md: {
-          width: SIZE_MAP.md.size,
-          height: SIZE_MAP.md.size,
-        },
-        lg: {
-          width: SIZE_MAP.lg.size,
-          height: SIZE_MAP.lg.size,
-        },
-      },
-      variant: {
-        primary: {
-          backgroundColor: theme.colors.action.primary.default,
-        },
-        secondary: {
-          backgroundColor: theme.colors.action.secondary.default,
-        },
-        ghost: {
-          backgroundColor: 'transparent',
-        },
-        outline: {
-          backgroundColor: 'transparent',
-          borderWidth: 1,
-          borderColor: theme.colors.border.default,
-        },
-        danger: {
-          backgroundColor: theme.colors.feedback.error.bg,
-        },
-      },
-    },
+  },
+  sizeSm: {
+    width: SIZE_MAP.sm.size,
+    height: SIZE_MAP.sm.size,
+  },
+  sizeMd: {
+    width: SIZE_MAP.md.size,
+    height: SIZE_MAP.md.size,
+  },
+  sizeLg: {
+    width: SIZE_MAP.lg.size,
+    height: SIZE_MAP.lg.size,
+  },
+  variantPrimary: {
+    backgroundColor: theme.colors.action.primary.default,
+  },
+  variantSecondary: {
+    backgroundColor: theme.colors.action.secondary.default,
+  },
+  variantGhost: {
+    backgroundColor: 'transparent',
+  },
+  variantOutline: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: theme.colors.border.default,
+  },
+  variantDanger: {
+    backgroundColor: theme.colors.feedback.error.bg,
   },
 }));

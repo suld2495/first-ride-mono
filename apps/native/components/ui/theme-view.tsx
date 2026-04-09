@@ -1,7 +1,5 @@
 import { View, type ViewProps } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
-
-import { type UnistylesVariants } from '@/styles/unistyles';
+import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 /**
  * Surface variant types
@@ -53,31 +51,21 @@ const ThemeView = ({
   variant = 'base',
   ...props
 }: ThemedViewProps) => {
-  styles.useVariants({
-    variant: transparent ? undefined : variant,
-  } as UnistylesVariants<typeof styles>);
+  const { theme } = useUnistyles();
 
-  return <View style={[styles.container, style]} {...props} />;
+  const backgroundStyle =
+    transparent || variant === undefined
+      ? null
+      : {
+          backgroundColor: theme.colors.background[variant],
+        };
+
+  return <View style={[styles.container, backgroundStyle, style]} {...props} />;
 };
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create(() => ({
   container: {
-    variants: {
-      variant: {
-        base: {
-          backgroundColor: theme.colors.background.base,
-        },
-        surface: {
-          backgroundColor: theme.colors.background.surface,
-        },
-        elevated: {
-          backgroundColor: theme.colors.background.elevated,
-        },
-        sunken: {
-          backgroundColor: theme.colors.background.sunken,
-        },
-      },
-    },
+    flexShrink: 0,
   },
 }));
 

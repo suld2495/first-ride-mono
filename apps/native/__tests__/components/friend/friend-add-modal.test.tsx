@@ -122,6 +122,35 @@ describe('친구 추가 모달', () => {
     });
   });
 
+  describe('당겨서 새로고침 테스트', () => {
+    beforeEach(() => {
+      mockAxios.onGet(/\/users\/search/).reply(200, wrapResponse(createMockUsers(1)));
+    });
+
+    it('검색 결과 목록을 아래로 당기면 다시 조회한다', async () => {
+      const screen = render(<FriendAddModal {...defaultProps} />);
+      const searchInput = screen.getByPlaceholderText(
+        '유저이름을 입력해주세요.',
+      );
+
+      fireEvent.changeText(searchInput, 'user');
+      fireEvent(searchInput, 'submitEditing');
+
+      expect(await screen.findByText('user1')).toBeOnTheScreen();
+      expect(mockAxios.history.get).toHaveLength(1);
+
+      const list = screen.UNSAFE_getByType(FlatList);
+
+      await act(async () => {
+        await list.props.refreshControl.props.onRefresh();
+      });
+
+      await waitFor(() => {
+        expect(mockAxios.history.get).toHaveLength(2);
+      });
+    });
+  });
+
   describe('친구 추가 버튼 클릭 테스트', () => {
     describe('성공 시', () => {
       beforeEach(() => {

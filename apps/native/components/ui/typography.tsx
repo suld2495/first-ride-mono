@@ -1,8 +1,7 @@
 import React from 'react';
-import { Text, type TextProps } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import type { TextProps } from 'react-native';
 
-import { type UnistylesVariants } from '@/styles/unistyles';
+import { TamaguiText } from './tamagui';
 
 /**
  * Typography variant types
@@ -87,86 +86,55 @@ export const Typography: React.FC<TypographyProps> = ({
   children,
   ...props
 }) => {
-  styles.useVariants({ variant, color } as UnistylesVariants<typeof styles>);
+  const variantProps = typographyVariantStyles[variant];
+  const colorToken = typographyColorMap[color];
 
   return (
-    <Text style={[styles.base, style]} {...props}>
+    <TamaguiText
+      color={colorToken}
+      fontFamily="$body"
+      style={style}
+      {...variantProps}
+      {...props}
+    >
       {children}
-    </Text>
+    </TamaguiText>
   );
 };
 
-const styles = StyleSheet.create((theme) => ({
-  base: {
-    variants: {
-      variant: {
-        title: {
-          fontSize: theme.foundation.typography.size.title,
-          fontWeight: theme.foundation.typography.weight.bold,
-          lineHeight:
-            theme.foundation.typography.size.title *
-            theme.foundation.typography.lineHeight.tight,
-        },
-        subtitle: {
-          fontSize: theme.foundation.typography.size.xl,
-          fontWeight: theme.foundation.typography.weight.semibold,
-          lineHeight:
-            theme.foundation.typography.size.xl *
-            theme.foundation.typography.lineHeight.tight,
-        },
-        body: {
-          fontSize: theme.foundation.typography.size.l,
-          fontWeight: theme.foundation.typography.weight.regular,
-          lineHeight:
-            theme.foundation.typography.size.l *
-            theme.foundation.typography.lineHeight.normal,
-        },
-        label: {
-          fontSize: theme.foundation.typography.size.m,
-          fontWeight: theme.foundation.typography.weight.medium,
-          lineHeight:
-            theme.foundation.typography.size.m *
-            theme.foundation.typography.lineHeight.normal,
-        },
-        caption: {
-          fontSize: theme.foundation.typography.size.s,
-          fontWeight: theme.foundation.typography.weight.regular,
-          lineHeight:
-            theme.foundation.typography.size.s *
-            theme.foundation.typography.lineHeight.normal,
-        },
-      },
-      color: {
-        primary: {
-          color: theme.colors.text.primary,
-        },
-        secondary: {
-          color: theme.colors.text.secondary,
-        },
-        tertiary: {
-          color: theme.colors.text.tertiary,
-        },
-        inverse: {
-          color: theme.colors.text.inverse,
-        },
-        link: {
-          color: theme.colors.text.link,
-        },
-        error: {
-          color: theme.colors.feedback.error.text,
-        },
-        success: {
-          color: theme.colors.feedback.success.text,
-        },
-        warning: {
-          color: theme.colors.feedback.warning.text,
-        },
-        info: {
-          color: theme.colors.feedback.info.text,
-        },
-      },
-    },
+const typographyVariantStyles = {
+  title: {
+    fontSize: '$title',
+    fontWeight: '700',
   },
-}));
+  subtitle: {
+    fontSize: '$xl',
+    fontWeight: '600',
+  },
+  body: {
+    fontSize: '$l',
+    fontWeight: '400',
+  },
+  label: {
+    fontSize: '$m',
+    fontWeight: '500',
+  },
+  caption: {
+    fontSize: '$s',
+    fontWeight: '400',
+  },
+} as const;
+
+const typographyColorMap = {
+  primary: '$textPrimary',
+  secondary: '$textSecondary',
+  tertiary: '$textTertiary',
+  inverse: '$textInverse',
+  link: '$textLink',
+  error: '$dangerLabel',
+  success: '$success',
+  warning: '$warning',
+  info: '$info',
+} as const;
 
 export default Typography;
