@@ -7,7 +7,7 @@ const KAKAO_NATIVE_APP_KEY =
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'first-ride',
+  name: '이루라',
   slug: 'first-ride',
   version: '1.0.0',
   scheme: 'first-ride',

@@ -1,21 +1,18 @@
-import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
-import { StyleSheet } from '@/lib/unistyles';
-
 import NotificationBell from '@/components/notification/notification-bell';
-import { PixelText } from '@/components/ui/pixel-text';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useReceivedRequests } from '@/hooks/useReceivedRequests';
+import { StyleSheet } from '@/lib/unistyles';
 
 const Header = () => {
   const user = useAuthUser();
-  const { data: requests } = useFetchReceivedRequestsQuery(
-    user?.nickname || '',
-  );
+  const { data: requests } = useReceivedRequests(user?.nickname || '');
 
   return (
     <ThemeView style={styles.container}>
       <ThemeView>
-        <PixelText variant="title">{user?.nickname}</PixelText>
+        <Typography variant="title">{user?.nickname}</Typography>
       </ThemeView>
 
       <NotificationBell

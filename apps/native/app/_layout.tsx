@@ -28,7 +28,11 @@ import { useVisitCheck } from '@/hooks/useVisitCheck';
 import { NAV_THEME } from '@/theme/nav-theme';
 import type { NotificationHandlers } from '@/types/notification-types';
 import { getKakaoNativeAppKey } from '@/utils/env';
-import { extractDeepLinkData, getDeepLinkPath } from '@/utils/notifications';
+import {
+  extractDeepLinkData,
+  getDeepLinkPath,
+  syncBadgeCountWithReceivedRequests,
+} from '@/utils/notifications';
 
 // Unistyles initialization - must be imported before any component using styles
 import '@/api/bootstrap.api';
@@ -110,11 +114,20 @@ function AppShell() {
     [user, router, setRequestId, setRoutineId],
   );
 
+  const handleNotificationReceived = useCallback(() => {
+    if (!user) {
+      return;
+    }
+
+    void syncBadgeCountWithReceivedRequests();
+  }, [user]);
+
   const notificationHandlers: NotificationHandlers = useMemo(
     () => ({
+      onReceived: handleNotificationReceived,
       onResponseReceived: handleNotificationResponse,
     }),
-    [handleNotificationResponse],
+    [handleNotificationReceived, handleNotificationResponse],
   );
 
   const { pushToken, isInitialized } = useNotifications(notificationHandlers);
@@ -128,6 +141,15 @@ function AppShell() {
   useEffect(() => {
     setNotificationHandler();
   }, []);
+
+  // 앱 진입 시 받은 인증 요청 목록 개수로 홈 화면 아이콘 배지를 동기화
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    void syncBadgeCountWithReceivedRequests();
+  }, [user]);
 
   // 출석 체크
   useVisitCheck(!!user);

@@ -4,7 +4,7 @@ import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 
 interface QuestTypeFilterProps {
@@ -43,7 +43,7 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
             pressed && styles.chipPressed,
           ]}
         >
-          <PixelText
+          <Typography
             variant="label"
             color={
               isSelected
@@ -52,7 +52,7 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
             }
           >
             {item.label}
-          </PixelText>
+          </Typography>
         </Button>
       );
     },

@@ -1,8 +1,6 @@
-import { useFetchReceivedRequestsQuery } from '@repo/shared/hooks/useRequest';
 import { getFormatDate } from '@repo/shared/utils';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { StyleSheet } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
@@ -10,7 +8,9 @@ import { FlashList } from '@/components/ui/flash-list';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 import { useSetRequestId } from '@/hooks/useRequestSelection';
+import { StyleSheet } from '@/lib/unistyles';
 
 interface RequestListItem {
   id: number;
@@ -34,9 +34,7 @@ const getRequestItemLayout = (_: RequestListItem[] | null, index: number) => ({
 const RequestListModal = () => {
   const router = useRouter();
   const user = useAuthUser();
-  const { data: requests } = useFetchReceivedRequestsQuery(
-    user?.nickname || '',
-  );
+  const { data: requests } = useReceivedRequests(user?.nickname || '');
   const setRequestId = useSetRequestId();
 
   const handleMove = useCallback(

@@ -28405,26 +28405,62 @@
       "body": {
         "family": "System",
         "size": {
-          "xs": 10,
+          "caption3": 11,
+          "caption2": 12,
+          "caption1": 13,
+          "body3": 14,
+          "body2": 15,
+          "body1": 16,
+          "subtitle2": 18,
+          "subtitle1": 20,
+          "h3": 24,
+          "h2": 28,
+          "h1": 32,
+          "h0": 40,
+          "xs": 11,
           "s": 12,
           "m": 14,
           "l": 16,
           "xl": 20,
           "xxl": 24,
-          "title": 32,
+          "title": 22,
           "true": 16
         },
         "lineHeight": {
-          "xs": 15,
+          "caption3": 17,
+          "caption2": 18,
+          "caption1": 20,
+          "body3": 21,
+          "body2": 23,
+          "body1": 24,
+          "subtitle2": 22,
+          "subtitle1": 24,
+          "h3": 29,
+          "h2": 34,
+          "h1": 38,
+          "h0": 48,
+          "xs": 17,
           "s": 18,
           "m": 21,
           "l": 24,
           "xl": 24,
           "xxl": 29,
-          "title": 38,
+          "title": 26,
           "true": 24
         },
         "weight": {
+          "caption3": "400",
+          "caption2": "400",
+          "caption1": "400",
+          "body3": "400",
+          "body2": "400",
+          "body1": "400",
+          "subtitle2": "400",
+          "subtitle1": "400",
+          "h3": "400",
+          "h2": "400",
+          "h1": "400",
+          "h0": "400",
           "xs": "400",
           "s": "400",
           "m": "400",
@@ -28471,26 +28507,62 @@
       "heading": {
         "family": "System",
         "size": {
-          "xs": 10,
+          "caption3": 11,
+          "caption2": 12,
+          "caption1": 13,
+          "body3": 14,
+          "body2": 15,
+          "body1": 16,
+          "subtitle2": 18,
+          "subtitle1": 20,
+          "h3": 24,
+          "h2": 28,
+          "h1": 32,
+          "h0": 40,
+          "xs": 11,
           "s": 12,
           "m": 14,
           "l": 16,
           "xl": 20,
           "xxl": 24,
-          "title": 32,
+          "title": 22,
           "true": 16
         },
         "lineHeight": {
-          "xs": 15,
+          "caption3": 17,
+          "caption2": 18,
+          "caption1": 20,
+          "body3": 21,
+          "body2": 23,
+          "body1": 24,
+          "subtitle2": 22,
+          "subtitle1": 24,
+          "h3": 29,
+          "h2": 34,
+          "h1": 38,
+          "h0": 48,
+          "xs": 17,
           "s": 18,
           "m": 21,
           "l": 24,
           "xl": 24,
           "xxl": 29,
-          "title": 38,
+          "title": 26,
           "true": 24
         },
         "weight": {
+          "caption3": "400",
+          "caption2": "400",
+          "caption1": "400",
+          "body3": "400",
+          "body2": "400",
+          "body1": "400",
+          "subtitle2": "400",
+          "subtitle1": "400",
+          "h3": "400",
+          "h2": "400",
+          "h1": "400",
+          "h0": "400",
           "xs": "400",
           "s": "400",
           "m": "400",
@@ -28769,11 +28841,95 @@
           "val": 0,
           "variable": ""
         },
+        "caption3": {
+          "isVar": true,
+          "key": "$caption3",
+          "name": "t-size-caption3",
+          "val": 11,
+          "variable": ""
+        },
+        "caption2": {
+          "isVar": true,
+          "key": "$caption2",
+          "name": "t-size-caption2",
+          "val": 12,
+          "variable": ""
+        },
+        "caption1": {
+          "isVar": true,
+          "key": "$caption1",
+          "name": "t-size-caption1",
+          "val": 13,
+          "variable": ""
+        },
+        "body3": {
+          "isVar": true,
+          "key": "$body3",
+          "name": "t-size-body3",
+          "val": 14,
+          "variable": ""
+        },
+        "body2": {
+          "isVar": true,
+          "key": "$body2",
+          "name": "t-size-body2",
+          "val": 15,
+          "variable": ""
+        },
+        "body1": {
+          "isVar": true,
+          "key": "$body1",
+          "name": "t-size-body1",
+          "val": 16,
+          "variable": ""
+        },
+        "subtitle2": {
+          "isVar": true,
+          "key": "$subtitle2",
+          "name": "t-size-subtitle2",
+          "val": 18,
+          "variable": ""
+        },
+        "subtitle1": {
+          "isVar": true,
+          "key": "$subtitle1",
+          "name": "t-size-subtitle1",
+          "val": 20,
+          "variable": ""
+        },
+        "h3": {
+          "isVar": true,
+          "key": "$h3",
+          "name": "t-size-h3",
+          "val": 24,
+          "variable": ""
+        },
+        "h2": {
+          "isVar": true,
+          "key": "$h2",
+          "name": "t-size-h2",
+          "val": 28,
+          "variable": ""
+        },
+        "h1": {
+          "isVar": true,
+          "key": "$h1",
+          "name": "t-size-h1",
+          "val": 32,
+          "variable": ""
+        },
+        "h0": {
+          "isVar": true,
+          "key": "$h0",
+          "name": "t-size-h0",
+          "val": 40,
+          "variable": ""
+        },
         "xs": {
           "isVar": true,
           "key": "$xs",
           "name": "t-size-xs",
-          "val": 10,
+          "val": 11,
           "variable": ""
         },
         "s": {
@@ -28815,7 +28971,7 @@
           "isVar": true,
           "key": "$title",
           "name": "t-size-title",
-          "val": 32,
+          "val": 22,
           "variable": ""
         },
         "buttonSm": {
@@ -29170,6 +29326,27 @@
         "val": 32,
         "variable": ""
       },
+      "$size.body1": {
+        "isVar": true,
+        "key": "$body1",
+        "name": "t-size-body1",
+        "val": 16,
+        "variable": ""
+      },
+      "$size.body2": {
+        "isVar": true,
+        "key": "$body2",
+        "name": "t-size-body2",
+        "val": 15,
+        "variable": ""
+      },
+      "$size.body3": {
+        "isVar": true,
+        "key": "$body3",
+        "name": "t-size-body3",
+        "val": 14,
+        "variable": ""
+      },
       "$size.buttonLg": {
         "isVar": true,
         "key": "$buttonLg",
@@ -29189,6 +29366,55 @@
         "key": "$buttonSm",
         "name": "t-size-buttonSm",
         "val": 32,
+        "variable": ""
+      },
+      "$size.caption1": {
+        "isVar": true,
+        "key": "$caption1",
+        "name": "t-size-caption1",
+        "val": 13,
+        "variable": ""
+      },
+      "$size.caption2": {
+        "isVar": true,
+        "key": "$caption2",
+        "name": "t-size-caption2",
+        "val": 12,
+        "variable": ""
+      },
+      "$size.caption3": {
+        "isVar": true,
+        "key": "$caption3",
+        "name": "t-size-caption3",
+        "val": 11,
+        "variable": ""
+      },
+      "$size.h0": {
+        "isVar": true,
+        "key": "$h0",
+        "name": "t-size-h0",
+        "val": 40,
+        "variable": ""
+      },
+      "$size.h1": {
+        "isVar": true,
+        "key": "$h1",
+        "name": "t-size-h1",
+        "val": 32,
+        "variable": ""
+      },
+      "$size.h2": {
+        "isVar": true,
+        "key": "$h2",
+        "name": "t-size-h2",
+        "val": 28,
+        "variable": ""
+      },
+      "$size.h3": {
+        "isVar": true,
+        "key": "$h3",
+        "name": "t-size-h3",
+        "val": 24,
         "variable": ""
       },
       "$size.iconL": {
@@ -29282,11 +29508,25 @@
         "val": 12,
         "variable": ""
       },
+      "$size.subtitle1": {
+        "isVar": true,
+        "key": "$subtitle1",
+        "name": "t-size-subtitle1",
+        "val": 20,
+        "variable": ""
+      },
+      "$size.subtitle2": {
+        "isVar": true,
+        "key": "$subtitle2",
+        "name": "t-size-subtitle2",
+        "val": 18,
+        "variable": ""
+      },
       "$size.title": {
         "isVar": true,
         "key": "$title",
         "name": "t-size-title",
-        "val": 32,
+        "val": 22,
         "variable": ""
       },
       "$size.true": {
@@ -29307,7 +29547,7 @@
         "isVar": true,
         "key": "$xs",
         "name": "t-size-xs",
-        "val": 10,
+        "val": 11,
         "variable": ""
       },
       "$size.xxl": {

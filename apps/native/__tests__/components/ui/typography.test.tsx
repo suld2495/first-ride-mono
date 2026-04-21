@@ -15,4 +15,77 @@ describe('Typography', () => {
 
     expect(getByText('테스트 타이포그래피')).toBeOnTheScreen();
   });
+
+  it('새 폰트 스케일 variant를 모두 렌더링한다', () => {
+    const { getByText } = render(
+      <AppTamaguiProvider>
+        <>
+          <Typography variant="caption3">caption3</Typography>
+          <Typography variant="caption3Semibold">caption3Semibold</Typography>
+          <Typography variant="caption2">caption2</Typography>
+          <Typography variant="caption2Semibold">caption2Semibold</Typography>
+          <Typography variant="caption1">caption1</Typography>
+          <Typography variant="caption1Semibold">caption1Semibold</Typography>
+          <Typography variant="body3">body3</Typography>
+          <Typography variant="body3Semibold">body3Semibold</Typography>
+          <Typography variant="body2">body2</Typography>
+          <Typography variant="body2Semibold">body2Semibold</Typography>
+          <Typography variant="body1">body1</Typography>
+          <Typography variant="body1Semibold">body1Semibold</Typography>
+          <Typography variant="subtitle2">subtitle2</Typography>
+          <Typography variant="subtitle2Semibold">subtitle2Semibold</Typography>
+          <Typography variant="subtitle1">subtitle1</Typography>
+          <Typography variant="title">title</Typography>
+          <Typography variant="h3">h3</Typography>
+          <Typography variant="h2">h2</Typography>
+          <Typography variant="h1">h1</Typography>
+          <Typography variant="h0">h0</Typography>
+        </>
+      </AppTamaguiProvider>,
+    );
+
+    expect(getByText('caption3')).toBeOnTheScreen();
+    expect(getByText('caption3Semibold')).toBeOnTheScreen();
+    expect(getByText('caption2')).toBeOnTheScreen();
+    expect(getByText('caption2Semibold')).toBeOnTheScreen();
+    expect(getByText('caption1')).toBeOnTheScreen();
+    expect(getByText('caption1Semibold')).toBeOnTheScreen();
+    expect(getByText('body3')).toBeOnTheScreen();
+    expect(getByText('body3Semibold')).toBeOnTheScreen();
+    expect(getByText('body2')).toBeOnTheScreen();
+    expect(getByText('body2Semibold')).toBeOnTheScreen();
+    expect(getByText('body1')).toBeOnTheScreen();
+    expect(getByText('body1Semibold')).toBeOnTheScreen();
+    expect(getByText('subtitle2')).toBeOnTheScreen();
+    expect(getByText('subtitle2Semibold')).toBeOnTheScreen();
+    expect(getByText('subtitle1')).toBeOnTheScreen();
+    expect(getByText('title')).toBeOnTheScreen();
+    expect(getByText('h3')).toBeOnTheScreen();
+    expect(getByText('h2')).toBeOnTheScreen();
+    expect(getByText('h1')).toBeOnTheScreen();
+    expect(getByText('h0')).toBeOnTheScreen();
+  });
+
+  it('semantic color 대신 사용자 지정 색상을 직접 적용할 수 있다', () => {
+    const { getByText } = render(
+      <AppTamaguiProvider>
+        <Typography color="#ff9900">커스텀 컬러</Typography>
+      </AppTamaguiProvider>,
+    );
+
+    expect(getByText('커스텀 컬러')).toHaveStyle({ color: '#ff9900' });
+  });
+
+  it('glow 옵션을 통해 텍스트 그림자 효과를 적용한다', () => {
+    const { getByText } = render(
+      <AppTamaguiProvider>
+        <Typography glow>글로우 텍스트</Typography>
+      </AppTamaguiProvider>,
+    );
+
+    expect(getByText('글로우 텍스트')).toHaveStyle({
+      textShadowOffset: { width: 0, height: 0 },
+      textShadowRadius: 8,
+    });
+  });
 });

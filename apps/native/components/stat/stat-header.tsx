@@ -5,8 +5,8 @@ import { StyleSheet } from '@/lib/unistyles';
 
 import PixelCard from '@/components/ui/pixel-card';
 import PixelProgressBar from '@/components/ui/pixel-progress-bar';
-import PixelText from '@/components/ui/pixel-text';
-import { palette } from '@/styles/tokens/palette';
+import Typography from '@/components/ui/typography';
+import { palette } from '@/theme/tokens';
 
 interface StatHeaderProps {
   nickname: string;
@@ -29,25 +29,25 @@ export const StatHeader: React.FC<StatHeaderProps> = ({
             <Ionicons name="person" size={32} color={palette.rpg.exp} />
           </View>
           <View style={styles.info}>
-            <PixelText variant="subtitle" glow>
+            <Typography variant="subtitle" glow>
               {nickname}
-            </PixelText>
+            </Typography>
             <View style={styles.levelRow}>
               <Ionicons name="star" size={16} color={palette.rpg.exp} />
-              <PixelText variant="label" color={palette.rpg.exp}>
+              <Typography variant="label" color={palette.rpg.exp}>
                 {' '}
                 Lv. {level}
-              </PixelText>
+              </Typography>
             </View>
           </View>
         </View>
 
         <View style={styles.expContainer}>
           <View style={styles.expLabelRow}>
-            <PixelText variant="label">EXP</PixelText>
-            <PixelText variant="label">
+            <Typography variant="label">EXP</Typography>
+            <Typography variant="label">
               {currentExp} / {expForNextLevel}
-            </PixelText>
+            </Typography>
           </View>
           <PixelProgressBar
             value={currentExp}

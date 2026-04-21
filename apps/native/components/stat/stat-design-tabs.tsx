@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
-import PixelText from '@/components/ui/pixel-text';
+import Typography from '@/components/ui/typography';
 
 export type StatDesignType = 'classic' | 'grid' | 'radar';
 
@@ -33,7 +33,7 @@ export const StatDesignTabs: React.FC<StatDesignTabsProps> = ({
             style={[styles.tab, isActive && styles.activeTab]}
             onPress={() => onTabChange(key)}
           >
-            <PixelText
+            <Typography
               variant="label"
               color={
                 isActive
@@ -42,7 +42,7 @@ export const StatDesignTabs: React.FC<StatDesignTabsProps> = ({
               }
             >
               {label}
-            </PixelText>
+            </Typography>
           </Pressable>
         );
       })}

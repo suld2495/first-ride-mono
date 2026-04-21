@@ -9,7 +9,7 @@ import {
 import Animated from 'react-native-reanimated';
 import { StyleSheet } from '@/lib/unistyles';
 
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 
 interface DockTabItemProps {
   label: string;
@@ -59,9 +59,9 @@ export const DockTabItem: React.FC<DockTabItemProps> = ({
     >
       <Animated.View style={[styles.itemContainer, animatedStyle]}>
         {icon({ color, focused })}
-        <PixelText variant="label" color={color} style={styles.label}>
+        <Typography variant="label" color={color} style={styles.label}>
           {label}
-        </PixelText>
+        </Typography>
       </Animated.View>
     </Pressable>
   );

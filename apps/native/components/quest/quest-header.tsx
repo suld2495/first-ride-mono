@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { StyleSheet } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 import { useAuthUser } from '@/hooks/useAuthSession';
 
@@ -16,9 +16,9 @@ const QuestHeader = () => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView style={styles.content}>
-        <PixelText variant="title" style={styles.title}>
+        <Typography variant="title" style={styles.title}>
           퀘스트 리스트
-        </PixelText>
+        </Typography>
       </ThemeView>
 
       {/* ADMIN 전용 추가 버튼 */}

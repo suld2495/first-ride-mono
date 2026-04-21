@@ -3,7 +3,7 @@ import type { ViewStyle } from 'react-native';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
-import { PixelText } from './pixel-text';
+import { Typography } from './typography';
 
 interface PixelButtonProps {
   label: string;
@@ -77,9 +77,9 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
     >
       <View style={[styles.borderOuter, outerStyle]}>
         <View style={[styles.borderInner, innerStyle]}>
-          <PixelText variant="subtitle" style={[styles.label, labelStyle]}>
+          <Typography variant="subtitle" style={[styles.label, labelStyle]}>
             {label}
-          </PixelText>
+          </Typography>
         </View>
       </View>
     </Pressable>

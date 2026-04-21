@@ -3,7 +3,7 @@ import { formatTimeRemaining } from '@repo/shared/utils/date-utils';
 import { useEffect, useState } from 'react';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 
 interface QuestTimeProps {
@@ -45,7 +45,7 @@ const QuestTime = ({ endDate }: QuestTimeProps) => {
         size={14}
         color={theme.colors.text.secondary}
       />
-      <PixelText style={styles.text}>{timeRemaining}</PixelText>
+      <Typography style={styles.text}>{timeRemaining}</Typography>
     </ThemeView>
   );
 };

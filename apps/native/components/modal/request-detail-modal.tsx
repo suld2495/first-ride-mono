@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Image, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Svg from 'react-native-svg';
-import { StyleSheet } from '@/lib/unistyles';
 
 import ConfirmRequestButtonGroup from '@/components/request/confirm-request-button-group';
 import { Divider } from '@/components/ui/divider';
@@ -15,6 +14,7 @@ import { useAuthUser } from '@/hooks/useAuthSession';
 import { useCreateForm } from '@/hooks/useForm';
 import { useRequestReply } from '@/hooks/useRequestReply';
 import { useRequestId } from '@/hooks/useRequestSelection';
+import { StyleSheet } from '@/lib/unistyles';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<{ comment: string }>();
@@ -64,7 +64,7 @@ const RequestDetailModal = () => {
             <Typography>{detail?.routineDetail}</Typography>
           </ThemeView>
           <ThemeView transparent>
-            {detail?.imagePath.endsWith('svg') ? (
+            {detail?.imagePath?.endsWith('svg') ? (
               <Svg.SvgUri
                 uri={detail?.imagePath}
                 style={[styles.image, { aspectRatio: ratio }]}

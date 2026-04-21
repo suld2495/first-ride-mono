@@ -4,7 +4,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
-import PixelText from '@/components/ui/pixel-text';
+import Typography from '@/components/ui/typography';
 import { type StatConfig } from '@/constants/STATS';
 
 interface GridStatCardProps {
@@ -36,17 +36,17 @@ export const GridStatCard: React.FC<GridStatCardProps> = ({
         <Ionicons name={config.icon} size={28} color={config.color} />
       </View>
 
-      <PixelText
+      <Typography
         variant="value"
         color={hasChanged ? config.color : theme.colors.text.primary}
         glow={hasChanged}
       >
         {value}
-      </PixelText>
+      </Typography>
 
-      <PixelText variant="label" color={config.color}>
+      <Typography variant="label" color={config.color}>
         {config.abbr}
-      </PixelText>
+      </Typography>
 
       {isEditing && (
         <View style={styles.controls}>

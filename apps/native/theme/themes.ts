@@ -1,5 +1,19 @@
-import { darkTheme } from '@/styles/themes/dark';
-import { lightTheme } from '@/styles/themes/light';
+import { darkTheme } from './themes/dark';
+import { lightTheme } from './themes/light';
+
+export type {
+  ThemeContract,
+  ThemeDensity,
+  ThemeRadiusStyle,
+} from './themes/theme.contract';
+export { darkTheme, lightTheme };
+
+export const appThemes = {
+  light: lightTheme,
+  dark: darkTheme,
+} as const;
+
+export type ThemeName = keyof typeof appThemes;
 
 const mapTheme = (
   theme: typeof lightTheme | typeof darkTheme,

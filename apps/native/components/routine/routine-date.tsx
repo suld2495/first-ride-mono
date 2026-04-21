@@ -10,7 +10,7 @@ import { StyleSheet } from '@/lib/unistyles';
 
 import { IconButton } from '@/components/ui/icon-button';
 import Link from '@/components/ui/link';
-import PixelText from '@/components/ui/pixel-text';
+import Typography from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 import { useRoutineType, useSetRoutineType } from '@/hooks/useRoutineSelection';
 
@@ -28,9 +28,9 @@ const RoutineDate = ({ date }: RoutineDateProps) => {
   return (
     <ThemeView style={styles.date_container}>
       <ThemeView style={styles.currentDate}>
-        <PixelText variant="label">{getDisplayFormatDate(startDate)}</PixelText>
-        <PixelText variant="label">~</PixelText>
-        <PixelText variant="label">{getDisplayFormatDate(endDate)}</PixelText>
+        <Typography variant="label">{getDisplayFormatDate(startDate)}</Typography>
+        <Typography variant="label">~</Typography>
+        <Typography variant="label">{getDisplayFormatDate(endDate)}</Typography>
       </ThemeView>
       <ThemeView style={styles.right}>
         <ThemeView style={styles.date_button_container}>

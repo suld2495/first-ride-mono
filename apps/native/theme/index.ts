@@ -1,7 +1,7 @@
 import { createAnimations } from '@tamagui/animations-react-native';
 import { createFont, createTamagui } from 'tamagui';
 
-import { baseFoundation } from '@/styles/tokens/foundation.base';
+import { baseFoundation } from '@/theme/tokens';
 
 import { themes } from './themes';
 import { tokens } from './tokens';
@@ -9,6 +9,18 @@ import { tokens } from './tokens';
 const bodyFont = createFont({
   family: 'System',
   size: {
+    caption3: baseFoundation.typography.size.caption3,
+    caption2: baseFoundation.typography.size.caption2,
+    caption1: baseFoundation.typography.size.caption1,
+    body3: baseFoundation.typography.size.body3,
+    body2: baseFoundation.typography.size.body2,
+    body1: baseFoundation.typography.size.body1,
+    subtitle2: baseFoundation.typography.size.subtitle2,
+    subtitle1: baseFoundation.typography.size.subtitle1,
+    h3: baseFoundation.typography.size.h3,
+    h2: baseFoundation.typography.size.h2,
+    h1: baseFoundation.typography.size.h1,
+    h0: baseFoundation.typography.size.h0,
     xs: baseFoundation.typography.size.xs,
     s: baseFoundation.typography.size.s,
     m: baseFoundation.typography.size.m,
@@ -16,9 +28,57 @@ const bodyFont = createFont({
     xl: baseFoundation.typography.size.xl,
     xxl: baseFoundation.typography.size.xxl,
     title: baseFoundation.typography.size.title,
-    true: baseFoundation.typography.size.l,
+    true: baseFoundation.typography.size.body1,
   },
   lineHeight: {
+    caption3: Math.round(
+      baseFoundation.typography.size.caption3 *
+        baseFoundation.typography.lineHeight.normal,
+    ),
+    caption2: Math.round(
+      baseFoundation.typography.size.caption2 *
+        baseFoundation.typography.lineHeight.normal,
+    ),
+    caption1: Math.round(
+      baseFoundation.typography.size.caption1 *
+        baseFoundation.typography.lineHeight.normal,
+    ),
+    body3: Math.round(
+      baseFoundation.typography.size.body3 *
+        baseFoundation.typography.lineHeight.normal,
+    ),
+    body2: Math.round(
+      baseFoundation.typography.size.body2 *
+        baseFoundation.typography.lineHeight.normal,
+    ),
+    body1: Math.round(
+      baseFoundation.typography.size.body1 *
+        baseFoundation.typography.lineHeight.normal,
+    ),
+    subtitle2: Math.round(
+      baseFoundation.typography.size.subtitle2 *
+        baseFoundation.typography.lineHeight.tight,
+    ),
+    subtitle1: Math.round(
+      baseFoundation.typography.size.subtitle1 *
+        baseFoundation.typography.lineHeight.tight,
+    ),
+    h3: Math.round(
+      baseFoundation.typography.size.h3 *
+        baseFoundation.typography.lineHeight.tight,
+    ),
+    h2: Math.round(
+      baseFoundation.typography.size.h2 *
+        baseFoundation.typography.lineHeight.tight,
+    ),
+    h1: Math.round(
+      baseFoundation.typography.size.h1 *
+        baseFoundation.typography.lineHeight.tight,
+    ),
+    h0: Math.round(
+      baseFoundation.typography.size.h0 *
+        baseFoundation.typography.lineHeight.tight,
+    ),
     xs: Math.round(
       baseFoundation.typography.size.xs *
         baseFoundation.typography.lineHeight.normal,
@@ -48,7 +108,7 @@ const bodyFont = createFont({
         baseFoundation.typography.lineHeight.tight,
     ),
     true: Math.round(
-      baseFoundation.typography.size.l *
+      baseFoundation.typography.size.body1 *
         baseFoundation.typography.lineHeight.normal,
     ),
   },

@@ -3,8 +3,8 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
-import PixelText from '@/components/ui/pixel-text';
-import { palette } from '@/styles/tokens/palette';
+import Typography from '@/components/ui/typography';
+import { palette } from '@/theme/tokens';
 
 interface StatPointsBarProps {
   availablePoints: number;
@@ -36,11 +36,11 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
     <View style={styles.container}>
       <View style={styles.pointsInfo}>
         <Ionicons name="flag" size={18} color={palette.rpg.exp} />
-        <PixelText variant="label">
+        <Typography variant="label">
           {isEditing
             ? `Remaining: ${remainingPoints}`
             : `Available Points: ${availablePoints}`}
-        </PixelText>
+        </Typography>
       </View>
 
       <View style={styles.actions}>
@@ -60,7 +60,7 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
                     : theme.colors.text.disabled
                 }
               />
-              <PixelText
+              <Typography
                 variant="label"
                 color={
                   hasChanges
@@ -69,7 +69,7 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
                 }
               >
                 Reset
-              </PixelText>
+              </Typography>
             </Pressable>
             <Pressable
               style={[styles.button, styles.confirmButton]}
@@ -81,12 +81,12 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
                 size={16}
                 color={hasChanges ? palette.white : theme.colors.text.disabled}
               />
-              <PixelText
+              <Typography
                 variant="label"
                 color={hasChanges ? palette.white : theme.colors.text.disabled}
               >
                 Confirm
-              </PixelText>
+              </Typography>
             </Pressable>
           </>
         ) : (
@@ -95,9 +95,9 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
             onPress={onEdit}
           >
             <Ionicons name="create-outline" size={16} color={palette.white} />
-            <PixelText variant="label" color={palette.white}>
+            <Typography variant="label" color={palette.white}>
               Edit
-            </PixelText>
+            </Typography>
           </Pressable>
         )}
       </View>

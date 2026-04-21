@@ -1,6 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import * as Notifications from 'expo-notifications';
 
 import RequestDetailModal from '../../../components/modal/request-detail-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
@@ -124,6 +125,24 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
           expect(mockBack).toHaveBeenCalled();
         });
       });
+
+      it('승인 후 받은 인증 요청 목록 개수로 앱 아이콘 배지를 다시 설정한다', async () => {
+        mockAxios.onGet('/routine/confirm/list').reply(200, {
+          data: [{ id: 1 }, { id: 2 }],
+        });
+
+        const { findByText, getByText } = render(<RequestDetailModal />);
+
+        await findByText('테스트 루틴 1');
+
+        await act(async () => {
+          fireEvent.press(getByText('승인'));
+        });
+
+        await waitFor(() => {
+          expect(Notifications.setBadgeCountAsync).toHaveBeenCalledWith(2);
+        });
+      });
     });
 
     describe('승인 실패 시', () => {
@@ -183,6 +202,24 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
             'success',
           );
           expect(mockBack).toHaveBeenCalled();
+        });
+      });
+
+      it('거절 후 받은 인증 요청 목록 개수로 앱 아이콘 배지를 다시 설정한다', async () => {
+        mockAxios.onGet('/routine/confirm/list').reply(200, {
+          data: [{ id: 1 }],
+        });
+
+        const { findByText, getByText } = render(<RequestDetailModal />);
+
+        await findByText('테스트 루틴 1');
+
+        await act(async () => {
+          fireEvent.press(getByText('거절'));
+        });
+
+        await waitFor(() => {
+          expect(Notifications.setBadgeCountAsync).toHaveBeenCalledWith(1);
         });
       });
     });

@@ -2,18 +2,23 @@ import * as NavigationBar from 'expo-navigation-bar';
 import * as React from 'react';
 import { Platform } from 'react-native';
 
-import { COLORS } from '@/theme/colors';
+import { appThemes } from '@/theme/themes';
 
 import { useColorScheme } from './useColorScheme';
 
+type ThemeColorName = keyof typeof appThemes.light.colors.brand &
+  keyof typeof appThemes.dark.colors.brand;
+
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof COLORS.light & keyof typeof COLORS.dark,
+  colorName: ThemeColorName,
 ) {
   const theme = useColorScheme();
   const colorFromProps = props[theme];
 
-  return colorFromProps ? colorFromProps : COLORS[theme][colorName];
+  return colorFromProps
+    ? colorFromProps
+    : appThemes[theme].colors.brand[colorName];
 }
 
 /**

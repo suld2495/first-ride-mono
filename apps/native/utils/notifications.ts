@@ -1,3 +1,4 @@
+import { fetchReceivedRequests } from '@repo/shared/api/request.api';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
@@ -333,34 +334,71 @@ export async function setupAllNotificationChannels(): Promise<void> {
 }
 
 /**
- * 알림 배지 카운트 설정 (iOS)
+ * 알림 배지 카운트 설정
+ *
+ * Android는 런처에 따라 표시 여부가 다를 수 있다.
  */
 export async function setBadgeCount(count: number): Promise<boolean> {
-  if (Platform.OS !== 'ios') {
-    return false;
-  }
-
   try {
-    await Notifications.setBadgeCountAsync(count);
-    return true;
+    return await Notifications.setBadgeCountAsync(count);
   } catch {
     return false;
   }
 }
 
 /**
- * 알림 배지 카운트 조회 (iOS)
+ * 알림 배지 카운트 조회
+ *
+ * Android는 런처에 따라 항상 0을 반환할 수 있다.
  */
 export async function getBadgeCount(): Promise<number> {
-  if (Platform.OS !== 'ios') {
-    return 0;
-  }
-
   try {
     return await Notifications.getBadgeCountAsync();
   } catch {
     return 0;
   }
+}
+
+/**
+ * 받은 인증 요청 목록 개수로 앱 아이콘 배지를 동기화한다.
+ */
+export async function syncBadgeCountWithReceivedRequests(): Promise<number> {
+  try {
+    const requests = await fetchReceivedRequests();
+    const nextCount = requests.length;
+    const didSetBadge = await setBadgeCount(nextCount);
+
+    return didSetBadge ? nextCount : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * 알림 수신 시 앱 아이콘 배지를 동기화한다.
+ *
+ * payload에 badge가 있으면 그 값을 우선 사용하고,
+ * 없으면 현재 배지 값에서 1 증가시킨다.
+ */
+export async function syncBadgeCountFromNotification(
+  notification: Notifications.Notification,
+): Promise<number> {
+  const badgeFromPayload = notification.request.content.badge;
+  const nextCount =
+    typeof badgeFromPayload === 'number'
+      ? badgeFromPayload
+      : (await getBadgeCount()) + 1;
+
+  const didSetBadge = await setBadgeCount(nextCount);
+
+  return didSetBadge ? nextCount : 0;
+}
+
+/**
+ * 앱 아이콘 배지를 초기화한다.
+ */
+export async function clearBadgeCount(): Promise<boolean> {
+  return setBadgeCount(0);
 }
 
 /**

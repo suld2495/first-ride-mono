@@ -2,7 +2,7 @@ import type { QuestStatusFilter } from '@repo/types';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import { Button } from '@/components/ui/button';
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 
 interface QuestStatusTabsProps {
@@ -36,14 +36,14 @@ const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
               pressed && styles.tabPressed,
             ]}
           >
-            <PixelText
+            <Typography
               variant="label"
               color={
                 isSelected ? theme.colors.action.secondary.label : undefined
               }
             >
               {tab.label}
-            </PixelText>
+            </Typography>
           </Button>
         );
       })}

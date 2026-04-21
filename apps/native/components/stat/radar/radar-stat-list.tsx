@@ -4,7 +4,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
-import PixelText from '@/components/ui/pixel-text';
+import Typography from '@/components/ui/typography';
 import { STAT_CONFIGS } from '@/constants/STATS';
 
 interface RadarStatListProps {
@@ -39,16 +39,16 @@ export const RadarStatList: React.FC<RadarStatListProps> = ({
         return (
           <View key={config.key} style={styles.row}>
             <Ionicons name={config.icon} size={16} color={config.color} />
-            <PixelText variant="label" color={config.color} style={styles.abbr}>
+            <Typography variant="label" color={config.color} style={styles.abbr}>
               {config.abbr}
-            </PixelText>
-            <PixelText
+            </Typography>
+            <Typography
               variant="label"
               color={hasChanged ? config.color : theme.colors.text.primary}
               style={styles.value}
             >
               {value}
-            </PixelText>
+            </Typography>
             {isEditing && (
               <View style={styles.controls}>
                 <Pressable

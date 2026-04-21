@@ -6,7 +6,7 @@ import QuestInfo from '@/components/quest/quest-info';
 import QuestRewards from '@/components/quest/quest-rewards';
 import QuestTime from '@/components/quest/quest-time';
 import { Button } from '@/components/ui/button';
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 import { useQuestAction } from '@/hooks/useQuestAction';
 import { useQuestId } from '@/hooks/useQuestSelection';
@@ -56,19 +56,19 @@ const QuestDetailModal = () => {
         <ThemeView style={styles.headerSection}>
           {/* Type Badge */}
           <ThemeView style={styles.badgeContainer}>
-            <PixelText
+            <Typography
               variant="label"
               color={theme.colors.action.secondary.label}
               style={styles.badgeText}
             >
               {QUEST_LABEL[questType]}
-            </PixelText>
+            </Typography>
           </ThemeView>
 
           {/* Quest Name */}
-          <PixelText variant="title" style={styles.questName}>
+          <Typography variant="title" style={styles.questName}>
             {questName}
-          </PixelText>
+          </Typography>
         </ThemeView>
 
         {/* Quest Info */}

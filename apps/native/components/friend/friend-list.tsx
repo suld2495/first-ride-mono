@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList } from '@/components/ui/flash-list';
 import { Loading } from '@/components/ui/loading';
 import { PixelCard } from '@/components/ui/pixel-card';
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
 import { getApiErrorMessage } from '@/utils/error-utils';
@@ -77,9 +77,9 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
               color={theme.colors.action.secondary.label}
             />
           </ThemeView>
-          <PixelText variant="body" style={styles.nickname}>
+          <Typography variant="body" style={styles.nickname}>
             {nickname}
-          </PixelText>
+          </Typography>
         </ThemeView>
         <Button
           variant="ghost"

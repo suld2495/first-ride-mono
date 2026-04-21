@@ -2,24 +2,22 @@ import Header from '../../../components/layout/header';
 import { render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockRequestList } from '../../setup/request/mock';
 
-// useRequest hook mock
-const mockUseFetchReceivedRequestsQuery = jest.fn();
+const mockUseReceivedRequests = jest.fn();
 
-jest.mock('@repo/shared/hooks/useRequest', () => ({
-  useFetchReceivedRequestsQuery: (nickname: string) =>
-    mockUseFetchReceivedRequestsQuery(nickname),
+jest.mock('@/hooks/useReceivedRequests', () => ({
+  useReceivedRequests: (nickname: string) => mockUseReceivedRequests(nickname),
 }));
 
 describe('Header 컴포넌트', () => {
   beforeEach(() => {
     resetAuthMocks();
-    mockUseFetchReceivedRequestsQuery.mockClear();
+    mockUseReceivedRequests.mockClear();
   });
 
   describe('메이트 인증 요청 카운트 표시 테스트', () => {
     describe('인증 요청이 없는 경우', () => {
       beforeEach(() => {
-        mockUseFetchReceivedRequestsQuery.mockReturnValue({
+        mockUseReceivedRequests.mockReturnValue({
           data: [],
         });
       });
@@ -37,7 +35,7 @@ describe('Header 컴포넌트', () => {
       const requestCount = 3;
 
       beforeEach(() => {
-        mockUseFetchReceivedRequestsQuery.mockReturnValue({
+        mockUseReceivedRequests.mockReturnValue({
           data: createMockRequestList(requestCount),
         });
       });
@@ -54,7 +52,7 @@ describe('Header 컴포넌트', () => {
 
     describe('인증 요청이 1건인 경우', () => {
       beforeEach(() => {
-        mockUseFetchReceivedRequestsQuery.mockReturnValue({
+        mockUseReceivedRequests.mockReturnValue({
           data: createMockRequestList(1),
         });
       });

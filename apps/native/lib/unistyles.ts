@@ -7,10 +7,9 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { darkTheme, lightTheme } from '@/theme/themes';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
-import { darkTheme } from '@/styles/themes/dark';
-import { lightTheme } from '@/styles/themes/light';
-import { createFoundation } from '@/styles/tokens/foundation';
+import { createFoundation } from '@/theme/tokens';
 
 const appThemes = {
   light: {

@@ -8,7 +8,7 @@ import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { PixelCard } from '@/components/ui/pixel-card';
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import type { ThemedViewProps } from '@/components/ui/theme-view';
 import ThemeView from '@/components/ui/theme-view';
 
@@ -25,7 +25,7 @@ const WeekyView = (props: ThemedViewProps & { text?: string }) => {
   return (
     <ThemeView {...props} transparent>
       {props.text ? (
-        <PixelText variant="label">{props.text}</PixelText>
+        <Typography variant="label">{props.text}</Typography>
       ) : (
         props.children
       )}
@@ -60,13 +60,13 @@ const RoutineCountList = ({
                 onPress={() => onShowDetailModal(routineId)}
                 style={styles.titleButton}
               >
-                <PixelText
+                <Typography
                   variant="body"
                   color={theme.colors.text.primary}
                   style={styles.title}
                 >
                   {routineName}
-                </PixelText>
+                </Typography>
               </Button>
             </ThemeView>
             <ThemeView transparent>
@@ -209,11 +209,11 @@ const RoutineCountList = ({
                     />
                   </Animated.View>
                 ) : (
-                  <PixelText variant="label">
+                  <Typography variant="label">
                     {routineCount > 0
                       ? `${Math.round((weeklyCount / routineCount) * 100)}%`
                       : '0%'}
-                  </PixelText>
+                  </Typography>
                 )}
               </ThemeView>
             </ThemeView>

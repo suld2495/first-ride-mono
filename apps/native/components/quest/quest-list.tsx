@@ -7,9 +7,8 @@ import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { PixelCard } from '@/components/ui/pixel-card';
-import { PixelText } from '@/components/ui/pixel-text';
-import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import ThemeView from '@/components/ui/theme-view';
 
 import QuestTime from './quest-time';
 
@@ -36,21 +35,21 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
         {/* Type Badge */}
         <ThemeView style={styles.headerRow} transparent>
           <ThemeView style={styles.badge}>
-            <PixelText
+            <Typography
               variant="label"
               color={theme.colors.action.secondary.label}
               style={styles.badgeText}
             >
               {QUEST_LABEL[questType]}
-            </PixelText>
+            </Typography>
           </ThemeView>
           <QuestTime endDate={new Date(endDate)} />
         </ThemeView>
 
         {/* Quest Name */}
-        <PixelText variant="body" style={styles.questName}>
+        <Typography variant="body" style={styles.questName}>
           {questName}
-        </PixelText>
+        </Typography>
 
         {/* GOAL Section */}
         <ThemeView style={styles.goalSection} transparent>

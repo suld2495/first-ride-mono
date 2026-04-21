@@ -1,7 +1,7 @@
 import { StyleSheet } from '@/lib/unistyles';
 
 import Link from '@/components/ui/link';
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 
 import RoutineDate from './routine-date';
@@ -14,7 +14,7 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
   return (
     <ThemeView style={styles.container} transparent>
       <ThemeView style={styles.header} transparent>
-        <PixelText variant="title">루틴 리스트</PixelText>
+        <Typography variant="title">루틴 리스트</Typography>
         <Link
           href="/modal?type=routine-add"
           title="루틴 추가 +"

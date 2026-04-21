@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 
 import { useToast } from '@/contexts/ToastContext';
+import { syncBadgeCountWithReceivedRequests } from '@/utils/notifications';
 
 interface UseRequestReplyParams {
   confirmId: number | undefined;
@@ -31,7 +32,8 @@ export const useRequestReply = ({
           checkComment: comment,
         },
         {
-          onSuccess: () => {
+          onSuccess: async () => {
+            await syncBadgeCountWithReceivedRequests();
             showToast(
               status === 'PASS' ? '승인되었습니다.' : '거절되었습니다.',
               'success',

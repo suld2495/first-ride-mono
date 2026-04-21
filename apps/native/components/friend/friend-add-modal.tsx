@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { FlashList } from '@/components/ui/flash-list';
 import { Input } from '@/components/ui/input';
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
 import { getApiErrorMessage } from '@/utils/error-utils';
@@ -56,7 +56,7 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
 
   return (
     <ThemeView style={styles.userItem} transparent>
-      <PixelText variant="body">{nickname}</PixelText>
+      <Typography variant="body">{nickname}</Typography>
       <Button
         variant="ghost"
         size="sm"
@@ -135,7 +135,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
         >
           <ThemeView style={styles.modalContent} variant="elevated">
             <ThemeView style={styles.modalHeader} transparent>
-              <PixelText variant="subtitle">친구 추가</PixelText>
+              <Typography variant="subtitle">친구 추가</Typography>
               <Pressable
                 onPress={handleClose}
                 hitSlop={8}
@@ -168,9 +168,9 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                 ItemSeparatorComponent={() => <Divider />}
                 ListEmptyComponent={
                   <ThemeView style={styles.emptyContainer} transparent>
-                    <PixelText variant="body" style={styles.emptyText}>
+                    <Typography variant="body" style={styles.emptyText}>
                       유저가 존재하지 않습니다.
-                    </PixelText>
+                    </Typography>
                   </ThemeView>
                 }
                 contentContainerStyle={

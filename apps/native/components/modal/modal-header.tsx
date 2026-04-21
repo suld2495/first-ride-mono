@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
-import { PixelText } from '@/components/ui/pixel-text';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 
 interface ModalHeaderProps {
@@ -41,9 +41,9 @@ const ModalHeader = ({ title }: ModalHeaderProps) => {
       </Pressable>
 
       {/* Centered Title */}
-      <PixelText variant="subtitle" style={styles.title}>
+      <Typography variant="subtitle" style={styles.title}>
         {title}
-      </PixelText>
+      </Typography>
 
       {/* Spacer (same width as back button for centering) */}
       <ThemeView style={styles.spacer} transparent />

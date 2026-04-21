@@ -5,7 +5,7 @@ import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
 import PixelProgressBar from '@/components/ui/pixel-progress-bar';
-import PixelText from '@/components/ui/pixel-text';
+import Typography from '@/components/ui/typography';
 import { STAT_MAX_VALUE, type StatConfig } from '@/constants/STATS';
 
 interface ClassicStatItemProps {
@@ -38,12 +38,12 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
           <Ionicons name={config.icon} size={20} color={config.color} />
         </View>
         <View style={styles.nameContainer}>
-          <PixelText variant="label" color={config.color}>
+          <Typography variant="label" color={config.color}>
             {config.abbr}
-          </PixelText>
-          <PixelText variant="label" color={theme.colors.text.secondary}>
+          </Typography>
+          <Typography variant="label" color={theme.colors.text.secondary}>
             {config.name}
-          </PixelText>
+          </Typography>
         </View>
         <View style={styles.valueContainer}>
           {isEditing && (
@@ -66,12 +66,12 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
               />
             </Pressable>
           )}
-          <PixelText
+          <Typography
             variant="value"
             color={hasChanged ? config.color : theme.colors.text.primary}
           >
             {value}
-          </PixelText>
+          </Typography>
           {isEditing && (
             <Pressable
               style={[

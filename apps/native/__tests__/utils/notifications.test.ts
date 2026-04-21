@@ -1,6 +1,106 @@
+import * as requestApi from '@repo/shared/api/request.api';
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+
 import { DEEP_LINK_SCREENS } from '../../constants/NOTIFICATIONS';
 import type { NotificationDeepLinkData } from '../../types/notification-types';
-import { getDeepLinkPath } from '../../utils/notifications';
+import {
+  clearBadgeCount,
+  getBadgeCount,
+  getDeepLinkPath,
+  setBadgeCount,
+  syncBadgeCountFromNotification,
+  syncBadgeCountWithReceivedRequests,
+} from '../../utils/notifications';
+
+const mockNotifications = jest.mocked(Notifications);
+const originalPlatform = Platform.OS;
+
+function setPlatform(os: 'ios' | 'android') {
+  Object.defineProperty(Platform, 'OS', {
+    configurable: true,
+    get: () => os,
+  });
+}
+
+afterEach(() => {
+  jest.clearAllMocks();
+  setPlatform(originalPlatform as 'ios' | 'android');
+});
+
+describe('badge helpers', () => {
+  it('받은 인증 요청 목록 개수로 badge count를 동기화한다', async () => {
+    jest
+      .spyOn(requestApi, 'fetchReceivedRequests')
+      .mockResolvedValue([{ id: 1 }, { id: 2 }, { id: 3 }] as Awaited<
+        ReturnType<typeof requestApi.fetchReceivedRequests>
+      >);
+    mockNotifications.setBadgeCountAsync.mockResolvedValue(true);
+
+    await expect(syncBadgeCountWithReceivedRequests()).resolves.toBe(3);
+
+    expect(requestApi.fetchReceivedRequests).toHaveBeenCalledTimes(1);
+    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(3);
+  });
+
+  it('android에서도 badge count 설정을 시도한다', async () => {
+    setPlatform('android');
+    mockNotifications.setBadgeCountAsync.mockResolvedValue(true);
+
+    await expect(setBadgeCount(3)).resolves.toBe(true);
+
+    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(3);
+  });
+
+  it('android에서도 badge count 조회를 시도한다', async () => {
+    setPlatform('android');
+    mockNotifications.getBadgeCountAsync.mockResolvedValue(7);
+
+    await expect(getBadgeCount()).resolves.toBe(7);
+
+    expect(mockNotifications.getBadgeCountAsync).toHaveBeenCalledTimes(1);
+  });
+
+  it('알림 payload에 badge가 있으면 해당 값으로 동기화한다', async () => {
+    mockNotifications.setBadgeCountAsync.mockResolvedValue(true);
+
+    const notification = {
+      request: {
+        content: {
+          badge: 5,
+        },
+      },
+    } as Notifications.Notification;
+
+    await expect(syncBadgeCountFromNotification(notification)).resolves.toBe(5);
+
+    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(5);
+  });
+
+  it('알림 payload에 badge가 없으면 현재 badge에서 1 증가시킨다', async () => {
+    mockNotifications.getBadgeCountAsync.mockResolvedValue(2);
+    mockNotifications.setBadgeCountAsync.mockResolvedValue(true);
+
+    const notification = {
+      request: {
+        content: {},
+      },
+    } as Notifications.Notification;
+
+    await expect(syncBadgeCountFromNotification(notification)).resolves.toBe(3);
+
+    expect(mockNotifications.getBadgeCountAsync).toHaveBeenCalledTimes(1);
+    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(3);
+  });
+
+  it('clearBadgeCount는 0으로 초기화한다', async () => {
+    mockNotifications.setBadgeCountAsync.mockResolvedValue(true);
+
+    await expect(clearBadgeCount()).resolves.toBe(true);
+
+    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(0);
+  });
+});
 
 describe('getDeepLinkPath', () => {
   describe('data가 없는 경우', () => {

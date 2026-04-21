@@ -7,6 +7,21 @@ import {
 } from '../../setup/auth-test-utils';
 import { createMockRequestList } from '../../setup/request/mock';
 
+jest.mock('@/components/ui/flash-list', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  return {
+    FlashList: ({ data, renderItem }) => (
+      <View>
+        {data.map((item, index) => (
+          <View key={item.id ?? index}>{renderItem({ item, index })}</View>
+        ))}
+      </View>
+    ),
+  };
+});
+
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
 
@@ -21,12 +36,10 @@ jest.mock('@/store/request.store', () => ({
     }),
 }));
 
-// useRequest hook mock
-const mockUseFetchReceivedRequestsQuery = jest.fn();
+const mockUseReceivedRequests = jest.fn();
 
-jest.mock('@repo/shared/hooks/useRequest', () => ({
-  useFetchReceivedRequestsQuery: (nickname: string) =>
-    mockUseFetchReceivedRequestsQuery(nickname),
+jest.mock('@/hooks/useReceivedRequests', () => ({
+  useReceivedRequests: (nickname: string) => mockUseReceivedRequests(nickname),
 }));
 
 describe('RequestListModal (인증 요청 확인 모달)', () => {
@@ -34,7 +47,7 @@ describe('RequestListModal (인증 요청 확인 모달)', () => {
     resetAuthMocks();
     mockPush.mockClear();
     mockSetRequestId.mockClear();
-    mockUseFetchReceivedRequestsQuery.mockClear();
+    mockUseReceivedRequests.mockClear();
   });
 
   describe('인증 요청 리스트 표시 테스트', () => {
@@ -45,7 +58,7 @@ describe('RequestListModal (인증 요청 확인 모달)', () => {
           nickname: 'friend1',
         });
 
-        mockUseFetchReceivedRequestsQuery.mockReturnValue({
+        mockUseReceivedRequests.mockReturnValue({
           data: mockRequests,
         });
       });
@@ -73,7 +86,7 @@ describe('RequestListModal (인증 요청 확인 모달)', () => {
           createdAt: '2024-01-15T10:00:00.000Z',
         });
 
-        mockUseFetchReceivedRequestsQuery.mockReturnValue({
+        mockUseReceivedRequests.mockReturnValue({
           data: mockRequests,
         });
 
@@ -86,7 +99,7 @@ describe('RequestListModal (인증 요청 확인 모달)', () => {
 
     describe('인증 요청이 없는 경우', () => {
       beforeEach(() => {
-        mockUseFetchReceivedRequestsQuery.mockReturnValue({
+        mockUseReceivedRequests.mockReturnValue({
           data: [],
         });
       });
@@ -103,7 +116,7 @@ describe('RequestListModal (인증 요청 확인 모달)', () => {
     beforeEach(() => {
       const mockRequests = createMockRequestList(2);
 
-      mockUseFetchReceivedRequestsQuery.mockReturnValue({
+      mockUseReceivedRequests.mockReturnValue({
         data: mockRequests,
       });
     });
@@ -159,7 +172,7 @@ describe('RequestListModal (인증 요청 확인 모달)', () => {
         },
       ];
 
-      mockUseFetchReceivedRequestsQuery.mockReturnValue({
+      mockUseReceivedRequests.mockReturnValue({
         data: mockRequests,
       });
 
@@ -188,7 +201,7 @@ describe('RequestListModal (인증 요청 확인 모달)', () => {
         },
       ];
 
-      mockUseFetchReceivedRequestsQuery.mockReturnValue({
+      mockUseReceivedRequests.mockReturnValue({
         data: mockRequests,
       });
 

@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
 
-import PixelText from './pixel-text';
+import Typography from './typography';
 import ThemeView from './theme-view';
 
 interface EmptyStateProps {
@@ -19,9 +19,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <ThemeView style={styles.container}>
       <Ionicons name={icon} size={48} color={theme.colors.text.tertiary} />
-      <PixelText variant="body" style={styles.message}>
+      <Typography variant="body" style={styles.message}>
         {message}
-      </PixelText>
+      </Typography>
     </ThemeView>
   );
 };
