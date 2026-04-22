@@ -128,7 +128,15 @@ describe('루틴 조회 페이지', () => {
         expect(await findByTestId('routine-scroll-indicator')).toBeOnTheScreen();
       });
 
-      it('루틴이 4개를 넘으면 리스트 컨테이너 높이가 4개 기준으로 제한된다', async () => {
+      it('루틴이 2개 이상이면 접힌 상태에서 두 번째 카드 위에 오버레이가 표시된다', async () => {
+        const { findByText, findByTestId } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+
+        expect(await findByTestId('routine-preview-overlay')).toBeOnTheScreen();
+      });
+
+      it('기본 상태에서는 리스트 컨테이너 높이가 2개 기준으로 제한되고 스크롤이 비활성화된다', async () => {
         mockAxios
           .onGet(/\/routine\/list/)
           .reply(200, { data: createMockRoutines(5) });
@@ -138,6 +146,7 @@ describe('루틴 조회 페이지', () => {
         await findByText('테스트 루틴 1');
 
         const routineListViewport = getByTestId('routine-list-viewport');
+        const routineListScroll = getByTestId('routine-list-scroll');
         const flattenStyles = (styles: unknown): object[] => {
           if (!styles) return [];
           if (Array.isArray(styles)) {
@@ -152,15 +161,85 @@ describe('루틴 조회 페이지', () => {
         expect(viewportStyles).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ overflow: 'hidden' }),
-            expect.objectContaining({ height: 516 }),
+            expect.objectContaining({ height: 236 }),
           ]),
         );
+        expect(routineListScroll.props.scrollEnabled).toBe(false);
+      });
+
+      it('하단 버튼을 누르면 리스트가 4개 높이로 확장되고 스크롤이 활성화된다', async () => {
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .reply(200, { data: createMockRoutines(5) });
+
+        const { findByText, getByTestId, findByTestId } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+
+        fireEvent.press(getByTestId('routine-scroll-indicator'));
+
+        const routineListViewport = getByTestId('routine-list-viewport');
+        const routineListScroll = getByTestId('routine-list-scroll');
+        const flattenStyles = (styles: unknown): object[] => {
+          if (!styles) return [];
+          if (Array.isArray(styles)) {
+            return styles.flatMap((style) => flattenStyles(style));
+          }
+
+          return [styles as object];
+        };
+
+        const viewportStyles = flattenStyles(routineListViewport.props.style);
+
+        expect(viewportStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ overflow: 'hidden' }),
+            expect.objectContaining({ height: 492 }),
+          ]),
+        );
+        expect(routineListScroll.props.scrollEnabled).toBe(true);
+        expect(await findByTestId('routine-preview-overlay')).toBeOnTheScreen();
+      });
+
+      it('펼친 뒤 버튼을 다시 누르면 리스트가 다시 접힌다', async () => {
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .reply(200, { data: createMockRoutines(5) });
+
+        const { findByText, getByTestId, findByLabelText } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+
+        fireEvent.press(getByTestId('routine-scroll-indicator'));
+        expect(await findByLabelText('루틴 리스트 접기')).toBeOnTheScreen();
+
+        fireEvent.press(getByTestId('routine-scroll-indicator'));
+
+        const routineListViewport = getByTestId('routine-list-viewport');
+        const routineListScroll = getByTestId('routine-list-scroll');
+        const flattenStyles = (styles: unknown): object[] => {
+          if (!styles) return [];
+          if (Array.isArray(styles)) {
+            return styles.flatMap((style) => flattenStyles(style));
+          }
+
+          return [styles as object];
+        };
+
+        const viewportStyles = flattenStyles(routineListViewport.props.style);
+
+        expect(viewportStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ overflow: 'hidden' }),
+            expect.objectContaining({ height: 236 }),
+          ]),
+        );
+        expect(routineListScroll.props.scrollEnabled).toBe(false);
+        expect(await findByLabelText('루틴 리스트 펼치기')).toBeOnTheScreen();
       });
 
       it('루틴이 4개 이하면 하단 화살표가 표시되지 않는다', async () => {
-        mockAxios
-          .onGet(/\/routine\/list/)
-          .reply(200, { data: createMockRoutines(4) });
+        mockAxios.onGet(/\/routine\/list/).reply(200, { data: createMockRoutines(1) });
 
         const { queryByTestId, findByText } = render(<Index />);
 

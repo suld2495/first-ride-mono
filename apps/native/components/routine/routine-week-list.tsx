@@ -14,6 +14,8 @@ import { Typography } from '@/components/ui/typography';
 interface RoutineWeekListProps {
   routines: WeeklyRoutine[];
   date: string;
+  scrollEnabled?: boolean;
+  testID?: string;
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   onShowRequestModal: (id: number) => void;
@@ -33,6 +35,8 @@ const getRoutineItemLayout = (_: WeeklyRoutine[] | null, index: number) => ({
 const RoutineWeekList = ({
   routines,
   date,
+  scrollEnabled = true,
+  testID,
   refreshing = false,
   onRefresh,
   onShowRequestModal,
@@ -159,7 +163,9 @@ const RoutineWeekList = ({
       getItemLayout={getRoutineItemLayout}
       refreshing={refreshing}
       onRefresh={onRefresh}
+      scrollEnabled={scrollEnabled}
       showsVerticalScrollIndicator={false}
+      testID={testID}
     />
   );
 };

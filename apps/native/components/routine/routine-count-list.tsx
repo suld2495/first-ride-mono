@@ -14,6 +14,8 @@ import { baseFoundation, palette } from '@/theme/tokens';
 interface RoutineCountListProps {
   routines: Routine[];
   date: string;
+  scrollEnabled?: boolean;
+  testID?: string;
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   onShowRequestModal: (id: number) => void;
@@ -63,6 +65,8 @@ const getRoutineItemLayout = (_: Routine[] | null, index: number) => ({
 const RoutineCountList = ({
   routines,
   date,
+  scrollEnabled = true,
+  testID,
   refreshing = false,
   onRefresh,
   onShowRequestModal,
@@ -207,7 +211,9 @@ const RoutineCountList = ({
       getItemLayout={getRoutineItemLayout}
       refreshing={refreshing}
       onRefresh={onRefresh}
+      scrollEnabled={scrollEnabled}
       showsVerticalScrollIndicator={false}
+      testID={testID}
     />
   );
 };

@@ -115,7 +115,7 @@ export default function Index() {
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    backgroundColor: '#97C6F5',
+    backgroundColor: '#A3D4FF',
   },
   scene: {
     position: 'absolute',
