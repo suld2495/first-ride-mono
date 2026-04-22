@@ -3,6 +3,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
 import { useCallback } from 'react';
 import { View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
@@ -21,6 +22,37 @@ interface RoutineCountListProps {
 
 const ROUTINE_CARD_HEIGHT = 182;
 const ROUTINE_TITLE_COLOR = '#DDEEFF';
+const ROUTINE_CHECKMARK_WIDTH = 12;
+const ROUTINE_CHECKMARK_HEIGHT = 9;
+const ROUTINE_CHECKMARK_SCALE = 0.7;
+
+interface RoutineCheckmarkIconProps {
+  color: string;
+  size: number;
+}
+
+const RoutineCheckmarkIcon = ({ color, size }: RoutineCheckmarkIconProps) => {
+  const scaledWidth = size * ROUTINE_CHECKMARK_SCALE;
+  const scaledHeight =
+    (scaledWidth * ROUTINE_CHECKMARK_HEIGHT) / ROUTINE_CHECKMARK_WIDTH;
+
+  return (
+    <Svg
+      width={scaledWidth}
+      height={scaledHeight}
+      viewBox={`0 0 ${ROUTINE_CHECKMARK_WIDTH} ${ROUTINE_CHECKMARK_HEIGHT}`}
+      fill="none"
+    >
+      <Path
+        d="M1.25 4.91667L3.69444 7.36111L9.80556 1.25"
+        stroke={color}
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
 
 const getRoutineItemLayout = (_: Routine[] | null, index: number) => ({
   length: ROUTINE_CARD_HEIGHT,
@@ -106,18 +138,22 @@ const RoutineCountList = ({
                           accessibilityLabel={label}
                           accessibilityRole="image"
                         >
-                          <View style={styles.checkBox}>
+                          <View
+                            style={[
+                              styles.checkBox,
+                              achieved ? styles.achievedCheckBox : '',
+                            ]}
+                          >
                             {achieved ? (
-                              <Ionicons
-                                name="checkmark"
+                              <RoutineCheckmarkIcon
                                 size={baseFoundation.iconSize.s}
-                                color={isGoalRange ? '#67B7FF' : '#FFD166'}
+                                color={isGoalRange ? '#000306' : '#16334C'}
                               />
                             ) : !isGoalRange ? (
                               <Ionicons
                                 name="remove"
                                 size={baseFoundation.iconSize.s}
-                                color="#40688D"
+                                color="#16334C"
                               />
                             ) : null}
                           </View>
@@ -214,7 +250,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: baseFoundation.spacing.m,
     paddingTop: baseFoundation.dimension.x5,
     paddingBottom: baseFoundation.dimension.x5,
-    backgroundColor: palette.blue[100],
+    backgroundColor: '#001A31',
     justifyContent: 'center',
   },
   titleButton: {
@@ -251,9 +287,12 @@ const styles = StyleSheet.create({
     width: baseFoundation.dimension.x20,
     height: baseFoundation.dimension.x20,
     borderRadius: baseFoundation.dimension.x4,
-    backgroundColor: '#071B31',
+    backgroundColor: '#000306',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  achievedCheckBox: {
+    backgroundColor: '#7FC3FF',
   },
   footer: {
     flexDirection: 'row',
