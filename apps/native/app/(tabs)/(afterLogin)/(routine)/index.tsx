@@ -34,6 +34,7 @@ export default function Index() {
     isRefetching,
     refetch,
   } = useRoutinesQuery(user?.nickname || '', date);
+  const hasRoutines = routines.length > 0;
 
   useEffect(() => {
     if (!isLoading && isFirstLoadRef.current) {
@@ -60,15 +61,17 @@ export default function Index() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar style="dark" />
-      <View style={styles.scene} pointerEvents="none">
-        <View style={styles.backgroundArt}>
-          {renderRoutineSceneAsset(routineSceneAssets.background, {
-            testID: 'routine-scene-background',
-            style: styles.backgroundImage,
-            resizeMode: 'stretch',
-          })}
+      {hasRoutines ? (
+        <View style={styles.scene} pointerEvents="none">
+          <View style={styles.backgroundArt}>
+            {renderRoutineSceneAsset(routineSceneAssets.background, {
+              testID: 'routine-scene-background',
+              style: styles.backgroundImage,
+              resizeMode: 'stretch',
+            })}
+          </View>
         </View>
-      </View>
+      ) : null}
       <View style={styles.contentWrapper}>
         <RoutineHeader date={date} />
         {showLoading ? (
@@ -95,12 +98,14 @@ export default function Index() {
         testID="routine-add-fab"
         style={styles.fab}
       />
-      <View style={styles.character} pointerEvents="none">
-        {renderRoutineSceneAsset(routineSceneAssets.character, {
-          testID: 'routine-scene-character',
-          style: styles.characterImage,
-        })}
-      </View>
+      {hasRoutines ? (
+        <View style={styles.character} pointerEvents="none">
+          {renderRoutineSceneAsset(routineSceneAssets.character, {
+            testID: 'routine-scene-character',
+            style: styles.characterImage,
+          })}
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }
