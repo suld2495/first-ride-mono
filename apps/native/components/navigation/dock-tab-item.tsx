@@ -2,14 +2,11 @@ import * as Haptics from 'expo-haptics';
 import React from 'react';
 import {
   Pressable,
-  type LayoutChangeEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { StyleSheet } from '@/lib/unistyles';
-
-import { Typography } from '@/components/ui/typography';
 
 interface DockTabItemProps {
   label: string;
@@ -20,9 +17,8 @@ interface DockTabItemProps {
   animatedStyle: StyleProp<ViewStyle>;
   onPress: () => void;
   onLongPress: () => void;
-  onPressIn: () => void;
-  onPressOut: () => void;
-  onLayout?: (event: LayoutChangeEvent) => void;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
 }
 
 export const DockTabItem: React.FC<DockTabItemProps> = ({
@@ -36,7 +32,6 @@ export const DockTabItem: React.FC<DockTabItemProps> = ({
   onLongPress,
   onPressIn,
   onPressOut,
-  onLayout,
 }) => {
   const color = focused ? activeColor : inactiveColor;
 
@@ -51,36 +46,34 @@ export const DockTabItem: React.FC<DockTabItemProps> = ({
       onLongPress={onLongPress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
-      onLayout={onLayout}
       style={styles.pressable}
       accessibilityRole="tab"
       accessibilityState={{ selected: focused }}
       accessibilityLabel={label}
     >
-      <Animated.View style={[styles.itemContainer, animatedStyle]}>
+      <Animated.View
+        style={[
+          styles.itemContainer,
+          animatedStyle,
+        ]}
+      >
         {icon({ color, focused })}
-        <Typography variant="label" color={color} style={styles.label}>
-          {label}
-        </Typography>
       </Animated.View>
     </Pressable>
   );
 };
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create({
   pressable: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: theme.foundation.spacing.xs,
+    height: '100%',
   },
   itemContainer: {
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
   },
-  label: {
-    fontSize: 10,
-    letterSpacing: 0.3,
-  },
-}));
+});

@@ -1,13 +1,12 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Image, type ImageSourcePropType } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
 
 export interface TabBarIconProps {
-  /** Icon name from FontAwesome */
-  name: React.ComponentProps<typeof FontAwesome>['name'];
+  source: ImageSourcePropType;
   /** Icon size in pixels (default: 20) */
   size?: number;
-  /** Icon color - should use semantic tokens from theme */
-  color: string;
+  /** Tint color for the icon */
+  color?: string;
 }
 
 /**
@@ -16,12 +15,22 @@ export interface TabBarIconProps {
  *
  * @example
  * import { useUnistyles } from '@/lib/unistyles';
- * const { theme } = useUnistyles();
- * <TabBarIcon name="list" color={theme.colors.text.primary} />
+ * <TabBarIcon source={require('@/assets/tab-bar/home.png')} color="#0F3D68" />
  */
-const TabBarIcon = ({ name, size = 20, color }: TabBarIconProps) => {
+const TabBarIcon = ({ source, size = 20, color }: TabBarIconProps) => {
   return (
-    <FontAwesome name={name} size={size} color={color} style={styles.icon} />
+    <Image
+      source={source}
+      style={[
+        styles.icon,
+        {
+          width: size,
+          height: size,
+          tintColor: color,
+        },
+      ]}
+      resizeMode="contain"
+    />
   );
 };
 

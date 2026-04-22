@@ -1,23 +1,20 @@
 import { type BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import React, { useCallback, useEffect, useRef } from 'react';
-import { type LayoutChangeEvent, View, type ViewStyle } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import React from 'react';
+import { View } from 'react-native';
 import { useUnistyles } from '@/lib/unistyles';
-
-import { useDockMagnification } from '@/hooks/useDockMagnification';
 
 import { DockTabItem } from './dock-tab-item';
 
-interface TabLayout {
-  x: number;
-  width: number;
-}
-
-const INDICATOR_SPRING = { damping: 18, stiffness: 120, mass: 0.8 };
+const TAB_BAR_HEIGHT = 44;
+const TAB_BAR_HORIZONTAL_PADDING = 8;
+const TAB_BAR_BACKGROUND = '#F7F4F4';
+const TAB_BAR_BOTTOM_PADDING = 6;
+const TAB_ROUTE_NAMES = new Set([
+  '(afterLogin)/(routine)/index',
+  '(afterLogin)/(quest)/index',
+  '(afterLogin)/(friend)/index',
+  '(afterLogin)/my-info',
+]);
 
 export const DockTabBar: React.FC<BottomTabBarProps> = ({
   state,
@@ -26,56 +23,9 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
   insets,
 }) => {
   const { theme } = useUnistyles();
-  const isDark = theme.name === 'dark';
-
-  const { useAnimatedScale, handlePressIn, handlePressOut, setActiveIndex } =
-    useDockMagnification();
-
-  const tabLayouts = useRef<TabLayout[]>([]);
-  const indicatorX = useSharedValue(0);
-  const indicatorWidth = useSharedValue(0);
-  const isReady = useSharedValue(0);
-
-  const handleTabLayout = useCallback(
-    (index: number) => (event: LayoutChangeEvent) => {
-      const { x, width } = event.nativeEvent.layout;
-
-      tabLayouts.current[index] = { x, width };
-
-      // Check if all tabs have been measured
-      if (tabLayouts.current.filter(Boolean).length === state.routes.length) {
-        const activeLayout = tabLayouts.current[state.index];
-
-        if (activeLayout) {
-          indicatorX.value = activeLayout.x;
-          indicatorWidth.value = activeLayout.width;
-          isReady.value = 1;
-        }
-      }
-    },
-    [state.routes.length, state.index, indicatorX, indicatorWidth, isReady],
+  const visibleRoutes = state.routes.filter((route) =>
+    TAB_ROUTE_NAMES.has(route.name),
   );
-
-  useEffect(() => {
-    setActiveIndex(state.index);
-
-    const layout = tabLayouts.current[state.index];
-
-    if (layout && isReady.value === 1) {
-      indicatorX.value = withSpring(layout.x, INDICATOR_SPRING);
-      indicatorWidth.value = withSpring(layout.width, INDICATOR_SPRING);
-    }
-  }, [state.index, setActiveIndex, indicatorX, indicatorWidth, isReady]);
-
-  const indicatorAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: isReady.value,
-    transform: [{ translateX: indicatorX.value }],
-    width: indicatorWidth.value,
-  }));
-
-  const indicatorColor = isDark
-    ? 'rgba(33, 150, 243, 0.15)'
-    : 'rgba(30, 136, 229, 0.12)';
 
   return (
     <View
@@ -84,35 +34,23 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
         bottom: 0,
         left: 0,
         right: 0,
-        paddingBottom: insets.bottom,
+        backgroundColor: TAB_BAR_BACKGROUND,
+        paddingBottom: Math.min(insets.bottom, TAB_BAR_BOTTOM_PADDING),
       }}
     >
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          paddingVertical: 8,
-          paddingHorizontal: 4,
+          justifyContent: 'space-between',
+          height: TAB_BAR_HEIGHT,
+          paddingHorizontal: TAB_BAR_HORIZONTAL_PADDING,
         }}
       >
-        <Animated.View
-          style={[
-            {
-              position: 'absolute',
-              top: 4,
-              bottom: 4,
-              left: 4,
-              borderRadius: 16,
-              backgroundColor: indicatorColor,
-            },
-            indicatorAnimatedStyle as unknown as ViewStyle,
-          ]}
-        />
-
-        {state.routes.map((route, index) => {
+        {visibleRoutes.map((route) => {
           const { options } = descriptors[route.key];
           const label = options.title ?? route.name;
-          const focused = state.index === index;
+          const focused = route.key === state.routes[state.index]?.key;
 
           const onPress = () => {
             const event = navigation.emit({
@@ -133,8 +71,6 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
             });
           };
 
-          const animatedScale = useAnimatedScale(index);
-
           return (
             <DockTabItem
               key={route.key}
@@ -153,12 +89,11 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
               inactiveColor={
                 options.tabBarInactiveTintColor ?? theme.colors.text.secondary
               }
-              animatedStyle={animatedScale as unknown as ViewStyle}
+              animatedStyle={undefined}
               onPress={onPress}
               onLongPress={onLongPress}
-              onPressIn={() => handlePressIn(index)}
-              onPressOut={handlePressOut}
-              onLayout={handleTabLayout(index)}
+              onPressIn={undefined}
+              onPressOut={undefined}
             />
           );
         })}
