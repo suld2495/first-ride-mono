@@ -48,7 +48,7 @@ const MyInfo = () => {
           }
 
           await signOut();
-          router.replace('/');
+          router.replace('/sign-in');
         },
       },
     ]);

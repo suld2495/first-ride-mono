@@ -31,6 +31,7 @@ import { getKakaoNativeAppKey } from '@/utils/env';
 import {
   extractDeepLinkData,
   getDeepLinkPath,
+  syncBadgeCountFromNotification,
   syncBadgeCountWithReceivedRequests,
 } from '@/utils/notifications';
 
@@ -114,13 +115,20 @@ function AppShell() {
     [user, router, setRequestId, setRoutineId],
   );
 
-  const handleNotificationReceived = useCallback(() => {
-    if (!user) {
-      return;
-    }
+  const handleNotificationReceived = useCallback(
+    (
+      notification: Parameters<
+        NonNullable<NotificationHandlers['onReceived']>
+      >[0],
+    ) => {
+      if (!user) {
+        return;
+      }
 
-    void syncBadgeCountWithReceivedRequests();
-  }, [user]);
+      void syncBadgeCountFromNotification(notification);
+    },
+    [user],
+  );
 
   const notificationHandlers: NotificationHandlers = useMemo(
     () => ({
