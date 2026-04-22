@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
@@ -18,7 +19,8 @@ import { IconButton } from '@/components/ui/icon-button';
 import Loading from '@/components/ui/loading';
 import { useAuthUser } from '@/hooks/useAuthSession';
 
-const ROUTINE_TAB_BAR_TOP_OFFSET = 50;
+const ROUTINE_TAB_BAR_TOP_OFFSET = 72;
+const ROUTINE_CHARACTER_BOTTOM_OFFSET = 86;
 
 export default function Index() {
   const router = useRouter();
@@ -140,37 +142,37 @@ const styles = StyleSheet.create((theme) => ({
   content: {
     flex: 1,
     paddingHorizontal: theme.foundation.spacing.m,
-    paddingBottom: 100,
+    paddingBottom: baseFoundation.dimension.x100,
   },
   loadingContainer: {
     flex: 1,
   },
   character: {
     position: 'absolute',
-    bottom: 64,
+    bottom: ROUTINE_CHARACTER_BOTTOM_OFFSET,
     alignSelf: 'center',
   },
   fab: {
     position: 'absolute',
     right: theme.foundation.spacing.m,
-    bottom: 64,
-    width: 60,
-    height: 60,
-    minWidth: 60,
-    minHeight: 60,
+    bottom: ROUTINE_CHARACTER_BOTTOM_OFFSET,
+    width: baseFoundation.dimension.x60,
+    height: baseFoundation.dimension.x60,
+    minWidth: baseFoundation.dimension.x60,
+    minHeight: baseFoundation.dimension.x60,
     borderRadius: theme.foundation.radii.round,
     backgroundColor: '#0D3154',
     borderWidth: 2,
     borderColor: '#A9D6FF',
     shadowColor: '#0D3154',
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x6 },
     shadowOpacity: 0.24,
     shadowRadius: 10,
     elevation: 8,
     zIndex: 20,
   },
   characterImage: {
-    width: 112,
-    height: 120,
+    width: baseFoundation.dimension.x112,
+    height: baseFoundation.dimension.x120,
   },
 }));

@@ -3,6 +3,7 @@ import type { Quest } from '@repo/types';
 import { useCallback } from 'react';
 import { Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
@@ -56,7 +57,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
           <ThemeView style={styles.goalIcon} transparent>
             <Ionicons
               name="flag-outline"
-              size={14}
+              size={baseFoundation.dimension.x14}
               color={theme.colors.text.secondary}
             />
           </ThemeView>
@@ -127,7 +128,7 @@ const styles = StyleSheet.create((theme) => ({
 
   card: {
     padding: theme.foundation.spacing.m,
-    marginVertical: 0,
+    marginVertical: baseFoundation.spacing.none,
   },
 
   headerRow: {
@@ -140,12 +141,12 @@ const styles = StyleSheet.create((theme) => ({
   badge: {
     backgroundColor: theme.colors.action.secondary.default,
     paddingHorizontal: theme.foundation.spacing.s,
-    paddingVertical: 4,
+    paddingVertical: baseFoundation.spacing.xs,
     borderRadius: theme.foundation.radii.s,
   },
 
   badgeText: {
-    fontSize: 12,
+    fontSize: baseFoundation.typography.size.caption2,
     fontWeight: 'bold',
   },
 
@@ -164,13 +165,13 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   goalIcon: {
-    marginTop: 0,
+    marginTop: baseFoundation.spacing.none,
   },
 
   goalText: {
     flex: 1,
     color: theme.colors.text.tertiary,
-    fontSize: 12,
+    fontSize: baseFoundation.typography.size.caption2,
     lineHeight: 18, // Increased for better readability
   },
 }));

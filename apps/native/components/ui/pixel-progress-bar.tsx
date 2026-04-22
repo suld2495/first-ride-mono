@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 export interface PixelProgressBarProps {
   value: number;
@@ -41,7 +42,7 @@ export const PixelProgressBar: React.FC<PixelProgressBarProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    borderRadius: 2,
+    borderRadius: baseFoundation.dimension.x2,
     overflow: 'hidden',
     backgroundColor: theme.colors.background.sunken,
   },

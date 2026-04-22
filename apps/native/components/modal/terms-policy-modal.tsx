@@ -31,30 +31,30 @@ export default TermsPolicyModal;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    marginTop: 30,
-    paddingHorizontal: 10,
+    marginTop: theme.foundation.dimension.x30,
+    paddingHorizontal: theme.foundation.dimension.x10,
   },
 
   content: {},
 
   body: {
     color: theme.colors.text.secondary,
-    fontSize: 14,
-    marginBottom: 50,
+    fontSize: theme.foundation.typography.size.m,
+    marginBottom: theme.foundation.dimension.x50,
   },
 
   heading1: {
     color: theme.colors.text.primary,
-    fontSize: 20,
+    fontSize: theme.foundation.typography.size.xl,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: theme.foundation.dimension.x20,
   },
 
   heading2: {
     color: theme.colors.text.primary,
-    fontSize: 14,
+    fontSize: theme.foundation.typography.size.m,
     fontWeight: 'semibold',
-    marginVertical: 10,
+    marginVertical: theme.foundation.dimension.x10,
   },
 
   table: {
@@ -63,12 +63,12 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   listItem: {
-    marginBottom: 5,
+    marginBottom: theme.foundation.dimension.x5,
   },
 
   hr: {
     backgroundColor: theme.colors.border.divider,
-    marginVertical: 20,
+    marginVertical: theme.foundation.dimension.x20,
   },
 
   strong: {

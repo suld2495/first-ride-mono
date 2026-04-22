@@ -1,5 +1,6 @@
 import type { FormContextType } from '@repo/shared/components';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import Link from '@/components/ui/link';
@@ -30,10 +31,10 @@ export default RequetButtonGroup;
 
 const styles = StyleSheet.create({
   buttonContainer: {
-    marginTop: 10,
+    marginTop: baseFoundation.dimension.x10,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 10,
+    gap: baseFoundation.dimension.x10,
   },
 
   button: {

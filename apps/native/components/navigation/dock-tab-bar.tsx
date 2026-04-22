@@ -1,14 +1,16 @@
 import { type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { View } from 'react-native';
+
 import { useUnistyles } from '@/lib/unistyles';
 
 import { DockTabItem } from './dock-tab-item';
 
-const TAB_BAR_HEIGHT = 44;
+const TAB_BAR_HEIGHT = 24;
 const TAB_BAR_HORIZONTAL_PADDING = 8;
 const TAB_BAR_BACKGROUND = '#F7F4F4';
 const TAB_BAR_BOTTOM_PADDING = 6;
+const TAB_BAR_TOP_PADDING = 0;
 const TAB_ROUTE_NAMES = new Set([
   '(afterLogin)/(routine)/index',
   '(afterLogin)/(quest)/index',
@@ -35,7 +37,8 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
         left: 0,
         right: 0,
         backgroundColor: TAB_BAR_BACKGROUND,
-        paddingBottom: Math.min(insets.bottom, TAB_BAR_BOTTOM_PADDING),
+        paddingTop: Math.max(10, TAB_BAR_TOP_PADDING),
+        paddingBottom: Math.max(insets.bottom, TAB_BAR_BOTTOM_PADDING),
       }}
     >
       <View

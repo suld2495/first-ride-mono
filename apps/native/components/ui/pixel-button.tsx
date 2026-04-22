@@ -2,6 +2,7 @@ import React from 'react';
 import type { ViewStyle } from 'react-native';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Typography } from './typography';
 
@@ -88,8 +89,8 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
 
 const styles = StyleSheet.create(() => ({
   container: {
-    minWidth: 120,
-    marginVertical: 4,
+    minWidth: baseFoundation.dimension.x120,
+    marginVertical: baseFoundation.spacing.xs,
   },
   pressed: {
     transform: [{ translateY: 2 }],
@@ -99,14 +100,14 @@ const styles = StyleSheet.create(() => ({
   },
   borderOuter: {
     borderWidth: 4,
-    borderRadius: 0,
-    padding: 2,
+    borderRadius: baseFoundation.radii.none,
+    padding: baseFoundation.dimension.x2,
   },
   borderInner: {
     borderWidth: 2,
-    borderRadius: 0,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    borderRadius: baseFoundation.radii.none,
+    paddingVertical: baseFoundation.spacing.s,
+    paddingHorizontal: baseFoundation.spacing.m,
     alignItems: 'center',
     justifyContent: 'center',
     borderStyle: 'solid',

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, type ViewProps } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 /**
  * Card variant types
@@ -87,7 +88,7 @@ export const Card: React.FC<CardProps> = ({
   }[variant];
 
   const paddingStyle = {
-    none: { padding: 0 },
+    none: { padding: baseFoundation.spacing.none },
     sm: { padding: theme.foundation.spacing.s },
     md: { padding: theme.foundation.spacing.m },
     lg: { padding: theme.foundation.spacing.l },

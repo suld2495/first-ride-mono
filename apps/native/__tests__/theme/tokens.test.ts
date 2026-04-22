@@ -12,6 +12,7 @@ describe('theme/tokens', () => {
     expect(baseFoundation.spacing.m).toBe(16);
     expect(spacing(2)).toBe(32);
     expect(tokens.space.m).toBeDefined();
+    expect(baseFoundation.dimension.x20).toBe(20);
     expect(baseFoundation.typography.size.caption3).toBe(11);
     expect(baseFoundation.typography.size.body1).toBe(16);
     expect(baseFoundation.typography.size.h0).toBe(40);
@@ -81,6 +82,29 @@ describe('theme/tokens', () => {
           subtle: '#333',
           focus: '#444',
           divider: '#555',
+        },
+        brand: {
+          grey: '#999',
+          background: '#000',
+          backgroundGrey: '#111',
+          primary: '#0af',
+          text: '#fff',
+          textSecondary: '#ddd',
+          icon: '#fff',
+          button: '#0af',
+          buttonLight: '#8cf',
+          subButton: '#123',
+          checkbox: '#0af',
+          input: '#111',
+          error: '#f00',
+          success: '#0f0',
+          warning: '#ff0',
+          info: '#00f',
+          border: '#555',
+          boxShadow: '0 1px 0 rgba(0,0,0,0.4)',
+          foreground: '#fff',
+          root: '#000',
+          card: '#111',
         },
       },
     });

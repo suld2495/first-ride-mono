@@ -4,6 +4,7 @@ import type { Friend } from '@repo/types';
 import { useCallback } from 'react';
 import { Alert, FlatList } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -22,7 +23,10 @@ interface FriendItemProps extends Friend {
 interface FriendRenderItemProps { item: Friend; }
 
 const FRIEND_ITEM_HEIGHT = 88;
-const getFriendItemLayout = (_: Friend[] | null, index: number) => ({
+const getFriendItemLayout = (
+  _: ArrayLike<Friend> | Friend[] | null | undefined,
+  index: number,
+) => ({
   length: FRIEND_ITEM_HEIGHT,
   offset: FRIEND_ITEM_HEIGHT * index,
   index,
@@ -73,7 +77,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
           <ThemeView style={styles.avatar}>
             <Ionicons
               name="person"
-              size={20}
+              size={baseFoundation.iconSize.m}
               color={theme.colors.action.secondary.label}
             />
           </ThemeView>
@@ -87,7 +91,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
           leftIcon={() => (
             <Ionicons
               name="trash-outline"
-              size={20}
+              size={baseFoundation.iconSize.m}
               color={theme.colors.text.tertiary}
             />
           )}
@@ -166,8 +170,8 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing.s,
   },
   card: {
-    marginVertical: 0,
-    padding: 0, // Remove padding from card as inner content has it or PixelCard has it
+    marginVertical: baseFoundation.spacing.none,
+    padding: baseFoundation.spacing.none, // Remove padding from card as inner content has it or PixelCard has it
   },
   cardInner: {
     flexDirection: 'row',
@@ -181,9 +185,9 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing.m,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: baseFoundation.dimension.x40,
+    height: baseFoundation.dimension.x40,
+    borderRadius: baseFoundation.dimension.x20,
     backgroundColor: theme.colors.action.secondary.default,
     justifyContent: 'center',
     alignItems: 'center',

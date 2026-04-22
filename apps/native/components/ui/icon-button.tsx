@@ -65,7 +65,7 @@ export interface IconButtonProps extends Omit<PressableProps, 'style'> {
  * @example
  * // 기본 사용
  * <IconButton
- *   icon={<Ionicons name="close" size={24} />}
+ *   icon={<Ionicons name="close" size={baseFoundation.iconSize.l} />}
  *   onPress={handleClose}
  * />
  *

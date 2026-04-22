@@ -1,5 +1,6 @@
 import { Link, Stack } from 'expo-router';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import Container from '@/components/layout/container';
 import { Typography } from '@/components/ui/typography';
@@ -20,7 +21,7 @@ export default function NotFoundScreen() {
 
 const styles = StyleSheet.create({
   link: {
-    marginTop: 16,
-    paddingTop: 16,
+    marginTop: baseFoundation.spacing.m,
+    paddingTop: baseFoundation.spacing.m,
   },
 });

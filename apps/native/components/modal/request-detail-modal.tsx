@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Image, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Svg from 'react-native-svg';
+import { baseFoundation } from '@/theme/tokens';
 
 import ConfirmRequestButtonGroup from '@/components/request/confirm-request-button-group';
 import { Divider } from '@/components/ui/divider';
@@ -108,18 +109,18 @@ export default RequestDetailModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30,
-    paddingHorizontal: 10,
+    marginTop: baseFoundation.dimension.x30,
+    paddingHorizontal: baseFoundation.dimension.x10,
   },
 
   scroll: {
-    gap: 20,
-    paddingBottom: 50,
+    gap: baseFoundation.dimension.x20,
+    paddingBottom: baseFoundation.dimension.x50,
   },
 
   infoLabel: {
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: baseFoundation.dimension.x10,
   },
 
   routinesNameContainer: {
@@ -137,6 +138,6 @@ const styles = StyleSheet.create({
   },
 
   textarea: {
-    height: 100,
+    height: baseFoundation.dimension.x100,
   },
 });

@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { afterWeek, beforeWeek } from '@repo/shared/utils';
 import { View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import NotificationBell from '@/components/notification/notification-bell';
 import Link from '@/components/ui/link';
@@ -32,7 +33,7 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
             variant="ghost"
             href={`/(tabs)/(afterLogin)/(routine)?date=${beforeWeek(currentDate)}`}
             leftIcon={({ color }) => (
-              <Ionicons name="chevron-back" size={20} color={color} />
+              <Ionicons name="chevron-back" size={baseFoundation.iconSize.m} color={color} />
             )}
             accessibilityLabel="이전 주"
             accessibilityRole="button"
@@ -45,7 +46,7 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
             variant="ghost"
             href={`/(tabs)/(afterLogin)/(routine)?date=${afterWeek(currentDate)}`}
             leftIcon={({ color }) => (
-              <Ionicons name="chevron-forward" size={20} color={color} />
+              <Ionicons name="chevron-forward" size={baseFoundation.iconSize.m} color={color} />
             )}
             accessibilityLabel="다음 주"
             accessibilityRole="button"
@@ -64,7 +65,7 @@ export default RoutineHeader;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    gap: 0,
+    gap: baseFoundation.spacing.none,
     marginTop: theme.foundation.spacing.s,
   },
 
@@ -73,7 +74,7 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: theme.foundation.spacing.m,
-    minHeight: 44,
+    minHeight: baseFoundation.dimension.x44,
   },
   dateNavigation: {
     flexDirection: 'row',
@@ -86,12 +87,12 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   dateArrow: {
-    width: 28,
-    height: 28,
-    minHeight: 28,
-    minWidth: 28,
-    paddingHorizontal: 0,
-    paddingVertical: 0,
+    width: baseFoundation.dimension.x28,
+    height: baseFoundation.dimension.x28,
+    minHeight: baseFoundation.dimension.x28,
+    minWidth: baseFoundation.dimension.x28,
+    paddingHorizontal: baseFoundation.spacing.none,
+    paddingVertical: baseFoundation.spacing.none,
   },
   notification: {
     position: 'absolute',

@@ -94,9 +94,21 @@ export const Badge: React.FC<BadgeProps> = ({
     BadgeSize,
     { minWidth: number; height: number; fontSize: number }
   > = {
-    sm: { minWidth: 14, height: 14, fontSize: 9 },
-    md: { minWidth: 18, height: 18, fontSize: 11 },
-    lg: { minWidth: 22, height: 22, fontSize: 13 },
+    sm: {
+      minWidth: theme.foundation.dimension.x14,
+      height: theme.foundation.dimension.x14,
+      fontSize: theme.foundation.dimension.x9,
+    },
+    md: {
+      minWidth: theme.foundation.dimension.x18,
+      height: theme.foundation.dimension.x18,
+      fontSize: theme.foundation.dimension.x11,
+    },
+    lg: {
+      minWidth: theme.foundation.dimension.x22,
+      height: theme.foundation.dimension.x22,
+      fontSize: theme.foundation.dimension.x13,
+    },
   };
 
   // Format count

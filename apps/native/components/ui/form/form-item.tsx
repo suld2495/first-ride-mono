@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Typography } from '@/components/ui/typography';
 
@@ -97,7 +98,7 @@ export function createFormItem<T extends Record<string, unknown>>(
 
 const styles = StyleSheet.create({
   container: {
-    gap: 10,
+    gap: baseFoundation.dimension.x10,
   },
 
   label: {

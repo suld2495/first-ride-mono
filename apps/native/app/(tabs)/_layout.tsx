@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { DockTabBar } from '@/components/navigation/dock-tab-bar';
 import TabBarIcon from '@/components/ui/tab-bar-icon';
@@ -12,8 +12,6 @@ const TAB_BAR_ICONS = {
 } as const;
 
 export default function TabLayout() {
-  const { theme } = useUnistyles();
-
   return (
     <Tabs
       initialRouteName="(afterLogin)/(routine)/index"
@@ -23,11 +21,11 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#4C8FD8',
         tabBarInactiveTintColor: '#A8D0F7',
         sceneStyle: {
-          paddingBottom: 0,
+          paddingBottom: baseFoundation.spacing.none,
         },
         tabBarStyle: {
           position: 'absolute',
-          height: 0,
+          height: baseFoundation.dimension.x0,
           backgroundColor: 'transparent',
           borderTopWidth: 0,
           elevation: 0,

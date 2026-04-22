@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import Typography from './typography';
 import ThemeView from './theme-view';
@@ -18,7 +19,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
   return (
     <ThemeView style={styles.container}>
-      <Ionicons name={icon} size={48} color={theme.colors.text.tertiary} />
+      <Ionicons name={icon} size={baseFoundation.iconSize.xxl} color={theme.colors.text.tertiary} />
       <Typography variant="body" style={styles.message}>
         {message}
       </Typography>

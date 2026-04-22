@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 interface DockTabItemProps {
   label: string;
@@ -71,8 +72,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   itemContainer: {
-    width: 24,
-    height: 24,
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
     alignItems: 'center',
     justifyContent: 'center',
   },

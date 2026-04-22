@@ -5,6 +5,7 @@ import {
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCallback, useState } from 'react';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import FriendAddModal from '@/components/friend/friend-add-modal';
 import FriendHeader from '@/components/friend/friend-header';
@@ -56,7 +57,7 @@ const FriendPage = () => {
             variant="primary"
             size="sm"
             leftIcon={({ color }) => (
-              <Ionicons name="people-outline" size={20} color={color} />
+              <Ionicons name="people-outline" size={baseFoundation.iconSize.m} color={color} />
             )}
             onPress={() => setShowAddModal(true)}
             style={styles.addButton}

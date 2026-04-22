@@ -1,6 +1,7 @@
 import { getFormatDate } from '@repo/shared/utils';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
@@ -50,7 +51,7 @@ const RequestListModal = () => {
       <Button
         variant="ghost"
         onPress={() => handleMove(item.id)}
-        style={{ padding: 0 }}
+        style={{ padding: baseFoundation.spacing.none }}
       >
         <ThemeView key={item.id} style={styles.itemContainer} transparent>
           <Typography variant="label" style={styles.itemText}>
@@ -100,13 +101,13 @@ const styles = StyleSheet.create({
   },
 
   list: {
-    gap: 10,
-    padding: 10,
+    gap: baseFoundation.dimension.x10,
+    padding: baseFoundation.dimension.x10,
     flexGrow: 0,
   },
 
   itemContainer: {
-    paddingBottom: 12,
+    paddingBottom: baseFoundation.dimension.x12,
   },
 
   itemText: {
@@ -116,11 +117,11 @@ const styles = StyleSheet.create({
   itemInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 12,
+    marginTop: baseFoundation.dimension.x12,
   },
 
   empty: {
-    marginTop: 30,
+    marginTop: baseFoundation.dimension.x30,
     alignItems: 'center',
   },
 });

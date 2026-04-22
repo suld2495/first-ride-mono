@@ -4,6 +4,7 @@ import type { ViewProps } from 'react-native';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 interface ContainerProps extends ViewProps {
   children: React.ReactNode;
@@ -38,13 +39,13 @@ const styles = StyleSheet.create((theme) => ({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: baseFoundation.spacing.m,
+    paddingVertical: baseFoundation.spacing.m,
     backgroundColor: theme.colors.background.base,
   },
   noPadding: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
+    paddingHorizontal: baseFoundation.spacing.none,
+    paddingVertical: baseFoundation.spacing.none,
   },
 }));
 

@@ -157,11 +157,11 @@ const FriendRequestListModal = () => {
 
 export default FriendRequestListModal;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: theme.foundation.dimension.x20,
+    paddingVertical: theme.foundation.spacing.m,
   },
   emptyContainer: {
     flex: 1,
@@ -180,21 +180,21 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: theme.foundation.spacing.s,
   },
   acceptButton: {
-    paddingHorizontal: 8,
+    paddingHorizontal: theme.foundation.spacing.s,
   },
   rejectButton: {
-    paddingHorizontal: 8,
+    paddingHorizontal: theme.foundation.spacing.s,
   },
   notificationFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: theme.foundation.spacing.xs,
   },
   dateText: {
-    fontSize: 12,
+    fontSize: theme.foundation.typography.size.s,
   },
-});
+}));

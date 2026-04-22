@@ -2,6 +2,7 @@ import type { JoinForm as JoinFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import AuthForm from '@/components/auth/auth-form';
 import { Button } from '@/components/ui/button';
@@ -108,7 +109,7 @@ export default function SignUp() {
           placeholder="아이디를 입력해주세요."
           value={form.userId}
           onChangeText={(value) => handleChange('userId', value)}
-          style={{ width: 250 }}
+          style={{ width: baseFoundation.dimension.x250 }}
           error={!!fieldErrors.userId}
           helperText={fieldErrors.userId}
         />
@@ -116,12 +117,12 @@ export default function SignUp() {
           placeholder="닉네임을 입력해주세요."
           value={form.nickname}
           onChangeText={(value) => handleChange('nickname', value)}
-          style={{ width: 250 }}
+          style={{ width: baseFoundation.dimension.x250 }}
           error={!!fieldErrors.nickname}
           helperText={fieldErrors.nickname}
         />
         <PasswordInput
-          width={250}
+          width={baseFoundation.dimension.x250}
           placeholder="비밀번호를 입력해주세요."
           value={form.password}
           onChangeText={(value) => handleChange('password', value)}
@@ -129,7 +130,7 @@ export default function SignUp() {
           helperText={fieldErrors.password}
         />
         <PasswordInput
-          width={250}
+          width={baseFoundation.dimension.x250}
           placeholder="비밀번호를 다시 입력해주세요."
           value={form.passwordConfirm}
           onChangeText={(value) => handleChange('passwordConfirm', value)}
@@ -143,7 +144,7 @@ export default function SignUp() {
           placeholder="직업을 선택해주세요."
           error={!!fieldErrors.job}
           helperText={fieldErrors.job}
-          containerStyle={{ width: 250 }}
+          containerStyle={{ width: baseFoundation.dimension.x250 }}
         />
         <Button
           title="회원가입"

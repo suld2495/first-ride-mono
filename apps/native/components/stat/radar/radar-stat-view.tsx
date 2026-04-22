@@ -2,6 +2,7 @@ import type { UserStats } from '@repo/types';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { PixelCard } from '@/components/ui/pixel-card';
 
@@ -28,7 +29,7 @@ export const RadarStatView: React.FC<RadarStatViewProps> = ({
   return (
     <View style={styles.container}>
       <PixelCard>
-        <RadarChart stats={stats} size={220} />
+        <RadarChart stats={stats} size={baseFoundation.dimension.x220} />
       </PixelCard>
 
       <PixelCard title="STATS">
@@ -47,7 +48,7 @@ export const RadarStatView: React.FC<RadarStatViewProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 8,
+    gap: baseFoundation.spacing.s,
   },
 });
 

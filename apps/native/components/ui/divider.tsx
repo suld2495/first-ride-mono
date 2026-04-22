@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View, type ViewProps, type ViewStyle } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 /**
  * Divider variant types
@@ -108,7 +109,7 @@ const styles = StyleSheet.create((theme) => ({
     width: '100%',
   },
   text: {
-    marginHorizontal: 12,
+    marginHorizontal: baseFoundation.dimension.x12,
     fontSize: theme.foundation.typography.size.m,
     color: theme.colors.text.tertiary,
   },

@@ -3,6 +3,7 @@ import type { UserStats } from '@repo/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import Typography from '@/components/ui/typography';
 import { type StatConfig } from '@/constants/STATS';
@@ -33,7 +34,7 @@ export const GridStatCard: React.FC<GridStatCardProps> = ({
   return (
     <View style={[styles.container, { borderColor: config.color }]}>
       <View style={[styles.iconBg, { backgroundColor: `${config.color}20` }]}>
-        <Ionicons name={config.icon} size={28} color={config.color} />
+        <Ionicons name={config.icon} size={baseFoundation.dimension.x28} color={config.color} />
       </View>
 
       <Typography
@@ -57,7 +58,7 @@ export const GridStatCard: React.FC<GridStatCardProps> = ({
           >
             <Ionicons
               name="remove"
-              size={16}
+              size={baseFoundation.iconSize.s}
               color={
                 canDecrement
                   ? theme.colors.text.primary
@@ -72,7 +73,7 @@ export const GridStatCard: React.FC<GridStatCardProps> = ({
           >
             <Ionicons
               name="add"
-              size={16}
+              size={baseFoundation.iconSize.s}
               color={
                 canIncrement
                   ? theme.colors.text.primary
@@ -92,29 +93,29 @@ const styles = StyleSheet.create((theme) => ({
     minWidth: '30%',
     aspectRatio: 1,
     backgroundColor: theme.colors.background.surface,
-    borderRadius: 8,
+    borderRadius: baseFoundation.dimension.x8,
     borderWidth: 2,
-    padding: 8,
+    padding: baseFoundation.spacing.s,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: baseFoundation.spacing.xs,
   },
   iconBg: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x44,
+    borderRadius: baseFoundation.dimension.x22,
     justifyContent: 'center',
     alignItems: 'center',
   },
   controls: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 4,
+    gap: baseFoundation.spacing.s,
+    marginTop: baseFoundation.spacing.xs,
   },
   arrowButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 4,
+    width: baseFoundation.dimension.x28,
+    height: baseFoundation.dimension.x28,
+    borderRadius: baseFoundation.dimension.x4,
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.default,

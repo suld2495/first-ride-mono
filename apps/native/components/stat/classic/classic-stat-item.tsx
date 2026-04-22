@@ -3,6 +3,7 @@ import type { UserStats } from '@repo/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import PixelProgressBar from '@/components/ui/pixel-progress-bar';
 import Typography from '@/components/ui/typography';
@@ -35,7 +36,7 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.iconContainer}>
-          <Ionicons name={config.icon} size={20} color={config.color} />
+          <Ionicons name={config.icon} size={baseFoundation.iconSize.m} color={config.color} />
         </View>
         <View style={styles.nameContainer}>
           <Typography variant="label" color={config.color}>
@@ -57,7 +58,7 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
             >
               <Ionicons
                 name="chevron-back"
-                size={20}
+                size={baseFoundation.iconSize.m}
                 color={
                   canDecrement
                     ? theme.colors.text.primary
@@ -83,7 +84,7 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
             >
               <Ionicons
                 name="chevron-forward"
-                size={20}
+                size={baseFoundation.iconSize.m}
                 color={
                   canIncrement
                     ? theme.colors.text.primary
@@ -98,7 +99,7 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
         value={value}
         maxValue={STAT_MAX_VALUE}
         color={config.color}
-        height={10}
+        height={baseFoundation.dimension.x10}
       />
     </View>
   );
@@ -106,21 +107,21 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    paddingVertical: 8,
-    paddingHorizontal: 4,
+    paddingVertical: baseFoundation.spacing.s,
+    paddingHorizontal: baseFoundation.spacing.xs,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border.subtle,
-    gap: 6,
+    gap: baseFoundation.dimension.x6,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: baseFoundation.spacing.s,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 4,
+    width: baseFoundation.dimension.x32,
+    height: baseFoundation.dimension.x32,
+    borderRadius: baseFoundation.dimension.x4,
     backgroundColor: theme.colors.background.sunken,
     justifyContent: 'center',
     alignItems: 'center',
@@ -129,17 +130,17 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: baseFoundation.spacing.s,
   },
   valueContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: baseFoundation.spacing.xs,
   },
   arrowButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 4,
+    width: baseFoundation.dimension.x28,
+    height: baseFoundation.dimension.x28,
+    borderRadius: baseFoundation.dimension.x4,
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,
     borderColor: theme.colors.border.default,

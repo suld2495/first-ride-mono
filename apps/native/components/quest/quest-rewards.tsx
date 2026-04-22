@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
@@ -18,7 +19,7 @@ const QuestRewards = ({ rewardName }: QuestRewardsProps) => {
       <ThemeView style={styles.header} transparent>
         <Ionicons
           name="trophy-outline"
-          size={20}
+          size={baseFoundation.iconSize.m}
           color={theme.colors.action.primary.default}
         />
         <Typography variant="body" style={styles.headerText}>
@@ -44,8 +45,8 @@ const styles = StyleSheet.create((theme) => ({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 12,
+    gap: baseFoundation.spacing.xs,
+    marginBottom: baseFoundation.dimension.x12,
   },
 
   headerText: {

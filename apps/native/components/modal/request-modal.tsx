@@ -3,6 +3,7 @@ import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { requestFormValidators } from '@repo/shared/service/validatorMessage';
 import { Image, ScrollView } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import RequetButtonGroup from '@/components/request/request-button-group';
 import { Button } from '@/components/ui/button';
@@ -71,7 +72,7 @@ const RequestModal = () => {
                     testID="gallery-button"
                     variant="secondary"
                     leftIcon={({ color }) => (
-                      <Ionicons name="image-outline" size={20} color={color} />
+                      <Ionicons name="image-outline" size={baseFoundation.iconSize.m} color={color} />
                     )}
                     style={styles.phone}
                     onPress={() => pickImage(setValue)}
@@ -80,7 +81,7 @@ const RequestModal = () => {
                     testID="camera-button"
                     variant="secondary"
                     leftIcon={({ color }) => (
-                      <Ionicons name="camera-outline" size={20} color={color} />
+                      <Ionicons name="camera-outline" size={baseFoundation.iconSize.m} color={color} />
                     )}
                     style={styles.phone}
                     onPress={() => takePicture(setValue)}
@@ -108,29 +109,29 @@ export default RequestModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30,
-    paddingHorizontal: 10,
+    marginTop: baseFoundation.dimension.x30,
+    paddingHorizontal: baseFoundation.dimension.x10,
   },
 
   scroll: {
-    gap: 20,
-    paddingBottom: 50,
+    gap: baseFoundation.dimension.x20,
+    paddingBottom: baseFoundation.dimension.x50,
   },
 
   infoLabel: {
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: baseFoundation.dimension.x10,
   },
 
   imageContainer: {
     alignItems: 'flex-start',
     flexDirection: 'row',
-    gap: 10,
+    gap: baseFoundation.dimension.x10,
   },
 
   phone: {
-    paddingHorizontal: 8,
-    paddingVertical: 5,
+    paddingHorizontal: baseFoundation.spacing.s,
+    paddingVertical: baseFoundation.dimension.x5,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -138,6 +139,6 @@ const styles = StyleSheet.create({
   preview: {
     width: '100%',
     aspectRatio: 1,
-    borderRadius: 5,
+    borderRadius: baseFoundation.dimension.x5,
   },
 });

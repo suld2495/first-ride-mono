@@ -1,6 +1,7 @@
 import React from 'react';
 import type { TextProps } from 'react-native';
 import { useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { TamaguiText } from './tamagui';
 
@@ -119,7 +120,7 @@ export const Typography: React.FC<TypographyProps> = ({
   const glowStyle = glow
     ? {
         textShadowColor: theme.colors.action.primary.default,
-        textShadowOffset: { width: 0, height: 0 },
+        textShadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x0 },
         textShadowRadius: 8,
       }
     : undefined;
@@ -235,7 +236,7 @@ const typographyVariantStyles = {
     fontWeight: '400',
   },
   value: {
-    fontSize: 24,
+    fontSize: baseFoundation.typography.size.xxl,
     fontWeight: '700',
   },
 } as const;

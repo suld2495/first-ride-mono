@@ -8,6 +8,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
 import {
@@ -227,9 +228,9 @@ const RoutineFormModal = () => {
                 leftIcon={({ color }) => (
                   <Ionicons
                     name="calendar-clear-outline"
-                    size={16}
+                    size={baseFoundation.iconSize.s}
                     color={color}
-                    style={{ marginRight: 3 }}
+                    style={{ marginRight: baseFoundation.dimension.x3 }}
                   />
                 )}
               />
@@ -270,9 +271,9 @@ const RoutineFormModal = () => {
                     leftIcon={({ color }) => (
                       <Ionicons
                         name="close-circle-outline"
-                        size={16}
+                        size={baseFoundation.iconSize.s}
                         color={color}
-                        style={{ marginRight: 3 }}
+                        style={{ marginRight: baseFoundation.dimension.x3 }}
                       />
                     )}
                   />
@@ -285,9 +286,9 @@ const RoutineFormModal = () => {
                 leftIcon={({ color }) => (
                   <Ionicons
                     name="calendar-clear-outline"
-                    size={16}
+                    size={baseFoundation.iconSize.s}
                     color={color}
-                    style={{ marginRight: 3 }}
+                    style={{ marginRight: baseFoundation.dimension.x3 }}
                   />
                 )}
               />

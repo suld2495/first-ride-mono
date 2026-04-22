@@ -1,6 +1,7 @@
 import { useFetchQuestDetailQuery } from '@repo/shared/hooks/useQuest';
 import { ScrollView } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import QuestInfo from '@/components/quest/quest-info';
 import QuestRewards from '@/components/quest/quest-rewards';
@@ -131,7 +132,7 @@ const styles = StyleSheet.create((theme) => ({
   badgeContainer: {
     backgroundColor: theme.colors.action.secondary.default,
     paddingHorizontal: theme.foundation.spacing.m,
-    paddingVertical: 4,
+    paddingVertical: baseFoundation.spacing.xs,
     borderRadius: theme.foundation.radii.l,
   },
 

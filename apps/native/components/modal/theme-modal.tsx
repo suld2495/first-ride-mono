@@ -36,7 +36,7 @@ const ThemeOption = ({
       <ThemeView style={styles.optionContent} transparent>
         <Ionicons
           name={icon}
-          size={24}
+          size={styles.optionIcon.fontSize}
           style={styles.optionIcon}
           color={
             isSelected ? styles.selectedIcon.color : styles.optionIcon.color
@@ -51,7 +51,7 @@ const ThemeOption = ({
       {isSelected && (
         <Ionicons
           name="checkmark-circle"
-          size={24}
+          size={styles.checkIcon.fontSize}
           color={styles.checkIcon.color}
         />
       )}
@@ -105,24 +105,24 @@ export default ThemeModal;
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingHorizontal: theme.foundation.spacing.m,
+    paddingTop: theme.foundation.dimension.x20,
   },
 
   header: {
-    marginBottom: 24,
+    marginBottom: theme.foundation.spacing.l,
   },
 
   optionList: {
-    gap: 12,
+    gap: theme.foundation.dimension.x12,
   },
 
   optionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    borderRadius: 12,
+    padding: theme.foundation.spacing.m,
+    borderRadius: theme.foundation.dimension.x12,
     borderWidth: 1,
     borderColor: theme.colors.border.default,
     backgroundColor: theme.colors.background.surface,
@@ -140,10 +140,11 @@ const styles = StyleSheet.create((theme) => ({
   optionContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: theme.foundation.dimension.x12,
   },
 
   optionIcon: {
+    fontSize: theme.foundation.iconSize.l,
     color: theme.colors.text.secondary,
   },
 
@@ -152,7 +153,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   optionLabel: {
-    fontSize: 16,
+    fontSize: theme.foundation.typography.size.l,
     color: theme.colors.text.primary,
   },
 
@@ -162,6 +163,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   checkIcon: {
+    fontSize: theme.foundation.iconSize.l,
     color: theme.colors.action.secondary.label,
   },
 }));

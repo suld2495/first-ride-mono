@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { Alert, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { deletePushToken } from '@/api/push-token.api';
 import Container from '@/components/layout/container';
@@ -64,7 +65,7 @@ const MyInfo = () => {
             href="/modal?type=theme"
             title="테마 설정"
             leftIcon={({ color }) => (
-              <Ionicons name="color-palette-outline" size={20} color={color} />
+              <Ionicons name="color-palette-outline" size={baseFoundation.iconSize.m} color={color} />
             )}
             style={styles.link}
           />
@@ -73,7 +74,7 @@ const MyInfo = () => {
             href="/modal?type=policies"
             title="약관 및 정책"
             leftIcon={({ color }) => (
-              <Ionicons name="newspaper-outline" size={20} color={color} />
+              <Ionicons name="newspaper-outline" size={baseFoundation.iconSize.m} color={color} />
             )}
             style={styles.link}
           />
@@ -82,7 +83,7 @@ const MyInfo = () => {
             href="/modal?type=privacy"
             title="개인정보 처리방침"
             leftIcon={({ color }) => (
-              <Ionicons name="key-outline" size={20} color={color} />
+              <Ionicons name="key-outline" size={baseFoundation.iconSize.m} color={color} />
             )}
             style={styles.link}
           />
@@ -90,7 +91,7 @@ const MyInfo = () => {
             variant="ghost"
             title="처음처럼에 피드백을 남겨주세요!"
             leftIcon={({ color }) => (
-              <Ionicons name="heart-circle-outline" size={20} color={color} />
+              <Ionicons name="heart-circle-outline" size={baseFoundation.iconSize.m} color={color} />
             )}
             style={styles.link}
             onPress={handleMoveFeedback}
@@ -103,7 +104,7 @@ const MyInfo = () => {
             leftIcon={() => (
               <Ionicons
                 name="log-out-outline"
-                size={20}
+                size={baseFoundation.iconSize.m}
                 color={theme.colors.feedback.error.text}
               />
             )}

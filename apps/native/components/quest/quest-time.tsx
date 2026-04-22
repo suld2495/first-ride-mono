@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatTimeRemaining } from '@repo/shared/utils/date-utils';
 import { useEffect, useState } from 'react';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
@@ -42,7 +43,7 @@ const QuestTime = ({ endDate }: QuestTimeProps) => {
     <ThemeView style={styles.container} transparent>
       <Ionicons
         name="time-outline"
-        size={14}
+        size={baseFoundation.dimension.x14}
         color={theme.colors.text.secondary}
       />
       <Typography style={styles.text}>{timeRemaining}</Typography>
@@ -56,11 +57,11 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: baseFoundation.spacing.xs,
   },
 
   text: {
-    fontSize: 12,
+    fontSize: baseFoundation.typography.size.caption2,
     fontWeight: '500',
     color: theme.colors.text.secondary,
   },

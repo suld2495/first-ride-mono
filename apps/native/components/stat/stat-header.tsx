@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import PixelCard from '@/components/ui/pixel-card';
 import PixelProgressBar from '@/components/ui/pixel-progress-bar';
@@ -26,14 +27,14 @@ export const StatHeader: React.FC<StatHeaderProps> = ({
       <View style={styles.container}>
         <View style={styles.row}>
           <View style={styles.avatarContainer}>
-            <Ionicons name="person" size={32} color={palette.rpg.exp} />
+            <Ionicons name="person" size={baseFoundation.iconSize.xl} color={palette.rpg.exp} />
           </View>
           <View style={styles.info}>
             <Typography variant="subtitle" glow>
               {nickname}
             </Typography>
             <View style={styles.levelRow}>
-              <Ionicons name="star" size={16} color={palette.rpg.exp} />
+              <Ionicons name="star" size={baseFoundation.iconSize.s} color={palette.rpg.exp} />
               <Typography variant="label" color={palette.rpg.exp}>
                 {' '}
                 Lv. {level}
@@ -53,7 +54,7 @@ export const StatHeader: React.FC<StatHeaderProps> = ({
             value={currentExp}
             maxValue={expForNextLevel}
             color={palette.rpg.exp}
-            height={16}
+            height={baseFoundation.dimension.x16}
           />
         </View>
       </View>
@@ -63,17 +64,17 @@ export const StatHeader: React.FC<StatHeaderProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    gap: 16,
+    gap: baseFoundation.spacing.m,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: baseFoundation.dimension.x12,
   },
   avatarContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 4,
+    width: baseFoundation.dimension.x56,
+    height: baseFoundation.dimension.x56,
+    borderRadius: baseFoundation.dimension.x4,
     borderWidth: 2,
     borderColor: theme.colors.border.strong,
     backgroundColor: theme.colors.background.sunken,
@@ -82,14 +83,14 @@ const styles = StyleSheet.create((theme) => ({
   },
   info: {
     flex: 1,
-    gap: 4,
+    gap: baseFoundation.spacing.xs,
   },
   levelRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   expContainer: {
-    gap: 4,
+    gap: baseFoundation.spacing.xs,
   },
   expLabelRow: {
     flexDirection: 'row',

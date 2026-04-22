@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
@@ -35,7 +36,7 @@ const ModalHeader = ({ title }: ModalHeaderProps) => {
       >
         <Ionicons
           name="chevron-back-outline"
-          size={22}
+          size={baseFoundation.dimension.x22}
           color={theme.colors.text.primary}
         />
       </Pressable>
@@ -66,9 +67,9 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: baseFoundation.dimension.x40,
+    height: baseFoundation.dimension.x40,
+    borderRadius: baseFoundation.dimension.x20,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -81,7 +82,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   spacer: {
-    width: 40,
-    height: 40,
+    width: baseFoundation.dimension.x40,
+    height: baseFoundation.dimension.x40,
   },
 }));

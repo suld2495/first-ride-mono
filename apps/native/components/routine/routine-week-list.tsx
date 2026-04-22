@@ -5,6 +5,7 @@ import type { WeeklyRoutine } from '@repo/types';
 import { useCallback } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
@@ -106,7 +107,7 @@ const RoutineWeekList = ({
                             {check ? (
                               <Ionicons
                                 name="checkmark"
-                                size={16}
+                                size={baseFoundation.iconSize.s}
                                 color={isGoalRange ? '#67B7FF' : '#FFD166'}
                               />
                             ) : null}
@@ -126,23 +127,13 @@ const RoutineWeekList = ({
                         <>
                           <Ionicons
                             name="checkmark-circle"
-                            size={14}
+                            size={baseFoundation.dimension.x14}
                             color="#67B7FF"
                           />
                           <Typography variant="caption" style={styles.progressText}>
                             완료
                           </Typography>
                         </>
-                      </View>
-                    ) : weeklyCount > 0 && routineCount > 0 ? (
-                      <View
-                        style={styles.progressChip}
-                        accessibilityLabel="달성률"
-                        accessibilityRole="image"
-                      >
-                        <Typography variant="caption" style={styles.progressText}>
-                          {`${Math.round((weeklyCount / routineCount) * 100)}%`}
-                        </Typography>
                       </View>
                     ) : (
                       <View />
@@ -175,46 +166,44 @@ const RoutineWeekList = ({
 
 export default RoutineWeekList;
 
-const styles = StyleSheet.create((theme) => ({
-  list: {
-    paddingBottom: 84,
-  },
+const styles = StyleSheet.create({
+  list: {},
   cardContainer: {
-    marginBottom: 4,
+    marginBottom: baseFoundation.spacing.xs,
   },
   cardOuter: {
-    borderRadius: 18,
-    padding: 0,
+    borderRadius: baseFoundation.dimension.x18,
+    padding: baseFoundation.spacing.none,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#0D3154',
     shadowColor: '#14477D',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x4 },
     shadowOpacity: 0.16,
     shadowRadius: 8,
     elevation: 4,
   },
   cardGap: {
-    padding: 2,
-    borderRadius: 16,
+    padding: baseFoundation.dimension.x2,
+    borderRadius: baseFoundation.radii.m,
     backgroundColor: '#FFFFFF',
   },
   cardInner: {
-    borderRadius: 14,
-    padding: 3,
+    borderRadius: baseFoundation.dimension.x14,
+    padding: baseFoundation.dimension.x3,
     backgroundColor: '#A9D6FF',
   },
   cardSurface: {
-    borderRadius: 10,
-    minHeight: 112,
-    paddingHorizontal: 16,
-    paddingTop: 7,
-    paddingBottom: 7,
+    borderRadius: baseFoundation.dimension.x10,
+    minHeight: baseFoundation.dimension.x112,
+    paddingHorizontal: baseFoundation.spacing.m,
+    paddingTop: baseFoundation.dimension.x7,
+    paddingBottom: baseFoundation.dimension.x7,
     backgroundColor: '#0D3154',
     justifyContent: 'center',
   },
   titleButton: {
-    paddingHorizontal: 0,
+    paddingHorizontal: baseFoundation.spacing.none,
     alignSelf: 'center',
   },
   title: {
@@ -225,16 +214,16 @@ const styles = StyleSheet.create((theme) => ({
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 18,
-    marginBottom: 3,
+    minHeight: baseFoundation.dimension.x18,
+    marginBottom: baseFoundation.dimension.x3,
   },
   headerRow: {
     flexDirection: 'row',
-    marginBottom: 4,
+    marginBottom: baseFoundation.spacing.xs,
   },
   checkRow: {
     flexDirection: 'row',
-    marginBottom: 2,
+    marginBottom: baseFoundation.dimension.x2,
   },
   dayColumn: {
     flex: 1,
@@ -244,9 +233,9 @@ const styles = StyleSheet.create((theme) => ({
     color: '#6A98C4',
   },
   checkBox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
+    width: baseFoundation.dimension.x20,
+    height: baseFoundation.dimension.x20,
+    borderRadius: baseFoundation.dimension.x4,
     backgroundColor: '#071B31',
     justifyContent: 'center',
     alignItems: 'center',
@@ -255,18 +244,18 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    minHeight: 8,
+    minHeight: baseFoundation.dimension.x8,
   },
   progressChip: {
-    minWidth: 58,
-    height: 18,
-    paddingHorizontal: 8,
-    borderRadius: 9,
+    minWidth: baseFoundation.dimension.x58,
+    height: baseFoundation.dimension.x18,
+    paddingHorizontal: baseFoundation.spacing.s,
+    borderRadius: baseFoundation.dimension.x9,
     backgroundColor: 'rgba(255,255,255,0.12)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: baseFoundation.spacing.xs,
   },
   progressText: {
     color: '#EAF5FF',
@@ -274,9 +263,9 @@ const styles = StyleSheet.create((theme) => ({
   requestButton: {
     position: 'absolute',
     right: 0,
-    minWidth: 72,
-    height: 20,
-    borderRadius: 10,
+    minWidth: baseFoundation.dimension.x72,
+    height: baseFoundation.dimension.x20,
+    borderRadius: baseFoundation.dimension.x10,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.24)',
     backgroundColor: 'rgba(255,255,255,0.08)',
@@ -284,7 +273,7 @@ const styles = StyleSheet.create((theme) => ({
   requestPlaceholder: {
     position: 'absolute',
     right: 0,
-    width: 72,
-    height: 20,
+    width: baseFoundation.dimension.x72,
+    height: baseFoundation.dimension.x20,
   },
-}));
+});

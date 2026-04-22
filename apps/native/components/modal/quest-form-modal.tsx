@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Modal, Pressable } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StyleSheet, type UnistylesThemes } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import QuestStartDateCalendar from '@/components/quest/quest-start-date-calendar';
 import { Button } from '@/components/ui/button';
@@ -264,7 +265,7 @@ const QuestFormModal = () => {
                   leftIcon={({ color }) => (
                     <Ionicons
                       name="calendar-clear-outline"
-                      size={16}
+                      size={baseFoundation.iconSize.s}
                       color={color}
                     />
                   )}
@@ -412,26 +413,26 @@ export default QuestFormModal;
 const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
   container: {
     flex: 1,
-    marginTop: 30,
-    gap: 20,
-    paddingHorizontal: 10,
-    paddingBottom: 30,
+    marginTop: baseFoundation.dimension.x30,
+    gap: baseFoundation.dimension.x20,
+    paddingHorizontal: baseFoundation.dimension.x10,
+    paddingBottom: baseFoundation.dimension.x30,
   },
 
   textarea: {
-    height: 100,
+    height: baseFoundation.dimension.x100,
     textAlignVertical: 'top',
   },
 
   dateTimeWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: baseFoundation.dimension.x10,
   },
 
   dateTimeDisplay: {
     flex: 1,
-    minHeight: 48,
+    minHeight: baseFoundation.dimension.x48,
     justifyContent: 'center',
   },
 
@@ -446,11 +447,11 @@ const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
   },
 
   dateButton: {
-    minWidth: 80,
+    minWidth: baseFoundation.dimension.x80,
   },
 
   datePickerContainer: {
-    marginTop: 10,
+    marginTop: baseFoundation.dimension.x10,
   },
 
   dateSheetOverlay: {
@@ -471,8 +472,8 @@ const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
 
   dateSheetHandle: {
     alignSelf: 'center',
-    width: 44,
-    height: 5,
+    width: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x5,
     borderRadius: theme.foundation.radii.round,
     backgroundColor: theme.colors.border.strong,
     opacity: 0.7,
@@ -482,7 +483,7 @@ const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
     marginTop: theme.foundation.spacing.m,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 10,
+    gap: baseFoundation.dimension.x10,
   },
 
   button: {

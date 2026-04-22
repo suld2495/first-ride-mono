@@ -8,6 +8,7 @@ import type {
   ViewStyle,
 } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 /**
  * Button size types
@@ -225,30 +226,30 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     flexDirection: 'row',
     shadowColor: theme.colors.border.strong,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
   sizeSm: {
-    height: 32,
+    height: baseFoundation.dimension.x32,
     paddingHorizontal: theme.foundation.spacing.s,
     borderRadius: theme.foundation.radii.m,
   },
   sizeMd: {
-    height: 44,
+    height: baseFoundation.dimension.x44,
     paddingHorizontal: theme.foundation.spacing.m,
     borderRadius: theme.foundation.radii.m,
   },
   sizeLg: {
-    height: 52,
+    height: baseFoundation.dimension.x52,
     paddingHorizontal: theme.foundation.spacing.l,
     borderRadius: theme.foundation.radii.l,
   },
   variantPrimary: {
     backgroundColor: theme.colors.action.primary.default,
     shadowColor: theme.colors.action.primary.default,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
@@ -305,7 +306,7 @@ const internalStyles = {
   contentWrapper: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    gap: 8,
+    gap: baseFoundation.spacing.s,
   },
   fullWidth: {
     width: '100%' as const,

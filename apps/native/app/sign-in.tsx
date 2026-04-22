@@ -1,6 +1,7 @@
 import type { AuthForm as AuthFormType } from '@repo/types';
 import { useState } from 'react';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import AuthForm from '@/components/auth/auth-form';
 import { KakaoLoginButton } from '@/components/auth/kakao-login-button';
@@ -128,7 +129,7 @@ export default function SignIn() {
           helperText={fieldErrors.userId}
         />
         <PasswordInput
-          width={250}
+          width={baseFoundation.dimension.x250}
           placeholder="비밀번호를 입력해주세요."
           value={form.password}
           onChangeText={(value) => handleChange('password', value)}
@@ -172,7 +173,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   input: {
-    width: 250,
+    width: baseFoundation.dimension.x250,
   },
 
   button: {
@@ -184,6 +185,6 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   kakaoButton: {
-    width: 250,
+    width: baseFoundation.dimension.x250,
   },
 }));

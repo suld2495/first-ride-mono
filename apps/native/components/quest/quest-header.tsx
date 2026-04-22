@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
@@ -61,6 +62,6 @@ const styles = StyleSheet.create((theme) => ({
     right: 16,
     top: '50%',
     transform: [{ translateY: -16 }],
-    minWidth: 60,
+    minWidth: baseFoundation.dimension.x60,
   },
 }));

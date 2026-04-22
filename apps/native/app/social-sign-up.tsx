@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
 import AuthForm from '@/components/auth/auth-form';
@@ -133,7 +134,7 @@ export default function SocialSignUp() {
           placeholder="닉네임을 입력해주세요."
           value={form.nickname}
           onChangeText={(value) => handleChange('nickname', value)}
-          style={{ width: 250 }}
+          style={{ width: baseFoundation.dimension.x250 }}
           error={!!fieldErrors.nickname}
           helperText={fieldErrors.nickname}
         />
@@ -144,7 +145,7 @@ export default function SocialSignUp() {
           placeholder="직업을 선택해주세요."
           error={!!fieldErrors.job}
           helperText={fieldErrors.job}
-          containerStyle={{ width: 250 }}
+          containerStyle={{ width: baseFoundation.dimension.x250 }}
         />
         <Button
           onPress={handleSubmit}
@@ -161,7 +162,7 @@ export default function SocialSignUp() {
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    gap: 10,
+    gap: baseFoundation.dimension.x10,
     justifyContent: 'center',
     alignItems: 'center',
   },

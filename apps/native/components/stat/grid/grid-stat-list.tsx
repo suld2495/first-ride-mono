@@ -2,6 +2,7 @@ import type { UserStats } from '@repo/types';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { STAT_CONFIGS } from '@/constants/STATS';
 
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: baseFoundation.spacing.s,
     justifyContent: 'space-between',
   },
 });

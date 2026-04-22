@@ -128,6 +128,35 @@ describe('루틴 조회 페이지', () => {
         expect(await findByTestId('routine-scroll-indicator')).toBeOnTheScreen();
       });
 
+      it('루틴이 4개를 넘으면 리스트 컨테이너 높이가 4개 기준으로 제한된다', async () => {
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .reply(200, { data: createMockRoutines(5) });
+
+        const { findByText, getByTestId } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+
+        const routineListViewport = getByTestId('routine-list-viewport');
+        const flattenStyles = (styles: unknown): object[] => {
+          if (!styles) return [];
+          if (Array.isArray(styles)) {
+            return styles.flatMap((style) => flattenStyles(style));
+          }
+
+          return [styles as object];
+        };
+
+        const viewportStyles = flattenStyles(routineListViewport.props.style);
+
+        expect(viewportStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ overflow: 'hidden' }),
+            expect.objectContaining({ height: 516 }),
+          ]),
+        );
+      });
+
       it('루틴이 4개 이하면 하단 화살표가 표시되지 않는다', async () => {
         mockAxios
           .onGet(/\/routine\/list/)
@@ -150,7 +179,6 @@ describe('루틴 조회 페이지', () => {
     describe('달성횟수가 목표보다 적은 경우', () => {
       const weeklyCount = 3; // 실제 달성 횟수
       const routineCount = 5; // 목표 횟수
-      const expectedPercent = '60%'; // 3/5 = 60%
 
       beforeEach(() => {
         mockAxios.onGet(/\/routine\/list/).reply(200, {
@@ -158,10 +186,12 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('달성률 퍼센트가 표시된다', async () => {
-        const { findByText } = render(<Index />);
+      it('달성률 퍼센트는 표시되지 않는다', async () => {
+        const { findByText, queryByText } = render(<Index />);
 
-        expect(await findByText(expectedPercent)).toBeOnTheScreen();
+        await findByText('테스트 루틴 1');
+
+        expect(queryByText('60%')).not.toBeOnTheScreen();
       });
 
       it('1회부터 7회까지 회차 라벨이 표시된다', async () => {

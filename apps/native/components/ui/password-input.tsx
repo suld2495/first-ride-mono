@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Input } from './input';
 
@@ -73,7 +74,7 @@ const PasswordInput = ({
       >
         <Ionicons
           name={showPassword ? 'eye-off' : 'eye'}
-          size={20}
+          size={baseFoundation.iconSize.m}
           color={theme.colors.text.secondary}
         />
       </Pressable>
@@ -101,6 +102,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: baseFoundation.spacing.s,
   },
 });

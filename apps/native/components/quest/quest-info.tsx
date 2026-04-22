@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { VerificationType } from '@repo/types';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
@@ -84,7 +85,7 @@ const QuestInfo = ({
           <ThemeView style={styles.verificationTitleRow} transparent>
             <Ionicons
               name={verificationInfo.icon}
-              size={18}
+              size={baseFoundation.dimension.x18}
               color={verificationColor}
             />
             <Typography variant="label" style={styles.verificationTitle}>
@@ -137,8 +138,8 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.foundation.radii.m,
   },
   verificationContainer: {
-    gap: 10,
-    padding: 0,
+    gap: baseFoundation.dimension.x10,
+    padding: baseFoundation.spacing.none,
   },
 
   verificationHeader: {
@@ -150,7 +151,7 @@ const styles = StyleSheet.create((theme) => ({
   verificationTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: baseFoundation.dimension.x6,
   },
 
   verificationTitle: {
@@ -158,11 +159,11 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   progressSection: {
-    marginTop: 4,
+    marginTop: baseFoundation.spacing.xs,
     paddingTop: theme.foundation.spacing.s,
     borderTopWidth: 1,
     borderTopColor: theme.colors.background.sunken,
-    gap: 8,
+    gap: baseFoundation.spacing.s,
   },
 
   partyHeader: {
@@ -172,7 +173,7 @@ const styles = StyleSheet.create((theme) => ({
 
   progressBackground: {
     width: '100%',
-    height: 8,
+    height: baseFoundation.dimension.x8,
     backgroundColor: theme.colors.background.sunken,
     borderRadius: theme.foundation.radii.s,
     overflow: 'hidden',

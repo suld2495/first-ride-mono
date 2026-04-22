@@ -2,6 +2,7 @@ import type { UserStats } from '@repo/types';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import PixelCard from '@/components/ui/pixel-card';
 import { STAT_CONFIGS } from '@/constants/STATS';
@@ -47,7 +48,7 @@ export const ClassicStatList: React.FC<ClassicStatListProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 0,
+    gap: baseFoundation.spacing.none,
   },
 });
 

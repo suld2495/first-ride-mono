@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import Typography from '@/components/ui/typography';
 
@@ -54,17 +55,17 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     backgroundColor: theme.colors.background.surface,
-    borderRadius: 4,
+    borderRadius: baseFoundation.dimension.x4,
     borderWidth: 2,
     borderColor: theme.colors.border.default,
-    padding: 4,
-    marginVertical: 8,
+    padding: baseFoundation.spacing.xs,
+    marginVertical: baseFoundation.spacing.s,
   },
   tab: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: baseFoundation.spacing.s,
     alignItems: 'center',
-    borderRadius: 2,
+    borderRadius: baseFoundation.dimension.x2,
   },
   activeTab: {
     backgroundColor: theme.colors.background.elevated,

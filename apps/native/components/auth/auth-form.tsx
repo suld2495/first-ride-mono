@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { baseFoundation } from '@/theme/tokens';
 
 import PixelCard from '@/components/ui/pixel-card';
 import Typography from '@/components/ui/typography';
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
   },
 
   container: {
-    gap: 20,
+    gap: baseFoundation.dimension.x20,
   },
 
   title: {
@@ -48,6 +49,6 @@ const styles = StyleSheet.create({
   },
 
   form: {
-    gap: 10,
+    gap: baseFoundation.dimension.x10,
   },
 });

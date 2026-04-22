@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { StyleSheet, type UnistylesThemes } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -265,7 +266,7 @@ const QuestStartDateCalendar = ({
             )
           }
           leftIcon={({ color }) => (
-            <Ionicons name="chevron-back" size={18} color={color} />
+            <Ionicons name="chevron-back" size={baseFoundation.dimension.x18} color={color} />
           )}
           style={styles.monthButton}
         />
@@ -291,7 +292,7 @@ const QuestStartDateCalendar = ({
             )
           }
           rightIcon={({ color }) => (
-            <Ionicons name="chevron-forward" size={18} color={color} />
+            <Ionicons name="chevron-forward" size={baseFoundation.dimension.x18} color={color} />
           )}
           style={styles.monthButton}
         />
@@ -456,7 +457,7 @@ const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
     borderWidth: 1,
     borderColor: theme.colors.border.default,
     shadowColor: theme.colors.border.strong,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x8 },
     shadowOpacity: 0.1,
     shadowRadius: 18,
     elevation: 6,
@@ -467,9 +468,9 @@ const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
     justifyContent: 'space-between',
   },
   monthButton: {
-    minWidth: 40,
-    height: 40,
-    paddingHorizontal: 0,
+    minWidth: baseFoundation.dimension.x40,
+    height: baseFoundation.dimension.x40,
+    paddingHorizontal: baseFoundation.spacing.none,
     borderRadius: theme.foundation.radii.round,
     backgroundColor: 'transparent',
     borderWidth: 0,
@@ -517,9 +518,9 @@ const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
     backgroundColor: 'transparent',
   },
   dayNumber: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: baseFoundation.dimension.x36,
+    height: baseFoundation.dimension.x36,
+    borderRadius: baseFoundation.dimension.x18,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -529,7 +530,7 @@ const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
   dayNumberSelected: {
     backgroundColor: theme.colors.action.primary.default,
     shadowColor: theme.colors.action.primary.default,
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x3 },
     shadowOpacity: 0.18,
     shadowRadius: 8,
     elevation: 2,

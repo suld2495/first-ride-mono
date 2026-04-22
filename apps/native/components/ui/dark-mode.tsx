@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { useColorScheme, useSetColorScheme } from '@/hooks/useColorScheme';
 
@@ -20,9 +21,9 @@ const DarkMode = () => {
       onPress={() => toggleColorScheme()}
       icon={
         colorScheme === 'light' ? (
-          <Ionicons name="moon" size={24} color={theme.colors.text.primary} />
+          <Ionicons name="moon" size={baseFoundation.iconSize.l} color={theme.colors.text.primary} />
         ) : (
-          <Ionicons name="sunny" size={24} color={theme.colors.text.primary} />
+          <Ionicons name="sunny" size={baseFoundation.iconSize.l} color={theme.colors.text.primary} />
         )
       }
     />

@@ -3,6 +3,7 @@ import type { UserStats } from '@repo/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import Typography from '@/components/ui/typography';
 import { STAT_CONFIGS } from '@/constants/STATS';
@@ -38,7 +39,7 @@ export const RadarStatList: React.FC<RadarStatListProps> = ({
 
         return (
           <View key={config.key} style={styles.row}>
-            <Ionicons name={config.icon} size={16} color={config.color} />
+            <Ionicons name={config.icon} size={baseFoundation.iconSize.s} color={config.color} />
             <Typography variant="label" color={config.color} style={styles.abbr}>
               {config.abbr}
             </Typography>
@@ -61,7 +62,7 @@ export const RadarStatList: React.FC<RadarStatListProps> = ({
                 >
                   <Ionicons
                     name="remove"
-                    size={14}
+                    size={baseFoundation.dimension.x14}
                     color={
                       canDecrement
                         ? theme.colors.text.primary
@@ -79,7 +80,7 @@ export const RadarStatList: React.FC<RadarStatListProps> = ({
                 >
                   <Ionicons
                     name="add"
-                    size={14}
+                    size={baseFoundation.dimension.x14}
                     color={
                       canIncrement
                         ? theme.colors.text.primary
@@ -100,37 +101,37 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: baseFoundation.spacing.s,
     justifyContent: 'center',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.background.surface,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingHorizontal: baseFoundation.spacing.s,
+    paddingVertical: baseFoundation.spacing.s,
     borderRadius: theme.foundation.radii.s,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    gap: 4,
+    gap: baseFoundation.spacing.xs,
   },
   abbr: {
-    width: 32,
+    width: baseFoundation.dimension.x32,
     fontWeight: '600',
   },
   value: {
-    width: 24,
+    width: baseFoundation.dimension.x24,
     textAlign: 'right',
     fontWeight: '600',
   },
   controls: {
     flexDirection: 'row',
-    gap: 4,
-    marginLeft: 4,
+    gap: baseFoundation.spacing.xs,
+    marginLeft: baseFoundation.spacing.xs,
   },
   arrowButton: {
-    width: 24,
-    height: 24,
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
     borderRadius: theme.foundation.radii.s,
     backgroundColor: theme.colors.background.elevated,
     borderWidth: 1,

@@ -8,13 +8,18 @@ import {
 import { createMockRequestList } from '../../setup/request/mock';
 
 jest.mock('@/components/ui/flash-list', () => {
-  const React = require('react');
   const { View } = require('react-native');
 
   return {
-    FlashList: ({ data, renderItem }) => (
+    FlashList: ({
+      data,
+      renderItem,
+    }: {
+      data: Array<{ id?: number }>;
+      renderItem: (args: { item: any; index: number }) => React.ReactNode;
+    }) => (
       <View>
-        {data.map((item, index) => (
+        {data.map((item: any, index: number) => (
           <View key={item.id ?? index}>{renderItem({ item, index })}</View>
         ))}
       </View>

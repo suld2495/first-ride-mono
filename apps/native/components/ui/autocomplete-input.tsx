@@ -6,6 +6,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
+import { baseFoundation } from '@/theme/tokens';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -204,12 +205,12 @@ const styles = StyleSheet.create({
     top: '100%',
     left: 0,
     right: 0,
-    marginTop: 4,
-    borderRadius: 8,
+    marginTop: baseFoundation.spacing.xs,
+    borderRadius: baseFoundation.dimension.x8,
     borderWidth: 1,
     shadowOffset: {
-      width: 0,
-      height: 2,
+      width: baseFoundation.dimension.x0,
+      height: baseFoundation.dimension.x2,
     },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -217,13 +218,13 @@ const styles = StyleSheet.create({
     zIndex: 1001,
   },
   dropdownItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: baseFoundation.spacing.m,
+    paddingVertical: baseFoundation.dimension.x12,
     borderBottomWidth: 1,
   },
   emptyContainer: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: baseFoundation.spacing.m,
+    paddingHorizontal: baseFoundation.spacing.m,
     alignItems: 'center',
   },
   emptyText: {

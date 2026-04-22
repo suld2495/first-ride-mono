@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View, type ViewProps } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 export interface PixelCardProps extends ViewProps {
   title?: string;
@@ -31,11 +32,11 @@ export const PixelCard: React.FC<PixelCardProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    marginVertical: 8,
+    marginVertical: baseFoundation.spacing.s,
     borderRadius: theme.foundation.radii.l,
     backgroundColor: theme.colors.background.surface,
     shadowColor: theme.colors.border.default,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 3,
@@ -47,11 +48,11 @@ const styles = StyleSheet.create((theme) => ({
   },
   borderInner: {
     borderWidth: 0,
-    margin: 0,
+    margin: baseFoundation.spacing.none,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: baseFoundation.dimension.x20,
+    paddingVertical: baseFoundation.spacing.m,
     // borderBottomWidth: 1, // Optional: remove for cleaner look
     // borderBottomColor: theme.colors.border.divider,
     backgroundColor: theme.colors.background.surface,
@@ -62,8 +63,8 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text.primary,
   },
   content: {
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: baseFoundation.spacing.m,
+    paddingHorizontal: baseFoundation.dimension.x20,
   },
 }));
 

@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import Typography from '@/components/ui/typography';
 import { palette } from '@/theme/tokens';
@@ -35,7 +36,7 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.pointsInfo}>
-        <Ionicons name="flag" size={18} color={palette.rpg.exp} />
+        <Ionicons name="flag" size={baseFoundation.dimension.x18} color={palette.rpg.exp} />
         <Typography variant="label">
           {isEditing
             ? `Remaining: ${remainingPoints}`
@@ -53,7 +54,7 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
             >
               <Ionicons
                 name="refresh"
-                size={16}
+                size={baseFoundation.iconSize.s}
                 color={
                   hasChanges
                     ? theme.colors.text.primary
@@ -78,7 +79,7 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
             >
               <Ionicons
                 name="checkmark"
-                size={16}
+                size={baseFoundation.iconSize.s}
                 color={hasChanges ? palette.white : theme.colors.text.disabled}
               />
               <Typography
@@ -94,7 +95,7 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
             style={[styles.button, styles.editButton]}
             onPress={onEdit}
           >
-            <Ionicons name="create-outline" size={16} color={palette.white} />
+            <Ionicons name="create-outline" size={baseFoundation.iconSize.s} color={palette.white} />
             <Typography variant="label" color={palette.white}>
               Edit
             </Typography>
@@ -110,30 +111,30 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: baseFoundation.dimension.x12,
+    paddingVertical: baseFoundation.dimension.x10,
     backgroundColor: theme.colors.background.surface,
-    borderRadius: 4,
+    borderRadius: baseFoundation.dimension.x4,
     borderWidth: 2,
     borderColor: theme.colors.border.default,
-    marginVertical: 8,
+    marginVertical: baseFoundation.spacing.s,
   },
   pointsInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: baseFoundation.spacing.s,
   },
   actions: {
     flexDirection: 'row',
-    gap: 8,
+    gap: baseFoundation.spacing.s,
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 4,
+    gap: baseFoundation.spacing.xs,
+    paddingHorizontal: baseFoundation.dimension.x12,
+    paddingVertical: baseFoundation.dimension.x6,
+    borderRadius: baseFoundation.dimension.x4,
     borderWidth: 2,
   },
   editButton: {

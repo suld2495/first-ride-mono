@@ -2,6 +2,7 @@ import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
 import { Image, View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Badge } from '@/components/ui/badge';
 import { IconButton } from '@/components/ui/icon-button';
@@ -50,8 +51,8 @@ export default NotificationBell;
 
 const styles = StyleSheet.create({
   icon: {
-    width: 18,
-    height: 18,
+    width: baseFoundation.dimension.x18,
+    height: baseFoundation.dimension.x18,
   },
   badge_container: {
     position: 'absolute',

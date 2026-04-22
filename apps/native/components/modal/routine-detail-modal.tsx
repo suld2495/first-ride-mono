@@ -2,6 +2,7 @@ import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRouter } from 'expo-router';
 import { Alert, ScrollView } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
@@ -117,29 +118,29 @@ export default RoutineDetailModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30,
-    paddingHorizontal: 10,
+    marginTop: baseFoundation.dimension.x30,
+    paddingHorizontal: baseFoundation.dimension.x10,
   },
 
   scroll: {
-    gap: 20,
-    paddingBottom: 50,
+    gap: baseFoundation.dimension.x20,
+    paddingBottom: baseFoundation.dimension.x50,
   },
 
   infoLabel: {
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: baseFoundation.dimension.x10,
   },
 
   content: {
-    marginBottom: 10,
+    marginBottom: baseFoundation.dimension.x10,
   },
 
   buttonContainer: {
-    marginTop: 10,
+    marginTop: baseFoundation.dimension.x10,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: 10,
+    gap: baseFoundation.dimension.x10,
   },
 
   button: {

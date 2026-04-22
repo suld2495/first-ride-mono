@@ -5,6 +5,7 @@ import type { SearchOption, User } from '@repo/types';
 import { useCallback, useState } from 'react';
 import { FlatList, Modal, Pressable, RefreshControl } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
@@ -61,7 +62,7 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
         variant="ghost"
         size="sm"
         leftIcon={({ color }) => (
-          <Ionicons name="add-outline" size={16} color={color} />
+          <Ionicons name="add-outline" size={baseFoundation.iconSize.s} color={color} />
         )}
         onPress={handleAdd}
         style={styles.addButton}
@@ -143,7 +144,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
               >
                 <Ionicons
                   name="close-outline"
-                  size={24}
+                  size={baseFoundation.iconSize.l}
                   color={theme.colors.text.primary}
                 />
               </Pressable>
@@ -217,11 +218,11 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.foundation.radii.xl,
     padding: theme.foundation.spacing.l,
     shadowColor: theme.colors.border.default,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x4 },
     shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 5,
-    minHeight: 320,
+    minHeight: baseFoundation.dimension.x320,
     maxHeight: 560,
   },
   modalHeader: {
@@ -235,7 +236,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   listContainer: {
     flex: 1,
-    minHeight: 180,
+    minHeight: baseFoundation.dimension.x180,
   },
   list: {
     flex: 1,
@@ -257,7 +258,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   emptyContainer: {
     flex: 1,
-    minHeight: 140,
+    minHeight: baseFoundation.dimension.x140,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',

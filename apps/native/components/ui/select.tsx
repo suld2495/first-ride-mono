@@ -12,6 +12,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { FlashList, type ListRenderItem } from './flash-list';
 import ThemeView from './theme-view';
@@ -199,7 +200,7 @@ export function Select<T = string | number>({
         {item.value === value && (
           <Ionicons
             name="checkmark"
-            size={20}
+            size={baseFoundation.iconSize.m}
             color={theme.colors.action.primary.default}
           />
         )}
@@ -272,7 +273,7 @@ export function Select<T = string | number>({
         </Typography>
         <Ionicons
           name={isOpen ? 'chevron-up' : 'chevron-down'}
-          size={20}
+          size={baseFoundation.iconSize.m}
           color={
             disabled ? theme.colors.text.disabled : theme.colors.text.secondary
           }
@@ -321,7 +322,7 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 48,
+    minHeight: baseFoundation.dimension.x48,
     paddingHorizontal: theme.foundation.spacing.m,
     paddingVertical: theme.foundation.spacing.s,
     backgroundColor: theme.colors.background.surface,

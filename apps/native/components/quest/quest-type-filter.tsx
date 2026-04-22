@@ -1,6 +1,7 @@
 import type { QuestTypeFilter as QuestTypeFilterType } from '@repo/types';
 import { useCallback } from 'react';
 import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
@@ -93,11 +94,11 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   scrollContent: {
-    paddingHorizontal: 0,
+    paddingHorizontal: baseFoundation.spacing.none,
   },
 
   chip: {
-    paddingVertical: 8,
+    paddingVertical: baseFoundation.spacing.s,
     paddingHorizontal: theme.foundation.spacing.m,
     borderRadius: theme.foundation.radii.l,
     borderWidth: 1,

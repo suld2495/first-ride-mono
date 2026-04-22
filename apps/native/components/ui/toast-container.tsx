@@ -87,15 +87,22 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
       <View style={styles.toastContent}>
         <Ionicons
           name={getIcon()}
-          size={20}
+          size={theme.foundation.iconSize.m}
           color={theme.colors.text.inverse}
           style={styles.icon}
         />
         <Typography color="inverse" style={styles.message}>
           {toast.message}
         </Typography>
-        <Pressable onPress={handleClose} hitSlop={8}>
-          <Ionicons name="close" size={20} color={theme.colors.text.inverse} />
+        <Pressable
+          onPress={handleClose}
+          hitSlop={theme.foundation.spacing.s}
+        >
+          <Ionicons
+            name="close"
+            size={theme.foundation.iconSize.m}
+            color={theme.colors.text.inverse}
+          />
         </Pressable>
       </View>
     </Animated.View>
@@ -116,24 +123,24 @@ const ToastContainer: React.FC = () => {
 
 export default ToastContainer;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     position: 'absolute',
-    top: 60,
-    left: 0,
-    right: 0,
+    top: theme.foundation.dimension.x60,
+    left: theme.foundation.dimension.x0,
+    right: theme.foundation.dimension.x0,
     alignItems: 'center',
-    zIndex: 9999,
-    paddingHorizontal: 16,
+    zIndex: theme.foundation.zIndex.toast,
+    paddingHorizontal: theme.foundation.spacing.m,
   },
   toastItem: {
     width: '100%',
-    borderRadius: 8,
-    marginBottom: 8,
+    borderRadius: theme.foundation.spacing.s,
+    marginBottom: theme.foundation.spacing.s,
     shadowColor: '#000',
     shadowOffset: {
-      width: 0,
-      height: 2,
+      width: theme.foundation.dimension.x0,
+      height: theme.foundation.dimension.x2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -142,14 +149,14 @@ const styles = StyleSheet.create({
   toastContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: theme.foundation.dimension.x12,
+    paddingHorizontal: theme.foundation.spacing.m,
   },
   icon: {
-    marginRight: 12,
+    marginRight: theme.foundation.dimension.x12,
   },
   message: {
     flex: 1,
-    fontSize: 14,
+    fontSize: theme.foundation.typography.size.m,
   },
-});
+}));
