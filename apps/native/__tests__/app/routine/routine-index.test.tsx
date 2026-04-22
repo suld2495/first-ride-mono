@@ -2,9 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import {
   afterWeek,
   beforeWeek,
-  getDisplayFormatDate,
   getWeekMonday,
-  getWeekSunday,
 } from '@repo/shared/utils';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -17,6 +15,15 @@ import {
   waitFor,
 } from '../../setup/auth-test-utils';
 import { createMockRoutines } from '../../setup/routine/mock';
+
+const formatRoutineHeaderDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][date.getDay()];
+
+  return `${year}. ${month}. ${day} ${dayOfWeek}`;
+};
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
@@ -75,16 +82,60 @@ describe('루틴 조회 페이지', () => {
         expect(await findByText('테스트 루틴 2')).toBeOnTheScreen();
       });
 
-      it('루틴 리스트 타이틀이 표시된다', async () => {
-        const { findByText } = render(<Index />);
+      it('루틴 리스트 타이틀이 표시되지 않는다', async () => {
+        const { queryByText, findByText } = render(<Index />);
 
-        expect(await findByText('루틴 리스트')).toBeOnTheScreen();
+        await findByText('테스트 루틴 1');
+        expect(queryByText('루틴 리스트')).toBeNull();
       });
 
-      it('루틴 추가 버튼이 표시된다', async () => {
+      it('루틴 추가 플로팅 버튼이 표시된다', async () => {
+        const { findByLabelText } = render(<Index />);
+
+        expect(await findByLabelText('루틴 추가')).toBeOnTheScreen();
+      });
+
+      it('상단 헤더에 선택된 날짜가 표시된다', async () => {
+        const specificDate = '2024-12-10';
+
+        mockSearchParams.date = specificDate;
+
         const { findByText } = render(<Index />);
 
-        expect(await findByText('루틴 추가 +')).toBeOnTheScreen();
+        expect(
+          await findByText(
+            formatRoutineHeaderDate(new Date(specificDate)),
+          ),
+        ).toBeOnTheScreen();
+      });
+
+      it('배경과 캐릭터 장식이 표시된다', async () => {
+        const { findByTestId } = render(<Index />);
+
+        expect(await findByTestId('routine-scene-background')).toBeOnTheScreen();
+        expect(await findByTestId('routine-scene-character')).toBeOnTheScreen();
+      });
+
+      it('루틴이 4개를 넘으면 하단 화살표가 표시된다', async () => {
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .reply(200, { data: createMockRoutines(5) });
+
+        const { findByTestId } = render(<Index />);
+
+        expect(await findByTestId('routine-scroll-indicator')).toBeOnTheScreen();
+      });
+
+      it('루틴이 4개 이하면 하단 화살표가 표시되지 않는다', async () => {
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .reply(200, { data: createMockRoutines(4) });
+
+        const { queryByTestId, findByText } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+
+        expect(queryByTestId('routine-scroll-indicator')).toBeNull();
       });
     });
   });
@@ -327,21 +378,18 @@ describe('루틴 조회 페이지', () => {
         .reply(200, { data: createMockRoutines(1) });
     });
 
-    it('현재 주의 시작일과 종료일이 실제 날짜로 표시된다', async () => {
+    it('현재 주 날짜가 상단 헤더에 표시된다', async () => {
       const { findByText } = render(<Index />);
 
       const today = new Date();
       const startDate = new Date(getWeekMonday(today));
-      const endDate = new Date(getWeekSunday(startDate));
 
-      // 실제 날짜 형식으로 표시되는지 확인 (예: "24년 11월 25일")
       expect(
-        await findByText(getDisplayFormatDate(startDate)),
+        await findByText(formatRoutineHeaderDate(startDate)),
       ).toBeOnTheScreen();
-      expect(await findByText(getDisplayFormatDate(endDate))).toBeOnTheScreen();
     });
 
-    it('특정 날짜가 지정된 경우 해당 주의 날짜 범위가 표시된다', async () => {
+    it('특정 날짜가 지정된 경우 해당 주 날짜가 상단 헤더에 표시된다', async () => {
       const specificDate = '2024-12-02'; // 특정 날짜 지정
 
       mockSearchParams.date = specificDate;
@@ -349,12 +397,10 @@ describe('루틴 조회 페이지', () => {
       const { findByText } = render(<Index />);
 
       const startDate = new Date(getWeekMonday(new Date(specificDate)));
-      const endDate = new Date(getWeekSunday(startDate));
 
       expect(
-        await findByText(getDisplayFormatDate(startDate)),
+        await findByText(formatRoutineHeaderDate(startDate)),
       ).toBeOnTheScreen();
-      expect(await findByText(getDisplayFormatDate(endDate))).toBeOnTheScreen();
     });
   });
 
@@ -363,34 +409,6 @@ describe('루틴 조회 페이지', () => {
       mockAxios
         .onGet(/\/routine\/list/)
         .reply(200, { data: createMockRoutines(1) });
-    });
-
-    it('number 타입에서 week 타입으로 변경할 수 있다', async () => {
-      mockRoutineStore.type = 'number';
-      const { findByText, findByLabelText } = render(<Index />);
-
-      await findByText('테스트 루틴 1');
-
-      // 요일별 보기 버튼 클릭 (week 타입으로 변경)
-      const weekViewButton = await findByLabelText('요일별 보기');
-
-      fireEvent.press(weekViewButton);
-
-      expect(mockRoutineStore.setType).toHaveBeenCalledWith('week');
-    });
-
-    it('week 타입에서 number 타입으로 변경할 수 있다', async () => {
-      mockRoutineStore.type = 'week';
-      const { findByText, findByLabelText } = render(<Index />);
-
-      await findByText('테스트 루틴 1');
-
-      // 회차별 보기 버튼 클릭 (number 타입으로 변경)
-      const numberViewButton = await findByLabelText('회차별 보기');
-
-      fireEvent.press(numberViewButton);
-
-      expect(mockRoutineStore.setType).toHaveBeenCalledWith('number');
     });
 
     it('number 타입일 때 회차 라벨이 표시된다', async () => {
@@ -446,11 +464,10 @@ describe('루틴 조회 페이지', () => {
 
       const { findByText, findByLabelText, rerender } = render(<Index />);
 
-      // 현재 주의 날짜 확인
       const startDate = new Date(getWeekMonday(new Date(specificDate)));
 
       expect(
-        await findByText(getDisplayFormatDate(startDate)),
+        await findByText(formatRoutineHeaderDate(startDate)),
       ).toBeOnTheScreen();
 
       // 이전 주 버튼 확인
@@ -467,7 +484,7 @@ describe('루틴 조회 페이지', () => {
       rerender(<Index />);
 
       expect(
-        await findByText(getDisplayFormatDate(prevStartDate)),
+        await findByText(formatRoutineHeaderDate(prevStartDate)),
       ).toBeOnTheScreen();
     });
 
@@ -478,11 +495,10 @@ describe('루틴 조회 페이지', () => {
 
       const { findByText, findByLabelText, rerender } = render(<Index />);
 
-      // 현재 주의 날짜 확인
       const startDate = new Date(getWeekMonday(new Date(specificDate)));
 
       expect(
-        await findByText(getDisplayFormatDate(startDate)),
+        await findByText(formatRoutineHeaderDate(startDate)),
       ).toBeOnTheScreen();
 
       // 다음 주 버튼 확인
@@ -499,7 +515,7 @@ describe('루틴 조회 페이지', () => {
       rerender(<Index />);
 
       expect(
-        await findByText(getDisplayFormatDate(nextStartDate)),
+        await findByText(formatRoutineHeaderDate(nextStartDate)),
       ).toBeOnTheScreen();
     });
   });

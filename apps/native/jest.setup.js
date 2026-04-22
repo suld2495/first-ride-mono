@@ -209,6 +209,17 @@ jest.mock('@tamagui/animations-react-native', () => ({
   createAnimations: (value) => value,
 }));
 
+jest.mock('@shopify/flash-list', () => {
+  const React = require('react');
+  const { FlatList } = require('react-native');
+
+  return {
+    FlashList: React.forwardRef((props, ref) =>
+      React.createElement(FlatList, { ref, ...props }),
+    ),
+  };
+});
+
 // expo-constants 모킹
 jest.mock('expo-constants', () => ({
   default: {
@@ -340,7 +351,8 @@ global.mockAuthStore = {
 };
 
 jest.mock('./store/auth.store', () => ({
-  useAuthStore: () => global.mockAuthStore,
+  useAuthStore: (selector) =>
+    selector ? selector(global.mockAuthStore) : global.mockAuthStore,
 }));
 
 // routine store mock

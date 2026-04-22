@@ -1,27 +1,61 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { afterWeek, beforeWeek } from '@repo/shared/utils';
+import { View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
 
+import NotificationBell from '@/components/notification/notification-bell';
 import Link from '@/components/ui/link';
 import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
-
-import RoutineDate from './routine-date';
+import { useAuthUser } from '@/hooks/useAuthSession';
+import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 
 interface RoutineHeaderProps {
   date: string;
 }
 
 const RoutineHeader = ({ date }: RoutineHeaderProps) => {
+  const user = useAuthUser();
+  const { data: requests } = useReceivedRequests(user?.nickname || '');
+  const currentDate = new Date(date);
+  const formattedDate = `${currentDate.getFullYear()}. ${
+    currentDate.getMonth() + 1
+  }. ${currentDate.getDate()} ${
+    ['일', '월', '화', '수', '목', '금', '토'][currentDate.getDay()]
+  }`;
+
   return (
     <ThemeView style={styles.container} transparent>
-      <ThemeView style={styles.header} transparent>
-        <Typography variant="title">루틴 리스트</Typography>
-        <Link
-          href="/modal?type=routine-add"
-          title="루틴 추가 +"
-          style={styles.routineButton}
-        />
+      <ThemeView style={styles.topBar} transparent>
+        <View style={styles.dateNavigation}>
+          <Link
+            variant="ghost"
+            href={`/(tabs)/(afterLogin)/(routine)?date=${beforeWeek(currentDate)}`}
+            leftIcon={({ color }) => (
+              <Ionicons name="chevron-back" size={20} color={color} />
+            )}
+            accessibilityLabel="이전 주"
+            accessibilityRole="button"
+            style={styles.dateArrow}
+          />
+          <Typography variant="body1" style={styles.dateTitle}>
+            {formattedDate}
+          </Typography>
+          <Link
+            variant="ghost"
+            href={`/(tabs)/(afterLogin)/(routine)?date=${afterWeek(currentDate)}`}
+            leftIcon={({ color }) => (
+              <Ionicons name="chevron-forward" size={20} color={color} />
+            )}
+            accessibilityLabel="다음 주"
+            accessibilityRole="button"
+            style={styles.dateArrow}
+          />
+        </View>
+        <View style={styles.notification}>
+          <NotificationBell count={requests.length} url="/modal?type=request-list" />
+        </View>
       </ThemeView>
-      <RoutineDate date={date} />
     </ThemeView>
   );
 };
@@ -30,22 +64,40 @@ export default RoutineHeader;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    gap: theme.foundation.spacing.l,
-    marginTop: theme.foundation.spacing.m,
+    gap: 0,
+    marginTop: theme.foundation.spacing.s,
   },
 
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  topBar: {
+    position: 'relative',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: theme.foundation.spacing.m,
+    minHeight: 44,
+  },
+  dateNavigation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing.xs,
   },
 
-  routineButton: {
-    height: 36,
+  dateTitle: {
+    color: '#0B2038',
+  },
+
+  dateArrow: {
+    width: 28,
+    height: 28,
+    minHeight: 28,
+    minWidth: 28,
+    paddingHorizontal: 0,
     paddingVertical: 0,
-    borderRadius: theme.foundation.radii.s,
-    borderWidth: 1,
-    borderColor: theme.colors.border.default,
+  },
+  notification: {
+    position: 'absolute',
+    right: theme.foundation.spacing.m,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
   },
 }));

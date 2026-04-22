@@ -1,7 +1,6 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
 
 import { Badge } from '@/components/ui/badge';
@@ -29,9 +28,13 @@ const NotificationBell = ({ count, onPress, url }: NotificationBellProps) => {
       variant="ghost"
       onPress={handlePress}
       accessibilityLabel={`인증 요청 알림${count > 0 ? ` ${count}건` : ''}`}
-      icon={({ color }) => (
+      icon={() => (
         <View>
-          <Ionicons name="notifications-outline" size={24} color={color} />
+          <Image
+            source={require('@/assets/notification/union-bell.png')}
+            style={styles.icon}
+            resizeMode="contain"
+          />
           {count > 0 && (
             <View style={styles.badge_container}>
               <Badge count={count} variant="error" size="sm" />
@@ -46,6 +49,10 @@ const NotificationBell = ({ count, onPress, url }: NotificationBellProps) => {
 export default NotificationBell;
 
 const styles = StyleSheet.create({
+  icon: {
+    width: 18,
+    height: 18,
+  },
   badge_container: {
     position: 'absolute',
     top: -4,

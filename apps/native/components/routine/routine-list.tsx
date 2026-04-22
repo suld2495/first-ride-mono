@@ -1,9 +1,12 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Routine } from '@repo/types';
 import { useRouter } from 'expo-router';
+import { View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
 
 import EmptyState from '@/components/ui/empty-state';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
 import { useRoutineType, useSetRoutineId } from '@/hooks/useRoutineSelection';
 
 import { RoutineCountList, RoutineWeekList } from './weekly-routine';
@@ -11,9 +14,16 @@ import { RoutineCountList, RoutineWeekList } from './weekly-routine';
 interface RoutineListProps {
   routines: Routine[];
   date: string;
+  refreshing?: boolean;
+  onRefresh?: () => Promise<void>;
 }
 
-const RoutineList = ({ routines, date }: RoutineListProps) => {
+const RoutineList = ({
+  routines,
+  date,
+  refreshing = false,
+  onRefresh,
+}: RoutineListProps) => {
   const setRoutineId = useSetRoutineId();
   const type = useRoutineType();
   const router = useRouter();
@@ -35,6 +45,8 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
           <RoutineCountList
             routines={routines}
             date={date}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
             onShowRequestModal={handleShowRequestModal}
             onShowDetailModal={handleShowDetailModal}
           />
@@ -42,6 +54,8 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
           <RoutineWeekList
             routines={routines}
             date={date}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
             onShowRequestModal={handleShowRequestModal}
             onShowDetailModal={handleShowDetailModal}
           />
@@ -49,6 +63,14 @@ const RoutineList = ({ routines, date }: RoutineListProps) => {
       ) : (
         <EmptyState icon="list-outline" message="등록된 루틴이 없습니다." />
       )}
+      {routines.length > 4 ? (
+        <View style={styles.scrollIndicator} testID="routine-scroll-indicator">
+          <Ionicons name="chevron-down" size={18} color="#FFFFFF" />
+          <Typography variant="caption" color="#FFFFFF">
+            아래로 더 보기
+          </Typography>
+        </View>
+      ) : null}
     </ThemeView>
   );
 };
@@ -59,8 +81,14 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     marginTop: theme.foundation.spacing.m,
     flex: 1,
+    backgroundColor: 'transparent',
   },
-  list: {
-    gap: theme.foundation.spacing.m,
+  scrollIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    gap: 2,
   },
 }));

@@ -1,16 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {
-  afterWeek,
-  beforeWeek,
-  getDisplayFormatDate,
-  getWeekMonday,
-  getWeekSunday,
-} from '@repo/shared/utils';
 import { StyleSheet } from '@/lib/unistyles';
 
 import { IconButton } from '@/components/ui/icon-button';
-import Link from '@/components/ui/link';
-import Typography from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 import { useRoutineType, useSetRoutineType } from '@/hooks/useRoutineSelection';
 
@@ -18,93 +9,60 @@ interface RoutineDateProps {
   date?: string;
 }
 
-const RoutineDate = ({ date }: RoutineDateProps) => {
-  const startDate = new Date(getWeekMonday(date ? new Date(date) : new Date()));
-  const endDate = new Date(getWeekSunday(startDate));
-
+const RoutineDate = (_props: RoutineDateProps) => {
   const type = useRoutineType();
   const setType = useSetRoutineType();
 
   return (
     <ThemeView style={styles.date_container}>
-      <ThemeView style={styles.currentDate}>
-        <Typography variant="label">{getDisplayFormatDate(startDate)}</Typography>
-        <Typography variant="label">~</Typography>
-        <Typography variant="label">{getDisplayFormatDate(endDate)}</Typography>
-      </ThemeView>
-      <ThemeView style={styles.right}>
-        <ThemeView style={styles.date_button_container}>
-          <Link
-            variant="ghost"
-            href={`/(tabs)/(afterLogin)/(routine)?date=${beforeWeek(startDate)}`}
-            leftIcon={({ color }) => (
-              <Ionicons name="chevron-back" size={24} color={color} />
-            )}
-            style={styles.link}
-            accessibilityLabel="이전 주"
-            accessibilityRole="button"
-          />
-          <Link
-            variant="ghost"
-            href={`/(tabs)/(afterLogin)/(routine)?date=${afterWeek(startDate)}`}
-            leftIcon={({ color }) => (
-              <Ionicons name="chevron-forward" size={24} color={color} />
-            )}
-            style={styles.link}
-            accessibilityLabel="다음 주"
-            accessibilityRole="button"
-          />
-        </ThemeView>
-        <ThemeView style={styles.line} />
-        <ThemeView style={styles.icons}>
-          {type === 'number' ? (
-            <>
-              <IconButton
-                icon={({ color }) => (
-                  <Ionicons name="keypad-sharp" size={22} color={color} />
-                )}
-                variant="ghost"
-                onPress={() => setType('number')}
-                accessibilityLabel="회차별 보기"
-                accessibilityRole="button"
-                accessibilityState={{ selected: true }}
-              />
-              <IconButton
-                icon={({ color }) => (
-                  <Ionicons name="grid-outline" size={22} color={color} />
-                )}
-                variant="ghost"
-                onPress={() => setType('week')}
-                accessibilityLabel="요일별 보기"
-                accessibilityRole="button"
-                accessibilityState={{ selected: false }}
-              />
-            </>
-          ) : (
-            <>
-              <IconButton
-                icon={({ color }) => (
-                  <Ionicons name="keypad-outline" size={22} color={color} />
-                )}
-                variant="ghost"
-                onPress={() => setType('number')}
-                accessibilityLabel="회차별 보기"
-                accessibilityRole="button"
-                accessibilityState={{ selected: false }}
-              />
-              <IconButton
-                icon={({ color }) => (
-                  <Ionicons name="grid" size={22} color={color} />
-                )}
-                variant="ghost"
-                onPress={() => setType('week')}
-                accessibilityLabel="요일별 보기"
-                accessibilityRole="button"
-                accessibilityState={{ selected: true }}
-              />
-            </>
-          )}
-        </ThemeView>
+      <ThemeView style={styles.icons}>
+        {type === 'number' ? (
+          <>
+            <IconButton
+              icon={({ color }) => (
+                <Ionicons name="keypad-sharp" size={22} color={color} />
+              )}
+              variant="ghost"
+              onPress={() => setType('number')}
+              accessibilityLabel="회차별 보기"
+              accessibilityRole="button"
+              accessibilityState={{ selected: true }}
+            />
+            <IconButton
+              icon={({ color }) => (
+                <Ionicons name="grid-outline" size={22} color={color} />
+              )}
+              variant="ghost"
+              onPress={() => setType('week')}
+              accessibilityLabel="요일별 보기"
+              accessibilityRole="button"
+              accessibilityState={{ selected: false }}
+            />
+          </>
+        ) : (
+          <>
+            <IconButton
+              icon={({ color }) => (
+                <Ionicons name="keypad-outline" size={22} color={color} />
+              )}
+              variant="ghost"
+              onPress={() => setType('number')}
+              accessibilityLabel="회차별 보기"
+              accessibilityRole="button"
+              accessibilityState={{ selected: false }}
+            />
+            <IconButton
+              icon={({ color }) => (
+                <Ionicons name="grid" size={22} color={color} />
+              )}
+              variant="ghost"
+              onPress={() => setType('week')}
+              accessibilityLabel="요일별 보기"
+              accessibilityRole="button"
+              accessibilityState={{ selected: true }}
+            />
+          </>
+        )}
       </ThemeView>
     </ThemeView>
   );
@@ -114,43 +72,17 @@ export default RoutineDate;
 
 const styles = StyleSheet.create((theme) => ({
   date_container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: theme.foundation.spacing.m,
-  },
-
-  currentDate: {
-    flexDirection: 'row',
-    gap: theme.foundation.spacing.xs,
-  },
-
-  right: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-
-  date_button_container: {
-    flexDirection: 'row',
-    gap: theme.foundation.spacing.xs,
-  },
-
-  link: {
-    paddingVertical: 0,
-    paddingHorizontal: 0,
-  },
-
-  line: {
-    width: 2,
-    height: 17,
-    backgroundColor: theme.colors.border.default,
-    marginInline: theme.foundation.spacing.xs,
+    alignSelf: 'flex-end',
+    paddingHorizontal: theme.foundation.spacing.s,
+    paddingVertical: theme.foundation.spacing.xs,
+    marginHorizontal: theme.foundation.spacing.m,
+    borderRadius: theme.foundation.radii.l,
+    backgroundColor: 'rgba(11,32,56,0.12)',
   },
 
   icons: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: theme.foundation.spacing.xs,
   },
 }));
