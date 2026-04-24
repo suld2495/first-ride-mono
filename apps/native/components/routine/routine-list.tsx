@@ -25,25 +25,17 @@ const previewOverlayImage = require('@/assets/routine/preview-overlay.png');
 interface RoutineListProps {
   routines: Routine[];
   date: string;
+  listAreaHeight?: number;
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
 }
 
 const MAX_VISIBLE_ROUTINES = 4;
 const COLLAPSED_VISIBLE_ROUTINES = 2;
-const ROUTINE_VISIBLE_ITEM_HEIGHT = 120;
-const ROUTINE_VIEWPORT_BOTTOM_PADDING = 12;
-const COLLAPSED_VIEWPORT_CLIP_OFFSET = 16;
-const MAX_VISIBLE_ROUTINE_LIST_HEIGHT =
-  MAX_VISIBLE_ROUTINES * ROUTINE_VISIBLE_ITEM_HEIGHT +
-  ROUTINE_VIEWPORT_BOTTOM_PADDING;
-const COLLAPSED_VISIBLE_ROUTINE_LIST_HEIGHT =
-  COLLAPSED_VISIBLE_ROUTINES * ROUTINE_VISIBLE_ITEM_HEIGHT +
-  ROUTINE_VIEWPORT_BOTTOM_PADDING -
-  COLLAPSED_VIEWPORT_CLIP_OFFSET;
-const PREVIEW_OVERLAY_TOP_OFFSET = ROUTINE_VISIBLE_ITEM_HEIGHT;
-const SECOND_ROUTINE_OVERLAY_HEIGHT =
-  COLLAPSED_VISIBLE_ROUTINE_LIST_HEIGHT - PREVIEW_OVERLAY_TOP_OFFSET;
+const DEFAULT_ROUTINE_LIST_AREA_HEIGHT = 480;
+const ROUTINE_LIST_TOP_SPACING = baseFoundation.spacing.s;
+const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
+const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing.s;
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
 
 if (
@@ -56,6 +48,7 @@ if (
 const RoutineList = ({
   routines,
   date,
+  listAreaHeight = DEFAULT_ROUTINE_LIST_AREA_HEIGHT,
   refreshing = false,
   onRefresh,
 }: RoutineListProps) => {
@@ -68,6 +61,15 @@ const RoutineList = ({
   const hasPreviewLayer = routines.length >= COLLAPSED_VISIBLE_ROUTINES;
   const canExpandList = routines.length >= COLLAPSED_VISIBLE_ROUTINES;
   const isScrollableList = isExpanded && routines.length > MAX_VISIBLE_ROUTINES;
+  const reservedHeight =
+    ROUTINE_LIST_TOP_SPACING +
+    (canExpandList
+      ? ROUTINE_SCROLL_INDICATOR_TOP_SPACING + ROUTINE_SCROLL_INDICATOR_HEIGHT
+      : 0);
+  const routineViewportHeight = Math.max(listAreaHeight - reservedHeight, 0);
+  const routineItemHeight = routineViewportHeight / MAX_VISIBLE_ROUTINES;
+  const collapsedListHeight = routineItemHeight * COLLAPSED_VISIBLE_ROUTINES;
+  const expandedListHeight = routineViewportHeight;
 
   useEffect(() => {
     setIsExpanded(false);
@@ -117,9 +119,9 @@ const RoutineList = ({
           style={[
             styles.listViewport,
             hasPreviewLayer && !isExpanded
-              ? styles.listViewportCollapsedHeight
+              ? { height: collapsedListHeight }
               : null,
-            isExpanded ? styles.listViewportExpandedHeight : null,
+            isExpanded ? { height: expandedListHeight } : null,
           ]}
           testID="routine-list-viewport"
         >
@@ -127,6 +129,7 @@ const RoutineList = ({
             <RoutineCountList
               routines={routines}
               date={date}
+              itemHeight={routineItemHeight}
               scrollEnabled={isScrollableList}
               refreshing={refreshing}
               onRefresh={onRefresh}
@@ -138,6 +141,7 @@ const RoutineList = ({
             <RoutineWeekList
               routines={routines}
               date={date}
+              itemHeight={routineItemHeight}
               scrollEnabled={isScrollableList}
               refreshing={refreshing}
               onRefresh={onRefresh}
@@ -152,6 +156,10 @@ const RoutineList = ({
               style={[
                 styles.previewOverlay,
                 styles.previewOverlayVisibility,
+                {
+                  top: routineItemHeight,
+                  height: routineItemHeight,
+                },
                 { opacity: overlayOpacity },
               ]}
               testID="routine-preview-overlay"
@@ -192,9 +200,8 @@ const RoutineList = ({
 
 export default RoutineList;
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create({
   container: {
-    marginTop: theme.foundation.spacing.s,
     flex: 1,
     backgroundColor: 'transparent',
   },
@@ -203,18 +210,10 @@ const styles = StyleSheet.create((theme) => ({
     overflow: 'hidden',
     backgroundColor: 'transparent',
   },
-  listViewportCollapsedHeight: {
-    height: COLLAPSED_VISIBLE_ROUTINE_LIST_HEIGHT,
-  },
-  listViewportExpandedHeight: {
-    height: MAX_VISIBLE_ROUTINE_LIST_HEIGHT,
-  },
   previewOverlay: {
     position: 'absolute',
-    top: PREVIEW_OVERLAY_TOP_OFFSET,
     right: 0,
     left: 0,
-    height: SECOND_ROUTINE_OVERLAY_HEIGHT,
     overflow: 'hidden',
   },
   previewOverlayVisibility: {
@@ -228,15 +227,15 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
   scrollIndicator: {
-    marginTop: baseFoundation.spacing.s,
+    marginTop: ROUTINE_SCROLL_INDICATOR_TOP_SPACING,
     alignItems: 'center',
     justifyContent: 'center',
     gap: baseFoundation.dimension.x2,
     borderRadius: 8,
     borderWidth: 1,
     width: 60,
-    height: 24,
+    height: ROUTINE_SCROLL_INDICATOR_HEIGHT,
     borderColor: '#83B0D6',
     backgroundColor: '#B0DAFF',
   },
-}));
+});

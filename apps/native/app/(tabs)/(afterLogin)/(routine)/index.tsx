@@ -2,12 +2,10 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { type LayoutChangeEvent, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet } from '@/lib/unistyles';
-import { baseFoundation } from '@/theme/tokens';
 
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
@@ -18,6 +16,8 @@ import {
 import { IconButton } from '@/components/ui/icon-button';
 import Loading from '@/components/ui/loading';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 const ROUTINE_TAB_BAR_TOP_OFFSET = 72;
 const ROUTINE_CHARACTER_BOTTOM_OFFSET = 86;
@@ -25,6 +25,7 @@ const ROUTINE_CHARACTER_BOTTOM_OFFSET = 86;
 export default function Index() {
   const router = useRouter();
   const isFirstLoadRef = useRef(true);
+  const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
 
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
@@ -49,6 +50,13 @@ export default function Index() {
   const handleRefresh = useCallback(async () => {
     await refetch();
   }, [refetch]);
+
+  const handleRoutineListAreaLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      setRoutineListAreaHeight(event.nativeEvent.layout.height);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!user) {
@@ -81,33 +89,55 @@ export default function Index() {
             <Loading />
           </View>
         ) : (
-          <View style={styles.content}>
-            <RoutineList
-              routines={routines}
-              date={date}
-              refreshing={isRefetching}
-              onRefresh={handleRefresh}
-            />
+          <View style={styles.content} testID="routine-content">
+            {hasRoutines ? (
+              <>
+                <View
+                  style={styles.routineListArea}
+                  onLayout={handleRoutineListAreaLayout}
+                  testID="routine-list-area"
+                >
+                  <RoutineList
+                    routines={routines}
+                    date={date}
+                    listAreaHeight={routineListAreaHeight || undefined}
+                    refreshing={isRefetching}
+                    onRefresh={handleRefresh}
+                  />
+                </View>
+                <View
+                  style={styles.routineCharacterArea}
+                  pointerEvents="none"
+                  testID="routine-character-area"
+                >
+                  {renderRoutineSceneAsset(routineSceneAssets.character, {
+                    testID: 'routine-scene-character',
+                    style: styles.characterImage,
+                  })}
+                </View>
+              </>
+            ) : (
+              <RoutineList
+                routines={routines}
+                date={date}
+                refreshing={isRefetching}
+                onRefresh={handleRefresh}
+              />
+            )}
           </View>
         )}
       </View>
       <IconButton
         variant="ghost"
-        icon={({ size }) => <Ionicons name="add" size={size + 8} color="#FFFFFF" />}
+        icon={({ size }) => (
+          <Ionicons name="add" size={size + 8} color="#FFFFFF" />
+        )}
         onPress={() => router.push('/modal?type=routine-add')}
         accessibilityLabel="루틴 추가"
         accessibilityRole="button"
         testID="routine-add-fab"
         style={styles.fab}
       />
-      {hasRoutines ? (
-        <View style={styles.character} pointerEvents="none">
-          {renderRoutineSceneAsset(routineSceneAssets.character, {
-            testID: 'routine-scene-character',
-            style: styles.characterImage,
-          })}
-        </View>
-      ) : null}
     </SafeAreaView>
   );
 }
@@ -142,15 +172,17 @@ const styles = StyleSheet.create((theme) => ({
   content: {
     flex: 1,
     paddingHorizontal: theme.foundation.spacing.m,
-    paddingBottom: baseFoundation.dimension.x100,
   },
   loadingContainer: {
     flex: 1,
   },
-  character: {
-    position: 'absolute',
-    bottom: ROUTINE_CHARACTER_BOTTOM_OFFSET,
-    alignSelf: 'center',
+  routineListArea: {
+    flex: 7,
+  },
+  routineCharacterArea: {
+    flex: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fab: {
     position: 'absolute',
@@ -165,7 +197,10 @@ const styles = StyleSheet.create((theme) => ({
     borderWidth: 2,
     borderColor: '#A9D6FF',
     shadowColor: '#0D3154',
-    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x6 },
+    shadowOffset: {
+      width: baseFoundation.dimension.x0,
+      height: baseFoundation.dimension.x6,
+    },
     shadowOpacity: 0.24,
     shadowRadius: 10,
     elevation: 8,

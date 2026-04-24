@@ -14,6 +14,7 @@ import { Typography } from '@/components/ui/typography';
 interface RoutineWeekListProps {
   routines: WeeklyRoutine[];
   date: string;
+  itemHeight: number;
   scrollEnabled?: boolean;
   testID?: string;
   refreshing?: boolean;
@@ -22,19 +23,13 @@ interface RoutineWeekListProps {
   onShowDetailModal: (id: number) => void;
 }
 
-const ROUTINE_CARD_HEIGHT = 182;
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 const ROUTINE_TITLE_COLOR = '#DDEEFF';
-
-const getRoutineItemLayout = (_: WeeklyRoutine[] | null, index: number) => ({
-  length: ROUTINE_CARD_HEIGHT,
-  offset: ROUTINE_CARD_HEIGHT * index,
-  index,
-});
 
 const RoutineWeekList = ({
   routines,
   date,
+  itemHeight,
   scrollEnabled = true,
   testID,
   refreshing = false,
@@ -43,6 +38,14 @@ const RoutineWeekList = ({
   onShowDetailModal,
 }: RoutineWeekListProps) => {
   const weeklyData = useWeeklyData(routines);
+  const getRoutineItemLayout = useCallback(
+    (_: WeeklyRoutine[] | null, index: number) => ({
+      length: itemHeight,
+      offset: itemHeight * index,
+      index,
+    }),
+    [itemHeight],
+  );
 
   const renderRoutineItem = useCallback<ListRenderItem<WeeklyRoutine>>(
     ({ item: routine }) => {
@@ -50,8 +53,13 @@ const RoutineWeekList = ({
       let count = 0;
 
       return (
-        <View style={styles.cardContainer}>
-          <View style={styles.cardOuter}>
+        <View style={[styles.cardContainer, { height: itemHeight }]}>
+          <View
+            style={[
+              styles.cardOuter,
+              { height: Math.max(itemHeight - baseFoundation.spacing.xs, 0) },
+            ]}
+          >
             <View style={styles.cardGap}>
               <View style={styles.cardInner}>
                 <View style={styles.cardSurface}>
@@ -150,7 +158,7 @@ const RoutineWeekList = ({
         </View>
       );
     },
-    [date, onShowDetailModal, onShowRequestModal, weeklyData],
+    [date, itemHeight, onShowDetailModal, onShowRequestModal, weeklyData],
   );
 
   return (
@@ -159,7 +167,7 @@ const RoutineWeekList = ({
       renderItem={renderRoutineItem}
       keyExtractor={(item) => item.routineId.toString()}
       contentContainerStyle={styles.list}
-      estimatedItemSize={ROUTINE_CARD_HEIGHT}
+      estimatedItemSize={itemHeight}
       getItemLayout={getRoutineItemLayout}
       refreshing={refreshing}
       onRefresh={onRefresh}
@@ -175,7 +183,7 @@ export default RoutineWeekList;
 const styles = StyleSheet.create({
   list: {},
   cardContainer: {
-    marginBottom: baseFoundation.spacing.xs,
+    justifyContent: 'center',
   },
   cardOuter: {
     borderRadius: baseFoundation.dimension.x18,
@@ -190,21 +198,21 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   cardGap: {
+    flex: 1,
     padding: baseFoundation.dimension.x2,
     borderRadius: baseFoundation.radii.m,
     backgroundColor: '#FFFFFF',
   },
   cardInner: {
+    flex: 1,
     borderRadius: baseFoundation.dimension.x14,
     padding: baseFoundation.dimension.x3,
     backgroundColor: '#A9D6FF',
   },
   cardSurface: {
+    flex: 1,
     borderRadius: baseFoundation.dimension.x10,
-    minHeight: baseFoundation.dimension.x112,
     paddingHorizontal: baseFoundation.spacing.m,
-    paddingTop: baseFoundation.dimension.x7,
-    paddingBottom: baseFoundation.dimension.x7,
     backgroundColor: '#0D3154',
     justifyContent: 'center',
   },

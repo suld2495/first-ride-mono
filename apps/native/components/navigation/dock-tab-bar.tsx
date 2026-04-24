@@ -32,7 +32,6 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
   return (
     <View
       style={{
-        position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,

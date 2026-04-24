@@ -25,6 +25,23 @@ const formatRoutineHeaderDate = (date: Date) => {
   return `${year}. ${month}. ${day} ${dayOfWeek}`;
 };
 
+const flattenStyles = (styles: unknown): object[] => {
+  if (!styles) return [];
+  if (Array.isArray(styles)) {
+    return styles.flatMap((style) => flattenStyles(style));
+  }
+
+  return [styles as object];
+};
+
+const ROUTINE_LIST_TOP_SPACING = 8;
+const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
+const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = 8;
+const ROUTINE_LIST_CONTROL_RESERVED_HEIGHT =
+  ROUTINE_LIST_TOP_SPACING +
+  ROUTINE_SCROLL_INDICATOR_TOP_SPACING +
+  ROUTINE_SCROLL_INDICATOR_HEIGHT;
+
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
@@ -145,26 +162,27 @@ describe('루틴 조회 페이지', () => {
 
         await findByText('테스트 루틴 1');
 
+        fireEvent(getByTestId('routine-list-area'), 'layout', {
+          nativeEvent: { layout: { height: 420 } },
+        });
+
         const routineListViewport = getByTestId('routine-list-viewport');
         const routineListScroll = getByTestId('routine-list-scroll');
-        const flattenStyles = (styles: unknown): object[] => {
-          if (!styles) return [];
-          if (Array.isArray(styles)) {
-            return styles.flatMap((style) => flattenStyles(style));
-          }
-
-          return [styles as object];
-        };
 
         const viewportStyles = flattenStyles(routineListViewport.props.style);
+        const listAreaHeight = 420;
+        const routineViewportHeight =
+          listAreaHeight - ROUTINE_LIST_CONTROL_RESERVED_HEIGHT;
+        const routineItemHeight = routineViewportHeight / 4;
 
         expect(viewportStyles).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ overflow: 'hidden' }),
-            expect.objectContaining({ height: 236 }),
+            expect.objectContaining({ height: routineItemHeight * 2 }),
           ]),
         );
         expect(routineListScroll.props.scrollEnabled).toBe(false);
+        expect(routineListScroll.props.estimatedItemSize).toBe(routineItemHeight);
       });
 
       it('하단 버튼을 누르면 리스트가 4개 높이로 확장되고 스크롤이 활성화된다', async () => {
@@ -176,25 +194,24 @@ describe('루틴 조회 페이지', () => {
 
         await findByText('테스트 루틴 1');
 
+        fireEvent(getByTestId('routine-list-area'), 'layout', {
+          nativeEvent: { layout: { height: 420 } },
+        });
+
         fireEvent.press(getByTestId('routine-scroll-indicator'));
 
         const routineListViewport = getByTestId('routine-list-viewport');
         const routineListScroll = getByTestId('routine-list-scroll');
-        const flattenStyles = (styles: unknown): object[] => {
-          if (!styles) return [];
-          if (Array.isArray(styles)) {
-            return styles.flatMap((style) => flattenStyles(style));
-          }
-
-          return [styles as object];
-        };
 
         const viewportStyles = flattenStyles(routineListViewport.props.style);
+        const listAreaHeight = 420;
+        const routineViewportHeight =
+          listAreaHeight - ROUTINE_LIST_CONTROL_RESERVED_HEIGHT;
 
         expect(viewportStyles).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ overflow: 'hidden' }),
-            expect.objectContaining({ height: 492 }),
+            expect.objectContaining({ height: routineViewportHeight }),
           ]),
         );
         expect(routineListScroll.props.scrollEnabled).toBe(true);
@@ -210,6 +227,10 @@ describe('루틴 조회 페이지', () => {
 
         await findByText('테스트 루틴 1');
 
+        fireEvent(getByTestId('routine-list-area'), 'layout', {
+          nativeEvent: { layout: { height: 420 } },
+        });
+
         fireEvent.press(getByTestId('routine-scroll-indicator'));
         expect(await findByLabelText('루틴 리스트 접기')).toBeOnTheScreen();
 
@@ -217,25 +238,43 @@ describe('루틴 조회 페이지', () => {
 
         const routineListViewport = getByTestId('routine-list-viewport');
         const routineListScroll = getByTestId('routine-list-scroll');
-        const flattenStyles = (styles: unknown): object[] => {
-          if (!styles) return [];
-          if (Array.isArray(styles)) {
-            return styles.flatMap((style) => flattenStyles(style));
-          }
-
-          return [styles as object];
-        };
 
         const viewportStyles = flattenStyles(routineListViewport.props.style);
+        const listAreaHeight = 420;
+        const routineViewportHeight =
+          listAreaHeight - ROUTINE_LIST_CONTROL_RESERVED_HEIGHT;
+        const routineItemHeight = routineViewportHeight / 4;
 
         expect(viewportStyles).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ overflow: 'hidden' }),
-            expect.objectContaining({ height: 236 }),
+            expect.objectContaining({ height: routineItemHeight * 2 }),
           ]),
         );
         expect(routineListScroll.props.scrollEnabled).toBe(false);
         expect(await findByLabelText('루틴 리스트 펼치기')).toBeOnTheScreen();
+      });
+
+      it('헤더 아래와 탭바 위 영역을 루틴 리스트 7, 캐릭터 3 비율로 나눈다', async () => {
+        const { findByText, getByTestId } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+
+        const routineContent = getByTestId('routine-content');
+        const routineListArea = getByTestId('routine-list-area');
+        const routineCharacterArea = getByTestId('routine-character-area');
+
+        expect(flattenStyles(routineContent.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ paddingBottom: 72 }),
+          ]),
+        );
+        expect(flattenStyles(routineListArea.props.style)).toEqual(
+          expect.arrayContaining([expect.objectContaining({ flex: 7 })]),
+        );
+        expect(flattenStyles(routineCharacterArea.props.style)).toEqual(
+          expect.arrayContaining([expect.objectContaining({ flex: 3 })]),
+        );
       });
 
       it('루틴이 4개 이하면 하단 화살표가 표시되지 않는다', async () => {
