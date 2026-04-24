@@ -19,9 +19,6 @@ import { useAuthUser } from '@/hooks/useAuthSession';
 import { StyleSheet } from '@/lib/unistyles';
 import { baseFoundation } from '@/theme/tokens';
 
-const ROUTINE_TAB_BAR_TOP_OFFSET = 72;
-const ROUTINE_CHARACTER_BOTTOM_OFFSET = 86;
-
 export default function Index() {
   const router = useRouter();
   const isFirstLoadRef = useRef(true);
@@ -73,7 +70,7 @@ export default function Index() {
       <StatusBar style="dark" />
       {hasRoutines ? (
         <View style={styles.scene} pointerEvents="none">
-          <View style={styles.backgroundArt}>
+          <View style={styles.backgroundArt} testID="routine-background-art">
             {renderRoutineSceneAsset(routineSceneAssets.background, {
               testID: 'routine-scene-background',
               style: styles.backgroundImage,
@@ -158,7 +155,7 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: ROUTINE_TAB_BAR_TOP_OFFSET,
+    bottom: 0,
     alignItems: 'center',
   },
   backgroundImage: {
@@ -187,7 +184,7 @@ const styles = StyleSheet.create((theme) => ({
   fab: {
     position: 'absolute',
     right: theme.foundation.spacing.m,
-    bottom: ROUTINE_CHARACTER_BOTTOM_OFFSET,
+    bottom: 20,
     width: baseFoundation.dimension.x60,
     height: baseFoundation.dimension.x60,
     minWidth: baseFoundation.dimension.x60,

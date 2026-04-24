@@ -32,7 +32,7 @@ interface RoutineListProps {
 
 const MAX_VISIBLE_ROUTINES = 4;
 const COLLAPSED_VISIBLE_ROUTINES = 2;
-const DEFAULT_ROUTINE_LIST_AREA_HEIGHT = 480;
+const ROUTINE_ITEM_HEIGHT = 112;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing.s;
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
@@ -47,7 +47,7 @@ if (
 const RoutineList = ({
   routines,
   date,
-  listAreaHeight = DEFAULT_ROUTINE_LIST_AREA_HEIGHT,
+  listAreaHeight,
   refreshing = false,
   onRefresh,
 }: RoutineListProps) => {
@@ -60,17 +60,28 @@ const RoutineList = ({
   const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
   const hasPreviewLayer = canExpandList;
   const isScrollableList = isExpanded && routines.length > MAX_VISIBLE_ROUTINES;
-  const routineViewportHeight = Math.max(listAreaHeight, 0);
-  const routineItemHeight = routineViewportHeight / MAX_VISIBLE_ROUTINES;
+  const routineItemHeight = ROUTINE_ITEM_HEIGHT;
   const collapsedListHeight = routineItemHeight * COLLAPSED_VISIBLE_ROUTINES;
   const expandedListHeight = routineItemHeight * MAX_VISIBLE_ROUTINES;
   const visibleListHeight =
     routineItemHeight * Math.min(routines.length, MAX_VISIBLE_ROUTINES);
-  const listHeight = isExpanded
+  const rawListHeight = isExpanded
     ? expandedListHeight
     : hasPreviewLayer
       ? collapsedListHeight
       : visibleListHeight;
+  const maxListHeight =
+    typeof listAreaHeight === 'number'
+      ? Math.max(
+          listAreaHeight -
+            (canExpandList
+              ? ROUTINE_SCROLL_INDICATOR_HEIGHT +
+                ROUTINE_SCROLL_INDICATOR_TOP_SPACING
+              : 0),
+          0,
+        )
+      : Number.POSITIVE_INFINITY;
+  const listHeight = Math.min(rawListHeight, maxListHeight);
 
   useEffect(() => {
     setIsExpanded(false);
@@ -119,11 +130,7 @@ const RoutineList = ({
         <ThemeView
           style={[
             styles.listViewport,
-            hasPreviewLayer && !isExpanded
-              ? { height: collapsedListHeight }
-              : null,
-            isExpanded ? { height: expandedListHeight } : null,
-            !canExpandList ? { height: visibleListHeight } : null,
+            routines.length ? { height: listHeight } : null,
           ]}
           testID="routine-list-viewport"
         >
