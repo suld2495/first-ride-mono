@@ -33,7 +33,6 @@ interface RoutineListProps {
 const MAX_VISIBLE_ROUTINES = 4;
 const COLLAPSED_VISIBLE_ROUTINES = 2;
 const DEFAULT_ROUTINE_LIST_AREA_HEIGHT = 480;
-const ROUTINE_LIST_TOP_SPACING = baseFoundation.spacing.s;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing.s;
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
@@ -58,18 +57,20 @@ const RoutineList = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const overlayOpacity = useRef(new Animated.Value(1)).current;
 
-  const hasPreviewLayer = routines.length >= COLLAPSED_VISIBLE_ROUTINES;
-  const canExpandList = routines.length >= COLLAPSED_VISIBLE_ROUTINES;
+  const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
+  const hasPreviewLayer = canExpandList;
   const isScrollableList = isExpanded && routines.length > MAX_VISIBLE_ROUTINES;
-  const reservedHeight =
-    ROUTINE_LIST_TOP_SPACING +
-    (canExpandList
-      ? ROUTINE_SCROLL_INDICATOR_TOP_SPACING + ROUTINE_SCROLL_INDICATOR_HEIGHT
-      : 0);
-  const routineViewportHeight = Math.max(listAreaHeight - reservedHeight, 0);
+  const routineViewportHeight = Math.max(listAreaHeight, 0);
   const routineItemHeight = routineViewportHeight / MAX_VISIBLE_ROUTINES;
   const collapsedListHeight = routineItemHeight * COLLAPSED_VISIBLE_ROUTINES;
-  const expandedListHeight = routineViewportHeight;
+  const expandedListHeight = routineItemHeight * MAX_VISIBLE_ROUTINES;
+  const visibleListHeight =
+    routineItemHeight * Math.min(routines.length, MAX_VISIBLE_ROUTINES);
+  const listHeight = isExpanded
+    ? expandedListHeight
+    : hasPreviewLayer
+      ? collapsedListHeight
+      : visibleListHeight;
 
   useEffect(() => {
     setIsExpanded(false);
@@ -122,6 +123,7 @@ const RoutineList = ({
               ? { height: collapsedListHeight }
               : null,
             isExpanded ? { height: expandedListHeight } : null,
+            !canExpandList ? { height: visibleListHeight } : null,
           ]}
           testID="routine-list-viewport"
         >
@@ -130,6 +132,7 @@ const RoutineList = ({
               routines={routines}
               date={date}
               itemHeight={routineItemHeight}
+              listHeight={listHeight}
               scrollEnabled={isScrollableList}
               refreshing={refreshing}
               onRefresh={onRefresh}
@@ -142,6 +145,7 @@ const RoutineList = ({
               routines={routines}
               date={date}
               itemHeight={routineItemHeight}
+              listHeight={listHeight}
               scrollEnabled={isScrollableList}
               refreshing={refreshing}
               onRefresh={onRefresh}
@@ -176,7 +180,13 @@ const RoutineList = ({
         <EmptyState icon="list-outline" message="등록된 루틴이 없습니다." />
       )}
       {canExpandList ? (
-        <View style={styles.scrollIndicatorContainer}>
+        <View
+          style={[
+            styles.scrollIndicatorContainer,
+            { top: listHeight + ROUTINE_SCROLL_INDICATOR_TOP_SPACING },
+          ]}
+          testID="routine-scroll-indicator-container"
+        >
           <Pressable
             style={styles.scrollIndicator}
             onPress={handleToggleList}
@@ -204,6 +214,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
+    overflow: 'visible',
   },
   listViewport: {
     flexShrink: 0,
@@ -224,10 +235,13 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   scrollIndicatorContainer: {
+    position: 'absolute',
+    right: 0,
+    left: 0,
     alignItems: 'center',
+    zIndex: 10,
   },
   scrollIndicator: {
-    marginTop: ROUTINE_SCROLL_INDICATOR_TOP_SPACING,
     alignItems: 'center',
     justifyContent: 'center',
     gap: baseFoundation.dimension.x2,

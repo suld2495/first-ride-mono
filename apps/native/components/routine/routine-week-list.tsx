@@ -3,7 +3,7 @@ import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { WeeklyRoutine } from '@repo/types';
 import { useCallback } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { StyleSheet } from '@/lib/unistyles';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -15,6 +15,7 @@ interface RoutineWeekListProps {
   routines: WeeklyRoutine[];
   date: string;
   itemHeight: number;
+  listHeight: number;
   scrollEnabled?: boolean;
   testID?: string;
   refreshing?: boolean;
@@ -30,6 +31,7 @@ const RoutineWeekList = ({
   routines,
   date,
   itemHeight,
+  listHeight,
   scrollEnabled = true,
   testID,
   refreshing = false,
@@ -64,15 +66,17 @@ const RoutineWeekList = ({
               <View style={styles.cardInner}>
                 <View style={styles.cardSurface}>
                   <View style={styles.titleRow}>
-                    <Button
-                      variant="ghost"
+                    <Pressable
                       onPress={() => onShowDetailModal(routineId)}
                       style={styles.titleButton}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${routineName} 상세 보기`}
+                      hitSlop={baseFoundation.dimension.x8}
                     >
                       <Typography variant="body3" style={styles.title}>
                         {routineName}
                       </Typography>
-                    </Button>
+                    </Pressable>
 
                     {date === getWeekMonday(new Date()) ? (
                       <Button
@@ -166,9 +170,12 @@ const RoutineWeekList = ({
       data={routines}
       renderItem={renderRoutineItem}
       keyExtractor={(item) => item.routineId.toString()}
+      style={{ height: listHeight }}
       contentContainerStyle={styles.list}
+      drawDistance={0}
       estimatedItemSize={itemHeight}
       getItemLayout={getRoutineItemLayout}
+      removeClippedSubviews={true}
       refreshing={refreshing}
       onRefresh={onRefresh}
       scrollEnabled={scrollEnabled}

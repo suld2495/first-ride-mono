@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
 import { useCallback } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ interface RoutineCountListProps {
   routines: Routine[];
   date: string;
   itemHeight: number;
+  listHeight: number;
   scrollEnabled?: boolean;
   testID?: string;
   refreshing?: boolean;
@@ -60,6 +61,7 @@ const RoutineCountList = ({
   routines,
   date,
   itemHeight,
+  listHeight,
   scrollEnabled = true,
   testID,
   refreshing = false,
@@ -97,15 +99,17 @@ const RoutineCountList = ({
               <View style={styles.cardInner}>
                 <View style={styles.cardSurface}>
                   <View style={styles.titleRow}>
-                    <Button
-                      variant="ghost"
+                    <Pressable
                       onPress={() => onShowDetailModal(routineId)}
                       style={styles.titleButton}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${routineName} 상세 보기`}
+                      hitSlop={baseFoundation.dimension.x8}
                     >
                       <Typography variant="body3" style={styles.title}>
                         {routineName}
                       </Typography>
-                    </Button>
+                    </Pressable>
 
                     {date === getWeekMonday(new Date()) ? (
                       <Button
@@ -215,9 +219,12 @@ const RoutineCountList = ({
       data={routines}
       renderItem={renderRoutineItem}
       keyExtractor={(item) => item.routineId.toString()}
+      style={{ height: listHeight }}
       contentContainerStyle={styles.list}
+      drawDistance={0}
       estimatedItemSize={itemHeight}
       getItemLayout={getRoutineItemLayout}
+      removeClippedSubviews={true}
       refreshing={refreshing}
       onRefresh={onRefresh}
       scrollEnabled={scrollEnabled}
@@ -281,7 +288,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: baseFoundation.dimension.x18,
-    marginBottom: baseFoundation.dimension.x3,
+    marginBottom: baseFoundation.dimension.x10,
+    marginTop: baseFoundation.dimension.x10,
   },
   headerRow: {
     flexDirection: 'row',
