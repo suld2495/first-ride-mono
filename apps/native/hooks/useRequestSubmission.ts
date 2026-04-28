@@ -13,7 +13,18 @@ interface RoutineDetailInfo {
   isMe: boolean;
 }
 
-type SetImageValue = (name: 'image', value: string) => void;
+const MAX_REQUEST_IMAGE_COUNT = 3;
+
+export type RequestImage = {
+  base64: string;
+  previewUri: string;
+};
+
+type RequestImageForm = {
+  images: RequestImage[];
+};
+
+type SetImageValue = (name: 'images', value: RequestImage[]) => void;
 
 const showPermissionAlert = (title: string, message: string) => {
   Alert.alert(title, message, [
@@ -31,14 +42,16 @@ export const useRequestSubmission = (
   const saveRequest = useCreateRequestMutation();
 
   const handleSubmit = useCallback(
-    (submittedForm: { image: string }) => {
-      if (!submittedForm.image || !detail) {
+    (submittedForm: RequestImageForm) => {
+      if (!submittedForm.images.length || !detail) {
         return;
       }
 
       const formData = new FormData();
 
-      formData.append('base64image', submittedForm.image);
+      for (const image of submittedForm.images) {
+        formData.append('base64images', image.base64);
+      }
       formData.append('routineId', routineId.toString());
       formData.append('nickname', detail.nickname);
 
@@ -71,8 +84,15 @@ export const useRequestSubmission = (
   );
 
   const pickImage = useCallback(
-    async (setValue: SetImageValue) => {
+    async (setValue: SetImageValue, currentImages: RequestImage[]) => {
       try {
+        const remainingImageCount =
+          MAX_REQUEST_IMAGE_COUNT - currentImages.length;
+
+        if (remainingImageCount <= 0) {
+          return;
+        }
+
         const { status } =
           await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -86,12 +106,36 @@ export const useRequestSubmission = (
 
         const result = await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ['images', 'livePhotos'],
-          allowsMultipleSelection: false,
+          allowsMultipleSelection: true,
+          selectionLimit: remainingImageCount,
+          orderedSelection: true,
           base64: true,
         });
 
         if (!result.canceled) {
-          setValue('image', result.assets[0]?.base64 ?? '');
+          const selectedImages = result.assets
+            .map((asset) =>
+              asset.base64
+                ? {
+                    base64: asset.base64,
+                    previewUri: asset.uri,
+                  }
+                : null,
+            )
+            .filter((image): image is RequestImage => !!image);
+          const previewUris = new Set<string>();
+          const nextImages = [...currentImages, ...selectedImages].filter(
+            (image) => {
+              if (previewUris.has(image.previewUri)) {
+                return false;
+              }
+
+              previewUris.add(image.previewUri);
+              return true;
+            },
+          );
+
+          setValue('images', nextImages.slice(0, MAX_REQUEST_IMAGE_COUNT));
         }
       } catch {
         showToast('이미지를 불러오지 못했습니다.', 'error');
@@ -101,8 +145,12 @@ export const useRequestSubmission = (
   );
 
   const takePicture = useCallback(
-    async (setValue: SetImageValue) => {
+    async (setValue: SetImageValue, currentImages: RequestImage[]) => {
       try {
+        if (currentImages.length >= MAX_REQUEST_IMAGE_COUNT) {
+          return;
+        }
+
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
         if (status !== 'granted') {
@@ -120,7 +168,21 @@ export const useRequestSubmission = (
         });
 
         if (!result.canceled) {
-          setValue('image', result.assets[0]?.base64 ?? '');
+          const nextImage = result.assets[0]?.base64;
+          const nextPreviewUri = result.assets[0]?.uri;
+
+          if (nextImage && nextPreviewUri) {
+            setValue(
+              'images',
+              [
+                ...currentImages,
+                {
+                  base64: nextImage,
+                  previewUri: nextPreviewUri,
+                },
+              ].slice(0, MAX_REQUEST_IMAGE_COUNT),
+            );
+          }
         }
       } catch {
         showToast('카메라를 실행하지 못했습니다.', 'error');

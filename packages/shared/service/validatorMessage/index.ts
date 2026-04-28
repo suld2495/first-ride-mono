@@ -49,9 +49,9 @@ export const routineFormValidators: Validators<InternalFormType> = {
   },
 };
 
-export const requestFormValidators: Validators<{ image: string }> = {
-  image: (value) => {
-    if (!value) {
+export const requestFormValidators: Validators<{ images: string[] }> = {
+  images: (value) => {
+    if (!value.length) {
       return '이미지를 추가해주세요.';
     }
   },

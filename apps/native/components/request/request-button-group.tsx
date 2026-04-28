@@ -1,13 +1,14 @@
 import type { FormContextType } from '@repo/shared/components';
-import { StyleSheet } from '@/lib/unistyles';
-import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import Link from '@/components/ui/link';
 import ThemeView from '@/components/ui/theme-view';
+import type { RequestImage } from '@/hooks/useRequestSubmission';
+import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 interface RequetButtonGroupProps {
-  useForm: () => FormContextType<{ image: string }>;
+  useForm: () => FormContextType<{ images: RequestImage[] }>;
 }
 
 const RequetButtonGroup = ({ useForm }: RequetButtonGroupProps) => {

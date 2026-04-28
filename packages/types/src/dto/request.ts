@@ -10,7 +10,7 @@ export type CreateRequestWebDto = CreateRequestDto & {
 };
 
 export type CreateRequestAppDto = CreateRequestDto & {
-  base64image: string;
+  base64images: string[];
 };
 
 export type CreateRequestResponseDto = RequestResponseForm & {

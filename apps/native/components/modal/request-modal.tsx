@@ -1,9 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { requestFormValidators } from '@repo/shared/service/validatorMessage';
-import { Image, ScrollView } from 'react-native';
-import { StyleSheet } from '@/lib/unistyles';
-import { baseFoundation } from '@/theme/tokens';
+import { Image, Pressable, ScrollView } from 'react-native';
 
 import RequetButtonGroup from '@/components/request/request-button-group';
 import { Button } from '@/components/ui/button';
@@ -11,11 +9,16 @@ import { Divider } from '@/components/ui/divider';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useCreateForm } from '@/hooks/useForm';
-import { useRequestSubmission } from '@/hooks/useRequestSubmission';
+import {
+  type RequestImage,
+  useRequestSubmission,
+} from '@/hooks/useRequestSubmission';
 import { useRoutineId } from '@/hooks/useRoutineSelection';
+import { StyleSheet } from '@/lib/unistyles';
+import { baseFoundation } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
-const { Form, FormItem, useForm } = useCreateForm<{ image: string }>();
+const { Form, FormItem, useForm } = useCreateForm<{ images: RequestImage[] }>();
 
 const RequestModal = () => {
   const routineId = useRoutineId();
@@ -58,12 +61,12 @@ const RequestModal = () => {
         </ThemeView>
 
         <Form
-          form={{ image: '' }}
+          form={{ images: [] }}
           onSubmit={handleSubmit}
           validators={requestFormValidators}
         >
           <FormItem
-            name="image"
+            name="images"
             label="이미지 업로드"
             item={({ form, setValue }) => (
               <>
@@ -72,26 +75,73 @@ const RequestModal = () => {
                     testID="gallery-button"
                     variant="secondary"
                     leftIcon={({ color }) => (
-                      <Ionicons name="image-outline" size={baseFoundation.iconSize.m} color={color} />
+                      <Ionicons
+                        name="image-outline"
+                        size={baseFoundation.iconSize.m}
+                        color={color}
+                      />
                     )}
                     style={styles.phone}
-                    onPress={() => pickImage(setValue)}
+                    disabled={form.images.length >= 3}
+                    onPress={() => pickImage(setValue, form.images)}
                   />
                   <Button
                     testID="camera-button"
                     variant="secondary"
                     leftIcon={({ color }) => (
-                      <Ionicons name="camera-outline" size={baseFoundation.iconSize.m} color={color} />
+                      <Ionicons
+                        name="camera-outline"
+                        size={baseFoundation.iconSize.m}
+                        color={color}
+                      />
                     )}
                     style={styles.phone}
-                    onPress={() => takePicture(setValue)}
+                    disabled={form.images.length >= 3}
+                    onPress={() => takePicture(setValue, form.images)}
                   />
                 </ThemeView>
-                {form.image && (
-                  <Image
-                    source={{ uri: `data:image/jpeg;base64,${form.image}` }}
-                    style={styles.preview}
-                  />
+                {form.images.length > 0 && (
+                  <ThemeView style={styles.previewList} transparent>
+                    {form.images.map((image, index) => {
+                      const handleRemoveImage = () => {
+                        setValue(
+                          'images',
+                          form.images.filter((_, imageIndex) => {
+                            return imageIndex !== index;
+                          }),
+                        );
+                      };
+
+                      return (
+                        <ThemeView
+                          key={`${image.previewUri}-${index}`}
+                          style={styles.previewItem}
+                          transparent
+                        >
+                          <Image
+                            testID="request-image-preview"
+                            source={{ uri: image.previewUri }}
+                            style={styles.preview}
+                            resizeMode="cover"
+                          />
+                          <Pressable
+                            accessibilityLabel="이미지 제거"
+                            accessibilityRole="button"
+                            hitSlop={baseFoundation.dimension.x8}
+                            onPress={handleRemoveImage}
+                            style={styles.removeButton}
+                            testID={`remove-request-image-${index}`}
+                          >
+                            <Ionicons
+                              name="close"
+                              size={baseFoundation.iconSize.s}
+                              color="#FFFFFF"
+                            />
+                          </Pressable>
+                        </ThemeView>
+                      );
+                    })}
+                  </ThemeView>
                 )}
               </>
             )}
@@ -137,8 +187,31 @@ const styles = StyleSheet.create({
   },
 
   preview: {
-    width: '100%',
-    aspectRatio: 1,
+    width: baseFoundation.dimension.x100,
+    height: baseFoundation.dimension.x100,
     borderRadius: baseFoundation.dimension.x5,
+  },
+
+  previewItem: {
+    position: 'relative',
+  },
+
+  previewList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: baseFoundation.dimension.x10,
+    width: '100%',
+  },
+
+  removeButton: {
+    position: 'absolute',
+    right: -baseFoundation.dimension.x12,
+    top: -baseFoundation.dimension.x12,
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
+    borderRadius: baseFoundation.dimension.x12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.72)',
   },
 });

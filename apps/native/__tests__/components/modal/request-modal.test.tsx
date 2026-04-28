@@ -27,8 +27,9 @@ jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: () =>
     mockRequestMediaLibraryPermissionsAsync(),
   requestCameraPermissionsAsync: () => mockRequestCameraPermissionsAsync(),
-  launchImageLibraryAsync: () => mockLaunchImageLibraryAsync(),
-  launchCameraAsync: () => mockLaunchCameraAsync(),
+  launchImageLibraryAsync: (options: unknown) =>
+    mockLaunchImageLibraryAsync(options),
+  launchCameraAsync: (options: unknown) => mockLaunchCameraAsync(options),
 }));
 
 // axios mock adapter
@@ -60,12 +61,19 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
   });
 
   // 이미지 선택 헬퍼 함수
+  const createPickedAssets = (images = ['test-base64-image-data']) =>
+    images.map((base64) => ({
+      base64,
+      uri: `file:///${base64}.jpg`,
+    }));
+
   const selectImageFromGallery = async (
     getByTestId: (testId: string) => any,
+    images = ['test-base64-image-data'],
   ) => {
     mockLaunchImageLibraryAsync.mockResolvedValue({
       canceled: false,
-      assets: [{ base64: 'test-base64-image-data' }],
+      assets: createPickedAssets(images),
     });
 
     const galleryButton = getByTestId('gallery-button');
@@ -175,6 +183,131 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         expect(submitButton).toBeEnabled();
       });
     });
+
+    it('갤러리에서 이미지를 최대 3개까지 선택할 수 있다', async () => {
+      const { findByText, getByTestId } = render(<RequestModal />);
+
+      await findByText('테스트 루틴 1');
+
+      await selectImageFromGallery(getByTestId, [
+        'test-base64-image-data-1',
+        'test-base64-image-data-2',
+        'test-base64-image-data-3',
+      ]);
+
+      expect(mockLaunchImageLibraryAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          allowsMultipleSelection: true,
+          selectionLimit: 3,
+        }),
+      );
+    });
+
+    it('선택한 이미지 3개의 미리보기를 표시한다', async () => {
+      const { findByText, getAllByTestId, getByTestId } = render(
+        <RequestModal />,
+      );
+
+      await findByText('테스트 루틴 1');
+
+      await selectImageFromGallery(getByTestId, [
+        'test-base64-image-data-1',
+        'test-base64-image-data-2',
+        'test-base64-image-data-3',
+      ]);
+
+      await waitFor(() => {
+        expect(getAllByTestId('request-image-preview')).toHaveLength(3);
+      });
+    });
+
+    it('미리보기는 선택한 이미지의 로컬 uri를 사용한다', async () => {
+      const { findByText, getByTestId } = render(<RequestModal />);
+
+      await findByText('테스트 루틴 1');
+
+      await selectImageFromGallery(getByTestId);
+
+      await waitFor(() => {
+        expect(getByTestId('request-image-preview')).toHaveProp('source', {
+          uri: 'file:///test-base64-image-data.jpg',
+        });
+      });
+    });
+
+    it('미리보기 이미지는 명시적인 크기를 가진다', async () => {
+      const { findByText, getByTestId } = render(<RequestModal />);
+
+      await findByText('테스트 루틴 1');
+
+      await selectImageFromGallery(getByTestId);
+
+      await waitFor(() => {
+        expect(getByTestId('request-image-preview')).toHaveStyle({
+          width: 100,
+          height: 100,
+        });
+      });
+    });
+
+    it('갤러리를 다시 열어 선택하면 기존 이미지에 새 이미지를 추가한다', async () => {
+      const { findByText, getAllByTestId, getByTestId } = render(
+        <RequestModal />,
+      );
+
+      await findByText('테스트 루틴 1');
+
+      await selectImageFromGallery(getByTestId, ['test-base64-image-data-1']);
+      await selectImageFromGallery(getByTestId, ['test-base64-image-data-2']);
+
+      await waitFor(() => {
+        expect(getAllByTestId('request-image-preview')).toHaveLength(2);
+      });
+    });
+
+    it('이미지를 다시 추가할 때 남은 개수만 선택할 수 있다', async () => {
+      const { findByText, getByTestId } = render(<RequestModal />);
+
+      await findByText('테스트 루틴 1');
+
+      await selectImageFromGallery(getByTestId, [
+        'test-base64-image-data-1',
+        'test-base64-image-data-2',
+      ]);
+      await selectImageFromGallery(getByTestId, ['test-base64-image-data-3']);
+
+      expect(mockLaunchImageLibraryAsync).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          selectionLimit: 1,
+        }),
+      );
+    });
+
+    it('미리보기의 x 버튼을 누르면 해당 이미지를 제거한다', async () => {
+      const { findByText, getAllByTestId, getByTestId, queryByTestId } = render(
+        <RequestModal />,
+      );
+
+      await findByText('테스트 루틴 1');
+
+      await selectImageFromGallery(getByTestId, [
+        'test-base64-image-data-1',
+        'test-base64-image-data-2',
+      ]);
+
+      await waitFor(() => {
+        expect(getAllByTestId('request-image-preview')).toHaveLength(2);
+      });
+
+      await act(async () => {
+        fireEvent.press(getByTestId('remove-request-image-0'));
+      });
+
+      await waitFor(() => {
+        expect(getAllByTestId('request-image-preview')).toHaveLength(1);
+        expect(queryByTestId('remove-request-image-1')).not.toBeOnTheScreen();
+      });
+    });
   });
 
   describe('API 통합 테스트', () => {
@@ -208,6 +341,45 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
           );
           expect(mockPush).toHaveBeenCalledWith(
             '/(tabs)/(afterLogin)/(routine)',
+          );
+        });
+      });
+
+      it('선택한 이미지 3개를 인증 요청에 포함한다', async () => {
+        const expectedImages = [
+          'test-base64-image-data-1',
+          'test-base64-image-data-2',
+          'test-base64-image-data-3',
+        ];
+        let submittedFormData: FormData | undefined;
+
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/routine\/details/).reply(200, {
+          data: createMockRoutine(0, { isMe: true }),
+        });
+        mockAxios.onPost('/routine/confirm').reply((config) => {
+          submittedFormData = config.data as FormData;
+
+          return [200, { data: null }];
+        });
+
+        const { findByText, getByText, getByTestId } = render(<RequestModal />);
+
+        await findByText('테스트 루틴 1');
+
+        await selectImageFromGallery(getByTestId, expectedImages);
+
+        await waitFor(() => {
+          expect(getByText('요청')).toBeEnabled();
+        });
+
+        await act(async () => {
+          fireEvent.press(getByText('요청'));
+        });
+
+        await waitFor(() => {
+          expect(submittedFormData?.getAll('base64images')).toEqual(
+            expectedImages,
           );
         });
       });
