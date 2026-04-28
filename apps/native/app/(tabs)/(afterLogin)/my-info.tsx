@@ -43,9 +43,13 @@ const MyInfo = () => {
         text: '로그아웃',
         style: 'destructive',
         onPress: async () => {
-          // 로그아웃 시 푸시 토큰 삭제
-          if (pushToken?.data) {
-            await deletePushToken(pushToken.data);
+          try {
+            // 로그아웃 시 푸시 토큰 삭제
+            if (pushToken?.data) {
+              await deletePushToken(pushToken.data);
+            }
+          } catch {
+            // 푸시 토큰 삭제 실패 여부와 관계없이 로그아웃은 계속 진행
           }
 
           await signOut();
