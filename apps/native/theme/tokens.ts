@@ -126,6 +126,7 @@ export const palette = {
 export const baseFoundation = {
   spacing: {
     none: 0,
+    xxs: 2,
     xs: 4,
     s: 8,
     m: 16,
@@ -378,8 +379,7 @@ export const createFoundation = (theme: ThemeContract) => {
     dimension,
     iconSize,
     responsive,
-  } =
-    baseFoundation;
+  } = baseFoundation;
 
   return {
     spacing,

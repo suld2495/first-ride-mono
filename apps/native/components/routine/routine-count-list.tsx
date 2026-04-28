@@ -24,7 +24,7 @@ interface RoutineCountListProps {
   onShowDetailModal: (id: number) => void;
 }
 
-const ROUTINE_TITLE_COLOR = '#DDEEFF';
+const ROUTINE_TITLE_COLOR = '#83B0D6';
 const ROUTINE_CHECKMARK_WIDTH = 12;
 const ROUTINE_CHECKMARK_HEIGHT = 9;
 const ROUTINE_CHECKMARK_SCALE = 0.7;
@@ -95,116 +95,86 @@ const RoutineCountList = ({
               { height: Math.max(itemHeight - baseFoundation.spacing.xs, 0) },
             ]}
           >
-            <View style={styles.cardGap}>
-              <View style={styles.cardInner}>
-                <View style={styles.cardSurface}>
-                  <View style={styles.titleRow}>
-                    <Pressable
-                      onPress={() => onShowDetailModal(routineId)}
-                      style={styles.titleButton}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${routineName} 상세 보기`}
-                      hitSlop={baseFoundation.dimension.x8}
+            <View style={styles.cardSurface}>
+              <View style={styles.titleRow}>
+                <Pressable
+                  onPress={() => onShowDetailModal(routineId)}
+                  style={styles.titleButton}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${routineName} 상세 보기`}
+                  hitSlop={baseFoundation.dimension.x8}
+                >
+                  <Typography variant="body3" style={styles.title}>
+                    {routineName}
+                  </Typography>
+                </Pressable>
+
+                {date === getWeekMonday(new Date()) ? (
+                  <Button
+                    title="인증 요청"
+                    size="sm"
+                    variant="ghost"
+                    onPress={() => onShowRequestModal(routineId)}
+                    textColor="#DDEEFF"
+                    style={styles.requestButton}
+                  />
+                ) : (
+                  <View style={styles.requestPlaceholder} />
+                )}
+              </View>
+
+              <View style={styles.headerRow}>
+                {countLabels.map((label) => (
+                  <View key={`${routineId}-${label}`} style={styles.column}>
+                    <Typography variant="caption2" style={styles.dayLabel}>
+                      {label}
+                    </Typography>
+                  </View>
+                ))}
+              </View>
+
+              <View style={styles.checkRow}>
+                {Array.from({ length: 7 }, (_, index) => {
+                  const countIndex = index + 1;
+                  const achieved = countIndex <= weeklyCount;
+                  const isGoalRange = countIndex <= routineCount;
+                  const label = achieved
+                    ? countIndex <= routineCount
+                      ? `${countIndex}회 달성`
+                      : `${countIndex}회 초과 달성`
+                    : isGoalRange
+                      ? `${countIndex}회 미달성`
+                      : `${countIndex}회 목표 없음`;
+
+                  return (
+                    <View
+                      key={`${routineId}-status-${countIndex}`}
+                      style={styles.column}
+                      accessibilityLabel={label}
+                      accessibilityRole="image"
                     >
-                      <Typography variant="body3" style={styles.title}>
-                        {routineName}
-                      </Typography>
-                    </Pressable>
-
-                    {date === getWeekMonday(new Date()) ? (
-                      <Button
-                        title="인증 요청"
-                        size="sm"
-                        variant="ghost"
-                        onPress={() => onShowRequestModal(routineId)}
-                        textColor="#DDEEFF"
-                        style={styles.requestButton}
-                      />
-                    ) : (
-                      <View style={styles.requestPlaceholder} />
-                    )}
-                  </View>
-
-                  <View style={styles.headerRow}>
-                    {countLabels.map((label) => (
-                      <View key={`${routineId}-${label}`} style={styles.column}>
-                        <Typography variant="caption2" style={styles.dayLabel}>
-                          {label}
-                        </Typography>
-                      </View>
-                    ))}
-                  </View>
-
-                  <View style={styles.checkRow}>
-                    {Array.from({ length: 7 }, (_, index) => {
-                      const countIndex = index + 1;
-                      const achieved = countIndex <= weeklyCount;
-                      const isGoalRange = countIndex <= routineCount;
-                      const label = achieved
-                        ? countIndex <= routineCount
-                          ? `${countIndex}회 달성`
-                          : `${countIndex}회 초과 달성`
-                        : isGoalRange
-                          ? `${countIndex}회 미달성`
-                          : `${countIndex}회 목표 없음`;
-
-                      return (
-                        <View
-                          key={`${routineId}-status-${countIndex}`}
-                          style={styles.column}
-                          accessibilityLabel={label}
-                          accessibilityRole="image"
-                        >
-                          <View
-                            style={[
-                              styles.checkBox,
-                              achieved ? styles.achievedCheckBox : '',
-                            ]}
-                          >
-                            {achieved ? (
-                              <RoutineCheckmarkIcon
-                                size={baseFoundation.iconSize.s}
-                                color={isGoalRange ? '#000306' : '#16334C'}
-                              />
-                            ) : !isGoalRange ? (
-                              <Ionicons
-                                name="remove"
-                                size={baseFoundation.iconSize.s}
-                                color="#16334C"
-                              />
-                            ) : null}
-                          </View>
-                        </View>
-                      );
-                    })}
-                  </View>
-
-                  <View style={styles.footer}>
-                    {weeklyCount >= routineCount ? (
                       <View
-                        style={styles.progressChip}
-                        accessibilityLabel="목표 달성 완료"
-                        accessibilityRole="image"
+                        style={[
+                          styles.checkBox,
+                          achieved ? styles.achievedCheckBox : '',
+                        ]}
                       >
-                        <>
-                          <Ionicons
-                            name="checkmark-circle"
-                            size={baseFoundation.dimension.x14}
-                            color="#67B7FF"
+                        {achieved ? (
+                          <RoutineCheckmarkIcon
+                            size={baseFoundation.iconSize.s}
+                            color={isGoalRange ? '#000306' : '#16334C'}
                           />
-                          <Typography
-                            variant="caption"
-                            style={styles.progressText}
-                          >
-                            완료
-                          </Typography>
-                        </>
+                        ) : !isGoalRange ? (
+                          <Ionicons
+                            name="remove"
+                            size={baseFoundation.iconSize.s}
+                            color="#16334C"
+                          />
+                        ) : null}
                       </View>
-                    ) : (
-                      <View />
-                    )}
-                  </View>
-                </View>
+                    </View>
+                  );
+                })}
               </View>
             </View>
           </View>
@@ -242,8 +212,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cardOuter: {
-    borderRadius: baseFoundation.dimension.x18,
-    padding: baseFoundation.spacing.none,
+    borderRadius: baseFoundation.dimension.x14,
+    padding: baseFoundation.spacing.xxs,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#0D3154',
@@ -256,23 +226,13 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  cardGap: {
-    flex: 1,
-    padding: baseFoundation.dimension.x2,
-    borderRadius: baseFoundation.radii.m,
-    backgroundColor: '#FFFFFF',
-  },
-  cardInner: {
-    flex: 1,
-    borderRadius: baseFoundation.dimension.x14,
-    padding: baseFoundation.dimension.x3,
-    backgroundColor: '#A9D6FF',
-  },
   cardSurface: {
     flex: 1,
-    borderRadius: baseFoundation.dimension.x10,
+    borderRadius: baseFoundation.dimension.x12,
     paddingHorizontal: baseFoundation.spacing.m,
     backgroundColor: '#001A31',
+    borderColor: '#7FC3FF',
+    borderWidth: 3,
     justifyContent: 'center',
   },
   titleButton: {
@@ -282,14 +242,14 @@ const styles = StyleSheet.create({
   title: {
     color: ROUTINE_TITLE_COLOR,
     textAlign: 'center',
+    fontSize: baseFoundation.typography.size.body3,
   },
   titleRow: {
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: baseFoundation.dimension.x18,
-    marginBottom: baseFoundation.dimension.x10,
-    marginTop: baseFoundation.dimension.x10,
+    marginBottom: baseFoundation.dimension.x8,
   },
   headerRow: {
     flexDirection: 'row',
@@ -297,14 +257,15 @@ const styles = StyleSheet.create({
   },
   checkRow: {
     flexDirection: 'row',
-    marginBottom: baseFoundation.dimension.x2,
   },
   column: {
     flex: 1,
     alignItems: 'center',
   },
   dayLabel: {
-    color: '#6A98C4',
+    color: '#4C769C',
+    fontWeight: baseFoundation.typography.weight.semibold,
+    fontSize: baseFoundation.typography.size.caption2,
   },
   checkBox: {
     width: baseFoundation.dimension.x20,
