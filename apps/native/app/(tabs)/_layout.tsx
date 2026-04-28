@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
-import { baseFoundation } from '@/theme/tokens';
 
 import { DockTabBar } from '@/components/navigation/dock-tab-bar';
 import TabBarIcon from '@/components/ui/tab-bar-icon';
+import { baseFoundation } from '@/theme/tokens';
 
 const TAB_BAR_ICONS = {
   home: require('../../assets/tab-bar/home.png'),
@@ -32,6 +32,12 @@ export default function TabLayout() {
         },
       }}
     >
+      <Tabs.Screen
+        name="index"
+        options={{
+          href: null,
+        }}
+      />
       <Tabs.Screen
         name="(afterLogin)/(routine)/index"
         options={{

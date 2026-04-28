@@ -310,6 +310,8 @@ jest.mock('expo-router', () => {
       back: global.mockBack,
     }),
     useLocalSearchParams: () => global.mockSearchParams,
+    Redirect: ({ href }) =>
+      React.createElement('Redirect', { href, testID: 'redirect' }),
     Link: ({ href, children, asChild }) => {
       // asChild가 true면 children을 클론하여 onPress 추가
       if (asChild && React.isValidElement(children)) {
