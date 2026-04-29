@@ -14,6 +14,7 @@ import {
 import Checkbox from '@/components/ui/checkbox';
 import DatePicker from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
@@ -26,6 +27,15 @@ import { useRoutineForm, useRoutineId } from '@/hooks/useRoutineSelection';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RoutineForm>();
+
+const ROUTINE_COUNT_OPTIONS = Array.from({ length: 7 }, (_, index) => {
+  const count = index + 1;
+
+  return {
+    label: `일주일에 ${count}회`,
+    value: count,
+  };
+});
 
 const getDateFromFormValue = (date?: string) => {
   if (!date) {
@@ -174,34 +184,18 @@ const RoutineFormModal = () => {
         <FormItem
           name="routineCount"
           label="루틴 횟수"
-          item={({ value, onChange }) => {
-            const handleChange = (text: string) => {
-              if (text === '') {
-                onChange(text);
-                return;
-              }
-              const num = Number(text);
-
-              if (Number.isInteger(num) && num >= 1 && num <= 7) {
-                onChange(text);
-              }
-            };
-
-            return (
-              <Input
-                variant="filled"
-                value={value !== undefined ? String(value) : value}
-                placeholder="루틴 횟수를 입력해주세요."
-                onChangeText={handleChange}
-                onFocus={() => {
-                  if (['0', '1'].includes(String(value))) {
-                    onChange('');
-                  }
-                }}
-                keyboardType="number-pad"
-              />
-            );
-          }}
+          item={({ value, setValue }) => (
+            <Select<number>
+              value={value ? Number(value) : undefined}
+              items={ROUTINE_COUNT_OPTIONS}
+              placeholder="루틴 횟수를 선택해주세요."
+              variant="filled"
+              dropdownMaxHeight={308}
+              onSelect={(selectedValue) => {
+                setValue('routineCount', selectedValue);
+              }}
+            />
+          )}
           required
         />
         <FormItem

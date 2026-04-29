@@ -96,11 +96,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   // 폼 입력 헬퍼 함수
   const fillForm = async (
     getByPlaceholderText: (text: string) => any,
+    getByText: (text: string) => any,
     data: {
       routineName?: string;
       routineDetail?: string;
       penalty?: string;
-      routineCount?: string;
+      routineCount?: number;
     },
   ) => {
     if (data.routineName) {
@@ -129,10 +130,11 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     }
     if (data.routineCount) {
       await act(async () => {
-        fireEvent.changeText(
-          getByPlaceholderText('루틴 횟수를 입력해주세요.'),
-          data.routineCount,
-        );
+        fireEvent.press(getByText('루틴 횟수를 선택해주세요.'));
+      });
+
+      await act(async () => {
+        fireEvent.press(getByText(`일주일에 ${data.routineCount}회`));
       });
     }
   };
@@ -189,11 +191,11 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(mockAxios.history.get.length).toBeGreaterThan(0);
     });
 
-    await fillForm(getByPlaceholderText, {
+    await fillForm(getByPlaceholderText, getByText, {
       routineName: '테스트 루틴',
       routineDetail: '테스트 설명',
       penalty: '1000',
-      routineCount: '3',
+      routineCount: 3,
     });
 
     // 시작 날짜 선택
@@ -330,45 +332,22 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   });
 
   describe('사용자 인풋 유효성 검사 테스트', () => {
-    it('루틴 횟수가 1 미만이면 입력되지 않는다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
-
-      const routineCountInput =
-        getByPlaceholderText('루틴 횟수를 입력해주세요.');
+    it('루틴 횟수는 1회부터 7회까지 Select 옵션으로 선택한다', async () => {
+      const { getByText } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.changeText(routineCountInput, '0');
+        fireEvent.press(getByText('루틴 횟수를 선택해주세요.'));
       });
 
-      // 0은 1-7 범위를 벗어나므로 입력되지 않음 (초기값 '' 유지)
-      expect(routineCountInput.props.value).toBe('');
-    });
-
-    it('루틴 횟수가 7 초과이면 입력되지 않는다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
-
-      const routineCountInput =
-        getByPlaceholderText('루틴 횟수를 입력해주세요.');
+      for (let count = 1; count <= 7; count += 1) {
+        expect(getByText(`일주일에 ${count}회`)).toBeOnTheScreen();
+      }
 
       await act(async () => {
-        fireEvent.changeText(routineCountInput, '8');
+        fireEvent.press(getByText('일주일에 5회'));
       });
 
-      // 8은 1-7 범위를 벗어나므로 입력되지 않음 (초기값 '' 유지)
-      expect(routineCountInput.props.value).toBe('');
-    });
-
-    it('루틴 횟수 1-7 사이 값은 정상 입력된다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
-
-      const routineCountInput =
-        getByPlaceholderText('루틴 횟수를 입력해주세요.');
-
-      await act(async () => {
-        fireEvent.changeText(routineCountInput, '5');
-      });
-
-      expect(routineCountInput.props.value).toBe('5');
+      expect(getByText('일주일에 5회')).toBeOnTheScreen();
     });
 
     it('벌금 입력 시 숫자만 입력된다', async () => {
@@ -580,10 +559,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(penaltyInput.props.value).toBe('5,000');
 
       // 기존 루틴 횟수가 표시되어야 함
-      const routineCountInput =
-        getByPlaceholderText('루틴 횟수를 입력해주세요.');
-
-      expect(routineCountInput.props.value).toBe('3');
+      expect(getByText('일주일에 3회')).toBeOnTheScreen();
 
       // 시작 날짜가 표시되어야 함
       expect(getByText('2025-01-06')).toBeOnTheScreen();
@@ -624,14 +600,14 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     });
 
     it('루틴 횟수를 비우면 수정 버튼이 비활성화된다', async () => {
-      const { getByPlaceholderText, getByText } = render(<RoutineFormModal />);
+      mockRoutineStore.routineForm = {
+        ...mockRoutineStore.routineForm,
+        routineCount: '',
+      };
 
-      const routineCountInput =
-        getByPlaceholderText('루틴 횟수를 입력해주세요.');
+      const { getByText } = render(<RoutineFormModal />);
 
-      await act(async () => {
-        fireEvent.changeText(routineCountInput, '');
-      });
+      expect(getByText('루틴 횟수를 선택해주세요.')).toBeOnTheScreen();
 
       await waitFor(() => {
         const editButton = getByText('수정');
@@ -666,45 +642,18 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
   });
 
   describe('사용자 인풋 유효성 검사 테스트', () => {
-    it('루틴 횟수가 1 미만이면 입력되지 않는다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
-
-      const routineCountInput =
-        getByPlaceholderText('루틴 횟수를 입력해주세요.');
+    it('루틴 횟수는 Select에서 선택한 라벨로 변경된다', async () => {
+      const { getByText } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.changeText(routineCountInput, '0');
+        fireEvent.press(getByText('일주일에 3회'));
       });
-
-      // 0은 1-7 범위를 벗어나므로 기존 값 유지
-      expect(routineCountInput.props.value).toBe('3');
-    });
-
-    it('루틴 횟수가 7 초과이면 입력되지 않는다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
-
-      const routineCountInput =
-        getByPlaceholderText('루틴 횟수를 입력해주세요.');
 
       await act(async () => {
-        fireEvent.changeText(routineCountInput, '8');
+        fireEvent.press(getByText('일주일에 5회'));
       });
 
-      // 8은 1-7 범위를 벗어나므로 기존 값 유지
-      expect(routineCountInput.props.value).toBe('3');
-    });
-
-    it('루틴 횟수 1-7 사이 값은 정상 변경된다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
-
-      const routineCountInput =
-        getByPlaceholderText('루틴 횟수를 입력해주세요.');
-
-      await act(async () => {
-        fireEvent.changeText(routineCountInput, '5');
-      });
-
-      expect(routineCountInput.props.value).toBe('5');
+      expect(getByText('일주일에 5회')).toBeOnTheScreen();
     });
 
     it('벌금 입력 시 숫자만 입력된다', async () => {
@@ -765,7 +714,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
 
         await waitFor(() => {
-          expect(global.alert).toHaveBeenCalledWith('루틴이 수정되었습니다.');
+          expect(mockShowToast).toHaveBeenCalledWith('루틴이 수정되었습니다.');
           expect(mockBack).toHaveBeenCalled();
         });
       });
@@ -809,8 +758,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
 
         await waitFor(() => {
-          expect(global.alert).toHaveBeenCalledWith(
-            '루틴 수정에 실패했습니다.',
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '서버 오류가 발생했습니다.',
+            'error',
           );
         });
       });
@@ -850,8 +800,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
 
         await waitFor(() => {
-          expect(global.alert).toHaveBeenCalledWith(
-            '루틴 수정에 실패했습니다.',
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '네트워크 연결을 확인해 주세요.',
+            'error',
           );
         });
       });

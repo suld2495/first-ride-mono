@@ -6,15 +6,20 @@ import {
   type LayoutRectangle,
   Modal,
   Pressable,
+  ScrollView,
+  type StyleProp,
+  Text,
+  type TextStyle,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
   type ViewStyle,
 } from 'react-native';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
-import { FlashList, type ListRenderItem } from './flash-list';
+import type { InputSize, InputVariant } from './input';
 import ThemeView from './theme-view';
 import { Typography } from './typography';
 
@@ -51,6 +56,11 @@ export interface SelectProps<T = string | number> {
   error?: boolean;
 
   /**
+   * 성공 상태
+   */
+  success?: boolean;
+
+  /**
    * 도움말 텍스트 (에러 메시지 등)
    */
   helperText?: string;
@@ -61,9 +71,44 @@ export interface SelectProps<T = string | number> {
   disabled?: boolean;
 
   /**
+   * Input과 동일한 크기 옵션
+   */
+  size?: InputSize;
+
+  /**
+   * Input과 동일한 스타일 옵션
+   */
+  variant?: InputVariant;
+
+  /**
+   * 전체 너비
+   */
+  fullWidth?: boolean;
+
+  /**
+   * 라벨 텍스트
+   */
+  label?: string;
+
+  /**
+   * 커스텀 스타일 (필드 버튼)
+   */
+  style?: StyleProp<ViewStyle>;
+
+  /**
+   * 선택 텍스트 커스텀 스타일
+   */
+  textStyle?: StyleProp<TextStyle>;
+
+  /**
+   * placeholder 텍스트 색상
+   */
+  placeholderTextColor?: string;
+
+  /**
    * 컨테이너 스타일
    */
-  containerStyle?: ViewStyle;
+  containerStyle?: StyleProp<ViewStyle>;
 
   /**
    * 드롭다운 최대 높이
@@ -71,7 +116,7 @@ export interface SelectProps<T = string | number> {
   dropdownMaxHeight?: number;
 }
 
-const DROPDOWN_ITEM_HEIGHT = 57;
+const DROPDOWN_ITEM_HEIGHT = 44;
 
 /**
  * Select 컴포넌트
@@ -96,8 +141,16 @@ export function Select<T = string | number>({
   onSelect,
   placeholder = '선택하세요',
   error = false,
+  success = false,
   helperText,
   disabled = false,
+  size = 'md',
+  variant = 'outlined',
+  fullWidth = false,
+  label,
+  style,
+  textStyle,
+  placeholderTextColor,
   containerStyle,
   dropdownMaxHeight = 250,
 }: SelectProps<T>) {
@@ -110,9 +163,40 @@ export function Select<T = string | number>({
   const buttonRef = useRef<View>(null);
 
   const selectedItem = items.find((item) => item.value === value);
-
+  const state = error ? 'error' : success ? 'success' : 'default';
+  const sizeButtonStyle = {
+    xs: styles.selectButtonXs,
+    sm: styles.selectButtonSm,
+    md: styles.selectButtonMd,
+    lg: styles.selectButtonLg,
+  }[size];
+  const sizeTextStyle = {
+    xs: styles.selectTextXs,
+    sm: styles.selectTextSm,
+    md: styles.selectTextMd,
+    lg: styles.selectTextLg,
+  }[size];
+  const variantStyle = {
+    outlined: styles.variantOutlined,
+    filled: styles.variantFilled,
+    underlined: styles.variantUnderlined,
+    ghost: styles.variantGhost,
+  }[variant];
+  const stateStyle = {
+    default: null,
+    error: styles.selectButtonError,
+    success: styles.selectButtonSuccess,
+  }[state];
+  const helperStyle = {
+    default: styles.helperDefault,
+    error: styles.helperTextError,
+    success: styles.helperSuccess,
+  }[state];
   const windowHeight = Dimensions.get('window').height;
-  const dropdownHeight = Math.min(dropdownMaxHeight, items.length * 57);
+  const dropdownHeight = Math.min(
+    dropdownMaxHeight,
+    items.length * DROPDOWN_ITEM_HEIGHT,
+  );
 
   const closeDropdown = useCallback(() => {
     setIsOpen(false);
@@ -163,38 +247,34 @@ export function Select<T = string | number>({
     [closeDropdown, onSelect],
   );
 
-  const getDropdownItemLayout = (_: SelectItem<T>[] | null, index: number) => ({
-    length: DROPDOWN_ITEM_HEIGHT,
-    offset: DROPDOWN_ITEM_HEIGHT * index,
-    index,
-  });
-
-  const renderDropdownItem = useCallback<ListRenderItem<SelectItem<T>>>(
-    ({ item }) => (
+  const renderDropdownItem = useCallback(
+    (item: SelectItem<T>) => (
       <TouchableOpacity
+        key={String(item.value)}
         style={[
           styles.dropdownItem,
           item.value === value && styles.dropdownItemSelected,
         ]}
         onPress={() => handleSelectItem(item)}
         activeOpacity={0.7}
+        delayPressIn={80}
+        rejectResponderTermination={false}
       >
         <View style={styles.dropdownItemContent}>
-          <Typography
+          <Text
             style={[
               styles.dropdownItemLabel,
+              sizeTextStyle,
               item.value === value && styles.dropdownItemLabelSelected,
+              textStyle,
             ]}
           >
             {item.label}
-          </Typography>
+          </Text>
           {item.description && (
-            <Typography
-              variant="caption"
-              style={styles.dropdownItemDescription}
-            >
+            <Text style={styles.dropdownItemDescription}>
               {item.description}
-            </Typography>
+            </Text>
           )}
         </View>
         {item.value === value && (
@@ -206,7 +286,13 @@ export function Select<T = string | number>({
         )}
       </TouchableOpacity>
     ),
-    [handleSelectItem, theme.colors.action.primary.default, value],
+    [
+      handleSelectItem,
+      sizeTextStyle,
+      textStyle,
+      theme.colors.action.primary.default,
+      value,
+    ],
   );
 
   const dropdownTop = buttonLayout
@@ -218,74 +304,82 @@ export function Select<T = string | number>({
 
   const dropdownContent = (
     <ThemeView
+      testID="select-dropdown"
       style={[
         styles.dropdown,
+        { height: dropdownHeight },
         isTestEnv
           ? styles.dropdownInline
           : {
               top: dropdownTop,
               left: buttonLayout?.x ?? 0,
               width: buttonLayout?.width ?? '100%',
-              maxHeight: dropdownMaxHeight,
             },
       ]}
     >
-      <FlashList
-        data={items}
-        keyExtractor={(item) => String(item.value)}
-        renderItem={renderDropdownItem}
-        estimatedItemSize={DROPDOWN_ITEM_HEIGHT}
-        getItemLayout={getDropdownItemLayout}
-        removeClippedSubviews
-        maxToRenderPerBatch={10}
-        windowSize={5}
+      <ScrollView
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled={true}
         showsVerticalScrollIndicator={true}
-      />
+      >
+        {items.map(renderDropdownItem)}
+      </ScrollView>
     </ThemeView>
   );
 
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View
+      style={[
+        styles.container,
+        fullWidth && internalStyles.fullWidth,
+        containerStyle,
+      ]}
+    >
+      {label && <Text style={styles.label}>{label}</Text>}
       {/* Select Button */}
       <TouchableOpacity
         ref={buttonRef}
+        accessibilityRole="button"
         style={[
           styles.selectButton,
-          error && styles.selectButtonError,
+          sizeButtonStyle,
+          variantStyle,
+          stateStyle,
           disabled && styles.selectButtonDisabled,
           isOpen && styles.selectButtonFocused,
+          style,
         ]}
         onPress={handleToggle}
         onLayout={handleButtonLayout}
         disabled={disabled}
         activeOpacity={0.7}
       >
-        <Typography
+        <Text
           style={[
             styles.selectText,
+            sizeTextStyle,
             !selectedItem && styles.selectPlaceholder,
             disabled && styles.selectTextDisabled,
+            !selectedItem && placeholderTextColor
+              ? { color: placeholderTextColor }
+              : null,
+            textStyle,
           ]}
         >
           {selectedItem ? selectedItem.label : placeholder}
-        </Typography>
+        </Text>
         <Ionicons
           name={isOpen ? 'chevron-up' : 'chevron-down'}
           size={baseFoundation.iconSize.m}
           color={
-            disabled ? theme.colors.text.disabled : theme.colors.text.secondary
+            disabled ? theme.colors.text.disabled : theme.colors.brand.icon
           }
         />
       </TouchableOpacity>
 
       {/* Helper Text */}
       {helperText && (
-        <Typography
-          variant="caption"
-          style={[styles.helperText, error && styles.helperTextError]}
-        >
+        <Typography variant="caption" style={[styles.helperText, helperStyle]}>
           {helperText}
         </Typography>
       )}
@@ -322,22 +416,61 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: baseFoundation.dimension.x48,
-    paddingHorizontal: theme.foundation.spacing.m,
-    paddingVertical: theme.foundation.spacing.s,
-    backgroundColor: theme.colors.background.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.border.default,
-    borderRadius: theme.foundation.radii.m,
   },
 
-  selectButtonFocused: {
-    borderColor: theme.colors.border.focus,
-    borderWidth: 2,
+  selectButtonXs: {
+    height: baseFoundation.dimension.x28,
+    paddingHorizontal: baseFoundation.spacing.xs,
   },
+
+  selectButtonSm: {
+    height: baseFoundation.dimension.x36,
+    paddingHorizontal: baseFoundation.spacing.s,
+  },
+
+  selectButtonMd: {
+    height: baseFoundation.dimension.x44,
+    paddingHorizontal: baseFoundation.spacing.sm,
+  },
+
+  selectButtonLg: {
+    height: baseFoundation.dimension.x56,
+    paddingHorizontal: baseFoundation.spacing.m,
+  },
+
+  variantOutlined: {
+    borderWidth: 1,
+    borderColor: theme.colors.border.input ?? theme.colors.border.strong,
+    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
+    borderRadius: baseFoundation.radii.xs,
+  },
+
+  variantFilled: {
+    borderWidth: 0,
+    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
+    borderRadius: baseFoundation.radii.xs,
+  },
+
+  variantUnderlined: {
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.default,
+    backgroundColor: 'transparent',
+  },
+
+  variantGhost: {
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+  },
+
+  selectButtonFocused: {},
 
   selectButtonError: {
     borderColor: theme.colors.feedback.error.border,
+  },
+
+  selectButtonSuccess: {
+    borderColor: theme.colors.feedback.success.border,
   },
 
   selectButtonDisabled: {
@@ -347,8 +480,23 @@ const styles = StyleSheet.create((theme) => ({
 
   selectText: {
     flex: 1,
-    color: theme.colors.text.primary,
+    color: theme.colors.text.input ?? theme.colors.brand.text,
+  },
+
+  selectTextXs: {
+    fontSize: theme.foundation.typography.size.s,
+  },
+
+  selectTextSm: {
     fontSize: theme.foundation.typography.size.m,
+  },
+
+  selectTextMd: {
+    fontSize: theme.foundation.typography.size.m,
+  },
+
+  selectTextLg: {
+    fontSize: theme.foundation.typography.size.xl,
   },
 
   selectPlaceholder: {
@@ -361,7 +509,10 @@ const styles = StyleSheet.create((theme) => ({
 
   helperText: {
     marginTop: theme.foundation.spacing.xs,
-    marginLeft: theme.foundation.spacing.s,
+    fontSize: theme.foundation.typography.size.s,
+  },
+
+  helperDefault: {
     color: theme.colors.text.secondary,
   },
 
@@ -369,14 +520,25 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.feedback.error.text,
   },
 
+  helperSuccess: {
+    color: theme.colors.feedback.success.text,
+  },
+
+  label: {
+    fontSize: theme.foundation.typography.size.m,
+    fontWeight: '600',
+    marginBottom: baseFoundation.dimension.x6,
+    marginLeft: baseFoundation.spacing.xs,
+    color: theme.colors.text.secondary,
+  },
+
   dropdown: {
     position: 'absolute',
-    borderRadius: theme.foundation.radii.m,
-    borderWidth: 1,
-    borderColor: theme.colors.border.default,
-    backgroundColor: theme.colors.background.surface,
-    ...theme.foundation.shadow.m,
+    borderRadius: baseFoundation.radii.xs,
+    borderWidth: 0,
+    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
     zIndex: 1002,
+    overflow: 'hidden',
   },
 
   dropdownInline: {
@@ -395,14 +557,16 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    minHeight: DROPDOWN_ITEM_HEIGHT,
     paddingHorizontal: theme.foundation.spacing.m,
-    paddingVertical: theme.foundation.spacing.m,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.subtle,
+    paddingVertical: theme.foundation.spacing.xs,
+    borderWidth: 0,
+    borderBottomWidth: 0,
+    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
   },
 
   dropdownItemSelected: {
-    backgroundColor: theme.colors.action.secondary.default,
+    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
   },
 
   dropdownItemContent: {
@@ -411,12 +575,11 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   dropdownItemLabel: {
-    color: theme.colors.text.primary,
-    fontSize: theme.foundation.typography.size.m,
+    color: theme.colors.text.input ?? theme.colors.brand.text,
   },
 
   dropdownItemLabelSelected: {
-    color: theme.colors.action.secondary.label,
+    color: theme.colors.text.input ?? theme.colors.brand.text,
     fontWeight: theme.foundation.typography.weight.semibold,
   },
 
@@ -424,5 +587,11 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text.secondary,
   },
 }));
+
+const internalStyles = {
+  fullWidth: {
+    width: '100%' as const,
+  },
+};
 
 export default Select;
