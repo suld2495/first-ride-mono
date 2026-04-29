@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { baseFoundation } from '@/theme/tokens';
 
 const QuestHeader = () => {
   const router = useRouter();
@@ -17,7 +17,7 @@ const QuestHeader = () => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView style={styles.content}>
-        <Typography variant="title" style={styles.title}>
+        <Typography variant="title" weight="semibold" style={styles.title}>
           퀘스트 리스트
         </Typography>
       </ThemeView>

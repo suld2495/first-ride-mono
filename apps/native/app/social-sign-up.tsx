@@ -1,13 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
 import AuthForm from '@/components/auth/auth-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import type { JobType } from '@/constants/JOBS';
@@ -21,6 +20,7 @@ import {
   getDeviceType,
   type SocialProviderType,
 } from '@/providers/auth/types';
+import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 interface ProfileForm {
@@ -123,6 +123,7 @@ export default function SocialSignUp() {
       <AuthForm title="추가 정보 입력">
         <Typography
           variant="label"
+          weight="semibold"
           color="secondary"
           style={styles.description}
         >

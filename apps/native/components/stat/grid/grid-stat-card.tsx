@@ -2,11 +2,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { type StatConfig } from '@/constants/STATS';
+import { baseFoundation } from '@/theme/tokens';
 
 interface GridStatCardProps {
   config: StatConfig;
@@ -34,18 +34,23 @@ export const GridStatCard: React.FC<GridStatCardProps> = ({
   return (
     <View style={[styles.container, { borderColor: config.color }]}>
       <View style={[styles.iconBg, { backgroundColor: `${config.color}20` }]}>
-        <Ionicons name={config.icon} size={baseFoundation.dimension.x28} color={config.color} />
+        <Ionicons
+          name={config.icon}
+          size={baseFoundation.dimension.x28}
+          color={config.color}
+        />
       </View>
 
       <Typography
         variant="value"
+        weight="bold"
         color={hasChanged ? config.color : theme.colors.text.primary}
         glow={hasChanged}
       >
         {value}
       </Typography>
 
-      <Typography variant="label" color={config.color}>
+      <Typography variant="label" weight="semibold" color={config.color}>
         {config.abbr}
       </Typography>
 

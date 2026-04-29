@@ -7,6 +7,7 @@ import { Image, Pressable, ScrollView } from 'react-native';
 import RequetButtonGroup from '@/components/request/request-button-group';
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useCreateForm } from '@/hooks/useForm';
@@ -15,7 +16,6 @@ import {
   useRequestSubmission,
 } from '@/hooks/useRequestSubmission';
 import { useRoutineId } from '@/hooks/useRoutineSelection';
-import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -48,7 +48,11 @@ const RequestModal = () => {
         showsVerticalScrollIndicator={false}
       >
         <ThemeView transparent>
-          <Typography variant="subtitle" style={styles.infoLabel}>
+          <Typography
+            variant="subtitle"
+            weight="semibold"
+            style={styles.infoLabel}
+          >
             루틴 이름
           </Typography>
           <Typography>{detail?.routineName}</Typography>
@@ -57,7 +61,11 @@ const RequestModal = () => {
           <Typography>{detail?.routineDetail}</Typography>
         </ThemeView>
         <ThemeView transparent>
-          <Typography variant="subtitle" style={styles.infoLabel}>
+          <Typography
+            variant="subtitle"
+            weight="semibold"
+            style={styles.infoLabel}
+          >
             인증 대상
           </Typography>
           <Typography>{detail?.isMe ? '나' : detail?.mateNickname}</Typography>

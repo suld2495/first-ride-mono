@@ -1,11 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
-import { palette } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 interface StatPointsBarProps {
   availablePoints: number;
@@ -36,8 +35,12 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.pointsInfo}>
-        <Ionicons name="flag" size={baseFoundation.dimension.x18} color={palette.rpg.exp} />
-        <Typography variant="label">
+        <Ionicons
+          name="flag"
+          size={baseFoundation.dimension.x18}
+          color={palette.rpg.exp}
+        />
+        <Typography variant="label" weight="semibold">
           {isEditing
             ? `Remaining: ${remainingPoints}`
             : `Available Points: ${availablePoints}`}
@@ -63,6 +66,7 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
               />
               <Typography
                 variant="label"
+                weight="semibold"
                 color={
                   hasChanges
                     ? theme.colors.text.primary
@@ -84,6 +88,7 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
               />
               <Typography
                 variant="label"
+                weight="semibold"
                 color={hasChanges ? palette.white : theme.colors.text.disabled}
               >
                 Confirm
@@ -95,8 +100,12 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
             style={[styles.button, styles.editButton]}
             onPress={onEdit}
           >
-            <Ionicons name="create-outline" size={baseFoundation.iconSize.s} color={palette.white} />
-            <Typography variant="label" color={palette.white}>
+            <Ionicons
+              name="create-outline"
+              size={baseFoundation.iconSize.s}
+              color={palette.white}
+            />
+            <Typography variant="label" weight="semibold" color={palette.white}>
               Edit
             </Typography>
           </Pressable>

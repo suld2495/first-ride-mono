@@ -7,8 +7,6 @@ import {
   type NativeSyntheticEvent,
   View,
 } from 'react-native';
-import { StyleSheet, type AppThemes } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,8 +14,10 @@ import {
   type FlashListRef,
   type ListRenderItem,
 } from '@/components/ui/flash-list';
+import { StyleSheet, type AppThemes } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
 interface QuestStartDateCalendarProps {
   minimumDate: Date;
@@ -266,7 +266,11 @@ const QuestStartDateCalendar = ({
             )
           }
           leftIcon={({ color }) => (
-            <Ionicons name="chevron-back" size={baseFoundation.dimension.x18} color={color} />
+            <Ionicons
+              name="chevron-back"
+              size={baseFoundation.dimension.x18}
+              color={color}
+            />
           )}
           style={styles.monthButton}
         />
@@ -275,7 +279,11 @@ const QuestStartDateCalendar = ({
           accessibilityLabel="년월 선택 열기"
           style={styles.monthTitleButton}
         >
-          <Typography variant="subtitle" style={styles.monthTitle}>
+          <Typography
+            variant="subtitle"
+            weight="semibold"
+            style={styles.monthTitle}
+          >
             {formatMonthLabel(currentMonth)}
           </Typography>
         </Pressable>
@@ -292,7 +300,11 @@ const QuestStartDateCalendar = ({
             )
           }
           rightIcon={({ color }) => (
-            <Ionicons name="chevron-forward" size={baseFoundation.dimension.x18} color={color} />
+            <Ionicons
+              name="chevron-forward"
+              size={baseFoundation.dimension.x18}
+              color={color}
+            />
           )}
           style={styles.monthButton}
         />
@@ -412,6 +424,7 @@ const QuestStartDateCalendar = ({
                   >
                     <Typography
                       variant="label"
+                      weight="semibold"
                       color={
                         isSelected
                           ? 'inverse'
@@ -457,7 +470,10 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     borderWidth: 1,
     borderColor: theme.colors.border.default,
     shadowColor: theme.colors.border.strong,
-    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x8 },
+    shadowOffset: {
+      width: baseFoundation.dimension.x0,
+      height: baseFoundation.dimension.x8,
+    },
     shadowOpacity: 0.1,
     shadowRadius: 18,
     elevation: 6,
@@ -530,7 +546,10 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   dayNumberSelected: {
     backgroundColor: theme.colors.action.primary.default,
     shadowColor: theme.colors.action.primary.default,
-    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x3 },
+    shadowOffset: {
+      width: baseFoundation.dimension.x0,
+      height: baseFoundation.dimension.x3,
+    },
     shadowOpacity: 0.18,
     shadowRadius: 8,
     elevation: 2,

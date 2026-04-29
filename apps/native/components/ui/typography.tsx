@@ -1,9 +1,8 @@
 import React from 'react';
 import type { TextProps } from 'react-native';
-import { useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
-import { TamaguiText } from './tamagui';
+import { useAppTheme, TamaguiText } from '@/components/ui/tamagui';
+import { baseFoundation } from '@/theme/tokens';
 
 /**
  * Typography variant types
@@ -11,19 +10,12 @@ import { TamaguiText } from './tamagui';
  */
 export type TypographyVariant =
   | 'caption3'
-  | 'caption3Semibold'
   | 'caption2'
-  | 'caption2Semibold'
   | 'caption1'
-  | 'caption1Semibold'
   | 'body3'
-  | 'body3Semibold'
   | 'body2'
-  | 'body2Semibold'
   | 'body1'
-  | 'body1Semibold'
   | 'subtitle2'
-  | 'subtitle2Semibold'
   | 'subtitle1'
   | 'title'
   | 'h3'
@@ -35,6 +27,8 @@ export type TypographyVariant =
   | 'label'
   | 'caption'
   | 'value';
+
+export type TypographyWeight = keyof typeof baseFoundation.typography.weight;
 
 type TypographySemanticColor =
   | 'primary'
@@ -75,6 +69,12 @@ export interface TypographyProps extends TextProps {
   color?: TypographyColor;
 
   /**
+   * Font weight
+   * @default 'regular'
+   */
+  weight?: TypographyWeight;
+
+  /**
    * Glow effect for highlighted text
    * @default false
    */
@@ -91,7 +91,7 @@ export interface TypographyProps extends TextProps {
  *
  * @example
  * // Basic usage
- * <Typography variant="title">페이지 제목</Typography>
+ * <Typography variant="title" weight="semibold">페이지 제목</Typography>
  * <Typography variant="body1">본문 텍스트</Typography>
  * <Typography variant="caption2">작은 텍스트</Typography>
  *
@@ -103,11 +103,12 @@ export interface TypographyProps extends TextProps {
  *
  * @example
  * // Custom style
- * <Typography variant="title" style={{ textAlign: 'center' }}>가운데 정렬</Typography>
+ * <Typography variant="title" weight="semibold" style={{ textAlign: 'center' }}>가운데 정렬</Typography>
  */
 export const Typography: React.FC<TypographyProps> = ({
   variant = 'body',
   color = 'primary',
+  weight = 'regular',
   glow = false,
   style,
   children,
@@ -117,10 +118,14 @@ export const Typography: React.FC<TypographyProps> = ({
   const variantProps = typographyVariantStyles[variant];
   const semanticColor = typographyColorMap[color as TypographySemanticColor];
   const customColorStyle = semanticColor ? undefined : { color };
+  const fontWeight = typographyWeightMap[weight];
   const glowStyle = glow
     ? {
         textShadowColor: theme.colors.action.primary.default,
-        textShadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x0 },
+        textShadowOffset: {
+          width: baseFoundation.dimension.x0,
+          height: baseFoundation.dimension.x0,
+        },
         textShadowRadius: 8,
       }
     : undefined;
@@ -129,6 +134,7 @@ export const Typography: React.FC<TypographyProps> = ({
     <TamaguiText
       color={semanticColor}
       fontFamily="$body"
+      fontWeight={fontWeight}
       style={[customColorStyle, glowStyle, style]}
       {...variantProps}
       {...props}
@@ -141,105 +147,61 @@ export const Typography: React.FC<TypographyProps> = ({
 const typographyVariantStyles = {
   caption3: {
     fontSize: '$caption3',
-    fontWeight: '400',
-  },
-  caption3Semibold: {
-    fontSize: '$caption3',
-    fontWeight: '600',
   },
   caption2: {
     fontSize: '$caption2',
-    fontWeight: '400',
-  },
-  caption2Semibold: {
-    fontSize: '$caption2',
-    fontWeight: '600',
   },
   caption1: {
     fontSize: '$caption1',
-    fontWeight: '400',
-  },
-  caption1Semibold: {
-    fontSize: '$caption1',
-    fontWeight: '600',
   },
   body3: {
     fontSize: '$body3',
-    fontWeight: '400',
-  },
-  body3Semibold: {
-    fontSize: '$body3',
-    fontWeight: '600',
   },
   body2: {
     fontSize: '$body2',
-    fontWeight: '400',
-  },
-  body2Semibold: {
-    fontSize: '$body2',
-    fontWeight: '600',
   },
   body1: {
     fontSize: '$body1',
-    fontWeight: '400',
-  },
-  body1Semibold: {
-    fontSize: '$body1',
-    fontWeight: '600',
   },
   subtitle2: {
     fontSize: '$subtitle2',
-    fontWeight: '400',
-  },
-  subtitle2Semibold: {
-    fontSize: '$subtitle2',
-    fontWeight: '600',
   },
   subtitle1: {
     fontSize: '$subtitle1',
-    fontWeight: '600',
   },
   title: {
     fontSize: '$title',
-    fontWeight: '600',
   },
   h3: {
     fontSize: '$h3',
-    fontWeight: '600',
   },
   h2: {
     fontSize: '$h2',
-    fontWeight: '600',
   },
   h1: {
     fontSize: '$h1',
-    fontWeight: '600',
   },
   h0: {
     fontSize: '$h0',
-    fontWeight: '600',
   },
   subtitle: {
     fontSize: '$subtitle2',
-    fontWeight: '600',
   },
   body: {
     fontSize: '$body1',
-    fontWeight: '400',
   },
   label: {
     fontSize: '$body3',
-    fontWeight: '600',
   },
   caption: {
     fontSize: '$caption2',
-    fontWeight: '400',
   },
   value: {
     fontSize: baseFoundation.typography.size.xxl,
-    fontWeight: '700',
   },
 } as const;
+
+const typographyWeightMap = baseFoundation.typography.weight;
 
 const typographyColorMap = {
   primary: '$textPrimary',

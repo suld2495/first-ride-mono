@@ -4,16 +4,16 @@ import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import type { SearchOption, User } from '@repo/types';
 import { useCallback, useState } from 'react';
 import { FlatList, Modal, Pressable, RefreshControl } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { FlashList } from '@/components/ui/flash-list';
 import { Input } from '@/components/ui/input';
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
+import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 interface UserItemProps extends User {
@@ -62,7 +62,11 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
         variant="ghost"
         size="sm"
         leftIcon={({ color }) => (
-          <Ionicons name="add-outline" size={baseFoundation.iconSize.s} color={color} />
+          <Ionicons
+            name="add-outline"
+            size={baseFoundation.iconSize.s}
+            color={color}
+          />
         )}
         onPress={handleAdd}
         style={styles.addButton}
@@ -136,7 +140,9 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
         >
           <ThemeView style={styles.modalContent} variant="elevated">
             <ThemeView style={styles.modalHeader} transparent>
-              <Typography variant="subtitle">친구 추가</Typography>
+              <Typography variant="subtitle" weight="semibold">
+                친구 추가
+              </Typography>
               <Pressable
                 onPress={handleClose}
                 hitSlop={8}
@@ -218,7 +224,10 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.foundation.radii.xl,
     padding: theme.foundation.spacing.l,
     shadowColor: theme.colors.border.default,
-    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x4 },
+    shadowOffset: {
+      width: baseFoundation.dimension.x0,
+      height: baseFoundation.dimension.x4,
+    },
     shadowOpacity: 0.2,
     shadowRadius: 16,
     elevation: 5,

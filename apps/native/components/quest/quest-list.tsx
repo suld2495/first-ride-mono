@@ -2,14 +2,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Quest } from '@repo/types';
 import { useCallback } from 'react';
 import { Pressable } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { PixelCard } from '@/components/ui/pixel-card';
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
 import QuestTime from './quest-time';
 
@@ -38,6 +38,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
           <ThemeView style={styles.badge}>
             <Typography
               variant="label"
+              weight="semibold"
               color={theme.colors.action.secondary.label}
               style={styles.badgeText}
             >
@@ -61,7 +62,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
               color={theme.colors.text.secondary}
             />
           </ThemeView>
-          <Typography variant="label" style={styles.goalText}>
+          <Typography variant="label" weight="semibold" style={styles.goalText}>
             {description}
           </Typography>
         </ThemeView>

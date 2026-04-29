@@ -2,11 +2,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { STAT_CONFIGS } from '@/constants/STATS';
+import { baseFoundation } from '@/theme/tokens';
 
 interface RadarStatListProps {
   stats: UserStats;
@@ -39,12 +39,22 @@ export const RadarStatList: React.FC<RadarStatListProps> = ({
 
         return (
           <View key={config.key} style={styles.row}>
-            <Ionicons name={config.icon} size={baseFoundation.iconSize.s} color={config.color} />
-            <Typography variant="label" color={config.color} style={styles.abbr}>
+            <Ionicons
+              name={config.icon}
+              size={baseFoundation.iconSize.s}
+              color={config.color}
+            />
+            <Typography
+              variant="label"
+              weight="semibold"
+              color={config.color}
+              style={styles.abbr}
+            >
               {config.abbr}
             </Typography>
             <Typography
               variant="label"
+              weight="semibold"
               color={hasChanged ? config.color : theme.colors.text.primary}
               style={styles.value}
             >

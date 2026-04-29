@@ -2,9 +2,9 @@ import { useLocalSearchParams } from 'expo-router';
 import { Platform } from 'react-native';
 import Animated, { SlideInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet } from '@/components/ui/tamagui';
 
 import ModalHeader from '@/components/modal/modal-header';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import type { ModalType } from '@/hooks/useModal';
 import { useModal } from '@/hooks/useModal';
@@ -55,6 +55,6 @@ const styles = StyleSheet.create((theme) => ({
   content: {
     flex: 1,
     borderRadius: theme.foundation.radii.l,
-    paddingHorizontal: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing.l,
   },
 }));

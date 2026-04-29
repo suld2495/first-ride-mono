@@ -7,6 +7,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -169,8 +170,7 @@ export const Input: React.FC<InputProps> = ({
 };
 
 const styles = StyleSheet.create((theme) => ({
-  container: {
-  },
+  container: {},
   containerXs: {
     height: baseFoundation.dimension.x28,
     paddingHorizontal: theme.foundation.spacing.xs,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   containerMd: {
     height: baseFoundation.dimension.x44,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing.sm,
   },
   containerLg: {
     height: baseFoundation.dimension.x56,
@@ -190,13 +190,13 @@ const styles = StyleSheet.create((theme) => ({
   variantOutlined: {
     borderWidth: 1,
     borderColor: theme.colors.border.strong,
-    backgroundColor: theme.colors.background.surface,
-    borderRadius: theme.foundation.radii.s,
+    backgroundColor: theme.colors.background.input,
+    borderRadius: theme.foundation.radii.xs,
   },
   variantFilled: {
     borderWidth: 0,
-    backgroundColor: theme.colors.background.sunken,
-    borderRadius: theme.foundation.radii.s,
+    backgroundColor: theme.colors.background.input,
+    borderRadius: theme.foundation.radii.xs,
   },
   variantUnderlined: {
     borderWidth: 0,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   input: {
     flex: 1,
-    color: theme.colors.text.primary,
+    color: theme.colors.text.input,
   },
   inputXs: {
     fontSize: theme.foundation.typography.size.s,
@@ -225,7 +225,7 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: theme.foundation.typography.size.m,
   },
   inputMd: {
-    fontSize: theme.foundation.typography.size.l,
+    fontSize: theme.foundation.typography.size.m,
   },
   inputLg: {
     fontSize: theme.foundation.typography.size.xl,

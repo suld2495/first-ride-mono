@@ -1,8 +1,8 @@
 import { View } from 'react-native';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
+import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
 export type FormItemProps<
   T extends Record<string, unknown>,
@@ -48,6 +48,7 @@ export function createFormItem<T extends Record<string, unknown>>(
     showErrors = true,
     helpText,
     flex = false,
+    required = false,
   }: FormItemProps<T, K>) {
     const field = useFormField(name);
     const formContext = useForm();
@@ -60,8 +61,9 @@ export function createFormItem<T extends Record<string, unknown>>(
     return (
       <View style={[styles.container, { flex: flex ? 1 : 0 }]}>
         {label && (
-          <Typography style={styles.label} variant="body">
+          <Typography variant="body2" style={styles.label}>
             {label}
+            {required && <Typography style={styles.required}> *</Typography>}
           </Typography>
         )}
 
@@ -75,7 +77,9 @@ export function createFormItem<T extends Record<string, unknown>>(
         })}
 
         {helpText && !hasError && (
-          <Typography variant="caption">{helpText}</Typography>
+          <Typography variant="caption2" weight="regular">
+            {helpText}
+          </Typography>
         )}
 
         {showErrors && hasError && field.errors.length > 0 && (
@@ -96,12 +100,17 @@ export function createFormItem<T extends Record<string, unknown>>(
   };
 }
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     gap: baseFoundation.dimension.x10,
   },
 
+  required: {
+    color: theme.colors.brand.icon,
+  },
+
   label: {
+    color: theme.colors.text.label,
     width: '100%',
   },
-});
+}));

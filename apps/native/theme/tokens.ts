@@ -37,7 +37,8 @@ export const palette = {
   },
 
   skinGray: {
-    90: '#181918',
+    70: '#272A2D',
+    90: '#18191B',
     95: '#000306',
   },
 
@@ -150,6 +151,7 @@ export const baseFoundation = {
     xxs: 2,
     xs: 4,
     s: 8,
+    sm: 12,
     m: 16,
     l: 24,
     xl: 32,
@@ -157,6 +159,7 @@ export const baseFoundation = {
   },
   radii: {
     none: 0,
+    xs: 8,
     s: 12,
     m: 16,
     l: 24,
@@ -347,6 +350,7 @@ export const createFoundation = (theme: ThemeContract) => {
 
   type RadiiType = {
     none: number;
+    xs: number;
     s: number;
     m: number;
     l: number;
@@ -358,6 +362,7 @@ export const createFoundation = (theme: ThemeContract) => {
     if (theme.radiusStyle === 'sharp') {
       return {
         ...baseFoundation.radii,
+        xs: 0,
         s: 0,
         m: 0,
         l: 0,

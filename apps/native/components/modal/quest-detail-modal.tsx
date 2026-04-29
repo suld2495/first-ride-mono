@@ -1,16 +1,16 @@
 import { useFetchQuestDetailQuery } from '@repo/shared/hooks/useQuest';
 import { ScrollView } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import QuestInfo from '@/components/quest/quest-info';
 import QuestRewards from '@/components/quest/quest-rewards';
 import QuestTime from '@/components/quest/quest-time';
 import { Button } from '@/components/ui/button';
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
 import { useQuestAction } from '@/hooks/useQuestAction';
 import { useQuestId } from '@/hooks/useQuestSelection';
+import { baseFoundation } from '@/theme/tokens';
 
 const QUEST_LABEL: Record<string, string> = {
   DAILY: '일일 퀘스트',
@@ -59,6 +59,7 @@ const QuestDetailModal = () => {
           <ThemeView style={styles.badgeContainer}>
             <Typography
               variant="label"
+              weight="semibold"
               color={theme.colors.action.secondary.label}
               style={styles.badgeText}
             >
@@ -67,7 +68,11 @@ const QuestDetailModal = () => {
           </ThemeView>
 
           {/* Quest Name */}
-          <Typography variant="title" style={styles.questName}>
+          <Typography
+            variant="title"
+            weight="semibold"
+            style={styles.questName}
+          >
             {questName}
           </Typography>
         </ThemeView>

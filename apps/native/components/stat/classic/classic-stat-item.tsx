@@ -2,12 +2,12 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import PixelProgressBar from '@/components/ui/pixel-progress-bar';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { STAT_MAX_VALUE, type StatConfig } from '@/constants/STATS';
+import { baseFoundation } from '@/theme/tokens';
 
 interface ClassicStatItemProps {
   config: StatConfig;
@@ -36,13 +36,21 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.iconContainer}>
-          <Ionicons name={config.icon} size={baseFoundation.iconSize.m} color={config.color} />
+          <Ionicons
+            name={config.icon}
+            size={baseFoundation.iconSize.m}
+            color={config.color}
+          />
         </View>
         <View style={styles.nameContainer}>
-          <Typography variant="label" color={config.color}>
+          <Typography variant="label" weight="semibold" color={config.color}>
             {config.abbr}
           </Typography>
-          <Typography variant="label" color={theme.colors.text.secondary}>
+          <Typography
+            variant="label"
+            weight="semibold"
+            color={theme.colors.text.secondary}
+          >
             {config.name}
           </Typography>
         </View>
@@ -69,6 +77,7 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
           )}
           <Typography
             variant="value"
+            weight="bold"
             color={hasChanged ? config.color : theme.colors.text.primary}
           >
             {value}

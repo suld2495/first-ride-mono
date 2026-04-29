@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ViewStyle } from 'react-native';
 import { Pressable, View } from 'react-native';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -78,7 +79,11 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
     >
       <View style={[styles.borderOuter, outerStyle]}>
         <View style={[styles.borderInner, innerStyle]}>
-          <Typography variant="subtitle" style={[styles.label, labelStyle]}>
+          <Typography
+            variant="subtitle"
+            weight="semibold"
+            style={[styles.label, labelStyle]}
+          >
             {label}
           </Typography>
         </View>

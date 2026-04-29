@@ -1,13 +1,12 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import PixelCard from '@/components/ui/pixel-card';
 import PixelProgressBar from '@/components/ui/pixel-progress-bar';
+import { StyleSheet } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
-import { palette } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 interface StatHeaderProps {
   nickname: string;
@@ -27,15 +26,27 @@ export const StatHeader: React.FC<StatHeaderProps> = ({
       <View style={styles.container}>
         <View style={styles.row}>
           <View style={styles.avatarContainer}>
-            <Ionicons name="person" size={baseFoundation.iconSize.xl} color={palette.rpg.exp} />
+            <Ionicons
+              name="person"
+              size={baseFoundation.iconSize.xl}
+              color={palette.rpg.exp}
+            />
           </View>
           <View style={styles.info}>
-            <Typography variant="subtitle" glow>
+            <Typography variant="subtitle" weight="semibold" glow>
               {nickname}
             </Typography>
             <View style={styles.levelRow}>
-              <Ionicons name="star" size={baseFoundation.iconSize.s} color={palette.rpg.exp} />
-              <Typography variant="label" color={palette.rpg.exp}>
+              <Ionicons
+                name="star"
+                size={baseFoundation.iconSize.s}
+                color={palette.rpg.exp}
+              />
+              <Typography
+                variant="label"
+                weight="semibold"
+                color={palette.rpg.exp}
+              >
                 {' '}
                 Lv. {level}
               </Typography>
@@ -45,8 +56,10 @@ export const StatHeader: React.FC<StatHeaderProps> = ({
 
         <View style={styles.expContainer}>
           <View style={styles.expLabelRow}>
-            <Typography variant="label">EXP</Typography>
-            <Typography variant="label">
+            <Typography variant="label" weight="semibold">
+              EXP
+            </Typography>
+            <Typography variant="label" weight="semibold">
               {currentExp} / {expForNextLevel}
             </Typography>
           </View>

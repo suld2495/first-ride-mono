@@ -1,16 +1,16 @@
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRouter } from 'expo-router';
 import { Alert, ScrollView } from 'react-native';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useRoutineDelete } from '@/hooks/useRoutineDelete';
 import { useRoutineId, useSetRoutineForm } from '@/hooks/useRoutineSelection';
+import { baseFoundation } from '@/theme/tokens';
 
 const RoutineDetailModal = () => {
   const router = useRouter();
@@ -53,7 +53,11 @@ const RoutineDetailModal = () => {
     <ThemeView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <ThemeView style={{ marginBottom: -20 }} transparent>
-          <Typography variant="subtitle" style={styles.infoLabel}>
+          <Typography
+            variant="subtitle"
+            weight="semibold"
+            style={styles.infoLabel}
+          >
             {detail?.routineName}
           </Typography>
         </ThemeView>
@@ -62,14 +66,22 @@ const RoutineDetailModal = () => {
         </ThemeView>
 
         <ThemeView style={styles.content} transparent>
-          <Typography variant="subtitle" style={styles.infoLabel}>
+          <Typography
+            variant="subtitle"
+            weight="semibold"
+            style={styles.infoLabel}
+          >
             메이트
           </Typography>
           <Typography>{detail?.isMe ? '나' : detail?.mateNickname}</Typography>
         </ThemeView>
 
         <ThemeView style={styles.content} transparent>
-          <Typography variant="subtitle" style={styles.infoLabel}>
+          <Typography
+            variant="subtitle"
+            weight="semibold"
+            style={styles.infoLabel}
+          >
             루틴 횟수
           </Typography>
           <Typography>
@@ -78,14 +90,22 @@ const RoutineDetailModal = () => {
         </ThemeView>
 
         <ThemeView style={styles.content} transparent>
-          <Typography variant="subtitle" style={styles.infoLabel}>
+          <Typography
+            variant="subtitle"
+            weight="semibold"
+            style={styles.infoLabel}
+          >
             벌금
           </Typography>
           <Typography>{detail?.penalty.toLocaleString()}</Typography>
         </ThemeView>
 
         <ThemeView style={styles.content} transparent>
-          <Typography variant="subtitle" style={styles.infoLabel}>
+          <Typography
+            variant="subtitle"
+            weight="semibold"
+            style={styles.infoLabel}
+          >
             루틴 날짜
           </Typography>
           <Typography>

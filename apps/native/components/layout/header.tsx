@@ -1,9 +1,9 @@
 import NotificationBell from '@/components/notification/notification-bell';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
-import { StyleSheet } from '@/components/ui/tamagui';
 
 const Header = () => {
   const user = useAuthUser();
@@ -12,7 +12,9 @@ const Header = () => {
   return (
     <ThemeView style={styles.container}>
       <ThemeView>
-        <Typography variant="title">{user?.nickname}</Typography>
+        <Typography variant="title" weight="semibold">
+          {user?.nickname}
+        </Typography>
       </ThemeView>
 
       <NotificationBell

@@ -4,11 +4,11 @@ import { View } from 'react-native';
 
 import NotificationBell from '@/components/notification/notification-bell';
 import Link from '@/components/ui/link';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
-import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 interface RoutineHeaderProps {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   dateTitle: {
-    color: theme.colors.text.gray,
+    color: theme.colors.text.title,
   },
 
   dateArrow: {

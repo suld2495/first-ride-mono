@@ -7,11 +7,19 @@ export const blueTheme: ThemeContract = {
   name: 'blue',
   colors: {
     ...baseTheme.colors,
+    background: {
+      ...baseTheme.colors.background,
+      base: palette.skinBlue[10],
+      input: palette.white,
+    },
     text: {
       ...baseTheme.colors.text,
       secondary: palette.skinSoftBlue[40],
       tertiary: palette.skinSoftBlue[80],
       gray: palette.skinGray[90],
+      title: palette.skinGray[90],
+      label: palette.skinGray[70],
+      input: palette.skinGray[70],
     },
     brand: {
       ...baseTheme.colors.brand,

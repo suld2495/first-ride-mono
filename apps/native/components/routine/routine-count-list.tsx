@@ -104,7 +104,11 @@ const RoutineCountList = ({
                   accessibilityLabel={`${routineName} 상세 보기`}
                   hitSlop={baseFoundation.dimension.x8}
                 >
-                  <Typography variant="body3Semibold" style={styles.title}>
+                  <Typography
+                    variant="body3"
+                    weight="semibold"
+                    style={styles.title}
+                  >
                     {routineName}
                   </Typography>
                 </Pressable>
@@ -127,7 +131,8 @@ const RoutineCountList = ({
                 {countLabels.map((label) => (
                   <View key={`${routineId}-${label}`} style={styles.column}>
                     <Typography
-                      variant="caption2Semibold"
+                      variant="caption2"
+                      weight="semibold"
                       style={styles.dayLabel}
                     >
                       {label}

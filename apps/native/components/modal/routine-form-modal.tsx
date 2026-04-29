@@ -7,8 +7,6 @@ import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
 import {
@@ -18,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
@@ -27,6 +26,7 @@ import { useCreateForm } from '@/hooks/useForm';
 import type { ModalType } from '@/hooks/useModal';
 import { useRoutineFormSubmission } from '@/hooks/useRoutineFormSubmission';
 import { useRoutineForm, useRoutineId } from '@/hooks/useRoutineSelection';
+import { baseFoundation } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RoutineForm>();
@@ -105,17 +105,149 @@ const RoutineFormModal = () => {
           label="루틴 이름"
           item={({ value, onChange }) => (
             <Input
+              variant="filled"
+              size="md"
               value={value !== undefined ? String(value) : value}
               placeholder="루틴 이름을 입력하세요."
               onChangeText={onChange}
             />
           )}
+          required
+        />
+        <FormItem
+          name="startDate"
+          label="루틴 기간"
+          item={({ value, form, setValue }) => (
+            <ThemeView style={styles.date}>
+              <ThemeView style={styles.dateContainer} transparent>
+                {form.startDate && <Typography>{form.startDate}</Typography>}
+                <Button
+                  title="시작일 선택"
+                  variant="secondary"
+                  onPress={() => setIsShowStartDate(!isShowStartDate)}
+                  leftIcon={({ color }) => (
+                    <Ionicons
+                      name="calendar-clear-outline"
+                      size={baseFoundation.iconSize.s}
+                      color={color}
+                      style={{ marginRight: baseFoundation.dimension.x3 }}
+                    />
+                  )}
+                />
+                {isShowStartDate && (
+                  <DateTimePicker
+                    themeVariant={nativePickerTheme}
+                    value={value ? new Date(value) : new Date()}
+                    mode="date"
+                    minimumDate={getThisWeekMonday()}
+                    onChange={(_, startDate = new Date()) => {
+                      setValue('startDate', getFormatDate(startDate));
+
+                      const endDate = new Date(form.endDate || startDate);
+
+                      if (form.endDate && endDate < startDate) {
+                        setValue('endDate', getFormatDate(startDate));
+                      }
+                      setIsShowStartDate(false);
+                    }}
+                  />
+                )}
+              </ThemeView>
+              <ThemeView style={styles.dateContainer} transparent>
+                {form.endDate && (
+                  <>
+                    <Typography>{form.endDate}</Typography>
+                    <Button
+                      title="초기화"
+                      variant="secondary"
+                      size="sm"
+                      onPress={() => setValue('endDate', '')}
+                      leftIcon={({ color }) => (
+                        <Ionicons
+                          name="close-circle-outline"
+                          size={baseFoundation.iconSize.s}
+                          color={color}
+                          style={{ marginRight: baseFoundation.dimension.x3 }}
+                        />
+                      )}
+                    />
+                  </>
+                )}
+                <Button
+                  title="종료일 선택"
+                  variant="secondary"
+                  onPress={() => setIsShowEndDate(!isShowEndDate)}
+                  leftIcon={({ color }) => (
+                    <Ionicons
+                      name="calendar-clear-outline"
+                      size={baseFoundation.iconSize.s}
+                      color={color}
+                      style={{ marginRight: baseFoundation.dimension.x3 }}
+                    />
+                  )}
+                />
+                {isShowEndDate && (
+                  <DateTimePicker
+                    themeVariant={nativePickerTheme}
+                    value={form.endDate ? new Date(form.endDate) : new Date()}
+                    mode="date"
+                    minimumDate={getThisWeekMonday()}
+                    onChange={(_, endDate = new Date()) => {
+                      setValue('endDate', getFormatDate(endDate));
+
+                      const startDate = new Date(form.startDate);
+
+                      if (form.startDate && startDate > endDate) {
+                        setValue('startDate', getFormatDate(endDate));
+                      }
+                      setIsShowEndDate(false);
+                    }}
+                  />
+                )}
+              </ThemeView>
+            </ThemeView>
+          )}
+          required
+        />
+        <FormItem
+          name="routineCount"
+          label="루틴 횟수"
+          item={({ value, onChange }) => {
+            const handleChange = (text: string) => {
+              if (text === '') {
+                onChange(text);
+                return;
+              }
+              const num = Number(text);
+
+              if (Number.isInteger(num) && num >= 1 && num <= 7) {
+                onChange(text);
+              }
+            };
+
+            return (
+              <Input
+                variant="filled"
+                value={value !== undefined ? String(value) : value}
+                placeholder="루틴 횟수를 입력해주세요."
+                onChangeText={handleChange}
+                onFocus={() => {
+                  if (['0', '1'].includes(String(value))) {
+                    onChange('');
+                  }
+                }}
+                keyboardType="number-pad"
+              />
+            );
+          }}
+          required
         />
         <FormItem
           name="routineDetail"
           label="루틴 설명"
           item={({ value, onChange }) => (
             <Input
+              variant="filled"
               value={value !== undefined ? String(value) : value}
               placeholder="루틴 설명을 입력해주세요."
               onChangeText={onChange}
@@ -136,6 +268,7 @@ const RoutineFormModal = () => {
                 />
               </ThemeView>
               <AutocompleteInput
+                variant="filled"
                 value={value !== undefined ? String(value) : value}
                 placeholder="메이트를 지정해주세요."
                 onChangeText={(text) => {
@@ -176,6 +309,7 @@ const RoutineFormModal = () => {
 
             return (
               <Input
+                variant="filled"
                 value={value !== undefined ? formatNumber(value) : value}
                 placeholder="벌금을 입력해주세요."
                 onChangeText={handleChange}
@@ -183,136 +317,6 @@ const RoutineFormModal = () => {
               />
             );
           }}
-        />
-        <FormItem
-          name="routineCount"
-          label="루틴 횟수"
-          item={({ value, onChange }) => {
-            const handleChange = (text: string) => {
-              if (text === '') {
-                onChange(text);
-                return;
-              }
-              const num = Number(text);
-
-              if (Number.isInteger(num) && num >= 1 && num <= 7) {
-                onChange(text);
-              }
-            };
-
-            return (
-              <Input
-                value={value !== undefined ? String(value) : value}
-                placeholder="루틴 횟수를 입력해주세요."
-                onChangeText={handleChange}
-                onFocus={() => {
-                  if (['0', '1'].includes(String(value))) {
-                    onChange('');
-                  }
-                }}
-                keyboardType="number-pad"
-              />
-            );
-          }}
-        />
-        <FormItem
-          name="startDate"
-          label="루틴 시작 날짜"
-          helpText="루틴은 월요일부터 시작됩니다"
-          item={({ value, form, setValue }) => (
-            <ThemeView style={styles.dateContainer} transparent>
-              {form.startDate && <Typography>{form.startDate}</Typography>}
-              <Button
-                title="날짜 선택"
-                variant="secondary"
-                onPress={() => setIsShowStartDate(!isShowStartDate)}
-                leftIcon={({ color }) => (
-                  <Ionicons
-                    name="calendar-clear-outline"
-                    size={baseFoundation.iconSize.s}
-                    color={color}
-                    style={{ marginRight: baseFoundation.dimension.x3 }}
-                  />
-                )}
-              />
-              {isShowStartDate && (
-                <DateTimePicker
-                  themeVariant={nativePickerTheme}
-                  value={value ? new Date(value) : new Date()}
-                  mode="date"
-                  minimumDate={getThisWeekMonday()}
-                  onChange={(_, startDate = new Date()) => {
-                    setValue('startDate', getFormatDate(startDate));
-
-                    const endDate = new Date(form.endDate || startDate);
-
-                    if (form.endDate && endDate < startDate) {
-                      setValue('endDate', getFormatDate(startDate));
-                    }
-                    setIsShowStartDate(false);
-                  }}
-                />
-              )}
-            </ThemeView>
-          )}
-        />
-        <FormItem
-          name="endDate"
-          label="루틴 종료 날짜"
-          item={({ form, setValue }) => (
-            <ThemeView style={styles.dateContainer} transparent>
-              {form.endDate && (
-                <>
-                  <Typography>{form.endDate}</Typography>
-                  <Button
-                    title="초기화"
-                    variant="secondary"
-                    size="sm"
-                    onPress={() => setValue('endDate', '')}
-                    leftIcon={({ color }) => (
-                      <Ionicons
-                        name="close-circle-outline"
-                        size={baseFoundation.iconSize.s}
-                        color={color}
-                        style={{ marginRight: baseFoundation.dimension.x3 }}
-                      />
-                    )}
-                  />
-                </>
-              )}
-              <Button
-                title="날짜 선택"
-                variant="secondary"
-                onPress={() => setIsShowEndDate(!isShowEndDate)}
-                leftIcon={({ color }) => (
-                  <Ionicons
-                    name="calendar-clear-outline"
-                    size={baseFoundation.iconSize.s}
-                    color={color}
-                    style={{ marginRight: baseFoundation.dimension.x3 }}
-                  />
-                )}
-              />
-              {isShowEndDate && (
-                <DateTimePicker
-                  themeVariant={nativePickerTheme}
-                  value={form.endDate ? new Date(form.endDate) : new Date()}
-                  mode="date"
-                  minimumDate={getThisWeekMonday()}
-                  onChange={(_, endDate = new Date()) => {
-                    setValue('endDate', getFormatDate(endDate));
-
-                    const startDate = new Date(form.startDate);
-
-                    if (form.startDate && startDate > endDate) {
-                      setValue('startDate', getFormatDate(endDate));
-                    }
-                    setIsShowEndDate(false);
-                  }}
-                />
-              )}
-            </ThemeView>
-          )}
         />
 
         <FormButtonGroup type={type} useForm={useForm} />
@@ -326,9 +330,13 @@ export default RoutineFormModal;
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    marginTop: theme.foundation.spacing.xl,
+    marginTop: theme.foundation.spacing.m,
     gap: theme.foundation.spacing.l,
-    paddingHorizontal: theme.foundation.spacing.s,
+  },
+
+  date: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   dateContainer: {

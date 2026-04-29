@@ -22,6 +22,7 @@ export type ThemeContract = {
       elevated: string;
       sunken: string;
       overlay: string;
+      input: string;
     };
     text: {
       primary: string;
@@ -31,6 +32,9 @@ export type ThemeContract = {
       inverse: string;
       link: string;
       gray: string;
+      title: string;
+      label: string;
+      input: string;
     };
     action: {
       primary: {
@@ -114,6 +118,7 @@ export const baseTheme: ThemeContract = {
       elevated: palette.stitch.dark.surface,
       sunken: '#0f172a',
       overlay: 'rgba(0, 0, 0, 0.7)',
+      input: palette.white,
     },
     text: {
       primary: palette.stitch.dark.text,
@@ -123,6 +128,9 @@ export const baseTheme: ThemeContract = {
       inverse: '#0f172a',
       link: palette.stitch.primary,
       gray: palette.gray[100],
+      title: palette.gray[100],
+      label: palette.gray[100],
+      input: palette.gray[100],
     },
     action: {
       primary: {

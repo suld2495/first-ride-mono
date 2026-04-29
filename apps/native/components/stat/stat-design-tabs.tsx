@@ -1,9 +1,9 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
 export type StatDesignType = 'classic' | 'grid' | 'radar';
 
@@ -36,6 +36,7 @@ export const StatDesignTabs: React.FC<StatDesignTabsProps> = ({
           >
             <Typography
               variant="label"
+              weight="semibold"
               color={
                 isActive
                   ? theme.colors.text.primary

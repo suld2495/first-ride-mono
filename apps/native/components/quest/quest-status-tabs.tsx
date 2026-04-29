@@ -1,9 +1,9 @@
 import type { QuestStatusFilter } from '@repo/types';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 import { Button } from '@/components/ui/button';
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
 
 interface QuestStatusTabsProps {
   selected: QuestStatusFilter;
@@ -38,6 +38,7 @@ const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
           >
             <Typography
               variant="label"
+              weight="semibold"
               color={
                 isSelected ? theme.colors.action.secondary.label : undefined
               }

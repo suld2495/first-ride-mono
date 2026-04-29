@@ -4,18 +4,18 @@ import { useEffect, useState } from 'react';
 import { Image, ScrollView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Svg from 'react-native-svg';
-import { baseFoundation } from '@/theme/tokens';
 
 import ConfirmRequestButtonGroup from '@/components/request/confirm-request-button-group';
 import { Divider } from '@/components/ui/divider';
 import { Input } from '@/components/ui/input';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useCreateForm } from '@/hooks/useForm';
 import { useRequestReply } from '@/hooks/useRequestReply';
 import { useRequestId } from '@/hooks/useRequestSelection';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { baseFoundation } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<{ comment: string }>();
@@ -53,7 +53,11 @@ const RequestDetailModal = () => {
       <ThemeView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scroll}>
           <ThemeView style={styles.routinesNameContainer} transparent>
-            <Typography variant="subtitle" style={styles.infoLabel}>
+            <Typography
+              variant="subtitle"
+              weight="semibold"
+              style={styles.infoLabel}
+            >
               루틴 이름
             </Typography>
             <Typography>{detail?.routineName}</Typography>

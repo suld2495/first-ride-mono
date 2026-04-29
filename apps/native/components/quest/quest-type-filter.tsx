@@ -1,12 +1,12 @@
 import type { QuestTypeFilter as QuestTypeFilterType } from '@repo/types';
 import { useCallback } from 'react';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
 interface QuestTypeFilterProps {
   selected: QuestTypeFilterType;
@@ -46,6 +46,7 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
         >
           <Typography
             variant="label"
+            weight="semibold"
             color={
               isSelected
                 ? theme.colors.action.secondary.label

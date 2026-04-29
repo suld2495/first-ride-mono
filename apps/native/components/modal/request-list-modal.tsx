@@ -1,17 +1,17 @@
 import { getFormatDate } from '@repo/shared/utils';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { FlashList } from '@/components/ui/flash-list';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 import { useSetRequestId } from '@/hooks/useRequestSelection';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { baseFoundation } from '@/theme/tokens';
 
 interface RequestListItem {
   id: number;
@@ -54,7 +54,7 @@ const RequestListModal = () => {
         style={{ padding: baseFoundation.spacing.none }}
       >
         <ThemeView key={item.id} style={styles.itemContainer} transparent>
-          <Typography variant="label" style={styles.itemText}>
+          <Typography variant="label" weight="semibold" style={styles.itemText}>
             {item.routineName}
           </Typography>
           <ThemeView style={styles.itemInfo} transparent>

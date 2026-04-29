@@ -1,10 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { VerificationType } from '@repo/types';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
 interface QuestInfoProps {
   verificationType: VerificationType;
@@ -88,11 +88,19 @@ const QuestInfo = ({
               size={baseFoundation.dimension.x18}
               color={verificationColor}
             />
-            <Typography variant="label" style={styles.verificationTitle}>
+            <Typography
+              variant="label"
+              weight="semibold"
+              style={styles.verificationTitle}
+            >
               {verificationInfo.title}
             </Typography>
           </ThemeView>
-          <Typography variant="label" style={{ color: verificationColor }}>
+          <Typography
+            variant="label"
+            weight="semibold"
+            style={{ color: verificationColor }}
+          >
             {verificationProgressLabel}
           </Typography>
         </ThemeView>

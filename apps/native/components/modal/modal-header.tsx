@@ -1,11 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Pressable } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
 interface ModalHeaderProps {
   title: string;
@@ -37,12 +37,12 @@ const ModalHeader = ({ title }: ModalHeaderProps) => {
         <Ionicons
           name="chevron-back-outline"
           size={baseFoundation.dimension.x22}
-          color={theme.colors.text.primary}
+          color={theme.colors.text.title}
         />
       </Pressable>
 
       {/* Centered Title */}
-      <Typography variant="subtitle" style={styles.title}>
+      <Typography variant="body1" weight="semibold" style={styles.title}>
         {title}
       </Typography>
 
@@ -59,16 +59,13 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: theme.foundation.spacing.m,
-    paddingHorizontal: theme.foundation.spacing.m,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.default,
-    backgroundColor: theme.colors.background.surface,
+    paddingVertical: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing.l,
   },
 
   backButton: {
-    width: baseFoundation.dimension.x40,
-    height: baseFoundation.dimension.x40,
+    width: baseFoundation.dimension.x22,
+    height: baseFoundation.dimension.x22,
     borderRadius: baseFoundation.dimension.x20,
     alignItems: 'center',
     justifyContent: 'center',
@@ -79,6 +76,7 @@ const styles = StyleSheet.create((theme) => ({
     textAlign: 'center',
     fontWeight: '700',
     letterSpacing: -0.3,
+    color: theme.colors.text.title,
   },
 
   spacer: {
