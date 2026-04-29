@@ -187,6 +187,20 @@ describe('QuestFormModal', () => {
       expect(getByLabelText(tuesdayLabel)).toBeDisabled();
     });
 
+    it('시작 날짜 선택 시 바텀 시트로 캘린더가 열린다', async () => {
+      const { getAllByText, getByLabelText } = renderModal();
+
+      await waitFor(() => {
+        expect(mockAxios.history.get.length).toBeGreaterThan(0);
+      });
+
+      await act(async () => {
+        fireEvent.press(getAllByText('선택')[0]);
+      });
+
+      expect(getByLabelText('날짜 선택 바텀 시트')).toBeOnTheScreen();
+    });
+
     it('생성 요청 시 questType을 WEEKLY로 전송한다', async () => {
       const { getByPlaceholderText, getByText, getByLabelText, getAllByText } =
         renderModal();

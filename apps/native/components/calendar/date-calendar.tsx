@@ -1,5 +1,4 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { isMonday } from '@repo/shared/utils';
 import React from 'react';
 import {
   Pressable,
@@ -19,12 +18,14 @@ import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { baseFoundation } from '@/theme/tokens';
 
-interface QuestStartDateCalendarProps {
+interface DateCalendarProps {
   minimumDate: Date;
   selectedDate: Date | null;
   onSelectDate: (date: Date) => void;
   onConfirm: () => void;
   onCancel: () => void;
+  isInBottomSheet?: boolean;
+  isDateSelectable?: (date: Date) => boolean;
 }
 
 const WEEKDAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
@@ -110,13 +111,15 @@ const getPickerItemLayout = (_: number[] | null, index: number) => ({
   index,
 });
 
-const QuestStartDateCalendar = ({
+const DateCalendar = ({
   minimumDate,
   selectedDate,
   onSelectDate,
   onConfirm,
   onCancel,
-}: QuestStartDateCalendarProps) => {
+  isInBottomSheet = false,
+  isDateSelectable,
+}: DateCalendarProps) => {
   const yearListRef = React.useRef<FlashListRef<number>>(null);
   const monthListRef = React.useRef<FlashListRef<number>>(null);
   const [currentMonth, setCurrentMonth] = React.useState(() =>
@@ -251,7 +254,10 @@ const QuestStartDateCalendar = ({
   );
 
   return (
-    <ThemeView style={styles.container} transparent>
+    <ThemeView
+      style={[styles.container, isInBottomSheet && styles.bottomSheetContainer]}
+      transparent
+    >
       <ThemeView transparent style={styles.header}>
         <Button
           variant="ghost"
@@ -383,7 +389,7 @@ const QuestStartDateCalendar = ({
           <ThemeView transparent style={styles.weekHeader}>
             {WEEKDAY_LABELS.map((label) => (
               <View key={label} style={styles.weekHeaderCell}>
-                <Typography variant="caption" color="secondary">
+                <Typography variant="caption" color="primary">
                   {label}
                 </Typography>
               </View>
@@ -396,8 +402,8 @@ const QuestStartDateCalendar = ({
                 date.getMonth() === currentMonth.getMonth();
               const dateKey = formatDateKey(date);
               const isSelectable =
-                isMonday(date) &&
-                getStartOfDay(date).getTime() >= minDate.getTime();
+                getStartOfDay(date).getTime() >= minDate.getTime() &&
+                (isDateSelectable ? isDateSelectable(date) : true);
               const isSelected = selectedKey === dateKey;
 
               return (
@@ -425,13 +431,7 @@ const QuestStartDateCalendar = ({
                     <Typography
                       variant="label"
                       weight="semibold"
-                      color={
-                        isSelected
-                          ? 'inverse'
-                          : isSelectable
-                            ? 'primary'
-                            : 'tertiary'
-                      }
+                      color={'primary'}
                     >
                       {date.getDate()}
                     </Typography>
@@ -459,7 +459,7 @@ const QuestStartDateCalendar = ({
   );
 };
 
-export default QuestStartDateCalendar;
+export default DateCalendar;
 
 const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   container: {
@@ -477,6 +477,15 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     shadowOpacity: 0.1,
     shadowRadius: 18,
     elevation: 6,
+  },
+  bottomSheetContainer: {
+    backgroundColor: 'transparent',
+    borderRadius: 0,
+    padding: 0,
+    borderWidth: 0,
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   header: {
     flexDirection: 'row',
@@ -503,10 +512,11 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   },
   weekHeader: {
     flexDirection: 'row',
-    paddingVertical: theme.foundation.spacing.xs,
+    paddingTop: theme.foundation.spacing.xs,
+    paddingBottom: theme.foundation.spacing.s,
     paddingHorizontal: theme.foundation.spacing.xs,
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border.default,
+    borderBottomColor: theme.colors.action.primary.default,
   },
   weekHeaderCell: {
     flex: 1,

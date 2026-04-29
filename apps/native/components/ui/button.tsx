@@ -5,8 +5,10 @@ import type {
   GestureResponderEvent,
   PressableProps,
   StyleProp,
+  TextStyle,
   ViewStyle,
 } from 'react-native';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -86,6 +88,11 @@ export interface ButtonProps extends Omit<PressableProps, 'style'> {
     | ((state: { pressed: boolean }) => StyleProp<ViewStyle>);
 
   /**
+   * 커스텀 스타일 (정적 또는 동적 함수 지원)
+   */
+  textStyle?: StyleProp<TextStyle>;
+
+  /**
    * 버튼 내용 (children 우선, 없으면 title 사용)
    */
   children?: React.ReactNode;
@@ -108,6 +115,7 @@ export const Button: React.FC<ButtonProps> = ({
   fullWidth,
   disabled,
   style,
+  textStyle,
   children,
   title,
   ...props
@@ -183,7 +191,15 @@ export const Button: React.FC<ButtonProps> = ({
       <View style={internalStyles.contentWrapper}>
         {renderIcon(leftIcon)}
         {typeof content === 'string' ? (
-          <Text style={[styles.text, textSizeStyle, textVariantStyle]}>
+          <Text
+            style={[
+              styles.text,
+              textSizeStyle,
+              textVariantStyle,
+              textStyle,
+              { color: iconColor },
+            ]}
+          >
             {content}
           </Text>
         ) : (
@@ -226,7 +242,10 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     flexDirection: 'row',
     shadowColor: theme.colors.border.strong,
-    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x2 },
+    shadowOffset: {
+      width: baseFoundation.dimension.x0,
+      height: baseFoundation.dimension.x2,
+    },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
@@ -249,7 +268,10 @@ const styles = StyleSheet.create((theme) => ({
   variantPrimary: {
     backgroundColor: theme.colors.action.primary.default,
     shadowColor: theme.colors.action.primary.default,
-    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x4 },
+    shadowOffset: {
+      width: baseFoundation.dimension.x0,
+      height: baseFoundation.dimension.x4,
+    },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,

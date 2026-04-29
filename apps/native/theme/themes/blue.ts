@@ -7,6 +7,26 @@ export const blueTheme: ThemeContract = {
   name: 'blue',
   colors: {
     ...baseTheme.colors,
+    border: {
+      ...baseTheme.colors.border,
+      input: palette.skinGray[50],
+    },
+    action: {
+      ...baseTheme.colors.action,
+      primary: {
+        ...baseTheme.colors.action.primary,
+        default: palette.skinBlue[50],
+      },
+    },
+    feedback: {
+      ...baseTheme.colors.feedback,
+      info: {
+        ...baseTheme.colors.feedback.info,
+        text: palette.skinSoftBlue[50],
+        border: palette.skinSoftBlue[50],
+        bg: palette.skinBlue[80],
+      },
+    },
     background: {
       ...baseTheme.colors.background,
       base: palette.skinBlue[10],
@@ -14,6 +34,7 @@ export const blueTheme: ThemeContract = {
     },
     text: {
       ...baseTheme.colors.text,
+      primary: palette.white,
       secondary: palette.skinSoftBlue[40],
       tertiary: palette.skinSoftBlue[80],
       gray: palette.skinGray[90],

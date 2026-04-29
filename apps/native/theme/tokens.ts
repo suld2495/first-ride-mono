@@ -23,6 +23,7 @@ export const palette = {
   skinSoftBlue: {
     20: '#A7CBEA',
     40: '#83B0D6',
+    50: '#72A4CF',
     80: '#4C769C',
   },
 
@@ -37,6 +38,7 @@ export const palette = {
   },
 
   skinGray: {
+    50: '#363A3F',
     70: '#272A2D',
     90: '#18191B',
     95: '#000306',

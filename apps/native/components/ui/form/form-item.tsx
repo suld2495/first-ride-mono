@@ -1,4 +1,6 @@
-import { View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useState } from 'react';
+import { Pressable, View } from 'react-native';
 
 import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
@@ -22,6 +24,7 @@ export type FormItemProps<
   flex?: boolean;
   showErrors?: boolean;
   helpText?: string;
+  tooltipText?: string;
 };
 
 export type UseFormFieldReturn<V = unknown> = {
@@ -47,11 +50,13 @@ export function createFormItem<T extends Record<string, unknown>>(
     item,
     showErrors = true,
     helpText,
+    tooltipText,
     flex = false,
     required = false,
   }: FormItemProps<T, K>) {
     const field = useFormField(name);
     const formContext = useForm();
+    const [isTooltipVisible, setIsTooltipVisible] = useState(false);
     const hasError = field.touched && !field.isValid;
 
     const handleChange = (text: string) => {
@@ -60,11 +65,49 @@ export function createFormItem<T extends Record<string, unknown>>(
 
     return (
       <View style={[styles.container, { flex: flex ? 1 : 0 }]}>
+        {label && tooltipText && isTooltipVisible && (
+          <Pressable
+            accessibilityLabel={`${label} 안내 닫기`}
+            accessibilityRole="button"
+            style={styles.tooltipBackdrop}
+            onPress={() => setIsTooltipVisible(false)}
+          />
+        )}
         {label && (
-          <Typography variant="body2" style={styles.label}>
-            {label}
-            {required && <Typography style={styles.required}> *</Typography>}
-          </Typography>
+          <View style={styles.labelRow}>
+            <Typography variant="body2" style={styles.label}>
+              {label}
+            </Typography>
+            {required && <Typography style={styles.required}>*</Typography>}
+            {tooltipText && (
+              <View style={styles.tooltipContainer}>
+                <Pressable
+                  accessibilityLabel={`${label} 안내 보기`}
+                  accessibilityRole="button"
+                  hitSlop={baseFoundation.dimension.x8}
+                  style={styles.tooltipButton}
+                  onPress={() => setIsTooltipVisible((visible) => !visible)}
+                >
+                  <Ionicons
+                    name="information-circle-outline"
+                    size={baseFoundation.iconSize.m}
+                    color={styles.tooltipIcon.color}
+                  />
+                </Pressable>
+                {isTooltipVisible && (
+                  <View style={styles.tooltipBubble}>
+                    <Typography
+                      variant="caption2"
+                      weight="regular"
+                      style={styles.tooltipText}
+                    >
+                      {tooltipText}
+                    </Typography>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
         )}
 
         {item({
@@ -109,8 +152,63 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.brand.icon,
   },
 
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.dimension.x4,
+    alignSelf: 'flex-start',
+    zIndex: baseFoundation.zIndex.tooltip,
+  },
+
+  tooltipBackdrop: {
+    position: 'absolute',
+    top: -1000,
+    right: -1000,
+    bottom: -1000,
+    left: -1000,
+    zIndex: baseFoundation.zIndex.tooltip - 1,
+  },
+
   label: {
     color: theme.colors.text.label,
-    width: '100%',
+  },
+
+  tooltipContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+
+  tooltipButton: {
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  tooltipIcon: {
+    color: theme.colors.feedback.info.text,
+  },
+
+  tooltipBubble: {
+    position: 'absolute',
+    top: baseFoundation.dimension.x24 + baseFoundation.dimension.x2,
+    left: -baseFoundation.dimension.x8,
+    width: 220,
+    paddingHorizontal: baseFoundation.dimension.x10,
+    paddingVertical: baseFoundation.dimension.x8,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: theme.colors.feedback.info.border,
+    borderRadius: theme.foundation.radii.xs,
+    backgroundColor: theme.colors.feedback.info.bg,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.16,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: baseFoundation.zIndex.tooltip,
+  },
+
+  tooltipText: {
+    color: theme.colors.feedback.info.text,
   },
 }));

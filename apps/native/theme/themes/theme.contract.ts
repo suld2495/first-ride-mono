@@ -68,6 +68,7 @@ export type ThemeContract = {
       subtle: string;
       focus: string;
       divider: string;
+      input: string;
     };
     brand: {
       grey: string;
@@ -180,6 +181,7 @@ export const baseTheme: ThemeContract = {
       subtle: '#1e293b',
       focus: palette.stitch.primary,
       divider: '#334155',
+      input: '#475569',
     },
     brand: {
       grey: '#b2bec3',

@@ -143,10 +143,7 @@ module.exports = createNativeConfig({
       },
     },
     {
-      files: [
-        'components/modal/quest-form-modal.tsx',
-        'components/quest/quest-start-date-calendar.tsx',
-      ],
+      files: ['components/modal/quest-form-modal.tsx'],
       rules: {
         '@typescript-eslint/no-unsafe-assignment': 'off',
       },

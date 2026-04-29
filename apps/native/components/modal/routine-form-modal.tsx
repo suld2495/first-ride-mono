@@ -1,8 +1,6 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
 import { routineFormValidators } from '@repo/shared/service/validatorMessage';
-import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
+import { getFormatDate, getThisWeekMonday, isMonday } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -13,23 +11,31 @@ import {
   AutocompleteInput,
   type AutocompleteItem,
 } from '@/components/ui/autocomplete-input';
-import { Button } from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
+import DatePicker from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
 import type { ModalType } from '@/hooks/useModal';
 import { useRoutineFormSubmission } from '@/hooks/useRoutineFormSubmission';
 import { useRoutineForm, useRoutineId } from '@/hooks/useRoutineSelection';
-import { baseFoundation } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RoutineForm>();
+
+const getDateFromFormValue = (date?: string) => {
+  if (!date) {
+    return null;
+  }
+
+  const [year, month, day] = date.split('-').map(Number);
+
+  return new Date(year, month - 1, day);
+};
 
 const RoutineFormModal = () => {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
@@ -37,8 +43,6 @@ const RoutineFormModal = () => {
   const routineId = useRoutineId();
   const routineForm = useRoutineForm();
 
-  const [isShowStartDate, setIsShowStartDate] = useState(false);
-  const [isShowEndDate, setIsShowEndDate] = useState(false);
   const [mateKeyword, setMateKeyword] = useState('');
 
   const user = useAuthUser();
@@ -46,9 +50,6 @@ const RoutineFormModal = () => {
     nickname: user!.nickname,
     routineId,
   });
-
-  const colorScheme = useColorScheme(); // For DateTimePicker themeVariant
-  const nativePickerTheme = colorScheme === 'light' ? 'light' : 'dark';
 
   // Debounce keyword for friend search
   const debouncedKeyword = useDebounce(mateKeyword, 300);
@@ -117,93 +118,54 @@ const RoutineFormModal = () => {
         <FormItem
           name="startDate"
           label="루틴 기간"
+          tooltipText="시작일부터 종료일까지 루틴을 진행할 기간을 선택해주세요."
           item={({ value, form, setValue }) => (
             <ThemeView style={styles.date}>
               <ThemeView style={styles.dateContainer} transparent>
-                {form.startDate && <Typography>{form.startDate}</Typography>}
-                <Button
-                  title="시작일 선택"
-                  variant="secondary"
-                  onPress={() => setIsShowStartDate(!isShowStartDate)}
-                  leftIcon={({ color }) => (
-                    <Ionicons
-                      name="calendar-clear-outline"
-                      size={baseFoundation.iconSize.s}
-                      color={color}
-                      style={{ marginRight: baseFoundation.dimension.x3 }}
-                    />
-                  )}
+                <DatePicker
+                  value={getDateFromFormValue(value)}
+                  buttonTitle={form.startDate || '시작일 선택'}
+                  variant="outlined"
+                  sheetLabel="시작일 선택"
+                  minimumDate={getThisWeekMonday()}
+                  defaultDate={getThisWeekMonday()}
+                  isDateSelectable={isMonday}
+                  onConfirmDate={(date) => {
+                    setValue('startDate', getFormatDate(date));
+
+                    const endDate = getDateFromFormValue(form.endDate) ?? date;
+
+                    if (form.endDate && endDate < date) {
+                      setValue('endDate', getFormatDate(date));
+                    }
+                  }}
+                  buttonStyle={styles.button}
                 />
-                {isShowStartDate && (
-                  <DateTimePicker
-                    themeVariant={nativePickerTheme}
-                    value={value ? new Date(value) : new Date()}
-                    mode="date"
-                    minimumDate={getThisWeekMonday()}
-                    onChange={(_, startDate = new Date()) => {
-                      setValue('startDate', getFormatDate(startDate));
-
-                      const endDate = new Date(form.endDate || startDate);
-
-                      if (form.endDate && endDate < startDate) {
-                        setValue('endDate', getFormatDate(startDate));
-                      }
-                      setIsShowStartDate(false);
-                    }}
-                  />
-                )}
               </ThemeView>
               <ThemeView style={styles.dateContainer} transparent>
-                {form.endDate && (
-                  <>
-                    <Typography>{form.endDate}</Typography>
-                    <Button
-                      title="초기화"
-                      variant="secondary"
-                      size="sm"
-                      onPress={() => setValue('endDate', '')}
-                      leftIcon={({ color }) => (
-                        <Ionicons
-                          name="close-circle-outline"
-                          size={baseFoundation.iconSize.s}
-                          color={color}
-                          style={{ marginRight: baseFoundation.dimension.x3 }}
-                        />
-                      )}
-                    />
-                  </>
-                )}
-                <Button
-                  title="종료일 선택"
-                  variant="secondary"
-                  onPress={() => setIsShowEndDate(!isShowEndDate)}
-                  leftIcon={({ color }) => (
-                    <Ionicons
-                      name="calendar-clear-outline"
-                      size={baseFoundation.iconSize.s}
-                      color={color}
-                      style={{ marginRight: baseFoundation.dimension.x3 }}
-                    />
-                  )}
+                <DatePicker
+                  value={getDateFromFormValue(form.endDate)}
+                  buttonTitle={form.endDate || '종료일 선택'}
+                  variant="outlined"
+                  sheetLabel="종료일 선택"
+                  minimumDate={
+                    getDateFromFormValue(form.startDate) ?? getThisWeekMonday()
+                  }
+                  defaultDate={
+                    getDateFromFormValue(form.startDate) ?? getThisWeekMonday()
+                  }
+                  isDateSelectable={isMonday}
+                  onConfirmDate={(date) => {
+                    setValue('endDate', getFormatDate(date));
+
+                    const startDate = getDateFromFormValue(form.startDate);
+
+                    if (startDate && startDate > date) {
+                      setValue('startDate', getFormatDate(date));
+                    }
+                  }}
+                  buttonStyle={styles.button}
                 />
-                {isShowEndDate && (
-                  <DateTimePicker
-                    themeVariant={nativePickerTheme}
-                    value={form.endDate ? new Date(form.endDate) : new Date()}
-                    mode="date"
-                    minimumDate={getThisWeekMonday()}
-                    onChange={(_, endDate = new Date()) => {
-                      setValue('endDate', getFormatDate(endDate));
-
-                      const startDate = new Date(form.startDate);
-
-                      if (form.startDate && startDate > endDate) {
-                        setValue('startDate', getFormatDate(endDate));
-                      }
-                      setIsShowEndDate(false);
-                    }}
-                  />
-                )}
               </ThemeView>
             </ThemeView>
           )}
@@ -337,12 +299,13 @@ const styles = StyleSheet.create((theme) => ({
   date: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: theme.foundation.spacing.sm,
   },
 
   dateContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.spacing.s,
   },
 
   button: {

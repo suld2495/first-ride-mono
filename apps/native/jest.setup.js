@@ -107,6 +107,9 @@ const mockTheme = {
       focus: '#007AFF',
       divider: '#E0E0E0',
     },
+    brand: {
+      icon: '#000000',
+    },
   },
   foundation: {
     spacing: {
