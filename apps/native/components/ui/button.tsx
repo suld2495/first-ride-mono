@@ -252,13 +252,13 @@ const styles = StyleSheet.create((theme) => ({
   },
   sizeSm: {
     height: baseFoundation.dimension.x32,
-    paddingHorizontal: theme.foundation.spacing.s,
-    borderRadius: theme.foundation.radii.m,
+    paddingHorizontal: theme.foundation.spacing.m,
+    borderRadius: theme.foundation.radii.s,
   },
   sizeMd: {
     height: baseFoundation.dimension.x44,
     paddingHorizontal: theme.foundation.spacing.m,
-    borderRadius: theme.foundation.radii.m,
+    borderRadius: theme.foundation.radii.s,
   },
   sizeLg: {
     height: baseFoundation.dimension.x52,

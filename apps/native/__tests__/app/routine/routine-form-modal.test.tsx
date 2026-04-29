@@ -2,7 +2,9 @@ import axiosInstance from '@repo/shared/api';
 import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import { StyleSheet as RNStyleSheet } from 'react-native';
 
+import ModalScreen from '../../../app/modal';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockFriends } from '../../setup/friend/mock';
@@ -60,6 +62,26 @@ let mockAxios: MockAdapter;
 jest.mock('@/hooks/useDebounce', () => ({
   useDebounce: <T,>(value: T) => value,
 }));
+
+jest.mock('@/hooks/useModal', () => ({
+  useModal: (type: string) => {
+    const RoutineFormModal =
+      require('@/components/modal/routine-form-modal').default;
+
+    return [
+      type === 'routine-update' ? '루틴 수정' : '루틴 추가',
+      RoutineFormModal,
+    ];
+  },
+}));
+
+jest.mock('@/components/modal/modal-header', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+
+  return ({ title }: { title: string }) =>
+    React.createElement(Text, null, title);
+});
 
 describe('RoutineFormModal (루틴 추가 모달)', () => {
   beforeEach(() => {
@@ -203,6 +225,22 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   };
 
   describe('필수값 입력 전 추가 버튼 비활성화 테스트', () => {
+    it('추가 버튼은 modal.tsx의 고정 footer에 표시된다', () => {
+      const { getByTestId, getByText, queryByText } = render(<ModalScreen />);
+
+      const buttonContainerStyle = RNStyleSheet.flatten(
+        getByTestId('routine-form-button-container').props.style,
+      );
+
+      expect(getByTestId('modal-footer')).toBeOnTheScreen();
+      expect(queryByText('취소')).not.toBeOnTheScreen();
+      expect(getByText('추가')).toBeOnTheScreen();
+      expect(buttonContainerStyle).toMatchObject({
+        flexDirection: 'row',
+        borderTopWidth: RNStyleSheet.hairlineWidth,
+      });
+    });
+
     it('루틴 기간 안내 아이콘을 누르면 툴팁이 표시된다', async () => {
       const { getByLabelText, getByText, queryByText } = render(
         <RoutineFormModal />,
@@ -498,12 +536,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   });
 
   describe('취소 버튼 테스트', () => {
-    it('취소 버튼이 화면에 표시된다', async () => {
-      const { getByText } = render(<RoutineFormModal />);
+    it('취소 버튼이 화면에 표시되지 않는다', async () => {
+      const { queryByText } = render(<RoutineFormModal />);
 
-      const cancelButton = getByText('취소');
-
-      expect(cancelButton).toBeOnTheScreen();
+      expect(queryByText('취소')).not.toBeOnTheScreen();
     });
   });
 });

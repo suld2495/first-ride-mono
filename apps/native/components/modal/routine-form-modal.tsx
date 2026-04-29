@@ -82,34 +82,35 @@ const RoutineFormModal = () => {
   );
 
   return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
-      enableOnAndroid={true}
-      keyboardShouldPersistTaps="handled"
-      enableResetScrollToCoords={false}
-    >
-      <Form
-        form={routineForm}
-        style={styles.container}
-        validators={{
-          ...routineFormValidators,
-          mateNickname(value, values) {
-            if (values.isMe) {
-              return undefined;
-            }
-
-            if (!value) {
-              return '메이트를 설정해주세요.';
-            }
-
-            if (!friendList.some(({ nickname }) => nickname === value)) {
-              return '존재하지 않는 친구입니다.';
-            }
-
+    <Form
+      form={routineForm}
+      style={styles.container}
+      validators={{
+        ...routineFormValidators,
+        mateNickname(value, values) {
+          if (values.isMe) {
             return undefined;
-          },
-        }}
-        onSubmit={type === 'routine-add' ? handleCreate : handleUpdate}
+          }
+
+          if (!value) {
+            return '메이트를 설정해주세요.';
+          }
+
+          if (!friendList.some(({ nickname }) => nickname === value)) {
+            return '존재하지 않는 친구입니다.';
+          }
+
+          return undefined;
+        },
+      }}
+      onSubmit={type === 'routine-add' ? handleCreate : handleUpdate}
+    >
+      <KeyboardAwareScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        enableOnAndroid={true}
+        keyboardShouldPersistTaps="handled"
+        enableResetScrollToCoords={false}
       >
         <FormItem
           name="routineName"
@@ -274,10 +275,9 @@ const RoutineFormModal = () => {
             );
           }}
         />
-
-        <FormButtonGroup type={type} useForm={useForm} />
-      </Form>
-    </KeyboardAwareScrollView>
+      </KeyboardAwareScrollView>
+      <FormButtonGroup type={type} useForm={useForm} />
+    </Form>
   );
 };
 
@@ -287,7 +287,16 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     marginTop: theme.foundation.spacing.m,
+  },
+
+  scroll: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    flexGrow: 1,
     gap: theme.foundation.spacing.l,
+    paddingBottom: theme.foundation.spacing.xl,
   },
 
   date: {

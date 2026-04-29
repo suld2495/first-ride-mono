@@ -1,10 +1,12 @@
 import type { FormContextType } from '@repo/shared/components';
 import type { RoutineForm } from '@repo/types';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
+import { useMemo } from 'react';
+import { StyleSheet as RNStyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import ModalFooter from '@/components/modal/modal-footer';
 import { Button } from '@/components/ui/button';
-import Link from '@/components/ui/link';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import type { ModalType } from '@/hooks/useModal';
 
@@ -14,43 +16,65 @@ interface FormButtonGroupProps {
 }
 
 const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
+  const { theme } = useAppTheme();
   const { enabled: isValid, handleSubmit } = useForm();
+  const insets = useSafeAreaInsets();
 
-  return (
-    <ThemeView style={styles.buttonContainer}>
-      <Link title="취소" href=".." variant="secondary" style={styles.button} />
-      {type === 'routine-add' ? (
-        <Button
-          title="추가"
-          variant="primary"
-          onPress={() => handleSubmit()}
-          style={styles.button}
-          disabled={!isValid}
-        />
-      ) : (
-        <Button
-          title="수정"
-          variant="primary"
-          onPress={() => handleSubmit()}
-          style={styles.button}
-          disabled={!isValid}
-        />
-      )}
-    </ThemeView>
+  const footer = useMemo(
+    () => (
+      <ThemeView
+        testID="routine-form-button-container"
+        transparent
+        style={[
+          styles.buttonContainer,
+          {
+            paddingBottom: Math.max(
+              insets.bottom,
+              styles.buttonContainer.paddingTop,
+            ),
+          },
+        ]}
+      >
+        {type === 'routine-add' ? (
+          <Button
+            title="등록"
+            backgroundColor={theme.colors.text.gray}
+            variant="primary"
+            onPress={() => handleSubmit()}
+            style={styles.button}
+            disabled={!isValid}
+          />
+        ) : (
+          <Button
+            title="수정"
+            variant="primary"
+            onPress={() => handleSubmit()}
+            style={styles.button}
+            disabled={!isValid}
+          />
+        )}
+      </ThemeView>
+    ),
+    [handleSubmit, insets.bottom, isValid, theme.colors.text.gray, type],
   );
+
+  return <ModalFooter>{footer}</ModalFooter>;
 };
 
 export default FormButtonGroup;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   buttonContainer: {
-    marginTop: baseFoundation.dimension.x10,
+    width: '100%',
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: baseFoundation.dimension.x10,
+    gap: theme.foundation.spacing.sm,
+    paddingHorizontal: theme.foundation.spacing.l,
+    paddingTop: theme.foundation.spacing.m,
+    borderTopWidth: RNStyleSheet.hairlineWidth,
+    borderTopColor: theme.colors.brand.bottomTab,
   },
 
   button: {
     flex: 1,
   },
-});
+}));

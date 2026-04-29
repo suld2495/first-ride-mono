@@ -3,8 +3,6 @@ import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { Alert, View } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { deletePushToken } from '@/api/push-token.api';
 import Container from '@/components/layout/container';
@@ -12,8 +10,10 @@ import Header from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import Link from '@/components/ui/link';
 import PixelCard from '@/components/ui/pixel-card';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { useAuthSignOut } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
+import { baseFoundation } from '@/theme/tokens';
 
 const MyInfo = () => {
   const signOut = useAuthSignOut();
@@ -69,7 +69,11 @@ const MyInfo = () => {
             href="/modal?type=theme"
             title="테마 설정"
             leftIcon={({ color }) => (
-              <Ionicons name="color-palette-outline" size={baseFoundation.iconSize.m} color={color} />
+              <Ionicons
+                name="color-palette-outline"
+                size={baseFoundation.iconSize.m}
+                color={color}
+              />
             )}
             style={styles.link}
           />
@@ -78,7 +82,11 @@ const MyInfo = () => {
             href="/modal?type=policies"
             title="약관 및 정책"
             leftIcon={({ color }) => (
-              <Ionicons name="newspaper-outline" size={baseFoundation.iconSize.m} color={color} />
+              <Ionicons
+                name="newspaper-outline"
+                size={baseFoundation.iconSize.m}
+                color={color}
+              />
             )}
             style={styles.link}
           />
@@ -87,7 +95,11 @@ const MyInfo = () => {
             href="/modal?type=privacy"
             title="개인정보 처리방침"
             leftIcon={({ color }) => (
-              <Ionicons name="key-outline" size={baseFoundation.iconSize.m} color={color} />
+              <Ionicons
+                name="key-outline"
+                size={baseFoundation.iconSize.m}
+                color={color}
+              />
             )}
             style={styles.link}
           />
@@ -95,7 +107,11 @@ const MyInfo = () => {
             variant="ghost"
             title="처음처럼에 피드백을 남겨주세요!"
             leftIcon={({ color }) => (
-              <Ionicons name="heart-circle-outline" size={baseFoundation.iconSize.m} color={color} />
+              <Ionicons
+                name="heart-circle-outline"
+                size={baseFoundation.iconSize.m}
+                color={color}
+              />
             )}
             style={styles.link}
             onPress={handleMoveFeedback}

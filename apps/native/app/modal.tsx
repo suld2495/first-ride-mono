@@ -3,6 +3,8 @@ import { Platform } from 'react-native';
 import Animated, { SlideInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import ModalFooterOutlet from '@/components/modal/modal-footer-outlet';
+import ModalFooterProvider from '@/components/modal/modal-footer-provider';
 import ModalHeader from '@/components/modal/modal-header';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
@@ -32,10 +34,13 @@ export default function Modal() {
         entering={SlideInRight.duration(MODAL_ANIMATION_DURATION)}
         style={styles.container}
       >
-        <ModalHeader title={title} />
-        <ThemeView style={styles.content}>
-          <ModalComponent />
-        </ThemeView>
+        <ModalFooterProvider>
+          <ModalHeader title={title} />
+          <ThemeView style={styles.content}>
+            <ModalComponent />
+          </ThemeView>
+          <ModalFooterOutlet />
+        </ModalFooterProvider>
       </Animated.View>
     </ThemeView>
   );
@@ -49,7 +54,6 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     paddingTop: theme.foundation.spacing.s,
-    paddingBottom: theme.foundation.spacing.m,
   },
 
   content: {
