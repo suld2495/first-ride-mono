@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';

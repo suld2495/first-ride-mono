@@ -11,6 +11,6 @@ export const useSetThemePreference = () =>
 export const useSetAppColorScheme = useSetThemePreference;
 
 export const useSyncThemePreference = () =>
-  useColorSchemeStore((state) => state.syncWithUnistyles);
+  useColorSchemeStore((state) => state.syncWithTamagui);
 
 export const useSyncAppColorScheme = useSyncThemePreference;

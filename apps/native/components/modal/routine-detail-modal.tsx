@@ -1,7 +1,7 @@
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRouter } from 'expo-router';
 import { Alert, ScrollView } from 'react-native';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';

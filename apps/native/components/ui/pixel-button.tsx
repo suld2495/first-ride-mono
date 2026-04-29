@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ViewStyle } from 'react-native';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Typography } from './typography';
@@ -21,7 +21,7 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
   disabled = false,
   style,
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   const outerStyle = {
     primary: {

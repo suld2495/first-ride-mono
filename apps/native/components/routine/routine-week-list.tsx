@@ -4,7 +4,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import type { WeeklyRoutine } from '@repo/types';
 import { useCallback } from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';

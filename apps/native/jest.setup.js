@@ -156,22 +156,45 @@ const mockTheme = {
   },
 };
 
-jest.mock('@/lib/unistyles', () => ({
-  StyleSheet: {
-    create: (styles) => {
-      const mockStyles =
-        typeof styles === 'function' ? styles(mockTheme) : styles;
-      return {
-        ...mockStyles,
-        useVariants: jest.fn(() => mockStyles),
-      };
+jest.mock('@/components/ui/tamagui', () => {
+  const React = require('react');
+  const {
+    ActivityIndicator,
+    Pressable,
+    Text,
+    TextInput,
+    View,
+  } = require('react-native');
+
+  const createComponent = (Component) =>
+    React.forwardRef(({ children, ...props }, ref) =>
+      React.createElement(Component, { ref, ...props }, children),
+    );
+
+  return {
+    TamaguiButton: createComponent(Pressable),
+    TamaguiInput: createComponent(TextInput),
+    TamaguiSpinner: createComponent(ActivityIndicator),
+    TamaguiStack: createComponent(View),
+    TamaguiText: createComponent(Text),
+    TamaguiXStack: createComponent(View),
+    TamaguiYStack: createComponent(View),
+    StyleSheet: {
+      create: (styles) => {
+        const mockStyles =
+          typeof styles === 'function' ? styles(mockTheme) : styles;
+        return {
+          ...mockStyles,
+          useVariants: jest.fn(() => mockStyles),
+        };
+      },
     },
-  },
-  useUnistyles: () => ({
-    theme: mockTheme,
-  }),
-  UnistylesRuntime: {},
-}));
+    useAppTheme: () => ({
+      theme: mockTheme,
+    }),
+    TamaguiRuntime: {},
+  };
+});
 
 jest.mock('tamagui', () => {
   const React = require('react');

@@ -16,8 +16,10 @@ import {
 import { IconButton } from '@/components/ui/icon-button';
 import Loading from '@/components/ui/loading';
 import { useAuthUser } from '@/hooks/useAuthSession';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
+
+const ROUTINE_CHARACTER_OFFSET_Y = 20;
 
 export default function Index() {
   const router = useRouter();
@@ -68,17 +70,15 @@ export default function Index() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar style="dark" />
-      {hasRoutines ? (
-        <View style={styles.scene} pointerEvents="none">
-          <View style={styles.backgroundArt} testID="routine-background-art">
-            {renderRoutineSceneAsset(routineSceneAssets.background, {
-              testID: 'routine-scene-background',
-              style: styles.backgroundImage,
-              resizeMode: 'stretch',
-            })}
-          </View>
+      <View style={styles.scene} pointerEvents="none">
+        <View style={styles.backgroundArt} testID="routine-background-art">
+          {renderRoutineSceneAsset(routineSceneAssets.background, {
+            testID: 'routine-scene-background',
+            style: styles.backgroundImage,
+            resizeMode: 'stretch',
+          })}
         </View>
-      ) : null}
+      </View>
       <View style={styles.contentWrapper}>
         <RoutineHeader date={date} />
         {showLoading ? (
@@ -206,5 +206,6 @@ const styles = StyleSheet.create((theme) => ({
   characterImage: {
     width: baseFoundation.dimension.x112,
     height: baseFoundation.dimension.x120,
+    transform: [{ translateY: ROUTINE_CHARACTER_OFFSET_Y }],
   },
 }));

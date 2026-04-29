@@ -1,7 +1,7 @@
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
 import { Image, View } from 'react-native';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Badge } from '@/components/ui/badge';

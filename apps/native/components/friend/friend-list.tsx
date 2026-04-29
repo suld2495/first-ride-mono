@@ -3,7 +3,7 @@ import { useDeleteFriendMutation } from '@repo/shared/hooks/useFriend';
 import type { Friend } from '@repo/types';
 import { useCallback } from 'react';
 import { Alert, FlatList } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ const getFriendItemLayout = (
 
 const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
   const deleteMutation = useDeleteFriendMutation();
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const { showToast } = useToast();
 
   const handleDelete = () => {

@@ -13,9 +13,9 @@ import {
 } from 'react-native';
 
 import EmptyState from '@/components/ui/empty-state';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { useRoutineType, useSetRoutineId } from '@/hooks/useRoutineSelection';
-import { StyleSheet } from '@/lib/unistyles';
 import { baseFoundation } from '@/theme/tokens';
 
 import { RoutineCountList, RoutineWeekList } from './weekly-routine';
@@ -86,7 +86,7 @@ const RoutineList = ({
   useEffect(() => {
     setIsExpanded(false);
     overlayOpacity.setValue(1);
-  }, [date, routines.length]);
+  }, [date, overlayOpacity, routines.length]);
 
   useEffect(() => {
     Animated.timing(overlayOpacity, {

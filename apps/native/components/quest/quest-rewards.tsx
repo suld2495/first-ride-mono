@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import ThemeView from '@/components/ui/theme-view';
@@ -11,7 +11,7 @@ interface QuestRewardsProps {
 }
 
 const QuestRewards = ({ rewardName }: QuestRewardsProps) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   return (
     <ThemeView style={styles.container}>

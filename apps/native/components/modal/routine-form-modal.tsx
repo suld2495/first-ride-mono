@@ -7,7 +7,7 @@ import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
@@ -48,6 +48,7 @@ const RoutineFormModal = () => {
   });
 
   const colorScheme = useColorScheme(); // For DateTimePicker themeVariant
+  const nativePickerTheme = colorScheme === 'light' ? 'light' : 'dark';
 
   // Debounce keyword for friend search
   const debouncedKeyword = useDebounce(mateKeyword, 300);
@@ -236,7 +237,7 @@ const RoutineFormModal = () => {
               />
               {isShowStartDate && (
                 <DateTimePicker
-                  themeVariant={colorScheme}
+                  themeVariant={nativePickerTheme}
                   value={value ? new Date(value) : new Date()}
                   mode="date"
                   minimumDate={getThisWeekMonday()}
@@ -294,7 +295,7 @@ const RoutineFormModal = () => {
               />
               {isShowEndDate && (
                 <DateTimePicker
-                  themeVariant={colorScheme}
+                  themeVariant={nativePickerTheme}
                   value={form.endDate ? new Date(form.endDate) : new Date()}
                   mode="date"
                   minimumDate={getThisWeekMonday()}

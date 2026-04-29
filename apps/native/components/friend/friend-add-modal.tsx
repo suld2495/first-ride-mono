@@ -4,7 +4,7 @@ import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import type { SearchOption, User } from '@repo/types';
 import { useCallback, useState } from 'react';
 import { FlatList, Modal, Pressable, RefreshControl } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
@@ -77,7 +77,7 @@ interface FriendAddModalProps {
 }
 
 const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const isTestEnv = process.env.NODE_ENV === 'test';
   const [keyword, setKeyword] = useState('');
   const [refreshing, setRefreshing] = useState(false);

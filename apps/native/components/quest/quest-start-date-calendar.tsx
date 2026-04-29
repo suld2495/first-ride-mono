@@ -7,7 +7,7 @@ import {
   type NativeSyntheticEvent,
   View,
 } from 'react-native';
-import { StyleSheet, type UnistylesThemes } from '@/lib/unistyles';
+import { StyleSheet, type AppThemes } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
@@ -448,7 +448,7 @@ const QuestStartDateCalendar = ({
 
 export default QuestStartDateCalendar;
 
-const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
+const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   container: {
     backgroundColor: theme.colors.background.surface,
     borderRadius: theme.foundation.radii.xl,

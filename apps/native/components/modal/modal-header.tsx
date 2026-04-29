@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Typography } from '@/components/ui/typography';
@@ -12,7 +12,7 @@ interface ModalHeaderProps {
 }
 
 const ModalHeader = ({ title }: ModalHeaderProps) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const isPresented = router.canGoBack();
 
   const handleBack = () => {

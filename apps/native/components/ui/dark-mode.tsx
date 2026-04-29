@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useUnistyles } from '@/lib/unistyles';
+import { useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { useColorScheme, useSetColorScheme } from '@/hooks/useColorScheme';
@@ -9,7 +9,7 @@ import { IconButton } from './icon-button';
 const DarkMode = () => {
   const colorScheme = useColorScheme();
   const setColorScheme = useSetColorScheme();
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   const toggleColorScheme = () => {
     setColorScheme(colorScheme === 'light' ? 'dark' : 'light');

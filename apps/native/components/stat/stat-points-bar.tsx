@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import Typography from '@/components/ui/typography';
@@ -24,7 +24,7 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
   onConfirm,
   onReset,
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const remainingPoints = availablePoints - usedPoints;
   const hasPoints = availablePoints > 0;
   const hasChanges = usedPoints > 0;

@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { VerificationType } from '@repo/types';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import ThemeView from '@/components/ui/theme-view';
@@ -59,7 +59,7 @@ const QuestInfo = ({
   currentVerificationCount,
   verificationTargetCount,
 }: QuestInfoProps) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const verificationInfo =
     VERIFICATION_CONTENT[verificationType] ?? DEFAULT_VERIFICATION_CONTENT;
   const verificationProgress =

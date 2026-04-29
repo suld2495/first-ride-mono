@@ -7,8 +7,8 @@ import Svg, { Path } from 'react-native-svg';
 
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
-import { StyleSheet } from '@/lib/unistyles';
 import { baseFoundation } from '@/theme/tokens';
 
 interface RoutineCountListProps {
@@ -24,7 +24,6 @@ interface RoutineCountListProps {
   onShowDetailModal: (id: number) => void;
 }
 
-const ROUTINE_TITLE_COLOR = '#83B0D6';
 const ROUTINE_CHECKMARK_WIDTH = 12;
 const ROUTINE_CHECKMARK_HEIGHT = 9;
 const ROUTINE_CHECKMARK_SCALE = 0.7;
@@ -69,6 +68,7 @@ const RoutineCountList = ({
   onShowRequestModal,
   onShowDetailModal,
 }: RoutineCountListProps) => {
+  const { theme } = useAppTheme();
   const getRoutineItemLayout = useCallback(
     (_: Routine[] | null, index: number) => ({
       length: itemHeight,
@@ -104,7 +104,7 @@ const RoutineCountList = ({
                   accessibilityLabel={`${routineName} 상세 보기`}
                   hitSlop={baseFoundation.dimension.x8}
                 >
-                  <Typography variant="body3" style={styles.title}>
+                  <Typography variant="body3Semibold" style={styles.title}>
                     {routineName}
                   </Typography>
                 </Pressable>
@@ -126,7 +126,10 @@ const RoutineCountList = ({
               <View style={styles.headerRow}>
                 {countLabels.map((label) => (
                   <View key={`${routineId}-${label}`} style={styles.column}>
-                    <Typography variant="caption2" style={styles.dayLabel}>
+                    <Typography
+                      variant="caption2Semibold"
+                      style={styles.dayLabel}
+                    >
                       {label}
                     </Typography>
                   </View>
@@ -159,18 +162,22 @@ const RoutineCountList = ({
                           achieved ? styles.achievedCheckBox : '',
                         ]}
                       >
-                        {achieved ? (
+                        {isGoalRange ? (
                           <RoutineCheckmarkIcon
                             size={baseFoundation.iconSize.s}
-                            color={isGoalRange ? '#000306' : '#16334C'}
+                            color={
+                              isGoalRange
+                                ? theme.colors.brand.selectedCheck
+                                : theme.colors.brand.check
+                            }
                           />
-                        ) : !isGoalRange ? (
+                        ) : (
                           <Ionicons
                             name="remove"
                             size={baseFoundation.iconSize.s}
-                            color="#16334C"
+                            color={theme.colors.brand.check}
                           />
-                        ) : null}
+                        )}
                       </View>
                     </View>
                   );
@@ -206,7 +213,7 @@ const RoutineCountList = ({
 
 export default RoutineCountList;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   list: {},
   cardContainer: {
     justifyContent: 'center',
@@ -240,7 +247,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    color: ROUTINE_TITLE_COLOR,
+    color: theme.colors.text.secondary,
     textAlign: 'center',
     fontSize: baseFoundation.typography.size.body3,
   },
@@ -263,20 +270,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dayLabel: {
-    color: '#4C769C',
-    fontWeight: baseFoundation.typography.weight.semibold,
+    color: theme.colors.text.tertiary,
     fontSize: baseFoundation.typography.size.caption2,
   },
   checkBox: {
     width: baseFoundation.dimension.x20,
     height: baseFoundation.dimension.x20,
     borderRadius: baseFoundation.dimension.x4,
-    backgroundColor: '#000306',
+    backgroundColor: theme.colors.brand.checkbox,
     justifyContent: 'center',
     alignItems: 'center',
   },
   achievedCheckBox: {
-    backgroundColor: '#7FC3FF',
+    backgroundColor: theme.colors.brand.selectedCheckbox,
   },
   footer: {
     flexDirection: 'row',
@@ -314,4 +320,4 @@ const styles = StyleSheet.create({
     width: baseFoundation.dimension.x72,
     height: baseFoundation.dimension.x20,
   },
-});
+}));

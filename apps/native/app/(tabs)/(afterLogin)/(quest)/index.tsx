@@ -2,7 +2,7 @@ import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
 import type { Quest } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 
 import Container from '@/components/layout/container';
 import Header from '@/components/layout/header';

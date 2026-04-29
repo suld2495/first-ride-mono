@@ -15,7 +15,7 @@ import { useAuthUser } from '@/hooks/useAuthSession';
 import { useCreateForm } from '@/hooks/useForm';
 import { useRequestReply } from '@/hooks/useRequestReply';
 import { useRequestId } from '@/hooks/useRequestSelection';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<{ comment: string }>();

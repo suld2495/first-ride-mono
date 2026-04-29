@@ -11,7 +11,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { FlashList, type ListRenderItem } from './flash-list';
@@ -101,7 +101,7 @@ export function Select<T = string | number>({
   containerStyle,
   dropdownMaxHeight = 250,
 }: SelectProps<T>) {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const isTestEnv = process.env.NODE_ENV === 'test';
   const [isOpen, setIsOpen] = useState(false);
   const [buttonLayout, setButtonLayout] = useState<LayoutRectangle | null>(

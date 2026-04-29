@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import PixelProgressBar from '@/components/ui/pixel-progress-bar';
@@ -28,7 +28,7 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
   onIncrement,
   onDecrement,
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const canDecrement = originalValue !== undefined && value > originalValue;
   const hasChanged = originalValue !== undefined && value !== originalValue;
 

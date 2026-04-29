@@ -7,7 +7,7 @@ import type {
   StyleProp,
   ViewStyle,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 /**
@@ -112,7 +112,7 @@ export const Button: React.FC<ButtonProps> = ({
   title,
   ...props
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const sizeStyle = {
     sm: styles.sizeSm,
     md: styles.sizeMd,

@@ -1,6 +1,6 @@
 import type { QuestTypeFilter as QuestTypeFilterType } from '@repo/types';
 import { useCallback } from 'react';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ const getFilterItemLayout = (_: typeof FILTERS | null, index: number) => ({
 });
 
 const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const renderFilterItem = useCallback<
     ListRenderItem<(typeof FILTERS)[number]>
   >(

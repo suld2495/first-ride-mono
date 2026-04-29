@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import type { Validators } from '@repo/shared/components';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { requestFormValidators } from '@repo/shared/service/validatorMessage';
 import { Image, Pressable, ScrollView } from 'react-native';
@@ -14,11 +15,14 @@ import {
   useRequestSubmission,
 } from '@/hooks/useRequestSubmission';
 import { useRoutineId } from '@/hooks/useRoutineSelection';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<{ images: RequestImage[] }>();
+const requestImageValidators = requestFormValidators as unknown as Validators<{
+  images: RequestImage[];
+}>;
 
 const RequestModal = () => {
   const routineId = useRoutineId();
@@ -63,7 +67,7 @@ const RequestModal = () => {
         <Form
           form={{ images: [] }}
           onSubmit={handleSubmit}
-          validators={requestFormValidators}
+          validators={requestImageValidators}
         >
           <FormItem
             name="images"

@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Quest } from '@repo/types';
 import { useCallback } from 'react';
 import { Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { EmptyState } from '@/components/ui/empty-state';
@@ -24,7 +24,7 @@ interface QuestItemProps {
 }
 
 const QuestItem = ({ quest, onClick }: QuestItemProps) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const { questType, questName, description, endDate } = quest;
 
   return (

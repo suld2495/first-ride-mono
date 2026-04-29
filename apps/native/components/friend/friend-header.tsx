@@ -1,4 +1,4 @@
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 
 import NotificationBell from '@/components/notification/notification-bell';
 import { Divider } from '@/components/ui/divider';

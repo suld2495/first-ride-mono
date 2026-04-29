@@ -1,5 +1,5 @@
 import type { QuestStatusFilter } from '@repo/types';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
@@ -18,7 +18,7 @@ const TABS: { value: QuestStatusFilter; label: string }[] = [
 ];
 
 const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   return (
     <ThemeView style={styles.container}>

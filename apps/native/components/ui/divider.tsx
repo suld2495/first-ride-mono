@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View, type ViewProps, type ViewStyle } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 /**
@@ -56,7 +56,7 @@ export const Divider: React.FC<DividerProps> = ({
   text,
   ...props
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const backgroundColor = {
     subtle: theme.colors.border.subtle,
     default: theme.colors.border.default,

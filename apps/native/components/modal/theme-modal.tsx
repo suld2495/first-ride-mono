@@ -1,13 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable } from 'react-native';
-import { StyleSheet } from '@/lib/unistyles';
 
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSetAppColorScheme } from '@/hooks/useThemePreference';
+import { StyleSheet } from '@/components/ui/tamagui';
 
-type ThemeName = 'light' | 'dark';
+type ThemeName = 'light' | 'dark' | 'blue';
 
 interface ThemeOptionProps {
   name: ThemeName;
@@ -66,6 +66,7 @@ const THEME_OPTIONS: {
 }[] = [
   { name: 'light', label: '라이트', icon: 'sunny-outline' },
   { name: 'dark', label: '다크', icon: 'moon-outline' },
+  { name: 'blue', label: '블루', icon: 'moon-outline' },
 ];
 
 const ThemeModal = () => {

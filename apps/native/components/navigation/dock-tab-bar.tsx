@@ -2,7 +2,7 @@ import { type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import { View } from 'react-native';
 
-import { useUnistyles } from '@/lib/unistyles';
+import { useAppTheme } from '@/components/ui/tamagui';
 
 import { DockTabItem } from './dock-tab-item';
 
@@ -24,7 +24,7 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
   navigation,
   insets,
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const visibleRoutes = state.routes.filter((route) =>
     TAB_ROUTE_NAMES.has(route.name),
   );

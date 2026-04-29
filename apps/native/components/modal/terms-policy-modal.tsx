@@ -1,6 +1,6 @@
 import { ScrollView } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 
 import ThemeView from '@/components/ui/theme-view';
 

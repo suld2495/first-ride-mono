@@ -2,7 +2,7 @@ import type { UserStats } from '@repo/types';
 import React from 'react';
 import { View } from 'react-native';
 import Svg, { Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 import { STAT_CONFIGS, STAT_MAX_VALUE } from '@/constants/STATS';
 
@@ -62,7 +62,7 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   stats,
   size = 200,
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const centerX = size / 2;
   const centerY = size / 2;
   const maxRadius = size / 2 - 30;

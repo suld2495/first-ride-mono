@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import Typography from '@/components/ui/typography';
@@ -25,7 +25,7 @@ export const RadarStatList: React.FC<RadarStatListProps> = ({
   onIncrement,
   onDecrement,
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   return (
     <View style={styles.container}>

@@ -6,7 +6,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 export type IconButtonSize = 'sm' | 'md' | 'lg';
 export type IconButtonVariant =
@@ -95,7 +95,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
   style,
   ...props
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const sizeStyle = {
     sm: styles.sizeSm,
     md: styles.sizeMd,

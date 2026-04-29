@@ -6,7 +6,7 @@ import type { UserStats } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 
 import Container from '@/components/layout/container';
 import Header from '@/components/layout/header';

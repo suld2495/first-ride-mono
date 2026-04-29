@@ -1,6 +1,6 @@
 import type { FormContextType } from '@repo/shared/components';
 import type { RoutineForm } from '@repo/types';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';

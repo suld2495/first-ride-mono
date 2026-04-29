@@ -1,6 +1,6 @@
 import type { AuthForm as AuthFormType } from '@repo/types';
 import { useState } from 'react';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import AuthForm from '@/components/auth/auth-form';

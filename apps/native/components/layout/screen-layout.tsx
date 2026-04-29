@@ -2,7 +2,7 @@ import React from 'react';
 import type { ViewProps } from 'react-native';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 interface ScreenLayoutProps extends ViewProps {

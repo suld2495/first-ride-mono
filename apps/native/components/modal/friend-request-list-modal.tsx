@@ -6,7 +6,7 @@ import {
 import { getFormatDate } from '@repo/shared/utils';
 import type { FriendRequest } from '@repo/types';
 import { useCallback, useState } from 'react';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';

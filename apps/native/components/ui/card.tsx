@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, type ViewProps } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 /**
@@ -79,7 +79,7 @@ export const Card: React.FC<CardProps> = ({
   children,
   ...props
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   const variantStyle = {
     base: { backgroundColor: theme.colors.background.base },

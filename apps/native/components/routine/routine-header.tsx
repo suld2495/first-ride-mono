@@ -1,15 +1,15 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { afterWeek, beforeWeek } from '@repo/shared/utils';
 import { View } from 'react-native';
-import { StyleSheet } from '@/lib/unistyles';
-import { baseFoundation } from '@/theme/tokens';
 
 import NotificationBell from '@/components/notification/notification-bell';
 import Link from '@/components/ui/link';
-import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
+import { StyleSheet } from '@/components/ui/tamagui';
+import { baseFoundation } from '@/theme/tokens';
 
 interface RoutineHeaderProps {
   date: string;
@@ -33,7 +33,11 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
             variant="ghost"
             href={`/(tabs)/(afterLogin)/(routine)?date=${beforeWeek(currentDate)}`}
             leftIcon={({ color }) => (
-              <Ionicons name="chevron-back" size={baseFoundation.iconSize.m} color={color} />
+              <Ionicons
+                name="chevron-back"
+                size={baseFoundation.iconSize.m}
+                color={color}
+              />
             )}
             accessibilityLabel="이전 주"
             accessibilityRole="button"
@@ -46,7 +50,11 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
             variant="ghost"
             href={`/(tabs)/(afterLogin)/(routine)?date=${afterWeek(currentDate)}`}
             leftIcon={({ color }) => (
-              <Ionicons name="chevron-forward" size={baseFoundation.iconSize.m} color={color} />
+              <Ionicons
+                name="chevron-forward"
+                size={baseFoundation.iconSize.m}
+                color={color}
+              />
             )}
             accessibilityLabel="다음 주"
             accessibilityRole="button"
@@ -54,7 +62,10 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
           />
         </View>
         <View style={styles.notification}>
-          <NotificationBell count={requests.length} url="/modal?type=request-list" />
+          <NotificationBell
+            count={requests.length}
+            url="/modal?type=request-list"
+          />
         </View>
       </ThemeView>
     </ThemeView>
@@ -83,7 +94,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   dateTitle: {
-    color: '#0B2038',
+    color: theme.colors.text.gray,
   },
 
   dateArrow: {

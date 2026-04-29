@@ -8,7 +8,10 @@ import { useNotifications } from '@/hooks/useNotifications';
 import MyInfo from '../../app/(tabs)/(afterLogin)/my-info';
 import { render } from '../setup/test-utils';
 
-declare const mockReplace: jest.Mock;
+declare global {
+  // eslint-disable-next-line no-var
+  var mockReplace: jest.Mock;
+}
 
 jest.mock('@/api/push-token.api', () => ({
   deletePushToken: jest.fn(),

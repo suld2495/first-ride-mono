@@ -1,9 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import type { ThemeName } from '@/theme/themes';
+
 import { storage } from './storage-provider.store';
 
-type ColorScheme = 'light' | 'dark';
+type ColorScheme = ThemeName;
 
 interface ColorSchemeState {
   colorScheme: ColorScheme;
@@ -11,7 +13,7 @@ interface ColorSchemeState {
 
 interface Action {
   setColorScheme: (colorScheme: ColorScheme) => void;
-  syncWithUnistyles: () => void;
+  syncWithTamagui: () => void;
 }
 
 export const useColorSchemeStore = create<ColorSchemeState & Action>()(
@@ -21,7 +23,7 @@ export const useColorSchemeStore = create<ColorSchemeState & Action>()(
       setColorScheme: (colorScheme: ColorScheme) => {
         set({ colorScheme });
       },
-      syncWithUnistyles: () => {
+      syncWithTamagui: () => {
         // Tamagui Provider가 store를 직접 구독하므로 별도 런타임 동기화는 필요 없다.
         get();
       },

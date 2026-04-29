@@ -1,3 +1,4 @@
+import { blueTheme } from './themes/blue';
 import { darkTheme } from './themes/dark';
 import { lightTheme } from './themes/light';
 
@@ -6,18 +7,19 @@ export type {
   ThemeDensity,
   ThemeRadiusStyle,
 } from './themes/theme.contract';
-export { darkTheme, lightTheme };
+export { darkTheme, lightTheme, blueTheme };
 
 export const appThemes = {
   light: lightTheme,
   dark: darkTheme,
+  blue: blueTheme,
 } as const;
 
 export type ThemeName = keyof typeof appThemes;
 
 const mapTheme = (
   theme: typeof lightTheme | typeof darkTheme,
-  mode: 'light' | 'dark',
+  mode: 'light' | 'dark' | 'blue',
 ) => ({
   background: theme.colors.background.base,
   backgroundHover: theme.colors.background.surface,
@@ -62,4 +64,5 @@ const mapTheme = (
 export const themes = {
   light: mapTheme(lightTheme, 'light'),
   dark: mapTheme(darkTheme, 'dark'),
+  blue: mapTheme(blueTheme, 'blue'),
 } as const;

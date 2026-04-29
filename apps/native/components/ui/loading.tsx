@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 export interface LoadingProps {
   /**
@@ -19,7 +19,7 @@ export interface LoadingProps {
  * }
  */
 export const Loading: React.FC<LoadingProps> = ({ size = 'large' }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   return (
     <View style={styles.container}>

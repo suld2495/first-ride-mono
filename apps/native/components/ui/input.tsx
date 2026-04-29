@@ -7,7 +7,7 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 /**
@@ -110,7 +110,7 @@ export const Input: React.FC<InputProps> = ({
   style,
   ...props
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   // 상태 결정
   const state: InputState = error ? 'error' : success ? 'success' : 'default';

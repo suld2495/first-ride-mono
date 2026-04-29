@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 export interface PixelProgressBarProps {
@@ -18,7 +18,7 @@ export const PixelProgressBar: React.FC<PixelProgressBarProps> = ({
   height = 12,
   showBorder = true,
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const percentage = maxValue > 0 ? Math.min((value / maxValue) * 100, 100) : 0;
   const fillColor = color || theme.colors.action.primary.default;
 

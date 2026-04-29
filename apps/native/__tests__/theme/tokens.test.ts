@@ -49,6 +49,7 @@ describe('theme/tokens', () => {
           disabled: '#999',
           inverse: '#000',
           link: '#0af',
+          gray: '#eee',
         },
         action: {
           primary: {
@@ -95,6 +96,7 @@ describe('theme/tokens', () => {
           buttonLight: '#8cf',
           subButton: '#123',
           checkbox: '#0af',
+          selectedCheckbox: '#0af',
           input: '#111',
           error: '#f00',
           success: '#0f0',
@@ -105,6 +107,7 @@ describe('theme/tokens', () => {
           foreground: '#fff',
           root: '#000',
           card: '#111',
+          bottomTab: '#111',
         },
       },
     });

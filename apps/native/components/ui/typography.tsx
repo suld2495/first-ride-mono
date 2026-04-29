@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TextProps } from 'react-native';
-import { useUnistyles } from '@/lib/unistyles';
+import { useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { TamaguiText } from './tamagui';
@@ -113,7 +113,7 @@ export const Typography: React.FC<TypographyProps> = ({
   children,
   ...props
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const variantProps = typographyVariantStyles[variant];
   const semanticColor = typographyColorMap[color as TypographySemanticColor];
   const customColorStyle = semanticColor ? undefined : { color };

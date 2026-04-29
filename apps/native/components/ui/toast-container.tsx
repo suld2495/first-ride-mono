@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect } from 'react';
 import { Animated, Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 import { type Toast, type ToastType, useToast } from '@/contexts/ToastContext';
 
@@ -13,7 +13,7 @@ interface ToastItemProps {
 }
 
 const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const opacity = React.useRef(new Animated.Value(0)).current;
   const translateY = React.useRef(new Animated.Value(-20)).current;
 

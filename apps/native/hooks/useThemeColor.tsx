@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 
 import { appThemes } from '@/theme/themes';
+import type { ThemeName } from '@/theme/themes';
 
 import { useColorScheme } from './useColorScheme';
 
@@ -10,7 +11,7 @@ type ThemeColorName = keyof typeof appThemes.light.colors.brand &
   keyof typeof appThemes.dark.colors.brand;
 
 export function useThemeColor(
-  props: { light?: string; dark?: string },
+  props: { light?: string; dark?: string; blue?: string },
   colorName: ThemeColorName,
 ) {
   const theme = useColorScheme();
@@ -35,14 +36,16 @@ function useInitialAndroidBarSync() {
 
 export { useColorScheme, useInitialAndroidBarSync };
 
-function setNavigationBar(colorScheme: 'light' | 'dark') {
+function setNavigationBar(colorScheme: ThemeName) {
+  const nativeScheme = colorScheme === 'light' ? 'light' : 'dark';
+
   return Promise.all([
     NavigationBar.setButtonStyleAsync(
-      colorScheme === 'dark' ? 'light' : 'dark',
+      nativeScheme === 'dark' ? 'light' : 'dark',
     ),
     NavigationBar.setPositionAsync('absolute'),
     NavigationBar.setBackgroundColorAsync(
-      colorScheme === 'dark' ? '#00000030' : '#ffffff80',
+      nativeScheme === 'dark' ? '#00000030' : '#ffffff80',
     ),
   ]);
 }

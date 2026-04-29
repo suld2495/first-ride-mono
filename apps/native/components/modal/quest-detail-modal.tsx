@@ -1,6 +1,6 @@
 import { useFetchQuestDetailQuery } from '@repo/shared/hooks/useQuest';
 import { ScrollView } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import QuestInfo from '@/components/quest/quest-info';
@@ -18,7 +18,7 @@ const QUEST_LABEL: Record<string, string> = {
 };
 
 const QuestDetailModal = () => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const questId = useQuestId();
   const { data: detail, isLoading } = useFetchQuestDetailQuery(questId || 0);
   const { handleQuestAction, isPending } = useQuestAction({

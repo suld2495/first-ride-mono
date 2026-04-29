@@ -29,6 +29,7 @@ export const lightTheme: ThemeContract = {
       disabled: '#cbd5e1',
       inverse: '#FFFFFF',
       link: palette.stitch.primary,
+      gray: palette.gray[900],
     },
     action: {
       primary: {
@@ -91,6 +92,7 @@ export const lightTheme: ThemeContract = {
       buttonLight: '#FFFFFF',
       subButton: '#b2bec3',
       checkbox: '#0984e3',
+      selectedCheckbox: '#0984e3',
       input: '#F5F7FA',
       error: '#d63031',
       success: '#00b894',
@@ -101,6 +103,7 @@ export const lightTheme: ThemeContract = {
       foreground: '#2D3436',
       root: '#F5F7FA',
       card: '#FFFFFF',
+      bottomTab: '#FFFFFF',
     },
   },
 };

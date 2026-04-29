@@ -35,7 +35,7 @@ import {
   syncBadgeCountWithReceivedRequests,
 } from '@/utils/notifications';
 
-// Unistyles initialization - must be imported before any component using styles
+// Tamagui initialization - must be imported before any component using styles
 import '@/api/bootstrap.api';
 import 'react-native-url-polyfill/auto';
 
@@ -82,7 +82,7 @@ function AppShell() {
   const user = useAuthUser();
   const setRequestId = useSetRequestId();
   const setRoutineId = useSetRoutineId();
-  const syncWithUnistyles = useSyncAppColorScheme();
+  const syncWithTamagui = useSyncAppColorScheme();
 
   /**
    * 알림 탭 시 딥링크 처리
@@ -140,10 +140,10 @@ function AppShell() {
 
   const { pushToken, isInitialized } = useNotifications(notificationHandlers);
 
-  // 앱 시작 시 저장된 테마를 Unistyles에 동기화
+  // 앱 시작 시 저장된 테마를 Tamagui에 동기화
   useEffect(() => {
-    syncWithUnistyles();
-  }, [syncWithUnistyles]);
+    syncWithTamagui();
+  }, [syncWithTamagui]);
 
   // 알림 핸들러 초기화
   useEffect(() => {

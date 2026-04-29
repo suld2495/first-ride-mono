@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import Typography from './typography';
@@ -15,7 +15,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   icon = 'folder-open-outline',
   message,
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   return (
     <ThemeView style={styles.container}>

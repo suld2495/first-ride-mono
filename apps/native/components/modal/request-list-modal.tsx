@@ -11,7 +11,7 @@ import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 import { useSetRequestId } from '@/hooks/useRequestSelection';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 
 interface RequestListItem {
   id: number;

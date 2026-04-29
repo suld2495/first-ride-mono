@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatTimeRemaining } from '@repo/shared/utils/date-utils';
 import { useEffect, useState } from 'react';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Typography } from '@/components/ui/typography';
@@ -12,7 +12,7 @@ interface QuestTimeProps {
 }
 
 const QuestTime = ({ endDate }: QuestTimeProps) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
   const [timeRemaining, setTimeRemaining] = useState(() =>
     formatTimeRemaining(new Date(), endDate),
   );

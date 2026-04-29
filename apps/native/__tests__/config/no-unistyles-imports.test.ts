@@ -2,7 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const APP_ROOT = path.resolve(__dirname, '../..');
-const FORBIDDEN_PACKAGE = ['react', 'native', 'unistyles'].join('-');
+const FORBIDDEN_PATTERNS = [
+  ['react', 'native', 'unistyles'].join('-'),
+  '@/lib/uni' + 'styles',
+  'useUni' + 'styles',
+  'Uni' + 'stylesRuntime',
+  'Uni' + 'stylesThemes',
+  'Uni' + 'stylesVariants',
+  'lib/uni' + 'styles',
+];
 
 const walk = (dir: string): string[] => {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -35,7 +43,7 @@ describe('스타일 패키지 제거 상태', () => {
 
     const remaining = files.filter((file) => {
       const content = fs.readFileSync(file, 'utf8');
-      return content.includes(FORBIDDEN_PACKAGE);
+      return FORBIDDEN_PATTERNS.some((pattern) => content.includes(pattern));
     });
 
     expect(remaining).toEqual([]);

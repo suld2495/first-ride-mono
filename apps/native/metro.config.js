@@ -21,10 +21,6 @@ config.resolver.nodeModulesPaths = [
 ];
 // 3. Force Metro to resolve (sub)dependencies only from the `nodeModulesPaths`
 config.resolver.disableHierarchicalLookup = true;
-config.resolver.extraNodeModules = {
-  ...(config.resolver.extraNodeModules || {}),
-  'react-native-unistyles': path.resolve(projectRoot, 'lib/unistyles.ts'),
-};
 
 module.exports = withTamagui(config, {
   components: ['tamagui'],

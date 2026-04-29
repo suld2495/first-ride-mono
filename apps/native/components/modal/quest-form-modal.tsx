@@ -6,7 +6,7 @@ import type { CreateQuestForm, VerificationType } from '@repo/types';
 import { useState } from 'react';
 import { Modal, Pressable } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { StyleSheet, type UnistylesThemes } from '@/lib/unistyles';
+import { StyleSheet, type AppThemes } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import QuestStartDateCalendar from '@/components/quest/quest-start-date-calendar';
@@ -410,7 +410,7 @@ const QuestFormModal = () => {
 
 export default QuestFormModal;
 
-const styles = StyleSheet.create((theme: UnistylesThemes['light']) => ({
+const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   container: {
     flex: 1,
     marginTop: baseFoundation.dimension.x30,

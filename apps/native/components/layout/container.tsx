@@ -3,7 +3,7 @@ import React from 'react';
 import type { ViewProps } from 'react-native';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 interface ContainerProps extends ViewProps {
@@ -17,7 +17,7 @@ const Container: React.FC<ContainerProps> = ({
   noPadding = false,
   ...props
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>

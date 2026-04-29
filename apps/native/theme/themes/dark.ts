@@ -29,6 +29,7 @@ export const darkTheme: ThemeContract = {
       disabled: '#334155',
       inverse: '#0f172a',
       link: palette.stitch.primary,
+      gray: palette.gray[100],
     },
     action: {
       primary: {
@@ -91,6 +92,7 @@ export const darkTheme: ThemeContract = {
       buttonLight: '#2f3640',
       subButton: '#485460',
       checkbox: '#0984e3',
+      selectedCheckbox: '#0984e3',
       input: '#1e272e',
       error: '#d63031',
       success: '#00b894',
@@ -101,6 +103,7 @@ export const darkTheme: ThemeContract = {
       foreground: '#d2dae2',
       root: '#1e272e',
       card: '#2f3640',
+      bottomTab: '#2f3640',
     },
   },
 };

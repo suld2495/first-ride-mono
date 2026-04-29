@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View, type ViewStyle } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 /**
  * Badge variant types
@@ -82,7 +82,7 @@ export const Badge: React.FC<BadgeProps> = ({
   maxCount = 99,
   style,
 }) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   // Don't render if count is 0 and showZero is false
   if (!showZero && count === 0) {

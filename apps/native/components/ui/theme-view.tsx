@@ -1,5 +1,5 @@
 import { View, type ViewProps } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 /**
  * Surface variant types
@@ -24,7 +24,7 @@ export type ThemedViewProps = ViewProps & {
 
 /**
  * ThemeView - A View component that automatically adapts to light/dark theme.
- * Uses Unistyles for automatic theme switching.
+ * Uses Tamagui for automatic theme switching.
  *
  * @example
  * // Default base surface
@@ -51,7 +51,7 @@ const ThemeView = ({
   variant = 'base',
   ...props
 }: ThemedViewProps) => {
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   const backgroundStyle =
     transparent || variant === undefined

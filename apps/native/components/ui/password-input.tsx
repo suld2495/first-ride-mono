@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Input } from './input';
@@ -45,7 +45,7 @@ const PasswordInput = ({
   helperText,
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   const togglePasswordVisibility = (): void => {
     setShowPassword((prev) => !prev);

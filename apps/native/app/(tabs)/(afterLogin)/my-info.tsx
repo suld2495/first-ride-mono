@@ -3,7 +3,7 @@ import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { Alert, View } from 'react-native';
-import { StyleSheet, useUnistyles } from '@/lib/unistyles';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { deletePushToken } from '@/api/push-token.api';
@@ -18,7 +18,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 const MyInfo = () => {
   const signOut = useAuthSignOut();
   const { pushToken } = useNotifications();
-  const { theme } = useUnistyles();
+  const { theme } = useAppTheme();
 
   const handleMoveFeedback = async () => {
     const extra = Constants.expoConfig?.extra as

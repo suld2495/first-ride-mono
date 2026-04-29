@@ -1,5 +1,5 @@
 import { Image, type ImageSourcePropType } from 'react-native';
-import { StyleSheet } from '@/lib/unistyles';
+import { StyleSheet } from '@/components/ui/tamagui';
 
 export interface TabBarIconProps {
   source: ImageSourcePropType;
@@ -14,7 +14,7 @@ export interface TabBarIconProps {
  * Uses semantic tokens for consistent theming.
  *
  * @example
- * import { useUnistyles } from '@/lib/unistyles';
+ * import { useAppTheme } from '@/components/ui/tamagui';
  * <TabBarIcon source={require('@/assets/tab-bar/home.png')} color="#0F3D68" />
  */
 const TabBarIcon = ({ source, size = 20, color }: TabBarIconProps) => {
