@@ -3,9 +3,9 @@ import { palette } from '@/theme/tokens';
 import { commonTheme } from './common';
 import { type ThemeContract } from './theme.contract';
 
-export const blueTheme: ThemeContract = {
+export const greenTheme: ThemeContract = {
   ...commonTheme,
-  name: 'blue',
+  name: 'green',
   colors: {
     ...commonTheme.colors,
     action: {

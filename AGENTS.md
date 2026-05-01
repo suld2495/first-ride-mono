@@ -14,3 +14,4 @@
 
 - iOS production build: `eas build --platform ios --profile production`
 - iOS production submit: `eas submit --platform ios --latest --profile production`
+- 한번에 : `eas build --platform ios --profile production --auto-submit`

@@ -21,6 +21,15 @@ describe('theme/tokens', () => {
     expect(tokens.size.h0).toBe(40);
   });
 
+  it('theme palette를 의미 단위로 그룹화한다', () => {
+    expect(palette.theme.softBlue[20]).toBe('#A7CBEA');
+    expect(palette.theme.blue[50]).toBe('#107AD6');
+    expect(palette.theme.gray[95]).toBe('#000306');
+    expect('skinSoftBlue' in palette).toBe(false);
+    expect('skinBlue' in palette).toBe(false);
+    expect('skinGray' in palette).toBe(false);
+  });
+
   it('테마별 foundation 토큰을 생성한다', () => {
     const foundation = createFoundation({
       name: 'brand',
