@@ -21,6 +21,7 @@ export const darkTheme: ThemeContract = {
       elevated: palette.stitch.dark.surface,
       sunken: '#0f172a',
       overlay: 'rgba(0, 0, 0, 0.7)',
+      input: palette.white,
     },
     text: {
       primary: palette.stitch.dark.text,
@@ -30,6 +31,9 @@ export const darkTheme: ThemeContract = {
       inverse: '#0f172a',
       link: palette.stitch.primary,
       gray: palette.gray[100],
+      title: palette.gray[100],
+      label: palette.gray[100],
+      input: palette.gray[100],
     },
     action: {
       primary: {
@@ -79,12 +83,14 @@ export const darkTheme: ThemeContract = {
       subtle: '#1e293b',
       focus: palette.stitch.primary,
       divider: '#334155',
+      input: '#475569',
     },
     brand: {
       grey: '#b2bec3',
       background: '#1e272e',
       backgroundGrey: '#2f3640',
       primary: '#0984e3',
+      secondary: '#0984e3',
       text: '#d2dae2',
       textSecondary: '#a4b0be',
       icon: '#d2dae2',
@@ -92,7 +98,9 @@ export const darkTheme: ThemeContract = {
       buttonLight: '#2f3640',
       subButton: '#485460',
       checkbox: '#0984e3',
+      check: '#0984e3',
       selectedCheckbox: '#0984e3',
+      selectedCheck: '#0984e3',
       input: '#1e272e',
       error: '#d63031',
       success: '#00b894',
@@ -104,6 +112,8 @@ export const darkTheme: ThemeContract = {
       root: '#1e272e',
       card: '#2f3640',
       bottomTab: '#2f3640',
+      activeBottomTab: '#2f3640',
+      routineBackground: '#2f3640',
     },
   },
 };

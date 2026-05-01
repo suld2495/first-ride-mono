@@ -31,6 +31,7 @@ export const palette = {
     blue: {
       5: '#E2F1FF',
       10: '#B0DAFF',
+      20: '#A3D4FF', // 임시
       30: '#7FC3FF',
       50: '#107AD6',
       80: '#2C5171',
@@ -48,6 +49,7 @@ export const palette = {
     red: {
       5: '#FFEBFA',
       10: '#F9DCF2',
+      20: '#F5C8EA', // 임시
       30: '#FFA3E9',
       50: '#C73FA7',
       80: '#7A486E',
@@ -65,6 +67,7 @@ export const palette = {
     green: {
       5: '#D4FFE9',
       10: '#B9E9CF',
+      20: '#8EDFB5', // 임시
       30: '#49E191',
       50: '#199453',
       80: '#416B58',

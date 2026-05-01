@@ -75,6 +75,7 @@ export type ThemeContract = {
       background: string;
       backgroundGrey: string;
       primary: string;
+      secondary: string;
       text: string;
       textSecondary: string;
       icon: string;
@@ -190,6 +191,7 @@ export const baseTheme: ThemeContract = {
       background: '#1e272e',
       backgroundGrey: '#2f3640',
       primary: '#0984e3',
+      secondary: '#0984e3',
       text: '#d2dae2',
       textSecondary: '#a4b0be',
       icon: '#d2dae2',

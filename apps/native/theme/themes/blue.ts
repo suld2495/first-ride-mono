@@ -36,6 +36,7 @@ export const blueTheme: ThemeContract = {
     brand: {
       ...commonTheme.colors.brand,
       primary: palette.theme.blue[30],
+      secondary: palette.theme.blue[20],
       background: palette.theme.blue[10],
       text: palette.theme.blue[100],
       icon: palette.theme.blue[50],

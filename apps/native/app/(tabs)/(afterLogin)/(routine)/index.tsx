@@ -142,7 +142,7 @@ export default function Index() {
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.brand.background,
+    backgroundColor: theme.colors.brand.secondary,
   },
   scene: {
     position: 'absolute',

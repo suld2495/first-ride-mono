@@ -50,6 +50,7 @@ describe('theme/tokens', () => {
           elevated: '#222',
           sunken: '#333',
           overlay: 'rgba(0, 0, 0, 0.5)',
+          input: '#111',
         },
         text: {
           primary: '#fff',
@@ -59,6 +60,9 @@ describe('theme/tokens', () => {
           inverse: '#000',
           link: '#0af',
           gray: '#eee',
+          title: '#fff',
+          label: '#ddd',
+          input: '#ddd',
         },
         action: {
           primary: {
@@ -92,12 +96,14 @@ describe('theme/tokens', () => {
           subtle: '#333',
           focus: '#444',
           divider: '#555',
+          input: '#666',
         },
         brand: {
           grey: '#999',
           background: '#000',
           backgroundGrey: '#111',
           primary: '#0af',
+          secondary: '#0af',
           text: '#fff',
           textSecondary: '#ddd',
           icon: '#fff',
@@ -105,7 +111,9 @@ describe('theme/tokens', () => {
           buttonLight: '#8cf',
           subButton: '#123',
           checkbox: '#0af',
+          check: '#0af',
           selectedCheckbox: '#0af',
+          selectedCheck: '#0af',
           input: '#111',
           error: '#f00',
           success: '#0f0',
@@ -117,6 +125,8 @@ describe('theme/tokens', () => {
           root: '#000',
           card: '#111',
           bottomTab: '#111',
+          activeBottomTab: '#111',
+          routineBackground: '#111',
         },
       },
     });
