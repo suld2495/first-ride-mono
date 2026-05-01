@@ -6,8 +6,7 @@ import { Typography } from '@/components/ui/typography';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSetAppColorScheme } from '@/hooks/useThemePreference';
 import { StyleSheet } from '@/components/ui/tamagui';
-
-type ThemeName = 'light' | 'dark' | 'blue';
+import type { ThemeName } from '@/theme/themes';
 
 interface ThemeOptionProps {
   name: ThemeName;
@@ -67,6 +66,8 @@ const THEME_OPTIONS: {
   { name: 'light', label: '라이트', icon: 'sunny-outline' },
   { name: 'dark', label: '다크', icon: 'moon-outline' },
   { name: 'blue', label: '블루', icon: 'moon-outline' },
+  { name: 'green', label: '그린', icon: 'leaf-outline' },
+  { name: 'red', label: '레드', icon: 'heart-outline' },
 ];
 
 const ThemeModal = () => {

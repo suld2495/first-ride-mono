@@ -1,6 +1,12 @@
 import { DarkTheme, DefaultTheme } from '@react-navigation/native';
 
-import { darkTheme, lightTheme, blueTheme } from './themes';
+import {
+  darkTheme,
+  lightTheme,
+  blueTheme,
+  greenTheme,
+  redTheme,
+} from './themes';
 import { palette } from './tokens';
 
 export const NAV_THEME = {
@@ -35,6 +41,28 @@ export const NAV_THEME = {
       notification: blueTheme.colors.brand.grey,
       primary: blueTheme.colors.brand.primary,
       text: blueTheme.colors.brand.text,
+    },
+  },
+  green: {
+    ...DefaultTheme,
+    colors: {
+      background: greenTheme.colors.brand.background,
+      border: greenTheme.colors.brand.grey,
+      card: greenTheme.colors.brand.grey,
+      notification: greenTheme.colors.brand.grey,
+      primary: greenTheme.colors.brand.primary,
+      text: greenTheme.colors.brand.text,
+    },
+  },
+  red: {
+    ...DefaultTheme,
+    colors: {
+      background: redTheme.colors.brand.background,
+      border: redTheme.colors.brand.grey,
+      card: redTheme.colors.brand.grey,
+      notification: redTheme.colors.brand.grey,
+      primary: redTheme.colors.brand.primary,
+      text: redTheme.colors.brand.text,
     },
   },
 };

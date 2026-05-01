@@ -1,26 +1,28 @@
 import { blueTheme } from './themes/blue';
 import { darkTheme } from './themes/dark';
+import { greenTheme } from './themes/green';
 import { lightTheme } from './themes/light';
+import { redTheme } from './themes/red';
+import { type ThemeContract } from './themes/theme.contract';
 
 export type {
   ThemeContract,
   ThemeDensity,
   ThemeRadiusStyle,
 } from './themes/theme.contract';
-export { darkTheme, lightTheme, blueTheme };
+export { darkTheme, lightTheme, blueTheme, greenTheme, redTheme };
 
 export const appThemes = {
   light: lightTheme,
   dark: darkTheme,
   blue: blueTheme,
+  green: greenTheme,
+  red: redTheme,
 } as const;
 
 export type ThemeName = keyof typeof appThemes;
 
-const mapTheme = (
-  theme: typeof lightTheme | typeof darkTheme,
-  mode: 'light' | 'dark' | 'blue',
-) => ({
+const mapTheme = (theme: ThemeContract, mode: ThemeName) => ({
   background: theme.colors.background.base,
   backgroundHover: theme.colors.background.surface,
   backgroundPress: theme.colors.background.elevated,
@@ -65,4 +67,6 @@ export const themes = {
   light: mapTheme(lightTheme, 'light'),
   dark: mapTheme(darkTheme, 'dark'),
   blue: mapTheme(blueTheme, 'blue'),
+  green: mapTheme(greenTheme, 'green'),
+  red: mapTheme(redTheme, 'red'),
 } as const;

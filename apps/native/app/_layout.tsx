@@ -11,7 +11,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { updatePushToken } from '@/api/push-token.api';
 import MockProvider from '@/components/mock/mock-provider';
 import SplashScreenController from '@/components/splash';
-import AppTamaguiProvider from '@/components/ui/tamagui-provider';
+import AppTamaguiProvider, {
+  ThemeStyleRefreshBoundary,
+} from '@/components/ui/tamagui-provider';
 import ToastContainer from '@/components/ui/toast-container';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
@@ -188,7 +190,9 @@ export default function RootLayout() {
       <AppTamaguiProvider>
         <QueryProvider>
           <ToastProvider>
-            <AppShell />
+            <ThemeStyleRefreshBoundary>
+              <AppShell />
+            </ThemeStyleRefreshBoundary>
           </ToastProvider>
         </QueryProvider>
       </AppTamaguiProvider>

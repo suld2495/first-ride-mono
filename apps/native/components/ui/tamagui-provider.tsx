@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import { Fragment, type PropsWithChildren } from 'react';
 import { TamaguiProvider, Theme } from 'tamagui';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -12,6 +12,12 @@ export const AppTamaguiProvider = ({ children }: PropsWithChildren) => {
       <Theme name={colorScheme}>{children}</Theme>
     </TamaguiProvider>
   );
+};
+
+export const ThemeStyleRefreshBoundary = ({ children }: PropsWithChildren) => {
+  const colorScheme = useColorScheme();
+
+  return <Fragment key={colorScheme}>{children}</Fragment>;
 };
 
 export default AppTamaguiProvider;

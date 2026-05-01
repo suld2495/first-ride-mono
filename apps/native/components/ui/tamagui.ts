@@ -34,6 +34,14 @@ const appStyleThemes = {
     ...appThemes.blue,
     foundation: createFoundation(appThemes.blue),
   },
+  green: {
+    ...appThemes.green,
+    foundation: createFoundation(appThemes.green),
+  },
+  red: {
+    ...appThemes.red,
+    foundation: createFoundation(appThemes.red),
+  },
 } as const;
 
 export type AppTheme = (typeof appStyleThemes)[keyof typeof appStyleThemes];
@@ -57,7 +65,9 @@ const evaluateStyles = <T extends Record<string, unknown>>(
 ) => (typeof factory === 'function' ? factory(getTheme()) : factory);
 
 export const StyleSheet = {
-  create<T extends NamedStyles<T> | NamedStyles<any>>(factory: StyleFactory<T>) {
+  create<T extends NamedStyles<T> | NamedStyles<any>>(
+    factory: StyleFactory<T>,
+  ) {
     return new Proxy(
       {},
       {

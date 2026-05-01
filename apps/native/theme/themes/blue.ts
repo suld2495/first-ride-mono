@@ -43,6 +43,8 @@ export const blueTheme: ThemeContract = {
       selectedCheckbox: palette.theme.blue[30],
       selectedCheck: palette.theme.blue[100],
       bottomTab: palette.theme.softBlue[20],
+      activeBottomTab: palette.theme.blue[50],
+      routineBackground: palette.theme.blue[100],
     },
   },
 };

@@ -11,7 +11,7 @@ type ThemeColorName = keyof typeof appThemes.light.colors.brand &
   keyof typeof appThemes.dark.colors.brand;
 
 export function useThemeColor(
-  props: { light?: string; dark?: string; blue?: string },
+  props: Partial<Record<ThemeName, string>>,
   colorName: ThemeColorName,
 ) {
   const theme = useColorScheme();

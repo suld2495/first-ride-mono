@@ -217,7 +217,7 @@ const RoutineList = ({
 
 export default RoutineList;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     backgroundColor: 'transparent',
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: 60,
     height: ROUTINE_SCROLL_INDICATOR_HEIGHT,
-    borderColor: '#83B0D6',
-    backgroundColor: '#B0DAFF',
+    borderColor: theme.colors.text.secondary,
+    backgroundColor: theme.colors.background.base,
   },
-});
+}));

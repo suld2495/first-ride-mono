@@ -15,8 +15,8 @@ import {
 } from '@/components/routine/routine-scene-art';
 import { IconButton } from '@/components/ui/icon-button';
 import Loading from '@/components/ui/loading';
-import { useAuthUser } from '@/hooks/useAuthSession';
 import { StyleSheet } from '@/components/ui/tamagui';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation } from '@/theme/tokens';
 
 const ROUTINE_CHARACTER_OFFSET_Y = 20;
@@ -142,7 +142,7 @@ export default function Index() {
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    backgroundColor: '#A3D4FF',
+    backgroundColor: theme.colors.brand.primary,
   },
   scene: {
     position: 'absolute',

@@ -18,8 +18,6 @@ export default function TabLayout() {
       tabBar={(props) => <DockTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#4C8FD8',
-        tabBarInactiveTintColor: '#A8D0F7',
         sceneStyle: {
           paddingBottom: baseFoundation.spacing.none,
         },

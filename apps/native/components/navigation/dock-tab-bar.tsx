@@ -86,10 +86,11 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
               }
               focused={focused}
               activeColor={
-                options.tabBarActiveTintColor ?? theme.colors.text.primary
+                options.tabBarActiveTintColor ??
+                theme.colors.brand.activeBottomTab
               }
               inactiveColor={
-                options.tabBarInactiveTintColor ?? theme.colors.text.secondary
+                options.tabBarInactiveTintColor ?? theme.colors.brand.bottomTab
               }
               animatedStyle={undefined}
               onPress={onPress}

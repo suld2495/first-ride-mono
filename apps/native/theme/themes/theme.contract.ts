@@ -96,6 +96,8 @@ export type ThemeContract = {
       root: string;
       card: string;
       bottomTab: string;
+      activeBottomTab: string;
+      routineBackground: string;
     };
   };
 };
@@ -209,6 +211,8 @@ export const baseTheme: ThemeContract = {
       root: '#1e272e',
       card: '#2f3640',
       bottomTab: '#2f3640',
+      activeBottomTab: '#2f3640',
+      routineBackground: '#2f3640',
     },
   },
 };
