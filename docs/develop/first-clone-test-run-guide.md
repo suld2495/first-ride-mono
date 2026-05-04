@@ -147,7 +147,32 @@ EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY=<kakao-native-app-key>
 KAKAO_NATIVE_APP_KEY=<kakao-native-app-key>
 ```
 
-## 5. 앱 실행 후 iOS 시뮬레이터 열기
+## 5. iOS 개발 빌드 최초 설치
+
+이 저장소의 Native 앱은 `expo-dev-client`를 사용한다. 그래서 iOS 시뮬레이터에 개발 빌드가 아직 설치되어 있지 않으면 `pnpm dev`에서 `i`를 눌렀을 때 아래와 같은 에러가 날 수 있다.
+
+```text
+CommandError: No development build (com.mannal.firstride) for this project is installed.
+```
+
+처음 한 번은 루트 디렉토리에서 아래 명령으로 iOS 개발 빌드를 시뮬레이터에 설치한다.
+
+```bash
+pnpm --filter first-ride-app ios
+```
+
+또는 Native 앱 디렉토리에서 실행해도 된다.
+
+```bash
+cd apps/native
+pnpm ios
+```
+
+이 명령은 내부적으로 `expo run:ios`를 실행한다. 빌드가 성공하면 iOS 시뮬레이터에 `com.mannal.firstride` 개발 빌드가 설치된다.
+
+개발 빌드는 네이티브 의존성, Expo 플러그인, iOS 설정이 바뀌었을 때 다시 설치해야 한다. JavaScript/TypeScript 코드만 바꿀 때는 보통 다시 설치하지 않아도 된다.
+
+## 6. 앱 실행 후 iOS 시뮬레이터 열기
 
 Native 앱을 실행하려면 루트에서 아래 명령을 실행한다.
 
@@ -175,19 +200,21 @@ pnpm dev
 - `a`: Android 에뮬레이터 열기
 - `w`: 웹 실행
 
-## 6. 문제가 생기면 먼저 확인할 항목
+## 7. 문제가 생기면 먼저 확인할 항목
 
 - `pnpm install`이 루트에서 정상 완료되었는지 확인
 - `apps/native/.env` 파일이 준비되었는지 확인
 - `apps/native/.env`에 Supabase, Kakao, API Base URL 값이 들어갔는지 확인
 - macOS에서 Xcode가 설치되어 있는지 확인
+- `No development build` 에러가 나면 `pnpm --filter first-ride-app ios`로 iOS 개발 빌드를 먼저 설치했는지 확인
 - Expo 실행 중 오류가 나면 `pnpm dev`를 다시 실행해서 상태를 다시 확인
 
-## 7. AI가 사용자에게 안내할 때 추천하는 요약 흐름
+## 8. AI가 사용자에게 안내할 때 추천하는 요약 흐름
 
 AI가 이 저장소의 실행 방법을 안내할 때는 아래 흐름으로 설명하면 된다.
 
 1. `Node.js 22 이상`, `pnpm 10.11.1`, `Xcode`가 필요한지 먼저 안내한다.
 2. 저장소 루트에서 `pnpm install`을 실행하라고 안내한다.
 3. `apps/native/.env`를 만들고 필요한 환경변수를 넣으라고 안내한다.
-4. `pnpm dev`를 실행한 뒤 Expo 메뉴에서 `i`를 누르고, `Interact` 상태가 되면 다시 `i`를 눌러 iOS 시뮬레이터를 열라고 안내한다.
+4. iOS 시뮬레이터에 개발 빌드가 없다면 `pnpm --filter first-ride-app ios`를 먼저 실행하라고 안내한다.
+5. `pnpm dev`를 실행한 뒤 Expo 메뉴에서 `i`를 누르고, `Interact` 상태가 되면 다시 `i`를 눌러 iOS 시뮬레이터를 열라고 안내한다.
