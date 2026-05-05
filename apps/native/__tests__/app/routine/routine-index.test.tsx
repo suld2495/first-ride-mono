@@ -1,9 +1,5 @@
 import axiosInstance from '@repo/shared/api';
-import {
-  afterWeek,
-  beforeWeek,
-  getWeekMonday,
-} from '@repo/shared/utils';
+import { afterWeek, beforeWeek, getWeekMonday } from '@repo/shared/utils';
 import MockAdapter from 'axios-mock-adapter';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
@@ -42,6 +38,15 @@ const ROUTINE_ITEM_HEIGHT = 112;
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
+declare const mockUser: {
+  motto: null | string;
+  nickname: string;
+  role: 'ADMIN' | 'USER';
+  userId: string;
+};
+declare const mockAuthStore: {
+  user: null | typeof mockUser;
+};
 declare const mockRoutineStore: {
   type: 'number' | 'week';
   setType: jest.Mock;
@@ -119,24 +124,62 @@ describe('루틴 조회 페이지', () => {
         const { findByText } = render(<Index />);
 
         expect(
-          await findByText(
-            formatRoutineHeaderDate(new Date(specificDate)),
-          ),
+          await findByText(formatRoutineHeaderDate(new Date(specificDate))),
         ).toBeOnTheScreen();
       });
 
       it('배경과 캐릭터 장식이 표시된다', async () => {
         const { findByTestId } = render(<Index />);
 
-        expect(await findByTestId('routine-scene-background')).toBeOnTheScreen();
+        expect(
+          await findByTestId('routine-scene-background'),
+        ).toBeOnTheScreen();
         expect(await findByTestId('routine-scene-character')).toBeOnTheScreen();
+      });
+
+      it('캐릭터를 누르면 계정 좌우명 말풍선이 표시된다', async () => {
+        mockAuthStore.user = {
+          ...mockUser,
+          motto: '매일 조금씩 앞으로 간다',
+        };
+
+        const { findByTestId, findByText, queryByTestId } = render(<Index />);
+
+        const characterButton = await findByTestId('routine-character-button');
+
+        expect(queryByTestId('character-speech-bubble')).toBeNull();
+
+        fireEvent.press(characterButton);
+
+        const motto = await findByText('매일 조금씩 앞으로 간다');
+
+        expect(motto).toBeOnTheScreen();
+        expect(motto.props.numberOfLines).toBe(2);
+        expect(motto.props.ellipsizeMode).toBe('tail');
+      });
+
+      it('좌우명이 없으면 캐릭터 말풍선에 기본 문구가 표시된다', async () => {
+        mockAuthStore.user = {
+          ...mockUser,
+          motto: null,
+        };
+
+        const { findByTestId, findByText } = render(<Index />);
+
+        const characterButton = await findByTestId('routine-character-button');
+
+        fireEvent.press(characterButton);
+
+        expect(await findByText('안녕?')).toBeOnTheScreen();
       });
 
       it('배경이미지는 화면 하단에 붙고 루틴 추가 버튼은 하단에서 20 떨어진다', async () => {
         const { findByTestId, findByLabelText } = render(<Index />);
 
-        const backgroundArt = await findByTestId('routine-background-art');
-        const addButton = await findByLabelText('루틴 추가');
+        const [backgroundArt, addButton] = await Promise.all([
+          findByTestId('routine-background-art'),
+          findByLabelText('루틴 추가'),
+        ]);
 
         expect(flattenStyles(backgroundArt.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ bottom: 0 })]),
@@ -153,7 +196,9 @@ describe('루틴 조회 페이지', () => {
 
         const { findByTestId } = render(<Index />);
 
-        expect(await findByTestId('routine-scroll-indicator')).toBeOnTheScreen();
+        expect(
+          await findByTestId('routine-scroll-indicator'),
+        ).toBeOnTheScreen();
       });
 
       it('루틴이 4개를 넘으면 접힌 상태에서 두 번째 카드 위에 오버레이가 표시된다', async () => {
@@ -364,7 +409,9 @@ describe('루틴 조회 페이지', () => {
       });
 
       it('루틴이 4개 이하면 하단 화살표가 표시되지 않는다', async () => {
-        mockAxios.onGet(/\/routine\/list/).reply(200, { data: createMockRoutines(1) });
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .reply(200, { data: createMockRoutines(1) });
 
         const { queryByTestId, findByText } = render(<Index />);
 

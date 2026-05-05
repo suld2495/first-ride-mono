@@ -4,7 +4,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type LayoutChangeEvent, View } from 'react-native';
+import { Animated, type LayoutChangeEvent, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import RoutineHeader from '@/components/routine/routine-header';
@@ -16,15 +16,23 @@ import {
 import { IconButton } from '@/components/ui/icon-button';
 import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
+import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
+import RoutineCharacter from '@/feature/character/routine-character';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation } from '@/theme/tokens';
 
-const ROUTINE_CHARACTER_OFFSET_Y = 20;
+const SPEECH_BUBBLE_VISIBLE_MS = 3000;
+const SPEECH_BUBBLE_FADE_OUT_MS = 300;
 
 export default function Index() {
   const router = useRouter();
   const isFirstLoadRef = useRef(true);
+  const speechBubbleHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const speechBubbleOpacity = useRef(new Animated.Value(0)).current;
   const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
+  const [isSpeechBubbleVisible, setIsSpeechBubbleVisible] = useState(false);
 
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
@@ -37,6 +45,8 @@ export default function Index() {
     refetch,
   } = useRoutinesQuery(user?.nickname || '', date);
   const hasRoutines = routines.length > 0;
+  const motto = user?.motto?.trim();
+  const speechBubbleMessage = motto ? motto : '안녕?';
 
   useEffect(() => {
     if (!isLoading && isFirstLoadRef.current) {
@@ -55,6 +65,38 @@ export default function Index() {
       setRoutineListAreaHeight(event.nativeEvent.layout.height);
     },
     [],
+  );
+
+  const handleCharacterPress = useCallback(() => {
+    if (speechBubbleHideTimerRef.current) {
+      clearTimeout(speechBubbleHideTimerRef.current);
+    }
+
+    speechBubbleOpacity.stopAnimation();
+    speechBubbleOpacity.setValue(1);
+    setIsSpeechBubbleVisible(true);
+
+    speechBubbleHideTimerRef.current = setTimeout(() => {
+      Animated.timing(speechBubbleOpacity, {
+        toValue: 0,
+        duration: SPEECH_BUBBLE_FADE_OUT_MS,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) {
+          setIsSpeechBubbleVisible(false);
+        }
+      });
+    }, SPEECH_BUBBLE_VISIBLE_MS);
+  }, [speechBubbleOpacity]);
+
+  useEffect(
+    () => () => {
+      if (speechBubbleHideTimerRef.current) {
+        clearTimeout(speechBubbleHideTimerRef.current);
+      }
+      speechBubbleOpacity.stopAnimation();
+    },
+    [speechBubbleOpacity],
   );
 
   useEffect(() => {
@@ -104,13 +146,22 @@ export default function Index() {
                 </View>
                 <View
                   style={styles.routineCharacterArea}
-                  pointerEvents="none"
                   testID="routine-character-area"
                 >
-                  {renderRoutineSceneAsset(routineSceneAssets.character, {
-                    testID: 'routine-scene-character',
-                    style: styles.characterImage,
-                  })}
+                  <View style={styles.characterStage}>
+                    <RoutineCharacter onPress={handleCharacterPress} />
+                    {isSpeechBubbleVisible && (
+                      <Animated.View
+                        style={[
+                          styles.speechBubble,
+                          { opacity: speechBubbleOpacity },
+                        ]}
+                        pointerEvents="none"
+                      >
+                        <CharacterSpeechBubble message={speechBubbleMessage} />
+                      </Animated.View>
+                    )}
+                  </View>
                 </View>
               </>
             ) : (
@@ -181,6 +232,15 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  characterStage: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  speechBubble: {
+    bottom: baseFoundation.dimension.x120 + theme.foundation.spacing.xs,
+    position: 'absolute',
+  },
   fab: {
     position: 'absolute',
     right: theme.foundation.spacing.m,
@@ -202,10 +262,5 @@ const styles = StyleSheet.create((theme) => ({
     shadowRadius: 10,
     elevation: 8,
     zIndex: 20,
-  },
-  characterImage: {
-    width: baseFoundation.dimension.x112,
-    height: baseFoundation.dimension.x120,
-    transform: [{ translateY: ROUTINE_CHARACTER_OFFSET_Y }],
   },
 }));

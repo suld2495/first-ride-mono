@@ -1,4 +1,4 @@
-import type { SearchOption, User } from '@repo/types';
+import type { SearchOption, UpdateMottoRequest, User } from '@repo/types';
 
 import { toAppError } from '.';
 import http from './client';
@@ -11,6 +11,31 @@ export const fetchUserList = async ({
   try {
     const response: User[] = await http.get(
       `${baseURL}/search?${keyword ? `nickname=${keyword}` : ''}`,
+    );
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const fetchMe = async (): Promise<User> => {
+  try {
+    const response: User = await http.get(`${baseURL}/me`);
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const updateMotto = async (
+  request: UpdateMottoRequest,
+): Promise<User | undefined> => {
+  try {
+    const response: User | undefined = await http.put(
+      `${baseURL}/me/motto`,
+      request,
     );
 
     return response;

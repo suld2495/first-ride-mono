@@ -5,6 +5,7 @@ import type { User, UserRole } from '@repo/types';
 // ========================================
 
 export interface CreateMockUserOptions {
+  motto?: null | string;
   userId?: string;
   nickname?: string;
   role?: UserRole;
@@ -13,6 +14,7 @@ export interface CreateMockUserOptions {
 export const createMockUser = (options: CreateMockUserOptions = {}): User => ({
   userId: options.userId ?? 'test123',
   nickname: options.nickname ?? 'testuser',
+  motto: options.motto ?? '끝까지 간다',
   role: options.role ?? 'USER',
 });
 

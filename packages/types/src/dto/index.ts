@@ -5,3 +5,4 @@ export * from './request';
 export * from './routine';
 export * from './social-auth';
 export * from './stat';
+export * from './user';
