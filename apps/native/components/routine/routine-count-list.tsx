@@ -22,6 +22,7 @@ interface RoutineCountListProps {
   onRefresh?: () => Promise<void>;
   onShowRequestModal: (id: number) => void;
   onShowDetailModal: (id: number) => void;
+  readOnly?: boolean;
 }
 
 const ROUTINE_CHECKMARK_WIDTH = 12;
@@ -67,6 +68,7 @@ const RoutineCountList = ({
   onRefresh,
   onShowRequestModal,
   onShowDetailModal,
+  readOnly = false,
 }: RoutineCountListProps) => {
   const { theme } = useAppTheme();
   const getRoutineItemLayout = useCallback(
@@ -97,13 +99,7 @@ const RoutineCountList = ({
           >
             <View style={styles.cardSurface}>
               <View style={styles.titleRow}>
-                <Pressable
-                  onPress={() => onShowDetailModal(routineId)}
-                  style={styles.titleButton}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${routineName} 상세 보기`}
-                  hitSlop={baseFoundation.dimension.x8}
-                >
+                {readOnly ? (
                   <Typography
                     variant="body3"
                     weight="semibold"
@@ -111,9 +107,25 @@ const RoutineCountList = ({
                   >
                     {routineName}
                   </Typography>
-                </Pressable>
+                ) : (
+                  <Pressable
+                    onPress={() => onShowDetailModal(routineId)}
+                    style={styles.titleButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${routineName} 상세 보기`}
+                    hitSlop={baseFoundation.dimension.x8}
+                  >
+                    <Typography
+                      variant="body3"
+                      weight="semibold"
+                      style={styles.title}
+                    >
+                      {routineName}
+                    </Typography>
+                  </Pressable>
+                )}
 
-                {date === getWeekMonday(new Date()) ? (
+                {!readOnly && date === getWeekMonday(new Date()) ? (
                   <Button
                     title="인증 요청"
                     size="sm"
@@ -122,9 +134,9 @@ const RoutineCountList = ({
                     textColor="#DDEEFF"
                     style={styles.requestButton}
                   />
-                ) : (
+                ) : !readOnly ? (
                   <View style={styles.requestPlaceholder} />
-                )}
+                ) : null}
               </View>
 
               <View style={styles.headerRow}>
@@ -193,7 +205,7 @@ const RoutineCountList = ({
         </View>
       );
     },
-    [date, itemHeight, onShowDetailModal, onShowRequestModal],
+    [date, itemHeight, onShowDetailModal, onShowRequestModal, readOnly],
   );
 
   return (

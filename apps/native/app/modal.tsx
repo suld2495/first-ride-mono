@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ModalFooterOutlet from '@/components/modal/modal-footer-outlet';
 import ModalFooterProvider from '@/components/modal/modal-footer-provider';
 import ModalHeader from '@/components/modal/modal-header';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import type { ModalType } from '@/hooks/useModal';
 import { useModal } from '@/hooks/useModal';
@@ -14,14 +14,23 @@ import { useModal } from '@/hooks/useModal';
 const MODAL_ANIMATION_DURATION = 250;
 
 export default function Modal() {
-  const { type } = useLocalSearchParams<{ type: ModalType }>();
-  const [title, ModalComponent] = useModal(type);
+  const { type, friendNickname } = useLocalSearchParams<{
+    type: ModalType;
+    friendNickname?: string;
+  }>();
+  const [title, ModalComponent, modalOptions] = useModal(type);
+  const { theme } = useAppTheme();
+  const modalTitle =
+    type === 'friend-routines' && friendNickname ? friendNickname : title;
   const insets = useSafeAreaInsets();
 
   return (
     <ThemeView
       style={[
         styles.wrapper,
+        modalOptions.fullBleedBackground && {
+          backgroundColor: theme.colors.brand.secondary,
+        },
         {
           paddingTop: Platform.select({
             ios: insets.top, // iOS Modal Sheet handles transparency, but usually needs spacing if full screen
@@ -35,8 +44,17 @@ export default function Modal() {
         style={styles.container}
       >
         <ModalFooterProvider>
-          <ModalHeader title={title} />
-          <ThemeView style={styles.content}>
+          <ModalHeader
+            title={modalTitle}
+            transparent={modalOptions.headerTransparent}
+          />
+          <ThemeView
+            style={[
+              styles.content,
+              modalOptions.contentPadding === false && styles.contentNoPadding,
+            ]}
+            transparent={modalOptions.contentTransparent}
+          >
             <ModalComponent />
           </ThemeView>
           <ModalFooterOutlet />
@@ -60,5 +78,8 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     borderRadius: theme.foundation.radii.l,
     paddingHorizontal: theme.foundation.spacing.l,
+  },
+  contentNoPadding: {
+    paddingHorizontal: 0,
   },
 }));

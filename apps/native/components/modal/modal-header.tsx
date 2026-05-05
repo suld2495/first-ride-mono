@@ -9,9 +9,10 @@ import { baseFoundation } from '@/theme/tokens';
 
 interface ModalHeaderProps {
   title: string;
+  transparent?: boolean;
 }
 
-const ModalHeader = ({ title }: ModalHeaderProps) => {
+const ModalHeader = ({ title, transparent = false }: ModalHeaderProps) => {
   const { theme } = useAppTheme();
   const isPresented = router.canGoBack();
 
@@ -24,7 +25,7 @@ const ModalHeader = ({ title }: ModalHeaderProps) => {
   };
 
   return (
-    <ThemeView style={styles.container}>
+    <ThemeView style={styles.container} transparent={transparent}>
       {/* Back Button */}
       <Pressable
         onPress={handleBack}

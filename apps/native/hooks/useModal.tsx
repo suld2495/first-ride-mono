@@ -1,4 +1,5 @@
 import FriendRequestListModal from '@/components/modal/friend-request-list-modal';
+import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
 import PrivacyModal from '@/components/modal/privacy-modal';
 import QuestDetailModal from '@/components/modal/quest-detail-modal';
 import QuestFormModal from '@/components/modal/quest-form-modal';
@@ -20,36 +21,57 @@ export type ModalType =
   | 'request-list'
   | 'request-detail'
   | 'friend-request-list'
+  | 'friend-routines'
   | 'policies'
   | 'privacy'
   | 'theme';
 
-export const useModal = (type: ModalType): [string, () => React.ReactNode] => {
+interface ModalOptions {
+  contentPadding?: boolean;
+  contentTransparent?: boolean;
+  fullBleedBackground?: boolean;
+  headerTransparent?: boolean;
+}
+
+export const useModal = (
+  type: ModalType,
+): [string, () => React.ReactNode, ModalOptions] => {
   switch (type) {
     case 'routine-add':
-      return ['루틴 추가', RoutineFormModal];
+      return ['루틴 추가', RoutineFormModal, {}];
     case 'routine-update':
-      return ['루틴 수정', RoutineFormModal];
+      return ['루틴 수정', RoutineFormModal, {}];
     case 'routine-detail':
-      return ['루틴 상세', RoutineDetailModal];
+      return ['루틴 상세', RoutineDetailModal, {}];
     case 'quest-add':
-      return ['퀘스트 추가', QuestFormModal];
+      return ['퀘스트 추가', QuestFormModal, {}];
     case 'quest-detail':
-      return ['퀘스트 상세', QuestDetailModal];
+      return ['퀘스트 상세', QuestDetailModal, {}];
     case 'request':
-      return ['인증 요청', RequestModal];
+      return ['인증 요청', RequestModal, {}];
     case 'request-list':
-      return ['인증 요청', RequestListModal];
+      return ['인증 요청', RequestListModal, {}];
     case 'request-detail':
-      return ['인증 상세', RequestDetailModal];
+      return ['인증 상세', RequestDetailModal, {}];
     case 'friend-request-list':
-      return ['친구 요청', FriendRequestListModal];
+      return ['친구 요청', FriendRequestListModal, {}];
+    case 'friend-routines':
+      return [
+        '친구 루틴',
+        FriendRoutinesModal,
+        {
+          contentPadding: false,
+          contentTransparent: true,
+          fullBleedBackground: true,
+          headerTransparent: true,
+        },
+      ];
     case 'policies':
-      return ['약관 및 정책', TermsPolicyModal];
+      return ['약관 및 정책', TermsPolicyModal, {}];
     case 'privacy':
-      return ['개인정보 처리방침', PrivacyModal];
+      return ['개인정보 처리방침', PrivacyModal, {}];
     case 'theme':
-      return ['테마 설정', ThemeModal];
+      return ['테마 설정', ThemeModal, {}];
     default:
       throw new Error('존재하지 않은 모달입니다.');
   }

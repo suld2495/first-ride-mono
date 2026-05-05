@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useDeleteFriendMutation } from '@repo/shared/hooks/useFriend';
 import type { Friend } from '@repo/types';
 import { useCallback } from 'react';
-import { Alert, FlatList } from 'react-native';
+import { Alert, FlatList, Pressable } from 'react-native';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -18,9 +18,12 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 
 interface FriendItemProps extends Friend {
   onDelete: () => void;
+  onOpen: (friend: Friend) => void;
 }
 
-interface FriendRenderItemProps { item: Friend; }
+interface FriendRenderItemProps {
+  item: Friend;
+}
 
 const FRIEND_ITEM_HEIGHT = 88;
 const getFriendItemLayout = (
@@ -32,10 +35,11 @@ const getFriendItemLayout = (
   index,
 });
 
-const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
+const FriendItem = ({ onDelete, onOpen, ...friend }: FriendItemProps) => {
   const deleteMutation = useDeleteFriendMutation();
   const { theme } = useAppTheme();
   const { showToast } = useToast();
+  const { nickname } = friend;
 
   const handleDelete = () => {
     Alert.alert(
@@ -73,7 +77,12 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
   return (
     <PixelCard style={styles.card}>
       <ThemeView style={styles.cardInner} transparent>
-        <ThemeView style={styles.friendInfo} transparent>
+        <Pressable
+          style={styles.friendInfo}
+          onPress={() => onOpen(friend)}
+          accessibilityRole="button"
+          accessibilityLabel={`${nickname} 루틴 보기`}
+        >
           <ThemeView style={styles.avatar}>
             <Ionicons
               name="person"
@@ -84,7 +93,7 @@ const FriendItem = ({ nickname, onDelete }: FriendItemProps) => {
           <Typography variant="body" style={styles.nickname}>
             {nickname}
           </Typography>
-        </ThemeView>
+        </Pressable>
         <Button
           variant="ghost"
           size="sm"
@@ -110,6 +119,7 @@ interface FriendListProps {
   refreshing: boolean;
   onRefresh: () => Promise<void>;
   onDeleteRefresh: () => Promise<unknown>;
+  onOpenFriend: (friend: Friend) => void;
 }
 
 const FriendList = ({
@@ -118,6 +128,7 @@ const FriendList = ({
   refreshing,
   onRefresh,
   onDeleteRefresh,
+  onOpenFriend,
 }: FriendListProps) => {
   const isTestEnv = process.env.NODE_ENV === 'test';
   const handleDelete = useCallback(() => {
@@ -126,9 +137,9 @@ const FriendList = ({
 
   const renderFriendItem = useCallback(
     ({ item }: FriendRenderItemProps) => (
-      <FriendItem {...item} onDelete={handleDelete} />
+      <FriendItem {...item} onDelete={handleDelete} onOpen={onOpenFriend} />
     ),
-    [handleDelete],
+    [handleDelete, onOpenFriend],
   );
 
   if (isLoading) {

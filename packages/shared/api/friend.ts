@@ -1,14 +1,51 @@
 import type {
   Friend,
+  FriendRoutinesResponse,
   FriendRequestResponse,
+  Routine,
   SearchOption,
   User,
 } from '@repo/types';
+import type { AxiosResponse } from 'axios';
 
-import { toAppError } from '.';
+import axiosInstance, { toAppError } from '.';
 import http from './client';
 
 const baseURL = '/friends';
+const userBaseURL = '/users';
+
+const getFriendAccountId = (friend: Friend): number | string | undefined =>
+  friend.id ?? friend.userId ?? friend.friendId ?? friend.accountId;
+
+const fetchFriendAccountIdByNickname = async (
+  nickname: User['nickname'],
+): Promise<number | string | undefined> => {
+  const users: Array<
+    User & {
+      id?: number | string;
+      accountId?: number | string;
+    }
+  > = await http.get(
+    `${userBaseURL}/search?nickname=${encodeURIComponent(nickname)}`,
+  );
+  const user = users.find((item) => item.nickname === nickname);
+
+  return user?.id ?? user?.accountId ?? user?.userId;
+};
+
+const withFriendAccountId = async (friend: Friend): Promise<Friend> => {
+  if (getFriendAccountId(friend)) {
+    return friend;
+  }
+
+  try {
+    const userId = await fetchFriendAccountIdByNickname(friend.nickname);
+
+    return userId ? { ...friend, userId } : friend;
+  } catch {
+    return friend;
+  }
+};
 
 export const fetchFriends = async ({
   keyword = '',
@@ -18,7 +55,7 @@ export const fetchFriends = async ({
       `${baseURL}?${keyword ? `nickname=${keyword}` : ''}`,
     );
 
-    return response;
+    return Promise.all(response.map(withFriendAccountId));
   } catch (error) {
     throw toAppError(error);
   }
@@ -71,6 +108,60 @@ export const deleteFriend = async (
 ): Promise<void> => {
   try {
     await http.delete(`${baseURL}/${friendNickname}`);
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+const toFriendRoutine = (
+  routine: FriendRoutinesResponse['routines'][number],
+  friend: FriendRoutinesResponse['friend'],
+): Routine => ({
+  routineId: routine.routineId,
+  nickname: friend.nickname,
+  routineName: routine.routineName,
+  routineDetail: routine.routineDetail,
+  penalty: routine.penalty,
+  weeklyCount: routine.weeklyCount,
+  routineCount: routine.routineCount,
+  mateNickname: routine.mateNickname,
+  isMe: false,
+  startDate: routine.startDate,
+  endDate: routine.endDate ?? undefined,
+  successDate: routine.successDate ?? [],
+});
+
+const unwrapFriendRoutinesResponse = (
+  response: AxiosResponse<
+    FriendRoutinesResponse | { data: FriendRoutinesResponse }
+  >,
+): FriendRoutinesResponse => {
+  const body = response.data;
+
+  return 'data' in body ? body.data : body;
+};
+
+export const fetchFriendRoutines = async (
+  friendId: Friend['id'],
+  date: string,
+): Promise<{
+  friend: FriendRoutinesResponse['friend'];
+  routines: Routine[];
+}> => {
+  try {
+    const query = date ? `?date=${encodeURIComponent(date)}` : '';
+    const response = await axiosInstance.get<
+      FriendRoutinesResponse | { data: FriendRoutinesResponse }
+    >(`${baseURL}/${encodeURIComponent(String(friendId))}/routines${query}`);
+    const friendRoutines = unwrapFriendRoutinesResponse(response);
+    const routines = friendRoutines.routines.map((routine) =>
+      toFriendRoutine(routine, friendRoutines.friend),
+    );
+
+    return {
+      friend: friendRoutines.friend,
+      routines,
+    };
   } catch (error) {
     throw toAppError(error);
   }

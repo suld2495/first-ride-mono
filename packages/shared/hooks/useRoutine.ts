@@ -91,12 +91,13 @@ const createWeeklyData = (startDate: string): string[] => {
 
 export const useWeeklyData = (
   routines: WeeklyRoutine[],
+  date: string = getWeekMonday(new Date()),
 ): Record<Routine['routineId'], boolean[]> => {
   const weeklyDataByRoutineId = Object.create(null) as Record<
     Routine['routineId'],
     boolean[]
   >;
-  const weekDates = createWeeklyData(getWeekMonday(new Date()));
+  const weekDates = createWeeklyData(date);
 
   return routines.reduce((acc, { routineId, successDate }) => {
     const successDateSet = new Set(successDate);

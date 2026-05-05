@@ -3,6 +3,9 @@ import {
   useFetchFriendsQuery,
 } from '@repo/shared/hooks/useFriend';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import type { Friend } from '@repo/types';
+import { getWeekMonday } from '@repo/shared/utils';
+import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
@@ -15,8 +18,14 @@ import Header from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ThemeView from '@/components/ui/theme-view';
+import { useToast } from '@/contexts/ToastContext';
+
+const getFriendAccountId = (friend: Friend): number | string | undefined =>
+  friend.id ?? friend.userId ?? friend.friendId ?? friend.accountId;
 
 const FriendPage = () => {
+  const router = useRouter();
+  const { showToast } = useToast();
   const [page] = useState(1);
   const [input, setInput] = useState('');
   const [keyword, setKeyword] = useState('');
@@ -45,6 +54,27 @@ const FriendPage = () => {
     }
   }, [refetchFriends, refetchRequests]);
 
+  const handleOpenFriend = useCallback(
+    (friend: Friend) => {
+      const friendAccountId = getFriendAccountId(friend);
+
+      if (!friendAccountId) {
+        showToast(
+          '친구 루틴을 보려면 친구 목록 응답에 친구 id가 필요합니다.',
+          'error',
+        );
+        return;
+      }
+
+      router.push(
+        `/modal?type=friend-routines&friendId=${friendAccountId}&friendNickname=${encodeURIComponent(
+          friend.nickname,
+        )}&date=${getWeekMonday(new Date())}`,
+      );
+    },
+    [router, showToast],
+  );
+
   return (
     <Container style={styles.container} noPadding>
       <Header />
@@ -57,7 +87,11 @@ const FriendPage = () => {
             variant="primary"
             size="sm"
             leftIcon={({ color }) => (
-              <Ionicons name="people-outline" size={baseFoundation.iconSize.m} color={color} />
+              <Ionicons
+                name="people-outline"
+                size={baseFoundation.iconSize.m}
+                color={color}
+              />
             )}
             onPress={() => setShowAddModal(true)}
             style={styles.addButton}
@@ -80,6 +114,7 @@ const FriendPage = () => {
           refreshing={refreshing}
           onRefresh={handleRefresh}
           onDeleteRefresh={refetchFriends}
+          onOpenFriend={handleOpenFriend}
         />
       </ThemeView>
 

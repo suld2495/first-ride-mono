@@ -22,6 +22,7 @@ interface RoutineWeekListProps {
   onRefresh?: () => Promise<void>;
   onShowRequestModal: (id: number) => void;
   onShowDetailModal: (id: number) => void;
+  readOnly?: boolean;
 }
 
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
@@ -38,8 +39,9 @@ const RoutineWeekList = ({
   onRefresh,
   onShowRequestModal,
   onShowDetailModal,
+  readOnly = false,
 }: RoutineWeekListProps) => {
-  const weeklyData = useWeeklyData(routines);
+  const weeklyData = useWeeklyData(routines, date);
   const getRoutineItemLayout = useCallback(
     (_: WeeklyRoutine[] | null, index: number) => ({
       length: itemHeight,
@@ -66,19 +68,25 @@ const RoutineWeekList = ({
               <View style={styles.cardInner}>
                 <View style={styles.cardSurface}>
                   <View style={styles.titleRow}>
-                    <Pressable
-                      onPress={() => onShowDetailModal(routineId)}
-                      style={styles.titleButton}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${routineName} 상세 보기`}
-                      hitSlop={baseFoundation.dimension.x8}
-                    >
+                    {readOnly ? (
                       <Typography variant="body3" style={styles.title}>
                         {routineName}
                       </Typography>
-                    </Pressable>
+                    ) : (
+                      <Pressable
+                        onPress={() => onShowDetailModal(routineId)}
+                        style={styles.titleButton}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${routineName} 상세 보기`}
+                        hitSlop={baseFoundation.dimension.x8}
+                      >
+                        <Typography variant="body3" style={styles.title}>
+                          {routineName}
+                        </Typography>
+                      </Pressable>
+                    )}
 
-                    {date === getWeekMonday(new Date()) ? (
+                    {!readOnly && date === getWeekMonday(new Date()) ? (
                       <Button
                         title="인증 요청"
                         size="sm"
@@ -87,9 +95,9 @@ const RoutineWeekList = ({
                         textColor="#DDEEFF"
                         style={styles.requestButton}
                       />
-                    ) : (
+                    ) : !readOnly ? (
                       <View style={styles.requestPlaceholder} />
-                    )}
+                    ) : null}
                   </View>
 
                   <View style={styles.headerRow}>
@@ -146,7 +154,10 @@ const RoutineWeekList = ({
                             size={baseFoundation.dimension.x14}
                             color="#67B7FF"
                           />
-                          <Typography variant="caption" style={styles.progressText}>
+                          <Typography
+                            variant="caption"
+                            style={styles.progressText}
+                          >
                             완료
                           </Typography>
                         </>
@@ -162,7 +173,14 @@ const RoutineWeekList = ({
         </View>
       );
     },
-    [date, itemHeight, onShowDetailModal, onShowRequestModal, weeklyData],
+    [
+      date,
+      itemHeight,
+      onShowDetailModal,
+      onShowRequestModal,
+      readOnly,
+      weeklyData,
+    ],
   );
 
   return (
@@ -199,7 +217,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#0D3154',
     shadowColor: '#14477D',
-    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x4 },
+    shadowOffset: {
+      width: baseFoundation.dimension.x0,
+      height: baseFoundation.dimension.x4,
+    },
     shadowOpacity: 0.16,
     shadowRadius: 8,
     elevation: 4,

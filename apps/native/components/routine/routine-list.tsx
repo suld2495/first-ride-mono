@@ -28,6 +28,7 @@ interface RoutineListProps {
   listAreaHeight?: number;
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
+  readOnly?: boolean;
 }
 
 const MAX_VISIBLE_ROUTINES = 4;
@@ -50,6 +51,7 @@ const RoutineList = ({
   listAreaHeight,
   refreshing = false,
   onRefresh,
+  readOnly = false,
 }: RoutineListProps) => {
   const setRoutineId = useSetRoutineId();
   const type = useRoutineType();
@@ -145,6 +147,7 @@ const RoutineList = ({
               onRefresh={onRefresh}
               onShowRequestModal={handleShowRequestModal}
               onShowDetailModal={handleShowDetailModal}
+              readOnly={readOnly}
               testID="routine-list-scroll"
             />
           ) : (
@@ -158,6 +161,7 @@ const RoutineList = ({
               onRefresh={onRefresh}
               onShowRequestModal={handleShowRequestModal}
               onShowDetailModal={handleShowDetailModal}
+              readOnly={readOnly}
               testID="routine-list-scroll"
             />
           )}

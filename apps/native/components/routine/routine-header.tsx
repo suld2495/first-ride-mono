@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { afterWeek, beforeWeek } from '@repo/shared/utils';
+import type { Href } from 'expo-router';
 import { View } from 'react-native';
 
 import NotificationBell from '@/components/notification/notification-bell';
@@ -13,11 +14,20 @@ import { baseFoundation } from '@/theme/tokens';
 
 interface RoutineHeaderProps {
   date: string;
+  getDateHref?: (date: string) => Href;
+  showNotification?: boolean;
 }
 
-const RoutineHeader = ({ date }: RoutineHeaderProps) => {
+const RoutineHeader = ({
+  date,
+  getDateHref = (targetDate) =>
+    `/(tabs)/(afterLogin)/(routine)?date=${targetDate}` as Href,
+  showNotification = true,
+}: RoutineHeaderProps) => {
   const user = useAuthUser();
-  const { data: requests } = useReceivedRequests(user?.nickname || '');
+  const { data: requests } = useReceivedRequests(
+    showNotification ? user?.nickname || '' : '',
+  );
   const currentDate = new Date(date);
   const formattedDate = `${currentDate.getFullYear()}. ${
     currentDate.getMonth() + 1
@@ -31,7 +41,7 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
         <View style={styles.dateNavigation}>
           <Link
             variant="ghost"
-            href={`/(tabs)/(afterLogin)/(routine)?date=${beforeWeek(currentDate)}`}
+            href={getDateHref(beforeWeek(currentDate))}
             leftIcon={({ color }) => (
               <Ionicons
                 name="chevron-back"
@@ -48,7 +58,7 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
           </Typography>
           <Link
             variant="ghost"
-            href={`/(tabs)/(afterLogin)/(routine)?date=${afterWeek(currentDate)}`}
+            href={getDateHref(afterWeek(currentDate))}
             leftIcon={({ color }) => (
               <Ionicons
                 name="chevron-forward"
@@ -61,12 +71,14 @@ const RoutineHeader = ({ date }: RoutineHeaderProps) => {
             style={styles.dateArrow}
           />
         </View>
-        <View style={styles.notification}>
-          <NotificationBell
-            count={requests.length}
-            url="/modal?type=request-list"
-          />
-        </View>
+        {showNotification ? (
+          <View style={styles.notification}>
+            <NotificationBell
+              count={requests.length}
+              url="/modal?type=request-list"
+            />
+          </View>
+        ) : null}
       </ThemeView>
     </ThemeView>
   );
