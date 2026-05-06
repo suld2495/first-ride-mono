@@ -18,6 +18,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    'expo-font',
     'react-native-edge-to-edge',
     ['expo-dev-launcher', { launchMode: 'most-recent' }],
     [

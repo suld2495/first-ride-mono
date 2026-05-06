@@ -1,6 +1,6 @@
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
 import { routineFormValidators } from '@repo/shared/service/validatorMessage';
-import { getFormatDate, getThisWeekMonday, isMonday } from '@repo/shared/utils';
+import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -47,6 +47,13 @@ const getDateFromFormValue = (date?: string) => {
   return new Date(year, month - 1, day);
 };
 
+const getStartOfToday = () => {
+  const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
 const RoutineFormModal = () => {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
 
@@ -54,6 +61,7 @@ const RoutineFormModal = () => {
   const routineForm = useRoutineForm();
 
   const [mateKeyword, setMateKeyword] = useState('');
+  const today = useMemo(() => getStartOfToday(), []);
 
   const user = useAuthUser();
   const { handleCreate, handleUpdate } = useRoutineFormSubmission({
@@ -138,9 +146,8 @@ const RoutineFormModal = () => {
                   buttonTitle={form.startDate || '시작일 선택'}
                   variant="outlined"
                   sheetLabel="시작일 선택"
-                  minimumDate={getThisWeekMonday()}
-                  defaultDate={getThisWeekMonday()}
-                  isDateSelectable={isMonday}
+                  minimumDate={today}
+                  defaultDate={today}
                   onConfirmDate={(date) => {
                     setValue('startDate', getFormatDate(date));
 
@@ -160,12 +167,11 @@ const RoutineFormModal = () => {
                   variant="outlined"
                   sheetLabel="종료일 선택"
                   minimumDate={
-                    getDateFromFormValue(form.startDate) ?? getThisWeekMonday()
+                    getDateFromFormValue(form.startDate) ?? today
                   }
                   defaultDate={
-                    getDateFromFormValue(form.startDate) ?? getThisWeekMonday()
+                    getDateFromFormValue(form.startDate) ?? today
                   }
-                  isDateSelectable={isMonday}
                   onConfirmDate={(date) => {
                     setValue('endDate', getFormatDate(date));
 

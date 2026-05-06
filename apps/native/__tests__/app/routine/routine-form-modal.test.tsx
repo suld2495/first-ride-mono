@@ -161,25 +161,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     }
   };
 
-  // 날짜 선택 헬퍼 함수
-  const selectStartDate = async (
-    getByText: (text: string) => any,
-    getByLabelText: (text: string) => any,
-    date = getThisWeekMonday(),
-  ) => {
-    await act(async () => {
-      fireEvent.press(getByText('시작일 선택'));
-    });
-
-    await act(async () => {
-      fireEvent.press(getByLabelText(`${getFormatDate(date)} 선택 가능`));
-    });
-
-    await act(async () => {
-      fireEvent.press(getByText('확인'));
-    });
-  };
-
   const getPreviousDate = (date: Date) => {
     const previousDate = new Date(date);
 
@@ -192,6 +173,32 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
     nextDate.setDate(nextDate.getDate() + 1);
     return nextDate;
+  };
+
+  const getStartOfToday = () => {
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+    return today;
+  };
+
+  // 날짜 선택 헬퍼 함수
+  const selectStartDate = async (
+    getByText: (text: string) => any,
+    getByLabelText: (text: string) => any,
+    date = getStartOfToday(),
+  ) => {
+    await act(async () => {
+      fireEvent.press(getByText('시작일 선택'));
+    });
+
+    await act(async () => {
+      fireEvent.press(getByLabelText(`${getFormatDate(date)} 선택 가능`));
+    });
+
+    await act(async () => {
+      fireEvent.press(getByText('확인'));
+    });
   };
 
   const getNextWeekDate = (date: Date) => {
@@ -290,21 +297,29 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       expect(getByLabelText('시작일 선택 바텀 시트')).toBeOnTheScreen();
       expect(
-        getByLabelText(`${getFormatDate(getThisWeekMonday())} 선택 가능`),
+        getByLabelText(`${getFormatDate(getStartOfToday())} 선택 가능`),
       ).toBeOnTheScreen();
     });
 
-    it('시작일은 월요일만 선택할 수 있다', async () => {
+    it('시작일은 오늘부터 월요일이 아닌 미래 날짜도 선택할 수 있다', async () => {
       const { getByLabelText, getByText } = render(<RoutineFormModal />);
-      const tuesday = getNextDate(getThisWeekMonday());
+      const today = getStartOfToday();
+      const yesterday = getPreviousDate(today);
+      const tomorrow = getNextDate(today);
 
       await act(async () => {
         fireEvent.press(getByText('시작일 선택'));
       });
 
       expect(
-        getByLabelText(`${getFormatDate(tuesday)} 선택 불가`),
+        getByLabelText(`${getFormatDate(yesterday)} 선택 불가`),
       ).toBeDisabled();
+      expect(
+        getByLabelText(`${getFormatDate(today)} 선택 가능`),
+      ).toBeEnabled();
+      expect(
+        getByLabelText(`${getFormatDate(tomorrow)} 선택 가능`),
+      ).toBeEnabled();
     });
 
     it('종료일 선택 시 캘린더가 바텀 시트로 열린다', async () => {
@@ -316,14 +331,15 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       expect(getByLabelText('종료일 선택 바텀 시트')).toBeOnTheScreen();
       expect(
-        getByLabelText(`${getFormatDate(getThisWeekMonday())} 선택 가능`),
+        getByLabelText(`${getFormatDate(getStartOfToday())} 선택 가능`),
       ).toBeOnTheScreen();
     });
 
-    it('종료일은 시작일 이후 날짜만 선택할 수 있다', async () => {
+    it('종료일은 시작일 포함 이후 날짜를 선택할 수 있다', async () => {
       const { getByLabelText, getByText } = render(<RoutineFormModal />);
       const startDate = getNextWeekDate(getThisWeekMonday());
       const previousDate = getPreviousDate(startDate);
+      const nextDate = getNextDate(startDate);
 
       await selectStartDate(getByText, getByLabelText, startDate);
 
@@ -336,6 +352,9 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       ).toBeDisabled();
       expect(
         getByLabelText(`${getFormatDate(startDate)} 선택 가능`),
+      ).toBeEnabled();
+      expect(
+        getByLabelText(`${getFormatDate(nextDate)} 선택 가능`),
       ).toBeEnabled();
     });
 

@@ -12,6 +12,6 @@
 
 ## 배포 명령어
 
-- iOS production build: `eas build --platform ios --profile production`
-- iOS production submit: `eas submit --platform ios --latest --profile production`
-- 한번에 : `eas build --platform ios --profile production --auto-submit`
+- iOS production build: `cd apps/native && eas build --platform ios --profile production`
+- iOS production submit: `cd apps/native && eas submit --platform ios --latest --profile production`
+- 한번에 : `cd apps/native && eas build --platform ios --profile production --auto-submit`
