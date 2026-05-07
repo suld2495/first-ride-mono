@@ -7,8 +7,12 @@ import type { Friend, FriendRequest } from '@repo/types';
 export interface CreateMockFriendOptions {
   id?: number;
   nickname?: string;
+  mateNickname?: string | null;
   job?: string;
   profileImage?: string | null;
+  level?: number;
+  characterCode?: string;
+  characterImageUrl?: string | null;
   friendSince?: string;
 }
 
@@ -18,8 +22,16 @@ export const createMockFriend = (
 ): Friend => ({
   id: options.id ?? index + 1,
   nickname: options.nickname ?? `friend${index + 1}`,
+  mateNickname:
+    'mateNickname' in options
+      ? (options.mateNickname ?? null)
+      : `mate${index + 1}`,
   job: options.job ?? '직장인',
   profileImage: options.profileImage ?? null,
+  level: options.level ?? index + 1,
+  characterCode: options.characterCode ?? 'MAGE_INTERMEDIATE',
+  characterImageUrl:
+    options.characterImageUrl ?? '/assets/characters/mage_intermediate.png',
   friendSince: options.friendSince ?? new Date().toISOString(),
 });
 

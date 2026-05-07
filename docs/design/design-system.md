@@ -25,6 +25,17 @@
 
 여기에는 화면에서 쓰는 색이 용도별로 정리되어 있다.
 
+컴포넌트 파일에서 색상 값을 직접 넣지 않는다. `#FFFFFF`, `rgba(255,255,255,0.48)` 같은 값은 컴포넌트에 고정하지 않고, 역할에 맞는 `theme.colors.*` 값을 사용한다.
+
+필요한 색상 역할이 없으면 `ThemeContract`에 의미가 드러나는 키를 추가하고, 각 테마 파일에서 값을 지정한다.
+
+예시:
+
+- 캐릭터 뒤 패널 배경: `theme.colors.brand.card`
+- 기본 화면 배경: `theme.colors.background.base`
+- 일반 텍스트: `theme.colors.text.primary`
+- 테마별 강조 텍스트: `theme.colors.brand.text`
+
 ### 배경 색상
 
 아래 항목을 수정하면 배경 계열이 바뀐다.
@@ -150,6 +161,27 @@
 
 여백 값은 `apps/native/theme/tokens.ts`의 `baseFoundation.spacing`에서 수정한다.
 
+`spacing`은 요소와 요소 사이의 거리, 화면 안쪽 여백, 리스트 간격처럼 레이아웃의 숨 쉴 공간을 정할 때 사용한다.
+
+사용하는 경우:
+
+- `margin`
+- `marginTop`, `marginBottom`, `marginLeft`, `marginRight`
+- `padding`
+- `paddingHorizontal`, `paddingVertical`
+- `gap`, `rowGap`, `columnGap`
+- 컨테이너의 좌우 여백
+- 리스트 아이템 사이 간격
+- 섹션과 섹션 사이 간격
+
+예시:
+
+- 친구 리스트 한 줄에서 두 아이템 사이 간격이 16px이면 `theme.foundation.spacing[4]`를 사용한다.
+- 카드 내부 여백이 20px이면 `theme.foundation.spacing[5]`를 사용한다.
+- 텍스트 위아래 간격이 레이아웃상 여백이면 `theme.foundation.spacing.*`를 사용한다.
+
+`spacing`은 화면의 리듬을 만드는 값이다. 같은 16px이라도 요소 간 간격이라면 `dimension.x16`을 쓰지 않는다.
+
 현재 항목은 아래와 같다.
 
 - `0`
@@ -191,6 +223,41 @@
 예시:
 
 - `4: 16`을 `4: 20`으로 바꾸면 `4`를 사용하는 컴포넌트들의 기본 여백이 더 넓어진다.
+
+## 고정 크기 수정
+
+고정 크기 값은 `apps/native/theme/tokens.ts`의 `baseFoundation.dimension`에서 수정한다.
+
+`dimension`은 특정 UI 요소 자체의 물리적인 크기를 정할 때 사용한다. 요소 사이의 간격이 아니라 너비, 높이, 최소 크기, 위치 기준처럼 실제 박스 크기를 고정해야 할 때 쓴다.
+
+사용하는 경우:
+
+- `width`
+- `height`
+- `minWidth`, `minHeight`
+- `maxWidth`, `maxHeight`
+- 정사각형 아이콘 버튼 크기
+- 아바타, 캐릭터 이미지, 썸네일 크기
+- 체크박스, 배지, 핸들러처럼 특정 컴포넌트의 고정 크기
+- `top`, `right`, `bottom`, `left`처럼 고정 위치값이 필요한 경우
+- `borderRadius`가 정확한 픽셀 크기 기준으로 맞아야 하는 경우
+
+예시:
+
+- 친구 추가 버튼 너비가 99px이면 `baseFoundation.dimension.x99`를 사용한다.
+- 캐릭터 이미지 최소 크기가 100px이면 `baseFoundation.dimension.x100`을 기준으로 사용한다.
+- 40px 원형 아바타는 `width`, `height`에 `baseFoundation.dimension.x40`을 사용한다.
+
+`dimension`은 컴포넌트 자체의 크기를 만드는 값이다. 리스트 아이템 사이 간격, 카드 내부 여백, 텍스트와 텍스트 사이 간격에는 사용하지 않는다.
+
+### spacing과 dimension 선택 기준
+
+- 요소와 요소 사이의 거리면 `spacing`
+- 요소 내부의 여백이면 `spacing`
+- 리스트, 그리드, 섹션의 간격이면 `spacing`
+- 요소 자체의 너비나 높이면 `dimension`
+- 최소/최대 크기를 보장해야 하면 `dimension`
+- 아이콘 버튼, 아바타, 이미지, 배지처럼 실체가 있는 UI 조각의 크기면 `dimension`
 
 ## 둥근 정도 수정
 

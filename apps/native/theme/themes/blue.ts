@@ -32,6 +32,8 @@ export const blueTheme: ThemeContract = {
       ...commonTheme.colors.text,
       secondary: palette.theme.softBlue[40],
       tertiary: palette.theme.softBlue[80],
+      muted: palette.theme.blue[80],
+      soft: palette.theme.softBlue[60],
     },
     brand: {
       ...commonTheme.colors.brand,
@@ -45,6 +47,7 @@ export const blueTheme: ThemeContract = {
       selectedCheck: palette.theme.blue[100],
       bottomTab: palette.theme.softBlue[20],
       activeBottomTab: palette.theme.blue[50],
+      card: palette.theme.blue[5],
       routineBackground: palette.theme.blue[100],
     },
   },

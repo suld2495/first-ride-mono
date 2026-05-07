@@ -1,19 +1,10 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
-import { Alert, FlatList, Pressable } from 'react-native';
+import { FlatList } from 'react-native';
 
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
-import {
-  act,
-  fireEvent,
-  render,
-  resetAuthMocks,
-  waitFor,
-} from '../setup/auth-test-utils';
-import { createMockFriends } from '../setup/friend/mock';
-
-// Alert.alert 스파이 설정
-jest.spyOn(Alert, 'alert');
+import { act, render, resetAuthMocks, waitFor } from '../setup/auth-test-utils';
+import { createMockFriend, createMockFriends } from '../setup/friend/mock';
 
 // FriendRequestResponse 형식에 맞는 mock 데이터 생성
 const createMockFriendRequestResponse = (count: number) =>
@@ -48,7 +39,6 @@ describe('친구 리스트 페이지', () => {
   beforeEach(() => {
     resetAuthMocks();
     mockAxios = new MockAdapter(axiosInstance);
-    (Alert.alert as jest.Mock).mockClear();
   });
 
   afterEach(async () => {
@@ -63,12 +53,14 @@ describe('친구 리스트 페이지', () => {
         setupMocks(createMockFriends(3));
       });
 
-      it('친구 리스트가 표시된다', async () => {
-        const { findByText } = render(<FriendPage />);
+      it('친구 수와 2열 캐릭터 카드가 표시된다', async () => {
+        const { findByLabelText, findByText } = render(<FriendPage />);
 
         expect(await findByText('friend1')).toBeOnTheScreen();
-        expect(await findByText('friend2')).toBeOnTheScreen();
-        expect(await findByText('friend3')).toBeOnTheScreen();
+        expect(await findByText('전체 3명')).toBeOnTheScreen();
+        expect(await findByText('mate1')).toBeOnTheScreen();
+        expect(await findByText('Lv. 1')).toBeOnTheScreen();
+        expect(await findByLabelText('friend1 캐릭터')).toBeOnTheScreen();
       });
     });
 
@@ -85,9 +77,16 @@ describe('친구 리스트 페이지', () => {
     });
   });
 
-  describe('친구 검색 테스트', () => {
-    it('검색어 입력 후 엔터를 누르면 해당 키워드를 포함하는 친구만 표시된다', async () => {
-      const allFriends = createMockFriends(3);
+  describe('친구 목록 API 테스트', () => {
+    it('GET /friends 응답의 캐릭터 정보를 표시한다', async () => {
+      const friend = createMockFriend(0, {
+        nickname: '김혜연',
+        mateNickname: null,
+        job: '마법사',
+        level: 7,
+        characterCode: 'MAGE_INTERMEDIATE',
+        characterImageUrl: '/assets/characters/mage_intermediate.png',
+      });
 
       mockAxios
         .onGet(/\/friends\/requests/)
@@ -96,61 +95,15 @@ describe('친구 리스트 페이지', () => {
         if (config.url?.includes('/requests')) {
           return [200, wrapResponse(createMockFriendRequestResponse(1))];
         }
-        if (config.url?.includes('nickname=friend2')) {
-          return [200, wrapResponse([allFriends[1]])];
-        }
-        return [200, wrapResponse(allFriends)];
+        return [200, wrapResponse([friend])];
       });
 
-      const { findByText, getByPlaceholderText, queryByText } = render(
-        <FriendPage />,
-      );
+      const { findByLabelText, findByText } = render(<FriendPage />);
 
-      expect(await findByText('friend1')).toBeOnTheScreen();
-
-      const searchInput = getByPlaceholderText('이름을 입력해주세요.');
-
-      fireEvent.changeText(searchInput, 'friend2');
-      fireEvent(searchInput, 'submitEditing');
-
-      expect(await findByText('friend2')).toBeOnTheScreen();
-
-      await waitFor(() => {
-        expect(queryByText('friend1')).not.toBeOnTheScreen();
-        expect(queryByText('friend3')).not.toBeOnTheScreen();
-      });
-    });
-  });
-
-  describe('친구 삭제 테스트', () => {
-    beforeEach(() => {
-      setupMocks(createMockFriends(3));
-    });
-
-    it('삭제 버튼 클릭 시 확인 Alert이 표시된다', async () => {
-      const { findByText, UNSAFE_getAllByType } = render(<FriendPage />);
-
-      expect(await findByText('friend1')).toBeOnTheScreen();
-
-      const pressables = UNSAFE_getAllByType(Pressable);
-
-      // 삭제 버튼 찾기: 모든 Pressable을 순회하면서 Alert.alert를 호출하는 버튼 찾기
-      for (let i = 0; i < pressables.length; i++) {
-        fireEvent.press(pressables[i]);
-
-        if ((Alert.alert as jest.Mock).mock.calls.length > 0) {
-          break;
-        }
-      }
-
-      expect(Alert.alert).toHaveBeenCalledWith(
-        '친구 삭제',
-        expect.stringContaining('님을 친구 목록에서 삭제하시겠습니까?'),
-        expect.arrayContaining([
-          expect.objectContaining({ text: '취소', style: 'cancel' }),
-          expect.objectContaining({ text: '삭제', style: 'destructive' }),
-        ]),
-      );
+      expect(await findByText('김혜연')).toBeOnTheScreen();
+      expect(await findByText('마법사')).toBeOnTheScreen();
+      expect(await findByText('Lv. 7')).toBeOnTheScreen();
+      expect(await findByLabelText('김혜연 캐릭터')).toBeOnTheScreen();
     });
   });
 
@@ -161,8 +114,7 @@ describe('친구 리스트 페이지', () => {
       mockAxios
         .onGet(/\/friends\/requests/)
         .reply(200, wrapResponse(createMockFriendRequestResponse(1)));
-      mockAxios.onGet(/\/friends$/).reply(200, wrapResponse(allFriends));
-      mockAxios.onGet(/\/friends\?/).reply(200, wrapResponse(allFriends));
+      mockAxios.onGet('/friends').reply(200, wrapResponse(allFriends));
     });
 
     it('아래로 당기면 친구 목록과 친구 요청 알림을 함께 다시 조회한다', async () => {
@@ -170,12 +122,12 @@ describe('친구 리스트 페이지', () => {
 
       expect(await screen.findByText('friend1')).toBeOnTheScreen();
       expect(
-        mockAxios.history.get.filter(
-          ({ url }) => url?.startsWith('/friends?') && !url?.includes('/requests'),
-        ).length,
+        mockAxios.history.get.filter(({ url }) => url === '/friends').length,
       ).toBe(1);
       expect(
-        mockAxios.history.get.filter(({ url }) => url?.includes('/friends/requests')).length,
+        mockAxios.history.get.filter(({ url }) =>
+          url?.includes('/friends/requests'),
+        ).length,
       ).toBe(1);
 
       const list = screen.UNSAFE_getByType(FlatList);
@@ -186,12 +138,12 @@ describe('친구 리스트 페이지', () => {
 
       await waitFor(() => {
         expect(
-          mockAxios.history.get.filter(
-            ({ url }) => url?.startsWith('/friends?') && !url?.includes('/requests'),
-          ).length,
+          mockAxios.history.get.filter(({ url }) => url === '/friends').length,
         ).toBe(2);
         expect(
-          mockAxios.history.get.filter(({ url }) => url?.includes('/friends/requests')).length,
+          mockAxios.history.get.filter(({ url }) =>
+            url?.includes('/friends/requests'),
+          ).length,
         ).toBe(2);
       });
     });

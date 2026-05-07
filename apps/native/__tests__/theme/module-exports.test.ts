@@ -21,6 +21,15 @@ describe('theme module exports', () => {
     expect(appThemes.red).toBe(redTheme);
     expect(lightTheme.colors.brand.primary).toBe('#0984e3');
     expect(darkTheme.colors.brand.card).toBe('#2f3640');
+    expect(appThemes.blue.colors.text.muted).toBe('#2C5171');
+    expect(greenTheme.colors.text.muted).toBe('#416B58');
+    expect(redTheme.colors.text.muted).toBe('#7A486E');
+    expect(appThemes.blue.colors.text.soft).toBe('#6097C6');
+    expect(greenTheme.colors.text.soft).toBe('#6D947E');
+    expect(redTheme.colors.text.soft).toBe('#C178B0');
+    expect(appThemes.blue.colors.brand.card).toBe('#E2F1FF');
+    expect(greenTheme.colors.brand.card).toBe('#D4FFE9');
+    expect(redTheme.colors.brand.card).toBe('#FFEBFA');
   });
 
   it('반응형 타입과 유틸리티를 theme 디렉토리에서 제공한다', () => {

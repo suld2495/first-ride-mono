@@ -80,12 +80,12 @@ describe('루틴 조회 페이지', () => {
         mockAxios.onGet(/\/routine\/list/).reply(200, { data: [] });
       });
 
-      it('등록된 루틴이 없습니다 메시지가 표시되고 배경 장식은 숨겨진다', async () => {
+      it('등록된 루틴이 없습니다 메시지가 표시되고 배경 장식과 캐릭터가 표시된다', async () => {
         const { findByText, queryByTestId } = render(<Index />);
 
         expect(await findByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
-        expect(queryByTestId('routine-scene-background')).toBeNull();
-        expect(queryByTestId('routine-scene-character')).toBeNull();
+        expect(queryByTestId('routine-scene-background')).toBeOnTheScreen();
+        expect(queryByTestId('routine-scene-character')).toBeOnTheScreen();
       });
     });
 

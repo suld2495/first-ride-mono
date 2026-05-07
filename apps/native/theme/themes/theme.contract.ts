@@ -28,6 +28,8 @@ export type ThemeContract = {
       primary: string;
       secondary: string;
       tertiary: string;
+      muted: string;
+      soft: string;
       disabled: string;
       inverse: string;
       link: string;
@@ -128,6 +130,8 @@ export const baseTheme: ThemeContract = {
       primary: palette.stitch.dark.text,
       secondary: palette.stitch.dark.secondary,
       tertiary: '#64748b',
+      muted: '#64748b',
+      soft: '#64748b',
       disabled: '#334155',
       inverse: '#0f172a',
       link: palette.stitch.primary,

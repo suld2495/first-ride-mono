@@ -189,7 +189,11 @@ const RoutineList = ({
           ) : null}
         </ThemeView>
       ) : (
-        <EmptyState icon="list-outline" message="등록된 루틴이 없습니다." />
+        <EmptyState
+          icon="list-outline"
+          message="등록된 루틴이 없습니다."
+          transparent
+        />
       )}
       {canExpandList ? (
         <View

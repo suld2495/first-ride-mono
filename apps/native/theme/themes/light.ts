@@ -27,6 +27,8 @@ export const lightTheme: ThemeContract = {
       primary: palette.stitch.light.text,
       secondary: palette.stitch.light.secondary,
       tertiary: '#94a3b8',
+      muted: '#94a3b8',
+      soft: '#94a3b8',
       disabled: '#cbd5e1',
       inverse: '#FFFFFF',
       link: palette.stitch.primary,

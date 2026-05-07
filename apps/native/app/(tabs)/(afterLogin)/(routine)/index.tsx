@@ -5,7 +5,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, type LayoutChangeEvent, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
@@ -24,9 +27,11 @@ import { baseFoundation } from '@/theme/tokens';
 
 const SPEECH_BUBBLE_VISIBLE_MS = 3000;
 const SPEECH_BUBBLE_FADE_OUT_MS = 300;
+const EMPTY_CHARACTER_BOTTOM_INSET_THRESHOLD = baseFoundation.dimension.x20;
 
 export default function Index() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const isFirstLoadRef = useRef(true);
   const speechBubbleHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -49,6 +54,9 @@ export default function Index() {
   const hasRoutines = routines.length > 0;
   const motto = user?.motto?.trim();
   const speechBubbleMessage = motto ? motto : '안녕?';
+  const emptyCharacterBottomOffset =
+    baseFoundation.spacing[5] +
+    Math.max(EMPTY_CHARACTER_BOTTOM_INSET_THRESHOLD - insets.bottom, 0);
 
   useEffect(() => {
     if (!isLoading && isFirstLoadRef.current) {
@@ -167,12 +175,25 @@ export default function Index() {
                 </View>
               </>
             ) : (
-              <RoutineList
-                routines={routines}
-                date={date}
-                refreshing={isRefetching}
-                onRefresh={handleRefresh}
-              />
+              <>
+                <View
+                  style={[
+                    styles.emptyRoutineCharacterArea,
+                    { bottom: emptyCharacterBottomOffset },
+                  ]}
+                  testID="routine-character-area"
+                >
+                  <RoutineCharacter />
+                </View>
+                <View style={styles.emptyStateOverlay}>
+                  <RoutineList
+                    routines={routines}
+                    date={date}
+                    refreshing={isRefetching}
+                    onRefresh={handleRefresh}
+                  />
+                </View>
+              </>
             )}
           </View>
         )}
@@ -222,6 +243,7 @@ const styles = StyleSheet.create((theme) => ({
   content: {
     flex: 1,
     paddingHorizontal: theme.foundation.spacing[4],
+    position: 'relative',
   },
   loadingContainer: {
     flex: 1,
@@ -233,6 +255,19 @@ const styles = StyleSheet.create((theme) => ({
     flex: 3,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  emptyRoutineCharacterArea: {
+    position: 'absolute',
+    right: theme.foundation.spacing[4],
+    left: theme.foundation.spacing[4],
+    alignItems: 'center',
+  },
+  emptyStateOverlay: {
+    position: 'absolute',
+    top: baseFoundation.spacing[0],
+    right: theme.foundation.spacing[4],
+    left: theme.foundation.spacing[4],
+    height: '48%',
   },
   characterStage: {
     alignItems: 'center',

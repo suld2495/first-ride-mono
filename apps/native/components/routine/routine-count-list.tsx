@@ -205,7 +205,15 @@ const RoutineCountList = ({
         </View>
       );
     },
-    [date, itemHeight, onShowDetailModal, onShowRequestModal, readOnly],
+    [
+      date,
+      itemHeight,
+      onShowDetailModal,
+      onShowRequestModal,
+      readOnly,
+      theme.colors.brand.check,
+      theme.colors.brand.selectedCheck,
+    ],
   );
 
   return (

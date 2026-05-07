@@ -3,10 +3,10 @@ import { afterWeek, beforeWeek } from '@repo/shared/utils';
 import type { Href } from 'expo-router';
 import { View } from 'react-native';
 
+import PageHeader from '@/components/layout/page-header';
 import NotificationBell from '@/components/notification/notification-bell';
 import Link from '@/components/ui/link';
-import { StyleSheet } from '@/components/ui/tamagui';
-import ThemeView from '@/components/ui/theme-view';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
@@ -24,6 +24,7 @@ const RoutineHeader = ({
     `/(tabs)/(afterLogin)/(routine)?date=${targetDate}` as Href,
   showNotification = true,
 }: RoutineHeaderProps) => {
+  const { theme } = useAppTheme();
   const user = useAuthUser();
   const { data: requests } = useReceivedRequests(
     showNotification ? user?.nickname || '' : '',
@@ -36,34 +37,38 @@ const RoutineHeader = ({
   }`;
 
   return (
-    <ThemeView style={styles.container} transparent>
-      <ThemeView style={styles.topBar} transparent>
+    <PageHeader
+      center={
         <View style={styles.dateNavigation}>
           <Link
             variant="ghost"
             href={getDateHref(beforeWeek(currentDate))}
-            leftIcon={({ color }) => (
+            leftIcon={() => (
               <Ionicons
                 name="chevron-back"
                 size={baseFoundation.iconSize.m}
-                color={color}
+                color={theme.colors.text.title}
               />
             )}
             accessibilityLabel="이전 주"
             accessibilityRole="button"
             style={styles.dateArrow}
           />
-          <Typography variant="body1" style={styles.dateTitle}>
+          <Typography
+            variant="body1"
+            weight="semibold"
+            style={styles.dateTitle}
+          >
             {formattedDate}
           </Typography>
           <Link
             variant="ghost"
             href={getDateHref(afterWeek(currentDate))}
-            leftIcon={({ color }) => (
+            leftIcon={() => (
               <Ionicons
                 name="chevron-forward"
                 size={baseFoundation.iconSize.m}
-                color={color}
+                color={theme.colors.text.title}
               />
             )}
             accessibilityLabel="다음 주"
@@ -71,34 +76,22 @@ const RoutineHeader = ({
             style={styles.dateArrow}
           />
         </View>
-        {showNotification ? (
-          <View style={styles.notification}>
-            <NotificationBell
-              count={requests.length}
-              url="/modal?type=request-list"
-            />
-          </View>
-        ) : null}
-      </ThemeView>
-    </ThemeView>
+      }
+      right={
+        showNotification ? (
+          <NotificationBell
+            count={requests.length}
+            url="/modal?type=request-list"
+          />
+        ) : null
+      }
+    />
   );
 };
 
 export default RoutineHeader;
 
 const styles = StyleSheet.create((theme) => ({
-  container: {
-    gap: baseFoundation.spacing[0],
-    marginTop: theme.foundation.spacing[2],
-  },
-
-  topBar: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: theme.foundation.spacing[4],
-    minHeight: baseFoundation.dimension.x44,
-  },
   dateNavigation: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -116,12 +109,5 @@ const styles = StyleSheet.create((theme) => ({
     minWidth: baseFoundation.dimension.x28,
     paddingHorizontal: baseFoundation.spacing[0],
     paddingVertical: baseFoundation.spacing[0],
-  },
-  notification: {
-    position: 'absolute',
-    right: theme.foundation.spacing[4],
-    top: baseFoundation.spacing[0],
-    bottom: baseFoundation.spacing[0],
-    justifyContent: 'center',
   },
 }));

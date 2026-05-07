@@ -47,13 +47,11 @@ const withFriendAccountId = async (friend: Friend): Promise<Friend> => {
   }
 };
 
-export const fetchFriends = async ({
-  keyword = '',
-}: SearchOption): Promise<Friend[]> => {
+export const fetchFriends = async (
+  _option: SearchOption,
+): Promise<Friend[]> => {
   try {
-    const response: Friend[] = await http.get(
-      `${baseURL}?${keyword ? `nickname=${keyword}` : ''}`,
-    );
+    const response: Friend[] = await http.get(baseURL);
 
     return Promise.all(response.map(withFriendAccountId));
   } catch (error) {

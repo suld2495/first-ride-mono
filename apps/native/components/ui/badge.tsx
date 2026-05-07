@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, View, type ViewStyle } from 'react-native';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { baseFoundation } from '@/theme/tokens';
 
 /**
  * Badge variant types
@@ -95,19 +96,19 @@ export const Badge: React.FC<BadgeProps> = ({
     { minWidth: number; height: number; fontSize: number }
   > = {
     sm: {
-      minWidth: theme.foundation.dimension.x14,
-      height: theme.foundation.dimension.x14,
-      fontSize: theme.foundation.dimension.x9,
+      minWidth: baseFoundation.dimension.x14,
+      height: baseFoundation.dimension.x14,
+      fontSize: baseFoundation.dimension.x9,
     },
     md: {
-      minWidth: theme.foundation.dimension.x18,
-      height: theme.foundation.dimension.x18,
-      fontSize: theme.foundation.dimension.x11,
+      minWidth: baseFoundation.dimension.x18,
+      height: baseFoundation.dimension.x18,
+      fontSize: baseFoundation.dimension.x11,
     },
     lg: {
-      minWidth: theme.foundation.dimension.x22,
-      height: theme.foundation.dimension.x22,
-      fontSize: theme.foundation.dimension.x13,
+      minWidth: baseFoundation.dimension.x22,
+      height: baseFoundation.dimension.x22,
+      fontSize: baseFoundation.dimension.x13,
     },
   };
 

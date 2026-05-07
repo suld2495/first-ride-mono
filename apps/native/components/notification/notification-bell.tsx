@@ -8,12 +8,18 @@ import { Badge } from '@/components/ui/badge';
 import { IconButton } from '@/components/ui/icon-button';
 
 interface NotificationBellProps {
+  accessibilityLabel?: string;
   count: number;
   onPress?: () => void;
   url?: Href;
 }
 
-const NotificationBell = ({ count, onPress, url }: NotificationBellProps) => {
+const NotificationBell = ({
+  accessibilityLabel,
+  count,
+  onPress,
+  url,
+}: NotificationBellProps) => {
   const router = useRouter();
 
   const handlePress = () => {
@@ -28,7 +34,9 @@ const NotificationBell = ({ count, onPress, url }: NotificationBellProps) => {
     <IconButton
       variant="ghost"
       onPress={handlePress}
-      accessibilityLabel={`인증 요청 알림${count > 0 ? ` ${count}건` : ''}`}
+      accessibilityLabel={
+        accessibilityLabel ?? `인증 요청 알림${count > 0 ? ` ${count}건` : ''}`
+      }
       icon={() => (
         <View>
           <Image

@@ -19,6 +19,7 @@ describe('theme/tokens', () => {
     expect(tokens.space.px).toBe(1);
     expect(tokens.space[0.5]).toBe(2);
     expect(baseFoundation.dimension.x20).toBe(20);
+    expect(baseFoundation.dimension.x99).toBe(99);
     expect(baseFoundation.typography.size.caption3).toBe(11);
     expect(baseFoundation.typography.size.body1).toBe(16);
     expect(baseFoundation.typography.size.h0).toBe(40);
@@ -62,6 +63,8 @@ describe('theme/tokens', () => {
           primary: '#fff',
           secondary: '#ddd',
           tertiary: '#bbb',
+          muted: '#aaa',
+          soft: '#aaa',
           disabled: '#999',
           inverse: '#000',
           link: '#0af',

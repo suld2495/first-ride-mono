@@ -14,9 +14,8 @@ import FriendAddModal from '@/components/friend/friend-add-modal';
 import FriendHeader from '@/components/friend/friend-header';
 import FriendList from '@/components/friend/friend-list';
 import Container from '@/components/layout/container';
-import Header from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Typography } from '@/components/ui/typography';
 import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
 
@@ -27,8 +26,6 @@ const FriendPage = () => {
   const router = useRouter();
   const { showToast } = useToast();
   const [page] = useState(1);
-  const [input, setInput] = useState('');
-  const [keyword, setKeyword] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -38,11 +35,7 @@ const FriendPage = () => {
     data: friends,
     isLoading,
     refetch: refetchFriends,
-  } = useFetchFriendsQuery({ page, keyword });
-
-  const handleSearch = () => {
-    setKeyword(input);
-  };
+  } = useFetchFriendsQuery({ page, keyword: '' });
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -77,43 +70,36 @@ const FriendPage = () => {
 
   return (
     <Container style={styles.container} noPadding>
-      <Header />
       <FriendHeader requestCount={requests.length} />
 
       <ThemeView style={styles.innerContainer}>
-        <ThemeView style={styles.addButtonContainer}>
+        <ThemeView style={styles.summaryRow} transparent>
+          <Typography variant="caption1" style={styles.totalText}>
+            전체 {friends?.length ?? 0}명
+          </Typography>
           <Button
             title="친구 추가"
-            variant="primary"
+            variant="ghost"
             size="sm"
             leftIcon={({ color }) => (
               <Ionicons
-                name="people-outline"
+                name="add"
                 size={baseFoundation.iconSize.m}
                 color={color}
               />
             )}
             onPress={() => setShowAddModal(true)}
+            backgroundColor="#111827"
+            textColor="#FFFFFF"
             style={styles.addButton}
           />
         </ThemeView>
 
-        <ThemeView style={styles.searchContainer}>
-          <Input
-            value={input}
-            placeholder="이름을 입력해주세요."
-            onChangeText={setInput}
-            onSubmitEditing={handleSearch}
-            returnKeyType="search"
-            fullWidth
-          />
-        </ThemeView>
         <FriendList
           friends={friends}
           isLoading={isLoading}
           refreshing={refreshing}
           onRefresh={handleRefresh}
-          onDeleteRefresh={refetchFriends}
           onOpenFriend={handleOpenFriend}
         />
       </ThemeView>
@@ -132,23 +118,28 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     width: '100%',
+    backgroundColor: theme.colors.brand.secondary,
   },
   innerContainer: {
     flex: 1,
-    paddingHorizontal: theme.foundation.spacing[4],
+    paddingHorizontal: theme.foundation.spacing[5],
   },
-  addButtonContainer: {
+  summaryRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: theme.foundation.spacing[4],
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: theme.foundation.spacing[3],
   },
   addButton: {
-    paddingHorizontal: theme.foundation.spacing[2],
+    width: baseFoundation.dimension.x99,
+    height: baseFoundation.dimension.x32,
+    minWidth: baseFoundation.dimension.x99,
+    minHeight: baseFoundation.dimension.x32,
+    borderRadius: baseFoundation.radii.xs,
+    paddingHorizontal: theme.foundation.spacing[3],
   },
-  searchContainer: {
-    marginVertical: theme.foundation.spacing[4],
-  },
-  searchInput: {
-    width: '100%',
+  totalText: {
+    color: theme.colors.text.muted,
+    fontSize: theme.foundation.typography.size.caption1,
   },
 }));

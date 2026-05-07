@@ -1,23 +1,27 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useDeleteFriendMutation } from '@repo/shared/hooks/useFriend';
 import type { Friend } from '@repo/types';
 import { useCallback } from 'react';
-import { Alert, FlatList, Pressable } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
+import {
+  FlatList,
+  Image,
+  Pressable,
+  View,
+  type ImageSourcePropType,
+  useWindowDimensions,
+} from 'react-native';
 
-import { Button } from '@/components/ui/button';
+import { getRoutineSceneCharacterAsset } from '@/components/routine/routine-scene-art';
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList } from '@/components/ui/flash-list';
 import { Loading } from '@/components/ui/loading';
-import { PixelCard } from '@/components/ui/pixel-card';
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
-import { useToast } from '@/contexts/ToastContext';
-import { getApiErrorMessage } from '@/utils/error-utils';
+import { Typography } from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
-interface FriendItemProps extends Friend {
-  onDelete: () => void;
+interface FriendItemProps {
+  friend: Friend;
+  itemWidth: number;
+  imageSize: number;
   onOpen: (friend: Friend) => void;
 }
 
@@ -25,91 +29,98 @@ interface FriendRenderItemProps {
   item: Friend;
 }
 
-const FRIEND_ITEM_HEIGHT = 88;
-const getFriendItemLayout = (
-  _: ArrayLike<Friend> | Friend[] | null | undefined,
-  index: number,
-) => ({
-  length: FRIEND_ITEM_HEIGHT,
-  offset: FRIEND_ITEM_HEIGHT * index,
-  index,
-});
+const FALLBACK_CHARACTER_SOURCE = getRoutineSceneCharacterAsset('blue').source;
+const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
+  /\/$/,
+  '',
+);
+const FRIEND_LAYOUT_BASE_SCREEN_WIDTH = 430;
+const FRIEND_LAYOUT_BASE_ITEM_WIDTH = 183;
+const FRIEND_LAYOUT_BASE_IMAGE_SIZE = 120;
+const FRIEND_IMAGE_MIN_SIZE = 100;
+const FRIEND_ITEM_TO_IMAGE_RATIO =
+  FRIEND_LAYOUT_BASE_ITEM_WIDTH / FRIEND_LAYOUT_BASE_IMAGE_SIZE;
 
-const FriendItem = ({ onDelete, onOpen, ...friend }: FriendItemProps) => {
-  const deleteMutation = useDeleteFriendMutation();
-  const { theme } = useAppTheme();
-  const { showToast } = useToast();
-  const { nickname } = friend;
+const getFriendItemLayoutSize = (screenWidth: number) => {
+  const imageSize = Math.max(
+    FRIEND_IMAGE_MIN_SIZE,
+    Math.round(
+      (screenWidth / FRIEND_LAYOUT_BASE_SCREEN_WIDTH) *
+        FRIEND_LAYOUT_BASE_IMAGE_SIZE,
+    ),
+  );
+  const itemWidth = Math.round(imageSize * FRIEND_ITEM_TO_IMAGE_RATIO);
 
-  const handleDelete = () => {
-    Alert.alert(
-      '친구 삭제',
-      `${nickname}님을 친구 목록에서 삭제하시겠습니까?`,
-      [
-        {
-          text: '취소',
-          style: 'cancel',
-        },
-        {
-          text: '삭제',
-          style: 'destructive',
-          onPress: () => {
-            deleteMutation.mutate(nickname, {
-              onSuccess: () => {
-                showToast('삭제되었습니다.', 'success');
-                onDelete();
-              },
-              onError: (err) => {
-                const errorMessage = getApiErrorMessage(
-                  err,
-                  '친구 삭제에 실패했습니다. 다시 시도해주세요.',
-                );
+  return { imageSize, itemWidth };
+};
 
-                showToast(errorMessage, 'error');
-              },
-            });
-          },
-        },
-      ],
-    );
-  };
+const getFriendCharacterSource = (
+  characterImageUrl: Friend['characterImageUrl'],
+): ImageSourcePropType => {
+  if (!characterImageUrl) {
+    return FALLBACK_CHARACTER_SOURCE;
+  }
+
+  if (/^(https?:|data:|file:)/.test(characterImageUrl)) {
+    return { uri: characterImageUrl };
+  }
+
+  if (characterImageUrl.startsWith('/') && REMOTE_ASSET_HOST) {
+    return { uri: `${REMOTE_ASSET_HOST}${characterImageUrl}` };
+  }
+
+  return { uri: characterImageUrl };
+};
+
+const FriendItem = ({
+  friend,
+  itemWidth,
+  imageSize,
+  onOpen,
+}: FriendItemProps) => {
+  const { nickname, mateNickname, job, level, characterImageUrl } = friend;
+  const subtitle = mateNickname?.trim() || job;
 
   return (
-    <PixelCard style={styles.card}>
-      <ThemeView style={styles.cardInner} transparent>
-        <Pressable
-          style={styles.friendInfo}
-          onPress={() => onOpen(friend)}
-          accessibilityRole="button"
-          accessibilityLabel={`${nickname} 루틴 보기`}
-        >
-          <ThemeView style={styles.avatar}>
-            <Ionicons
-              name="person"
-              size={baseFoundation.iconSize.m}
-              color={theme.colors.action.secondary.label}
-            />
-          </ThemeView>
-          <Typography variant="body" style={styles.nickname}>
-            {nickname}
-          </Typography>
-        </Pressable>
-        <Button
-          variant="ghost"
-          size="sm"
-          leftIcon={() => (
-            <Ionicons
-              name="trash-outline"
-              size={baseFoundation.iconSize.m}
-              color={theme.colors.text.tertiary}
-            />
-          )}
-          onPress={handleDelete}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          style={styles.deleteButton}
+    <Pressable
+      style={({ pressed }) => [
+        styles.card,
+        { width: itemWidth },
+        pressed ? styles.cardPressed : null,
+      ]}
+      onPress={() => onOpen(friend)}
+      accessibilityRole="button"
+      accessibilityLabel={`${nickname} 루틴 보기`}
+    >
+      <ThemeView
+        style={[styles.characterPanel, { width: itemWidth, height: itemWidth }]}
+        transparent
+      >
+        <Image
+          source={getFriendCharacterSource(characterImageUrl)}
+          style={{ width: imageSize, height: imageSize }}
+          resizeMode="contain"
+          accessibilityLabel={`${nickname} 캐릭터`}
         />
+        <View style={styles.levelBadge}>
+          <Typography variant="caption2" weight="semibold" style={styles.level}>
+            Lv. {level}
+          </Typography>
+        </View>
       </ThemeView>
-    </PixelCard>
+
+      <Typography
+        variant="body2"
+        weight="semibold"
+        style={styles.nickname}
+        numberOfLines={1}
+      >
+        {nickname}
+      </Typography>
+      <Typography variant="body3" style={styles.subtitle} numberOfLines={1}>
+        {subtitle}
+      </Typography>
+    </Pressable>
   );
 };
 
@@ -118,7 +129,6 @@ interface FriendListProps {
   isLoading: boolean;
   refreshing: boolean;
   onRefresh: () => Promise<void>;
-  onDeleteRefresh: () => Promise<unknown>;
   onOpenFriend: (friend: Friend) => void;
 }
 
@@ -127,19 +137,22 @@ const FriendList = ({
   isLoading,
   refreshing,
   onRefresh,
-  onDeleteRefresh,
   onOpenFriend,
 }: FriendListProps) => {
   const isTestEnv = process.env.NODE_ENV === 'test';
-  const handleDelete = useCallback(() => {
-    return onDeleteRefresh();
-  }, [onDeleteRefresh]);
+  const { width: screenWidth } = useWindowDimensions();
+  const { itemWidth, imageSize } = getFriendItemLayoutSize(screenWidth);
 
   const renderFriendItem = useCallback(
     ({ item }: FriendRenderItemProps) => (
-      <FriendItem {...item} onDelete={handleDelete} onOpen={onOpenFriend} />
+      <FriendItem
+        friend={item}
+        itemWidth={itemWidth}
+        imageSize={imageSize}
+        onOpen={onOpenFriend}
+      />
     ),
-    [handleDelete, onOpenFriend],
+    [imageSize, itemWidth, onOpenFriend],
   );
 
   if (isLoading) {
@@ -158,14 +171,15 @@ const FriendList = ({
       keyExtractor={(item) => item.nickname}
       renderItem={renderFriendItem}
       contentContainerStyle={styles.listContent}
+      columnWrapperStyle={styles.row}
       style={styles.list}
       refreshing={refreshing}
       onRefresh={onRefresh}
-      estimatedItemSize={72}
+      estimatedItemSize={baseFoundation.dimension.x180}
       removeClippedSubviews
-      maxToRenderPerBatch={10}
+      maxToRenderPerBatch={8}
       windowSize={5}
-      getItemLayout={getFriendItemLayout}
+      numColumns={2}
     />
   );
 };
@@ -177,36 +191,53 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
   },
   listContent: {
-    paddingVertical: theme.foundation.spacing[4],
-    gap: theme.foundation.spacing[2],
+    paddingTop: theme.foundation.spacing[4],
+    paddingBottom: theme.foundation.spacing[8],
+  },
+  row: {
+    justifyContent: 'center',
+    gap: theme.foundation.spacing[4],
+    paddingBottom: theme.foundation.spacing[5],
   },
   card: {
-    marginVertical: baseFoundation.spacing[0],
-    padding: baseFoundation.spacing[0], // Remove padding from card as inner content has it or PixelCard has it
-  },
-  cardInner: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
   },
-  friendInfo: {
-    flexDirection: 'row',
+  cardPressed: {
+    opacity: 0.82,
+  },
+  characterPanel: {
+    borderRadius: baseFoundation.dimension.x10,
+    backgroundColor: theme.colors.brand.card,
     alignItems: 'center',
-    gap: theme.foundation.spacing[4],
-  },
-  avatar: {
-    width: baseFoundation.dimension.x40,
-    height: baseFoundation.dimension.x40,
-    borderRadius: baseFoundation.dimension.x20,
-    backgroundColor: theme.colors.action.secondary.default,
     justifyContent: 'center',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  levelBadge: {
+    position: 'absolute',
+    top: theme.foundation.spacing[2],
+    right: theme.foundation.spacing[2],
+    minWidth: baseFoundation.dimension.x40,
+    height: baseFoundation.dimension.x20,
+    paddingHorizontal: theme.foundation.spacing[1.5],
+    borderRadius: baseFoundation.dimension.x10,
+    backgroundColor: theme.colors.brand.background,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  level: {
+    color: theme.colors.action.primary.default,
   },
   nickname: {
-    fontWeight: 'bold',
+    width: '100%',
+    marginTop: theme.foundation.spacing[2],
+    color: theme.colors.brand.text,
+    textAlign: 'center',
   },
-  deleteButton: {
-    paddingHorizontal: theme.foundation.spacing[2],
+  subtitle: {
+    width: '100%',
+    marginTop: baseFoundation.dimension.x10,
+    color: theme.colors.text.soft,
+    textAlign: 'center',
   },
 }));

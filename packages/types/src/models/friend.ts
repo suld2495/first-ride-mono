@@ -6,8 +6,12 @@ export interface Friend {
   friendId?: number | string;
   accountId?: number | string;
   nickname: User['nickname'];
+  mateNickname: null | string;
   job: string;
   profileImage: null | string;
+  level: number;
+  characterCode: string;
+  characterImageUrl: null | string;
   friendSince: string;
 }
 

@@ -40,6 +40,8 @@ const mapTheme = (theme: ThemeContract, mode: ThemeName) => ({
   textPrimary: theme.colors.text.primary,
   textSecondary: theme.colors.text.secondary,
   textTertiary: theme.colors.text.tertiary,
+  textMuted: theme.colors.text.muted,
+  textSoft: theme.colors.text.soft,
   textInverse: theme.colors.text.inverse,
   textLink: theme.colors.text.link,
   primary: theme.colors.action.primary.default,

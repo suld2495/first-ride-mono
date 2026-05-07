@@ -32,6 +32,8 @@ export const redTheme: ThemeContract = {
       ...commonTheme.colors.text,
       secondary: palette.theme.softRed[40],
       tertiary: palette.theme.softRed[80],
+      muted: palette.theme.red[80],
+      soft: palette.theme.softRed[60],
     },
     brand: {
       ...commonTheme.colors.brand,
@@ -45,6 +47,7 @@ export const redTheme: ThemeContract = {
       selectedCheck: palette.theme.red[100],
       bottomTab: palette.theme.softRed[20],
       activeBottomTab: palette.theme.red[50],
+      card: palette.theme.red[5],
       routineBackground: palette.theme.red[100],
     },
   },

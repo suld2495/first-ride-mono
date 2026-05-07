@@ -70,6 +70,8 @@ const mockTheme = {
       primary: '#000000',
       secondary: '#666666',
       tertiary: '#999999',
+      muted: '#999999',
+      soft: '#999999',
       disabled: '#CCCCCC',
       inverse: '#FFFFFF',
       link: '#0000FF',

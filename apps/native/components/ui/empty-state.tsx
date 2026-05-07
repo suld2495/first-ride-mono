@@ -9,17 +9,23 @@ import ThemeView from './theme-view';
 interface EmptyStateProps {
   icon?: keyof typeof Ionicons.glyphMap;
   message: string;
+  transparent?: boolean;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
   icon = 'folder-open-outline',
   message,
+  transparent = false,
 }) => {
   const { theme } = useAppTheme();
 
   return (
-    <ThemeView style={styles.container}>
-      <Ionicons name={icon} size={baseFoundation.iconSize.xxl} color={theme.colors.text.tertiary} />
+    <ThemeView style={styles.container} transparent={transparent}>
+      <Ionicons
+        name={icon}
+        size={baseFoundation.iconSize.xxl}
+        color={theme.colors.text.tertiary}
+      />
       <Typography variant="body" style={styles.message}>
         {message}
       </Typography>
