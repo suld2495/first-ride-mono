@@ -12,15 +12,15 @@ import {
   View,
 } from 'react-native';
 
+import { getRoutineScenePreviewOverlayAsset } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRoutineType, useSetRoutineId } from '@/hooks/useRoutineSelection';
 import { baseFoundation } from '@/theme/tokens';
 
 import { RoutineCountList, RoutineWeekList } from './weekly-routine';
-
-const previewOverlayImage = require('@/assets/routine/preview-overlay.png');
 
 interface RoutineListProps {
   routines: Routine[];
@@ -56,6 +56,7 @@ const RoutineList = ({
   const setRoutineId = useSetRoutineId();
   const type = useRoutineType();
   const router = useRouter();
+  const themeName = useColorScheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const overlayOpacity = useRef(new Animated.Value(1)).current;
 
@@ -180,7 +181,7 @@ const RoutineList = ({
               testID="routine-preview-overlay"
             >
               <Image
-                source={previewOverlayImage}
+                source={getRoutineScenePreviewOverlayAsset(themeName).source}
                 style={styles.previewOverlayImage}
                 resizeMode="stretch"
               />

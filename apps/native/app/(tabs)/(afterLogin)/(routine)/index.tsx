@@ -10,8 +10,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
+  getRoutineSceneBackgroundAsset,
   renderRoutineSceneAsset,
-  routineSceneAssets,
 } from '@/components/routine/routine-scene-art';
 import { IconButton } from '@/components/ui/icon-button';
 import Loading from '@/components/ui/loading';
@@ -19,6 +19,7 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
 import RoutineCharacter from '@/feature/character/routine-character';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { baseFoundation } from '@/theme/tokens';
 
 const SPEECH_BUBBLE_VISIBLE_MS = 3000;
@@ -37,6 +38,7 @@ export default function Index() {
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
   const user = useAuthUser();
+  const themeName = useColorScheme();
 
   const {
     data: routines = [],
@@ -114,7 +116,7 @@ export default function Index() {
       <StatusBar style="dark" />
       <View style={styles.scene} pointerEvents="none">
         <View style={styles.backgroundArt} testID="routine-background-art">
-          {renderRoutineSceneAsset(routineSceneAssets.background, {
+          {renderRoutineSceneAsset(getRoutineSceneBackgroundAsset(themeName), {
             testID: 'routine-scene-background',
             style: styles.backgroundImage,
             resizeMode: 'stretch',

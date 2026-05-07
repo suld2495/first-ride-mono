@@ -6,10 +6,11 @@ import {
 } from 'react-native';
 
 import {
+  getRoutineSceneCharacterAsset,
   renderRoutineSceneAsset,
-  routineSceneAssets,
 } from '@/components/routine/routine-scene-art';
 import { StyleSheet } from '@/components/ui/tamagui';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { baseFoundation } from '@/theme/tokens';
 
 const ROUTINE_CHARACTER_OFFSET_Y = baseFoundation.spacing[5];
@@ -27,10 +28,14 @@ const RoutineCharacter = ({
   onPress,
   testID = 'routine-scene-character',
 }: RoutineCharacterProps) => {
-  const character = renderRoutineSceneAsset(routineSceneAssets.character, {
-    testID,
-    style: [styles.image, imageStyle],
-  });
+  const themeName = useColorScheme();
+  const character = renderRoutineSceneAsset(
+    getRoutineSceneCharacterAsset(themeName),
+    {
+      testID,
+      style: [styles.image, imageStyle],
+    },
+  );
 
   if (!onPress) {
     return character;
