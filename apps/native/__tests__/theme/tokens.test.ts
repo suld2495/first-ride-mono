@@ -9,9 +9,15 @@ import {
 describe('theme/tokens', () => {
   it('디자인 시스템 토큰 공개 API를 한 곳에서 제공한다', () => {
     expect(palette.stitch.primary).toBe('#1313ec');
-    expect(baseFoundation.spacing.m).toBe(16);
+    expect(baseFoundation.spacing[4]).toBe(16);
+    expect(baseFoundation.spacing.px).toBe(1);
+    expect(baseFoundation.spacing[0.5]).toBe(2);
+    expect(baseFoundation.spacing[3.5]).toBe(14);
+    expect(baseFoundation.spacing[96]).toBe(384);
     expect(spacing(2)).toBe(32);
-    expect(tokens.space.m).toBeDefined();
+    expect(tokens.space[4]).toBeDefined();
+    expect(tokens.space.px).toBe(1);
+    expect(tokens.space[0.5]).toBe(2);
     expect(baseFoundation.dimension.x20).toBe(20);
     expect(baseFoundation.typography.size.caption3).toBe(11);
     expect(baseFoundation.typography.size.body1).toBe(16);
@@ -131,7 +137,8 @@ describe('theme/tokens', () => {
       },
     });
 
-    expect(foundation.spacing.m).toBeCloseTo(13.6);
+    expect(foundation.spacing[4]).toBeCloseTo(13.6);
+    expect(foundation.spacing[0.5]).toBeCloseTo(1.7);
     expect(foundation.radii.m).toBe(9999);
     expect(foundation.typography.size.subtitle2).toBeCloseTo(19.8);
     expect(foundation.typography.size.h0).toBeCloseTo(44);

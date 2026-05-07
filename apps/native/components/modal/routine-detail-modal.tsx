@@ -52,7 +52,7 @@ const RoutineDetailModal = () => {
   return (
     <ThemeView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <ThemeView style={{ marginBottom: -20 }} transparent>
+        <ThemeView style={{ marginBottom: -baseFoundation.spacing[5] }} transparent>
           <Typography
             variant="subtitle"
             weight="semibold"
@@ -111,7 +111,7 @@ const RoutineDetailModal = () => {
           <Typography>
             {detail?.startDate} ~ {detail?.endDate}
           </Typography>
-          <Divider spacing={20} />
+          <Divider spacing={baseFoundation.spacing[5]} />
         </ThemeView>
 
         <ThemeView style={styles.buttonContainer} transparent>
@@ -138,29 +138,29 @@ export default RoutineDetailModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: baseFoundation.dimension.x30,
-    paddingHorizontal: baseFoundation.dimension.x10,
+    marginTop: baseFoundation.spacing[7],
+    paddingHorizontal: baseFoundation.spacing[2.5],
   },
 
   scroll: {
-    gap: baseFoundation.dimension.x20,
-    paddingBottom: baseFoundation.dimension.x50,
+    gap: baseFoundation.spacing[5],
+    paddingBottom: baseFoundation.spacing[12],
   },
 
   infoLabel: {
     fontWeight: 'bold',
-    marginBottom: baseFoundation.dimension.x10,
+    marginBottom: baseFoundation.spacing[2.5],
   },
 
   content: {
-    marginBottom: baseFoundation.dimension.x10,
+    marginBottom: baseFoundation.spacing[2.5],
   },
 
   buttonContainer: {
-    marginTop: baseFoundation.dimension.x10,
+    marginTop: baseFoundation.spacing[2.5],
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: baseFoundation.dimension.x10,
+    gap: baseFoundation.spacing[2.5],
   },
 
   button: {

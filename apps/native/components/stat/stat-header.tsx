@@ -77,7 +77,7 @@ export const StatHeader: React.FC<StatHeaderProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    gap: baseFoundation.spacing.m,
+    gap: baseFoundation.spacing[4],
   },
   row: {
     flexDirection: 'row',
@@ -96,14 +96,14 @@ const styles = StyleSheet.create((theme) => ({
   },
   info: {
     flex: 1,
-    gap: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[1],
   },
   levelRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   expContainer: {
-    gap: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[1],
   },
   expLabelRow: {
     flexDirection: 'row',

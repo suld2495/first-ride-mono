@@ -96,7 +96,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
         </Typography>
         <Pressable
           onPress={handleClose}
-          hitSlop={theme.foundation.spacing.s}
+          hitSlop={theme.foundation.spacing[2]}
         >
           <Ionicons
             name="close"
@@ -131,12 +131,12 @@ const styles = StyleSheet.create((theme) => ({
     right: theme.foundation.dimension.x0,
     alignItems: 'center',
     zIndex: theme.foundation.zIndex.toast,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
   },
   toastItem: {
     width: '100%',
-    borderRadius: theme.foundation.spacing.s,
-    marginBottom: theme.foundation.spacing.s,
+    borderRadius: theme.foundation.spacing[2],
+    marginBottom: theme.foundation.spacing[2],
     shadowColor: '#000',
     shadowOffset: {
       width: theme.foundation.dimension.x0,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: theme.foundation.dimension.x12,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
   },
   icon: {
     marginRight: theme.foundation.dimension.x12,

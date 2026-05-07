@@ -252,17 +252,17 @@ const styles = StyleSheet.create((theme) => ({
   },
   sizeSm: {
     height: baseFoundation.dimension.x32,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
     borderRadius: theme.foundation.radii.s,
   },
   sizeMd: {
     height: baseFoundation.dimension.x44,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
     borderRadius: theme.foundation.radii.s,
   },
   sizeLg: {
     height: baseFoundation.dimension.x52,
-    paddingHorizontal: theme.foundation.spacing.l,
+    paddingHorizontal: theme.foundation.spacing[6],
     borderRadius: theme.foundation.radii.l,
   },
   variantPrimary: {
@@ -328,7 +328,7 @@ const internalStyles = {
   contentWrapper: {
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
-    gap: baseFoundation.spacing.s,
+    gap: baseFoundation.spacing[2],
   },
   fullWidth: {
     width: '100%' as const,

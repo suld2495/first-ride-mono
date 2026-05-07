@@ -465,8 +465,8 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   container: {
     backgroundColor: theme.colors.background.surface,
     borderRadius: theme.foundation.radii.xl,
-    padding: theme.foundation.spacing.m,
-    gap: theme.foundation.spacing.m,
+    padding: theme.foundation.spacing[4],
+    gap: theme.foundation.spacing[4],
     borderWidth: 1,
     borderColor: theme.colors.border.default,
     shadowColor: theme.colors.border.strong,
@@ -481,7 +481,7 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   bottomSheetContainer: {
     backgroundColor: 'transparent',
     borderRadius: 0,
-    padding: 0,
+    padding: theme.foundation.spacing[0],
     borderWidth: 0,
     shadowOpacity: 0,
     shadowRadius: 0,
@@ -495,7 +495,7 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   monthButton: {
     minWidth: baseFoundation.dimension.x40,
     height: baseFoundation.dimension.x40,
-    paddingHorizontal: baseFoundation.spacing.none,
+    paddingHorizontal: baseFoundation.spacing[0],
     borderRadius: theme.foundation.radii.round,
     backgroundColor: 'transparent',
     borderWidth: 0,
@@ -506,15 +506,15 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     fontWeight: theme.foundation.typography.weight.bold,
   },
   monthTitleButton: {
-    paddingHorizontal: theme.foundation.spacing.m,
-    paddingVertical: theme.foundation.spacing.xs,
+    paddingHorizontal: theme.foundation.spacing[4],
+    paddingVertical: theme.foundation.spacing[1],
     borderRadius: theme.foundation.radii.round,
   },
   weekHeader: {
     flexDirection: 'row',
-    paddingTop: theme.foundation.spacing.xs,
-    paddingBottom: theme.foundation.spacing.s,
-    paddingHorizontal: theme.foundation.spacing.xs,
+    paddingTop: theme.foundation.spacing[1],
+    paddingBottom: theme.foundation.spacing[2],
+    paddingHorizontal: theme.foundation.spacing[1],
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.action.primary.default,
   },
@@ -525,8 +525,8 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    rowGap: theme.foundation.spacing.xs,
-    columnGap: theme.foundation.spacing.xs,
+    rowGap: theme.foundation.spacing[1],
+    columnGap: theme.foundation.spacing[1],
   },
   dayCell: {
     width: '13.2%',
@@ -565,11 +565,11 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     elevation: 2,
   },
   pickerSection: {
-    gap: theme.foundation.spacing.m,
+    gap: theme.foundation.spacing[4],
   },
   pickerColumns: {
     flexDirection: 'row',
-    gap: theme.foundation.spacing.m,
+    gap: theme.foundation.spacing[4],
   },
   pickerColumn: {
     flex: 1,
@@ -582,8 +582,8 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   },
   wheelHighlight: {
     position: 'absolute',
-    left: theme.foundation.spacing.s,
-    right: theme.foundation.spacing.s,
+    left: theme.foundation.spacing[2],
+    right: theme.foundation.spacing[2],
     top: PICKER_ITEM_HEIGHT * 2,
     height: PICKER_ITEM_HEIGHT,
     borderRadius: theme.foundation.radii.m,
@@ -610,6 +610,6 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   footer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: theme.foundation.spacing.m,
+    gap: theme.foundation.spacing[4],
   },
 }));

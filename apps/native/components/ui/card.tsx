@@ -88,11 +88,11 @@ export const Card: React.FC<CardProps> = ({
   }[variant];
 
   const paddingStyle = {
-    none: { padding: baseFoundation.spacing.none },
-    sm: { padding: theme.foundation.spacing.s },
-    md: { padding: theme.foundation.spacing.m },
-    lg: { padding: theme.foundation.spacing.l },
-    xl: { padding: theme.foundation.spacing.xl },
+    none: { padding: baseFoundation.spacing[0] },
+    sm: { padding: theme.foundation.spacing[2] },
+    md: { padding: theme.foundation.spacing[4] },
+    lg: { padding: theme.foundation.spacing[6] },
+    xl: { padding: theme.foundation.spacing[8] },
   }[padding];
 
   const radiusStyle = {

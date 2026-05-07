@@ -74,9 +74,9 @@ export default RoutineDate;
 const styles = StyleSheet.create((theme) => ({
   date_container: {
     alignSelf: 'flex-end',
-    paddingHorizontal: theme.foundation.spacing.s,
-    paddingVertical: theme.foundation.spacing.xs,
-    marginHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[2],
+    paddingVertical: theme.foundation.spacing[1],
+    marginHorizontal: theme.foundation.spacing[4],
     borderRadius: theme.foundation.radii.l,
     backgroundColor: 'rgba(11,32,56,0.12)',
   },
@@ -84,6 +84,6 @@ const styles = StyleSheet.create((theme) => ({
   icons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.spacing.xs,
+    gap: theme.foundation.spacing[1],
   },
 }));

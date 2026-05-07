@@ -41,11 +41,11 @@ export default QuestHeader;
 const styles = StyleSheet.create((theme) => ({
   container: {
     width: '100%',
-    paddingVertical: theme.foundation.spacing.s,
+    paddingVertical: theme.foundation.spacing[2],
     // paddingHorizontal removed
-    marginTop: theme.foundation.spacing.s,
+    marginTop: theme.foundation.spacing[2],
     position: 'relative',
-    marginBottom: theme.foundation.spacing.s,
+    marginBottom: theme.foundation.spacing[2],
   },
 
   content: {

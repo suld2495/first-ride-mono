@@ -222,7 +222,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   modalContent: {
     borderRadius: theme.foundation.radii.xl,
-    padding: theme.foundation.spacing.l,
+    padding: theme.foundation.spacing[6],
     shadowColor: theme.colors.border.default,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
@@ -238,10 +238,10 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: theme.foundation.spacing.l,
+    marginBottom: theme.foundation.spacing[6],
   },
   searchContainer: {
-    marginBottom: theme.foundation.spacing.m,
+    marginBottom: theme.foundation.spacing[4],
   },
   listContainer: {
     flex: 1,
@@ -251,11 +251,11 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
   },
   listContentFlash: {
-    paddingBottom: theme.foundation.spacing.xs,
+    paddingBottom: theme.foundation.spacing[1],
   },
   userItem: {
-    paddingVertical: theme.foundation.spacing.m,
-    paddingHorizontal: theme.foundation.spacing.s,
+    paddingVertical: theme.foundation.spacing[4],
+    paddingHorizontal: theme.foundation.spacing[2],
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -263,7 +263,7 @@ const styles = StyleSheet.create((theme) => ({
     borderBottomColor: theme.colors.background.sunken,
   },
   addButton: {
-    paddingHorizontal: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing[2],
   },
   emptyContainer: {
     flex: 1,

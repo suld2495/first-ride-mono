@@ -80,7 +80,7 @@ const RequestDetailModal = () => {
                 style={[styles.image, { aspectRatio: ratio }]}
               />
             )}
-            <Divider spacing={20} />
+            <Divider spacing={baseFoundation.spacing[5]} />
           </ThemeView>
           <Form form={{ comment: '' }}>
             <FormItem
@@ -113,18 +113,18 @@ export default RequestDetailModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: baseFoundation.dimension.x30,
-    paddingHorizontal: baseFoundation.dimension.x10,
+    marginTop: baseFoundation.spacing[7],
+    paddingHorizontal: baseFoundation.spacing[2.5],
   },
 
   scroll: {
-    gap: baseFoundation.dimension.x20,
-    paddingBottom: baseFoundation.dimension.x50,
+    gap: baseFoundation.spacing[5],
+    paddingBottom: baseFoundation.spacing[12],
   },
 
   infoLabel: {
     fontWeight: 'bold',
-    marginBottom: baseFoundation.dimension.x10,
+    marginBottom: baseFoundation.spacing[2.5],
   },
 
   routinesNameContainer: {
@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
 
   routineDate: {
     position: 'absolute',
-    top: 5,
-    right: 0,
+    top: baseFoundation.spacing[1],
+    right: baseFoundation.spacing[0],
   },
 
   image: {

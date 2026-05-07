@@ -48,7 +48,7 @@ export const RadarStatView: React.FC<RadarStatViewProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    gap: baseFoundation.spacing.s,
+    gap: baseFoundation.spacing[2],
   },
 });
 

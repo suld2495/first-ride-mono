@@ -111,19 +111,19 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: baseFoundation.spacing.s,
+    gap: baseFoundation.spacing[2],
     justifyContent: 'center',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.background.surface,
-    paddingHorizontal: baseFoundation.spacing.s,
-    paddingVertical: baseFoundation.spacing.s,
+    paddingHorizontal: baseFoundation.spacing[2],
+    paddingVertical: baseFoundation.spacing[2],
     borderRadius: theme.foundation.radii.s,
     borderWidth: 1,
     borderColor: theme.colors.border.subtle,
-    gap: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[1],
   },
   abbr: {
     width: baseFoundation.dimension.x32,
@@ -136,8 +136,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   controls: {
     flexDirection: 'row',
-    gap: baseFoundation.spacing.xs,
-    marginLeft: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[1],
+    marginLeft: baseFoundation.spacing[1],
   },
   arrowButton: {
     width: baseFoundation.dimension.x24,

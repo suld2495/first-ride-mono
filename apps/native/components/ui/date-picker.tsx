@@ -103,7 +103,7 @@ const DatePicker = ({
               style={[
                 styles.sheetContent,
                 {
-                  paddingBottom: insets.bottom + baseFoundation.dimension.x16,
+                  paddingBottom: insets.bottom + baseFoundation.spacing[4],
                 },
               ]}
               variant="surface"
@@ -185,11 +185,11 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   },
 
   sheetContent: {
-    gap: theme.foundation.spacing.s,
+    gap: theme.foundation.spacing[2],
     maxHeight: '88%',
-    paddingTop: theme.foundation.spacing.s,
-    paddingHorizontal: theme.foundation.spacing.m,
-    paddingBottom: theme.foundation.spacing.m,
+    paddingTop: theme.foundation.spacing[2],
+    paddingHorizontal: theme.foundation.spacing[4],
+    paddingBottom: theme.foundation.spacing[4],
     backgroundColor: theme.colors.brand.primary,
   },
 

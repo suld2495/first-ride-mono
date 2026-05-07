@@ -12,7 +12,7 @@ import {
 import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
-const ROUTINE_CHARACTER_OFFSET_Y = 20;
+const ROUTINE_CHARACTER_OFFSET_Y = baseFoundation.spacing[5];
 
 type RoutineCharacterProps = {
   accessibilityLabel?: string;

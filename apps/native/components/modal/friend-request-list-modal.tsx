@@ -14,6 +14,7 @@ import { FlashList } from '@/components/ui/flash-list';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
+import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 interface NotificationContentProps extends FriendRequest {
@@ -144,7 +145,7 @@ const FriendRequestListModal = () => {
         data={list}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderNotificationItem}
-        ItemSeparatorComponent={() => <Divider spacing={12} />}
+        ItemSeparatorComponent={() => <Divider spacing={baseFoundation.spacing[3]} />}
         estimatedItemSize={72}
         removeClippedSubviews
         maxToRenderPerBatch={10}
@@ -160,8 +161,8 @@ export default FriendRequestListModal;
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    paddingHorizontal: theme.foundation.dimension.x20,
-    paddingVertical: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[5],
+    paddingVertical: theme.foundation.spacing[4],
   },
   emptyContainer: {
     flex: 1,
@@ -180,19 +181,19 @@ const styles = StyleSheet.create((theme) => ({
   },
   buttonContainer: {
     flexDirection: 'row',
-    gap: theme.foundation.spacing.s,
+    gap: theme.foundation.spacing[2],
   },
   acceptButton: {
-    paddingHorizontal: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing[2],
   },
   rejectButton: {
-    paddingHorizontal: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing[2],
   },
   notificationFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: theme.foundation.spacing.xs,
+    marginTop: theme.foundation.spacing[1],
   },
   dateText: {
     fontSize: theme.foundation.typography.size.s,

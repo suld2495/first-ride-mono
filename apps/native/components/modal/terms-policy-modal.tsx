@@ -31,8 +31,8 @@ export default TermsPolicyModal;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    marginTop: theme.foundation.dimension.x30,
-    paddingHorizontal: theme.foundation.dimension.x10,
+    marginTop: theme.foundation.spacing[7],
+    paddingHorizontal: theme.foundation.spacing[2.5],
   },
 
   content: {},
@@ -40,21 +40,21 @@ const styles = StyleSheet.create((theme) => ({
   body: {
     color: theme.colors.text.secondary,
     fontSize: theme.foundation.typography.size.m,
-    marginBottom: theme.foundation.dimension.x50,
+    marginBottom: theme.foundation.spacing[12],
   },
 
   heading1: {
     color: theme.colors.text.primary,
     fontSize: theme.foundation.typography.size.xl,
     fontWeight: 'bold',
-    marginBottom: theme.foundation.dimension.x20,
+    marginBottom: theme.foundation.spacing[5],
   },
 
   heading2: {
     color: theme.colors.text.primary,
     fontSize: theme.foundation.typography.size.m,
     fontWeight: 'semibold',
-    marginVertical: theme.foundation.dimension.x10,
+    marginVertical: theme.foundation.spacing[2.5],
   },
 
   table: {
@@ -63,12 +63,12 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   listItem: {
-    marginBottom: theme.foundation.dimension.x5,
+    marginBottom: theme.foundation.spacing[1],
   },
 
   hr: {
     backgroundColor: theme.colors.border.divider,
-    marginVertical: theme.foundation.dimension.x20,
+    marginVertical: theme.foundation.spacing[5],
   },
 
   strong: {

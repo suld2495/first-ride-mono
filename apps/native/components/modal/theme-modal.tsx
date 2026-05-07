@@ -107,23 +107,23 @@ export default ThemeModal;
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    paddingHorizontal: theme.foundation.spacing.m,
-    paddingTop: theme.foundation.dimension.x20,
+    paddingHorizontal: theme.foundation.spacing[4],
+    paddingTop: theme.foundation.spacing[5],
   },
 
   header: {
-    marginBottom: theme.foundation.spacing.l,
+    marginBottom: theme.foundation.spacing[6],
   },
 
   optionList: {
-    gap: theme.foundation.dimension.x12,
+    gap: theme.foundation.spacing[3],
   },
 
   optionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: theme.foundation.spacing.m,
+    padding: theme.foundation.spacing[4],
     borderRadius: theme.foundation.dimension.x12,
     borderWidth: 1,
     borderColor: theme.colors.border.default,
@@ -142,7 +142,7 @@ const styles = StyleSheet.create((theme) => ({
   optionContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.dimension.x12,
+    gap: theme.foundation.spacing[3],
   },
 
   optionIcon: {

@@ -88,21 +88,21 @@ export default RoutineHeader;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    gap: baseFoundation.spacing.none,
-    marginTop: theme.foundation.spacing.s,
+    gap: baseFoundation.spacing[0],
+    marginTop: theme.foundation.spacing[2],
   },
 
   topBar: {
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
     minHeight: baseFoundation.dimension.x44,
   },
   dateNavigation: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.spacing.xs,
+    gap: theme.foundation.spacing[1],
   },
 
   dateTitle: {
@@ -114,14 +114,14 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x28,
     minHeight: baseFoundation.dimension.x28,
     minWidth: baseFoundation.dimension.x28,
-    paddingHorizontal: baseFoundation.spacing.none,
-    paddingVertical: baseFoundation.spacing.none,
+    paddingHorizontal: baseFoundation.spacing[0],
+    paddingVertical: baseFoundation.spacing[0],
   },
   notification: {
     position: 'absolute',
-    right: theme.foundation.spacing.m,
-    top: 0,
-    bottom: 0,
+    right: theme.foundation.spacing[4],
+    top: baseFoundation.spacing[0],
+    bottom: baseFoundation.spacing[0],
     justifyContent: 'center',
   },
 }));

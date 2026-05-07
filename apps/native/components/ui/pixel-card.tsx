@@ -32,7 +32,7 @@ export const PixelCard: React.FC<PixelCardProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    marginVertical: baseFoundation.spacing.s,
+    marginVertical: baseFoundation.spacing[2],
     borderRadius: theme.foundation.radii.l,
     backgroundColor: theme.colors.background.surface,
     shadowColor: theme.colors.border.default,
@@ -48,11 +48,11 @@ const styles = StyleSheet.create((theme) => ({
   },
   borderInner: {
     borderWidth: 0,
-    margin: baseFoundation.spacing.none,
+    margin: baseFoundation.spacing[0],
   },
   header: {
     paddingHorizontal: baseFoundation.dimension.x20,
-    paddingVertical: baseFoundation.spacing.m,
+    paddingVertical: baseFoundation.spacing[4],
     // borderBottomWidth: 1, // Optional: remove for cleaner look
     // borderBottomColor: theme.colors.border.divider,
     backgroundColor: theme.colors.background.surface,
@@ -63,7 +63,7 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text.primary,
   },
   content: {
-    paddingVertical: baseFoundation.spacing.m,
+    paddingVertical: baseFoundation.spacing[4],
     paddingHorizontal: baseFoundation.dimension.x20,
   },
 }));

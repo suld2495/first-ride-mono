@@ -352,10 +352,10 @@ export default QuestFormModal;
 const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   container: {
     flex: 1,
-    marginTop: baseFoundation.dimension.x30,
-    gap: baseFoundation.dimension.x20,
-    paddingHorizontal: baseFoundation.dimension.x10,
-    paddingBottom: baseFoundation.dimension.x30,
+    marginTop: baseFoundation.spacing[7],
+    gap: baseFoundation.spacing[5],
+    paddingHorizontal: baseFoundation.spacing[2.5],
+    paddingBottom: baseFoundation.spacing[7],
   },
 
   textarea: {
@@ -366,7 +366,7 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   dateTimeWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: baseFoundation.dimension.x10,
+    gap: baseFoundation.spacing[2.5],
   },
 
   dateTimeDisplay: {
@@ -390,14 +390,14 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   },
 
   datePickerContainer: {
-    marginTop: baseFoundation.dimension.x10,
+    marginTop: baseFoundation.spacing[2.5],
   },
 
   buttonContainer: {
-    marginTop: theme.foundation.spacing.m,
+    marginTop: theme.foundation.spacing[4],
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: baseFoundation.dimension.x10,
+    gap: baseFoundation.spacing[2.5],
   },
 
   button: {

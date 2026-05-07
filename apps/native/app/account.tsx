@@ -200,8 +200,8 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: theme.foundation.spacing.m,
-    paddingVertical: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing[4],
+    paddingVertical: theme.foundation.spacing[2],
   },
   title: {
     textAlign: 'center',
@@ -213,8 +213,8 @@ const styles = StyleSheet.create((theme) => ({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingHorizontal: theme.foundation.spacing.m,
-    paddingTop: theme.foundation.spacing.xl,
+    paddingHorizontal: theme.foundation.spacing[4],
+    paddingTop: theme.foundation.spacing[8],
   },
   characterWrap: {
     alignItems: 'center',
@@ -227,12 +227,12 @@ const styles = StyleSheet.create((theme) => ({
   },
   mottoCard: {
     alignSelf: 'stretch',
-    marginTop: theme.foundation.spacing.l,
+    marginTop: theme.foundation.spacing[6],
   },
   mottoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.spacing.s,
+    gap: theme.foundation.spacing[2],
   },
   mottoContent: {
     flex: 1,
@@ -246,10 +246,10 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: 999,
   },
   counter: {
-    marginTop: theme.foundation.spacing.xs,
+    marginTop: theme.foundation.spacing[1],
     textAlign: 'right',
   },
   nickname: {
-    marginTop: theme.foundation.spacing.s,
+    marginTop: theme.foundation.spacing[2],
   },
 }));

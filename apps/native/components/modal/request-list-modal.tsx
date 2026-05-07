@@ -51,7 +51,7 @@ const RequestListModal = () => {
       <Button
         variant="ghost"
         onPress={() => handleMove(item.id)}
-        style={{ padding: baseFoundation.spacing.none }}
+        style={{ padding: baseFoundation.spacing[0] }}
       >
         <ThemeView key={item.id} style={styles.itemContainer} transparent>
           <Typography variant="label" weight="semibold" style={styles.itemText}>
@@ -101,13 +101,13 @@ const styles = StyleSheet.create({
   },
 
   list: {
-    gap: baseFoundation.dimension.x10,
-    padding: baseFoundation.dimension.x10,
+    gap: baseFoundation.spacing[2.5],
+    padding: baseFoundation.spacing[2.5],
     flexGrow: 0,
   },
 
   itemContainer: {
-    paddingBottom: baseFoundation.dimension.x12,
+    paddingBottom: baseFoundation.spacing[3],
   },
 
   itemText: {
@@ -117,11 +117,11 @@ const styles = StyleSheet.create({
   itemInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: baseFoundation.dimension.x12,
+    marginTop: baseFoundation.spacing[3],
   },
 
   empty: {
-    marginTop: baseFoundation.dimension.x30,
+    marginTop: baseFoundation.spacing[7],
     alignItems: 'center',
   },
 });

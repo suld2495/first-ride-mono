@@ -100,10 +100,10 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.background.surface,
     borderRadius: baseFoundation.dimension.x8,
     borderWidth: 2,
-    padding: baseFoundation.spacing.s,
+    padding: baseFoundation.spacing[2],
     alignItems: 'center',
     justifyContent: 'center',
-    gap: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[1],
   },
   iconBg: {
     width: baseFoundation.dimension.x44,
@@ -114,8 +114,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   controls: {
     flexDirection: 'row',
-    gap: baseFoundation.spacing.s,
-    marginTop: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[2],
+    marginTop: baseFoundation.spacing[1],
   },
   arrowButton: {
     width: baseFoundation.dimension.x28,

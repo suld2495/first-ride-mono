@@ -32,8 +32,8 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: theme.foundation.spacing.m,
-    paddingVertical: theme.foundation.spacing.xxl,
+    gap: theme.foundation.spacing[4],
+    paddingVertical: theme.foundation.spacing[12],
   },
   message: {
     textAlign: 'center',

@@ -23,7 +23,7 @@ export default function NotFoundScreen() {
 
 const styles = StyleSheet.create({
   link: {
-    marginTop: baseFoundation.spacing.m,
-    paddingTop: baseFoundation.spacing.m,
+    marginTop: baseFoundation.spacing[4],
+    paddingTop: baseFoundation.spacing[4],
   },
 });

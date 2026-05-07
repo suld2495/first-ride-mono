@@ -61,7 +61,7 @@ const RoutineWeekList = ({
           <View
             style={[
               styles.cardOuter,
-              { height: Math.max(itemHeight - baseFoundation.spacing.xs, 0) },
+              { height: Math.max(itemHeight - baseFoundation.spacing[1], 0) },
             ]}
           >
             <View style={styles.cardGap}>
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   },
   cardOuter: {
     borderRadius: baseFoundation.dimension.x18,
-    padding: baseFoundation.spacing.none,
+    padding: baseFoundation.spacing[0],
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#0D3154',
@@ -227,25 +227,25 @@ const styles = StyleSheet.create({
   },
   cardGap: {
     flex: 1,
-    padding: baseFoundation.dimension.x2,
+    padding: baseFoundation.spacing[0.5],
     borderRadius: baseFoundation.radii.m,
     backgroundColor: '#FFFFFF',
   },
   cardInner: {
     flex: 1,
     borderRadius: baseFoundation.dimension.x14,
-    padding: baseFoundation.dimension.x3,
+    padding: baseFoundation.spacing[0.5],
     backgroundColor: '#A9D6FF',
   },
   cardSurface: {
     flex: 1,
     borderRadius: baseFoundation.dimension.x10,
-    paddingHorizontal: baseFoundation.spacing.m,
+    paddingHorizontal: baseFoundation.spacing[4],
     backgroundColor: '#0D3154',
     justifyContent: 'center',
   },
   titleButton: {
-    paddingHorizontal: baseFoundation.spacing.none,
+    paddingHorizontal: baseFoundation.spacing[0],
     alignSelf: 'center',
   },
   title: {
@@ -257,15 +257,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: baseFoundation.dimension.x18,
-    marginBottom: baseFoundation.dimension.x3,
+    marginBottom: baseFoundation.spacing[0.5],
   },
   headerRow: {
     flexDirection: 'row',
-    marginBottom: baseFoundation.spacing.xs,
+    marginBottom: baseFoundation.spacing[1],
   },
   checkRow: {
     flexDirection: 'row',
-    marginBottom: baseFoundation.dimension.x2,
+    marginBottom: baseFoundation.spacing[0.5],
   },
   dayColumn: {
     flex: 1,
@@ -291,20 +291,20 @@ const styles = StyleSheet.create({
   progressChip: {
     minWidth: baseFoundation.dimension.x58,
     height: baseFoundation.dimension.x18,
-    paddingHorizontal: baseFoundation.spacing.s,
+    paddingHorizontal: baseFoundation.spacing[2],
     borderRadius: baseFoundation.dimension.x9,
     backgroundColor: 'rgba(255,255,255,0.12)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[1],
   },
   progressText: {
     color: '#EAF5FF',
   },
   requestButton: {
     position: 'absolute',
-    right: 0,
+    right: baseFoundation.spacing[0],
     minWidth: baseFoundation.dimension.x72,
     height: baseFoundation.dimension.x20,
     borderRadius: baseFoundation.dimension.x10,
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   },
   requestPlaceholder: {
     position: 'absolute',
-    right: 0,
+    right: baseFoundation.spacing[0],
     width: baseFoundation.dimension.x72,
     height: baseFoundation.dimension.x20,
   },

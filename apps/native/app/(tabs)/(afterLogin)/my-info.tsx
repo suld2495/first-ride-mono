@@ -157,15 +157,15 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'stretch',
   },
   content: {
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
   },
 
   linkContainer: {
-    marginTop: theme.foundation.spacing.l,
+    marginTop: theme.foundation.spacing[6],
   },
 
   logoutContainer: {
-    marginTop: theme.foundation.spacing.m,
+    marginTop: theme.foundation.spacing[4],
   },
 
   link: {

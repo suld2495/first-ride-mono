@@ -39,13 +39,13 @@ const styles = StyleSheet.create((theme) => ({
   },
   container: {
     flex: 1,
-    paddingHorizontal: baseFoundation.spacing.m,
-    paddingVertical: baseFoundation.spacing.m,
+    paddingHorizontal: baseFoundation.spacing[4],
+    paddingVertical: baseFoundation.spacing[4],
     backgroundColor: theme.colors.background.base,
   },
   noPadding: {
-    paddingHorizontal: baseFoundation.spacing.none,
-    paddingVertical: baseFoundation.spacing.none,
+    paddingHorizontal: baseFoundation.spacing[0],
+    paddingVertical: baseFoundation.spacing[0],
   },
 }));
 

@@ -26,7 +26,7 @@ describe('Select', () => {
     expect(buttonStyle).toEqual(
       expect.objectContaining({
         height: baseFoundation.dimension.x44,
-        paddingHorizontal: baseFoundation.spacing.sm,
+        paddingHorizontal: baseFoundation.spacing[3],
         borderWidth: 0,
       }),
     );

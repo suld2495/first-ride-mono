@@ -38,14 +38,14 @@ export default QuestRewards;
 const styles = StyleSheet.create((theme) => ({
   container: {
     backgroundColor: theme.colors.background.surface,
-    padding: theme.foundation.spacing.m,
+    padding: theme.foundation.spacing[4],
     borderRadius: theme.foundation.radii.m,
   },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[1],
     marginBottom: baseFoundation.dimension.x12,
   },
 

@@ -69,7 +69,7 @@ const RequestModal = () => {
             인증 대상
           </Typography>
           <Typography>{detail?.isMe ? '나' : detail?.mateNickname}</Typography>
-          <Divider spacing={20} />
+          <Divider spacing={baseFoundation.spacing[5]} />
         </ThemeView>
 
         <Form
@@ -139,7 +139,7 @@ const RequestModal = () => {
                           <Pressable
                             accessibilityLabel="이미지 제거"
                             accessibilityRole="button"
-                            hitSlop={baseFoundation.dimension.x8}
+                            hitSlop={baseFoundation.spacing[2]}
                             onPress={handleRemoveImage}
                             style={styles.removeButton}
                             testID={`remove-request-image-${index}`}
@@ -171,29 +171,29 @@ export default RequestModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: baseFoundation.dimension.x30,
-    paddingHorizontal: baseFoundation.dimension.x10,
+    marginTop: baseFoundation.spacing[7],
+    paddingHorizontal: baseFoundation.spacing[2.5],
   },
 
   scroll: {
-    gap: baseFoundation.dimension.x20,
-    paddingBottom: baseFoundation.dimension.x50,
+    gap: baseFoundation.spacing[5],
+    paddingBottom: baseFoundation.spacing[12],
   },
 
   infoLabel: {
     fontWeight: 'bold',
-    marginBottom: baseFoundation.dimension.x10,
+    marginBottom: baseFoundation.spacing[2.5],
   },
 
   imageContainer: {
     alignItems: 'flex-start',
     flexDirection: 'row',
-    gap: baseFoundation.dimension.x10,
+    gap: baseFoundation.spacing[2.5],
   },
 
   phone: {
-    paddingHorizontal: baseFoundation.spacing.s,
-    paddingVertical: baseFoundation.dimension.x5,
+    paddingHorizontal: baseFoundation.spacing[2],
+    paddingVertical: baseFoundation.spacing[1],
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -211,14 +211,14 @@ const styles = StyleSheet.create({
   previewList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: baseFoundation.dimension.x10,
+    gap: baseFoundation.spacing[2.5],
     width: '100%',
   },
 
   removeButton: {
     position: 'absolute',
-    right: -baseFoundation.dimension.x12,
-    top: -baseFoundation.dimension.x12,
+    right: -baseFoundation.spacing[3],
+    top: -baseFoundation.spacing[3],
     width: baseFoundation.dimension.x24,
     height: baseFoundation.dimension.x24,
     borderRadius: baseFoundation.dimension.x12,

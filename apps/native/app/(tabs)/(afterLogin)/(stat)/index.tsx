@@ -174,11 +174,11 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
   },
   content: {
-    padding: theme.foundation.spacing.m,
-    paddingBottom: theme.foundation.spacing.xl,
+    padding: theme.foundation.spacing[4],
+    paddingBottom: theme.foundation.spacing[8],
   },
   statContainer: {
-    marginTop: theme.foundation.spacing.s,
+    marginTop: theme.foundation.spacing[2],
   },
   loadingOverlay: {
     position: 'absolute',

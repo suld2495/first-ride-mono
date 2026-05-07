@@ -48,7 +48,7 @@ export const ClassicStatList: React.FC<ClassicStatListProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    gap: baseFoundation.spacing.none,
+    gap: baseFoundation.spacing[0],
   },
 });
 

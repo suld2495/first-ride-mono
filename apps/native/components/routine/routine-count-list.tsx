@@ -94,7 +94,7 @@ const RoutineCountList = ({
           <View
             style={[
               styles.cardOuter,
-              { height: Math.max(itemHeight - baseFoundation.spacing.xs, 0) },
+              { height: Math.max(itemHeight - baseFoundation.spacing[1], 0) },
             ]}
           >
             <View style={styles.cardSurface}>
@@ -237,7 +237,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   cardOuter: {
     borderRadius: baseFoundation.dimension.x14,
-    padding: baseFoundation.spacing.xxs,
+    padding: baseFoundation.spacing.px,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderColor: '#0D3154',
@@ -253,14 +253,14 @@ const styles = StyleSheet.create((theme) => ({
   cardSurface: {
     flex: 1,
     borderRadius: baseFoundation.dimension.x12,
-    paddingHorizontal: baseFoundation.spacing.m,
+    paddingHorizontal: baseFoundation.spacing[4],
     backgroundColor: theme.colors.brand.routineBackground,
     borderColor: theme.colors.brand.primary,
     borderWidth: 3,
     justifyContent: 'center',
   },
   titleButton: {
-    paddingHorizontal: baseFoundation.spacing.none,
+    paddingHorizontal: baseFoundation.spacing[0],
     alignSelf: 'center',
   },
   title: {
@@ -273,11 +273,11 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: baseFoundation.dimension.x18,
-    marginBottom: baseFoundation.dimension.x8,
+    marginBottom: baseFoundation.spacing[2],
   },
   headerRow: {
     flexDirection: 'row',
-    marginBottom: baseFoundation.spacing.xs,
+    marginBottom: baseFoundation.spacing[1],
   },
   checkRow: {
     flexDirection: 'row',
@@ -310,20 +310,20 @@ const styles = StyleSheet.create((theme) => ({
   progressChip: {
     minWidth: baseFoundation.dimension.x58,
     height: baseFoundation.dimension.x18,
-    paddingHorizontal: baseFoundation.spacing.s,
+    paddingHorizontal: baseFoundation.spacing[2],
     borderRadius: baseFoundation.dimension.x9,
     backgroundColor: 'rgba(255,255,255,0.12)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[1],
   },
   progressText: {
     color: '#EAF5FF',
   },
   requestButton: {
     position: 'absolute',
-    right: 0,
+    right: baseFoundation.spacing[0],
     minWidth: baseFoundation.dimension.x72,
     height: baseFoundation.dimension.x20,
     borderRadius: baseFoundation.dimension.x10,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   requestPlaceholder: {
     position: 'absolute',
-    right: 0,
+    right: baseFoundation.spacing[0],
     width: baseFoundation.dimension.x72,
     height: baseFoundation.dimension.x20,
   },

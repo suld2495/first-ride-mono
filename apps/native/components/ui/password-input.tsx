@@ -102,6 +102,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: baseFoundation.spacing.s,
+    paddingHorizontal: baseFoundation.spacing[2],
   },
 });

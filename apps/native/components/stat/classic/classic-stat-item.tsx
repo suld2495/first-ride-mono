@@ -116,8 +116,8 @@ export const ClassicStatItem: React.FC<ClassicStatItemProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    paddingVertical: baseFoundation.spacing.s,
-    paddingHorizontal: baseFoundation.spacing.xs,
+    paddingVertical: baseFoundation.spacing[2],
+    paddingHorizontal: baseFoundation.spacing[1],
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border.subtle,
     gap: baseFoundation.dimension.x6,
@@ -125,7 +125,7 @@ const styles = StyleSheet.create((theme) => ({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: baseFoundation.spacing.s,
+    gap: baseFoundation.spacing[2],
   },
   iconContainer: {
     width: baseFoundation.dimension.x32,
@@ -139,12 +139,12 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: baseFoundation.spacing.s,
+    gap: baseFoundation.spacing[2],
   },
   valueContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: baseFoundation.spacing.xs,
+    gap: baseFoundation.spacing[1],
   },
   arrowButton: {
     width: baseFoundation.dimension.x28,

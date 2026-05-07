@@ -170,10 +170,10 @@ const styles = StyleSheet.create((theme) => ({
 
   description: {
     textAlign: 'center',
-    marginBottom: theme.foundation.spacing.s,
+    marginBottom: theme.foundation.spacing[2],
   },
 
   button: {
-    marginTop: theme.foundation.spacing.s,
+    marginTop: theme.foundation.spacing[2],
   },
 }));

@@ -292,7 +292,7 @@ export default RoutineFormModal;
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    marginTop: theme.foundation.spacing.m,
+    marginTop: theme.foundation.spacing[4],
   },
 
   scroll: {
@@ -301,14 +301,14 @@ const styles = StyleSheet.create((theme) => ({
 
   scrollContent: {
     flexGrow: 1,
-    gap: theme.foundation.spacing.l,
-    paddingBottom: theme.foundation.spacing.xl,
+    gap: theme.foundation.spacing[6],
+    paddingBottom: theme.foundation.spacing[8],
   },
 
   date: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: theme.foundation.spacing.sm,
+    gap: theme.foundation.spacing[3],
   },
 
   dateContainer: {
@@ -323,7 +323,7 @@ const styles = StyleSheet.create((theme) => ({
 
   mateField: {
     flexDirection: 'row',
-    gap: theme.foundation.spacing.xs,
+    gap: theme.foundation.spacing[1],
     alignItems: 'center',
   },
 }));

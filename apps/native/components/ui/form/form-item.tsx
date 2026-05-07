@@ -84,7 +84,7 @@ export function createFormItem<T extends Record<string, unknown>>(
                 <Pressable
                   accessibilityLabel={`${label} 안내 보기`}
                   accessibilityRole="button"
-                  hitSlop={baseFoundation.dimension.x8}
+                  hitSlop={baseFoundation.spacing[2]}
                   style={styles.tooltipButton}
                   onPress={() => setIsTooltipVisible((visible) => !visible)}
                 >
@@ -145,7 +145,7 @@ export function createFormItem<T extends Record<string, unknown>>(
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    gap: baseFoundation.dimension.x10,
+    gap: baseFoundation.spacing[2.5],
   },
 
   required: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create((theme) => ({
   labelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: baseFoundation.dimension.x4,
+    gap: baseFoundation.spacing[1],
     alignSelf: 'flex-start',
     zIndex: baseFoundation.zIndex.tooltip,
   },
@@ -191,11 +191,11 @@ const styles = StyleSheet.create((theme) => ({
 
   tooltipBubble: {
     position: 'absolute',
-    top: baseFoundation.dimension.x24 + baseFoundation.dimension.x2,
-    left: -baseFoundation.dimension.x8,
+    top: baseFoundation.dimension.x24 + baseFoundation.spacing[0.5],
+    left: -baseFoundation.spacing[2],
     width: 220,
-    paddingHorizontal: baseFoundation.dimension.x10,
-    paddingVertical: baseFoundation.dimension.x8,
+    paddingHorizontal: baseFoundation.spacing[2.5],
+    paddingVertical: baseFoundation.spacing[2],
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: theme.colors.feedback.info.border,
     borderRadius: theme.foundation.radii.xs,

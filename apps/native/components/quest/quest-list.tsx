@@ -121,28 +121,28 @@ const styles = StyleSheet.create((theme) => ({
 
   scrollContent: {
     // paddingHorizontal removed to fix double padding
-    paddingTop: theme.foundation.spacing.m,
-    paddingBottom: theme.foundation.spacing.xl,
-    gap: theme.foundation.spacing.m,
+    paddingTop: theme.foundation.spacing[4],
+    paddingBottom: theme.foundation.spacing[8],
+    gap: theme.foundation.spacing[4],
     flexGrow: 1,
   },
 
   card: {
-    padding: theme.foundation.spacing.m,
-    marginVertical: baseFoundation.spacing.none,
+    padding: theme.foundation.spacing[4],
+    marginVertical: baseFoundation.spacing[0],
   },
 
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: theme.foundation.spacing.s,
+    marginBottom: theme.foundation.spacing[2],
   },
 
   badge: {
     backgroundColor: theme.colors.action.secondary.default,
-    paddingHorizontal: theme.foundation.spacing.s,
-    paddingVertical: baseFoundation.spacing.xs,
+    paddingHorizontal: theme.foundation.spacing[2],
+    paddingVertical: baseFoundation.spacing[1],
     borderRadius: theme.foundation.radii.s,
   },
 
@@ -153,20 +153,20 @@ const styles = StyleSheet.create((theme) => ({
 
   questName: {
     fontWeight: 'bold',
-    marginBottom: theme.foundation.spacing.m,
+    marginBottom: theme.foundation.spacing[4],
   },
 
   goalSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.spacing.s, // Restored to s for better breathing room
+    gap: theme.foundation.spacing[2],
     // backgroundColor removed
     // padding removed or reduced
-    marginTop: theme.foundation.spacing.s,
+    marginTop: theme.foundation.spacing[2],
   },
 
   goalIcon: {
-    marginTop: baseFoundation.spacing.none,
+    marginTop: baseFoundation.spacing[0],
   },
 
   goalText: {

@@ -71,15 +71,15 @@ const styles = StyleSheet.create((theme) => ({
 
   container: {
     flex: 1,
-    paddingTop: theme.foundation.spacing.s,
+    paddingTop: theme.foundation.spacing[2],
   },
 
   content: {
     flex: 1,
     borderRadius: theme.foundation.radii.l,
-    paddingHorizontal: theme.foundation.spacing.l,
+    paddingHorizontal: theme.foundation.spacing[6],
   },
   contentNoPadding: {
-    paddingHorizontal: 0,
+    paddingHorizontal: theme.foundation.spacing[0],
   },
 }));

@@ -95,7 +95,7 @@ export const PixelButton: React.FC<PixelButtonProps> = ({
 const styles = StyleSheet.create(() => ({
   container: {
     minWidth: baseFoundation.dimension.x120,
-    marginVertical: baseFoundation.spacing.xs,
+    marginVertical: baseFoundation.spacing[1],
   },
   pressed: {
     transform: [{ translateY: 2 }],
@@ -111,8 +111,8 @@ const styles = StyleSheet.create(() => ({
   borderInner: {
     borderWidth: 2,
     borderRadius: baseFoundation.radii.none,
-    paddingVertical: baseFoundation.spacing.s,
-    paddingHorizontal: baseFoundation.spacing.m,
+    paddingVertical: baseFoundation.spacing[2],
+    paddingHorizontal: baseFoundation.spacing[4],
     alignItems: 'center',
     justifyContent: 'center',
     borderStyle: 'solid',

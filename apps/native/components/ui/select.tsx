@@ -297,8 +297,8 @@ export function Select<T = string | number>({
 
   const dropdownTop = buttonLayout
     ? Math.min(
-        buttonLayout.y + buttonLayout.height + theme.foundation.spacing.xs,
-        windowHeight - dropdownHeight - theme.foundation.spacing.l,
+        buttonLayout.y + buttonLayout.height + theme.foundation.spacing[1],
+        windowHeight - dropdownHeight - theme.foundation.spacing[6],
       )
     : 0;
 
@@ -420,22 +420,22 @@ const styles = StyleSheet.create((theme) => ({
 
   selectButtonXs: {
     height: baseFoundation.dimension.x28,
-    paddingHorizontal: baseFoundation.spacing.xs,
+    paddingHorizontal: baseFoundation.spacing[1],
   },
 
   selectButtonSm: {
     height: baseFoundation.dimension.x36,
-    paddingHorizontal: baseFoundation.spacing.s,
+    paddingHorizontal: baseFoundation.spacing[2],
   },
 
   selectButtonMd: {
     height: baseFoundation.dimension.x44,
-    paddingHorizontal: baseFoundation.spacing.sm,
+    paddingHorizontal: baseFoundation.spacing[3],
   },
 
   selectButtonLg: {
     height: baseFoundation.dimension.x56,
-    paddingHorizontal: baseFoundation.spacing.m,
+    paddingHorizontal: baseFoundation.spacing[4],
   },
 
   variantOutlined: {
@@ -508,7 +508,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   helperText: {
-    marginTop: theme.foundation.spacing.xs,
+    marginTop: theme.foundation.spacing[1],
     fontSize: theme.foundation.typography.size.s,
   },
 
@@ -527,8 +527,8 @@ const styles = StyleSheet.create((theme) => ({
   label: {
     fontSize: theme.foundation.typography.size.m,
     fontWeight: '600',
-    marginBottom: baseFoundation.dimension.x6,
-    marginLeft: baseFoundation.spacing.xs,
+    marginBottom: baseFoundation.spacing[1.5],
+    marginLeft: baseFoundation.spacing[1],
     color: theme.colors.text.secondary,
   },
 
@@ -543,9 +543,9 @@ const styles = StyleSheet.create((theme) => ({
 
   dropdownInline: {
     top: '100%',
-    left: 0,
-    right: 0,
-    marginTop: theme.foundation.spacing.xs,
+    left: baseFoundation.spacing[0],
+    right: baseFoundation.spacing[0],
+    marginTop: theme.foundation.spacing[1],
   },
 
   backdrop: {
@@ -558,8 +558,8 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: DROPDOWN_ITEM_HEIGHT,
-    paddingHorizontal: theme.foundation.spacing.m,
-    paddingVertical: theme.foundation.spacing.xs,
+    paddingHorizontal: theme.foundation.spacing[4],
+    paddingVertical: theme.foundation.spacing[1],
     borderWidth: 0,
     borderBottomWidth: 0,
     backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
@@ -571,7 +571,7 @@ const styles = StyleSheet.create((theme) => ({
 
   dropdownItemContent: {
     flex: 1,
-    gap: theme.foundation.spacing.xs,
+    gap: theme.foundation.spacing[1],
   },
 
   dropdownItemLabel: {

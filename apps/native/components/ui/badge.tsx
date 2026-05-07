@@ -156,7 +156,7 @@ const styles = StyleSheet.create((theme) => ({
   badge: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: theme.foundation.spacing.xs,
+    paddingHorizontal: theme.foundation.spacing[1],
   },
   text: {
     color: theme.colors.text.inverse,

@@ -19,7 +19,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         sceneStyle: {
-          paddingBottom: baseFoundation.spacing.none,
+          paddingBottom: baseFoundation.spacing[0],
         },
         tabBarStyle: {
           position: 'absolute',

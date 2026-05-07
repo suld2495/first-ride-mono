@@ -173,19 +173,19 @@ const styles = StyleSheet.create((theme) => ({
   container: {},
   containerXs: {
     height: baseFoundation.dimension.x28,
-    paddingHorizontal: theme.foundation.spacing.xs,
+    paddingHorizontal: theme.foundation.spacing[1],
   },
   containerSm: {
     height: baseFoundation.dimension.x36,
-    paddingHorizontal: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing[2],
   },
   containerMd: {
     height: baseFoundation.dimension.x44,
-    paddingHorizontal: theme.foundation.spacing.sm,
+    paddingHorizontal: theme.foundation.spacing[3],
   },
   containerLg: {
     height: baseFoundation.dimension.x56,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
   },
   variantOutlined: {
     borderWidth: 1,
@@ -233,13 +233,13 @@ const styles = StyleSheet.create((theme) => ({
   label: {
     fontSize: theme.foundation.typography.size.m,
     fontWeight: '600',
-    marginBottom: baseFoundation.dimension.x6,
-    marginLeft: baseFoundation.spacing.xs,
+    marginBottom: baseFoundation.spacing[1.5],
+    marginLeft: baseFoundation.spacing[1],
     color: theme.colors.text.secondary,
   },
   helperText: {
     fontSize: theme.foundation.typography.size.s,
-    marginTop: theme.foundation.spacing.xs,
+    marginTop: theme.foundation.spacing[1],
   },
   helperDefault: {
     color: theme.colors.text.secondary,

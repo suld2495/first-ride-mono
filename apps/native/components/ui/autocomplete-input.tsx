@@ -203,9 +203,9 @@ const styles = StyleSheet.create({
   dropdown: {
     position: 'absolute',
     top: '100%',
-    left: 0,
-    right: 0,
-    marginTop: baseFoundation.spacing.xs,
+    left: baseFoundation.spacing[0],
+    right: baseFoundation.spacing[0],
+    marginTop: baseFoundation.spacing[1],
     borderRadius: baseFoundation.dimension.x8,
     borderWidth: 1,
     shadowOffset: {
@@ -218,13 +218,13 @@ const styles = StyleSheet.create({
     zIndex: 1001,
   },
   dropdownItem: {
-    paddingHorizontal: baseFoundation.spacing.m,
-    paddingVertical: baseFoundation.dimension.x12,
+    paddingHorizontal: baseFoundation.spacing[4],
+    paddingVertical: baseFoundation.spacing[3],
     borderBottomWidth: 1,
   },
   emptyContainer: {
-    paddingVertical: baseFoundation.spacing.m,
-    paddingHorizontal: baseFoundation.spacing.m,
+    paddingVertical: baseFoundation.spacing[4],
+    paddingHorizontal: baseFoundation.spacing[4],
     alignItems: 'center',
   },
   emptyText: {

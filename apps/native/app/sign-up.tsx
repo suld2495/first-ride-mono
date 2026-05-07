@@ -167,13 +167,13 @@ export default function SignUp() {
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    gap: theme.foundation.spacing.s,
+    gap: theme.foundation.spacing[2],
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   button: {
-    marginTop: theme.foundation.spacing.s,
+    marginTop: theme.foundation.spacing[2],
   },
 
   link: {

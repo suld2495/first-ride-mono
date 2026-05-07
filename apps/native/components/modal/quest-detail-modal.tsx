@@ -124,20 +124,20 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   scrollContent: {
-    padding: theme.foundation.spacing.m,
-    gap: theme.foundation.spacing.m,
+    padding: theme.foundation.spacing[4],
+    gap: theme.foundation.spacing[4],
   },
 
   headerSection: {
     alignItems: 'center',
-    gap: theme.foundation.spacing.m,
-    marginBottom: theme.foundation.spacing.l,
+    gap: theme.foundation.spacing[4],
+    marginBottom: theme.foundation.spacing[6],
   },
 
   badgeContainer: {
     backgroundColor: theme.colors.action.secondary.default,
-    paddingHorizontal: theme.foundation.spacing.m,
-    paddingVertical: baseFoundation.spacing.xs,
+    paddingHorizontal: theme.foundation.spacing[4],
+    paddingVertical: baseFoundation.spacing[1],
     borderRadius: theme.foundation.radii.l,
   },
 
@@ -147,10 +147,10 @@ const styles = StyleSheet.create((theme) => ({
 
   questName: {
     textAlign: 'center',
-    marginBottom: theme.foundation.spacing.s,
+    marginBottom: theme.foundation.spacing[2],
   },
   acceptButton: {
-    marginTop: theme.foundation.spacing.m,
+    marginTop: theme.foundation.spacing[4],
   },
 
   acceptButtonDisabled: {

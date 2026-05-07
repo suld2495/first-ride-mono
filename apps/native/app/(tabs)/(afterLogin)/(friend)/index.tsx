@@ -135,18 +135,18 @@ const styles = StyleSheet.create((theme) => ({
   },
   innerContainer: {
     flex: 1,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
   },
   addButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: theme.foundation.spacing.m,
+    marginTop: theme.foundation.spacing[4],
   },
   addButton: {
-    paddingHorizontal: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing[2],
   },
   searchContainer: {
-    marginVertical: theme.foundation.spacing.m,
+    marginVertical: theme.foundation.spacing[4],
   },
   searchInput: {
     width: '100%',

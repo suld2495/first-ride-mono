@@ -142,12 +142,12 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     // Border removed
     backgroundColor: theme.colors.background.surface,
-    padding: theme.foundation.spacing.m,
+    padding: theme.foundation.spacing[4],
     borderRadius: theme.foundation.radii.m,
   },
   verificationContainer: {
     gap: baseFoundation.dimension.x10,
-    padding: baseFoundation.spacing.none,
+    padding: baseFoundation.spacing[0],
   },
 
   verificationHeader: {
@@ -167,11 +167,11 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   progressSection: {
-    marginTop: baseFoundation.spacing.xs,
-    paddingTop: theme.foundation.spacing.s,
+    marginTop: baseFoundation.spacing[1],
+    paddingTop: theme.foundation.spacing[2],
     borderTopWidth: 1,
     borderTopColor: theme.colors.background.sunken,
-    gap: baseFoundation.spacing.s,
+    gap: baseFoundation.spacing[2],
   },
 
   partyHeader: {

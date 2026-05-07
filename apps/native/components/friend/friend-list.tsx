@@ -177,12 +177,12 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
   },
   listContent: {
-    paddingVertical: theme.foundation.spacing.m,
-    gap: theme.foundation.spacing.s,
+    paddingVertical: theme.foundation.spacing[4],
+    gap: theme.foundation.spacing[2],
   },
   card: {
-    marginVertical: baseFoundation.spacing.none,
-    padding: baseFoundation.spacing.none, // Remove padding from card as inner content has it or PixelCard has it
+    marginVertical: baseFoundation.spacing[0],
+    padding: baseFoundation.spacing[0], // Remove padding from card as inner content has it or PixelCard has it
   },
   cardInner: {
     flexDirection: 'row',
@@ -193,7 +193,7 @@ const styles = StyleSheet.create((theme) => ({
   friendInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.spacing.m,
+    gap: theme.foundation.spacing[4],
   },
   avatar: {
     width: baseFoundation.dimension.x40,
@@ -207,6 +207,6 @@ const styles = StyleSheet.create((theme) => ({
     fontWeight: 'bold',
   },
   deleteButton: {
-    paddingHorizontal: theme.foundation.spacing.s,
+    paddingHorizontal: theme.foundation.spacing[2],
   },
 }));

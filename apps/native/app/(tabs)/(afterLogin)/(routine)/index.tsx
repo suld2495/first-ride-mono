@@ -197,16 +197,16 @@ const styles = StyleSheet.create((theme) => ({
   },
   scene: {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+    top: baseFoundation.spacing[0],
+    right: baseFoundation.spacing[0],
+    bottom: baseFoundation.spacing[0],
+    left: baseFoundation.spacing[0],
   },
   backgroundArt: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
+    left: baseFoundation.spacing[0],
+    right: baseFoundation.spacing[0],
+    bottom: baseFoundation.spacing[0],
     alignItems: 'center',
   },
   backgroundImage: {
@@ -219,7 +219,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   content: {
     flex: 1,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
   },
   loadingContainer: {
     flex: 1,
@@ -238,13 +238,13 @@ const styles = StyleSheet.create((theme) => ({
     position: 'relative',
   },
   speechBubble: {
-    bottom: baseFoundation.dimension.x120 + theme.foundation.spacing.xs,
+    bottom: baseFoundation.dimension.x120 + theme.foundation.spacing[1],
     position: 'absolute',
   },
   fab: {
     position: 'absolute',
-    right: theme.foundation.spacing.m,
-    bottom: 20,
+    right: theme.foundation.spacing[4],
+    bottom: theme.foundation.spacing[5],
     width: baseFoundation.dimension.x60,
     height: baseFoundation.dimension.x60,
     minWidth: baseFoundation.dimension.x60,

@@ -34,12 +34,12 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: theme.foundation.spacing.m,
-    paddingVertical: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
+    paddingVertical: theme.foundation.spacing[4],
   },
   headerRight: {
     flexDirection: 'row',
-    gap: theme.foundation.spacing.s,
+    gap: theme.foundation.spacing[2],
     alignItems: 'center',
   },
 }));

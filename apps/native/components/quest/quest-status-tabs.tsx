@@ -58,14 +58,14 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: theme.foundation.spacing.s,
+    paddingVertical: theme.foundation.spacing[2],
     // paddingHorizontal removed to fix double padding
   },
 
   tab: {
     flex: 1,
-    paddingVertical: theme.foundation.spacing.s,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingVertical: theme.foundation.spacing[2],
+    paddingHorizontal: theme.foundation.spacing[4],
     alignItems: 'center',
     borderRadius: theme.foundation.radii.m,
   },

@@ -67,9 +67,9 @@ const styles = StyleSheet.create((theme) => ({
   buttonContainer: {
     width: '100%',
     flexDirection: 'row',
-    gap: theme.foundation.spacing.sm,
-    paddingHorizontal: theme.foundation.spacing.l,
-    paddingTop: theme.foundation.spacing.m,
+    gap: theme.foundation.spacing[3],
+    paddingHorizontal: theme.foundation.spacing[6],
+    paddingTop: theme.foundation.spacing[4],
     borderTopWidth: RNStyleSheet.hairlineWidth,
     borderTopColor: theme.colors.brand.bottomTab,
   },

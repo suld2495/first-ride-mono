@@ -90,22 +90,22 @@ export default QuestTypeFilter;
 const styles = StyleSheet.create((theme) => ({
   container: {
     backgroundColor: 'transparent',
-    paddingVertical: theme.foundation.spacing.s,
-    marginBottom: theme.foundation.spacing.s,
+    paddingVertical: theme.foundation.spacing[2],
+    marginBottom: theme.foundation.spacing[2],
   },
 
   scrollContent: {
-    paddingHorizontal: baseFoundation.spacing.none,
+    paddingHorizontal: baseFoundation.spacing[0],
   },
 
   chip: {
-    paddingVertical: baseFoundation.spacing.s,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingVertical: baseFoundation.spacing[2],
+    paddingHorizontal: theme.foundation.spacing[4],
     borderRadius: theme.foundation.radii.l,
     borderWidth: 1,
     borderColor: theme.colors.border.default,
     backgroundColor: theme.colors.background.base,
-    marginRight: theme.foundation.spacing.s,
+    marginRight: theme.foundation.spacing[2],
   },
 
   chipSelected: {

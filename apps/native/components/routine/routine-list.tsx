@@ -35,7 +35,7 @@ const MAX_VISIBLE_ROUTINES = 4;
 const COLLAPSED_VISIBLE_ROUTINES = 2;
 const ROUTINE_ITEM_HEIGHT = 105; // 루틴 높이 + 루틴 간 간격
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
-const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing.s;
+const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing[2];
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
 
 if (
@@ -234,8 +234,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   previewOverlay: {
     position: 'absolute',
-    right: 0,
-    left: 0,
+    right: baseFoundation.spacing[0],
+    left: baseFoundation.spacing[0],
     overflow: 'hidden',
   },
   previewOverlayVisibility: {
@@ -247,15 +247,15 @@ const styles = StyleSheet.create((theme) => ({
   },
   scrollIndicatorContainer: {
     position: 'absolute',
-    right: 0,
-    left: 0,
+    right: baseFoundation.spacing[0],
+    left: baseFoundation.spacing[0],
     alignItems: 'center',
     zIndex: 10,
   },
   scrollIndicator: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: baseFoundation.dimension.x2,
+    gap: baseFoundation.spacing[0.5],
     borderRadius: 8,
     borderWidth: 1,
     width: 60,

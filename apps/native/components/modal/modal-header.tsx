@@ -29,7 +29,7 @@ const ModalHeader = ({ title, transparent = false }: ModalHeaderProps) => {
       {/* Back Button */}
       <Pressable
         onPress={handleBack}
-        hitSlop={8}
+        hitSlop={baseFoundation.spacing[2]}
         style={({ pressed }) => [
           styles.backButton,
           pressed && { opacity: 0.5 },
@@ -60,8 +60,8 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: theme.foundation.spacing.s,
-    paddingHorizontal: theme.foundation.spacing.l,
+    paddingVertical: theme.foundation.spacing[2],
+    paddingHorizontal: theme.foundation.spacing[6],
   },
 
   backButton: {

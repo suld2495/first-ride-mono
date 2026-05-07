@@ -16,6 +16,7 @@ import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import RoutineCharacter from '@/feature/character/routine-character';
+import { baseFoundation } from '@/theme/tokens';
 
 const FriendRoutinesModal = () => {
   const {
@@ -140,16 +141,16 @@ const styles = StyleSheet.create((theme) => ({
   },
   scene: {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+    top: baseFoundation.spacing[0],
+    right: baseFoundation.spacing[0],
+    bottom: baseFoundation.spacing[0],
+    left: baseFoundation.spacing[0],
   },
   backgroundArt: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
+    left: baseFoundation.spacing[0],
+    right: baseFoundation.spacing[0],
+    bottom: baseFoundation.spacing[0],
     alignItems: 'center',
   },
   backgroundImage: {
@@ -159,7 +160,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   content: {
     flex: 1,
-    paddingHorizontal: theme.foundation.spacing.m,
+    paddingHorizontal: theme.foundation.spacing[4],
   },
   routineListArea: {
     flex: 7,
