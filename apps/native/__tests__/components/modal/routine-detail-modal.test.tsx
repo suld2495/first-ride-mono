@@ -280,4 +280,149 @@ describe('RoutineDetailModal (루틴 상세 모달)', () => {
       });
     });
   });
+
+  describe('일시정지/재시작 버튼 테스트', () => {
+    it('활성 루틴은 일시정지 버튼을 표시한다', async () => {
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: createMockRoutine(0, { paused: false }),
+      });
+
+      const { findByText } = render(<RoutineDetailModal />);
+
+      expect(await findByText('일시정지')).toBeOnTheScreen();
+    });
+
+    it('일시정지된 루틴은 상태와 재시작 버튼을 표시한다', async () => {
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: createMockRoutine(0, { paused: true }),
+      });
+
+      const { findByText } = render(<RoutineDetailModal />);
+
+      expect(await findByText('일시정지됨')).toBeOnTheScreen();
+      expect(await findByText('재시작')).toBeOnTheScreen();
+    });
+
+    it('일시정지 요청 성공 시 서버 메시지를 Toast로 표시한다', async () => {
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: createMockRoutine(0, { paused: false }),
+      });
+      mockAxios.onPatch('/routine/1/pause').reply(200, {
+        data: { message: '루틴이 일시정지되었습니다.' },
+      });
+
+      const { findByText, getByText } = render(<RoutineDetailModal />);
+
+      await findByText('테스트 루틴 1');
+
+      await act(async () => {
+        fireEvent.press(getByText('일시정지'));
+      });
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '루틴이 일시정지되었습니다.',
+          'success',
+        );
+      });
+    });
+
+    it('재시작 요청 성공 시 서버 메시지를 Toast로 표시한다', async () => {
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: createMockRoutine(0, { paused: true }),
+      });
+      mockAxios.onPatch('/routine/1/pause').reply(200, {
+        data: { message: '루틴이 다시 시작되었습니다.' },
+      });
+
+      const { findByText, getByText } = render(<RoutineDetailModal />);
+
+      await findByText('테스트 루틴 1');
+
+      await act(async () => {
+        fireEvent.press(getByText('재시작'));
+      });
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '루틴이 다시 시작되었습니다.',
+          'success',
+        );
+      });
+    });
+  });
+
+  describe('숨기기/표시 버튼 테스트', () => {
+    it('표시 중인 루틴은 숨기기 버튼을 표시한다', async () => {
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: createMockRoutine(0, { hidden: false }),
+      });
+
+      const { findByText } = render(<RoutineDetailModal />);
+
+      expect(await findByText('숨기기')).toBeOnTheScreen();
+    });
+
+    it('숨김 루틴은 상태와 표시 버튼을 표시한다', async () => {
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: createMockRoutine(0, { hidden: true }),
+      });
+
+      const { findByLabelText, findByText } = render(<RoutineDetailModal />);
+
+      expect(await findByLabelText('숨김 상태')).toBeOnTheScreen();
+      expect(await findByText('표시')).toBeOnTheScreen();
+    });
+
+    it('숨기기 요청 성공 시 서버 메시지를 Toast로 표시한다', async () => {
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: createMockRoutine(0, { hidden: false }),
+      });
+      mockAxios.onPatch('/routine/1/visibility').reply(200, {
+        data: { message: '루틴이 숨겨졌습니다.' },
+      });
+
+      const { findByText, getByText } = render(<RoutineDetailModal />);
+
+      await findByText('테스트 루틴 1');
+
+      await act(async () => {
+        fireEvent.press(getByText('숨기기'));
+      });
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '루틴이 숨겨졌습니다.',
+          'success',
+        );
+      });
+      expect(mockPush).not.toHaveBeenCalledWith(
+        '/(tabs)/(afterLogin)/(routine)',
+      );
+    });
+
+    it('표시 요청 성공 시 서버 메시지를 Toast로 표시한다', async () => {
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: createMockRoutine(0, { hidden: true }),
+      });
+      mockAxios.onPatch('/routine/1/visibility').reply(200, {
+        data: { message: '루틴이 표시되었습니다.' },
+      });
+
+      const { findByText, getByText } = render(<RoutineDetailModal />);
+
+      await findByText('테스트 루틴 1');
+
+      await act(async () => {
+        fireEvent.press(getByText('표시'));
+      });
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '루틴이 표시되었습니다.',
+          'success',
+        );
+      });
+    });
+  });
 });

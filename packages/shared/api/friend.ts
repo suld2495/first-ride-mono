@@ -127,6 +127,8 @@ const toFriendRoutine = (
   startDate: routine.startDate,
   endDate: routine.endDate ?? undefined,
   successDate: routine.successDate ?? [],
+  paused: routine.paused,
+  hidden: routine.hidden,
 });
 
 const unwrapFriendRoutinesResponse = (

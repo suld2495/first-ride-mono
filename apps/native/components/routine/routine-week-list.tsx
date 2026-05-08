@@ -4,7 +4,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import type { WeeklyRoutine } from '@repo/types';
 import { useCallback } from 'react';
 import { Pressable, View } from 'react-native';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import { Button } from '@/components/ui/button';
@@ -26,8 +26,6 @@ interface RoutineWeekListProps {
 }
 
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
-const ROUTINE_TITLE_COLOR = '#DDEEFF';
-
 const RoutineWeekList = ({
   routines,
   date,
@@ -41,6 +39,7 @@ const RoutineWeekList = ({
   onShowDetailModal,
   readOnly = false,
 }: RoutineWeekListProps) => {
+  const { theme } = useAppTheme();
   const weeklyData = useWeeklyData(routines, date);
   const getRoutineItemLayout = useCallback(
     (_: WeeklyRoutine[] | null, index: number) => ({
@@ -92,7 +91,7 @@ const RoutineWeekList = ({
                         size="sm"
                         variant="ghost"
                         onPress={() => onShowRequestModal(routineId)}
-                        textColor="#DDEEFF"
+                        textColor={theme.colors.text.secondary}
                         style={styles.requestButton}
                       />
                     ) : !readOnly ? (
@@ -132,7 +131,11 @@ const RoutineWeekList = ({
                               <Ionicons
                                 name="checkmark"
                                 size={baseFoundation.iconSize.s}
-                                color={isGoalRange ? '#67B7FF' : '#FFD166'}
+                                color={
+                                  isGoalRange
+                                    ? theme.colors.brand.selectedCheck
+                                    : theme.colors.feedback.warning.text
+                                }
                               />
                             ) : null}
                           </View>
@@ -152,7 +155,7 @@ const RoutineWeekList = ({
                           <Ionicons
                             name="checkmark-circle"
                             size={baseFoundation.dimension.x14}
-                            color="#67B7FF"
+                            color={theme.colors.brand.selectedCheck}
                           />
                           <Typography
                             variant="caption"
@@ -179,6 +182,9 @@ const RoutineWeekList = ({
       onShowDetailModal,
       onShowRequestModal,
       readOnly,
+      theme.colors.brand.selectedCheck,
+      theme.colors.feedback.warning.text,
+      theme.colors.text.secondary,
       weeklyData,
     ],
   );
@@ -205,7 +211,7 @@ const RoutineWeekList = ({
 
 export default RoutineWeekList;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   list: {},
   cardContainer: {
     justifyContent: 'center',
@@ -215,8 +221,8 @@ const styles = StyleSheet.create({
     padding: baseFoundation.spacing[0],
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#0D3154',
-    shadowColor: '#14477D',
+    borderColor: theme.colors.brand.primary,
+    shadowColor: theme.colors.brand.primary,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
       height: baseFoundation.dimension.x4,
@@ -235,13 +241,13 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: baseFoundation.dimension.x14,
     padding: baseFoundation.spacing[0.5],
-    backgroundColor: '#A9D6FF',
+    backgroundColor: theme.colors.brand.secondary,
   },
   cardSurface: {
     flex: 1,
     borderRadius: baseFoundation.dimension.x10,
     paddingHorizontal: baseFoundation.spacing[4],
-    backgroundColor: '#0D3154',
+    backgroundColor: theme.colors.brand.routineBackground,
     justifyContent: 'center',
   },
   titleButton: {
@@ -249,7 +255,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   title: {
-    color: ROUTINE_TITLE_COLOR,
+    color: theme.colors.text.secondary,
     textAlign: 'center',
   },
   titleRow: {
@@ -272,13 +278,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dayLabel: {
-    color: '#6A98C4',
+    color: theme.colors.text.tertiary,
   },
   checkBox: {
     width: baseFoundation.dimension.x20,
     height: baseFoundation.dimension.x20,
     borderRadius: baseFoundation.dimension.x4,
-    backgroundColor: '#071B31',
+    backgroundColor: theme.colors.brand.checkbox,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -300,7 +306,7 @@ const styles = StyleSheet.create({
     gap: baseFoundation.spacing[1],
   },
   progressText: {
-    color: '#EAF5FF',
+    color: theme.colors.text.secondary,
   },
   requestButton: {
     position: 'absolute',
@@ -318,4 +324,4 @@ const styles = StyleSheet.create({
     width: baseFoundation.dimension.x72,
     height: baseFoundation.dimension.x20,
   },
-});
+}));

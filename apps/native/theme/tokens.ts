@@ -44,7 +44,7 @@ export const palette = {
     softRed: {
       10: '#FECDF2',
       20: '#E1C6DB',
-      40: '#83B0D6', // 임시
+      40: '#CF93C1', // 임시
       50: '#CF93C1',
       60: '#C178B0',
       80: '#99628C',
@@ -63,7 +63,7 @@ export const palette = {
 
     softGreen: {
       20: '#84D4A9',
-      40: '#83B0D6', // 임시
+      40: '#7FCFA2', // 임시
       50: '#7FA892',
       60: '#6D947E',
       80: '#547764',

@@ -1,4 +1,11 @@
-import type { Routine, RoutineForm, UpdateRoutineForm } from '@repo/types';
+import type {
+  Routine,
+  RoutineActionResponse,
+  RoutineForm,
+  UpdateRoutineForm,
+  UpdateRoutinePauseRequest,
+  UpdateRoutineVisibilityRequest,
+} from '@repo/types';
 
 import { toAppError } from '.';
 import http from './client';
@@ -51,6 +58,40 @@ export const updateRoutine = async ({
 export const deleteRoutine = async (id: number): Promise<void> => {
   try {
     const response: void = await http.delete(`/routine/${id}`);
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const updateRoutinePause = async ({
+  routineId,
+  paused,
+}: UpdateRoutinePauseRequest): Promise<RoutineActionResponse> => {
+  try {
+    const response: RoutineActionResponse = await http.patch(
+      `/routine/${routineId}/pause`,
+      { paused },
+    );
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const updateRoutineVisibility = async ({
+  routineId,
+  hidden,
+}: UpdateRoutineVisibilityRequest): Promise<RoutineActionResponse> => {
+  try {
+    const response: RoutineActionResponse = await http.patch(
+      `/routine/${routineId}/visibility`,
+      {
+        hidden,
+      },
+    );
 
     return response;
   } catch (error) {

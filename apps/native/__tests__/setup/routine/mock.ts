@@ -13,6 +13,8 @@ export interface CreateMockRoutineOptions {
   endDate?: string;
   successDate?: string[];
   mateNickname?: string;
+  paused?: boolean;
+  hidden?: boolean;
 }
 
 export const createMockRoutine = (
@@ -31,6 +33,8 @@ export const createMockRoutine = (
   startDate: options.startDate ?? getWeekMonday(new Date()),
   endDate: options.endDate,
   successDate: options.successDate ?? ['251201', '251202', '251203'],
+  paused: options.paused ?? false,
+  hidden: options.hidden ?? false,
 });
 
 export const createMockRoutines = (

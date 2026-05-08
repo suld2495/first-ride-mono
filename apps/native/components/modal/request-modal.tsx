@@ -33,6 +33,7 @@ const RequestModal = () => {
       ? {
           nickname: detail.nickname,
           isMe: detail.isMe,
+          paused: detail.paused,
         }
       : undefined,
   );

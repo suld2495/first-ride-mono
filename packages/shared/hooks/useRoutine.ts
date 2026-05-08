@@ -2,6 +2,8 @@ import type {
   Routine,
   RoutineForm,
   UpdateRoutineForm,
+  UpdateRoutinePauseRequest,
+  UpdateRoutineVisibilityRequest,
   WeeklyRoutine,
 } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -68,6 +70,41 @@ export const useDeleteRoutineMutation = (nickname: string) => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: routineKey.list(nickname),
+      });
+    },
+  });
+};
+
+export const useUpdateRoutinePauseMutation = (nickname: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateRoutinePauseRequest) =>
+      routineApi.updateRoutinePause(data),
+
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: routineKey.list(nickname),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: routineKey.detail(variables.routineId),
+        }),
+      ]);
+    },
+  });
+};
+
+export const useUpdateRoutineVisibilityMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateRoutineVisibilityRequest) =>
+      routineApi.updateRoutineVisibility(data),
+
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: routineKey.detail(variables.routineId),
       });
     },
   });

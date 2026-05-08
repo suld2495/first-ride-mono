@@ -346,5 +346,7 @@ export {
   fetchRoutineDetail,
   fetchRoutines,
   updateRoutine,
+  updateRoutinePause,
+  updateRoutineVisibility,
 } from './routine.api';
 export { distributeStats, fetchMyStats } from './stat.api';

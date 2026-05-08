@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { useRouter } from 'expo-router';
 import { Alert, ScrollView } from 'react-native';
@@ -9,6 +10,7 @@ import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useRoutineDelete } from '@/hooks/useRoutineDelete';
+import { useRoutineManagement } from '@/hooks/useRoutineManagement';
 import { useRoutineId, useSetRoutineForm } from '@/hooks/useRoutineSelection';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -23,6 +25,12 @@ const RoutineDetailModal = () => {
     routineId,
     user?.nickname || '',
   );
+  const {
+    updateRoutinePause,
+    updateRoutineVisibility,
+    isUpdatingPause,
+    isUpdatingVisibility,
+  } = useRoutineManagement(routineId, user?.nickname || '');
 
   if (isLoading) {
     return null;
@@ -49,17 +57,53 @@ const RoutineDetailModal = () => {
     }
   };
 
+  const handleTogglePause = () => {
+    if (!detail) {
+      return;
+    }
+
+    updateRoutinePause(!detail.paused);
+  };
+
+  const handleToggleVisibility = () => {
+    if (!detail) {
+      return;
+    }
+
+    updateRoutineVisibility(!detail.hidden);
+  };
+
   return (
     <ThemeView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <ThemeView style={{ marginBottom: -baseFoundation.spacing[5] }} transparent>
-          <Typography
-            variant="subtitle"
-            weight="semibold"
-            style={styles.infoLabel}
-          >
-            {detail?.routineName}
-          </Typography>
+        <ThemeView
+          style={{ marginBottom: -baseFoundation.spacing[5] }}
+          transparent
+        >
+          <ThemeView style={styles.titleRow} transparent>
+            <Typography
+              variant="subtitle"
+              weight="semibold"
+              style={styles.title}
+            >
+              {detail?.routineName}
+            </Typography>
+            {detail?.hidden && (
+              <Ionicons
+                name="eye-off-outline"
+                size={baseFoundation.iconSize.s}
+                color="#4C769C"
+                accessibilityLabel="숨김 상태"
+              />
+            )}
+          </ThemeView>
+          {detail?.paused && (
+            <ThemeView style={styles.statusRow} transparent>
+              <Typography variant="caption" style={styles.statusText}>
+                일시정지됨
+              </Typography>
+            </ThemeView>
+          )}
         </ThemeView>
         <ThemeView style={styles.content} transparent>
           <Typography>{detail?.routineDetail}</Typography>
@@ -127,6 +171,22 @@ const RoutineDetailModal = () => {
             style={styles.button}
             onPress={handleDeleteRoutine}
           />
+          <Button
+            title={detail?.paused ? '재시작' : '일시정지'}
+            variant="secondary"
+            style={styles.button}
+            loading={isUpdatingPause}
+            disabled={isUpdatingPause}
+            onPress={handleTogglePause}
+          />
+          <Button
+            title={detail?.hidden ? '표시' : '숨기기'}
+            variant="secondary"
+            style={styles.button}
+            loading={isUpdatingVisibility}
+            disabled={isUpdatingVisibility}
+            onPress={handleToggleVisibility}
+          />
         </ThemeView>
       </ScrollView>
     </ThemeView>
@@ -152,6 +212,17 @@ const styles = StyleSheet.create({
     marginBottom: baseFoundation.spacing[2.5],
   },
 
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.spacing[1.5],
+    marginBottom: baseFoundation.spacing[2.5],
+  },
+
+  title: {
+    flexShrink: 1,
+  },
+
   content: {
     marginBottom: baseFoundation.spacing[2.5],
   },
@@ -159,11 +230,23 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: baseFoundation.spacing[2.5],
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'flex-end',
     gap: baseFoundation.spacing[2.5],
   },
 
   button: {
-    flex: 1,
+    flexBasis: '47%',
+    flexGrow: 1,
+  },
+
+  statusRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: baseFoundation.spacing[1.5],
+  },
+
+  statusText: {
+    color: '#4C769C',
   },
 });

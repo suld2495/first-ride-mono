@@ -526,6 +526,42 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         });
       });
     });
+
+    describe('일시정지된 루틴인 경우', () => {
+      beforeEach(() => {
+        const mockRoutine = createMockRoutine(0, {
+          isMe: true,
+          paused: true,
+        });
+
+        mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
+        mockAxios.onPost('/routine/confirm').reply(200, { data: null });
+      });
+
+      it('인증 요청을 보내지 않고 일시정지 안내 Toast를 표시한다', async () => {
+        const { findByText, getByText, getByTestId } = render(<RequestModal />);
+
+        await findByText('테스트 루틴 1');
+
+        await selectImageFromGallery(getByTestId);
+
+        await waitFor(() => {
+          expect(getByText('요청')).toBeEnabled();
+        });
+
+        await act(async () => {
+          fireEvent.press(getByText('요청'));
+        });
+
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '일시정지된 루틴은 인증 요청을 보낼 수 없습니다.',
+            'error',
+          );
+        });
+        expect(mockAxios.history.post).toHaveLength(0);
+      });
+    });
   });
 
   describe('나/친구 인증 분기 처리 테스트', () => {

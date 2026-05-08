@@ -11,6 +11,7 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 interface RoutineDetailInfo {
   nickname: string;
   isMe: boolean;
+  paused: boolean;
 }
 
 const MAX_REQUEST_IMAGE_COUNT = 3;
@@ -44,6 +45,11 @@ export const useRequestSubmission = (
   const handleSubmit = useCallback(
     (submittedForm: RequestImageForm) => {
       if (!submittedForm.images.length || !detail) {
+        return;
+      }
+
+      if (detail.paused) {
+        showToast('일시정지된 루틴은 인증 요청을 보낼 수 없습니다.', 'error');
         return;
       }
 

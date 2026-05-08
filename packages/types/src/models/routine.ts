@@ -13,11 +13,13 @@ export interface Routine {
   startDate: string;
   endDate?: string;
   successDate: string[];
+  paused: boolean;
+  hidden: boolean;
 }
 
 export type RoutineForm = Omit<
   Routine,
-  'routineId' | 'weeklyCount' | 'successDate'
+  'routineId' | 'weeklyCount' | 'successDate' | 'paused' | 'hidden'
 >;
 
 export type WeeklyRoutine = Pick<
@@ -28,6 +30,8 @@ export type WeeklyRoutine = Pick<
   | 'routineCount'
   | 'startDate'
   | 'endDate'
+  | 'paused'
+  | 'hidden'
 > & {
   successDate: string[];
 };

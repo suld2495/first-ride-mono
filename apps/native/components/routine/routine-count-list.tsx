@@ -131,7 +131,7 @@ const RoutineCountList = ({
                     size="sm"
                     variant="ghost"
                     onPress={() => onShowRequestModal(routineId)}
-                    textColor="#DDEEFF"
+                    textColor={theme.colors.text.secondary}
                     style={styles.requestButton}
                   />
                 ) : !readOnly ? (
@@ -213,6 +213,7 @@ const RoutineCountList = ({
       readOnly,
       theme.colors.brand.check,
       theme.colors.brand.selectedCheck,
+      theme.colors.text.secondary,
     ],
   );
 
@@ -248,8 +249,8 @@ const styles = StyleSheet.create((theme) => ({
     padding: baseFoundation.spacing.px,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#0D3154',
-    shadowColor: '#14477D',
+    borderColor: theme.colors.brand.primary,
+    shadowColor: theme.colors.brand.primary,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
       height: baseFoundation.dimension.x4,
@@ -327,7 +328,7 @@ const styles = StyleSheet.create((theme) => ({
     gap: baseFoundation.spacing[1],
   },
   progressText: {
-    color: '#EAF5FF',
+    color: theme.colors.text.secondary,
   },
   requestButton: {
     position: 'absolute',
