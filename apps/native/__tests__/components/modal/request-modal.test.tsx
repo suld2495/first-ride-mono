@@ -1,7 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { ScrollView } from 'react-native';
+import { ActivityIndicator, ScrollView } from 'react-native';
 
 import RequestModal from '../../../components/modal/request-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
@@ -380,6 +380,55 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await waitFor(() => {
           expect(submittedFormData?.getAll('base64images')).toEqual(
             expectedImages,
+          );
+        });
+      });
+
+      it('요청 중에는 스피너를 표시하고 취소, 요청, 이미지 업로드 버튼을 비활성화한다', async () => {
+        let resolveRequest: () => void = () => {};
+
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/routine\/details/).reply(200, {
+          data: createMockRoutine(0, { isMe: true }),
+        });
+        mockAxios.onPost('/routine/confirm').reply(
+          () =>
+            new Promise((resolve) => {
+              resolveRequest = () => resolve([200, { data: null }]);
+            }),
+        );
+
+        const screen = render(<RequestModal />);
+
+        await screen.findByText('테스트 루틴 1');
+
+        await selectImageFromGallery(screen.getByTestId);
+
+        await waitFor(() => {
+          expect(screen.getByText('요청')).toBeEnabled();
+        });
+
+        await act(async () => {
+          fireEvent.press(screen.getByText('요청'));
+        });
+
+        await waitFor(() => {
+          expect(screen.UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+          expect(screen.getByText('취소')).toBeDisabled();
+          expect(screen.getByTestId('request-submit-button')).toBeDisabled();
+          expect(screen.getByTestId('gallery-button')).toBeDisabled();
+          expect(screen.getByTestId('camera-button')).toBeDisabled();
+        });
+
+        expect(screen.queryByText('요청')).not.toBeOnTheScreen();
+
+        await act(async () => {
+          resolveRequest();
+        });
+
+        await waitFor(() => {
+          expect(mockPush).toHaveBeenCalledWith(
+            '/(tabs)/(afterLogin)/(routine)',
           );
         });
       });

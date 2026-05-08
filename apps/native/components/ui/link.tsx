@@ -4,10 +4,7 @@ import { Link as RNLink } from 'expo-router';
 import { Button, type ButtonProps } from './button';
 
 export type LinkProps = ExpoLinkProps &
-  Omit<
-    ButtonProps,
-    'onPress' | 'disabled' | 'onLongPress' | 'onPressIn' | 'onPressOut'
-  > & {
+  Omit<ButtonProps, 'onPress' | 'onLongPress' | 'onPressIn' | 'onPressOut'> & {
     /**
      * Button title text (optional)
      * @deprecated Use children instead for consistency with Button
@@ -47,6 +44,7 @@ export type LinkProps = ExpoLinkProps &
  */
 const Link = ({
   title,
+  disabled,
   accessibilityLabel,
   accessibilityHint,
   accessibilityRole,
@@ -59,6 +57,7 @@ const Link = ({
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
         accessibilityRole={accessibilityRole}
+        disabled={disabled}
       />
     </RNLink>
   );

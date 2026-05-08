@@ -27,16 +27,17 @@ const requestImageValidators = requestFormValidators as unknown as Validators<{
 const RequestModal = () => {
   const routineId = useRoutineId();
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
-  const { handleSubmit, pickImage, takePicture } = useRequestSubmission(
-    routineId,
-    detail
-      ? {
-          nickname: detail.nickname,
-          isMe: detail.isMe,
-          paused: detail.paused,
-        }
-      : undefined,
-  );
+  const { handleSubmit, pickImage, takePicture, isPending } =
+    useRequestSubmission(
+      routineId,
+      detail
+        ? {
+            nickname: detail.nickname,
+            isMe: detail.isMe,
+            paused: detail.paused,
+          }
+        : undefined,
+    );
 
   if (isLoading) {
     return null;
@@ -95,7 +96,7 @@ const RequestModal = () => {
                       />
                     )}
                     style={styles.phone}
-                    disabled={form.images.length >= 3}
+                    disabled={isPending || form.images.length >= 3}
                     onPress={() => pickImage(setValue, form.images)}
                   />
                   <Button
@@ -109,7 +110,7 @@ const RequestModal = () => {
                       />
                     )}
                     style={styles.phone}
-                    disabled={form.images.length >= 3}
+                    disabled={isPending || form.images.length >= 3}
                     onPress={() => takePicture(setValue, form.images)}
                   />
                 </ThemeView>
@@ -160,7 +161,7 @@ const RequestModal = () => {
             )}
           />
 
-          <RequetButtonGroup useForm={useForm} />
+          <RequetButtonGroup useForm={useForm} loading={isPending} />
         </Form>
       </ScrollView>
     </ThemeView>

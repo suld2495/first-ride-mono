@@ -9,20 +9,32 @@ import { baseFoundation } from '@/theme/tokens';
 
 interface RequetButtonGroupProps {
   useForm: () => FormContextType<{ images: RequestImage[] }>;
+  loading?: boolean;
 }
 
-const RequetButtonGroup = ({ useForm }: RequetButtonGroupProps) => {
+const RequetButtonGroup = ({
+  useForm,
+  loading = false,
+}: RequetButtonGroupProps) => {
   const { enabled, handleSubmit } = useForm();
 
   return (
     <ThemeView style={styles.buttonContainer}>
-      <Link title="취소" href=".." variant="secondary" style={styles.button} />
+      <Link
+        title="취소"
+        href=".."
+        variant="secondary"
+        style={styles.button}
+        disabled={loading}
+      />
       <Button
+        testID="request-submit-button"
         title="요청"
         variant="primary"
         onPress={() => handleSubmit()}
         style={styles.button}
-        disabled={!enabled}
+        disabled={!enabled || loading}
+        loading={loading}
       />
     </ThemeView>
   );
