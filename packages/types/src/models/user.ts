@@ -9,5 +9,6 @@ export type UserRole = 'USER' | 'ADMIN';
 
 export type User = Pick<Auth, 'userId' | 'nickname'> & {
   motto: null | string;
+  mottos: string[];
   role: UserRole;
 };

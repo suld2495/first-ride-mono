@@ -16,6 +16,7 @@ export function makeServer() {
               userId: 'moon',
               nickname: '용사',
               motto: '끝까지 간다',
+              mottos: ['끝까지 간다'],
               role: 'ADMIN',
             },
           },

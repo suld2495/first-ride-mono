@@ -147,6 +147,7 @@ const styles = StyleSheet.create(() => ({
   container: {
     position: 'relative',
     zIndex: 1,
+    justifyContent: 'center',
     maxWidth: baseFoundation.dimension.x180,
     minHeight: baseFoundation.dimension.x40,
     paddingHorizontal: baseFoundation.spacing[4],

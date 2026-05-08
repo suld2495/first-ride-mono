@@ -3,8 +3,13 @@ import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, type LayoutChangeEvent, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Animated,
+  LayoutAnimation,
+  type LayoutChangeEvent,
+  View,
+} from 'react-native';
 import {
   SafeAreaView,
   useSafeAreaInsets,
@@ -27,7 +32,39 @@ import { baseFoundation } from '@/theme/tokens';
 
 const SPEECH_BUBBLE_VISIBLE_MS = 3000;
 const SPEECH_BUBBLE_FADE_OUT_MS = 300;
+const SPEECH_BUBBLE_RESIZE_MS = 180;
 const EMPTY_CHARACTER_BOTTOM_INSET_THRESHOLD = baseFoundation.dimension.x20;
+const normalizeMottoText = (value: unknown): string[] => {
+  if (Array.isArray(value)) {
+    return value.flatMap(normalizeMottoText);
+  }
+
+  if (typeof value !== 'string') {
+    return [];
+  }
+
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return [];
+  }
+
+  if (trimmedValue.startsWith('[')) {
+    try {
+      return normalizeMottoText(JSON.parse(trimmedValue));
+    } catch {
+      return [trimmedValue];
+    }
+  }
+
+  return [trimmedValue];
+};
+
+const getRandomMotto = (mottos: string[]): string => {
+  const randomIndex = Math.floor(Math.random() * mottos.length);
+
+  return mottos[randomIndex] ?? '안녕?';
+};
 
 export default function Index() {
   const router = useRouter();
@@ -39,6 +76,7 @@ export default function Index() {
   const speechBubbleOpacity = useRef(new Animated.Value(0)).current;
   const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
   const [isSpeechBubbleVisible, setIsSpeechBubbleVisible] = useState(false);
+  const [speechBubbleMessage, setSpeechBubbleMessage] = useState('안녕?');
 
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
@@ -52,11 +90,20 @@ export default function Index() {
     refetch,
   } = useRoutinesQuery(user?.nickname || '', date);
   const hasRoutines = routines.length > 0;
-  const motto = user?.motto?.trim();
-  const speechBubbleMessage = motto ? motto : '안녕?';
+  const mottos = useMemo(() => {
+    const normalizedMottos = normalizeMottoText(user?.mottos);
+
+    return normalizedMottos.length
+      ? normalizedMottos
+      : normalizeMottoText(user?.motto);
+  }, [user?.motto, user?.mottos]);
   const emptyCharacterBottomOffset =
     baseFoundation.spacing[5] +
     Math.max(EMPTY_CHARACTER_BOTTOM_INSET_THRESHOLD - insets.bottom, 0);
+  const characterAreaBottomPadding = Math.max(
+    EMPTY_CHARACTER_BOTTOM_INSET_THRESHOLD - insets.bottom,
+    0,
+  );
 
   useEffect(() => {
     if (!isLoading && isFirstLoadRef.current) {
@@ -84,6 +131,13 @@ export default function Index() {
 
     speechBubbleOpacity.stopAnimation();
     speechBubbleOpacity.setValue(1);
+    LayoutAnimation.configureNext({
+      duration: SPEECH_BUBBLE_RESIZE_MS,
+      update: {
+        type: LayoutAnimation.Types.easeInEaseOut,
+      },
+    });
+    setSpeechBubbleMessage(mottos.length ? getRandomMotto(mottos) : '안녕?');
     setIsSpeechBubbleVisible(true);
 
     speechBubbleHideTimerRef.current = setTimeout(() => {
@@ -97,7 +151,7 @@ export default function Index() {
         }
       });
     }, SPEECH_BUBBLE_VISIBLE_MS);
-  }, [speechBubbleOpacity]);
+  }, [mottos, speechBubbleOpacity]);
 
   useEffect(
     () => () => {
@@ -155,7 +209,10 @@ export default function Index() {
                   />
                 </View>
                 <View
-                  style={styles.routineCharacterArea}
+                  style={[
+                    styles.routineCharacterArea,
+                    { paddingBottom: characterAreaBottomPadding },
+                  ]}
                   testID="routine-character-area"
                 >
                   <View style={styles.characterStage}>

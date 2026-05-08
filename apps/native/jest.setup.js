@@ -407,6 +407,7 @@ global.mockUser = {
   nickname: 'testuser',
   userId: 'test123',
   motto: '끝까지 간다',
+  mottos: ['끝까지 간다'],
   role: 'USER',
 };
 global.mockAuthStore = {

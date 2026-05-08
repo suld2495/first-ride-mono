@@ -12,6 +12,7 @@ import {
   renderRoutineSceneAsset,
   routineSceneAssets,
 } from '@/components/routine/routine-scene-art';
+import { Button } from '@/components/ui/button';
 import IconButton from '@/components/ui/icon-button';
 import { Input } from '@/components/ui/input';
 import PixelCard from '@/components/ui/pixel-card';
@@ -22,7 +23,22 @@ import { useAuthSignIn, useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation } from '@/theme/tokens';
 
 const MAX_MOTTO_LENGTH = 50;
-const DEFAULT_MOTTO = '좌우명을 입력해주세요.';
+const VISIBLE_MOTTO_COUNT = 3;
+const DEFAULT_MOTTO = '한마디를 입력해주세요.';
+const normalizeMottos = (mottos: string[]): string[] => {
+  const seen = new Set<string>();
+
+  return mottos
+    .map((item) => item.trim())
+    .filter((item) => {
+      if (!item || seen.has(item)) {
+        return false;
+      }
+
+      seen.add(item);
+      return true;
+    });
+};
 
 const Account = () => {
   const router = useRouter();
@@ -35,6 +51,23 @@ const Account = () => {
   const currentMotto = displayUser?.motto ?? '';
   const [isEditing, setIsEditing] = useState(false);
   const [motto, setMotto] = useState(currentMotto);
+  const [isAddingMotto, setIsAddingMotto] = useState(false);
+  const [editingMotto, setEditingMotto] = useState<null | string>(null);
+  const [isMottoListExpanded, setIsMottoListExpanded] = useState(false);
+  const [savedMottos, setSavedMottos] = useState<string[] | null>(null);
+  const serverMottos = useMemo(
+    () =>
+      normalizeMottos(
+        displayUser?.mottos?.length ? displayUser.mottos : [currentMotto],
+      ),
+    [currentMotto, displayUser?.mottos],
+  );
+  const currentMottos = savedMottos ?? serverMottos;
+  const primaryMotto = currentMottos[0] ?? '';
+  const canToggleMottoList = currentMottos.length > VISIBLE_MOTTO_COUNT;
+  const visibleMottos = isMottoListExpanded
+    ? currentMottos
+    : currentMottos.slice(0, VISIBLE_MOTTO_COUNT);
 
   useEffect(() => {
     if (fetchedUser) {
@@ -44,59 +77,132 @@ const Account = () => {
 
   useEffect(() => {
     if (!isEditing) {
-      setMotto(currentMotto);
+      setMotto(primaryMotto);
     }
-  }, [currentMotto, isEditing]);
+  }, [isEditing, primaryMotto]);
 
-  const displayMotto = useMemo(
-    () => (currentMotto.trim().length > 0 ? currentMotto : DEFAULT_MOTTO),
-    [currentMotto],
-  );
+  useEffect(() => {
+    setSavedMottos(null);
+    setIsMottoListExpanded(false);
+  }, [displayUser?.userId]);
 
-  const handleEdit = useCallback(() => {
-    setMotto(currentMotto);
+  useEffect(() => {
+    if (currentMottos.length <= VISIBLE_MOTTO_COUNT) {
+      setIsMottoListExpanded(false);
+    }
+  }, [currentMottos.length]);
+
+  const displayMotto = primaryMotto || DEFAULT_MOTTO;
+
+  const handleAdd = useCallback(() => {
+    setMotto('');
+    setIsAddingMotto(true);
+    setEditingMotto(null);
     setIsEditing(true);
-  }, [currentMotto]);
+  }, []);
+
+  const handleEditMotto = useCallback((targetMotto: string) => {
+    setMotto(targetMotto);
+    setEditingMotto(targetMotto);
+    setIsAddingMotto(false);
+    setIsEditing(true);
+  }, []);
+
+  const updateMottos = useCallback(
+    (nextMottos: string[]) => {
+      const normalizedMottos = normalizeMottos(nextMottos);
+      const nextPrimaryMotto = normalizedMottos[0] ?? null;
+
+      updateMotto.mutate(
+        {
+          mottos: normalizedMottos,
+        },
+        {
+          onSuccess: (updatedUser) => {
+            const nextUser =
+              updatedUser ??
+              (displayUser
+                ? {
+                    ...displayUser,
+                    motto: nextPrimaryMotto,
+                    mottos: normalizedMottos,
+                  }
+                : undefined);
+
+            if (nextUser) {
+              signIn(nextUser);
+            }
+
+            setIsEditing(false);
+            setIsAddingMotto(false);
+            setEditingMotto(null);
+            showToast('한마디가 수정되었습니다.', 'success');
+          },
+          onError: (error) => {
+            const message =
+              error instanceof Error
+                ? error.message
+                : '한마디 수정에 실패했습니다.';
+
+            setSavedMottos(null);
+            showToast(message, 'error');
+          },
+        },
+      );
+
+      setSavedMottos(normalizedMottos);
+    },
+    [displayUser, showToast, signIn, updateMotto],
+  );
 
   const handleSubmit = useCallback(() => {
     if (motto.length > MAX_MOTTO_LENGTH) {
-      showToast('좌우명은 50자 이하로 입력해주세요.', 'error');
+      showToast('한마디는 50자 이하로 입력해주세요.', 'error');
       return;
     }
 
-    updateMotto.mutate(
-      {
-        motto: motto.trim().length > 0 ? motto : null,
-      },
-      {
-        onSuccess: (updatedUser) => {
-          const nextUser =
-            updatedUser ??
-            (displayUser
-              ? {
-                  ...displayUser,
-                  motto: motto.trim().length > 0 ? motto : null,
-                }
-              : undefined);
+    const trimmedMotto = motto.trim();
 
-          if (nextUser) {
-            signIn(nextUser);
-          }
+    if (isAddingMotto) {
+      if (!trimmedMotto) {
+        setIsEditing(false);
+        setIsAddingMotto(false);
+        setEditingMotto(null);
+        setMotto(primaryMotto);
+        return;
+      }
 
-          setIsEditing(false);
-          showToast('좌우명이 수정되었습니다.', 'success');
-        },
-        onError: (error) => {
-          const message =
-            error instanceof Error
-              ? error.message
-              : '좌우명 수정에 실패했습니다.';
+      updateMottos([...currentMottos, trimmedMotto]);
+      return;
+    }
 
-          showToast(message, 'error');
-        },
-      },
-    );
-  }, [displayUser, motto, showToast, signIn, updateMotto]);
+    if (editingMotto) {
+      updateMottos(
+        currentMottos.map((item) =>
+          item === editingMotto ? trimmedMotto : item,
+        ),
+      );
+    }
+  }, [
+    currentMottos,
+    editingMotto,
+    isAddingMotto,
+    motto,
+    primaryMotto,
+    showToast,
+    updateMottos,
+  ]);
+
+  const handleRemoveMotto = useCallback(
+    (targetMotto: string) => {
+      updateMottos(currentMottos.filter((item) => item !== targetMotto));
+    },
+    [currentMottos, updateMottos],
+  );
+
+  const handleToggleMottoList = useCallback(() => {
+    setIsMottoListExpanded((prev) => !prev);
+  }, []);
 
   return (
     <Container noPadding>
@@ -131,7 +237,7 @@ const Account = () => {
               <View style={styles.mottoContent}>
                 {isEditing ? (
                   <Input
-                    accessibilityLabel="좌우명"
+                    accessibilityLabel="한마디"
                     autoFocus
                     fullWidth
                     onChangeText={setMotto}
@@ -143,7 +249,7 @@ const Account = () => {
                   />
                 ) : (
                   <Typography
-                    color={currentMotto ? 'primary' : 'tertiary'}
+                    color={primaryMotto ? 'primary' : 'tertiary'}
                     variant="subtitle1"
                     weight="semibold"
                     style={styles.mottoText}
@@ -152,22 +258,32 @@ const Account = () => {
                   </Typography>
                 )}
               </View>
-              <IconButton
-                accessibilityLabel={isEditing ? '좌우명 저장' : '좌우명 수정'}
-                disabled={updateMotto.isPending}
-                loading={updateMotto.isPending}
-                icon={({ color, size }) => (
-                  <Ionicons
-                    name={isEditing ? 'checkmark' : 'create-outline'}
-                    color={color}
-                    size={size}
-                  />
-                )}
-                onPress={isEditing ? handleSubmit : handleEdit}
-                size="md"
-                style={styles.roundButton}
-                variant={isEditing ? 'primary' : 'secondary'}
-              />
+              {!isEditing && (
+                <IconButton
+                  accessibilityLabel="한마디 추가"
+                  icon={({ color, size }) => (
+                    <Ionicons name="add" color={color} size={size} />
+                  )}
+                  onPress={handleAdd}
+                  size="md"
+                  style={styles.roundButton}
+                  variant="secondary"
+                />
+              )}
+              {isEditing && (
+                <IconButton
+                  accessibilityLabel="한마디 저장"
+                  disabled={updateMotto.isPending}
+                  loading={updateMotto.isPending}
+                  icon={({ color, size }) => (
+                    <Ionicons name="checkmark" color={color} size={size} />
+                  )}
+                  onPress={handleSubmit}
+                  size="md"
+                  style={styles.roundButton}
+                  variant="primary"
+                />
+              )}
             </View>
             {isEditing && (
               <Typography
@@ -177,6 +293,73 @@ const Account = () => {
               >
                 {motto.length}/{MAX_MOTTO_LENGTH}
               </Typography>
+            )}
+            {currentMottos.length > 0 && (
+              <View style={styles.mottoList}>
+                {visibleMottos.map((item) => (
+                  <View key={item} style={styles.mottoItem}>
+                    <Typography
+                      color="secondary"
+                      variant="body2"
+                      style={styles.mottoItemText}
+                    >
+                      {item}
+                    </Typography>
+                    <IconButton
+                      accessibilityLabel={`${item} 수정`}
+                      disabled={isEditing || updateMotto.isPending}
+                      icon={({ color, size }) => (
+                        <Ionicons
+                          name="create-outline"
+                          color={color}
+                          size={size}
+                        />
+                      )}
+                      onPress={() => handleEditMotto(item)}
+                      size="sm"
+                      variant="ghost"
+                    />
+                    <IconButton
+                      accessibilityLabel={`${item} 삭제`}
+                      disabled={isEditing || updateMotto.isPending}
+                      icon={({ color, size }) => (
+                        <Ionicons
+                          name="trash-outline"
+                          color={color}
+                          size={size}
+                        />
+                      )}
+                      onPress={() => handleRemoveMotto(item)}
+                      size="sm"
+                      variant="ghost"
+                    />
+                  </View>
+                ))}
+                {canToggleMottoList && (
+                  <Button
+                    accessibilityLabel={
+                      isMottoListExpanded
+                        ? '한마디 목록 접기'
+                        : '한마디 목록 더보기'
+                    }
+                    onPress={handleToggleMottoList}
+                    rightIcon={({ color }) => (
+                      <Ionicons
+                        name={
+                          isMottoListExpanded ? 'chevron-up' : 'chevron-down'
+                        }
+                        color={color}
+                        size={baseFoundation.iconSize.s}
+                      />
+                    )}
+                    size="sm"
+                    style={styles.mottoToggleButton}
+                    variant="ghost"
+                  >
+                    {isMottoListExpanded ? '접기' : '더보기'}
+                  </Button>
+                )}
+              </View>
             )}
           </PixelCard>
 
@@ -244,6 +427,24 @@ const styles = StyleSheet.create((theme) => ({
   },
   roundButton: {
     borderRadius: 999,
+  },
+  mottoList: {
+    gap: theme.foundation.spacing[1],
+    marginTop: theme.foundation.spacing[3],
+  },
+  mottoItem: {
+    minHeight: baseFoundation.dimension.x36,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: theme.foundation.spacing[2],
+  },
+  mottoItemText: {
+    flex: 1,
+  },
+  mottoToggleButton: {
+    alignSelf: 'center',
+    marginTop: theme.foundation.spacing[1],
   },
   counter: {
     marginTop: theme.foundation.spacing[1],

@@ -40,6 +40,7 @@ declare const mockPush: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockUser: {
   motto: null | string;
+  mottos?: string[];
   nickname: string;
   role: 'ADMIN' | 'USER';
   userId: string;
@@ -141,6 +142,7 @@ describe('루틴 조회 페이지', () => {
         mockAuthStore.user = {
           ...mockUser,
           motto: '매일 조금씩 앞으로 간다',
+          mottos: ['매일 조금씩 앞으로 간다'],
         };
 
         const { findByTestId, findByText, queryByTestId } = render(<Index />);
@@ -158,10 +160,60 @@ describe('루틴 조회 페이지', () => {
         expect(motto.props.ellipsizeMode).toBe('tail');
       });
 
+      it('캐릭터를 누를 때마다 한마디 목록에서 랜덤으로 표시한다', async () => {
+        const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.1);
+
+        mockAuthStore.user = {
+          ...mockUser,
+          motto: '첫 번째 한마디',
+          mottos: ['첫 번째 한마디', '두 번째 한마디'],
+        };
+
+        const { findByTestId, findByText } = render(<Index />);
+
+        const characterButton = await findByTestId('routine-character-button');
+
+        fireEvent.press(characterButton);
+        expect(await findByText('첫 번째 한마디')).toBeOnTheScreen();
+
+        randomSpy.mockReturnValue(0.8);
+
+        fireEvent.press(characterButton);
+        expect(await findByText('두 번째 한마디')).toBeOnTheScreen();
+
+        randomSpy.mockRestore();
+      });
+
+      it('한마디 배열 문자열은 개별 한마디로 풀어서 표시한다', async () => {
+        const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.1);
+
+        mockAuthStore.user = {
+          ...mockUser,
+          motto: null,
+          mottos: ['["작심삼일","오늘 할일을 내일로 미루지 말자!","테스트2"]'],
+        };
+
+        const { findByTestId, findByText, queryByText } = render(<Index />);
+
+        const characterButton = await findByTestId('routine-character-button');
+
+        fireEvent.press(characterButton);
+
+        expect(await findByText('작심삼일')).toBeOnTheScreen();
+        expect(
+          queryByText(
+            '["작심삼일","오늘 할일을 내일로 미루지 말자!","테스트2"]',
+          ),
+        ).toBeNull();
+
+        randomSpy.mockRestore();
+      });
+
       it('좌우명이 없으면 캐릭터 말풍선에 기본 문구가 표시된다', async () => {
         mockAuthStore.user = {
           ...mockUser,
           motto: null,
+          mottos: [],
         };
 
         const { findByTestId, findByText } = render(<Index />);
