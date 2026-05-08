@@ -8,6 +8,7 @@ import RequestListModal from '@/components/modal/request-list-modal';
 import RequestModal from '@/components/modal/request-modal';
 import RoutineDetailModal from '@/components/modal/routine-detail-modal';
 import RoutineFormModal from '@/components/modal/routine-form-modal';
+import RoutineReorderModal from '@/components/modal/routine-reorder-modal';
 import TermsPolicyModal from '@/components/modal/terms-policy-modal';
 import ThemeModal from '@/components/modal/theme-modal';
 
@@ -15,6 +16,7 @@ export type ModalType =
   | 'routine-add'
   | 'routine-update'
   | 'routine-detail'
+  | 'routine-reorder'
   | 'quest-add'
   | 'quest-detail'
   | 'request'
@@ -43,6 +45,8 @@ export const useModal = (
       return ['루틴 수정', RoutineFormModal, {}];
     case 'routine-detail':
       return ['루틴 상세', RoutineDetailModal, {}];
+    case 'routine-reorder':
+      return ['루틴 순서 변경', RoutineReorderModal, {}];
     case 'quest-add':
       return ['퀘스트 추가', QuestFormModal, {}];
     case 'quest-detail':

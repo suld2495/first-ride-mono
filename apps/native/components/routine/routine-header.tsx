@@ -5,6 +5,7 @@ import { View } from 'react-native';
 
 import PageHeader from '@/components/layout/page-header';
 import NotificationBell from '@/components/notification/notification-bell';
+import IconButton from '@/components/ui/icon-button';
 import Link from '@/components/ui/link';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
@@ -12,9 +13,12 @@ import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 import { baseFoundation } from '@/theme/tokens';
 
+const NOTIFICATION_ICON_COLOR = '#0E0E0E';
+
 interface RoutineHeaderProps {
   date: string;
   getDateHref?: (date: string) => Href;
+  onPressReorder?: () => void;
   showNotification?: boolean;
 }
 
@@ -22,6 +26,7 @@ const RoutineHeader = ({
   date,
   getDateHref = (targetDate) =>
     `/(tabs)/(afterLogin)/(routine)?date=${targetDate}` as Href,
+  onPressReorder,
   showNotification = true,
 }: RoutineHeaderProps) => {
   const { theme } = useAppTheme();
@@ -78,11 +83,32 @@ const RoutineHeader = ({
         </View>
       }
       right={
-        showNotification ? (
-          <NotificationBell
-            count={requests.length}
-            url="/modal?type=request-list"
-          />
+        showNotification || onPressReorder ? (
+          <View style={styles.actions}>
+            {onPressReorder ? (
+              <IconButton
+                size="sm"
+                variant="ghost"
+                icon={({ size }) => (
+                  <Ionicons
+                    name="swap-vertical"
+                    size={size}
+                    color={NOTIFICATION_ICON_COLOR}
+                  />
+                )}
+                onPress={onPressReorder}
+                accessibilityLabel="루틴 순서 변경"
+                accessibilityRole="button"
+                testID="routine-reorder-button"
+              />
+            ) : null}
+            {showNotification ? (
+              <NotificationBell
+                count={requests.length}
+                url="/modal?type=request-list"
+              />
+            ) : null}
+          </View>
         ) : null
       }
     />
@@ -109,5 +135,11 @@ const styles = StyleSheet.create((theme) => ({
     minWidth: baseFoundation.dimension.x28,
     paddingHorizontal: baseFoundation.spacing[0],
     paddingVertical: baseFoundation.spacing[0],
+  },
+
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[2],
   },
 }));

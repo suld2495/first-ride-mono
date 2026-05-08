@@ -3,6 +3,7 @@ import type {
   RoutineActionResponse,
   RoutineForm,
   UpdateRoutineForm,
+  UpdateRoutineOrderRequest,
   UpdateRoutinePauseRequest,
   UpdateRoutineVisibilityRequest,
 } from '@repo/types';
@@ -18,6 +19,38 @@ export const fetchRoutines = async (date: string): Promise<Routine[]> => {
   } catch (error) {
     throw toAppError(error);
   }
+};
+
+export const fetchAllRoutines = async (): Promise<Routine[]> => {
+  const responses = await Promise.allSettled([
+    http.get<Routine[], void>('/routine/list/all'),
+    http.get<Routine[], void>('/routine/list'),
+  ]);
+  const routinesById = new Map<Routine['routineId'], Routine>();
+
+  responses.forEach((response) => {
+    if (response.status !== 'fulfilled') {
+      return;
+    }
+
+    response.value.forEach((routine) => {
+      routinesById.set(routine.routineId, routine);
+    });
+  });
+
+  if (routinesById.size) {
+    return Array.from(routinesById.values());
+  }
+
+  const rejectedResponse = responses.find(
+    (response) => response.status === 'rejected',
+  );
+
+  throw toAppError(
+    rejectedResponse?.status === 'rejected'
+      ? rejectedResponse.reason
+      : new Error('루틴 목록을 조회하지 못했습니다.'),
+  );
 };
 
 export const fetchRoutineDetail = async (id: number): Promise<Routine> => {
@@ -92,6 +125,20 @@ export const updateRoutineVisibility = async ({
         hidden,
       },
     );
+
+    return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const updateRoutineOrder = async ({
+  routineIds,
+}: UpdateRoutineOrderRequest): Promise<RoutineActionResponse> => {
+  try {
+    const response: RoutineActionResponse = await http.patch('/routine/order', {
+      routineIds,
+    });
 
     return response;
   } catch (error) {

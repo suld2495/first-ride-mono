@@ -117,6 +117,18 @@ describe('루틴 조회 페이지', () => {
         expect(await findByLabelText('루틴 추가')).toBeOnTheScreen();
       });
 
+      it('루틴 순서 변경 버튼을 누르면 정렬 모달로 이동한다', async () => {
+        const { findByLabelText } = render(<Index />);
+
+        const reorderButton = await findByLabelText('루틴 순서 변경');
+
+        fireEvent.press(reorderButton);
+
+        expect(mockPush).toHaveBeenCalledWith(
+          expect.stringContaining('/modal?type=routine-reorder'),
+        );
+      });
+
       it('상단 헤더에 선택된 날짜가 표시된다', async () => {
         const specificDate = '2024-12-10';
 

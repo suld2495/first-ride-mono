@@ -14,6 +14,10 @@ export type UpdateRoutineVisibilityRequest = {
   hidden: Routine['hidden'];
 };
 
+export type UpdateRoutineOrderRequest = {
+  routineIds: Routine['routineId'][];
+};
+
 export type RoutineActionResponse = {
   message: string;
 };

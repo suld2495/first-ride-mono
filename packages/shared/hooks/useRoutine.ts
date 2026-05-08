@@ -2,6 +2,7 @@ import type {
   Routine,
   RoutineForm,
   UpdateRoutineForm,
+  UpdateRoutineOrderRequest,
   UpdateRoutinePauseRequest,
   UpdateRoutineVisibilityRequest,
   WeeklyRoutine,
@@ -21,6 +22,15 @@ export const useRoutinesQuery = (nickname: string, date: string) => {
     queryKey: routineKey.listByDate(nickname, date),
     queryFn: () => routineApi.fetchRoutines(date),
     enabled: !!nickname && !!date,
+    refetchOnMount: 'always',
+  });
+};
+
+export const useAllRoutinesQuery = (nickname: string) => {
+  return useQuery({
+    queryKey: routineKey.allList(nickname),
+    queryFn: () => routineApi.fetchAllRoutines(),
+    enabled: !!nickname,
     refetchOnMount: 'always',
   });
 };
@@ -105,6 +115,21 @@ export const useUpdateRoutineVisibilityMutation = () => {
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({
         queryKey: routineKey.detail(variables.routineId),
+      });
+    },
+  });
+};
+
+export const useUpdateRoutineOrderMutation = (nickname: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateRoutineOrderRequest) =>
+      routineApi.updateRoutineOrder(data),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: routineKey.list(nickname),
       });
     },
   });

@@ -124,6 +124,10 @@ export default function Index() {
     [],
   );
 
+  const handleOpenRoutineReorderModal = useCallback(() => {
+    router.push(`/modal?type=routine-reorder&date=${date}`);
+  }, [date, router]);
+
   const handleCharacterPress = useCallback(() => {
     if (speechBubbleHideTimerRef.current) {
       clearTimeout(speechBubbleHideTimerRef.current);
@@ -186,7 +190,12 @@ export default function Index() {
         </View>
       </View>
       <View style={styles.contentWrapper}>
-        <RoutineHeader date={date} />
+        <RoutineHeader
+          date={date}
+          onPressReorder={
+            hasRoutines ? handleOpenRoutineReorderModal : undefined
+          }
+        />
         {showLoading ? (
           <View style={styles.loadingContainer}>
             <Loading />
