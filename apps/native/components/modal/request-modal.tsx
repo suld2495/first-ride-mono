@@ -141,9 +141,13 @@ const RequestModal = () => {
                           <Pressable
                             accessibilityLabel="이미지 제거"
                             accessibilityRole="button"
+                            disabled={isPending}
                             hitSlop={baseFoundation.spacing[2]}
                             onPress={handleRemoveImage}
-                            style={styles.removeButton}
+                            style={[
+                              styles.removeButton,
+                              isPending && styles.removeButtonDisabled,
+                            ]}
                             testID={`remove-request-image-${index}`}
                           >
                             <Ionicons
@@ -227,5 +231,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.72)',
+  },
+
+  removeButtonDisabled: {
+    opacity: 0.5,
   },
 });

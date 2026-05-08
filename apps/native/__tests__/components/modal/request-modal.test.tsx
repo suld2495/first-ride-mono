@@ -418,6 +418,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
           expect(screen.getByTestId('request-submit-button')).toBeDisabled();
           expect(screen.getByTestId('gallery-button')).toBeDisabled();
           expect(screen.getByTestId('camera-button')).toBeDisabled();
+          expect(screen.getByTestId('remove-request-image-0')).toBeDisabled();
         });
 
         expect(screen.queryByText('요청')).not.toBeOnTheScreen();
