@@ -3,38 +3,37 @@ import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import type { SearchOption, User } from '@repo/types';
 import { useCallback, useState } from 'react';
-import { FlatList, Modal, Pressable, RefreshControl } from 'react-native';
+import {
+  FlatList,
+  Modal,
+  Pressable,
+  RefreshControl,
+  type StyleProp,
+  View,
+  type ViewStyle,
+} from 'react-native';
 
 import { Button } from '@/components/ui/button';
-import { Divider } from '@/components/ui/divider';
 import { FlashList } from '@/components/ui/flash-list';
 import { Input } from '@/components/ui/input';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 interface UserItemProps extends User {
   close: () => void;
+  itemStyle?: StyleProp<ViewStyle>;
 }
 
 interface UserRenderItemProps {
   item: User;
+  index: number;
 }
 
-const USER_ITEM_HEIGHT = 73;
-const getUserItemLayout = (
-  _: ArrayLike<User> | User[] | null | undefined,
-  index: number,
-) => ({
-  length: USER_ITEM_HEIGHT,
-  offset: USER_ITEM_HEIGHT * index,
-  index,
-});
-
-const UserItem = ({ nickname, close }: UserItemProps) => {
+const UserItem = ({ nickname, userId, close, itemStyle }: UserItemProps) => {
   const addMutation = useAddFriendMutation();
   const { showToast } = useToast();
 
@@ -56,20 +55,35 @@ const UserItem = ({ nickname, close }: UserItemProps) => {
   };
 
   return (
-    <ThemeView style={styles.userItem} transparent>
-      <Typography variant="body">{nickname}</Typography>
+    <ThemeView style={[styles.userItem, itemStyle]} transparent>
+      <View style={styles.userProfile}>
+        <View style={styles.avatar} />
+        <View style={styles.userTextGroup}>
+          <Typography
+            variant="body2"
+            weight="semibold"
+            style={styles.nickname}
+            numberOfLines={1}
+          >
+            {nickname}
+          </Typography>
+          <Typography
+            variant="caption1"
+            style={styles.userId}
+            numberOfLines={1}
+          >
+            {userId}
+          </Typography>
+        </View>
+      </View>
       <Button
-        variant="ghost"
+        title="친구 신청"
+        variant="outline"
         size="sm"
-        leftIcon={({ color }) => (
-          <Ionicons
-            name="add-outline"
-            size={baseFoundation.iconSize.s}
-            color={color}
-          />
-        )}
+        textColor={palette.theme.gray[90]}
         onPress={handleAdd}
         style={styles.addButton}
+        textStyle={styles.addButtonText}
       />
     </ThemeView>
   );
@@ -81,7 +95,6 @@ interface FriendAddModalProps {
 }
 
 const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
-  const { theme } = useAppTheme();
   const isTestEnv = process.env.NODE_ENV === 'test';
   const [keyword, setKeyword] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -106,10 +119,18 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
   }, [onClose]);
 
   const renderUserItem = useCallback(
-    ({ item }: UserRenderItemProps) => (
-      <UserItem {...item} close={handleClose} />
-    ),
-    [handleClose],
+    ({ item, index }: UserRenderItemProps) => {
+      const isLastItem = index === (userList?.length ?? 0) - 1;
+
+      return (
+        <UserItem
+          {...item}
+          close={handleClose}
+          itemStyle={isLastItem ? undefined : styles.userItemGap}
+        />
+      );
+    },
+    [handleClose, userList?.length],
   );
 
   const handleRefresh = useCallback(async () => {
@@ -140,7 +161,11 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
         >
           <ThemeView style={styles.modalContent} variant="elevated">
             <ThemeView style={styles.modalHeader} transparent>
-              <Typography variant="subtitle" weight="semibold">
+              <Typography
+                variant="body1"
+                weight="semibold"
+                style={styles.modalTitle}
+              >
                 친구 추가
               </Typography>
               <Pressable
@@ -151,19 +176,35 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                 <Ionicons
                   name="close-outline"
                   size={baseFoundation.iconSize.l}
-                  color={theme.colors.text.primary}
+                  color="#17181C"
                 />
               </Pressable>
             </ThemeView>
 
-            <ThemeView style={styles.searchContainer} transparent>
-              <Input
-                placeholder="유저이름을 입력해주세요."
-                value={keyword}
-                onChangeText={setKeyword}
-                onSubmitEditing={handleSearch}
-                returnKeyType="search"
-                fullWidth
+            <ThemeView style={styles.searchRow} transparent>
+              <View style={styles.searchInputWrapper}>
+                <Input
+                  placeholder="유저이름을 입력해주세요."
+                  value={keyword}
+                  onChangeText={setKeyword}
+                  onSubmitEditing={handleSearch}
+                  returnKeyType="search"
+                  size="sm"
+                  fullWidth
+                  style={styles.searchInput}
+                  color="title"
+                  placeholderTextColor={palette.theme.gray[10]}
+                />
+              </View>
+              <Button
+                title="검색"
+                variant="ghost"
+                size="sm"
+                onPress={handleSearch}
+                backgroundColor="#17181C"
+                textColor="#FFFFFF"
+                style={styles.searchButton}
+                textStyle={styles.searchButtonText}
               />
             </ThemeView>
 
@@ -172,16 +213,15 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                 data={userList ?? []}
                 keyExtractor={(item) => item.userId.toString()}
                 renderItem={renderUserItem}
-                ItemSeparatorComponent={() => <Divider />}
                 ListEmptyComponent={
                   <ThemeView style={styles.emptyContainer} transparent>
-                    <Typography variant="body" style={styles.emptyText}>
+                    <Typography variant="body3" style={styles.emptyText}>
                       유저가 존재하지 않습니다.
                     </Typography>
                   </ThemeView>
                 }
                 contentContainerStyle={
-                  isTestEnv ? undefined : styles.listContentFlash
+                  userList?.length ? styles.listContent : styles.emptyListContent
                 }
                 keyboardShouldPersistTaps="handled"
                 refreshControl={
@@ -190,11 +230,10 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                     onRefresh={handleRefresh}
                   />
                 }
-                estimatedItemSize={72}
+                estimatedItemSize={48}
                 removeClippedSubviews={false}
                 maxToRenderPerBatch={10}
                 windowSize={5}
-                getItemLayout={getUserItemLayout}
                 showsVerticalScrollIndicator={false}
                 style={styles.list}
               />
@@ -211,59 +250,134 @@ export default FriendAddModal;
 const styles = StyleSheet.create((theme) => ({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Slightly darker overlay for better contrast
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContainer: {
-    width: '90%',
-    maxWidth: 420,
-    maxHeight: '80%',
+    width: '86%',
+    maxWidth: 360,
+    maxHeight: '74%',
   },
   modalContent: {
-    borderRadius: theme.foundation.radii.xl,
-    padding: theme.foundation.spacing[6],
-    shadowColor: theme.colors.border.default,
+    backgroundColor: '#FFFFFF',
+    borderRadius: theme.foundation.radii.s,
+    paddingTop: 0,
+    paddingHorizontal: 0,
+    paddingBottom: theme.foundation.spacing[5],
+    shadowColor: '#000000',
     shadowOffset: {
       width: baseFoundation.dimension.x0,
       height: baseFoundation.dimension.x4,
     },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
     elevation: 5,
-    minHeight: baseFoundation.dimension.x320,
+    minHeight: 436,
     maxHeight: 560,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: theme.foundation.spacing[6],
+    paddingLeft: theme.foundation.spacing[5],
+    paddingRight: theme.foundation.spacing[5],
+    paddingVertical: 17,
   },
-  searchContainer: {
-    marginBottom: theme.foundation.spacing[4],
+  modalTitle: {
+    color: palette.theme.gray[90],
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.spacing[1.5],
+    paddingHorizontal: theme.foundation.spacing[5],
+  },
+  searchInput: {
+    height: baseFoundation.dimension.x32,
+    marginVertical: theme.foundation.spacing[3],
+    borderRadius: baseFoundation.radii.xs,
+    borderColor: palette.theme.gray[8],
+  },
+  searchInputWrapper: {
+    flex: 1,
+    minWidth: 0,
+  },
+  searchButton: {
+    width: baseFoundation.dimension.x56,
+    minWidth: baseFoundation.dimension.x56,
+    height: baseFoundation.dimension.x32,
+    minHeight: baseFoundation.dimension.x32,
+    borderRadius: baseFoundation.radii.xs,
+    paddingHorizontal: theme.foundation.spacing[2],
+  },
+  searchButtonText: {
+    fontSize: theme.foundation.typography.size.body3,
+    fontWeight: '600',
   },
   listContainer: {
     flex: 1,
-    minHeight: baseFoundation.dimension.x180,
+    minHeight: baseFoundation.dimension.x220,
+    paddingHorizontal: theme.foundation.spacing[5],
+    paddingVertical: theme.foundation.spacing[3],
   },
   list: {
     flex: 1,
   },
-  listContentFlash: {
+  listContent: {
     paddingBottom: theme.foundation.spacing[1],
   },
+  emptyListContent: {
+    flexGrow: 1,
+  },
   userItem: {
-    paddingVertical: theme.foundation.spacing[4],
-    paddingHorizontal: theme.foundation.spacing[2],
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.background.sunken,
+    gap: theme.foundation.spacing[3],
+  },
+  userItemGap: {
+    marginBottom: theme.foundation.spacing[3],
+  },
+  userProfile: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[2],
+  },
+  avatar: {
+    width: baseFoundation.dimension.x36,
+    height: baseFoundation.dimension.x36,
+    borderRadius: baseFoundation.radii.round,
+    backgroundColor: '#8DB9DC',
+  },
+  userTextGroup: {
+    flex: 1,
+    minWidth: 0,
+    gap: baseFoundation.dimension.x3,
+  },
+  nickname: {
+    color: palette.theme.gray[80],
+    lineHeight: 19,
+  },
+  userId: {
+    color: palette.theme.gray[10],
+    lineHeight: 17,
   },
   addButton: {
+    width: 83,
+    minWidth: 83,
+    height: baseFoundation.dimension.x32,
+    minHeight: baseFoundation.dimension.x32,
+    borderRadius: baseFoundation.radii.xs,
+    borderColor: palette.theme.gray[90],
     paddingHorizontal: theme.foundation.spacing[2],
+  },
+  addButtonText: {
+    color: palette.theme.gray[90],
+    fontSize: theme.foundation.typography.size.body3,
+    fontWeight: '500',
   },
   emptyContainer: {
     flex: 1,
@@ -273,6 +387,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   emptyText: {
+    color: palette.theme.gray[10],
     textAlign: 'center',
   },
 }));

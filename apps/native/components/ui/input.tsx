@@ -34,6 +34,17 @@ export type InputVariant = 'outlined' | 'filled' | 'underlined' | 'ghost';
  */
 export type InputState = 'default' | 'error' | 'success';
 
+export type InputColor =
+  | 'input'
+  | 'title'
+  | 'subtitle'
+  | 'caption'
+  | 'disabled'
+  | 'error'
+  | 'success'
+  | 'warning'
+  | 'info';
+
 export interface InputProps extends Omit<TextInputProps, 'style'> {
   /**
    * Input size
@@ -76,6 +87,12 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
    * 커스텀 스타일 (컨테이너)
    */
   style?: StyleProp<ViewStyle>;
+
+  /**
+   * 입력 텍스트 색상 토큰
+   * @default 'input'
+   */
+  color?: InputColor;
 }
 
 /**
@@ -109,9 +126,22 @@ export const Input: React.FC<InputProps> = ({
   label,
   helperText,
   style,
+  color = 'input',
   ...props
 }) => {
   const { theme } = useAppTheme();
+  const inputColorMap = {
+    input: theme.colors.text.input,
+    title: theme.colors.text.title,
+    subtitle: theme.colors.text.label,
+    caption: theme.colors.text.tertiary,
+    disabled: theme.colors.text.disabled,
+    error: theme.colors.feedback.error.text,
+    success: theme.colors.feedback.success.text,
+    warning: theme.colors.feedback.warning.text,
+    info: theme.colors.feedback.info.text,
+  } satisfies Record<InputColor, string>;
+  const inputColor = inputColorMap[color];
 
   // 상태 결정
   const state: InputState = error ? 'error' : success ? 'success' : 'default';
@@ -157,7 +187,7 @@ export const Input: React.FC<InputProps> = ({
         ]}
       >
         <TextInput
-          style={[styles.input, sizeInputStyle]}
+          style={[styles.input, sizeInputStyle, { color: inputColor }]}
           placeholderTextColor={theme.colors.text.tertiary}
           {...props}
         />
@@ -222,7 +252,7 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: theme.foundation.typography.size.s,
   },
   inputSm: {
-    fontSize: theme.foundation.typography.size.m,
+    fontSize: theme.foundation.typography.size.body3,
   },
   inputMd: {
     fontSize: theme.foundation.typography.size.m,

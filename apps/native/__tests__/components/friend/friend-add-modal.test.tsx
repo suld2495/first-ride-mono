@@ -92,7 +92,7 @@ describe('친구 추가 모달', () => {
       });
 
       it('검색어를 포함하는 유저 리스트가 표시된다', async () => {
-        const { findByText, getByPlaceholderText } = render(
+        const { findAllByText, getByPlaceholderText } = render(
           <FriendAddModal {...defaultProps} />,
         );
 
@@ -102,9 +102,9 @@ describe('친구 추가 모달', () => {
         fireEvent(searchInput, 'submitEditing');
 
         // 포함관계로 여러 유저가 표시됨
-        expect(await findByText('user1')).toBeOnTheScreen();
-        expect(await findByText('user2')).toBeOnTheScreen();
-        expect(await findByText('user3')).toBeOnTheScreen();
+        expect((await findAllByText('user1')).length).toBeGreaterThan(0);
+        expect((await findAllByText('user2')).length).toBeGreaterThan(0);
+        expect((await findAllByText('user3')).length).toBeGreaterThan(0);
       });
 
       it('검색 결과가 없으면 빈 상태 메시지가 표시된다', async () => {
@@ -136,7 +136,7 @@ describe('친구 추가 모달', () => {
       fireEvent.changeText(searchInput, 'user');
       fireEvent(searchInput, 'submitEditing');
 
-      expect(await screen.findByText('user1')).toBeOnTheScreen();
+      expect((await screen.findAllByText('user1')).length).toBeGreaterThan(0);
       expect(mockAxios.history.get).toHaveLength(1);
 
       const list = screen.UNSAFE_getByType(FlatList);
@@ -170,7 +170,7 @@ describe('친구 추가 모달', () => {
       });
 
       it('성공 토스트가 표시되고 모달이 닫힌다', async () => {
-        const { findByText, getByPlaceholderText, UNSAFE_getAllByType } =
+        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
           render(<FriendAddModal {...defaultProps} />);
 
         // 검색 실행
@@ -180,7 +180,7 @@ describe('친구 추가 모달', () => {
         fireEvent(searchInput, 'submitEditing');
 
         // 유저가 표시될 때까지 대기
-        expect(await findByText('user1')).toBeOnTheScreen();
+        expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
         // 추가 버튼 클릭 (+ 아이콘 버튼)
         // Pressable 중 마지막이 추가 버튼 (overlay, modal container, close button, add button 순서)
@@ -212,7 +212,7 @@ describe('친구 추가 모달', () => {
       });
 
       it('에러 토스트가 표시된다', async () => {
-        const { findByText, getByPlaceholderText, UNSAFE_getAllByType } =
+        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
           render(<FriendAddModal {...defaultProps} />);
 
         const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
@@ -220,7 +220,7 @@ describe('친구 추가 모달', () => {
         fireEvent.changeText(searchInput, 'user');
         fireEvent(searchInput, 'submitEditing');
 
-        expect(await findByText('user1')).toBeOnTheScreen();
+        expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
         const pressables = UNSAFE_getAllByType(Pressable);
         const addButton = pressables[pressables.length - 1];
@@ -249,7 +249,7 @@ describe('친구 추가 모달', () => {
       });
 
       it('에러 토스트가 표시된다', async () => {
-        const { findByText, getByPlaceholderText, UNSAFE_getAllByType } =
+        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
           render(<FriendAddModal {...defaultProps} />);
 
         const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
@@ -257,7 +257,7 @@ describe('친구 추가 모달', () => {
         fireEvent.changeText(searchInput, 'user');
         fireEvent(searchInput, 'submitEditing');
 
-        expect(await findByText('user1')).toBeOnTheScreen();
+        expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
         const pressables = UNSAFE_getAllByType(Pressable);
         const addButton = pressables[pressables.length - 1];
@@ -282,7 +282,7 @@ describe('친구 추가 모달', () => {
       });
 
       it('기본 에러 메시지가 표시된다', async () => {
-        const { findByText, getByPlaceholderText, UNSAFE_getAllByType } =
+        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
           render(<FriendAddModal {...defaultProps} />);
 
         const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
@@ -290,7 +290,7 @@ describe('친구 추가 모달', () => {
         fireEvent.changeText(searchInput, 'user');
         fireEvent(searchInput, 'submitEditing');
 
-        expect(await findByText('user1')).toBeOnTheScreen();
+        expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
         const pressables = UNSAFE_getAllByType(Pressable);
         const addButton = pressables[pressables.length - 1];
@@ -352,6 +352,7 @@ describe('친구 추가 모달', () => {
     it('모달을 닫으면 입력값이 초기화된다', async () => {
       const {
         findByText,
+        findAllByText,
         getByPlaceholderText,
 
         UNSAFE_getAllByType,
@@ -364,7 +365,7 @@ describe('친구 추가 모달', () => {
       fireEvent.changeText(searchInput, 'user');
       fireEvent(searchInput, 'submitEditing');
 
-      expect(await findByText('user1')).toBeOnTheScreen();
+      expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
       // X 버튼 클릭으로 닫기 (close button은 index 2)
       const pressables = UNSAFE_getAllByType(Pressable);
