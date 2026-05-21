@@ -445,6 +445,11 @@ jest.mock('./store/request.store', () => ({
   useRequestStore: (selector) => selector(global.mockRequestStore),
 }));
 
+jest.mock('@/widget/routine-widget-native', () => ({
+  saveRoutineWidgetSnapshot: jest.fn(),
+  clearRoutineWidgetSnapshot: jest.fn(),
+}));
+
 // toast mock
 global.mockShowToast = jest.fn();
 global.mockHideToast = jest.fn();

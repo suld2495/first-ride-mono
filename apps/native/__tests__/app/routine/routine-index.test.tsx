@@ -139,6 +139,55 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
+      it('숨김 루틴 버튼을 누르면 숨김 처리된 루틴만 표시한다', async () => {
+        const visibleRoutine = createMockRoutines(1, {
+          paused: false,
+        })[0];
+        const pausedRoutine = {
+          ...createMockRoutines(1, {
+            paused: true,
+          })[0],
+          routineId: 99,
+          routineName: '숨김 루틴',
+          successDate: null,
+        };
+
+        mockAxios.resetHandlers();
+        mockAxios
+          .onGet(/\/routine\/confirm\/list/)
+          .reply(200, { data: [] });
+        mockAxios
+          .onGet(/\/routine\/list\?date=/)
+          .reply(200, { data: [visibleRoutine] });
+        mockAxios
+          .onGet('/routine/list/paused')
+          .reply(200, { data: [pausedRoutine] });
+
+        const { findByLabelText, findByText, queryByText } = render(<Index />);
+
+        expect(await findByText('테스트 루틴 1')).toBeOnTheScreen();
+
+        fireEvent.press(await findByLabelText('숨김 루틴 보기'));
+
+        expect(await findByText('숨김 루틴')).toBeOnTheScreen();
+        expect(queryByText('테스트 루틴 1')).toBeNull();
+        expect(
+          mockAxios.history.get.some(
+            (request) => request.url === '/routine/list/paused',
+          ),
+        ).toBe(true);
+      });
+
+      it('헤더 액션 아이콘 간격을 좁게 유지한다', async () => {
+        const { findByTestId } = render(<Index />);
+
+        const actions = await findByTestId('routine-header-actions');
+
+        expect(flattenStyles(actions.props.style)).toEqual(
+          expect.arrayContaining([expect.objectContaining({ gap: 2 })]),
+        );
+      });
+
       it('상단 헤더에 선택된 날짜가 표시된다', async () => {
         const specificDate = '2024-12-10';
 

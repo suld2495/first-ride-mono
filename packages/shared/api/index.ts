@@ -343,6 +343,7 @@ export {
 export {
   createRoutine,
   deleteRoutine,
+  fetchPausedRoutines,
   fetchRoutineDetail,
   fetchRoutines,
   updateRoutine,

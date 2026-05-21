@@ -11,11 +11,22 @@ import type {
 import { toAppError } from '.';
 import http from './client';
 
+type RoutineResponse = Omit<Routine, 'successDate'> & {
+  successDate?: Routine['successDate'] | null;
+};
+
+const normalizeRoutine = (routine: RoutineResponse): Routine => ({
+  ...routine,
+  successDate: Array.isArray(routine.successDate) ? routine.successDate : [],
+});
+
 export const fetchRoutines = async (date: string): Promise<Routine[]> => {
   try {
-    const response: Routine[] = await http.get(`/routine/list?date=${date}`);
+    const response: RoutineResponse[] = await http.get(
+      `/routine/list?date=${date}`,
+    );
 
-    return response;
+    return response.map(normalizeRoutine);
   } catch (error) {
     throw toAppError(error);
   }
@@ -23,8 +34,8 @@ export const fetchRoutines = async (date: string): Promise<Routine[]> => {
 
 export const fetchAllRoutines = async (): Promise<Routine[]> => {
   const responses = await Promise.allSettled([
-    http.get<Routine[], void>('/routine/list/all'),
-    http.get<Routine[], void>('/routine/list'),
+    http.get<RoutineResponse[], void>('/routine/list/all'),
+    http.get<RoutineResponse[], void>('/routine/list'),
   ]);
   const routinesById = new Map<Routine['routineId'], Routine>();
 
@@ -33,7 +44,7 @@ export const fetchAllRoutines = async (): Promise<Routine[]> => {
       return;
     }
 
-    response.value.forEach((routine) => {
+    response.value.map(normalizeRoutine).forEach((routine) => {
       routinesById.set(routine.routineId, routine);
     });
   });
@@ -53,13 +64,27 @@ export const fetchAllRoutines = async (): Promise<Routine[]> => {
   );
 };
 
+export const fetchPausedRoutines = async (): Promise<Routine[]> => {
+  try {
+    const response: RoutineResponse[] = await http.get(
+      '/routine/list/paused',
+    );
+
+    return response.map(normalizeRoutine);
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
 export const fetchRoutineDetail = async (id: number): Promise<Routine> => {
   try {
     const query = `routineId=${encodeURIComponent(id)}`;
 
-    const response: Routine = await http.get(`/routine/details?${query}`);
+    const response: RoutineResponse = await http.get(
+      `/routine/details?${query}`,
+    );
 
-    return response;
+    return normalizeRoutine(response);
   } catch (error) {
     throw toAppError(error);
   }

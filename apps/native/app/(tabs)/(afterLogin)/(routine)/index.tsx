@@ -1,5 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
+import {
+  usePausedRoutinesQuery,
+  useRoutinesQuery,
+} from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -82,6 +85,7 @@ export default function Index() {
   const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
   const [isSpeechBubbleVisible, setIsSpeechBubbleVisible] = useState(false);
   const [speechBubbleMessage, setSpeechBubbleMessage] = useState('안녕?');
+  const [showPausedRoutines, setShowPausedRoutines] = useState(false);
 
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
@@ -94,7 +98,14 @@ export default function Index() {
     isRefetching,
     refetch,
   } = useRoutinesQuery(user?.nickname || '', date);
-  const hasRoutines = routines.length > 0;
+  const {
+    data: pausedRoutines = [],
+    isLoading: isPausedRoutinesLoading,
+    isRefetching: isPausedRoutinesRefetching,
+    refetch: refetchPausedRoutines,
+  } = usePausedRoutinesQuery(user?.nickname || '', showPausedRoutines);
+  const displayedRoutines = showPausedRoutines ? pausedRoutines : routines;
+  const hasRoutines = displayedRoutines.length > 0;
   const mottos = useMemo(() => {
     const normalizedMottos = normalizeMottoText(user?.mottos);
 
@@ -116,11 +127,20 @@ export default function Index() {
     }
   }, [isLoading]);
 
-  const showLoading = isLoading && isFirstLoadRef.current;
+  const showLoading =
+    (isLoading && isFirstLoadRef.current) ||
+    (showPausedRoutines &&
+      isPausedRoutinesLoading &&
+      pausedRoutines.length === 0);
 
   const handleRefresh = useCallback(async () => {
+    if (showPausedRoutines) {
+      await refetchPausedRoutines();
+      return;
+    }
+
     await refetch();
-  }, [refetch]);
+  }, [refetch, refetchPausedRoutines, showPausedRoutines]);
 
   const handleRoutineListAreaLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -132,6 +152,10 @@ export default function Index() {
   const handleOpenRoutineReorderModal = useCallback(() => {
     router.push(`/modal?type=routine-reorder&date=${date}`);
   }, [date, router]);
+
+  const handleTogglePausedRoutines = useCallback(() => {
+    setShowPausedRoutines((prev) => !prev);
+  }, []);
 
   const handleCharacterPress = useCallback(() => {
     if (speechBubbleHideTimerRef.current) {
@@ -205,8 +229,12 @@ export default function Index() {
       <View style={styles.contentWrapper}>
         <RoutineHeader
           date={date}
+          onPressPausedRoutines={handleTogglePausedRoutines}
+          showingPausedRoutines={showPausedRoutines}
           onPressReorder={
-            hasRoutines ? handleOpenRoutineReorderModal : undefined
+            hasRoutines && !showPausedRoutines
+              ? handleOpenRoutineReorderModal
+              : undefined
           }
         />
         {showLoading ? (
@@ -223,10 +251,14 @@ export default function Index() {
                   testID="routine-list-area"
                 >
                   <RoutineList
-                    routines={routines}
+                    routines={displayedRoutines}
                     date={date}
                     listAreaHeight={routineListAreaHeight || undefined}
-                    refreshing={isRefetching}
+                    refreshing={
+                      showPausedRoutines
+                        ? isPausedRoutinesRefetching
+                        : isRefetching
+                    }
                     onRefresh={handleRefresh}
                   />
                 </View>
@@ -266,9 +298,13 @@ export default function Index() {
                 </View>
                 <View style={styles.emptyStateOverlay}>
                   <RoutineList
-                    routines={routines}
+                    routines={displayedRoutines}
                     date={date}
-                    refreshing={isRefetching}
+                    refreshing={
+                      showPausedRoutines
+                        ? isPausedRoutinesRefetching
+                        : isRefetching
+                    }
                     onRefresh={handleRefresh}
                   />
                 </View>

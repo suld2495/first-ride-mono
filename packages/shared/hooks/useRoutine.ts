@@ -35,6 +35,15 @@ export const useAllRoutinesQuery = (nickname: string) => {
   });
 };
 
+export const usePausedRoutinesQuery = (nickname: string, enabled = true) => {
+  return useQuery({
+    queryKey: routineKey.pausedList(nickname),
+    queryFn: () => routineApi.fetchPausedRoutines(),
+    enabled: !!nickname && enabled,
+    refetchOnMount: 'always',
+  });
+};
+
 export const useCreateRoutineMutation = (nickname: string) => {
   const queryClient = useQueryClient();
 
@@ -96,6 +105,9 @@ export const useUpdateRoutinePauseMutation = (nickname: string) => {
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: routineKey.list(nickname),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: routineKey.pausedList(nickname),
         }),
         queryClient.invalidateQueries({
           queryKey: routineKey.detail(variables.routineId),
