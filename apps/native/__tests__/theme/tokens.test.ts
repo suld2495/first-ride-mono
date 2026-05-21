@@ -5,6 +5,7 @@ import {
   spacing,
   tokens,
 } from '@/theme/tokens';
+import { blueTheme, greenTheme, lightTheme, redTheme } from '@/theme/themes';
 
 describe('theme/tokens', () => {
   it('디자인 시스템 토큰 공개 API를 한 곳에서 제공한다', () => {
@@ -35,6 +36,33 @@ describe('theme/tokens', () => {
     expect('skinSoftBlue' in palette).toBe(false);
     expect('skinBlue' in palette).toBe(false);
     expect('skinGray' in palette).toBe(false);
+  });
+
+  it('루틴 오늘 완료 컬러를 같은 테마 톤 안에서 구분한다', () => {
+    expect(lightTheme.colors.brand.selectedCheckbox).toBe('#0984e3');
+    expect(lightTheme.colors.brand.todaySuccessCheckbox).toBe(
+      palette.blue[100],
+    );
+    expect(lightTheme.colors.brand.todaySuccessCheck).toBe(palette.blue[600]);
+
+    expect(blueTheme.colors.brand.todaySuccessCheckbox).toBe(
+      palette.theme.blue[20],
+    );
+    expect(blueTheme.colors.brand.todaySuccessCheck).toBe(
+      palette.theme.blue[50],
+    );
+    expect(greenTheme.colors.brand.todaySuccessCheckbox).toBe(
+      palette.theme.green[20],
+    );
+    expect(greenTheme.colors.brand.todaySuccessCheck).toBe(
+      palette.theme.green[50],
+    );
+    expect(redTheme.colors.brand.todaySuccessCheckbox).toBe(
+      palette.theme.red[20],
+    );
+    expect(redTheme.colors.brand.todaySuccessCheck).toBe(
+      palette.theme.red[50],
+    );
   });
 
   it('테마별 foundation 토큰을 생성한다', () => {
@@ -123,6 +151,8 @@ describe('theme/tokens', () => {
           check: '#0af',
           selectedCheckbox: '#0af',
           selectedCheck: '#0af',
+          todaySuccessCheckbox: '#def',
+          todaySuccessCheck: '#003',
           input: '#111',
           error: '#f00',
           success: '#0f0',

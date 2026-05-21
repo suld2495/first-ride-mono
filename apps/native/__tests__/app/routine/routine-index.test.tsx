@@ -22,6 +22,16 @@ const formatRoutineHeaderDate = (date: Date) => {
   return `${year}. ${month}. ${day} ${dayOfWeek}`;
 };
 
+const formatRoutineDateKey = (date: Date) => {
+  const year = date.getFullYear() - 2000;
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate();
+
+  return `${year}${month}${day}`;
+};
+
+const getRoutineWeekIndex = (date: Date) => (date.getDay() + 6) % 7;
+
 const flattenStyles = (styles: unknown): object[] => {
   if (!styles) return [];
   if (Array.isArray(styles)) {
@@ -537,6 +547,23 @@ describe('루틴 조회 페이지', () => {
         expect(await findByLabelText('6회 목표 없음')).toBeOnTheScreen();
         expect(await findByLabelText('7회 목표 없음')).toBeOnTheScreen();
       });
+
+      it('오늘 완료한 회차는 successDate의 오늘 날짜를 기준으로 더 밝은 같은 톤 컬러로 표시된다', async () => {
+        const today = new Date();
+
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: weeklyCount + 1,
+            routineCount,
+            successDate: [formatRoutineDateKey(today)],
+          }),
+        });
+
+        const { findByLabelText, findByTestId } = render(<Index />);
+
+        expect(await findByLabelText('4회 오늘 완료')).toBeOnTheScreen();
+        expect(await findByTestId('routine-count-check-1-4')).toBeOnTheScreen();
+      });
     });
 
     describe('달성횟수가 목표와 같은 경우', () => {
@@ -714,6 +741,32 @@ describe('루틴 조회 페이지', () => {
         expect(await findByLabelText('금요일 미달성')).toBeOnTheScreen();
         expect(await findByLabelText('토요일 미달성')).toBeOnTheScreen();
         expect(await findByLabelText('일요일 미달성')).toBeOnTheScreen();
+      });
+
+      it('오늘 완료한 요일은 successDate의 오늘 날짜를 기준으로 더 밝은 같은 톤 컬러로 표시된다', async () => {
+        const today = new Date();
+        const dayName = ['일', '월', '화', '수', '목', '금', '토'][
+          today.getDay()
+        ];
+
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 1,
+            routineCount: 5,
+            successDate: [formatRoutineDateKey(today)],
+          }),
+        });
+
+        const { findByLabelText, findByTestId } = render(<Index />);
+
+        expect(
+          await findByLabelText(`${dayName}요일 오늘 완료`),
+        ).toBeOnTheScreen();
+        expect(
+          await findByTestId(
+            `routine-week-check-1-${getRoutineWeekIndex(today)}`,
+          ),
+        ).toBeOnTheScreen();
       });
     });
   });

@@ -45,6 +45,8 @@ export const greenTheme: ThemeContract = {
       check: palette.theme.green[90],
       selectedCheckbox: palette.theme.green[30],
       selectedCheck: palette.theme.green[100],
+      todaySuccessCheckbox: palette.theme.green[20],
+      todaySuccessCheck: palette.theme.green[50],
       bottomTab: palette.theme.softGreen[20],
       activeBottomTab: palette.theme.green[50],
       card: palette.theme.green[5],

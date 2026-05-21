@@ -103,6 +103,8 @@ export const lightTheme: ThemeContract = {
       check: '#0984e3',
       selectedCheckbox: '#0984e3',
       selectedCheck: '#0984e3',
+      todaySuccessCheckbox: palette.blue[100],
+      todaySuccessCheck: palette.blue[600],
       input: '#F5F7FA',
       error: '#d63031',
       success: '#00b894',

@@ -103,6 +103,8 @@ export const darkTheme: ThemeContract = {
       check: '#0984e3',
       selectedCheckbox: '#0984e3',
       selectedCheck: '#0984e3',
+      todaySuccessCheckbox: palette.blue[200],
+      todaySuccessCheck: palette.blue[700],
       input: '#1e272e',
       error: '#d63031',
       success: '#00b894',

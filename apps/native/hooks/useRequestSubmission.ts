@@ -1,5 +1,7 @@
 import { ApiError } from '@repo/shared/api/AppError';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
+import { routineKey } from '@repo/shared/types/query-keys/routine';
+import { useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
@@ -40,6 +42,7 @@ export const useRequestSubmission = (
 ) => {
   const { showToast } = useToast();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const saveRequest = useCreateRequestMutation();
 
   const handleSubmit = useCallback(
@@ -63,6 +66,9 @@ export const useRequestSubmission = (
 
       saveRequest.mutate(formData, {
         onSuccess: () => {
+          void queryClient.invalidateQueries({
+            queryKey: routineKey.list(detail.nickname),
+          });
           showToast(
             detail.isMe
               ? '인증이 완료되었습니다.'
@@ -86,7 +92,7 @@ export const useRequestSubmission = (
         },
       });
     },
-    [detail, routineId, router, saveRequest, showToast],
+    [detail, queryClient, routineId, router, saveRequest, showToast],
   );
 
   const pickImage = useCallback(

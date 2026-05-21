@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { WeeklyRoutine } from '@repo/types';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
@@ -26,6 +26,36 @@ interface RoutineWeekListProps {
 }
 
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
+const DAYS_PER_WEEK = 7;
+const SHORT_YEAR_OFFSET = 2000;
+const PAD_LENGTH = 2;
+
+const createWeekDateKeys = (startDate: string) => {
+  const date = new Date(startDate);
+
+  return Array.from({ length: DAYS_PER_WEEK }, (_, index) => {
+    const weekDate = new Date(date);
+
+    weekDate.setDate(weekDate.getDate() + index);
+
+    const year = weekDate.getFullYear() - SHORT_YEAR_OFFSET;
+    const month = (weekDate.getMonth() + 1)
+      .toString()
+      .padStart(PAD_LENGTH, '0');
+    const day = weekDate.getDate();
+
+    return `${year}${month}${day}`;
+  });
+};
+
+const createRoutineDateKey = (date: Date) => {
+  const year = date.getFullYear() - SHORT_YEAR_OFFSET;
+  const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
+  const day = date.getDate();
+
+  return `${year}${month}${day}`;
+};
+
 const RoutineWeekList = ({
   routines,
   date,
@@ -41,6 +71,8 @@ const RoutineWeekList = ({
 }: RoutineWeekListProps) => {
   const { theme } = useAppTheme();
   const weeklyData = useWeeklyData(routines, date);
+  const weekDateKeys = useMemo(() => createWeekDateKeys(date), [date]);
+  const todayDateKey = createRoutineDateKey(new Date());
   const getRoutineItemLayout = useCallback(
     (_: WeeklyRoutine[] | null, index: number) => ({
       length: itemHeight,
@@ -116,25 +148,41 @@ const RoutineWeekList = ({
                     {weeklyData[routineId].map((check, index) => {
                       count += +check;
                       const isGoalRange = count <= routineCount;
+                      const dateKey = weekDateKeys[index];
+                      const isTodaySuccess = check && dateKey === todayDateKey;
+                      const successCheckBoxStyle = isTodaySuccess
+                        ? {
+                            backgroundColor:
+                              theme.colors.brand.todaySuccessCheckbox,
+                          }
+                        : null;
+                      const statusLabel = check
+                        ? isTodaySuccess
+                          ? '오늘 완료'
+                          : '달성'
+                        : '미달성';
 
                       return (
                         <View
                           key={`${routineId}-status-${index}`}
                           style={styles.dayColumn}
-                          accessibilityLabel={`${DAY_LABELS[index]}요일 ${
-                            check ? '달성' : '미달성'
-                          }`}
+                          accessibilityLabel={`${DAY_LABELS[index]}요일 ${statusLabel}`}
                           accessibilityRole="image"
                         >
-                          <View style={styles.checkBox}>
+                          <View
+                            style={[styles.checkBox, successCheckBoxStyle]}
+                            testID={`routine-week-check-${routineId}-${index}`}
+                          >
                             {check ? (
                               <Ionicons
                                 name="checkmark"
                                 size={baseFoundation.iconSize.s}
                                 color={
-                                  isGoalRange
-                                    ? theme.colors.brand.selectedCheck
-                                    : theme.colors.feedback.warning.text
+                                  isTodaySuccess
+                                    ? theme.colors.brand.todaySuccessCheck
+                                    : isGoalRange
+                                      ? theme.colors.brand.selectedCheck
+                                      : theme.colors.feedback.warning.text
                                 }
                               />
                             ) : null}
@@ -183,8 +231,12 @@ const RoutineWeekList = ({
       onShowRequestModal,
       readOnly,
       theme.colors.brand.selectedCheck,
+      theme.colors.brand.todaySuccessCheck,
+      theme.colors.brand.todaySuccessCheckbox,
       theme.colors.feedback.warning.text,
       theme.colors.text.secondary,
+      todayDateKey,
+      weekDateKeys,
       weeklyData,
     ],
   );

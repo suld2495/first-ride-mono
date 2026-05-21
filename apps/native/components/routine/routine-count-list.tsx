@@ -28,6 +28,17 @@ interface RoutineCountListProps {
 const ROUTINE_CHECKMARK_WIDTH = 12;
 const ROUTINE_CHECKMARK_HEIGHT = 9;
 const ROUTINE_CHECKMARK_SCALE = 0.7;
+const MAX_ROUTINE_COUNT = 7;
+const SHORT_YEAR_OFFSET = 2000;
+const PAD_LENGTH = 2;
+
+const createRoutineDateKey = (date: Date) => {
+  const year = date.getFullYear() - SHORT_YEAR_OFFSET;
+  const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
+  const day = date.getDate();
+
+  return `${year}${month}${day}`;
+};
 
 interface RoutineCheckmarkIconProps {
   color: string;
@@ -83,9 +94,13 @@ const RoutineCountList = ({
   const renderRoutineItem = useCallback<ListRenderItem<Routine>>(
     ({ item: routine }) => {
       const { routineId, routineName, weeklyCount, routineCount } = routine;
+      const todayDateKey = createRoutineDateKey(new Date());
+      const isCurrentWeek = date === getWeekMonday(new Date());
+      const hasTodaySuccess =
+        isCurrentWeek && routine.successDate.includes(todayDateKey);
 
       const countLabels = Array.from(
-        { length: 7 },
+        { length: MAX_ROUTINE_COUNT },
         (_, index) => `${index + 1}회`,
       );
 
@@ -154,14 +169,29 @@ const RoutineCountList = ({
               </View>
 
               <View style={styles.checkRow}>
-                {Array.from({ length: 7 }, (_, index) => {
+                {Array.from({ length: MAX_ROUTINE_COUNT }, (_, index) => {
                   const countIndex = index + 1;
                   const achieved = countIndex <= weeklyCount;
                   const isGoalRange = countIndex <= routineCount;
+                  const isTodaySuccess =
+                    achieved && hasTodaySuccess && countIndex === weeklyCount;
+                  const successCheckBoxStyle = isTodaySuccess
+                    ? {
+                        backgroundColor:
+                          theme.colors.brand.todaySuccessCheckbox,
+                      }
+                    : null;
+                  const checkColor = isTodaySuccess
+                    ? theme.colors.brand.todaySuccessCheck
+                    : achieved
+                      ? theme.colors.brand.selectedCheck
+                      : theme.colors.brand.check;
                   const label = achieved
-                    ? countIndex <= routineCount
-                      ? `${countIndex}회 달성`
-                      : `${countIndex}회 초과 달성`
+                    ? isTodaySuccess
+                      ? `${countIndex}회 오늘 완료`
+                      : countIndex <= routineCount
+                        ? `${countIndex}회 달성`
+                        : `${countIndex}회 초과 달성`
                     : isGoalRange
                       ? `${countIndex}회 미달성`
                       : `${countIndex}회 목표 없음`;
@@ -176,17 +206,15 @@ const RoutineCountList = ({
                       <View
                         style={[
                           styles.checkBox,
-                          achieved ? styles.achievedCheckBox : '',
+                          achieved ? styles.achievedCheckBox : null,
+                          successCheckBoxStyle,
                         ]}
+                        testID={`routine-count-check-${routineId}-${countIndex}`}
                       >
                         {isGoalRange ? (
                           <RoutineCheckmarkIcon
                             size={baseFoundation.iconSize.s}
-                            color={
-                              isGoalRange
-                                ? theme.colors.brand.selectedCheck
-                                : theme.colors.brand.check
-                            }
+                            color={checkColor}
                           />
                         ) : (
                           <Ionicons
@@ -213,6 +241,8 @@ const RoutineCountList = ({
       readOnly,
       theme.colors.brand.check,
       theme.colors.brand.selectedCheck,
+      theme.colors.brand.todaySuccessCheck,
+      theme.colors.brand.todaySuccessCheckbox,
       theme.colors.text.secondary,
     ],
   );

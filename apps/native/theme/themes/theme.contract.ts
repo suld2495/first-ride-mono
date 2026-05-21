@@ -88,6 +88,8 @@ export type ThemeContract = {
       check: string;
       selectedCheckbox: string;
       selectedCheck: string;
+      todaySuccessCheckbox: string;
+      todaySuccessCheck: string;
       input: string;
       error: string;
       success: string;
@@ -206,6 +208,8 @@ export const baseTheme: ThemeContract = {
       check: '#0984e3',
       selectedCheckbox: '#0984e3',
       selectedCheck: '#0984e3',
+      todaySuccessCheckbox: '#BBDEFB',
+      todaySuccessCheck: '#1E88E5',
       input: '#1e272e',
       error: '#d63031',
       success: '#00b894',
