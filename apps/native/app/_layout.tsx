@@ -17,6 +17,7 @@ import AppTamaguiProvider, {
 import ToastContainer from '@/components/ui/toast-container';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useAppActiveRefresh } from '@/hooks/useAppActiveRefresh';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {
   setNotificationHandler,
@@ -142,6 +143,8 @@ function AppShell() {
   );
 
   const { pushToken, isInitialized } = useNotifications(notificationHandlers);
+
+  useAppActiveRefresh(user?.nickname || '');
 
   // 앱 시작 시 저장된 테마를 Tamagui에 동기화
   useEffect(() => {
