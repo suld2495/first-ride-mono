@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -6,9 +6,9 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { baseFoundation } from '@/theme/tokens';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAppTheme } from '@/components/ui/tamagui';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 import { Input, type InputProps } from './input';
 import ThemeView from './theme-view';
@@ -88,8 +88,21 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   value,
   ...inputProps
 }) => {
-  const colorScheme = useColorScheme();
+  const { theme } = useAppTheme();
   const [isFocused, setIsFocused] = useState(false);
+  const dropdownColors = useMemo(() => {
+    const isDark = theme.name === 'dark';
+
+    return {
+      background: isDark
+        ? theme.colors.background.surface
+        : (theme.colors.background.input ?? theme.colors.background.surface),
+      divider: palette.gray[200],
+      text: isDark
+        ? theme.colors.text.primary
+        : (theme.colors.text.input ?? theme.colors.text.primary),
+    };
+  }, [theme]);
 
   const shouldShowDropdown =
     isFocused && showDropdown && (items.length > 0 || loading);
@@ -125,7 +138,11 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
     if (loading) {
       return (
         <View style={styles.emptyContainer}>
-          <Typography variant="caption" style={styles.emptyText}>
+          <Typography
+            variant="caption"
+            color={dropdownColors.text}
+            style={styles.emptyText}
+          >
             검색 중...
           </Typography>
         </View>
@@ -135,29 +152,52 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
     if (items.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <Typography variant="caption" style={styles.emptyText}>
+          <Typography
+            variant="caption"
+            color={dropdownColors.text}
+            style={styles.emptyText}
+          >
             {emptyMessage}
           </Typography>
         </View>
       );
     }
 
-    return items.map((item) => (
-      <TouchableOpacity
-        key={item.value}
-        style={[
-          styles.dropdownItem,
-          {
-            backgroundColor: colorScheme === 'dark' ? '#2c2c2c' : '#ffffff',
-            borderBottomColor: colorScheme === 'dark' ? '#404040' : '#e0e0e0',
-          },
-        ]}
-        onPress={() => handleSelectItem(item)}
-      >
-        <Typography>{item.label}</Typography>
-      </TouchableOpacity>
-    ));
-  }, [loading, items, emptyMessage, colorScheme, handleSelectItem]);
+    return items.map((item, index) => {
+      const isFirstItem = index === 0;
+      const isLastItem = index === items.length - 1;
+
+      return (
+        <TouchableOpacity
+          key={item.value}
+          testID="autocomplete-option"
+          style={[
+            styles.dropdownItem,
+            {
+              backgroundColor: dropdownColors.background,
+              borderBottomWidth: isLastItem ? 0 : 1,
+              borderBottomColor: dropdownColors.divider,
+              borderTopLeftRadius: isFirstItem
+                ? baseFoundation.dimension.x8
+                : 0,
+              borderTopRightRadius: isFirstItem
+                ? baseFoundation.dimension.x8
+                : 0,
+              borderBottomLeftRadius: isLastItem
+                ? baseFoundation.dimension.x8
+                : 0,
+              borderBottomRightRadius: isLastItem
+                ? baseFoundation.dimension.x8
+                : 0,
+            },
+          ]}
+          onPress={() => handleSelectItem(item)}
+        >
+          <Typography color={dropdownColors.text}>{item.label}</Typography>
+        </TouchableOpacity>
+      );
+    });
+  }, [loading, items, emptyMessage, dropdownColors, handleSelectItem]);
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -171,12 +211,13 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
 
       {shouldShowDropdown && (
         <ThemeView
+          testID="autocomplete-dropdown"
           style={[
             styles.dropdown,
             {
               maxHeight: dropdownMaxHeight,
-              shadowColor: colorScheme === 'dark' ? '#000000' : '#000000',
-              borderColor: colorScheme === 'dark' ? '#404040' : '#e0e0e0',
+              backgroundColor: dropdownColors.background,
+              shadowColor: '#000000',
             },
           ]}
         >
@@ -207,7 +248,6 @@ const styles = StyleSheet.create({
     right: baseFoundation.spacing[0],
     marginTop: baseFoundation.spacing[1],
     borderRadius: baseFoundation.dimension.x8,
-    borderWidth: 1,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
       height: baseFoundation.dimension.x2,
@@ -220,7 +260,6 @@ const styles = StyleSheet.create({
   dropdownItem: {
     paddingHorizontal: baseFoundation.spacing[4],
     paddingVertical: baseFoundation.spacing[3],
-    borderBottomWidth: 1,
   },
   emptyContainer: {
     paddingVertical: baseFoundation.spacing[4],

@@ -20,17 +20,21 @@ const getFriendAccountId = (friend: Friend): number | string | undefined =>
 const fetchFriendAccountIdByNickname = async (
   nickname: User['nickname'],
 ): Promise<number | string | undefined> => {
-  const users: Array<
-    User & {
-      id?: number | string;
-      accountId?: number | string;
-    }
-  > = await http.get(
-    `${userBaseURL}/search?nickname=${encodeURIComponent(nickname)}`,
-  );
-  const user = users.find((item) => item.nickname === nickname);
+  try {
+    const users: Array<
+      User & {
+        id?: number | string;
+        accountId?: number | string;
+      }
+    > = await http.get(
+      `${userBaseURL}/search?nickname=${encodeURIComponent(nickname)}`,
+    );
+    const user = users.find((item) => item.nickname === nickname);
 
-  return user?.id ?? user?.accountId ?? user?.userId;
+    return user?.id ?? user?.accountId ?? user?.userId;
+  } catch (error) {
+    throw toAppError(error);
+  }
 };
 
 const withFriendAccountId = async (friend: Friend): Promise<Friend> => {
@@ -47,13 +51,30 @@ const withFriendAccountId = async (friend: Friend): Promise<Friend> => {
   }
 };
 
-export const fetchFriends = async (
-  _option: SearchOption,
-): Promise<Friend[]> => {
+const filterFriendsByKeyword = (
+  friends: Friend[],
+  keyword: SearchOption['keyword'],
+): Friend[] => {
+  const normalizedKeyword = keyword.trim().toLocaleLowerCase();
+
+  if (!normalizedKeyword) {
+    return friends;
+  }
+
+  return friends.filter(
+    ({ nickname }) =>
+      nickname.toLocaleLowerCase().indexOf(normalizedKeyword) !== -1,
+  );
+};
+
+export const fetchFriends = async ({
+  keyword = '',
+}: SearchOption): Promise<Friend[]> => {
   try {
     const response: Friend[] = await http.get(baseURL);
+    const filteredFriends = filterFriendsByKeyword(response, keyword);
 
-    return Promise.all(response.map(withFriendAccountId));
+    return Promise.all(filteredFriends.map(withFriendAccountId));
   } catch (error) {
     throw toAppError(error);
   }
