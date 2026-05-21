@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
 import { clearTokens } from '@/api/token-storage.api';
+import { clearRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
 
 import { storage } from './storage-provider.store';
 
@@ -34,6 +35,7 @@ export const useAuthStore = create<AuthStore>()(
           } finally {
             // 토큰 삭제 및 상태 초기화
             await clearTokens();
+            await clearRoutineWidgetSnapshot();
             set({ user: null, isLoading: false });
           }
         },

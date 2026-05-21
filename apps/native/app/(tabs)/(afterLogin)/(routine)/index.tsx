@@ -29,6 +29,11 @@ import RoutineCharacter from '@/feature/character/routine-character';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { baseFoundation } from '@/theme/tokens';
+import {
+  createRoutineWidgetSnapshot,
+  createSignedOutRoutineWidgetSnapshot,
+} from '@/widget/routine-widget';
+import { saveRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
 
 const SPEECH_BUBBLE_VISIBLE_MS = 3000;
 const SPEECH_BUBBLE_FADE_OUT_MS = 300;
@@ -172,6 +177,14 @@ export default function Index() {
       router.push('/sign-in');
     }
   }, [router, user]);
+
+  useEffect(() => {
+    const snapshot = user
+      ? createRoutineWidgetSnapshot(routines)
+      : createSignedOutRoutineWidgetSnapshot();
+
+    void saveRoutineWidgetSnapshot(snapshot);
+  }, [routines, user]);
 
   if (!user) {
     return null;

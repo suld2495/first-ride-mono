@@ -20,6 +20,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-router',
     'expo-font',
     'react-native-edge-to-edge',
+    [
+      '@bacons/apple-targets',
+      {
+        root: './targets',
+        match: 'routine-widget',
+      },
+    ],
     ['expo-dev-launcher', { launchMode: 'most-recent' }],
     [
       'expo-image-picker',
@@ -81,6 +88,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         { CFBundleURLSchemes: [`kakao${KAKAO_NATIVE_APP_KEY}`] },
       ],
       LSApplicationQueriesSchemes: ['kakaokompassauth', 'kakaolink'],
+    },
+    entitlements: {
+      'com.apple.security.application-groups': ['group.com.mannal.firstride'],
     },
     config: {
       usesNonExemptEncryption: false,

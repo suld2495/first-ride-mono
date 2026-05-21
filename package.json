@@ -9,8 +9,8 @@
     "all": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
+    "android": "pnpm --filter first-ride-app android",
+    "ios": "pnpm --filter first-ride-app ios",
     "test": "turbo run test"
   },
   "devDependencies": {
