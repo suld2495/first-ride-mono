@@ -3,6 +3,11 @@ import WidgetKit
 
 private let groupIdentifier = "group.com.mannal.firstride"
 private let snapshotKey = "snapshot"
+private let widgetPadding: CGFloat = 20
+private let titleHeight: CGFloat = 18
+private let titleSpacing: CGFloat = 6
+private let routineRowHeight: CGFloat = 18
+private let minimumRoutineRowSpacing: CGFloat = 3
 
 struct RoutineWidgetItem: Codable, Identifiable {
   let id: Int
@@ -65,57 +70,85 @@ struct RoutineWidgetEntryView: View {
   var entry: RoutineProvider.Entry
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 6) {
-      Text(entry.snapshot.title)
-        .font(.system(size: 15, weight: .bold))
-        .foregroundStyle(Color(red: 0.13, green: 0.13, blue: 0.13))
-        .lineLimit(1)
+    GeometryReader { geometry in
+      VStack(alignment: .leading, spacing: titleSpacing) {
+        Text(entry.snapshot.title)
+          .font(.system(size: 15, weight: .bold))
+          .foregroundStyle(Color(red: 0.13, green: 0.13, blue: 0.13))
+          .lineLimit(1)
+          .frame(height: titleHeight, alignment: .center)
 
-      if entry.snapshot.status == "signedOut" || entry.snapshot.items.isEmpty {
-        Spacer(minLength: 0)
-        Text(entry.snapshot.message)
-          .font(.system(size: 13, weight: .medium))
-          .foregroundStyle(Color(red: 0.46, green: 0.46, blue: 0.46))
-          .frame(maxWidth: .infinity, alignment: .center)
-        Spacer(minLength: 0)
-      } else {
-        VStack(alignment: .leading, spacing: 3) {
-          ForEach(entry.snapshot.items.prefix(3)) { item in
-            HStack(spacing: 6) {
-              Text("\(item.weeklyCount)/\(item.routineCount)")
-                .font(.system(size: 10, weight: .bold))
-                .foregroundStyle(Color(red: 0.08, green: 0.40, blue: 0.75))
-                .frame(width: 36, height: 18)
-                .background(Color(red: 0.89, green: 0.95, blue: 0.99))
-                .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-
-              Text(item.title)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(Color(red: 0.26, green: 0.26, blue: 0.26))
-                .lineLimit(1)
-                .overlay(
-                  item.isTodayDone
-                    ? Rectangle()
-                        .fill(Color(red: 0.46, green: 0.46, blue: 0.46))
-                        .frame(height: 1)
-                    : nil
-                )
+        if entry.snapshot.status == "signedOut" || entry.snapshot.items.isEmpty {
+          Spacer(minLength: 0)
+          Text(entry.snapshot.message)
+            .font(.system(size: 13, weight: .medium))
+            .foregroundStyle(Color(red: 0.46, green: 0.46, blue: 0.46))
+            .frame(maxWidth: .infinity, alignment: .center)
+          Spacer(minLength: 0)
+        } else {
+          let visibleItems = visibleItems(for: geometry.size.height)
+          VStack(alignment: .leading, spacing: rowSpacing(for: geometry.size.height, itemCount: visibleItems.count)) {
+            ForEach(visibleItems) { item in
+              RoutineWidgetRow(item: item)
             }
           }
         }
-
-        if entry.snapshot.remainingCount > 0 {
-          Text("+\(entry.snapshot.remainingCount)개 더")
-            .font(.system(size: 11, weight: .medium))
-            .foregroundStyle(Color(red: 0.46, green: 0.46, blue: 0.46))
-            .frame(maxWidth: .infinity, alignment: .trailing)
-        }
       }
+      .padding(widgetPadding)
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
-    .padding(4)
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .routineWidgetBackground()
     .widgetURL(URL(string: "first-ride://"))
+  }
+
+  private func visibleItems(for widgetHeight: CGFloat) -> [RoutineWidgetItem] {
+    let verticalPadding = widgetPadding * 2
+    let availableListHeight = widgetHeight - verticalPadding - titleHeight - titleSpacing
+    let rowStride = routineRowHeight + minimumRoutineRowSpacing
+    let visibleCount = max(0, Int((availableListHeight + minimumRoutineRowSpacing) / rowStride))
+
+    return Array(entry.snapshot.items.prefix(visibleCount))
+  }
+
+  private func rowSpacing(for widgetHeight: CGFloat, itemCount: Int) -> CGFloat {
+    guard itemCount > 1 else {
+      return minimumRoutineRowSpacing
+    }
+
+    let verticalPadding = widgetPadding * 2
+    let availableListHeight = widgetHeight - verticalPadding - titleHeight - titleSpacing
+    let occupiedRowHeight = routineRowHeight * CGFloat(itemCount)
+    let availableSpacing = availableListHeight - occupiedRowHeight
+
+    return max(minimumRoutineRowSpacing, availableSpacing / CGFloat(itemCount - 1))
+  }
+}
+
+struct RoutineWidgetRow: View {
+  let item: RoutineWidgetItem
+
+  var body: some View {
+    HStack(spacing: 6) {
+      Text("\(item.weeklyCount)/\(item.routineCount)")
+        .font(.system(size: 10, weight: .bold))
+        .foregroundStyle(Color(red: 0.08, green: 0.40, blue: 0.75))
+        .frame(width: 36, height: routineRowHeight)
+        .background(Color(red: 0.89, green: 0.95, blue: 0.99))
+        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+
+      Text(item.title)
+        .font(.system(size: 12, weight: .medium))
+        .foregroundStyle(Color(red: 0.26, green: 0.26, blue: 0.26))
+        .lineLimit(1)
+        .overlay(
+          item.isTodayDone
+            ? Rectangle()
+                .fill(Color(red: 0.46, green: 0.46, blue: 0.46))
+                .frame(height: 1)
+            : nil
+        )
+    }
+    .frame(height: routineRowHeight)
   }
 }
 

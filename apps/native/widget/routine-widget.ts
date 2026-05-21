@@ -1,6 +1,5 @@
 import type { Routine } from '@repo/types';
 
-const DEFAULT_MAX_ITEMS = 3;
 const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 
@@ -26,12 +25,11 @@ export type RoutineWidgetSnapshot =
       title: string;
       message: string;
       items: RoutineWidgetItem[];
-      remainingCount: number;
+      remainingCount: 0;
       generatedAt: string;
     };
 
 interface CreateRoutineWidgetSnapshotOptions {
-  maxItems?: number;
   today?: Date;
 }
 
@@ -66,7 +64,6 @@ export const createRoutineWidgetSnapshot = (
 ): RoutineWidgetSnapshot => {
   const today = options.today ?? new Date();
   const todayKey = createRoutineDateKey(today);
-  const maxItems = options.maxItems ?? DEFAULT_MAX_ITEMS;
 
   const widgetItems = routines
     .filter((routine) => !routine.paused && !routine.hidden)
@@ -95,8 +92,8 @@ export const createRoutineWidgetSnapshot = (
     status: 'ready',
     title: '이번 주 루틴',
     message: widgetItems.length ? '' : '이번 주 루틴을 모두 달성했어요',
-    items: widgetItems.slice(0, maxItems),
-    remainingCount: Math.max(widgetItems.length - maxItems, 0),
+    items: widgetItems,
+    remainingCount: 0,
     generatedAt: today.toISOString(),
   };
 };

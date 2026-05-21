@@ -63,7 +63,7 @@ describe('routine widget snapshot', () => {
           successDate: ['260521'],
         }),
       ],
-      { maxItems: 4, today: new Date('2026-05-21T09:00:00+09:00') },
+      { today: new Date('2026-05-21T09:00:00+09:00') },
     );
 
     expect(snapshot.status).toBe('ready');
@@ -79,7 +79,7 @@ describe('routine widget snapshot', () => {
     });
   });
 
-  it('작은 위젯에 맞게 최대 표시 개수와 추가 개수를 계산한다', () => {
+  it('위젯 높이에 맞춰 자를 수 있도록 정렬된 전체 루틴을 전달한다', () => {
     const routines = Array.from({ length: 6 }, (_, index) =>
       createRoutine({
         routineId: index + 1,
@@ -93,7 +93,7 @@ describe('routine widget snapshot', () => {
       today: new Date('2026-05-21T09:00:00+09:00'),
     });
 
-    expect(snapshot.items).toHaveLength(3);
-    expect(snapshot.remainingCount).toBe(3);
+    expect(snapshot.items).toHaveLength(6);
+    expect(snapshot.remainingCount).toBe(0);
   });
 });
