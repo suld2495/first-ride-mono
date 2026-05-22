@@ -5,11 +5,13 @@ import type { SearchOption, User } from '@repo/types';
 import { useCallback, useState } from 'react';
 import {
   FlatList,
+  Image,
   Modal,
   Pressable,
   RefreshControl,
   type StyleProp,
   View,
+  type ImageSourcePropType,
   type ViewStyle,
 } from 'react-native';
 
@@ -23,19 +25,71 @@ import { useToast } from '@/contexts/ToastContext';
 import { baseFoundation, palette } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
-interface UserItemProps extends User {
+type SearchResultUser = User & {
+  characterCode?: null | string;
+  characterImageUrl?: null | string;
+};
+
+interface UserItemProps extends SearchResultUser {
   close: () => void;
   itemStyle?: StyleProp<ViewStyle>;
 }
 
 interface UserRenderItemProps {
-  item: User;
+  item: SearchResultUser;
   index: number;
 }
 
-const UserItem = ({ nickname, userId, close, itemStyle }: UserItemProps) => {
+const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
+  /\/$/,
+  '',
+);
+
+const getCharacterImageSource = (
+  characterImageUrl: SearchResultUser['characterImageUrl'],
+): ImageSourcePropType | null => {
+  if (!characterImageUrl) {
+    return null;
+  }
+
+  if (/^(https?:|data:|file:)/.test(characterImageUrl)) {
+    return { uri: characterImageUrl };
+  }
+
+  if (characterImageUrl.startsWith('/') && REMOTE_ASSET_HOST) {
+    return { uri: `${REMOTE_ASSET_HOST}${characterImageUrl}` };
+  }
+
+  return { uri: characterImageUrl };
+};
+
+const getCharacterBackgroundStyle = (
+  characterCode: SearchResultUser['characterCode'],
+) => {
+  const normalizedCode = characterCode?.toUpperCase() ?? '';
+
+  if (normalizedCode.includes('MAGE') || normalizedCode.includes('RED')) {
+    return styles.avatarRed;
+  }
+
+  if (normalizedCode.includes('ARCHER') || normalizedCode.includes('GREEN')) {
+    return styles.avatarGreen;
+  }
+
+  return styles.avatarBlue;
+};
+
+const UserItem = ({
+  nickname,
+  userId,
+  characterCode,
+  characterImageUrl,
+  close,
+  itemStyle,
+}: UserItemProps) => {
   const addMutation = useAddFriendMutation();
   const { showToast } = useToast();
+  const characterImageSource = getCharacterImageSource(characterImageUrl);
 
   const handleAdd = () => {
     addMutation.mutate(nickname, {
@@ -57,7 +111,24 @@ const UserItem = ({ nickname, userId, close, itemStyle }: UserItemProps) => {
   return (
     <ThemeView style={[styles.userItem, itemStyle]} transparent>
       <View style={styles.userProfile}>
-        <View style={styles.avatar} />
+        {characterImageSource ? (
+          <View
+            testID={`user-character-avatar-${userId}`}
+            style={[styles.avatar, getCharacterBackgroundStyle(characterCode)]}
+          >
+            <Image
+              source={characterImageSource}
+              style={styles.avatarImage}
+              resizeMode="contain"
+              accessibilityLabel={`${nickname} 캐릭터`}
+            />
+          </View>
+        ) : (
+          <View
+            testID={`user-character-avatar-${userId}`}
+            style={[styles.avatar, getCharacterBackgroundStyle(characterCode)]}
+          />
+        )}
         <View style={styles.userTextGroup}>
           <Typography
             variant="body2"
@@ -145,7 +216,9 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
     }
   }, [refetch, searchOption.keyword]);
 
-  const ListComponent = isTestEnv ? FlatList<User> : FlashList<User>;
+  const ListComponent = isTestEnv
+    ? FlatList<SearchResultUser>
+    : FlashList<SearchResultUser>;
 
   return (
     <Modal
@@ -221,7 +294,9 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                   </ThemeView>
                 }
                 contentContainerStyle={
-                  userList?.length ? styles.listContent : styles.emptyListContent
+                  userList?.length
+                    ? styles.listContent
+                    : styles.emptyListContent
                 }
                 keyboardShouldPersistTaps="handled"
                 refreshControl={
@@ -350,7 +425,21 @@ const styles = StyleSheet.create((theme) => ({
     width: baseFoundation.dimension.x36,
     height: baseFoundation.dimension.x36,
     borderRadius: baseFoundation.radii.round,
+    overflow: 'hidden',
+  },
+  avatarBlue: {
     backgroundColor: '#8DB9DC',
+  },
+  avatarGreen: {
+    backgroundColor: palette.theme.softGreen[20],
+  },
+  avatarRed: {
+    backgroundColor: palette.theme.softRed[10],
+  },
+  avatarImage: {
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
+    margin: baseFoundation.dimension.x6,
   },
   userTextGroup: {
     flex: 1,

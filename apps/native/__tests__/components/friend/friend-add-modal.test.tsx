@@ -107,6 +107,94 @@ describe('친구 추가 모달', () => {
         expect((await findAllByText('user3')).length).toBeGreaterThan(0);
       });
 
+      it('검색 응답의 characterImageUrl로 유저 캐릭터 이미지를 표시한다', async () => {
+        mockAxios.onGet(/\/users\/search/).reply(
+          200,
+          wrapResponse([
+            {
+              ...createMockUsers(1)[0],
+              characterCode: 'MAGE_INTERMEDIATE',
+              characterImageUrl: '/assets/characters/mage_intermediate.png',
+            },
+          ]),
+        );
+
+        const { findByLabelText, getByPlaceholderText } = render(
+          <FriendAddModal {...defaultProps} />,
+        );
+
+        const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
+
+        fireEvent.changeText(searchInput, 'user');
+        fireEvent(searchInput, 'submitEditing');
+
+        const characterImage = await findByLabelText('user1 캐릭터');
+
+        expect(characterImage).toHaveProp('source', {
+          uri: '/assets/characters/mage_intermediate.png',
+        });
+        expect(characterImage).toHaveStyle({
+          margin: 6,
+        });
+      });
+
+      it('검색 응답의 characterCode에 따라 캐릭터 배경색을 표시한다', async () => {
+        mockAxios.onGet(/\/users\/search/).reply(
+          200,
+          wrapResponse([
+            {
+              ...createMockUsers(1, {
+                userId: 'warrior-user',
+                nickname: 'warrior-user',
+              })[0],
+              characterCode: 'WARRIOR_INTERMEDIATE',
+              characterImageUrl: '/assets/characters/warrior_intermediate.png',
+            },
+            {
+              ...createMockUsers(1, {
+                userId: 'mage-user',
+                nickname: 'mage-user',
+              })[0],
+              characterCode: 'MAGE_INTERMEDIATE',
+              characterImageUrl: '/assets/characters/mage_intermediate.png',
+            },
+            {
+              ...createMockUsers(1, {
+                userId: 'archer-user',
+                nickname: 'archer-user',
+              })[0],
+              characterCode: 'ARCHER_INTERMEDIATE',
+              characterImageUrl: '/assets/characters/archer_intermediate.png',
+            },
+          ]),
+        );
+
+        const { findByTestId, getByPlaceholderText } = render(
+          <FriendAddModal {...defaultProps} />,
+        );
+
+        const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
+
+        fireEvent.changeText(searchInput, 'user');
+        fireEvent(searchInput, 'submitEditing');
+
+        expect(
+          await findByTestId('user-character-avatar-warrior-user'),
+        ).toHaveStyle({
+          backgroundColor: '#8DB9DC',
+        });
+        expect(
+          await findByTestId('user-character-avatar-mage-user'),
+        ).toHaveStyle({
+          backgroundColor: '#FECDF2',
+        });
+        expect(
+          await findByTestId('user-character-avatar-archer-user'),
+        ).toHaveStyle({
+          backgroundColor: '#84D4A9',
+        });
+      });
+
       it('검색 결과가 없으면 빈 상태 메시지가 표시된다', async () => {
         const { findByText, getByPlaceholderText } = render(
           <FriendAddModal {...defaultProps} />,
@@ -124,14 +212,15 @@ describe('친구 추가 모달', () => {
 
   describe('당겨서 새로고침 테스트', () => {
     beforeEach(() => {
-      mockAxios.onGet(/\/users\/search/).reply(200, wrapResponse(createMockUsers(1)));
+      mockAxios
+        .onGet(/\/users\/search/)
+        .reply(200, wrapResponse(createMockUsers(1)));
     });
 
     it('검색 결과 목록을 아래로 당기면 다시 조회한다', async () => {
       const screen = render(<FriendAddModal {...defaultProps} />);
-      const searchInput = screen.getByPlaceholderText(
-        '유저이름을 입력해주세요.',
-      );
+      const searchInput =
+        screen.getByPlaceholderText('유저이름을 입력해주세요.');
 
       fireEvent.changeText(searchInput, 'user');
       fireEvent(searchInput, 'submitEditing');
