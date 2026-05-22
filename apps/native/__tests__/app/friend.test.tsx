@@ -1,10 +1,11 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
-import { FlatList } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
 import { act, render, resetAuthMocks, waitFor } from '../setup/auth-test-utils';
 import { createMockFriend, createMockFriends } from '../setup/friend/mock';
+import { lightTheme } from '@/theme/themes/light';
 
 // FriendRequestResponse 형식에 맞는 mock 데이터 생성
 const createMockFriendRequestResponse = (count: number) =>
@@ -61,6 +62,20 @@ describe('친구 리스트 페이지', () => {
         expect(await findByText('mate1')).toBeOnTheScreen();
         expect(await findByText('Lv. 1')).toBeOnTheScreen();
         expect(await findByLabelText('friend1 캐릭터')).toBeOnTheScreen();
+      });
+
+      it('친구 목록 화면에 파란 배경을 적용하지 않는다', async () => {
+        const screen = render(<FriendPage />);
+
+        expect(await screen.findByText('friend1')).toBeOnTheScreen();
+
+        const blueBackgroundViews = screen.UNSAFE_getAllByType(View).filter(
+          (node) =>
+            StyleSheet.flatten(node.props.style)?.backgroundColor ===
+            lightTheme.colors.brand.secondary,
+        );
+
+        expect(blueBackgroundViews).toHaveLength(0);
       });
     });
 

@@ -118,7 +118,6 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     width: '100%',
-    backgroundColor: theme.colors.brand.secondary,
   },
   innerContainer: {
     flex: 1,
