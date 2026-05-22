@@ -204,11 +204,11 @@ export default function Index() {
 
   useEffect(() => {
     const snapshot = user
-      ? createRoutineWidgetSnapshot(routines)
+      ? createRoutineWidgetSnapshot(routines, { themeName })
       : createSignedOutRoutineWidgetSnapshot();
 
     void saveRoutineWidgetSnapshot(snapshot);
-  }, [routines, user]);
+  }, [routines, themeName, user]);
 
   if (!user) {
     return null;

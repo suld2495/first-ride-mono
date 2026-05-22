@@ -8,6 +8,8 @@ private let titleHeight: CGFloat = 18
 private let titleSpacing: CGFloat = 6
 private let routineRowHeight: CGFloat = 18
 private let minimumRoutineRowSpacing: CGFloat = 3
+private let fallbackCountLabelBackgroundColor = Color(red: 0.89, green: 0.95, blue: 0.99)
+private let fallbackCountLabelTextColor = Color(red: 0.08, green: 0.40, blue: 0.75)
 
 struct RoutineWidgetItem: Codable, Identifiable {
   let id: Int
@@ -17,19 +19,28 @@ struct RoutineWidgetItem: Codable, Identifiable {
   let isTodayDone: Bool
 }
 
+struct RoutineWidgetCountLabelStyle: Codable {
+  let backgroundColor: String
+  let textColor: String
+  let darkBackgroundColor: String?
+  let darkTextColor: String?
+}
+
 struct RoutineWidgetSnapshot: Codable {
   let status: String
   let title: String
   let message: String
   let items: [RoutineWidgetItem]
   let remainingCount: Int
+  let countLabelStyle: RoutineWidgetCountLabelStyle?
 
   static let signedOut = RoutineWidgetSnapshot(
     status: "signedOut",
     title: "이번 주 루틴",
     message: "로그인 해주세요",
     items: [],
-    remainingCount: 0
+    remainingCount: 0,
+    countLabelStyle: nil
   )
 }
 
@@ -74,7 +85,7 @@ struct RoutineWidgetEntryView: View {
       VStack(alignment: .leading, spacing: titleSpacing) {
         Text(entry.snapshot.title)
           .font(.system(size: 15, weight: .bold))
-          .foregroundStyle(Color(red: 0.13, green: 0.13, blue: 0.13))
+          .foregroundStyle(Color.primary)
           .lineLimit(1)
           .frame(height: titleHeight, alignment: .center)
 
@@ -82,14 +93,14 @@ struct RoutineWidgetEntryView: View {
           Spacer(minLength: 0)
           Text(entry.snapshot.message)
             .font(.system(size: 13, weight: .medium))
-            .foregroundStyle(Color(red: 0.46, green: 0.46, blue: 0.46))
+            .foregroundStyle(Color.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
           Spacer(minLength: 0)
         } else {
           let visibleItems = visibleItems(for: geometry.size.height)
           VStack(alignment: .leading, spacing: rowSpacing(for: geometry.size.height, itemCount: visibleItems.count)) {
             ForEach(visibleItems) { item in
-              RoutineWidgetRow(item: item)
+              RoutineWidgetRow(item: item, countLabelStyle: entry.snapshot.countLabelStyle)
             }
           }
         }
@@ -125,25 +136,46 @@ struct RoutineWidgetEntryView: View {
 }
 
 struct RoutineWidgetRow: View {
+  @Environment(\.colorScheme) private var colorScheme
+
   let item: RoutineWidgetItem
+  let countLabelStyle: RoutineWidgetCountLabelStyle?
+
+  private var countLabelBackgroundColor: Color {
+    Color(
+      hex: colorScheme == .dark
+        ? countLabelStyle?.darkBackgroundColor
+        : countLabelStyle?.backgroundColor,
+      fallback: fallbackCountLabelBackgroundColor
+    )
+  }
+
+  private var countLabelTextColor: Color {
+    Color(
+      hex: colorScheme == .dark
+        ? countLabelStyle?.darkTextColor
+        : countLabelStyle?.textColor,
+      fallback: fallbackCountLabelTextColor
+    )
+  }
 
   var body: some View {
     HStack(spacing: 6) {
       Text("\(item.weeklyCount)/\(item.routineCount)")
         .font(.system(size: 10, weight: .bold))
-        .foregroundStyle(Color(red: 0.08, green: 0.40, blue: 0.75))
+        .foregroundStyle(countLabelTextColor)
         .frame(width: 36, height: routineRowHeight)
-        .background(Color(red: 0.89, green: 0.95, blue: 0.99))
+        .background(countLabelBackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
 
       Text(item.title)
         .font(.system(size: 12, weight: .medium))
-        .foregroundStyle(Color(red: 0.26, green: 0.26, blue: 0.26))
+        .foregroundStyle(Color.primary)
         .lineLimit(1)
         .overlay(
           item.isTodayDone
             ? Rectangle()
-                .fill(Color(red: 0.46, green: 0.46, blue: 0.46))
+                .fill(Color.secondary)
                 .frame(height: 1)
             : nil
         )
@@ -152,13 +184,36 @@ struct RoutineWidgetRow: View {
   }
 }
 
+extension Color {
+  init(hex: String?, fallback: Color) {
+    guard let hex else {
+      self = fallback
+      return
+    }
+
+    let normalizedHex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+    var value: UInt64 = 0
+
+    guard normalizedHex.count == 6, Scanner(string: normalizedHex).scanHexInt64(&value) else {
+      self = fallback
+      return
+    }
+
+    self = Color(
+      red: Double((value >> 16) & 0xFF) / 255.0,
+      green: Double((value >> 8) & 0xFF) / 255.0,
+      blue: Double(value & 0xFF) / 255.0
+    )
+  }
+}
+
 extension View {
   @ViewBuilder
   func routineWidgetBackground() -> some View {
     if #available(iOSApplicationExtension 17.0, *) {
-      self.containerBackground(.white, for: .widget)
+      self.containerBackground(Color(uiColor: .systemBackground), for: .widget)
     } else {
-      self.background(Color.white)
+      self.background(Color(uiColor: .systemBackground))
     }
   }
 }

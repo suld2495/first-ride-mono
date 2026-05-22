@@ -1,5 +1,6 @@
 import type { Routine } from '@repo/types';
 
+import { appThemes } from '@/theme/themes';
 import {
   createRoutineWidgetSnapshot,
   createSignedOutRoutineWidgetSnapshot,
@@ -95,5 +96,51 @@ describe('routine widget snapshot', () => {
 
     expect(snapshot.items).toHaveLength(6);
     expect(snapshot.remainingCount).toBe(0);
+  });
+
+  it('선택한 테마의 횟수 라벨 색상을 전달한다', () => {
+    const snapshot = createRoutineWidgetSnapshot(
+      [
+        createRoutine({
+          routineId: 1,
+          routineName: '물 마시기',
+        }),
+      ],
+      {
+        themeName: 'green',
+      },
+    );
+
+    expect(snapshot).toMatchObject({
+      countLabelStyle: {
+        backgroundColor: appThemes.green.colors.brand.todaySuccessCheckbox,
+        textColor: appThemes.green.colors.brand.todaySuccessCheck,
+        darkBackgroundColor: '#416B58',
+        darkTextColor: '#AFEACB',
+      },
+    });
+  });
+
+  it('다크 테마의 횟수 라벨 색상은 어두운 배경과 밝은 텍스트를 전달한다', () => {
+    const snapshot = createRoutineWidgetSnapshot(
+      [
+        createRoutine({
+          routineId: 1,
+          routineName: '물 마시기',
+        }),
+      ],
+      {
+        themeName: 'dark',
+      },
+    );
+
+    expect(snapshot).toMatchObject({
+      countLabelStyle: {
+        backgroundColor: appThemes.dark.colors.brand.todaySuccessCheckbox,
+        textColor: appThemes.dark.colors.brand.todaySuccessCheck,
+        darkBackgroundColor: '#1565C0',
+        darkTextColor: '#BBDEFB',
+      },
+    });
   });
 });

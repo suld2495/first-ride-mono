@@ -1,7 +1,10 @@
 import type { Routine } from '@repo/types';
 
+import { appThemes, type ThemeName } from '@/theme/themes';
+
 const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
+const DEFAULT_THEME_NAME: ThemeName = 'dark';
 
 export interface RoutineWidgetItem {
   id: number;
@@ -10,6 +13,13 @@ export interface RoutineWidgetItem {
   routineCount: number;
   achievementRate: number;
   isTodayDone: boolean;
+}
+
+export interface RoutineWidgetCountLabelStyle {
+  backgroundColor: string;
+  textColor: string;
+  darkBackgroundColor: string;
+  darkTextColor: string;
 }
 
 export type RoutineWidgetSnapshot =
@@ -27,11 +37,47 @@ export type RoutineWidgetSnapshot =
       items: RoutineWidgetItem[];
       remainingCount: 0;
       generatedAt: string;
+      countLabelStyle: RoutineWidgetCountLabelStyle;
     };
 
 interface CreateRoutineWidgetSnapshotOptions {
   today?: Date;
+  themeName?: ThemeName;
 }
+
+const DARK_COUNT_LABEL_STYLES: Record<ThemeName, RoutineWidgetCountLabelStyle> =
+  {
+    light: {
+      backgroundColor: appThemes.light.colors.brand.todaySuccessCheckbox,
+      textColor: appThemes.light.colors.brand.todaySuccessCheck,
+      darkBackgroundColor: '#1565C0',
+      darkTextColor: '#BBDEFB',
+    },
+    dark: {
+      backgroundColor: appThemes.dark.colors.brand.todaySuccessCheckbox,
+      textColor: appThemes.dark.colors.brand.todaySuccessCheck,
+      darkBackgroundColor: '#1565C0',
+      darkTextColor: '#BBDEFB',
+    },
+    blue: {
+      backgroundColor: appThemes.blue.colors.brand.todaySuccessCheckbox,
+      textColor: appThemes.blue.colors.brand.todaySuccessCheck,
+      darkBackgroundColor: '#2C5171',
+      darkTextColor: '#A3D4FF',
+    },
+    green: {
+      backgroundColor: appThemes.green.colors.brand.todaySuccessCheckbox,
+      textColor: appThemes.green.colors.brand.todaySuccessCheck,
+      darkBackgroundColor: '#416B58',
+      darkTextColor: '#AFEACB',
+    },
+    red: {
+      backgroundColor: appThemes.red.colors.brand.todaySuccessCheckbox,
+      textColor: appThemes.red.colors.brand.todaySuccessCheck,
+      darkBackgroundColor: '#7A486E',
+      darkTextColor: '#FFBBEF',
+    },
+  };
 
 const createRoutineDateKey = (date: Date): string => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
@@ -47,6 +93,12 @@ const getAchievementRate = (routine: Routine): number => {
   }
 
   return routine.weeklyCount / routine.routineCount;
+};
+
+const createRoutineWidgetCountLabelStyle = (
+  themeName: ThemeName = DEFAULT_THEME_NAME,
+): RoutineWidgetCountLabelStyle => {
+  return DARK_COUNT_LABEL_STYLES[themeName] ?? DARK_COUNT_LABEL_STYLES.dark;
 };
 
 export const createSignedOutRoutineWidgetSnapshot =
@@ -95,5 +147,6 @@ export const createRoutineWidgetSnapshot = (
     items: widgetItems,
     remainingCount: 0,
     generatedAt: today.toISOString(),
+    countLabelStyle: createRoutineWidgetCountLabelStyle(options.themeName),
   };
 };
