@@ -10,7 +10,9 @@ import Svg, { Path } from 'react-native-svg';
 
 import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { baseFoundation, palette } from '@/theme/tokens';
+import type { ThemeName } from '@/theme/themes';
 
 type SpeechBubbleTailPosition = 'bottom' | 'left' | 'right' | 'none';
 
@@ -26,6 +28,17 @@ const STROKE_WIDTH = 2;
 const TAIL_HEIGHT = 13;
 const TAIL_WIDTH = 22;
 const BUBBLE_RADIUS = 18;
+
+const speechBubbleBorderColors = {
+  light: palette.theme.blue[50],
+  dark: palette.theme.blue[50],
+  blue: palette.theme.blue[50],
+  green: palette.theme.green[50],
+  red: palette.theme.red[50],
+} satisfies Record<ThemeName, string>;
+
+export const getCharacterSpeechBubbleBorderColor = (themeName: ThemeName) =>
+  speechBubbleBorderColors[themeName];
 
 const createBubblePath = (width: number, height: number): string => {
   const inset = STROKE_WIDTH / 2;
@@ -64,6 +77,8 @@ const CharacterSpeechBubble = ({
   testID = 'character-speech-bubble',
   ...props
 }: CharacterSpeechBubbleProps) => {
+  const themeName = useColorScheme();
+  const borderColor = getCharacterSpeechBubbleBorderColor(themeName);
   const [bubbleSize, setBubbleSize] = useState({ width: 0, height: 0 });
   const bubblePath = useMemo(() => {
     if (bubbleSize.width <= 0 || bubbleSize.height <= 0) {
@@ -101,7 +116,7 @@ const CharacterSpeechBubble = ({
           <Path
             d={bubblePath}
             fill={palette.white}
-            stroke={palette.theme.blue[50]}
+            stroke={borderColor}
             strokeLinejoin="round"
             strokeWidth={STROKE_WIDTH}
           />
@@ -110,6 +125,7 @@ const CharacterSpeechBubble = ({
       <View
         style={[
           styles.container,
+          { borderColor },
           tailPosition === 'bottom' && styles.bottomTailContainer,
           tailPosition === 'bottom' && bubblePath && styles.transparentBubble,
         ]}
@@ -129,7 +145,11 @@ const CharacterSpeechBubble = ({
       {tailPosition !== 'none' && tailPosition !== 'bottom' && (
         <View
           pointerEvents="none"
-          style={[styles.tail, styles[`${tailPosition}Tail`]]}
+          style={[
+            styles.tail,
+            styles[`${tailPosition}Tail`],
+            { borderColor },
+          ]}
         />
       )}
     </View>
@@ -154,7 +174,6 @@ const styles = StyleSheet.create(() => ({
     paddingVertical: baseFoundation.spacing[2],
     borderRadius: baseFoundation.radii.m,
     borderWidth: 2,
-    borderColor: palette.theme.blue[50],
     backgroundColor: palette.white,
     overflow: 'visible',
   },
@@ -187,7 +206,6 @@ const styles = StyleSheet.create(() => ({
     height: baseFoundation.dimension.x12,
     borderRightWidth: 2,
     borderBottomWidth: 2,
-    borderColor: palette.theme.blue[50],
     backgroundColor: palette.white,
     transform: [{ rotate: '45deg' }],
   },
@@ -199,7 +217,6 @@ const styles = StyleSheet.create(() => ({
     height: baseFoundation.dimension.x12,
     borderRightWidth: 2,
     borderBottomWidth: 2,
-    borderColor: palette.theme.blue[50],
     backgroundColor: palette.white,
     transform: [{ rotate: '45deg' }],
   },
