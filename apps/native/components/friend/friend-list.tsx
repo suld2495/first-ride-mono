@@ -25,10 +25,12 @@ interface FriendItemProps {
   friend: Friend;
   itemWidth: number;
   imageSize: number;
+  isRightColumn: boolean;
   onOpen: (friend: Friend) => void;
 }
 
 interface FriendRenderItemProps {
+  index: number;
   item: Friend;
 }
 
@@ -36,22 +38,26 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   /\/$/,
   '',
 );
-const FRIEND_LAYOUT_BASE_SCREEN_WIDTH = 430;
 const FRIEND_LAYOUT_BASE_ITEM_WIDTH = 183;
 const FRIEND_LAYOUT_BASE_IMAGE_SIZE = 120;
 const FRIEND_IMAGE_MIN_SIZE = 100;
+const FRIEND_LIST_HORIZONTAL_PADDING = baseFoundation.spacing[5];
+const FRIEND_GRID_COLUMN_GAP = baseFoundation.spacing[4];
+const FRIEND_GRID_COLUMN_COUNT = 2;
 const FRIEND_ITEM_TO_IMAGE_RATIO =
   FRIEND_LAYOUT_BASE_ITEM_WIDTH / FRIEND_LAYOUT_BASE_IMAGE_SIZE;
 
 const getFriendItemLayoutSize = (screenWidth: number) => {
+  const itemWidth = Math.round(
+    (screenWidth -
+      FRIEND_LIST_HORIZONTAL_PADDING * 2 -
+      FRIEND_GRID_COLUMN_GAP) /
+      FRIEND_GRID_COLUMN_COUNT,
+  );
   const imageSize = Math.max(
     FRIEND_IMAGE_MIN_SIZE,
-    Math.round(
-      (screenWidth / FRIEND_LAYOUT_BASE_SCREEN_WIDTH) *
-        FRIEND_LAYOUT_BASE_IMAGE_SIZE,
-    ),
+    Math.round(itemWidth / FRIEND_ITEM_TO_IMAGE_RATIO),
   );
-  const itemWidth = Math.round(imageSize * FRIEND_ITEM_TO_IMAGE_RATIO);
 
   return { imageSize, itemWidth };
 };
@@ -78,6 +84,7 @@ const FriendItem = ({
   friend,
   itemWidth,
   imageSize,
+  isRightColumn,
   onOpen,
 }: FriendItemProps) => {
   const { nickname, mateNickname, job, level, characterImageUrl } = friend;
@@ -88,6 +95,7 @@ const FriendItem = ({
     <Pressable
       style={({ pressed }) => [
         styles.card,
+        isRightColumn ? styles.rightColumnCard : null,
         { width: itemWidth },
         pressed ? styles.cardPressed : null,
       ]}
@@ -154,11 +162,12 @@ const FriendList = ({
   const { itemWidth, imageSize } = getFriendItemLayoutSize(screenWidth);
 
   const renderFriendItem = useCallback(
-    ({ item }: FriendRenderItemProps) => (
+    ({ index, item }: FriendRenderItemProps) => (
       <FriendItem
         friend={item}
         itemWidth={itemWidth}
         imageSize={imageSize}
+        isRightColumn={index % 2 === 1}
         onOpen={onOpenFriend}
       />
     ),
@@ -205,12 +214,14 @@ const styles = StyleSheet.create((theme) => ({
     paddingBottom: theme.foundation.spacing[8],
   },
   row: {
-    justifyContent: 'center',
-    gap: theme.foundation.spacing[4],
-    paddingBottom: theme.foundation.spacing[5],
+    justifyContent: 'space-between',
   },
   card: {
     alignItems: 'center',
+    marginBottom: theme.foundation.spacing[5],
+  },
+  rightColumnCard: {
+    marginLeft: 'auto',
   },
   cardPressed: {
     opacity: 0.82,
