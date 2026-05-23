@@ -15,11 +15,21 @@ export interface Routine {
   successDate: string[];
   paused: boolean;
   hidden: boolean;
+  hasPendingConfirmation: boolean;
+  pendingConfirmationCount: number;
+  pendingConfirmationIds: number[];
 }
 
 export type RoutineForm = Omit<
   Routine,
-  'routineId' | 'weeklyCount' | 'successDate' | 'paused' | 'hidden'
+  | 'routineId'
+  | 'weeklyCount'
+  | 'successDate'
+  | 'paused'
+  | 'hidden'
+  | 'hasPendingConfirmation'
+  | 'pendingConfirmationCount'
+  | 'pendingConfirmationIds'
 >;
 
 export type WeeklyRoutine = Pick<
@@ -32,6 +42,9 @@ export type WeeklyRoutine = Pick<
   | 'endDate'
   | 'paused'
   | 'hidden'
+  | 'hasPendingConfirmation'
+  | 'pendingConfirmationCount'
+  | 'pendingConfirmationIds'
 > & {
   successDate: string[];
 };

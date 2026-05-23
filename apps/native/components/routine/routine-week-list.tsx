@@ -149,17 +149,33 @@ const RoutineWeekList = ({
                       count += +check;
                       const dateKey = weekDateKeys[index];
                       const isTodaySuccess = check && dateKey === todayDateKey;
+                      const isPendingConfirmation =
+                        !check &&
+                        routine.hasPendingConfirmation &&
+                        dateKey === todayDateKey;
                       const successCheckBoxStyle = isTodaySuccess
                         ? {
                             backgroundColor:
                               theme.colors.brand.todaySuccessCheckbox,
                           }
                         : null;
+                      const pendingConfirmationCheckBoxStyle =
+                        isPendingConfirmation
+                          ? {
+                              backgroundColor:
+                                theme.colors.brand.pendingConfirmationCheckbox,
+                            }
+                          : null;
+                      const checkmarkColor = isPendingConfirmation
+                        ? theme.colors.brand.pendingConfirmationCheck
+                        : theme.colors.brand.selectedCheck;
                       const statusLabel = check
                         ? isTodaySuccess
                           ? '오늘 완료'
                           : '달성'
-                        : '미달성';
+                        : isPendingConfirmation
+                          ? '요청 중'
+                          : '미달성';
 
                       return (
                         <View
@@ -169,13 +185,17 @@ const RoutineWeekList = ({
                           accessibilityRole="image"
                         >
                           <View
-                            style={[styles.checkBox, successCheckBoxStyle]}
+                            style={[
+                              styles.checkBox,
+                              successCheckBoxStyle,
+                              pendingConfirmationCheckBoxStyle,
+                            ]}
                             testID={`routine-week-check-${routineId}-${index}`}
                           >
-                            {check ? (
+                            {check || isPendingConfirmation ? (
                               <RoutineCheckmarkIcon
                                 size={baseFoundation.iconSize.s}
-                                color={theme.colors.brand.selectedCheck}
+                                color={checkmarkColor}
                               />
                             ) : null}
                           </View>
@@ -221,6 +241,8 @@ const RoutineWeekList = ({
       onShowDetailModal,
       onShowRequestModal,
       readOnly,
+      theme.colors.brand.pendingConfirmationCheck,
+      theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.selectedCheck,
       theme.colors.brand.todaySuccessCheckbox,
       theme.colors.text.secondary,

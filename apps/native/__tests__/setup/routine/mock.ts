@@ -15,6 +15,9 @@ export interface CreateMockRoutineOptions {
   mateNickname?: string;
   paused?: boolean;
   hidden?: boolean;
+  hasPendingConfirmation?: boolean;
+  pendingConfirmationCount?: number;
+  pendingConfirmationIds?: number[];
 }
 
 export const createMockRoutine = (
@@ -35,6 +38,9 @@ export const createMockRoutine = (
   successDate: options.successDate ?? ['251201', '251202', '251203'],
   paused: options.paused ?? false,
   hidden: options.hidden ?? false,
+  hasPendingConfirmation: options.hasPendingConfirmation ?? false,
+  pendingConfirmationCount: options.pendingConfirmationCount ?? 0,
+  pendingConfirmationIds: options.pendingConfirmationIds ?? [],
 });
 
 export const createMockRoutines = (

@@ -90,6 +90,8 @@ export type ThemeContract = {
       selectedCheck: string;
       todaySuccessCheckbox: string;
       todaySuccessCheck: string;
+      pendingConfirmationCheckbox: string;
+      pendingConfirmationCheck: string;
       input: string;
       error: string;
       success: string;
@@ -208,8 +210,10 @@ export const baseTheme: ThemeContract = {
       check: '#0984e3',
       selectedCheckbox: '#0984e3',
       selectedCheck: '#0984e3',
-      todaySuccessCheckbox: '#BBDEFB',
-      todaySuccessCheck: '#1E88E5',
+      todaySuccessCheckbox: palette.theme.blue[10],
+      todaySuccessCheck: palette.theme.blue[80],
+      pendingConfirmationCheckbox: palette.yellow[900],
+      pendingConfirmationCheck: palette.yellow[300],
       input: '#1e272e',
       error: '#d63031',
       success: '#00b894',

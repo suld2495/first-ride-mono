@@ -150,6 +150,9 @@ const toFriendRoutine = (
   successDate: routine.successDate ?? [],
   paused: routine.paused,
   hidden: routine.hidden,
+  hasPendingConfirmation: false,
+  pendingConfirmationCount: 0,
+  pendingConfirmationIds: [],
 });
 
 const unwrapFriendRoutinesResponse = (

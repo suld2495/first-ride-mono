@@ -18,6 +18,11 @@ type RoutineResponse = Omit<Routine, 'successDate'> & {
 const normalizeRoutine = (routine: RoutineResponse): Routine => ({
   ...routine,
   successDate: Array.isArray(routine.successDate) ? routine.successDate : [],
+  hasPendingConfirmation: Boolean(routine.hasPendingConfirmation),
+  pendingConfirmationCount: routine.pendingConfirmationCount ?? 0,
+  pendingConfirmationIds: Array.isArray(routine.pendingConfirmationIds)
+    ? routine.pendingConfirmationIds
+    : [],
 });
 
 export const fetchRoutines = async (date: string): Promise<Routine[]> => {
@@ -66,9 +71,7 @@ export const fetchAllRoutines = async (): Promise<Routine[]> => {
 
 export const fetchPausedRoutines = async (): Promise<Routine[]> => {
   try {
-    const response: RoutineResponse[] = await http.get(
-      '/routine/list/paused',
-    );
+    const response: RoutineResponse[] = await http.get('/routine/list/paused');
 
     return response.map(normalizeRoutine);
   } catch (error) {

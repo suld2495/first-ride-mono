@@ -63,6 +63,9 @@ const RoutineCountList = ({
   const renderRoutineItem = useCallback<ListRenderItem<Routine>>(
     ({ item: routine }) => {
       const { routineId, routineName, weeklyCount, routineCount } = routine;
+      const pendingConfirmationCount = routine.hasPendingConfirmation
+        ? routine.pendingConfirmationCount
+        : 0;
       const todayDateKey = createRoutineDateKey(new Date());
       const isCurrentWeek = date === getWeekMonday(new Date());
       const hasTodaySuccess =
@@ -141,6 +144,9 @@ const RoutineCountList = ({
                 {Array.from({ length: MAX_ROUTINE_COUNT }, (_, index) => {
                   const countIndex = index + 1;
                   const achieved = countIndex <= weeklyCount;
+                  const isPendingConfirmation =
+                    !achieved &&
+                    countIndex <= weeklyCount + pendingConfirmationCount;
                   const isGoalRange = countIndex <= routineCount;
                   const isTodaySuccess =
                     achieved && hasTodaySuccess && countIndex === weeklyCount;
@@ -150,15 +156,26 @@ const RoutineCountList = ({
                           theme.colors.brand.todaySuccessCheckbox,
                       }
                     : null;
+                  const pendingConfirmationCheckBoxStyle = isPendingConfirmation
+                    ? {
+                        backgroundColor:
+                          theme.colors.brand.pendingConfirmationCheckbox,
+                      }
+                    : null;
+                  const checkmarkColor = isPendingConfirmation
+                    ? theme.colors.brand.pendingConfirmationCheck
+                    : theme.colors.brand.selectedCheck;
                   const label = achieved
                     ? isTodaySuccess
                       ? `${countIndex}회 오늘 완료`
                       : countIndex <= routineCount
                         ? `${countIndex}회 달성`
                         : `${countIndex}회 초과 달성`
-                    : isGoalRange
-                      ? `${countIndex}회 미달성`
-                      : `${countIndex}회 목표 없음`;
+                    : isPendingConfirmation
+                      ? `${countIndex}회 요청 중`
+                      : isGoalRange
+                        ? `${countIndex}회 미달성`
+                        : `${countIndex}회 목표 없음`;
 
                   return (
                     <View
@@ -172,13 +189,14 @@ const RoutineCountList = ({
                           styles.checkBox,
                           achieved ? styles.achievedCheckBox : null,
                           successCheckBoxStyle,
+                          pendingConfirmationCheckBoxStyle,
                         ]}
                         testID={`routine-count-check-${routineId}-${countIndex}`}
                       >
-                        {isGoalRange ? (
+                        {isGoalRange || isPendingConfirmation ? (
                           <RoutineCheckmarkIcon
                             size={baseFoundation.iconSize.s}
-                            color={theme.colors.brand.selectedCheck}
+                            color={checkmarkColor}
                           />
                         ) : (
                           <Ionicons
@@ -204,6 +222,8 @@ const RoutineCountList = ({
       onShowRequestModal,
       readOnly,
       theme.colors.brand.check,
+      theme.colors.brand.pendingConfirmationCheck,
+      theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.selectedCheck,
       theme.colors.brand.todaySuccessCheckbox,
       theme.colors.text.secondary,

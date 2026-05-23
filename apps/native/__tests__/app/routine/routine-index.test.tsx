@@ -11,7 +11,10 @@ import {
   resetAuthMocks,
   waitFor,
 } from '../../setup/auth-test-utils';
-import { createMockRoutines } from '../../setup/routine/mock';
+import {
+  createMockRoutine,
+  createMockRoutines,
+} from '../../setup/routine/mock';
 
 const formatRoutineHeaderDate = (date: Date) => {
   const year = date.getFullYear();
@@ -642,6 +645,48 @@ describe('루틴 조회 페이지', () => {
         expect(await findByLabelText('4회 오늘 완료')).toBeOnTheScreen();
         expect(await findByTestId('routine-count-check-1-4')).toBeOnTheScreen();
       });
+
+      it('완료, 오늘 완료, 요청 중 체크 표시를 서로 다른 컬러로 표시한다', async () => {
+        const today = new Date();
+        const pendingRoutine = {
+          ...createMockRoutine(0, {
+            weeklyCount: 2,
+            routineCount: 5,
+            successDate: [formatRoutineDateKey(today)],
+          }),
+          hasPendingConfirmation: true,
+          pendingConfirmationCount: 2,
+          pendingConfirmationIds: [207, 208],
+        };
+
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: [pendingRoutine],
+        });
+
+        const { findByLabelText, findByTestId } = render(<Index />);
+        const completedCheck = await findByTestId('routine-count-check-1-1');
+        const todayCompletedCheck = await findByTestId(
+          'routine-count-check-1-2',
+        );
+        const pendingCheck = await findByTestId('routine-count-check-1-3');
+
+        expect(await findByLabelText('3회 요청 중')).toBeOnTheScreen();
+        expect(flattenStyles(completedCheck.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ backgroundColor: '#0984e3' }),
+          ]),
+        );
+        expect(flattenStyles(todayCompletedCheck.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ backgroundColor: '#B0DAFF' }),
+          ]),
+        );
+        expect(flattenStyles(pendingCheck.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ backgroundColor: '#FFF9C4' }),
+          ]),
+        );
+      });
     });
 
     describe('달성횟수가 목표와 같은 경우', () => {
@@ -848,6 +893,55 @@ describe('루틴 조회 페이지', () => {
             `routine-week-check-1-${getRoutineWeekIndex(today)}`,
           ),
         ).toBeOnTheScreen();
+      });
+
+      it('완료, 오늘 완료, 요청 중 체크 표시를 서로 다른 컬러로 표시한다', async () => {
+        const today = new Date();
+        const monday = new Date(getWeekMonday(today));
+        const todayIndex = getRoutineWeekIndex(today);
+        const completedIndex = todayIndex === 0 ? 1 : 0;
+        const completedDate = new Date(monday);
+
+        completedDate.setDate(completedDate.getDate() + completedIndex);
+
+        const pendingRoutine = {
+          ...createMockRoutine(0, {
+            weeklyCount: 1,
+            routineCount: 5,
+            successDate: [formatRoutineDateKey(completedDate)],
+          }),
+          hasPendingConfirmation: true,
+          pendingConfirmationCount: 1,
+          pendingConfirmationIds: [207],
+        };
+
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: [pendingRoutine],
+        });
+
+        const { findByLabelText, findByTestId } = render(<Index />);
+        const completedCheck = await findByTestId(
+          `routine-week-check-1-${completedIndex}`,
+        );
+        const pendingCheck = await findByTestId(
+          `routine-week-check-1-${todayIndex}`,
+        );
+
+        expect(
+          await findByLabelText(
+            `${['월', '화', '수', '목', '금', '토', '일'][todayIndex]}요일 요청 중`,
+          ),
+        ).toBeOnTheScreen();
+        expect(flattenStyles(completedCheck.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ backgroundColor: '#0984e3' }),
+          ]),
+        );
+        expect(flattenStyles(pendingCheck.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ backgroundColor: '#FFF9C4' }),
+          ]),
+        );
       });
     });
   });

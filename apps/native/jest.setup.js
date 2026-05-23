@@ -112,9 +112,17 @@ const mockTheme = {
     brand: {
       icon: '#000000',
       primary: '#0984e3',
+      checkbox: '#0984e3',
+      check: '#0984e3',
+      selectedCheckbox: '#0984e3',
+      selectedCheck: '#0984e3',
+      todaySuccessCheckbox: '#B0DAFF',
+      todaySuccessCheck: '#2C5171',
       routineBackground: '#FFFFFF',
       secondary: '#0984e3',
       text: '#2D3436',
+      pendingConfirmationCheckbox: '#FFF9C4',
+      pendingConfirmationCheck: '#FBC02D',
     },
   },
   foundation: {

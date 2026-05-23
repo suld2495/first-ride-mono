@@ -20,6 +20,9 @@ const createRoutine = (overrides: Partial<Routine>): Routine => ({
   successDate: [],
   paused: false,
   hidden: false,
+  hasPendingConfirmation: false,
+  pendingConfirmationCount: 0,
+  pendingConfirmationIds: [],
   ...overrides,
 });
 

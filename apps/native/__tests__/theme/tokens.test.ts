@@ -41,28 +41,28 @@ describe('theme/tokens', () => {
   it('루틴 오늘 완료 컬러를 같은 테마 톤 안에서 구분한다', () => {
     expect(lightTheme.colors.brand.selectedCheckbox).toBe('#0984e3');
     expect(lightTheme.colors.brand.todaySuccessCheckbox).toBe(
-      palette.blue[100],
+      palette.theme.blue[10],
     );
-    expect(lightTheme.colors.brand.todaySuccessCheck).toBe(palette.blue[600]);
+    expect(lightTheme.colors.brand.todaySuccessCheck).toBe(
+      palette.theme.blue[80],
+    );
 
     expect(blueTheme.colors.brand.todaySuccessCheckbox).toBe(
-      palette.theme.blue[20],
+      palette.theme.blue[10],
     );
     expect(blueTheme.colors.brand.todaySuccessCheck).toBe(
-      palette.theme.blue[50],
+      palette.theme.blue[80],
     );
     expect(greenTheme.colors.brand.todaySuccessCheckbox).toBe(
-      palette.theme.green[20],
+      palette.theme.green[10],
     );
     expect(greenTheme.colors.brand.todaySuccessCheck).toBe(
-      palette.theme.green[50],
+      palette.theme.green[80],
     );
     expect(redTheme.colors.brand.todaySuccessCheckbox).toBe(
-      palette.theme.red[20],
+      palette.theme.red[10],
     );
-    expect(redTheme.colors.brand.todaySuccessCheck).toBe(
-      palette.theme.red[50],
-    );
+    expect(redTheme.colors.brand.todaySuccessCheck).toBe(palette.theme.red[80]);
   });
 
   it('테마별 foundation 토큰을 생성한다', () => {
@@ -153,6 +153,8 @@ describe('theme/tokens', () => {
           selectedCheck: '#0af',
           todaySuccessCheckbox: '#def',
           todaySuccessCheck: '#003',
+          pendingConfirmationCheckbox: '#ff9',
+          pendingConfirmationCheck: '#cc0',
           input: '#111',
           error: '#f00',
           success: '#0f0',
