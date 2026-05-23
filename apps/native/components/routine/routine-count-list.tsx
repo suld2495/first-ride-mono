@@ -3,8 +3,8 @@ import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
 import { useCallback } from 'react';
 import { Pressable, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
 
+import { RoutineCheckmarkIcon } from '@/components/icons/routine-icons';
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
@@ -25,9 +25,6 @@ interface RoutineCountListProps {
   readOnly?: boolean;
 }
 
-const ROUTINE_CHECKMARK_WIDTH = 12;
-const ROUTINE_CHECKMARK_HEIGHT = 9;
-const ROUTINE_CHECKMARK_SCALE = 0.7;
 const MAX_ROUTINE_COUNT = 7;
 const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
@@ -38,34 +35,6 @@ const createRoutineDateKey = (date: Date) => {
   const day = date.getDate();
 
   return `${year}${month}${day}`;
-};
-
-interface RoutineCheckmarkIconProps {
-  color: string;
-  size: number;
-}
-
-const RoutineCheckmarkIcon = ({ color, size }: RoutineCheckmarkIconProps) => {
-  const scaledWidth = size * ROUTINE_CHECKMARK_SCALE;
-  const scaledHeight =
-    (scaledWidth * ROUTINE_CHECKMARK_HEIGHT) / ROUTINE_CHECKMARK_WIDTH;
-
-  return (
-    <Svg
-      width={scaledWidth}
-      height={scaledHeight}
-      viewBox={`0 0 ${ROUTINE_CHECKMARK_WIDTH} ${ROUTINE_CHECKMARK_HEIGHT}`}
-      fill="none"
-    >
-      <Path
-        d="M1.25 4.91667L3.69444 7.36111L9.80556 1.25"
-        stroke={color}
-        strokeWidth={2.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
 };
 
 const RoutineCountList = ({
@@ -181,11 +150,6 @@ const RoutineCountList = ({
                           theme.colors.brand.todaySuccessCheckbox,
                       }
                     : null;
-                  const checkColor = isTodaySuccess
-                    ? theme.colors.brand.todaySuccessCheck
-                    : achieved
-                      ? theme.colors.brand.selectedCheck
-                      : theme.colors.brand.check;
                   const label = achieved
                     ? isTodaySuccess
                       ? `${countIndex}회 오늘 완료`
@@ -214,7 +178,7 @@ const RoutineCountList = ({
                         {isGoalRange ? (
                           <RoutineCheckmarkIcon
                             size={baseFoundation.iconSize.s}
-                            color={checkColor}
+                            color={theme.colors.brand.selectedCheck}
                           />
                         ) : (
                           <Ionicons
@@ -241,7 +205,6 @@ const RoutineCountList = ({
       readOnly,
       theme.colors.brand.check,
       theme.colors.brand.selectedCheck,
-      theme.colors.brand.todaySuccessCheck,
       theme.colors.brand.todaySuccessCheckbox,
       theme.colors.text.secondary,
     ],

@@ -1,8 +1,8 @@
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
+import { NotificationBellIcon } from '@/components/icons/notification-icons';
 import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { Badge } from '@/components/ui/badge';
 import { IconButton } from '@/components/ui/icon-button';
@@ -37,13 +37,9 @@ const NotificationBell = ({
       accessibilityLabel={
         accessibilityLabel ?? `인증 요청 알림${count > 0 ? ` ${count}건` : ''}`
       }
-      icon={() => (
+      icon={({ size }) => (
         <View>
-          <Image
-            source={require('@/assets/notification/union-bell.png')}
-            style={styles.icon}
-            resizeMode="contain"
-          />
+          <NotificationBellIcon size={size} />
           {count > 0 && (
             <View style={styles.badge_container}>
               <Badge count={count} variant="error" size="sm" />
@@ -58,10 +54,6 @@ const NotificationBell = ({
 export default NotificationBell;
 
 const styles = StyleSheet.create({
-  icon: {
-    width: baseFoundation.dimension.x18,
-    height: baseFoundation.dimension.x18,
-  },
   badge_container: {
     position: 'absolute',
     top: -4,

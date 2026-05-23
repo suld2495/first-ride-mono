@@ -402,10 +402,10 @@ const styles = StyleSheet.create((theme) => ({
     minWidth: baseFoundation.dimension.x60,
     minHeight: baseFoundation.dimension.x60,
     borderRadius: theme.foundation.radii.round,
-    backgroundColor: '#0D3154',
+    backgroundColor: theme.colors.brand.routineBackground,
     borderWidth: 2,
     borderColor: '#A9D6FF',
-    shadowColor: '#0D3154',
+    shadowColor: theme.colors.brand.routineBackground,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
       height: baseFoundation.dimension.x6,

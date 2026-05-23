@@ -9,7 +9,10 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
-import { getRoutineSceneCharacterAsset } from '@/components/routine/routine-scene-art';
+import {
+  getRoutineSceneCharacterAsset,
+  renderRoutineSceneAsset,
+} from '@/components/routine/routine-scene-art';
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList } from '@/components/ui/flash-list';
 import { Loading } from '@/components/ui/loading';
@@ -29,7 +32,6 @@ interface FriendRenderItemProps {
   item: Friend;
 }
 
-const FALLBACK_CHARACTER_SOURCE = getRoutineSceneCharacterAsset('blue').source;
 const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   /\/$/,
   '',
@@ -56,9 +58,9 @@ const getFriendItemLayoutSize = (screenWidth: number) => {
 
 const getFriendCharacterSource = (
   characterImageUrl: Friend['characterImageUrl'],
-): ImageSourcePropType => {
+): ImageSourcePropType | null => {
   if (!characterImageUrl) {
-    return FALLBACK_CHARACTER_SOURCE;
+    return null;
   }
 
   if (/^(https?:|data:|file:)/.test(characterImageUrl)) {
@@ -80,6 +82,7 @@ const FriendItem = ({
 }: FriendItemProps) => {
   const { nickname, mateNickname, job, level, characterImageUrl } = friend;
   const subtitle = mateNickname?.trim() || job;
+  const characterSource = getFriendCharacterSource(characterImageUrl);
 
   return (
     <Pressable
@@ -96,12 +99,19 @@ const FriendItem = ({
         style={[styles.characterPanel, { width: itemWidth, height: itemWidth }]}
         transparent
       >
-        <Image
-          source={getFriendCharacterSource(characterImageUrl)}
-          style={{ width: imageSize, height: imageSize }}
-          resizeMode="contain"
-          accessibilityLabel={`${nickname} 캐릭터`}
-        />
+        {characterSource ? (
+          <Image
+            source={characterSource}
+            style={{ width: imageSize, height: imageSize }}
+            resizeMode="contain"
+            accessibilityLabel={`${nickname} 캐릭터`}
+          />
+        ) : (
+          renderRoutineSceneAsset(getRoutineSceneCharacterAsset('blue'), {
+            testID: `friend-character-fallback-${friend.userId}`,
+            style: { width: imageSize, height: imageSize },
+          })
+        )}
         <View style={styles.levelBadge}>
           <Typography variant="caption2" weight="semibold" style={styles.level}>
             Lv. {level}

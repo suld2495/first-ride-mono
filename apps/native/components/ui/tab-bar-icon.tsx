@@ -1,43 +1,27 @@
-import { Image, type ImageSourcePropType } from 'react-native';
-import { StyleSheet } from '@/components/ui/tamagui';
+import type { ComponentType } from 'react';
+
+export interface TabBarIconSvgProps {
+  color?: string;
+  size?: number;
+}
 
 export interface TabBarIconProps {
-  source: ImageSourcePropType;
+  icon: ComponentType<TabBarIconSvgProps>;
   /** Icon size in pixels (default: 20) */
   size?: number;
-  /** Tint color for the icon */
+  /** Color forwarded to the SVG icon */
   color?: string;
 }
 
 /**
  * TabBarIcon component for navigation tabs.
- * Uses semantic tokens for consistent theming.
+ * Forwards semantic navigation colors to SVG icons.
  *
  * @example
- * import { useAppTheme } from '@/components/ui/tamagui';
- * <TabBarIcon source={require('@/assets/tab-bar/home.png')} color="#0F3D68" />
+ * <TabBarIcon icon={HomeTabIcon} color="#0F3D68" />
  */
-const TabBarIcon = ({ source, size = 20, color }: TabBarIconProps) => {
-  return (
-    <Image
-      source={source}
-      style={[
-        styles.icon,
-        {
-          width: size,
-          height: size,
-          tintColor: color,
-        },
-      ]}
-      resizeMode="contain"
-    />
-  );
+const TabBarIcon = ({ icon: Icon, size = 20, color }: TabBarIconProps) => {
+  return <Icon size={size} color={color} />;
 };
-
-const styles = StyleSheet.create({
-  icon: {
-    // marginBottom removed to fix inconsistent icon alignment
-  },
-});
 
 export default TabBarIcon;

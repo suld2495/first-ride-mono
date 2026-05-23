@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Routine } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -12,9 +11,10 @@ import {
   View,
 } from 'react-native';
 
+import { RoutineMoreIndicatorIcon } from '@/components/icons/routine-icons';
 import { getRoutineScenePreviewOverlayAsset } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRoutineType, useSetRoutineId } from '@/hooks/useRoutineSelection';
@@ -56,6 +56,7 @@ const RoutineList = ({
   const setRoutineId = useSetRoutineId();
   const type = useRoutineType();
   const router = useRouter();
+  const { theme } = useAppTheme();
   const themeName = useColorScheme();
   const [isExpanded, setIsExpanded] = useState(false);
   const overlayOpacity = useRef(new Animated.Value(1)).current;
@@ -212,11 +213,11 @@ const RoutineList = ({
             }
             testID="routine-scroll-indicator"
           >
-            <Ionicons
-              name={isExpanded ? 'chevron-up' : 'chevron-down'}
-              size={baseFoundation.dimension.x18}
-              color="#4C769C"
-            />
+            <View
+              style={isExpanded ? styles.scrollIndicatorIconExpanded : null}
+            >
+              <RoutineMoreIndicatorIcon color={theme.colors.text.tertiary} />
+            </View>
           </Pressable>
         </View>
       ) : null}
@@ -267,5 +268,8 @@ const styles = StyleSheet.create((theme) => ({
     height: ROUTINE_SCROLL_INDICATOR_HEIGHT,
     borderColor: theme.colors.text.secondary,
     backgroundColor: theme.colors.background.base,
+  },
+  scrollIndicatorIconExpanded: {
+    transform: [{ rotate: '180deg' }],
   },
 }));

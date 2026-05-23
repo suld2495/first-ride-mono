@@ -111,7 +111,10 @@ const mockTheme = {
     },
     brand: {
       icon: '#000000',
+      primary: '#0984e3',
+      routineBackground: '#FFFFFF',
       secondary: '#0984e3',
+      text: '#2D3436',
     },
   },
   foundation: {

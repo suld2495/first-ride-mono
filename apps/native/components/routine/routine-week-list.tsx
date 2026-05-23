@@ -1,9 +1,9 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { WeeklyRoutine } from '@repo/types';
 import { useCallback, useMemo } from 'react';
 import { Pressable, View } from 'react-native';
+import { RoutineCheckmarkIcon } from '@/components/icons/routine-icons';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -147,7 +147,6 @@ const RoutineWeekList = ({
                   <View style={styles.checkRow}>
                     {weeklyData[routineId].map((check, index) => {
                       count += +check;
-                      const isGoalRange = count <= routineCount;
                       const dateKey = weekDateKeys[index];
                       const isTodaySuccess = check && dateKey === todayDateKey;
                       const successCheckBoxStyle = isTodaySuccess
@@ -174,16 +173,9 @@ const RoutineWeekList = ({
                             testID={`routine-week-check-${routineId}-${index}`}
                           >
                             {check ? (
-                              <Ionicons
-                                name="checkmark"
+                              <RoutineCheckmarkIcon
                                 size={baseFoundation.iconSize.s}
-                                color={
-                                  isTodaySuccess
-                                    ? theme.colors.brand.todaySuccessCheck
-                                    : isGoalRange
-                                      ? theme.colors.brand.selectedCheck
-                                      : theme.colors.feedback.warning.text
-                                }
+                                color={theme.colors.brand.selectedCheck}
                               />
                             ) : null}
                           </View>
@@ -200,8 +192,7 @@ const RoutineWeekList = ({
                         accessibilityRole="image"
                       >
                         <>
-                          <Ionicons
-                            name="checkmark-circle"
+                          <RoutineCheckmarkIcon
                             size={baseFoundation.dimension.x14}
                             color={theme.colors.brand.selectedCheck}
                           />
@@ -231,9 +222,7 @@ const RoutineWeekList = ({
       onShowRequestModal,
       readOnly,
       theme.colors.brand.selectedCheck,
-      theme.colors.brand.todaySuccessCheck,
       theme.colors.brand.todaySuccessCheckbox,
-      theme.colors.feedback.warning.text,
       theme.colors.text.secondary,
       todayDateKey,
       weekDateKeys,

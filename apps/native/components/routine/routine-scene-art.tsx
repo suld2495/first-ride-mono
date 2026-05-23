@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import type {
   ImageResizeMode,
   ImageSourcePropType,
@@ -5,15 +6,23 @@ import type {
   StyleProp,
 } from 'react-native';
 import { Image } from 'react-native';
+import type { SvgProps } from 'react-native-svg';
 
+import {
+  ArcherRoutineCharacterIcon,
+  MageRoutineCharacterIcon,
+  type RoutineCharacterIconProps,
+  WarriorRoutineCharacterIcon,
+} from '@/components/icons/routine-character-icons';
 import type { ThemeName } from '@/theme/themes';
 
 export type RoutineSceneAsset = {
-  source: ImageSourcePropType;
+  Character?: ComponentType<RoutineCharacterIconProps>;
+  source?: ImageSourcePropType;
 };
 
 const blueCharacterAsset = {
-  source: require('@/assets/routine/character-blue.png'),
+  Character: WarriorRoutineCharacterIcon,
 } satisfies RoutineSceneAsset;
 
 const blueBackgroundAsset = {
@@ -50,10 +59,10 @@ export const routineSceneCharacterAssets = {
   dark: blueCharacterAsset,
   blue: blueCharacterAsset,
   green: {
-    source: require('@/assets/routine/character-green.png'),
+    Character: ArcherRoutineCharacterIcon,
   },
   red: {
-    source: require('@/assets/routine/character-red.png'),
+    Character: MageRoutineCharacterIcon,
   },
 } satisfies Record<ThemeName, RoutineSceneAsset>;
 
@@ -85,11 +94,24 @@ export const renderRoutineSceneAsset = (
     style?: StyleProp<ImageStyle>;
     resizeMode?: ImageResizeMode;
   },
-) => (
-  <Image
-    source={asset.source}
-    testID={props?.testID}
-    style={props?.style}
-    resizeMode={props?.resizeMode ?? 'contain'}
-  />
-);
+) => {
+  if (asset.Character) {
+    const Character = asset.Character;
+
+    return (
+      <Character
+        testID={props?.testID}
+        style={props?.style as SvgProps['style']}
+      />
+    );
+  }
+
+  return (
+    <Image
+      source={asset.source as ImageSourcePropType}
+      testID={props?.testID}
+      style={props?.style}
+      resizeMode={props?.resizeMode ?? 'contain'}
+    />
+  );
+};

@@ -310,6 +310,11 @@ describe('루틴 조회 페이지', () => {
         expect(flattenStyles(addButton.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ bottom: 20 })]),
         );
+        expect(flattenStyles(addButton.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ backgroundColor: '#FFFFFF' }),
+          ]),
+        );
       });
 
       it('루틴이 4개를 넘으면 하단 화살표가 표시된다', async () => {
@@ -321,6 +326,9 @@ describe('루틴 조회 페이지', () => {
 
         expect(
           await findByTestId('routine-scroll-indicator'),
+        ).toBeOnTheScreen();
+        expect(
+          await findByTestId('routine-more-indicator-icon'),
         ).toBeOnTheScreen();
       });
 
@@ -581,12 +589,15 @@ describe('루틴 조회 페이지', () => {
       });
 
       it('달성한 횟수만큼 체크 아이콘이 표시된다', async () => {
-        const { findByLabelText } = render(<Index />);
+        const { findAllByTestId, findByLabelText } = render(<Index />);
 
         // weeklyCount(3)회 달성: 1회, 2회, 3회에 체크 아이콘
         expect(await findByLabelText('1회 달성')).toBeOnTheScreen();
         expect(await findByLabelText('2회 달성')).toBeOnTheScreen();
         expect(await findByLabelText('3회 달성')).toBeOnTheScreen();
+        expect(
+          (await findAllByTestId('routine-checkmark-icon')).length,
+        ).toBeGreaterThan(0);
 
         // weeklyCount+1 ~ routineCount(4회, 5회)는 미달성 (목표 내)
         expect(await findByLabelText('4회 미달성')).toBeOnTheScreen();
@@ -778,12 +789,15 @@ describe('루틴 조회 페이지', () => {
           }),
         });
 
-        const { findByLabelText } = render(<Index />);
+        const { findAllByTestId, findByLabelText } = render(<Index />);
 
         // 달성한 요일 (월, 화, 수)
         expect(await findByLabelText('월요일 달성')).toBeOnTheScreen();
         expect(await findByLabelText('화요일 달성')).toBeOnTheScreen();
         expect(await findByLabelText('수요일 달성')).toBeOnTheScreen();
+        expect(
+          (await findAllByTestId('routine-checkmark-icon')).length,
+        ).toBeGreaterThan(0);
 
         // 미달성 요일 (목, 금, 토, 일)
         expect(await findByLabelText('목요일 미달성')).toBeOnTheScreen();

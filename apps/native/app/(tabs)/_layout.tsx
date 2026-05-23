@@ -1,14 +1,20 @@
 import { Tabs } from 'expo-router';
 
+import {
+  FriendTabIcon,
+  HomeTabIcon,
+  ProfileTabIcon,
+  QuestTabIcon,
+} from '@/components/icons/tab-bar-icons';
 import { DockTabBar } from '@/components/navigation/dock-tab-bar';
 import TabBarIcon from '@/components/ui/tab-bar-icon';
 import { baseFoundation } from '@/theme/tokens';
 
 const TAB_BAR_ICONS = {
-  home: require('../../assets/tab-bar/home.png'),
-  quest: require('../../assets/tab-bar/quest.png'),
-  friend: require('../../assets/tab-bar/friend.png'),
-  settings: require('../../assets/tab-bar/settings.png'),
+  home: HomeTabIcon,
+  quest: QuestTabIcon,
+  friend: FriendTabIcon,
+  settings: ProfileTabIcon,
 } as const;
 
 export default function TabLayout() {
@@ -41,7 +47,7 @@ export default function TabLayout() {
         options={{
           title: '루틴',
           tabBarIcon: ({ color }) => (
-            <TabBarIcon source={TAB_BAR_ICONS.home} color={color} />
+            <TabBarIcon icon={TAB_BAR_ICONS.home} color={color} />
           ),
         }}
       />
@@ -50,7 +56,7 @@ export default function TabLayout() {
         options={{
           title: '퀘스트',
           tabBarIcon: ({ color }) => (
-            <TabBarIcon source={TAB_BAR_ICONS.quest} color={color} />
+            <TabBarIcon icon={TAB_BAR_ICONS.quest} color={color} />
           ),
         }}
       />
@@ -59,7 +65,7 @@ export default function TabLayout() {
         options={{
           title: '친구',
           tabBarIcon: ({ color }) => (
-            <TabBarIcon source={TAB_BAR_ICONS.friend} color={color} />
+            <TabBarIcon icon={TAB_BAR_ICONS.friend} color={color} />
           ),
         }}
       />
@@ -68,7 +74,7 @@ export default function TabLayout() {
         options={{
           title: 'My',
           tabBarIcon: ({ color }) => (
-            <TabBarIcon source={TAB_BAR_ICONS.settings} color={color} />
+            <TabBarIcon icon={TAB_BAR_ICONS.settings} color={color} />
           ),
         }}
       />

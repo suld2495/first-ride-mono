@@ -2,10 +2,12 @@ import {
   getRoutineSceneBackgroundAsset,
   getRoutineSceneCharacterAsset,
   getRoutineScenePreviewOverlayAsset,
+  renderRoutineSceneAsset,
   routineSceneBackgroundAssets,
   routineSceneCharacterAssets,
   routineScenePreviewOverlayAssets,
 } from '@/components/routine/routine-scene-art';
+import { render } from '@testing-library/react-native';
 
 describe('routine-scene-art', () => {
   it('테마 이름에 맞는 루틴 캐릭터 에셋을 반환한다', () => {
@@ -27,6 +29,16 @@ describe('routine-scene-art', () => {
     expect(getRoutineSceneCharacterAsset('dark')).toBe(
       routineSceneCharacterAssets.blue,
     );
+  });
+
+  it('루틴 캐릭터 에셋은 SVG로 렌더링한다', () => {
+    const { getByTestId } = render(
+      renderRoutineSceneAsset(getRoutineSceneCharacterAsset('blue'), {
+        testID: 'routine-scene-character',
+      }),
+    );
+
+    expect(getByTestId('routine-scene-character')).toHaveProp('width');
   });
 
   it('테마 이름에 맞는 루틴 배경 에셋을 반환한다', () => {
