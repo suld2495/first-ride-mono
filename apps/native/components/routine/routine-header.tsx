@@ -105,6 +105,7 @@ const RoutineHeader = ({
                   showingPausedRoutines ? '전체 루틴 보기' : '숨김 루틴 보기'
                 }
                 accessibilityRole="button"
+                style={styles.actionButton}
                 testID="routine-paused-list-button"
               />
             ) : null}
@@ -122,12 +123,15 @@ const RoutineHeader = ({
                 onPress={onPressReorder}
                 accessibilityLabel="루틴 순서 변경"
                 accessibilityRole="button"
+                style={styles.actionButton}
                 testID="routine-reorder-button"
               />
             ) : null}
             {showNotification ? (
               <NotificationBell
                 count={requests.length}
+                size="sm"
+                style={styles.actionButton}
                 url="/modal?type=request-list"
               />
             ) : null}
@@ -163,6 +167,11 @@ const styles = StyleSheet.create((theme) => ({
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.spacing[0.5],
+    gap: theme.foundation.spacing[1],
+  },
+
+  actionButton: {
+    width: baseFoundation.dimension.x24,
+    minWidth: baseFoundation.dimension.x24,
   },
 }));

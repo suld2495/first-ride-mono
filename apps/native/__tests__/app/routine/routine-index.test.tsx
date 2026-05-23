@@ -41,6 +41,14 @@ const flattenStyles = (styles: unknown): object[] => {
   return [styles as object];
 };
 
+const flattenPressableStyles = (style: unknown): object[] => {
+  if (typeof style === 'function') {
+    return flattenStyles(style({ pressed: false }));
+  }
+
+  return flattenStyles(style);
+};
+
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = 8;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_ITEM_HEIGHT = 112;
@@ -153,9 +161,7 @@ describe('루틴 조회 페이지', () => {
         };
 
         mockAxios.resetHandlers();
-        mockAxios
-          .onGet(/\/routine\/confirm\/list/)
-          .reply(200, { data: [] });
+        mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
         mockAxios
           .onGet(/\/routine\/list\?date=/)
           .reply(200, { data: [visibleRoutine] });
@@ -179,12 +185,24 @@ describe('루틴 조회 페이지', () => {
       });
 
       it('헤더 액션 아이콘 간격을 좁게 유지한다', async () => {
-        const { findByTestId } = render(<Index />);
+        const { findByLabelText, findByTestId } = render(<Index />);
 
         const actions = await findByTestId('routine-header-actions');
+        const pausedButton = await findByLabelText('숨김 루틴 보기');
+        const reorderButton = await findByLabelText('루틴 순서 변경');
+        const notificationButton = await findByLabelText('인증 요청 알림');
 
         expect(flattenStyles(actions.props.style)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ gap: 2 })]),
+          expect.arrayContaining([expect.objectContaining({ gap: 4 })]),
+        );
+        expect(flattenPressableStyles(pausedButton.props.style)).toEqual(
+          expect.arrayContaining([expect.objectContaining({ width: 24 })]),
+        );
+        expect(flattenPressableStyles(reorderButton.props.style)).toEqual(
+          expect.arrayContaining([expect.objectContaining({ width: 24 })]),
+        );
+        expect(flattenPressableStyles(notificationButton.props.style)).toEqual(
+          expect.arrayContaining([expect.objectContaining({ width: 24 })]),
         );
       });
 

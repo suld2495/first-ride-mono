@@ -266,6 +266,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       ).toBeOnTheScreen();
     });
 
+    it('루틴 기간 안내 아이콘은 SVG 아이콘을 사용한다', () => {
+      const { getByTestId } = render(<RoutineFormModal />);
+
+      expect(getByTestId('routine-period-warning-icon')).toBeOnTheScreen();
+    });
+
     it('루틴 기간 툴팁이 열린 상태에서 다른 곳을 누르면 툴팁이 닫힌다', async () => {
       const { getByLabelText, getByText, queryByText } = render(
         <RoutineFormModal />,
@@ -314,9 +320,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(
         getByLabelText(`${getFormatDate(yesterday)} 선택 불가`),
       ).toBeDisabled();
-      expect(
-        getByLabelText(`${getFormatDate(today)} 선택 가능`),
-      ).toBeEnabled();
+      expect(getByLabelText(`${getFormatDate(today)} 선택 가능`)).toBeEnabled();
       expect(
         getByLabelText(`${getFormatDate(tomorrow)} 선택 가능`),
       ).toBeEnabled();

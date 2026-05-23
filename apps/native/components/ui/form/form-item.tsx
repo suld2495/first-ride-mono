@@ -25,6 +25,7 @@ export type FormItemProps<
   showErrors?: boolean;
   helpText?: string;
   tooltipText?: string;
+  tooltipIcon?: React.ReactNode;
 };
 
 export type UseFormFieldReturn<V = unknown> = {
@@ -51,6 +52,7 @@ export function createFormItem<T extends Record<string, unknown>>(
     showErrors = true,
     helpText,
     tooltipText,
+    tooltipIcon,
     flex = false,
     required = false,
   }: FormItemProps<T, K>) {
@@ -88,11 +90,13 @@ export function createFormItem<T extends Record<string, unknown>>(
                   style={styles.tooltipButton}
                   onPress={() => setIsTooltipVisible((visible) => !visible)}
                 >
-                  <Ionicons
-                    name="information-circle-outline"
-                    size={baseFoundation.iconSize.m}
-                    color={styles.tooltipIcon.color}
-                  />
+                  {tooltipIcon ?? (
+                    <Ionicons
+                      name="information-circle-outline"
+                      size={baseFoundation.iconSize.m}
+                      color={styles.tooltipIcon.color}
+                    />
+                  )}
                 </Pressable>
                 {isTooltipVisible && (
                   <View style={styles.tooltipBubble}>

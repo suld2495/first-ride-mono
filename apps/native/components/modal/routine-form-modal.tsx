@@ -6,6 +6,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
+import { RoutinePeriodWarningIcon } from '@/components/icons/routine-period-warning-icon';
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
 import {
   AutocompleteInput,
@@ -138,6 +139,7 @@ const RoutineFormModal = () => {
           name="startDate"
           label="루틴 기간"
           tooltipText="시작일부터 종료일까지 루틴을 진행할 기간을 선택해주세요."
+          tooltipIcon={<RoutinePeriodWarningIcon />}
           item={({ value, form, setValue }) => (
             <ThemeView style={styles.date}>
               <ThemeView style={styles.dateContainer} transparent>
@@ -166,12 +168,8 @@ const RoutineFormModal = () => {
                   buttonTitle={form.endDate || '종료일 선택'}
                   variant="outlined"
                   sheetLabel="종료일 선택"
-                  minimumDate={
-                    getDateFromFormValue(form.startDate) ?? today
-                  }
-                  defaultDate={
-                    getDateFromFormValue(form.startDate) ?? today
-                  }
+                  minimumDate={getDateFromFormValue(form.startDate) ?? today}
+                  defaultDate={getDateFromFormValue(form.startDate) ?? today}
                   onConfirmDate={(date) => {
                     setValue('endDate', getFormatDate(date));
 
