@@ -98,6 +98,25 @@ describe('routine widget snapshot', () => {
     expect(snapshot.remainingCount).toBe(0);
   });
 
+  it('앱 실행 없이 위젯이 날짜 기준 완료 여부를 다시 계산할 수 있도록 완료 날짜를 전달한다', () => {
+    const snapshot = createRoutineWidgetSnapshot(
+      [
+        createRoutine({
+          routineId: 1,
+          routineName: '명상',
+          successDate: ['260521'],
+        }),
+      ],
+      { today: new Date('2026-05-21T09:00:00+09:00') },
+    );
+
+    expect(snapshot.items[0]).toMatchObject({
+      title: '명상',
+      successDate: ['260521'],
+      isTodayDone: true,
+    });
+  });
+
   it('선택한 테마의 횟수 라벨 색상을 전달한다', () => {
     const snapshot = createRoutineWidgetSnapshot(
       [

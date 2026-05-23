@@ -12,6 +12,7 @@ export interface RoutineWidgetItem {
   weeklyCount: number;
   routineCount: number;
   achievementRate: number;
+  successDate: string[];
   isTodayDone: boolean;
 }
 
@@ -125,6 +126,7 @@ export const createRoutineWidgetSnapshot = (
       weeklyCount: routine.weeklyCount,
       routineCount: routine.routineCount,
       achievementRate: getAchievementRate(routine),
+      successDate: routine.successDate,
       isTodayDone: routine.successDate.includes(todayKey),
     }))
     .filter((item) => item.weeklyCount < item.routineCount || item.isTodayDone)

@@ -8,6 +8,8 @@ private let titleHeight: CGFloat = 18
 private let titleSpacing: CGFloat = 6
 private let routineRowHeight: CGFloat = 18
 private let minimumRoutineRowSpacing: CGFloat = 3
+private let shortYearOffset = 2000
+private let dailyRefreshEntryCount = 8
 private let fallbackCountLabelBackgroundColor = Color(red: 0.89, green: 0.95, blue: 0.99)
 private let fallbackCountLabelTextColor = Color(red: 0.08, green: 0.40, blue: 0.75)
 
@@ -16,6 +18,7 @@ struct RoutineWidgetItem: Codable, Identifiable {
   let title: String
   let weeklyCount: Int
   let routineCount: Int
+  let successDate: [String]?
   let isTodayDone: Bool
 }
 
@@ -59,8 +62,13 @@ struct RoutineProvider: TimelineProvider {
   }
 
   func getTimeline(in context: Context, completion: @escaping (Timeline<RoutineEntry>) -> Void) {
-    let entry = RoutineEntry(date: Date(), snapshot: readSnapshot())
-    completion(Timeline(entries: [entry], policy: .never))
+    let now = Date()
+    let snapshot = readSnapshot()
+    let midnightEntries = nextMidnightEntries(after: now, snapshot: snapshot)
+    let entries = [RoutineEntry(date: now, snapshot: snapshot)] + midnightEntries
+    let refreshDate = midnightEntries.last?.date ?? nextMidnight(after: now)
+
+    completion(Timeline(entries: entries, policy: .after(refreshDate)))
   }
 
   private func readSnapshot() -> RoutineWidgetSnapshot {
@@ -74,6 +82,27 @@ struct RoutineProvider: TimelineProvider {
     }
 
     return snapshot
+  }
+
+  private func nextMidnightEntries(after date: Date, snapshot: RoutineWidgetSnapshot) -> [RoutineEntry] {
+    var entries: [RoutineEntry] = []
+    var cursor = date
+
+    for _ in 0..<dailyRefreshEntryCount {
+      let midnight = nextMidnight(after: cursor)
+      entries.append(RoutineEntry(date: midnight, snapshot: snapshot))
+      cursor = midnight
+    }
+
+    return entries
+  }
+
+  private func nextMidnight(after date: Date) -> Date {
+    Calendar.autoupdatingCurrent.nextDate(
+      after: date,
+      matching: DateComponents(hour: 0, minute: 0, second: 0),
+      matchingPolicy: .nextTime
+    ) ?? date.addingTimeInterval(24 * 60 * 60)
   }
 }
 
@@ -100,7 +129,7 @@ struct RoutineWidgetEntryView: View {
           let visibleItems = visibleItems(for: geometry.size.height)
           VStack(alignment: .leading, spacing: rowSpacing(for: geometry.size.height, itemCount: visibleItems.count)) {
             ForEach(visibleItems) { item in
-              RoutineWidgetRow(item: item, countLabelStyle: entry.snapshot.countLabelStyle)
+              RoutineWidgetRow(item: item, currentDate: entry.date, countLabelStyle: entry.snapshot.countLabelStyle)
             }
           }
         }
@@ -113,12 +142,7 @@ struct RoutineWidgetEntryView: View {
   }
 
   private func visibleItems(for widgetHeight: CGFloat) -> [RoutineWidgetItem] {
-    let verticalPadding = widgetPadding * 2
-    let availableListHeight = widgetHeight - verticalPadding - titleHeight - titleSpacing
-    let rowStride = routineRowHeight + minimumRoutineRowSpacing
-    let visibleCount = max(0, Int((availableListHeight + minimumRoutineRowSpacing) / rowStride))
-
-    return Array(entry.snapshot.items.prefix(visibleCount))
+    return Array(entry.snapshot.items.prefix(visibleItemLimit(for: widgetHeight)))
   }
 
   private func rowSpacing(for widgetHeight: CGFloat, itemCount: Int) -> CGFloat {
@@ -126,12 +150,21 @@ struct RoutineWidgetEntryView: View {
       return minimumRoutineRowSpacing
     }
 
+    let spacingItemCount = max(itemCount, visibleItemLimit(for: widgetHeight))
     let verticalPadding = widgetPadding * 2
     let availableListHeight = widgetHeight - verticalPadding - titleHeight - titleSpacing
-    let occupiedRowHeight = routineRowHeight * CGFloat(itemCount)
+    let occupiedRowHeight = routineRowHeight * CGFloat(spacingItemCount)
     let availableSpacing = availableListHeight - occupiedRowHeight
 
-    return max(minimumRoutineRowSpacing, availableSpacing / CGFloat(itemCount - 1))
+    return max(minimumRoutineRowSpacing, availableSpacing / CGFloat(spacingItemCount - 1))
+  }
+
+  private func visibleItemLimit(for widgetHeight: CGFloat) -> Int {
+    let verticalPadding = widgetPadding * 2
+    let availableListHeight = widgetHeight - verticalPadding - titleHeight - titleSpacing
+    let rowStride = routineRowHeight + minimumRoutineRowSpacing
+
+    return max(0, Int((availableListHeight + minimumRoutineRowSpacing) / rowStride))
   }
 }
 
@@ -139,6 +172,7 @@ struct RoutineWidgetRow: View {
   @Environment(\.colorScheme) private var colorScheme
 
   let item: RoutineWidgetItem
+  let currentDate: Date
   let countLabelStyle: RoutineWidgetCountLabelStyle?
 
   private var countLabelBackgroundColor: Color {
@@ -159,6 +193,18 @@ struct RoutineWidgetRow: View {
     )
   }
 
+  private var titleTextColor: Color {
+    isDoneToday ? Color.gray.opacity(0.55) : Color.primary
+  }
+
+  private var isDoneToday: Bool {
+    guard let successDate = item.successDate else {
+      return item.isTodayDone
+    }
+
+    return successDate.contains(routineDateKey(for: currentDate))
+  }
+
   var body: some View {
     HStack(spacing: 6) {
       Text("\(item.weeklyCount)/\(item.routineCount)")
@@ -170,10 +216,10 @@ struct RoutineWidgetRow: View {
 
       Text(item.title)
         .font(.system(size: 12, weight: .medium))
-        .foregroundStyle(Color.primary)
+        .foregroundStyle(titleTextColor)
         .lineLimit(1)
         .overlay(
-          item.isTodayDone
+          isDoneToday
             ? Rectangle()
                 .fill(Color.secondary)
                 .frame(height: 1)
@@ -182,6 +228,20 @@ struct RoutineWidgetRow: View {
     }
     .frame(height: routineRowHeight)
   }
+}
+
+private func routineDateKey(for date: Date) -> String {
+  let components = Calendar.autoupdatingCurrent.dateComponents([.year, .month, .day], from: date)
+
+  guard
+    let year = components.year,
+    let month = components.month,
+    let day = components.day
+  else {
+    return ""
+  }
+
+  return String(format: "%02d%02d%d", year - shortYearOffset, month, day)
 }
 
 extension Color {
