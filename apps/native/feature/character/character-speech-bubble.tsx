@@ -4,6 +4,7 @@ import {
   type TextStyle,
   type ViewProps,
   type StyleProp,
+  useWindowDimensions,
 } from 'react-native';
 
 import { StyleSheet } from '@/components/ui/tamagui';
@@ -23,6 +24,8 @@ type CharacterSpeechBubbleProps = ViewProps & {
 };
 
 const BUBBLE_BORDER_WIDTH = 2;
+const BUBBLE_MIN_WIDTH = baseFoundation.dimension.x96;
+const SCREEN_HORIZONTAL_MARGIN = 17.5;
 
 const speechBubbleBorderColors = {
   light: palette.theme.blue[50],
@@ -35,6 +38,9 @@ const speechBubbleBorderColors = {
 export const getCharacterSpeechBubbleBorderColor = (themeName: ThemeName) =>
   speechBubbleBorderColors[themeName];
 
+export const getCharacterSpeechBubbleMaxWidth = (windowWidth: number) =>
+  Math.max(BUBBLE_MIN_WIDTH, windowWidth - SCREEN_HORIZONTAL_MARGIN * 2);
+
 const CharacterSpeechBubble = ({
   children,
   message,
@@ -46,7 +52,9 @@ const CharacterSpeechBubble = ({
   ...props
 }: CharacterSpeechBubbleProps) => {
   const themeName = useColorScheme();
+  const { width: windowWidth } = useWindowDimensions();
   const borderColor = getCharacterSpeechBubbleBorderColor(themeName);
+  const maxWidth = getCharacterSpeechBubbleMaxWidth(windowWidth);
 
   return (
     <View
@@ -56,12 +64,12 @@ const CharacterSpeechBubble = ({
       {...props}
     >
       <View
-        style={[styles.container, { borderColor }]}
+        style={[styles.container, { borderColor, maxWidth }]}
         testID={`${testID}-container`}
       >
         <Typography
-          color={palette.gray[800]}
-          variant="caption1"
+          color={palette.theme.gray[90]}
+          variant="body3"
           weight="semibold"
           ellipsizeMode="tail"
           numberOfLines={numberOfLines}
@@ -94,11 +102,10 @@ const styles = StyleSheet.create(() => ({
     zIndex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: baseFoundation.dimension.x96,
-    maxWidth: baseFoundation.dimension.x180,
+    minWidth: BUBBLE_MIN_WIDTH,
     minHeight: baseFoundation.dimension.x32,
-    paddingHorizontal: baseFoundation.spacing[3],
-    paddingVertical: baseFoundation.spacing[1],
+    paddingHorizontal: baseFoundation.spacing[4],
+    paddingVertical: baseFoundation.spacing[2],
     borderRadius: baseFoundation.radii.xs,
     borderWidth: BUBBLE_BORDER_WIDTH,
     backgroundColor: palette.white,

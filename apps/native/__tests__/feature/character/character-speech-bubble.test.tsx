@@ -2,6 +2,7 @@ import { render } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
 import CharacterSpeechBubble, {
+  getCharacterSpeechBubbleMaxWidth,
   getCharacterSpeechBubbleBorderColor,
 } from '@/feature/character/character-speech-bubble';
 import { palette } from '@/theme/tokens';
@@ -41,8 +42,15 @@ describe('CharacterSpeechBubble', () => {
         borderWidth: 2,
         borderColor: palette.theme.green[50],
         backgroundColor: palette.white,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
       }),
     );
+  });
+
+  it('최대 너비는 화면 좌우에 17.5 여백을 남긴다', () => {
+    expect(getCharacterSpeechBubbleMaxWidth(360)).toBe(325);
+    expect(getCharacterSpeechBubbleMaxWidth(390)).toBe(355);
   });
 
   it('기본 말풍선은 하단 중앙 말꼬리를 표시한다', () => {
@@ -59,6 +67,19 @@ describe('CharacterSpeechBubble', () => {
         borderBottomWidth: 2,
         borderColor: palette.theme.green[50],
         backgroundColor: palette.white,
+      }),
+    );
+  });
+
+  it('말풍선 텍스트는 body3 semibold와 skin gray 90 컬러를 사용한다', () => {
+    const { getByText } = render(<CharacterSpeechBubble message="한마디" />);
+    const message = getByText('한마디');
+
+    expect(message.props.fontSize).toBe('$body3');
+    expect(message.props.fontWeight).toBe('600');
+    expect(StyleSheet.flatten(message.props.style)).toEqual(
+      expect.objectContaining({
+        color: palette.theme.gray[90],
       }),
     );
   });
