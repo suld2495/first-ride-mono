@@ -1,24 +1,40 @@
+import {
+  useDeleteRoutineMutation,
+  useUpdateRoutinePauseMutation,
+  useUpdateRoutineVisibilityMutation,
+} from '@repo/shared/hooks/useRoutine';
 import type { Routine } from '@repo/types';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Alert,
   Image,
   LayoutAnimation,
+  type LayoutChangeEvent,
   Platform,
   Pressable,
+  type GestureResponderEvent,
   UIManager,
   View,
 } from 'react-native';
 
 import { RoutineMoreIndicatorIcon } from '@/components/icons/routine-icons';
+import { RoutineContextMenuPanel } from '@/components/routine/routine-context-menu';
 import { getRoutineScenePreviewOverlayAsset } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { useToast } from '@/contexts/ToastContext';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useRoutineType, useSetRoutineId } from '@/hooks/useRoutineSelection';
+import {
+  useRoutineType,
+  useSetRoutineForm,
+  useSetRoutineId,
+} from '@/hooks/useRoutineSelection';
 import { baseFoundation } from '@/theme/tokens';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 import { RoutineCountList, RoutineWeekList } from './weekly-routine';
 
@@ -33,7 +49,10 @@ interface RoutineListProps {
 
 const MAX_VISIBLE_ROUTINES = 4;
 const COLLAPSED_VISIBLE_ROUTINES = 2;
-const ROUTINE_ITEM_HEIGHT = 105; // 루틴 높이 + 루틴 간 간격
+const ROUTINE_ITEM_HEIGHT = 108; // 루틴 높이 + 루틴 간 간격
+const ROUTINE_CONTEXT_MENU_TOP_OFFSET = 15;
+const ROUTINE_CONTEXT_MENU_TRIGGER_HIT_WIDTH = baseFoundation.dimension.x32;
+const ROUTINE_CONTEXT_MENU_TRIGGER_HIT_HEIGHT = baseFoundation.dimension.x56;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing[2];
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
@@ -54,12 +73,23 @@ const RoutineList = ({
   readOnly = false,
 }: RoutineListProps) => {
   const setRoutineId = useSetRoutineId();
+  const setRoutineForm = useSetRoutineForm();
   const type = useRoutineType();
   const router = useRouter();
   const { theme } = useAppTheme();
+  const { showToast } = useToast();
+  const user = useAuthUser();
   const themeName = useColorScheme();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [openMenuRoutineId, setOpenMenuRoutineId] = useState<number | null>(
+    null,
+  );
+  const [containerWidth, setContainerWidth] = useState(0);
   const overlayOpacity = useRef(new Animated.Value(1)).current;
+  const nickname = user?.nickname || '';
+  const updatePause = useUpdateRoutinePauseMutation(nickname);
+  const updateVisibility = useUpdateRoutineVisibilityMutation();
+  const deleteRoutine = useDeleteRoutineMutation(nickname);
 
   const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
   const hasPreviewLayer = canExpandList;
@@ -86,9 +116,15 @@ const RoutineList = ({
         )
       : Number.POSITIVE_INFINITY;
   const listHeight = Math.min(rawListHeight, maxListHeight);
+  const openMenuRoutineIndex = routines.findIndex(
+    (routine) => routine.routineId === openMenuRoutineId,
+  );
+  const openMenuRoutine =
+    openMenuRoutineIndex >= 0 ? routines[openMenuRoutineIndex] : null;
 
   useEffect(() => {
     setIsExpanded(false);
+    setOpenMenuRoutineId(null);
     overlayOpacity.setValue(1);
   }, [date, overlayOpacity, routines.length]);
 
@@ -101,14 +137,97 @@ const RoutineList = ({
   }, [isExpanded, overlayOpacity]);
 
   const handleShowRequestModal = (id: number) => {
+    setOpenMenuRoutineId(null);
     router.push('/modal?type=request');
     setRoutineId(id);
   };
+
+  const handleShowUpdateModal = useCallback(
+    (routine: Routine) => {
+      setOpenMenuRoutineId(null);
+      router.push('/modal?type=routine-update');
+      setRoutineId(routine.routineId);
+      setRoutineForm(routine);
+    },
+    [router, setRoutineForm, setRoutineId],
+  );
 
   const handleShowDetailModal = (id: number) => {
     router.push('/modal?type=routine-detail');
     setRoutineId(id);
   };
+
+  const handleToggleRoutinePause = useCallback(
+    (routine: Routine) => {
+      setOpenMenuRoutineId(null);
+      updatePause.mutate(
+        { routineId: routine.routineId, paused: !routine.paused },
+        {
+          onSuccess: ({ message }) => {
+            showToast(message, 'success');
+          },
+          onError: (error) => {
+            showToast(
+              getApiErrorMessage(error, '루틴 상태를 변경하지 못했습니다.'),
+              'error',
+            );
+          },
+        },
+      );
+    },
+    [showToast, updatePause],
+  );
+
+  const handleToggleRoutineVisibility = useCallback(
+    (routine: Routine) => {
+      setOpenMenuRoutineId(null);
+      updateVisibility.mutate(
+        { routineId: routine.routineId, hidden: !routine.hidden },
+        {
+          onSuccess: ({ message }) => {
+            showToast(message, 'success');
+          },
+          onError: (error) => {
+            showToast(
+              getApiErrorMessage(
+                error,
+                '루틴 표시 상태를 변경하지 못했습니다.',
+              ),
+              'error',
+            );
+          },
+        },
+      );
+    },
+    [showToast, updateVisibility],
+  );
+
+  const handleDeleteRoutine = useCallback(
+    (routine: Routine) => {
+      setOpenMenuRoutineId(null);
+      Alert.alert('루틴 삭제', '삭제하시겠습니까?', [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: '삭제',
+          onPress: () => {
+            deleteRoutine.mutate(routine.routineId, {
+              onSuccess: () => {
+                showToast('삭제되었습니다.', 'success');
+                router.push('/(tabs)/(afterLogin)/(routine)');
+              },
+              onError: () => {
+                showToast('문제가 발생하였습니다.', 'error');
+              },
+            });
+          },
+        },
+      ]);
+    },
+    [deleteRoutine, router, showToast],
+  );
 
   const handleToggleList = () => {
     LayoutAnimation.configureNext({
@@ -126,10 +245,50 @@ const RoutineList = ({
       },
     });
     setIsExpanded((prev) => !prev);
+    setOpenMenuRoutineId(null);
   };
 
+  const handleToggleRoutineMenu = useCallback((routineId: number) => {
+    setOpenMenuRoutineId((currentRoutineId) =>
+      currentRoutineId === routineId ? null : routineId,
+    );
+  }, []);
+
+  const handleContainerLayout = useCallback((event: LayoutChangeEvent) => {
+    setContainerWidth(event.nativeEvent.layout.width);
+  }, []);
+
+  const handlePressContextMenuBackdrop = useCallback(
+    (event: GestureResponderEvent) => {
+      const { locationX, locationY } = event.nativeEvent;
+      const triggerRoutineIndex = routines.findIndex((_, index) => {
+        const triggerTop = index * routineItemHeight;
+
+        return (
+          containerWidth > 0 &&
+          locationX >= containerWidth - ROUTINE_CONTEXT_MENU_TRIGGER_HIT_WIDTH &&
+          locationX <= containerWidth &&
+          locationY >= triggerTop &&
+          locationY <= triggerTop + ROUTINE_CONTEXT_MENU_TRIGGER_HIT_HEIGHT
+        );
+      });
+
+      if (triggerRoutineIndex >= 0) {
+        handleToggleRoutineMenu(routines[triggerRoutineIndex].routineId);
+        return;
+      }
+
+      setOpenMenuRoutineId(null);
+    },
+    [containerWidth, handleToggleRoutineMenu, routineItemHeight, routines],
+  );
+
   return (
-    <ThemeView style={styles.container}>
+    <ThemeView
+      style={styles.container}
+      onLayout={handleContainerLayout}
+      testID="routine-list-container"
+    >
       {routines.length ? (
         <ThemeView
           style={[
@@ -147,8 +306,9 @@ const RoutineList = ({
               scrollEnabled={isScrollableList}
               refreshing={refreshing}
               onRefresh={onRefresh}
-              onShowRequestModal={handleShowRequestModal}
               onShowDetailModal={handleShowDetailModal}
+              openMenuRoutineId={openMenuRoutineId}
+              onToggleRoutineMenu={handleToggleRoutineMenu}
               readOnly={readOnly}
               testID="routine-list-scroll"
             />
@@ -161,8 +321,9 @@ const RoutineList = ({
               scrollEnabled={isScrollableList}
               refreshing={refreshing}
               onRefresh={onRefresh}
-              onShowRequestModal={handleShowRequestModal}
               onShowDetailModal={handleShowDetailModal}
+              openMenuRoutineId={openMenuRoutineId}
+              onToggleRoutineMenu={handleToggleRoutineMenu}
               readOnly={readOnly}
               testID="routine-list-scroll"
             />
@@ -196,6 +357,31 @@ const RoutineList = ({
           transparent
         />
       )}
+      {openMenuRoutine ? (
+        <>
+          <Pressable
+            accessibilityLabel="루틴 컨텍스트 메뉴 닫기"
+            accessibilityRole="button"
+            onPress={handlePressContextMenuBackdrop}
+            style={styles.contextMenuBackdrop}
+            testID="routine-context-menu-backdrop"
+          />
+          <RoutineContextMenuPanel
+            routineId={openMenuRoutine.routineId}
+            isHidden={openMenuRoutine.hidden}
+            onEdit={() => handleShowUpdateModal(openMenuRoutine)}
+            onHide={() => handleToggleRoutineVisibility(openMenuRoutine)}
+            onPause={() => handleToggleRoutinePause(openMenuRoutine)}
+            onRequest={() => handleShowRequestModal(openMenuRoutine.routineId)}
+            onDelete={() => handleDeleteRoutine(openMenuRoutine)}
+            style={{
+              top:
+                openMenuRoutineIndex * routineItemHeight +
+                ROUTINE_CONTEXT_MENU_TOP_OFFSET,
+            }}
+          />
+        </>
+      ) : null}
       {canExpandList ? (
         <View
           style={[
@@ -237,6 +423,14 @@ const styles = StyleSheet.create((theme) => ({
     flexShrink: 0,
     overflow: 'hidden',
     backgroundColor: 'transparent',
+  },
+  contextMenuBackdrop: {
+    position: 'absolute',
+    top: baseFoundation.spacing[0],
+    right: baseFoundation.spacing[0],
+    bottom: baseFoundation.spacing[0],
+    left: baseFoundation.spacing[0],
+    zIndex: baseFoundation.zIndex.popover - 1,
   },
   previewOverlay: {
     position: 'absolute',

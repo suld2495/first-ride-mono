@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { RoutineCheckmarkIcon } from '@/components/icons/routine-icons';
-import { Button } from '@/components/ui/button';
+import { RoutineContextMenuTrigger } from '@/components/routine/routine-context-menu';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
@@ -20,8 +20,9 @@ interface RoutineCountListProps {
   testID?: string;
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
-  onShowRequestModal: (id: number) => void;
   onShowDetailModal: (id: number) => void;
+  openMenuRoutineId: number | null;
+  onToggleRoutineMenu: (routineId: number) => void;
   readOnly?: boolean;
 }
 
@@ -46,8 +47,9 @@ const RoutineCountList = ({
   testID,
   refreshing = false,
   onRefresh,
-  onShowRequestModal,
   onShowDetailModal,
+  openMenuRoutineId,
+  onToggleRoutineMenu,
   readOnly = false,
 }: RoutineCountListProps) => {
   const { theme } = useAppTheme();
@@ -112,19 +114,17 @@ const RoutineCountList = ({
                   </Pressable>
                 )}
 
-                {!readOnly && date === getWeekMonday(new Date()) ? (
-                  <Button
-                    title="인증 요청"
-                    size="sm"
-                    variant="ghost"
-                    onPress={() => onShowRequestModal(routineId)}
-                    textColor={theme.colors.text.secondary}
-                    style={styles.requestButton}
-                  />
-                ) : !readOnly ? (
-                  <View style={styles.requestPlaceholder} />
-                ) : null}
               </View>
+
+              {!readOnly && date === getWeekMonday(new Date()) ? (
+                <RoutineContextMenuTrigger
+                  routineName={routineName}
+                  iconColor={theme.colors.text.secondary}
+                  onToggle={() => onToggleRoutineMenu(routineId)}
+                />
+              ) : !readOnly ? (
+                <View style={styles.requestPlaceholder} />
+              ) : null}
 
               <View style={styles.headerRow}>
                 {countLabels.map((label) => (
@@ -219,7 +219,7 @@ const RoutineCountList = ({
       date,
       itemHeight,
       onShowDetailModal,
-      onShowRequestModal,
+      onToggleRoutineMenu,
       readOnly,
       theme.colors.brand.check,
       theme.colors.brand.pendingConfirmationCheck,
@@ -239,6 +239,7 @@ const RoutineCountList = ({
       contentContainerStyle={styles.list}
       drawDistance={0}
       estimatedItemSize={itemHeight}
+      extraData={openMenuRoutineId}
       getItemLayout={getRoutineItemLayout}
       removeClippedSubviews={true}
       refreshing={refreshing}
@@ -274,6 +275,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   cardSurface: {
     flex: 1,
+    position: 'relative',
     borderRadius: baseFoundation.dimension.x12,
     paddingHorizontal: baseFoundation.spacing[4],
     backgroundColor: theme.colors.brand.routineBackground,
@@ -283,19 +285,19 @@ const styles = StyleSheet.create((theme) => ({
   },
   titleButton: {
     paddingHorizontal: baseFoundation.spacing[0],
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
   },
   title: {
     color: theme.colors.text.secondary,
-    textAlign: 'center',
+    textAlign: 'left',
     fontSize: baseFoundation.typography.size.body3,
   },
   titleRow: {
     position: 'relative',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     minHeight: baseFoundation.dimension.x18,
-    marginBottom: baseFoundation.spacing[2],
+    marginBottom: baseFoundation.spacing[3],
   },
   headerRow: {
     flexDirection: 'row',
@@ -343,20 +345,11 @@ const styles = StyleSheet.create((theme) => ({
   progressText: {
     color: theme.colors.text.secondary,
   },
-  requestButton: {
-    position: 'absolute',
-    right: baseFoundation.spacing[0],
-    minWidth: baseFoundation.dimension.x72,
-    height: baseFoundation.dimension.x20,
-    borderRadius: baseFoundation.dimension.x10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.24)',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-  },
   requestPlaceholder: {
     position: 'absolute',
-    right: baseFoundation.spacing[0],
-    width: baseFoundation.dimension.x72,
-    height: baseFoundation.dimension.x20,
+    right: baseFoundation.spacing[4],
+    top: baseFoundation.spacing[0],
+    width: baseFoundation.dimension.x3,
+    height: baseFoundation.dimension.x14,
   },
 }));

@@ -8,6 +8,7 @@ import type {
   WeeklyRoutine,
 } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { QueryKey } from '@tanstack/react-query';
 
 import * as routineApi from '../api/routine.api';
 import { routineKey } from '../types/query-keys/routine';
@@ -16,6 +17,30 @@ import { getWeekMonday } from '../utils/date-utils';
 const DAYS_PER_WEEK = 7;
 const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
+
+type RoutineVisibilitySnapshot = Array<[QueryKey, unknown]>;
+
+const isRoutineLike = (value: unknown): value is Pick<Routine, 'routineId'> =>
+  typeof value === 'object' && value !== null && 'routineId' in value;
+
+const updateRoutineVisibilityInCache = (
+  data: unknown,
+  { routineId, hidden }: UpdateRoutineVisibilityRequest,
+): unknown => {
+  if (Array.isArray(data)) {
+    return data.map((routine) =>
+      isRoutineLike(routine) && routine.routineId === routineId
+        ? { ...routine, hidden }
+        : routine,
+    );
+  }
+
+  if (isRoutineLike(data) && data.routineId === routineId) {
+    return { ...data, hidden };
+  }
+
+  return data;
+};
 
 export const useRoutinesQuery = (nickname: string, date: string) => {
   return useQuery({
@@ -124,10 +149,41 @@ export const useUpdateRoutineVisibilityMutation = () => {
     mutationFn: (data: UpdateRoutineVisibilityRequest) =>
       routineApi.updateRoutineVisibility(data),
 
-    onSuccess: async (_data, variables) => {
-      await queryClient.invalidateQueries({
-        queryKey: routineKey.detail(variables.routineId),
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({
+        queryKey: routineKey.all(),
       });
+
+      const previousRoutineQueries: RoutineVisibilitySnapshot =
+        queryClient.getQueriesData({
+          queryKey: routineKey.all(),
+        });
+
+      previousRoutineQueries.forEach(([queryKey]) => {
+        queryClient.setQueryData(queryKey, (data: unknown) =>
+          updateRoutineVisibilityInCache(data, variables),
+        );
+      });
+
+      return { previousRoutineQueries };
+    },
+
+    onError: (_error, _variables, context) => {
+      context?.previousRoutineQueries.forEach(([queryKey, data]) => {
+        queryClient.setQueryData(queryKey, data);
+      });
+    },
+
+    onSettled: async (_data, _error, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: routineKey.detail(variables.routineId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: routineKey.all(),
+          refetchType: 'inactive',
+        }),
+      ]);
     },
   });
 };

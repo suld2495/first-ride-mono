@@ -15,6 +15,7 @@ import {
   createMockRoutine,
   createMockRoutines,
 } from '../../setup/routine/mock';
+import { palette } from '../../../theme/tokens';
 
 const formatRoutineHeaderDate = (date: Date) => {
   const year = date.getFullYear();
@@ -52,9 +53,27 @@ const flattenPressableStyles = (style: unknown): object[] => {
   return flattenStyles(style);
 };
 
+const findAncestorStyleWith = (
+  node: { parent?: unknown; props?: { style?: unknown } } | null,
+  styleKey: string,
+): object[] => {
+  let current = node;
+
+  while (current) {
+    const styles = flattenStyles(current.props?.style);
+    if (styles.some((style) => styleKey in style)) {
+      return styles;
+    }
+
+    current = current.parent as typeof current;
+  }
+
+  return [];
+};
+
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = 8;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
-const ROUTINE_ITEM_HEIGHT = 112;
+const ROUTINE_ITEM_HEIGHT = 108;
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
@@ -123,6 +142,36 @@ describe('루틴 조회 페이지', () => {
 
         expect(await findByText('테스트 루틴 1')).toBeOnTheScreen();
         expect(await findByText('테스트 루틴 2')).toBeOnTheScreen();
+      });
+
+      it('number 타입 루틴 제목을 왼쪽 정렬한다', async () => {
+        const { findByText } = render(<Index />);
+
+        const routineTitle = await findByText('테스트 루틴 1');
+
+        expect(flattenStyles(routineTitle.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ textAlign: 'left' }),
+          ]),
+        );
+      });
+
+      it('number 타입 루틴 제목 아래 라벨까지의 간격을 12px로 둔다', async () => {
+        const { findByLabelText } = render(<Index />);
+
+        const routineTitleButton = await findByLabelText(
+          '테스트 루틴 1 상세 보기',
+        );
+        const titleRowStyles = findAncestorStyleWith(
+          routineTitleButton,
+          'marginBottom',
+        );
+
+        expect(titleRowStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ marginBottom: 12 }),
+          ]),
+        );
       });
 
       it('루틴 리스트 타이틀이 표시되지 않는다', async () => {
@@ -823,6 +872,36 @@ describe('루틴 조회 페이지', () => {
         expect(await findByText('토')).toBeOnTheScreen();
         expect(await findByText('일')).toBeOnTheScreen();
       });
+
+      it('week 타입 루틴 제목을 왼쪽 정렬한다', async () => {
+        const { findByText } = render(<Index />);
+
+        const routineTitle = await findByText('테스트 루틴 1');
+
+        expect(flattenStyles(routineTitle.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ textAlign: 'left' }),
+          ]),
+        );
+      });
+
+      it('week 타입 루틴 제목 아래 라벨까지의 간격을 12px로 둔다', async () => {
+        const { findByLabelText } = render(<Index />);
+
+        const routineTitleButton = await findByLabelText(
+          '테스트 루틴 1 상세 보기',
+        );
+        const titleRowStyles = findAncestorStyleWith(
+          routineTitleButton,
+          'marginBottom',
+        );
+
+        expect(titleRowStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ marginBottom: 12 }),
+          ]),
+        );
+      });
     });
 
     describe('요일별 달성 아이콘 표시', () => {
@@ -1101,7 +1180,7 @@ describe('루틴 조회 페이지', () => {
     });
   });
 
-  describe('인증 요청 버튼 테스트', () => {
+  describe('루틴 컨텍스트 메뉴 테스트', () => {
     describe('현재 주인 경우', () => {
       beforeEach(() => {
         mockSearchParams.date = getWeekMonday(new Date());
@@ -1110,18 +1189,207 @@ describe('루틴 조회 페이지', () => {
           .reply(200, { data: createMockRoutines(1) });
       });
 
-      it('인증 요청 버튼이 표시된다', async () => {
-        const { findByText } = render(<Index />);
+      it('루틴 메뉴 버튼이 표시된다', async () => {
+        const { findByLabelText, findByTestId } = render(
+          <Index />,
+        );
 
-        expect(await findByText('인증 요청')).toBeOnTheScreen();
+        const menuButton = await findByLabelText('테스트 루틴 1 메뉴 열기');
+
+        expect(menuButton).toBeOnTheScreen();
+        expect(await findByTestId('routine-request-icon')).toBeOnTheScreen();
       });
 
-      it('인증 요청 버튼을 클릭하면 요청 모달이 열린다', async () => {
-        const { findByText } = render(<Index />);
+      it('루틴 메뉴 버튼은 충분한 터치 영역을 갖고 아이콘을 오른쪽 끝에 정렬한다', async () => {
+        const { findByLabelText } = render(<Index />);
 
-        const requestButton = await findByText('인증 요청');
+        const menuButton = await findByLabelText('테스트 루틴 1 메뉴 열기');
 
-        fireEvent.press(requestButton);
+        expect(flattenStyles(menuButton.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              width: 32,
+              height: 56,
+              alignItems: 'flex-end',
+            }),
+          ]),
+        );
+        expect(menuButton.props.hitSlop).toBeUndefined();
+      });
+
+      it('루틴 메뉴 버튼을 클릭하면 상세 모달로 이동하지 않고 왼쪽에 컨텍스트 메뉴를 표시한다', async () => {
+        const { findByLabelText, findByTestId } = render(<Index />);
+
+        const menuButton = await findByLabelText('테스트 루틴 1 메뉴 열기');
+
+        fireEvent.press(menuButton);
+
+        expect(await findByTestId('routine-context-menu-1')).toBeOnTheScreen();
+        expect(mockPush).not.toHaveBeenCalledWith('/modal?type=routine-detail');
+      });
+
+      it('컨텍스트 메뉴 바깥을 클릭하면 메뉴를 닫는다', async () => {
+        const { findByLabelText, findByTestId, queryByTestId } = render(
+          <Index />,
+        );
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+        expect(await findByTestId('routine-context-menu-1')).toBeOnTheScreen();
+
+        fireEvent.press(await findByTestId('routine-context-menu-backdrop'), {
+          nativeEvent: { locationX: 10, locationY: 10 },
+        });
+
+        await waitFor(() => {
+          expect(queryByTestId('routine-context-menu-1')).toBeNull();
+        });
+      });
+
+      it('컨텍스트 메뉴가 열린 상태에서 다른 루틴 메뉴 버튼을 누르면 해당 메뉴로 전환한다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios
+          .onGet(/\/routine\/confirm\/list/)
+          .reply(200, { data: [] });
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(2),
+        });
+
+        const { findByLabelText, findByTestId, getByTestId, queryByTestId } =
+          render(<Index />);
+
+        await findByLabelText('테스트 루틴 1 메뉴 열기');
+
+        fireEvent(getByTestId('routine-list-container'), 'layout', {
+          nativeEvent: { layout: { width: 360 } },
+        });
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+        expect(await findByTestId('routine-context-menu-1')).toBeOnTheScreen();
+
+        fireEvent.press(getByTestId('routine-context-menu-backdrop'), {
+          nativeEvent: { locationX: 350, locationY: ROUTINE_ITEM_HEIGHT + 10 },
+        });
+
+        expect(await findByTestId('routine-context-menu-2')).toBeOnTheScreen();
+        expect(queryByTestId('routine-context-menu-1')).toBeNull();
+      });
+
+      it('컨텍스트 메뉴는 수정, 숨김, 일시정지, 인증요청, 삭제 순으로 표시된다', async () => {
+        const { findByLabelText, findAllByTestId } = render(<Index />);
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+
+        const menuItems = await findAllByTestId('routine-context-menu-item');
+
+        expect(menuItems.map((item) => item.props.accessibilityLabel)).toEqual([
+          '수정',
+          '숨김',
+          '일시정지',
+          '인증요청',
+          '삭제',
+        ]);
+      });
+
+      it('숨김 상태 루틴의 컨텍스트 메뉴는 보이기 라벨을 표시한다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios
+          .onGet(/\/routine\/confirm\/list/)
+          .reply(200, { data: [] });
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, { hidden: true }),
+        });
+
+        const { findByLabelText, findAllByTestId } = render(<Index />);
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+
+        const menuItems = await findAllByTestId('routine-context-menu-item');
+
+        expect(menuItems.map((item) => item.props.accessibilityLabel)).toEqual([
+          '수정',
+          '보이기',
+          '일시정지',
+          '인증요청',
+          '삭제',
+        ]);
+      });
+
+      it('숨김/보이기 클릭 후 컨텍스트 메뉴 라벨을 즉시 변경한다', async () => {
+        mockAxios.onPatch('/routine/1/visibility').reply(200, {
+          data: { message: '변경되었습니다.' },
+        });
+
+        const { findByLabelText } = render(<Index />);
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+        fireEvent.press(await findByLabelText('숨김'));
+
+        await waitFor(() => {
+          expect(mockAxios.history.patch[0]?.url).toBe(
+            '/routine/1/visibility',
+          );
+        });
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+
+        expect(await findByLabelText('보이기')).toBeOnTheScreen();
+      });
+
+      it('컨텍스트 메뉴 스타일을 디자인 값으로 표시한다', async () => {
+        const { findByLabelText, findByTestId, findAllByTestId } = render(
+          <Index />,
+        );
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+
+        const menu = await findByTestId('routine-context-menu-1');
+        const menuItems = await findAllByTestId('routine-context-menu-item');
+        const menuTexts = await findAllByTestId(
+          'routine-context-menu-item-text',
+        );
+
+        expect(flattenStyles(menu.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              right: 40,
+              width: 144,
+              padding: 6,
+              borderRadius: 8,
+              backgroundColor: '#FFFFFF',
+            }),
+            expect.objectContaining({
+              top: 15,
+            }),
+          ]),
+        );
+        expect(flattenStyles(menuItems[0].props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              height: 30,
+              paddingLeft: 8,
+              justifyContent: 'center',
+            }),
+          ]),
+        );
+        expect(menuTexts[0].props.fontSize).toBe('$body3');
+        expect(menuTexts[0].props.fontWeight).toBe('400');
+        expect(flattenStyles(menuTexts[0].props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ color: palette.theme.gray[50] }),
+          ]),
+        );
+        expect(flattenStyles(menuTexts[4].props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ color: palette.theme.red[50] }),
+          ]),
+        );
+      });
+
+      it('컨텍스트 메뉴의 인증요청을 클릭하면 요청 모달이 열린다', async () => {
+        const { findByLabelText } = render(<Index />);
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+        fireEvent.press(await findByLabelText('인증요청'));
 
         await waitFor(() => {
           expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
@@ -1140,13 +1408,18 @@ describe('루틴 조회 페이지', () => {
           .reply(200, { data: createMockRoutines(1) });
       });
 
-      it('인증 요청 버튼이 표시되지 않는다', async () => {
-        const { findByText, queryByText } = render(<Index />);
+      it('루틴 메뉴 버튼이 표시되지 않는다', async () => {
+        const { findByText, queryByLabelText, queryByTestId } = render(
+          <Index />,
+        );
 
         await findByText('테스트 루틴 1');
 
         await waitFor(() => {
-          expect(queryByText('인증 요청')).not.toBeOnTheScreen();
+          expect(
+            queryByLabelText('테스트 루틴 1 메뉴 열기'),
+          ).not.toBeOnTheScreen();
+          expect(queryByTestId('routine-request-icon')).not.toBeOnTheScreen();
         });
       });
     });

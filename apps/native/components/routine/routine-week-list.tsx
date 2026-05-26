@@ -1,18 +1,18 @@
 import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
-import type { WeeklyRoutine } from '@repo/types';
+import type { Routine } from '@repo/types';
 import { useCallback, useMemo } from 'react';
 import { Pressable, View } from 'react-native';
 import { RoutineCheckmarkIcon } from '@/components/icons/routine-icons';
+import { RoutineContextMenuTrigger } from '@/components/routine/routine-context-menu';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
-import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { Typography } from '@/components/ui/typography';
 
 interface RoutineWeekListProps {
-  routines: WeeklyRoutine[];
+  routines: Routine[];
   date: string;
   itemHeight: number;
   listHeight: number;
@@ -20,8 +20,9 @@ interface RoutineWeekListProps {
   testID?: string;
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
-  onShowRequestModal: (id: number) => void;
   onShowDetailModal: (id: number) => void;
+  openMenuRoutineId: number | null;
+  onToggleRoutineMenu: (routineId: number) => void;
   readOnly?: boolean;
 }
 
@@ -65,8 +66,9 @@ const RoutineWeekList = ({
   testID,
   refreshing = false,
   onRefresh,
-  onShowRequestModal,
   onShowDetailModal,
+  openMenuRoutineId,
+  onToggleRoutineMenu,
   readOnly = false,
 }: RoutineWeekListProps) => {
   const { theme } = useAppTheme();
@@ -74,7 +76,7 @@ const RoutineWeekList = ({
   const weekDateKeys = useMemo(() => createWeekDateKeys(date), [date]);
   const todayDateKey = createRoutineDateKey(new Date());
   const getRoutineItemLayout = useCallback(
-    (_: WeeklyRoutine[] | null, index: number) => ({
+    (_: Routine[] | null, index: number) => ({
       length: itemHeight,
       offset: itemHeight * index,
       index,
@@ -82,7 +84,7 @@ const RoutineWeekList = ({
     [itemHeight],
   );
 
-  const renderRoutineItem = useCallback<ListRenderItem<WeeklyRoutine>>(
+  const renderRoutineItem = useCallback<ListRenderItem<Routine>>(
     ({ item: routine }) => {
       const { routineId, routineName, weeklyCount, routineCount } = routine;
       let count = 0;
@@ -117,19 +119,17 @@ const RoutineWeekList = ({
                       </Pressable>
                     )}
 
-                    {!readOnly && date === getWeekMonday(new Date()) ? (
-                      <Button
-                        title="인증 요청"
-                        size="sm"
-                        variant="ghost"
-                        onPress={() => onShowRequestModal(routineId)}
-                        textColor={theme.colors.text.secondary}
-                        style={styles.requestButton}
-                      />
-                    ) : !readOnly ? (
-                      <View style={styles.requestPlaceholder} />
-                    ) : null}
                   </View>
+
+                  {!readOnly && date === getWeekMonday(new Date()) ? (
+                    <RoutineContextMenuTrigger
+                      routineName={routineName}
+                      iconColor={theme.colors.text.secondary}
+                      onToggle={() => onToggleRoutineMenu(routineId)}
+                    />
+                  ) : !readOnly ? (
+                    <View style={styles.requestPlaceholder} />
+                  ) : null}
 
                   <View style={styles.headerRow}>
                     {DAY_LABELS.map((day) => (
@@ -239,7 +239,7 @@ const RoutineWeekList = ({
       date,
       itemHeight,
       onShowDetailModal,
-      onShowRequestModal,
+      onToggleRoutineMenu,
       readOnly,
       theme.colors.brand.pendingConfirmationCheck,
       theme.colors.brand.pendingConfirmationCheckbox,
@@ -261,6 +261,7 @@ const RoutineWeekList = ({
       contentContainerStyle={styles.list}
       drawDistance={0}
       estimatedItemSize={itemHeight}
+      extraData={openMenuRoutineId}
       getItemLayout={getRoutineItemLayout}
       removeClippedSubviews={true}
       refreshing={refreshing}
@@ -308,6 +309,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   cardSurface: {
     flex: 1,
+    position: 'relative',
     borderRadius: baseFoundation.dimension.x10,
     paddingHorizontal: baseFoundation.spacing[4],
     backgroundColor: theme.colors.brand.routineBackground,
@@ -315,18 +317,18 @@ const styles = StyleSheet.create((theme) => ({
   },
   titleButton: {
     paddingHorizontal: baseFoundation.spacing[0],
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
   },
   title: {
     color: theme.colors.text.secondary,
-    textAlign: 'center',
+    textAlign: 'left',
   },
   titleRow: {
     position: 'relative',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     minHeight: baseFoundation.dimension.x18,
-    marginBottom: baseFoundation.spacing[0.5],
+    marginBottom: baseFoundation.spacing[3],
   },
   headerRow: {
     flexDirection: 'row',
@@ -371,20 +373,11 @@ const styles = StyleSheet.create((theme) => ({
   progressText: {
     color: theme.colors.text.secondary,
   },
-  requestButton: {
-    position: 'absolute',
-    right: baseFoundation.spacing[0],
-    minWidth: baseFoundation.dimension.x72,
-    height: baseFoundation.dimension.x20,
-    borderRadius: baseFoundation.dimension.x10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.24)',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-  },
   requestPlaceholder: {
     position: 'absolute',
-    right: baseFoundation.spacing[0],
-    width: baseFoundation.dimension.x72,
-    height: baseFoundation.dimension.x20,
+    right: baseFoundation.spacing[4],
+    top: baseFoundation.spacing[0],
+    width: baseFoundation.dimension.x3,
+    height: baseFoundation.dimension.x14,
   },
 }));

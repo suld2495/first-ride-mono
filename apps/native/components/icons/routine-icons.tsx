@@ -24,6 +24,45 @@ export const RoutineMoreIndicatorIcon = ({
   </Svg>
 );
 
+interface RoutineRequestIconProps {
+  color: string;
+}
+
+export const ROUTINE_REQUEST_ICON_WIDTH = 3;
+export const ROUTINE_REQUEST_ICON_HEIGHT = 14;
+
+export const RoutineRequestIcon = ({ color }: RoutineRequestIconProps) => (
+  <Svg
+    testID="routine-request-icon"
+    width={ROUTINE_REQUEST_ICON_WIDTH}
+    height={ROUTINE_REQUEST_ICON_HEIGHT}
+    viewBox="0 0 3 14"
+    fill="none"
+  >
+    <Path
+      d="M1.45835 7.29297C1.86106 7.29297 2.18752 6.96651 2.18752 6.5638C2.18752 6.16109 1.86106 5.83464 1.45835 5.83464C1.05565 5.83464 0.729187 6.16109 0.729187 6.5638C0.729187 6.96651 1.05565 7.29297 1.45835 7.29297Z"
+      stroke={color}
+      strokeWidth={1.45833}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Path
+      d="M1.45835 2.1888C1.86106 2.1888 2.18752 1.86234 2.18752 1.45964C2.18752 1.05693 1.86106 0.730469 1.45835 0.730469C1.05565 0.730469 0.729187 1.05693 0.729187 1.45964C0.729187 1.86234 1.05565 2.1888 1.45835 2.1888Z"
+      stroke={color}
+      strokeWidth={1.45833}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Path
+      d="M1.45835 12.3971C1.86106 12.3971 2.18752 12.0707 2.18752 11.668C2.18752 11.2653 1.86106 10.9388 1.45835 10.9388C1.05565 10.9388 0.729187 11.2653 0.729187 11.668C0.729187 12.0707 1.05565 12.3971 1.45835 12.3971Z"
+      stroke={color}
+      strokeWidth={1.45833}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
+
 interface RoutineCheckmarkIconProps {
   color: string;
   size: number;
