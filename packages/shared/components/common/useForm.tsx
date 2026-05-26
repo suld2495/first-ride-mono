@@ -45,22 +45,42 @@ export function useCreateForm<T extends Record<string, any>>() {
     children,
     onSubmit
   }: FormProviderProps<T>) => {
-    const [state, dispatch] = useReducer(formReducer<T>, {
-      form,
-      errors: {},
-      touched: {},
-      enabled: false,
-    });
+    const [state, dispatch] = useReducer(
+      formReducer<T>,
+      { form, validators },
+      ({ form, validators }) => {
+        const errors = doAllValidators(validators, form);
 
-    // 폼 상태가 변경될 때마다 전체 검증 수행
-    const prevFormRef = useRef(state.form);
+        return {
+          form,
+          errors,
+          touched: {},
+          enabled: Object.keys(errors).length === 0,
+        };
+      },
+    );
+
+    // 폼 상태 또는 검증 조건이 변경될 때마다 전체 검증 수행
+    const prevFormRef = useRef(form);
+    const prevValidatorsRef = useRef(validators);
     useEffect(() => {
-      if (prevFormRef.current !== state.form) {
-        prevFormRef.current = state.form;
+      if (prevFormRef.current !== form) {
+        prevFormRef.current = form;
+        prevValidatorsRef.current = validators;
+        dispatch({ type: 'RESET', form });
+        dispatch({
+          type: 'SET_ERRORS',
+          errors: doAllValidators(validators, form),
+        });
+        return;
+      }
+
+      if (prevValidatorsRef.current !== validators) {
+        prevValidatorsRef.current = validators;
         const allErrors = doAllValidators(validators, state.form);
         dispatch({ type: 'SET_ERRORS', errors: allErrors });
       }
-    }, [state.form, validators]);
+    }, [form, state.form, validators]);
 
     const isValid: FormContextType<T>['isValid'] = useCallback((key) => {
       if (typeof key !== 'undefined') {

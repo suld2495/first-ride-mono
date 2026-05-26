@@ -1,6 +1,12 @@
 import axiosInstance from '@repo/shared/api';
+import * as routineHooks from '@repo/shared/hooks/useRoutine';
 import { afterWeek, beforeWeek, getWeekMonday } from '@repo/shared/utils';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render as renderNative } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import type React from 'react';
+import { Pressable, Text } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
 import {
@@ -74,6 +80,61 @@ const findAncestorStyleWith = (
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = 8;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_ITEM_HEIGHT = 108;
+
+const createSharedQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        staleTime: Infinity,
+        gcTime: Infinity,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
+
+function UpdateRoutineTrigger() {
+  const updateRoutine = routineHooks.useUpdateRoutineMutation(mockUser.nickname);
+
+  return (
+    <Pressable
+      testID="trigger-routine-update"
+      onPress={() =>
+        updateRoutine.mutate({
+          routineId: 1,
+          nickname: mockUser.nickname,
+          routineName: '테스트 루틴 1',
+          routineDetail: '테스트 설명',
+          penalty: 1000,
+          routineCount: 3,
+          mateNickname: '',
+          isMe: true,
+          startDate: getWeekMonday(new Date()),
+          endDate: '',
+        })
+      }
+    >
+      <Text>수정 트리거</Text>
+    </Pressable>
+  );
+}
+
+const renderWithSharedQueryClient = (ui: React.ReactElement) => {
+  const queryClient = createSharedQueryClient();
+
+  return renderNative(
+    <SafeAreaProvider
+      initialMetrics={{
+        frame: { x: 0, y: 0, width: 0, height: 0 },
+        insets: { top: 0, left: 0, right: 0, bottom: 0 },
+      }}
+    >
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    </SafeAreaProvider>,
+  );
+};
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
@@ -197,6 +258,83 @@ describe('루틴 조회 페이지', () => {
 
         expect(mockRoutineStore.resetRoutineForm).toHaveBeenCalledTimes(1);
         expect(mockPush).toHaveBeenCalledWith('/modal?type=routine-add');
+      });
+
+      it('자동 목록 갱신 중에는 리스트 pull-to-refresh 로딩을 표시하지 않는다', async () => {
+        let resolveRefetch: (() => void) | undefined;
+
+        mockSearchParams.date = getWeekMonday(new Date());
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .replyOnce(200, { data: createMockRoutines(1) })
+          .onGet(/\/routine\/list/)
+          .reply(
+            () =>
+              new Promise((resolve) => {
+                resolveRefetch = () =>
+                  resolve([200, { data: createMockRoutines(1) }]);
+              }),
+          );
+        mockAxios.onPut('/routine/1').reply(200, { data: null });
+
+        const { findByText, getByTestId } = renderWithSharedQueryClient(
+          <>
+            <Index />
+            <UpdateRoutineTrigger />
+          </>,
+        );
+
+        await findByText('테스트 루틴 1');
+        expect(getByTestId('routine-list-scroll').props.refreshing).toBe(false);
+
+        await act(async () => {
+          fireEvent.press(getByTestId('trigger-routine-update'));
+        });
+
+        await waitFor(() => {
+          expect(
+            mockAxios.history.get.filter((request) =>
+              request.url?.startsWith('/routine/list'),
+            ),
+          ).toHaveLength(2);
+        });
+
+        expect(getByTestId('routine-list-scroll').props.refreshing).toBe(false);
+
+        resolveRefetch?.();
+      });
+
+      it('쿼리 자동 refetch 상태만으로 pull-to-refresh 로딩을 표시하지 않는다', async () => {
+        const refetch = jest.fn();
+        const refetchPausedRoutines = jest.fn();
+        const routinesSpy = jest
+          .spyOn(routineHooks, 'useRoutinesQuery')
+          .mockReturnValue({
+            data: createMockRoutines(1),
+            isLoading: false,
+            isRefetching: true,
+            refetch,
+          } as unknown as ReturnType<typeof routineHooks.useRoutinesQuery>);
+        const pausedRoutinesSpy = jest
+          .spyOn(routineHooks, 'usePausedRoutinesQuery')
+          .mockReturnValue({
+            data: [],
+            isLoading: false,
+            isRefetching: false,
+            refetch: refetchPausedRoutines,
+          } as unknown as ReturnType<
+            typeof routineHooks.usePausedRoutinesQuery
+          >);
+
+        const { getByTestId, getByText } = render(<Index />);
+
+        expect(getByText('테스트 루틴 1')).toBeOnTheScreen();
+        expect(getByTestId('routine-list-scroll').props.refreshing).toBe(false);
+
+        routinesSpy.mockRestore();
+        pausedRoutinesSpy.mockRestore();
       });
 
       it('루틴 순서 변경 버튼을 누르면 정렬 모달로 이동한다', async () => {
@@ -1367,7 +1505,13 @@ describe('루틴 조회 페이지', () => {
               width: 144,
               padding: 6,
               borderRadius: 8,
+              borderWidth: 1,
+              borderColor: palette.theme.gray[200],
               backgroundColor: '#FFFFFF',
+              shadowColor: '#000000',
+              shadowOpacity: 0.18,
+              shadowRadius: 18,
+              elevation: 12,
             }),
             expect.objectContaining({
               top: 15,

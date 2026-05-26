@@ -1,9 +1,11 @@
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
+import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { routineFormValidators } from '@repo/shared/service/validatorMessage';
 import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Alert, Pressable, Text } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { RoutinePeriodWarningIcon } from '@/components/icons/routine-period-warning-icon';
@@ -23,8 +25,10 @@ import { useAuthUser } from '@/hooks/useAuthSession';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
 import type { ModalType } from '@/hooks/useModal';
+import { useRoutineDelete } from '@/hooks/useRoutineDelete';
 import { useRoutineFormSubmission } from '@/hooks/useRoutineFormSubmission';
 import { useRoutineForm, useRoutineId } from '@/hooks/useRoutineSelection';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RoutineForm>();
@@ -55,16 +59,52 @@ const getStartOfToday = () => {
   return today;
 };
 
+const noop = () => undefined;
+type RoutineStatusForm = RoutineForm & {
+  paused?: boolean;
+  hidden?: boolean;
+};
+
 const RoutineFormModal = () => {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
+  const isRoutineAdd = type === 'routine-add';
 
   const routineId = useRoutineId();
   const routineForm = useRoutineForm();
+  const user = useAuthUser();
+  const { data: routineDetail } = useRoutineDetailQuery(
+    isRoutineAdd ? 0 : routineId,
+  );
+  const sourceRoutineForm = !isRoutineAdd
+    ? (routineDetail ?? routineForm)
+    : routineForm;
+  const isDirectRoutine =
+    sourceRoutineForm.isMe ||
+    (!!sourceRoutineForm.mateNickname &&
+      sourceRoutineForm.mateNickname === user?.nickname);
+  const normalizedRoutineForm = useMemo(
+    () =>
+      isDirectRoutine
+        ? {
+            ...sourceRoutineForm,
+            isMe: true,
+            mateNickname: '',
+          }
+        : sourceRoutineForm,
+    [isDirectRoutine, sourceRoutineForm],
+  );
+  const routineStatusForm = normalizedRoutineForm as RoutineStatusForm;
+  const initialMateNickname = String(normalizedRoutineForm.mateNickname ?? '');
 
-  const [mateKeyword, setMateKeyword] = useState('');
+  const [mateKeyword, setMateKeyword] = useState(() =>
+    normalizedRoutineForm.isMe ? '' : initialMateNickname,
+  );
+  useEffect(() => {
+    setMateKeyword(normalizedRoutineForm.isMe ? '' : initialMateNickname);
+  }, [initialMateNickname, normalizedRoutineForm.isMe]);
   const today = useMemo(() => getStartOfToday(), []);
 
-  const user = useAuthUser();
+  const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
   const { handleCreate, handleUpdate } = useRoutineFormSubmission({
     nickname: user!.nickname,
     routineId,
@@ -80,6 +120,48 @@ const RoutineFormModal = () => {
       page: 1,
     });
 
+  const validators = useMemo(
+    () => ({
+      ...routineFormValidators,
+      mateNickname(
+        value: RoutineForm['mateNickname'],
+        values: RoutineForm,
+      ) {
+        if (values.isMe) {
+          return undefined;
+        }
+
+        if (!value) {
+          return '메이트를 설정해주세요.';
+        }
+
+        if (!isRoutineAdd && value === initialMateNickname) {
+          return undefined;
+        }
+
+        if (!friendList.some(({ nickname }) => nickname === value)) {
+          return '존재하지 않는 친구입니다.';
+        }
+
+        return undefined;
+      },
+    }),
+    [friendList, initialMateNickname, isRoutineAdd],
+  );
+
+  const handleDeleteRoutine = () => {
+    Alert.alert('루틴 삭제', '삭제하시겠습니까?', [
+      {
+        text: '취소',
+        style: 'cancel',
+      },
+      {
+        text: '삭제',
+        onPress: deleteRoutineById,
+      },
+    ]);
+  };
+
   // Convert friend list to autocomplete items
   const friendAutocompleteItems: AutocompleteItem[] = useMemo(
     () =>
@@ -90,31 +172,19 @@ const RoutineFormModal = () => {
     [friendList],
   );
 
+  if (!isRoutineAdd && routineId > 0 && !routineDetail) {
+    return null;
+  }
+
   return (
     <Form
-      form={routineForm}
+      form={normalizedRoutineForm}
       style={styles.container}
-      validators={{
-        ...routineFormValidators,
-        mateNickname(value, values) {
-          if (values.isMe) {
-            return undefined;
-          }
-
-          if (!value) {
-            return '메이트를 설정해주세요.';
-          }
-
-          if (!friendList.some(({ nickname }) => nickname === value)) {
-            return '존재하지 않는 친구입니다.';
-          }
-
-          return undefined;
-        },
-      }}
-      onSubmit={type === 'routine-add' ? handleCreate : handleUpdate}
+      validators={validators}
+      onSubmit={isRoutineAdd ? handleCreate : handleUpdate}
     >
       <KeyboardAwareScrollView
+        testID="routine-form-scroll"
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         enableOnAndroid={true}
@@ -223,8 +293,15 @@ const RoutineFormModal = () => {
               <ThemeView style={styles.mateField} transparent>
                 <Typography variant="body">직접 루틴 체크</Typography>
                 <Checkbox
+                  size="md"
+                  isChecked={!!form.isMe}
                   onPress={(chcked) => {
                     setValue('isMe', chcked);
+
+                    if (chcked) {
+                      setValue('mateNickname', '');
+                      setMateKeyword('');
+                    }
                   }}
                 />
               </ThemeView>
@@ -279,6 +356,44 @@ const RoutineFormModal = () => {
             );
           }}
         />
+        {!isRoutineAdd && (
+          <ThemeView
+            testID="routine-status-section"
+            style={styles.statusSection}
+            transparent
+          >
+            <ThemeView
+              testID="routine-status-options"
+              style={styles.statusOptions}
+              transparent
+            >
+              <ThemeView style={styles.statusOption} transparent>
+                <Checkbox
+                  size="md"
+                  text="루틴 일시정지"
+                  isChecked={!!routineStatusForm.paused}
+                  onPress={noop}
+                />
+              </ThemeView>
+              <ThemeView style={styles.statusOption} transparent>
+                <Checkbox
+                  size="md"
+                  text="루틴 숨김"
+                  isChecked={!!routineStatusForm.hidden}
+                  onPress={noop}
+                />
+              </ThemeView>
+            </ThemeView>
+            <Pressable
+              accessibilityRole="button"
+              testID="routine-delete-button"
+              style={styles.deleteButton}
+              onPress={handleDeleteRoutine}
+            >
+              <Text style={styles.deleteButtonText}>루틴 삭제</Text>
+            </Pressable>
+          </ThemeView>
+        )}
       </KeyboardAwareScrollView>
       <FormButtonGroup type={type} useForm={useForm} />
     </Form>
@@ -300,7 +415,7 @@ const styles = StyleSheet.create((theme) => ({
   scrollContent: {
     flexGrow: 1,
     gap: theme.foundation.spacing[6],
-    paddingBottom: theme.foundation.spacing[8],
+    paddingBottom: 0,
   },
 
   date: {
@@ -323,5 +438,37 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     gap: theme.foundation.spacing[1],
     alignItems: 'center',
+  },
+
+  statusSection: {
+    gap: 40,
+    marginTop: 16,
+    paddingBottom: 20,
+  },
+
+  statusOptions: {
+    gap: 16,
+  },
+
+  statusOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[3],
+  },
+
+  deleteButton: {
+    height: 44,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: palette.theme.red[50],
+    backgroundColor: palette.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  deleteButtonText: {
+    color: palette.theme.red[50],
+    fontSize: baseFoundation.typography.size.body3,
+    fontWeight: baseFoundation.typography.weight.regular,
   },
 }));

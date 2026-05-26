@@ -90,6 +90,7 @@ export default function Index() {
   const [isSpeechBubbleVisible, setIsSpeechBubbleVisible] = useState(false);
   const [speechBubbleMessage, setSpeechBubbleMessage] = useState('안녕?');
   const [showPausedRoutines, setShowPausedRoutines] = useState(false);
+  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
 
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
@@ -99,13 +100,11 @@ export default function Index() {
   const {
     data: routines = [],
     isLoading,
-    isRefetching,
     refetch,
   } = useRoutinesQuery(user?.nickname || '', date);
   const {
     data: pausedRoutines = [],
     isLoading: isPausedRoutinesLoading,
-    isRefetching: isPausedRoutinesRefetching,
     refetch: refetchPausedRoutines,
   } = usePausedRoutinesQuery(user?.nickname || '', showPausedRoutines);
   const displayedRoutines = showPausedRoutines ? pausedRoutines : routines;
@@ -138,12 +137,18 @@ export default function Index() {
       pausedRoutines.length === 0);
 
   const handleRefresh = useCallback(async () => {
-    if (showPausedRoutines) {
-      await refetchPausedRoutines();
-      return;
-    }
+    setIsManualRefreshing(true);
 
-    await refetch();
+    try {
+      if (showPausedRoutines) {
+        await refetchPausedRoutines();
+        return;
+      }
+
+      await refetch();
+    } finally {
+      setIsManualRefreshing(false);
+    }
   }, [refetch, refetchPausedRoutines, showPausedRoutines]);
 
   const handleRoutineListAreaLayout = useCallback(
@@ -263,11 +268,7 @@ export default function Index() {
                     routines={displayedRoutines}
                     date={date}
                     listAreaHeight={routineListAreaHeight || undefined}
-                    refreshing={
-                      showPausedRoutines
-                        ? isPausedRoutinesRefetching
-                        : isRefetching
-                    }
+                    refreshing={isManualRefreshing}
                     onRefresh={handleRefresh}
                   />
                 </View>
@@ -310,11 +311,7 @@ export default function Index() {
                   <RoutineList
                     routines={displayedRoutines}
                     date={date}
-                    refreshing={
-                      showPausedRoutines
-                        ? isPausedRoutinesRefetching
-                        : isRefetching
-                    }
+                    refreshing={isManualRefreshing}
                     onRefresh={handleRefresh}
                   />
                 </View>

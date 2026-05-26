@@ -1,6 +1,6 @@
 import type { FormContextType } from '@repo/shared/components';
 import type { RoutineForm } from '@repo/types';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { StyleSheet as RNStyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import type { ModalType } from '@/hooks/useModal';
+import { palette } from '@/theme/tokens';
 
 interface FormButtonGroupProps {
   type: ModalType;
@@ -17,8 +18,12 @@ interface FormButtonGroupProps {
 
 const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
   const { theme } = useAppTheme();
-  const { enabled: isValid, handleSubmit } = useForm();
+  const { enabled: isValid, handleSubmit, validateAll } = useForm();
   const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    validateAll();
+  }, [validateAll]);
 
   const footer = useMemo(
     () => (
@@ -48,6 +53,7 @@ const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
           <Button
             title="수정"
             variant="primary"
+            backgroundColor={palette.theme.gray[90]}
             onPress={() => handleSubmit()}
             style={styles.button}
             disabled={!isValid}
@@ -76,5 +82,6 @@ const styles = StyleSheet.create((theme) => ({
 
   button: {
     flex: 1,
+    borderRadius: 8,
   },
 }));

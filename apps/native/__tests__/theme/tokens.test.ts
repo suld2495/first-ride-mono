@@ -33,6 +33,7 @@ describe('theme/tokens', () => {
     expect(palette.theme.softBlue[20]).toBe('#A7CBEA');
     expect(palette.theme.blue[50]).toBe('#107AD6');
     expect(palette.theme.gray[95]).toBe('#000306');
+    expect(palette.theme.gray[200]).toBe('#E2E8F0');
     expect('skinSoftBlue' in palette).toBe(false);
     expect('skinBlue' in palette).toBe(false);
     expect('skinGray' in palette).toBe(false);

@@ -13,6 +13,32 @@ interface UseRoutineFormSubmissionParams {
   routineId: number;
 }
 
+type RoutineSubmitForm = Omit<RoutineForm, 'mateNickname'> & {
+  mateNickname?: RoutineForm['mateNickname'];
+};
+
+const normalizeRoutineSubmitForm = (
+  data: RoutineForm,
+  nickname: string,
+): RoutineSubmitForm => {
+  const form: RoutineSubmitForm = {
+    nickname,
+    routineName: data.routineName,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    routineDetail: data.routineDetail,
+    penalty: data.penalty,
+    routineCount: data.routineCount,
+    isMe: data.isMe,
+  };
+
+  if (!data.isMe) {
+    form.mateNickname = data.mateNickname;
+  }
+
+  return form;
+};
+
 export const useRoutineFormSubmission = ({
   nickname,
   routineId,
@@ -25,10 +51,7 @@ export const useRoutineFormSubmission = ({
   const handleCreate = useCallback(
     (data: RoutineForm) => {
       saveMutation.mutate(
-        {
-          ...data,
-          nickname,
-        },
+        normalizeRoutineSubmitForm(data, nickname) as RoutineForm,
         {
           onSuccess: () => {
             toast.showToast('루틴이 생성되었습니다.');
@@ -50,10 +73,9 @@ export const useRoutineFormSubmission = ({
     (data: RoutineForm) => {
       updateMutation.mutate(
         {
-          ...data,
+          ...normalizeRoutineSubmitForm(data, nickname),
           routineId,
-          nickname,
-        },
+        } as RoutineForm & { routineId: number },
         {
           onSuccess: () => {
             toast.showToast('루틴이 수정되었습니다.');

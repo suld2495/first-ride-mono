@@ -2,10 +2,11 @@ import axiosInstance from '@repo/shared/api';
 import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { StyleSheet as RNStyleSheet } from 'react-native';
+import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
 
 import ModalScreen from '../../../app/modal';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
+import { palette } from '../../../theme/tokens';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockFriends } from '../../setup/friend/mock';
 
@@ -28,21 +29,24 @@ declare const mockShowToast: jest.Mock;
 jest.mock('react-native-bouncy-checkbox', () => {
   const React = require('react');
 
-  const { TouchableOpacity, Text } = require('react-native');
+  const { Text, View } = require('react-native');
 
   return {
     __esModule: true,
     default: ({
+      isChecked,
       onPress,
       text,
     }: {
+      isChecked?: boolean;
       onPress: (checked: boolean) => void;
       text?: string;
     }) => {
       return React.createElement(
-        TouchableOpacity,
+        View,
         {
           testID: 'bouncy-checkbox',
+          isChecked,
           onPress: () => {
             (global as any).mockCheckboxChecked = !(global as any)
               .mockCheckboxChecked;
@@ -57,6 +61,32 @@ jest.mock('react-native-bouncy-checkbox', () => {
 
 // axios mock adapter
 let mockAxios: MockAdapter;
+const mockAlert = jest.spyOn(Alert, 'alert');
+const DEFAULT_UPDATE_ROUTINE_DETAIL = {
+  routineId: 1,
+  nickname: 'testuser',
+  routineName: '기존 루틴',
+  routineDetail: '기존 설명',
+  penalty: 5000,
+  weeklyCount: 0,
+  routineCount: 3,
+  mateNickname: '',
+  isMe: true,
+  startDate: '2025-01-06',
+  endDate: '',
+  successDate: [],
+  paused: false,
+  hidden: false,
+};
+
+const mockRoutineDetail = (overrides: Record<string, unknown> = {}) => {
+  mockAxios.onGet(/\/routine\/details/).reply(200, {
+    data: {
+      ...DEFAULT_UPDATE_ROUTINE_DETAIL,
+      ...overrides,
+    },
+  });
+};
 
 // useDebounce mock - 즉시 값을 반환하여 debounce 지연 제거
 jest.mock('@/hooks/useDebounce', () => ({
@@ -105,6 +135,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     mockRoutineStore.routineId = 0;
     (global as any).mockCheckboxChecked = false;
     mockShowToast.mockClear();
+    mockAlert.mockClear();
 
     // 친구 목록 API 기본 목킹 (/friends?nickname=...)
     // axios interceptor가 response.data.data를 반환하므로 { data: [...] } 형식으로 응답해야 함
@@ -564,6 +595,13 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       expect(queryByText('취소')).not.toBeOnTheScreen();
     });
+
+    it('루틴 상태 체크박스 항목은 표시되지 않는다', async () => {
+      const { queryByText } = render(<RoutineFormModal />);
+
+      expect(queryByText('루틴 일시정지')).not.toBeOnTheScreen();
+      expect(queryByText('루틴 숨김')).not.toBeOnTheScreen();
+    });
   });
 });
 
@@ -588,9 +626,11 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     mockRoutineStore.routineId = 1;
     (global as any).mockCheckboxChecked = true; // isMe가 true이므로
     mockShowToast.mockClear();
+    mockAlert.mockClear();
 
     // 친구 목록 API 기본 목킹
     mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+    mockRoutineDetail();
   });
 
   afterEach(() => {
@@ -624,12 +664,78 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(getByText('2025-01-06')).toBeOnTheScreen();
     });
 
+    it('수정 모달은 routineId로 상세 조회한 값을 폼에 표시한다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineStore.routineId = 77;
+      mockRoutineStore.routineForm = {
+        ...mockRoutineStore.routineForm,
+        routineName: '리스트 루틴',
+        routineDetail: '리스트 설명',
+        mateNickname: 'testuser',
+        isMe: undefined,
+      };
+      mockRoutineDetail({
+        routineId: 77,
+        routineName: '상세 루틴',
+        routineDetail: '상세 설명',
+        penalty: 3000,
+        routineCount: 5,
+        startDate: '2026-05-26',
+      });
+
+      const { getAllByTestId, getByPlaceholderText, getByText } = render(
+        <RoutineFormModal />,
+      );
+
+      await waitFor(() => {
+        expect(
+          mockAxios.history.get.some((request) =>
+            request.url?.startsWith('/routine/details?routineId=77'),
+          ),
+        ).toBe(true);
+      });
+
+      expect(getByPlaceholderText('루틴 이름을 입력하세요.').props.value).toBe(
+        '상세 루틴',
+      );
+      expect(getByPlaceholderText('루틴 설명을 입력해주세요.').props.value).toBe(
+        '상세 설명',
+      );
+      expect(getByText('일주일에 5회')).toBeOnTheScreen();
+      expect(getByText('2026-05-26')).toBeOnTheScreen();
+      expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(true);
+    });
+
     it('수정 버튼이 화면에 표시된다', async () => {
       const { getByText } = render(<RoutineFormModal />);
 
       const editButton = getByText('수정');
 
       expect(editButton).toBeOnTheScreen();
+    });
+
+    it('수정 버튼 배경은 gray 90 색상으로 고정된다', async () => {
+      const { findByText } = render(<RoutineFormModal />);
+
+      const editButtonText = await findByText('수정');
+      let editButton = editButtonText.parent;
+
+      while (
+        editButton &&
+        !('backgroundColor' in RNStyleSheet.flatten(editButton.props.style))
+      ) {
+        editButton = editButton.parent;
+      }
+
+      const editButtonStyle = RNStyleSheet.flatten(editButton?.props.style);
+
+      expect(editButtonStyle).toEqual(
+        expect.objectContaining({
+          backgroundColor: palette.theme.gray[90],
+          borderRadius: 8,
+        }),
+      );
     });
 
     it('취소 버튼이 화면에 표시된다', async () => {
@@ -697,6 +803,63 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         },
         { timeout: 3000 },
       );
+    });
+
+    it('기존 저장 메이트 값이면 친구 검색 결과에 없어도 수정 버튼이 처음부터 활성화된다', async () => {
+      mockRoutineStore.routineForm = {
+        ...mockRoutineStore.routineForm,
+        isMe: false,
+        mateNickname: 'Fffft',
+      };
+
+      const { getByText } = render(<RoutineFormModal />);
+
+      await waitFor(
+        () => {
+          expect(getByText('수정')).toBeEnabled();
+        },
+        { timeout: 3000 },
+      );
+    });
+
+    it('기존 메이트 값이 내 닉네임이면 직접 루틴 체크로 표시하고 메이트 입력값은 비운다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        isMe: true,
+        mateNickname: 'testuser',
+      });
+
+      const { findAllByTestId, getByPlaceholderText } = render(
+        <RoutineFormModal />,
+      );
+
+      const [directRoutineCheckbox] = await findAllByTestId('bouncy-checkbox');
+      const mateInput = getByPlaceholderText('메이트를 지정해주세요.');
+
+      expect(directRoutineCheckbox.props.isChecked).toBe(true);
+      expect(mateInput.props.value).toBe('');
+      expect(mateInput.props.editable).toBe(false);
+    });
+
+    it('isMe가 false여도 메이트 값이 내 닉네임이면 직접 루틴 체크로 표시한다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        isMe: false,
+        mateNickname: 'testuser',
+      });
+
+      const { findAllByTestId, getByPlaceholderText } = render(
+        <RoutineFormModal />,
+      );
+
+      const [directRoutineCheckbox] = await findAllByTestId('bouncy-checkbox');
+      const mateInput = getByPlaceholderText('메이트를 지정해주세요.');
+
+      expect(directRoutineCheckbox.props.isChecked).toBe(true);
+      expect(mateInput.props.value).toBe('');
+      expect(mateInput.props.editable).toBe(false);
     });
   });
 
@@ -775,6 +938,35 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith('루틴이 수정되었습니다.');
           expect(mockBack).toHaveBeenCalled();
+        });
+      });
+
+      it('직접 루틴 수정 시 메이트 닉네임을 전송하지 않는다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+        mockRoutineDetail({
+          isMe: true,
+          mateNickname: '',
+        });
+        mockAxios.onPut('/routine/1').reply(200, { data: null });
+
+        const { findByText } = render(<RoutineFormModal />);
+
+        const editButton = await findByText('수정');
+
+        await act(async () => {
+          fireEvent.press(editButton);
+        });
+
+        await waitFor(() => {
+          const payload = JSON.parse(mockAxios.history.put[0]?.data ?? '{}');
+
+          expect(payload).toEqual(
+            expect.objectContaining({
+              isMe: true,
+            }),
+          );
+          expect(payload).not.toHaveProperty('mateNickname');
         });
       });
     });
@@ -875,6 +1067,106 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       const cancelButton = getByText('취소');
 
       expect(cancelButton).toBeOnTheScreen();
+    });
+
+    it('폼 마지막에 루틴 상태 체크박스 항목이 표시된다', async () => {
+      const { getAllByTestId, getByTestId, getByText } = render(
+        <RoutineFormModal />,
+      );
+
+      const statusSectionStyle = RNStyleSheet.flatten(
+        getByTestId('routine-status-section').props.style,
+      );
+      const statusOptionsStyle = RNStyleSheet.flatten(
+        getByTestId('routine-status-options').props.style,
+      );
+
+      expect(getByText('루틴 일시정지')).toBeOnTheScreen();
+      expect(getByText('루틴 숨김')).toBeOnTheScreen();
+      expect(getAllByTestId('bouncy-checkbox')).toHaveLength(3);
+      expect(statusSectionStyle).toEqual(
+        expect.objectContaining({
+          gap: 40,
+          marginTop: 16,
+          paddingBottom: 20,
+        }),
+      );
+      expect(statusOptionsStyle).toEqual(expect.objectContaining({ gap: 16 }));
+    });
+
+    it('기존 루틴의 일시정지와 숨김 상태를 체크박스 초기 상태로 표시한다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        paused: true,
+        hidden: true,
+      });
+      const { findAllByTestId } = render(<RoutineFormModal />);
+
+      const [, pausedCheckbox, hiddenCheckbox] =
+        await findAllByTestId('bouncy-checkbox');
+
+      expect(pausedCheckbox.props.isChecked).toBe(true);
+      expect(hiddenCheckbox.props.isChecked).toBe(true);
+    });
+
+    it('루틴 수정 폼 스크롤 콘텐츠는 하단 패딩을 추가하지 않는다', async () => {
+      const { getByTestId } = render(<RoutineFormModal />);
+
+      const scrollContentStyle = RNStyleSheet.flatten(
+        getByTestId('routine-form-scroll').props.contentContainerStyle,
+      );
+
+      expect(scrollContentStyle).toEqual(
+        expect.objectContaining({
+          paddingBottom: 0,
+        }),
+      );
+    });
+
+    it('루틴 삭제 버튼을 고정 danger outline 스타일로 표시한다', async () => {
+      const { getByTestId, getByText } = render(<RoutineFormModal />);
+
+      const deleteButtonStyle = RNStyleSheet.flatten(
+        getByTestId('routine-delete-button').props.style,
+      );
+      const deleteButtonTextStyle = RNStyleSheet.flatten(
+        getByText('루틴 삭제').props.style,
+      );
+
+      expect(deleteButtonStyle).toEqual(
+        expect.objectContaining({
+          height: 44,
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: '#C73FA7',
+          backgroundColor: '#FFFFFF',
+        }),
+      );
+      expect(deleteButtonTextStyle).toEqual(
+        expect.objectContaining({
+          color: '#C73FA7',
+          fontSize: 14,
+          fontWeight: '400',
+        }),
+      );
+    });
+
+    it('루틴 삭제 버튼 클릭 시 확인 Alert이 표시된다', async () => {
+      const { getByText } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getByText('루틴 삭제'));
+      });
+
+      expect(mockAlert).toHaveBeenCalledWith(
+        '루틴 삭제',
+        '삭제하시겠습니까?',
+        expect.arrayContaining([
+          expect.objectContaining({ text: '취소', style: 'cancel' }),
+          expect.objectContaining({ text: '삭제' }),
+        ]),
+      );
     });
 
     it('취소 버튼 클릭 시 이전 페이지(루틴 상세)로 이동한다', async () => {
