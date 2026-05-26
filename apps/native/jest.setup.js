@@ -441,6 +441,7 @@ global.mockRoutineStore = {
   setRoutineId: jest.fn(),
   routineForm: {},
   setRoutineForm: jest.fn(),
+  resetRoutineForm: jest.fn(),
 };
 
 jest.mock('./store/routine.store', () => ({

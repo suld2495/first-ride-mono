@@ -31,6 +31,7 @@ import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
 import RoutineCharacter from '@/feature/character/routine-character';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useResetRoutineFormState } from '@/hooks/useRoutineFormState';
 import { baseFoundation } from '@/theme/tokens';
 import {
   createRoutineWidgetSnapshot,
@@ -78,6 +79,7 @@ const getRandomMotto = (mottos: string[]): string => {
 
 export default function Index() {
   const router = useRouter();
+  const resetRoutineForm = useResetRoutineFormState();
   const insets = useSafeAreaInsets();
   const isFirstLoadRef = useRef(true);
   const speechBubbleHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -154,6 +156,11 @@ export default function Index() {
   const handleOpenRoutineReorderModal = useCallback(() => {
     router.push(`/modal?type=routine-reorder&date=${date}`);
   }, [date, router]);
+
+  const handleOpenRoutineAddModal = useCallback(() => {
+    resetRoutineForm();
+    router.push('/modal?type=routine-add');
+  }, [resetRoutineForm, router]);
 
   const handleTogglePausedRoutines = useCallback(() => {
     setShowPausedRoutines((prev) => !prev);
@@ -321,7 +328,7 @@ export default function Index() {
         icon={({ size }) => (
           <Ionicons name="add" size={size + 8} color="#FFFFFF" />
         )}
-        onPress={() => router.push('/modal?type=routine-add')}
+        onPress={handleOpenRoutineAddModal}
         accessibilityLabel="루틴 추가"
         accessibilityRole="button"
         testID="routine-add-fab"

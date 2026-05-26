@@ -93,6 +93,7 @@ declare const mockRoutineStore: {
   setType: jest.Mock;
   routineId: number;
   setRoutineId: jest.Mock;
+  resetRoutineForm: jest.Mock;
 };
 
 // axios mock adapter
@@ -185,6 +186,17 @@ describe('루틴 조회 페이지', () => {
         const { findByLabelText } = render(<Index />);
 
         expect(await findByLabelText('루틴 추가')).toBeOnTheScreen();
+      });
+
+      it('루틴 추가 플로팅 버튼을 누르면 이전 폼 값을 초기화하고 추가 모달로 이동한다', async () => {
+        const { findByLabelText } = render(<Index />);
+
+        const addButton = await findByLabelText('루틴 추가');
+
+        fireEvent.press(addButton);
+
+        expect(mockRoutineStore.resetRoutineForm).toHaveBeenCalledTimes(1);
+        expect(mockPush).toHaveBeenCalledWith('/modal?type=routine-add');
       });
 
       it('루틴 순서 변경 버튼을 누르면 정렬 모달로 이동한다', async () => {

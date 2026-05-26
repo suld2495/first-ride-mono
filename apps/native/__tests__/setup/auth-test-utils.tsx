@@ -21,6 +21,7 @@ declare const mockRoutineStore: {
   setType: jest.Mock;
   routineId: number;
   setRoutineId: jest.Mock;
+  resetRoutineForm: jest.Mock;
 };
 declare const mockRequestStore: {
   requestId: number;
@@ -84,6 +85,7 @@ export const resetAuthMocks = () => {
   mockRoutineStore.setType.mockClear();
   mockRoutineStore.routineId = 0;
   mockRoutineStore.setRoutineId.mockClear();
+  mockRoutineStore.resetRoutineForm.mockClear();
   mockRequestStore.requestId = 0;
   mockRequestStore.setRequestId.mockClear();
 };
