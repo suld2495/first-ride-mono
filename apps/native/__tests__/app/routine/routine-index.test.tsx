@@ -245,11 +245,17 @@ describe('루틴 조회 페이지', () => {
 
         fireEvent.press(characterButton);
 
-        const motto = await findByText('매일 조금씩 앞으로 간다');
+        const [motto, speechBubble] = await Promise.all([
+          findByText('매일 조금씩 앞으로 간다'),
+          findByTestId('routine-character-speech-bubble'),
+        ]);
 
         expect(motto).toBeOnTheScreen();
         expect(motto.props.numberOfLines).toBe(2);
         expect(motto.props.ellipsizeMode).toBe('tail');
+        expect(flattenStyles(speechBubble.props.style)).toEqual(
+          expect.arrayContaining([expect.objectContaining({ bottom: 104 })]),
+        );
       });
 
       it('캐릭터를 누를 때마다 한마디 목록에서 랜덤으로 표시한다', async () => {

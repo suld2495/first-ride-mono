@@ -380,6 +380,7 @@ export const baseFoundation = {
     x72: 72,
     x80: 80,
     x84: 84,
+    x96: 96,
     x99: 99,
     x100: 100,
     x112: 112,

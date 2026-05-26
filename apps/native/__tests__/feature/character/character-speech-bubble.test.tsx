@@ -1,11 +1,10 @@
-import { View } from 'react-native';
-import { Path } from 'react-native-svg';
+import { render } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
 import CharacterSpeechBubble, {
   getCharacterSpeechBubbleBorderColor,
 } from '@/feature/character/character-speech-bubble';
 import { palette } from '@/theme/tokens';
-import { fireEvent, render } from '@testing-library/react-native';
 
 let mockThemeName = 'green';
 
@@ -30,27 +29,37 @@ describe('CharacterSpeechBubble', () => {
     );
   });
 
-  it('현재 테마의 50 컬러를 말풍선 stroke에 적용한다', () => {
-    const { UNSAFE_getAllByType } = render(
-      <CharacterSpeechBubble message="안녕?" />,
+  it('이미지 시안처럼 작은 둥근 사각형 말풍선으로 표시한다', () => {
+    const { getByTestId } = render(<CharacterSpeechBubble message="한마디" />);
+    const bubbleContainer = getByTestId('character-speech-bubble-container');
+
+    expect(StyleSheet.flatten(bubbleContainer.props.style)).toEqual(
+      expect.objectContaining({
+        minWidth: 96,
+        minHeight: 32,
+        borderRadius: 8,
+        borderWidth: 2,
+        borderColor: palette.theme.green[50],
+        backgroundColor: palette.white,
+      }),
     );
-    const bubbleContainer = UNSAFE_getAllByType(View).find(
-      (node) => typeof node.props.onLayout === 'function',
-    );
+  });
 
-    expect(bubbleContainer).toBeTruthy();
+  it('기본 말풍선은 하단 중앙 말꼬리를 표시한다', () => {
+    const { getByTestId } = render(<CharacterSpeechBubble message="한마디" />);
+    const bubbleTail = getByTestId('character-speech-bubble-tail');
 
-    fireEvent(bubbleContainer!, 'layout', {
-      nativeEvent: {
-        layout: {
-          width: 120,
-          height: 48,
-        },
-      },
-    });
-
-    expect(UNSAFE_getAllByType(Path)[0].props.stroke).toBe(
-      palette.theme.green[50],
+    expect(StyleSheet.flatten(bubbleTail.props.style)).toEqual(
+      expect.objectContaining({
+        left: '50%',
+        bottom: 2,
+        width: 12,
+        height: 12,
+        borderRightWidth: 2,
+        borderBottomWidth: 2,
+        borderColor: palette.theme.green[50],
+        backgroundColor: palette.white,
+      }),
     );
   });
 });

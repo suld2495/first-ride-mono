@@ -41,6 +41,8 @@ import { saveRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
 const SPEECH_BUBBLE_VISIBLE_MS = 3000;
 const SPEECH_BUBBLE_FADE_OUT_MS = 300;
 const SPEECH_BUBBLE_RESIZE_MS = 180;
+const SPEECH_BUBBLE_BOTTOM_OFFSET =
+  baseFoundation.dimension.x100 + baseFoundation.spacing[1];
 const EMPTY_CHARACTER_BOTTOM_INSET_THRESHOLD = baseFoundation.dimension.x20;
 const normalizeMottoText = (value: unknown): string[] => {
   if (Array.isArray(value)) {
@@ -273,6 +275,7 @@ export default function Index() {
                     <RoutineCharacter onPress={handleCharacterPress} />
                     {isSpeechBubbleVisible && (
                       <Animated.View
+                        testID="routine-character-speech-bubble"
                         style={[
                           styles.speechBubble,
                           { opacity: speechBubbleOpacity },
@@ -390,7 +393,7 @@ const styles = StyleSheet.create((theme) => ({
     position: 'relative',
   },
   speechBubble: {
-    bottom: baseFoundation.dimension.x120 + theme.foundation.spacing[1],
+    bottom: SPEECH_BUBBLE_BOTTOM_OFFSET,
     position: 'absolute',
   },
   fab: {
