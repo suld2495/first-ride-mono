@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Validators } from '@repo/shared/components';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { requestFormValidators } from '@repo/shared/service/validatorMessage';
+import { useMemo } from 'react';
 import { Image, Pressable, ScrollView } from 'react-native';
 
 import RequetButtonGroup from '@/components/request/request-button-group';
@@ -27,6 +28,10 @@ const requestImageValidators = requestFormValidators as unknown as Validators<{
 const RequestModal = () => {
   const routineId = useRoutineId();
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
+  const initialForm = useMemo<{ images: RequestImage[] }>(
+    () => ({ images: [] }),
+    [],
+  );
   const { handleSubmit, pickImage, takePicture, isPending } =
     useRequestSubmission(
       routineId,
@@ -75,7 +80,7 @@ const RequestModal = () => {
         </ThemeView>
 
         <Form
-          form={{ images: [] }}
+          form={initialForm}
           onSubmit={handleSubmit}
           validators={requestImageValidators}
         >

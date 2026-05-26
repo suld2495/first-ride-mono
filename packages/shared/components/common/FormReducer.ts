@@ -9,7 +9,6 @@ export type Action<T> =
       type: 'SET_FIELD_ERRORS';
       key: keyof T;
       errors: string[];
-      isValid: boolean;
     }
   | { type: 'RESET'; form: T };
 
@@ -41,7 +40,7 @@ export function formReducer<T>(
       return {
         ...state,
         errors: next,
-        enabled: action.isValid,
+        enabled: Object.keys(next).length === 0,
       };
     }
     case 'RESET': {

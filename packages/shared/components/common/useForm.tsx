@@ -97,7 +97,6 @@ export function useCreateForm<T extends Record<string, any>>() {
         type: 'SET_FIELD_ERRORS',
         key,
         errors,
-        isValid: false // 전체 검증은 useEffect에서 수행
       });
       return errors;
     }, [validators, state.form]);
