@@ -66,8 +66,8 @@ const MyInfo = () => {
         <PixelCard style={styles.linkContainer}>
           <Link
             variant="ghost"
-            href="/account"
-            title="계정"
+            href="/modal?type=account"
+            title="한마디"
             leftIcon={({ color }) => (
               <Ionicons
                 name="person-circle-outline"

@@ -5,7 +5,7 @@ import type {
   ImageStyle,
   StyleProp,
 } from 'react-native';
-import { Image } from 'react-native';
+import { Image, StyleSheet as RNStyleSheet } from 'react-native';
 import type { SvgProps } from 'react-native-svg';
 
 import {
@@ -15,6 +15,19 @@ import {
   WarriorRoutineCharacterIcon,
 } from '@/components/icons/routine-character-icons';
 import type { ThemeName } from '@/theme/themes';
+
+const routineBackgroundSource =
+  require('@/assets/routine/background.png') as ImageSourcePropType;
+const routinePreviewOverlaySource =
+  require('@/assets/routine/preview-overlay.png') as ImageSourcePropType;
+const routineGreenBackgroundSource =
+  require('@/assets/routine/background-green.png') as ImageSourcePropType;
+const routineRedBackgroundSource =
+  require('@/assets/routine/background-red.png') as ImageSourcePropType;
+const routineGreenPreviewOverlaySource =
+  require('@/assets/routine/preview-overlay-green.png') as ImageSourcePropType;
+const routineRedPreviewOverlaySource =
+  require('@/assets/routine/preview-overlay-red.png') as ImageSourcePropType;
 
 export type RoutineSceneAsset = {
   Character?: ComponentType<RoutineCharacterIconProps>;
@@ -26,11 +39,11 @@ const blueCharacterAsset = {
 } satisfies RoutineSceneAsset;
 
 const blueBackgroundAsset = {
-  source: require('@/assets/routine/background.png'),
+  source: routineBackgroundSource,
 } satisfies RoutineSceneAsset;
 
 const bluePreviewOverlayAsset = {
-  source: require('@/assets/routine/preview-overlay.png'),
+  source: routinePreviewOverlaySource,
 } satisfies RoutineSceneAsset;
 
 export const routineSceneAssets = {
@@ -47,10 +60,10 @@ export const routineSceneBackgroundAssets = {
   dark: blueBackgroundAsset,
   blue: blueBackgroundAsset,
   green: {
-    source: require('@/assets/routine/background-green.png'),
+    source: routineGreenBackgroundSource,
   },
   red: {
-    source: require('@/assets/routine/background-red.png'),
+    source: routineRedBackgroundSource,
   },
 } satisfies Record<ThemeName, RoutineSceneAsset>;
 
@@ -71,10 +84,10 @@ export const routineScenePreviewOverlayAssets = {
   dark: bluePreviewOverlayAsset,
   blue: bluePreviewOverlayAsset,
   green: {
-    source: require('@/assets/routine/preview-overlay-green.png'),
+    source: routineGreenPreviewOverlaySource,
   },
   red: {
-    source: require('@/assets/routine/preview-overlay-red.png'),
+    source: routineRedPreviewOverlaySource,
   },
 } satisfies Record<ThemeName, RoutineSceneAsset>;
 
@@ -96,12 +109,23 @@ export const renderRoutineSceneAsset = (
   },
 ) => {
   if (asset.Character) {
-    const Character = asset.Character;
+    const { Character } = asset;
+    const style = RNStyleSheet.flatten(props?.style);
+    const height =
+      typeof style?.height === 'number' || typeof style?.height === 'string'
+        ? style.height
+        : undefined;
+    const width =
+      typeof style?.width === 'number' || typeof style?.width === 'string'
+        ? style.width
+        : undefined;
 
     return (
       <Character
+        height={height}
         testID={props?.testID}
         style={props?.style as SvgProps['style']}
+        width={width}
       />
     );
   }

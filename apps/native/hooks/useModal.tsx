@@ -1,3 +1,4 @@
+import Account from '@/app/account';
 import FriendRequestListModal from '@/components/modal/friend-request-list-modal';
 import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
 import PrivacyModal from '@/components/modal/privacy-modal';
@@ -13,6 +14,7 @@ import TermsPolicyModal from '@/components/modal/terms-policy-modal';
 import ThemeModal from '@/components/modal/theme-modal';
 
 export type ModalType =
+  | 'account'
   | 'routine-add'
   | 'routine-update'
   | 'routine-detail'
@@ -39,6 +41,8 @@ export const useModal = (
   type: ModalType,
 ): [string, () => React.ReactNode, ModalOptions] => {
   switch (type) {
+    case 'account':
+      return ['한마디', Account, {}];
     case 'routine-add':
       return ['루틴 추가', RoutineFormModal, {}];
     case 'routine-update':

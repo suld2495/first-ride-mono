@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   type TextInputProps,
+  type TextStyle,
   View,
   type ViewStyle,
 } from 'react-native';
@@ -89,6 +90,16 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
   style?: StyleProp<ViewStyle>;
 
   /**
+   * 입력 영역 컨테이너 테스트 ID
+   */
+  containerTestID?: string;
+
+  /**
+   * 커스텀 스타일 (텍스트 입력)
+   */
+  inputStyle?: StyleProp<TextStyle>;
+
+  /**
    * 입력 텍스트 색상 토큰
    * @default 'input'
    */
@@ -126,6 +137,8 @@ export const Input: React.FC<InputProps> = ({
   label,
   helperText,
   style,
+  containerTestID,
+  inputStyle,
   color = 'input',
   ...props
 }) => {
@@ -178,6 +191,7 @@ export const Input: React.FC<InputProps> = ({
     <View style={fullWidth && internalStyles.fullWidth}>
       {label && <Text style={styles.label}>{label}</Text>}
       <View
+        testID={containerTestID}
         style={[
           styles.container,
           sizeContainerStyle,
@@ -187,7 +201,12 @@ export const Input: React.FC<InputProps> = ({
         ]}
       >
         <TextInput
-          style={[styles.input, sizeInputStyle, { color: inputColor }]}
+          style={[
+            styles.input,
+            sizeInputStyle,
+            { color: inputColor },
+            inputStyle,
+          ]}
           placeholderTextColor={theme.colors.text.tertiary}
           {...props}
         />

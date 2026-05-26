@@ -1,19 +1,24 @@
+/* eslint-disable local-rules/no-multiple-components-in-file */
 import type { SvgProps } from 'react-native-svg';
 import Svg, { Rect } from 'react-native-svg';
 
 export interface RoutineCharacterIconProps {
+  height?: SvgProps['height'];
   testID?: string;
   style?: SvgProps['style'];
+  width?: SvgProps['width'];
 }
 
 export const WarriorRoutineCharacterIcon = ({
+  height = 120,
   testID,
   style,
+  width = 112,
 }: RoutineCharacterIconProps) => (
   <Svg
     testID={testID}
-    width={112}
-    height={120}
+    width={width}
+    height={height}
     viewBox="0 0 112 120"
     fill="none"
     style={style}
@@ -2826,13 +2831,15 @@ export const WarriorRoutineCharacterIcon = ({
 );
 
 export const MageRoutineCharacterIcon = ({
+  height = 112,
   testID,
   style,
+  width = 96,
 }: RoutineCharacterIconProps) => (
   <Svg
     testID={testID}
-    width={96}
-    height={112}
+    width={width}
+    height={height}
     viewBox="0 0 96 112"
     fill="none"
     style={style}
@@ -4842,13 +4849,15 @@ export const MageRoutineCharacterIcon = ({
 );
 
 export const ArcherRoutineCharacterIcon = ({
+  height = 108,
   testID,
   style,
+  width = 100,
 }: RoutineCharacterIconProps) => (
   <Svg
     testID={testID}
-    width={100}
-    height={108}
+    width={width}
+    height={height}
     viewBox="0 0 100 108"
     fill="none"
     style={style}

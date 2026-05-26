@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ModalFooterOutlet from '@/components/modal/modal-footer-outlet';
 import ModalFooterProvider from '@/components/modal/modal-footer-provider';
 import ModalHeader from '@/components/modal/modal-header';
+import ModalHeaderActionProvider from '@/components/modal/modal-header-action-provider';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import type { ModalType } from '@/hooks/useModal';
@@ -43,22 +44,25 @@ export default function Modal() {
         entering={SlideInRight.duration(MODAL_ANIMATION_DURATION)}
         style={styles.container}
       >
-        <ModalFooterProvider>
-          <ModalHeader
-            title={modalTitle}
-            transparent={modalOptions.headerTransparent}
-          />
-          <ThemeView
-            style={[
-              styles.content,
-              modalOptions.contentPadding === false && styles.contentNoPadding,
-            ]}
-            transparent={modalOptions.contentTransparent}
-          >
-            <ModalComponent />
-          </ThemeView>
-          <ModalFooterOutlet />
-        </ModalFooterProvider>
+        <ModalHeaderActionProvider>
+          <ModalFooterProvider>
+            <ModalHeader
+              title={modalTitle}
+              transparent={modalOptions.headerTransparent}
+            />
+            <ThemeView
+              style={[
+                styles.content,
+                modalOptions.contentPadding === false &&
+                  styles.contentNoPadding,
+              ]}
+              transparent={modalOptions.contentTransparent}
+            >
+              <ModalComponent />
+            </ThemeView>
+            <ModalFooterOutlet />
+          </ModalFooterProvider>
+        </ModalHeaderActionProvider>
       </Animated.View>
     </ThemeView>
   );

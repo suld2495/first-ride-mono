@@ -9,8 +9,8 @@ import MyInfo from '../../app/(tabs)/(afterLogin)/my-info';
 import { render } from '../setup/test-utils';
 
 declare global {
-  // eslint-disable-next-line no-var
   var mockReplace: jest.Mock;
+  var mockPush: jest.Mock;
 }
 
 jest.mock('@/api/push-token.api', () => ({
@@ -35,15 +35,25 @@ jest.mock('expo-router', () => {
 
   return {
     useRouter: () => ({
-      push: jest.fn(),
+      push: global.mockPush,
       replace: global.mockReplace,
     }),
     router: {
       replace: (...args: unknown[]) => global.mockReplace(...args),
     },
-    Link: ({ children, asChild }: { children: React.ReactNode; asChild?: boolean }) => {
+    Link: ({
+      children,
+      asChild,
+      href,
+    }: {
+      children: React.ReactNode;
+      asChild?: boolean;
+      href: string;
+    }) => {
       if (asChild && React.isValidElement(children)) {
-        return React.cloneElement(children, { onPress: jest.fn() });
+        return React.cloneElement(children, {
+          onPress: () => global.mockPush(href),
+        });
       }
 
       return children;
@@ -54,9 +64,20 @@ jest.mock('expo-router', () => {
 describe('MyInfo 로그아웃', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    global.mockPush = jest.fn();
     (useNotifications as jest.Mock).mockReturnValue({
       pushToken: { data: 'expo-push-token' },
     });
+  });
+
+  it('한마디 메뉴는 공통 모달 라우트로 이동한다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+
+    const { getByText } = render(<MyInfo />);
+
+    fireEvent.press(getByText('한마디'));
+
+    expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
   });
 
   it('푸시 토큰 삭제가 실패해도 로그아웃을 진행한다', async () => {
@@ -64,11 +85,16 @@ describe('MyInfo 로그아웃', () => {
     let confirmLogout: (() => void | Promise<void>) | undefined;
 
     (useAuthSignOut as jest.Mock).mockReturnValue(signOut);
-    (deletePushToken as jest.Mock).mockRejectedValue(new Error('delete failed'));
-    jest.spyOn(Alert, 'alert').mockImplementation((_title, _message, buttons) => {
-      confirmLogout = buttons?.find((button) => button.text === '로그아웃')
-        ?.onPress;
-    });
+    (deletePushToken as jest.Mock).mockRejectedValue(
+      new Error('delete failed'),
+    );
+    jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_title, _message, buttons) => {
+        confirmLogout = buttons?.find(
+          (button) => button.text === '로그아웃',
+        )?.onPress;
+      });
 
     const { getByText } = render(<MyInfo />);
 
@@ -78,7 +104,7 @@ describe('MyInfo 로그아웃', () => {
 
     await waitFor(() => {
       expect(signOut).toHaveBeenCalledTimes(1);
-      expect(mockReplace).toHaveBeenCalledWith('/sign-in');
+      expect(global.mockReplace).toHaveBeenCalledWith('/sign-in');
     });
   });
 });
