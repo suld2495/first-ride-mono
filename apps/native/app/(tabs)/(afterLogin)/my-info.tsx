@@ -1,37 +1,96 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import Constants from 'expo-constants';
+import { useMyStatsQuery } from '@repo/shared/hooks/useStat';
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
-import { Alert, View } from 'react-native';
+import type { Href } from 'expo-router';
+import { Alert, Pressable, View } from 'react-native';
 
 import { deletePushToken } from '@/api/push-token.api';
 import Container from '@/components/layout/container';
 import Header from '@/components/layout/header';
-import { Button } from '@/components/ui/button';
-import Link from '@/components/ui/link';
-import PixelCard from '@/components/ui/pixel-card';
+import {
+  getRoutineSceneCharacterAsset,
+  renderRoutineSceneAsset,
+} from '@/components/routine/routine-scene-art';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { useAuthSignOut } from '@/hooks/useAuthSession';
+import Typography from '@/components/ui/typography';
+import { useAuthSignOut, useAuthUser } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
-import { baseFoundation } from '@/theme/tokens';
+import type { ThemeName } from '@/theme/themes';
+import { baseFoundation, palette } from '@/theme/tokens';
+
+const FALLBACK_LEVEL = 1;
+const FALLBACK_EXP = 0;
+const FALLBACK_NEXT_LEVEL_EXP = 30;
+
+const SETTING_ITEMS: Array<{
+  title: string;
+  href?: Href;
+}> = [
+  { title: '한마디', href: '/modal?type=account' },
+  { title: '루틴 설정', href: '/routine-settings' },
+  { title: '테마 설정', href: '/modal?type=theme' },
+  { title: '알림 설정', href: '/notification-settings' },
+  { title: '이용약관', href: '/modal?type=policies' },
+  { title: '개인정보 처리방침', href: '/modal?type=privacy' },
+  { title: '문의', href: '/inquiry' },
+];
+
+type ThemeTone = 'blue' | 'green' | 'red';
+
+const getThemeTone = (themeName?: string): ThemeTone => {
+  if (themeName === 'green' || themeName === 'red') {
+    return themeName;
+  }
+
+  return 'blue';
+};
+
+const getCharacterThemeName = (themeName?: string): ThemeName => {
+  if (
+    themeName === 'light' ||
+    themeName === 'dark' ||
+    themeName === 'blue' ||
+    themeName === 'green' ||
+    themeName === 'red'
+  ) {
+    return themeName;
+  }
+
+  return 'blue';
+};
+
+const getThemePalette = (themeTone: ThemeTone) => {
+  switch (themeTone) {
+    case 'green':
+      return {
+        themeColor: palette.theme.green,
+        softThemeColor: palette.theme.softGreen,
+      };
+    case 'red':
+      return {
+        themeColor: palette.theme.red,
+        softThemeColor: palette.theme.softRed,
+      };
+    default:
+      return {
+        themeColor: palette.theme.blue,
+        softThemeColor: palette.theme.softBlue,
+      };
+  }
+};
 
 const MyInfo = () => {
   const signOut = useAuthSignOut();
+  const user = useAuthUser();
   const { pushToken } = useNotifications();
+  const { data: stats } = useMyStatsQuery();
   const { theme } = useAppTheme();
-
-  const handleMoveFeedback = async () => {
-    const extra = Constants.expoConfig?.extra as
-      | { feedback?: string }
-      | undefined;
-    const feedbackUrl = extra?.feedback;
-
-    if (typeof feedbackUrl !== 'string' || feedbackUrl.length === 0) {
-      return;
-    }
-
-    await WebBrowser.openBrowserAsync(feedbackUrl);
-  };
+  const currentExp = stats?.currentLevelProgress ?? FALLBACK_EXP;
+  const nextLevelExp = stats?.expForNextLevel ?? FALLBACK_NEXT_LEVEL_EXP;
+  const expProgress =
+    nextLevelExp > 0 ? Math.min(currentExp / nextLevelExp, 1) : 0;
+  const themeTone = getThemeTone(theme.name);
+  const { themeColor, softThemeColor } = getThemePalette(themeTone);
+  const characterThemeName = getCharacterThemeName(theme.name);
 
   const handleLogout = () => {
     Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
@@ -60,91 +119,165 @@ const MyInfo = () => {
   };
 
   return (
-    <Container noPadding>
-      <Header />
-      <View style={styles.content}>
-        <PixelCard style={styles.linkContainer}>
-          <Link
-            variant="ghost"
-            href="/modal?type=account"
-            title="한마디"
-            leftIcon={({ color }) => (
-              <Ionicons
-                name="person-circle-outline"
-                size={baseFoundation.iconSize.m}
-                color={color}
-              />
+    <Container noPadding style={styles.container}>
+      <Header title="설정" />
+      <View testID="settings-profile" style={styles.profileSection}>
+        <View style={styles.profileRow}>
+          <View
+            accessibilityLabel="프로필 이미지"
+            testID="settings-profile-avatar"
+            style={styles.avatar}
+          >
+            {renderRoutineSceneAsset(
+              getRoutineSceneCharacterAsset(characterThemeName),
+              {
+                testID: 'settings-profile-character',
+                style: styles.character,
+              },
             )}
-            style={styles.link}
+          </View>
+          <View testID="settings-profile-text" style={styles.profileText}>
+            <Typography
+              color={palette.theme.gray[80]}
+              testID="settings-profile-name"
+              variant="body2"
+              weight="semibold"
+            >
+              {user?.nickname}
+            </Typography>
+            <Typography
+              color={softThemeColor[50]}
+              testID="settings-profile-user-id"
+              variant="caption1"
+              weight="semibold"
+            >
+              {user?.userId}
+            </Typography>
+          </View>
+        </View>
+
+        <View testID="settings-level-row" style={styles.levelRow}>
+          <View testID="settings-level-badge" style={styles.levelBadge}>
+            <Typography
+              color={themeColor[80]}
+              testID="settings-level-text"
+              variant="caption2"
+              weight="semibold"
+            >
+              Lv. {stats?.currentLevel ?? FALLBACK_LEVEL}
+            </Typography>
+          </View>
+        </View>
+
+        <View testID="settings-exp-row" style={styles.expLabelRow}>
+          <View testID="settings-exp-title-row" style={styles.expTitleRow}>
+            <Typography
+              color={themeColor[80]}
+              testID="settings-exp-label"
+              variant="body3"
+              weight="semibold"
+            >
+              경험치
+            </Typography>
+            <Typography
+              color={softThemeColor[60]}
+              testID="settings-exp-unit"
+              variant="caption2"
+              weight="semibold"
+            >
+              EXP
+            </Typography>
+          </View>
+          <View testID="settings-exp-value-row" style={styles.expValueRow}>
+            <Typography
+              color={softThemeColor[80]}
+              testID="settings-exp-current"
+              variant="caption2"
+              weight="semibold"
+            >
+              {currentExp}
+            </Typography>
+            <Typography
+              color={softThemeColor[80]}
+              variant="caption2"
+              weight="semibold"
+            >
+              /
+            </Typography>
+            <Typography
+              color={softThemeColor[80]}
+              testID="settings-exp-next"
+              variant="caption2"
+              weight="semibold"
+            >
+              {nextLevelExp}
+            </Typography>
+          </View>
+        </View>
+
+        <View
+          testID="settings-progress-track"
+          style={[
+            styles.progressTrack,
+            { backgroundColor: softThemeColor[40] },
+          ]}
+        >
+          <View
+            testID="settings-progress-fill"
+            style={[
+              styles.progressFill,
+              {
+                width: `${expProgress * 100}%`,
+                backgroundColor: themeColor[50],
+              },
+            ]}
           />
-          <Link
-            variant="ghost"
-            href="/modal?type=theme"
-            title="테마 설정"
-            leftIcon={({ color }) => (
-              <Ionicons
-                name="color-palette-outline"
-                size={baseFoundation.iconSize.m}
-                color={color}
-              />
-            )}
-            style={styles.link}
-          />
-          <Link
-            variant="ghost"
-            href="/modal?type=policies"
-            title="약관 및 정책"
-            leftIcon={({ color }) => (
-              <Ionicons
-                name="newspaper-outline"
-                size={baseFoundation.iconSize.m}
-                color={color}
-              />
-            )}
-            style={styles.link}
-          />
-          <Link
-            variant="ghost"
-            href="/modal?type=privacy"
-            title="개인정보 처리방침"
-            leftIcon={({ color }) => (
-              <Ionicons
-                name="key-outline"
-                size={baseFoundation.iconSize.m}
-                color={color}
-              />
-            )}
-            style={styles.link}
-          />
-          <Button
-            variant="ghost"
-            title="처음처럼에 피드백을 남겨주세요!"
-            leftIcon={({ color }) => (
-              <Ionicons
-                name="heart-circle-outline"
-                size={baseFoundation.iconSize.m}
-                color={color}
-              />
-            )}
-            style={styles.link}
-            onPress={handleMoveFeedback}
-          />
-        </PixelCard>
-        <PixelCard style={styles.logoutContainer}>
-          <Button
-            variant="ghost"
-            title="로그아웃"
-            leftIcon={() => (
-              <Ionicons
-                name="log-out-outline"
-                size={baseFoundation.iconSize.m}
-                color={theme.colors.feedback.error.text}
-              />
-            )}
-            style={styles.link}
-            onPress={handleLogout}
-          />
-        </PixelCard>
+        </View>
+      </View>
+
+      <View
+        testID="settings-divider"
+        style={[styles.divider, { backgroundColor: softThemeColor[20] }]}
+      />
+
+      <View testID="settings-menu-list" style={styles.menuList}>
+        {SETTING_ITEMS.map((item) => (
+          <Pressable
+            accessibilityRole="button"
+            key={item.title}
+            onPress={() => {
+              if (item.href) {
+                router.push(item.href);
+              }
+            }}
+            testID={`settings-menu-item-${item.title}`}
+            style={styles.menuItem}
+          >
+            <Typography
+              color={palette.theme.gray[60]}
+              testID={`settings-menu-text-${item.title}`}
+              variant="body2"
+              weight="semibold"
+            >
+              {item.title}
+            </Typography>
+          </Pressable>
+        ))}
+        <Pressable
+          accessibilityRole="button"
+          onPress={handleLogout}
+          testID="settings-menu-item-로그아웃"
+          style={styles.menuItem}
+        >
+          <Typography
+            color={palette.theme.gray[60]}
+            testID="settings-menu-text-로그아웃"
+            variant="body2"
+            weight="semibold"
+          >
+            로그아웃
+          </Typography>
+        </Pressable>
       </View>
     </Container>
   );
@@ -154,24 +287,81 @@ export default MyInfo;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    alignItems: 'stretch',
+    backgroundColor: theme.colors.background.base,
   },
-  content: {
-    paddingHorizontal: theme.foundation.spacing[4],
+  profileSection: {
+    paddingTop: theme.foundation.spacing[0],
+    paddingHorizontal: theme.foundation.spacing[6],
+    paddingBottom: 23,
   },
-
-  linkContainer: {
-    marginTop: theme.foundation.spacing[6],
-  },
-
-  logoutContainer: {
-    marginTop: theme.foundation.spacing[4],
-  },
-
-  link: {
+  profileRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    alignSelf: 'stretch',
+  },
+  avatar: {
+    width: baseFoundation.dimension.x48,
+    height: baseFoundation.dimension.x48,
+    borderRadius: baseFoundation.dimension.x24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: theme.colors.brand.card,
+  },
+  character: {
+    width: baseFoundation.dimension.x36,
+    height: baseFoundation.dimension.x36,
+  },
+  profileText: {
+    marginLeft: theme.foundation.spacing[3],
+    gap: 7,
+  },
+  levelRow: {
+    marginTop: theme.foundation.spacing[5],
+    alignItems: 'flex-start',
+  },
+  levelBadge: {
+    height: baseFoundation.dimension.x16,
+    paddingHorizontal: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: baseFoundation.dimension.x99,
+    backgroundColor: theme.colors.brand.primary,
+  },
+  expLabelRow: {
+    marginTop: theme.foundation.spacing[2],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  expTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.dimension.x5,
+  },
+  expValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.dimension.x2,
+  },
+  progressTrack: {
+    marginTop: theme.foundation.spacing[2],
+    height: baseFoundation.dimension.x8,
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 999,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+  },
+  menuList: {
+    paddingTop: theme.foundation.spacing[3],
+  },
+  menuItem: {
+    height: baseFoundation.dimension.x44,
+    justifyContent: 'center',
+    paddingLeft: theme.foundation.spacing[6],
   },
 }));

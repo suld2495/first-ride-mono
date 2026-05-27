@@ -1,8 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {
-  usePausedRoutinesQuery,
-  useRoutinesQuery,
-} from '@repo/shared/hooks/useRoutine';
+import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -13,10 +10,7 @@ import {
   type LayoutChangeEvent,
   View,
 } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
@@ -44,7 +38,7 @@ const SPEECH_BUBBLE_FADE_OUT_MS = 300;
 const SPEECH_BUBBLE_RESIZE_MS = 180;
 const SPEECH_BUBBLE_BOTTOM_OFFSET =
   baseFoundation.dimension.x100 + baseFoundation.spacing[1];
-const EMPTY_CHARACTER_BOTTOM_INSET_THRESHOLD = baseFoundation.dimension.x20;
+const ROUTINE_CHARACTER_BOTTOM_OFFSET = baseFoundation.dimension.x48;
 const normalizeMottoText = (value: unknown): string[] => {
   if (Array.isArray(value)) {
     return value.flatMap(normalizeMottoText);
@@ -80,7 +74,6 @@ const getRandomMotto = (mottos: string[]): string => {
 export default function Index() {
   const router = useRouter();
   const resetRoutineForm = useResetRoutineFormState();
-  const insets = useSafeAreaInsets();
   const isFirstLoadRef = useRef(true);
   const speechBubbleHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -89,7 +82,6 @@ export default function Index() {
   const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
   const [isSpeechBubbleVisible, setIsSpeechBubbleVisible] = useState(false);
   const [speechBubbleMessage, setSpeechBubbleMessage] = useState('안녕?');
-  const [showPausedRoutines, setShowPausedRoutines] = useState(false);
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
 
   const searchParams = useLocalSearchParams();
@@ -102,13 +94,7 @@ export default function Index() {
     isLoading,
     refetch,
   } = useRoutinesQuery(user?.nickname || '', date);
-  const {
-    data: pausedRoutines = [],
-    isLoading: isPausedRoutinesLoading,
-    refetch: refetchPausedRoutines,
-  } = usePausedRoutinesQuery(user?.nickname || '', showPausedRoutines);
-  const displayedRoutines = showPausedRoutines ? pausedRoutines : routines;
-  const hasRoutines = displayedRoutines.length > 0;
+  const hasRoutines = routines.length > 0;
   const mottos = useMemo(() => {
     const normalizedMottos = normalizeMottoText(user?.mottos);
 
@@ -116,13 +102,7 @@ export default function Index() {
       ? normalizedMottos
       : normalizeMottoText(user?.motto);
   }, [user?.motto, user?.mottos]);
-  const emptyCharacterBottomOffset =
-    baseFoundation.spacing[5] +
-    Math.max(EMPTY_CHARACTER_BOTTOM_INSET_THRESHOLD - insets.bottom, 0);
-  const characterAreaBottomPadding = Math.max(
-    EMPTY_CHARACTER_BOTTOM_INSET_THRESHOLD - insets.bottom,
-    0,
-  );
+  const routineCharacterBottomOffset = ROUTINE_CHARACTER_BOTTOM_OFFSET;
 
   useEffect(() => {
     if (!isLoading && isFirstLoadRef.current) {
@@ -130,26 +110,17 @@ export default function Index() {
     }
   }, [isLoading]);
 
-  const showLoading =
-    (isLoading && isFirstLoadRef.current) ||
-    (showPausedRoutines &&
-      isPausedRoutinesLoading &&
-      pausedRoutines.length === 0);
+  const showLoading = isLoading && isFirstLoadRef.current;
 
   const handleRefresh = useCallback(async () => {
     setIsManualRefreshing(true);
 
     try {
-      if (showPausedRoutines) {
-        await refetchPausedRoutines();
-        return;
-      }
-
       await refetch();
     } finally {
       setIsManualRefreshing(false);
     }
-  }, [refetch, refetchPausedRoutines, showPausedRoutines]);
+  }, [refetch]);
 
   const handleRoutineListAreaLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -166,10 +137,6 @@ export default function Index() {
     resetRoutineForm();
     router.push('/modal?type=routine-add');
   }, [resetRoutineForm, router]);
-
-  const handleTogglePausedRoutines = useCallback(() => {
-    setShowPausedRoutines((prev) => !prev);
-  }, []);
 
   const handleCharacterPress = useCallback(() => {
     if (speechBubbleHideTimerRef.current) {
@@ -243,12 +210,8 @@ export default function Index() {
       <View style={styles.contentWrapper}>
         <RoutineHeader
           date={date}
-          onPressPausedRoutines={handleTogglePausedRoutines}
-          showingPausedRoutines={showPausedRoutines}
           onPressReorder={
-            hasRoutines && !showPausedRoutines
-              ? handleOpenRoutineReorderModal
-              : undefined
+            hasRoutines ? handleOpenRoutineReorderModal : undefined
           }
         />
         {showLoading ? (
@@ -265,7 +228,7 @@ export default function Index() {
                   testID="routine-list-area"
                 >
                   <RoutineList
-                    routines={displayedRoutines}
+                    routines={routines}
                     date={date}
                     listAreaHeight={routineListAreaHeight || undefined}
                     refreshing={isManualRefreshing}
@@ -275,7 +238,7 @@ export default function Index() {
                 <View
                   style={[
                     styles.routineCharacterArea,
-                    { paddingBottom: characterAreaBottomPadding },
+                    { bottom: routineCharacterBottomOffset },
                   ]}
                   testID="routine-character-area"
                 >
@@ -295,13 +258,17 @@ export default function Index() {
                     )}
                   </View>
                 </View>
+                <View
+                  style={styles.routineBottomSpacer}
+                  testID="routine-bottom-spacer"
+                />
               </>
             ) : (
               <>
                 <View
                   style={[
-                    styles.emptyRoutineCharacterArea,
-                    { bottom: emptyCharacterBottomOffset },
+                    styles.routineCharacterArea,
+                    { bottom: routineCharacterBottomOffset },
                   ]}
                   testID="routine-character-area"
                 >
@@ -309,7 +276,7 @@ export default function Index() {
                 </View>
                 <View style={styles.emptyStateOverlay}>
                   <RoutineList
-                    routines={displayedRoutines}
+                    routines={routines}
                     date={date}
                     refreshing={isManualRefreshing}
                     onRefresh={handleRefresh}
@@ -373,12 +340,10 @@ const styles = StyleSheet.create((theme) => ({
   routineListArea: {
     flex: 7,
   },
-  routineCharacterArea: {
+  routineBottomSpacer: {
     flex: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  emptyRoutineCharacterArea: {
+  routineCharacterArea: {
     position: 'absolute',
     right: theme.foundation.spacing[4],
     left: theme.foundation.spacing[4],

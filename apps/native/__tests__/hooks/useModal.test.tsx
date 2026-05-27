@@ -10,6 +10,7 @@ jest.mock('expo-image-picker', () => ({
 
 jest.mock('@/components/modal/friend-request-list-modal', () => jest.fn());
 jest.mock('@/components/modal/friend-routines-modal', () => jest.fn());
+jest.mock('@/components/modal/hidden-routines-modal', () => jest.fn());
 jest.mock('@/components/modal/privacy-modal', () => jest.fn());
 jest.mock('@/components/modal/quest-detail-modal', () => jest.fn());
 jest.mock('@/components/modal/quest-form-modal', () => jest.fn());
@@ -34,5 +35,11 @@ describe('useModal', () => {
     const [, , options] = useModal('quest-detail');
 
     expect(options.contentPaddingHorizontal).toBe(20);
+  });
+
+  it('숨긴 루틴 모아보기 모달을 공통 모달에 매핑한다', () => {
+    const [title] = useModal('hidden-routines');
+
+    expect(title).toBe('숨긴 루틴 모아보기');
   });
 });

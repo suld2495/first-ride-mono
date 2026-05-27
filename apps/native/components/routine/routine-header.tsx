@@ -19,8 +19,6 @@ interface RoutineHeaderProps {
   date: string;
   getDateHref?: (date: string) => Href;
   onPressReorder?: () => void;
-  onPressPausedRoutines?: () => void;
-  showingPausedRoutines?: boolean;
   showNotification?: boolean;
 }
 
@@ -29,8 +27,6 @@ const RoutineHeader = ({
   getDateHref = (targetDate) =>
     `/(tabs)/(afterLogin)/(routine)?date=${targetDate}` as Href,
   onPressReorder,
-  onPressPausedRoutines,
-  showingPausedRoutines = false,
   showNotification = true,
 }: RoutineHeaderProps) => {
   const { theme } = useAppTheme();
@@ -87,28 +83,8 @@ const RoutineHeader = ({
         </View>
       }
       right={
-        showNotification || onPressReorder || onPressPausedRoutines ? (
+        showNotification || onPressReorder ? (
           <View style={styles.actions} testID="routine-header-actions">
-            {onPressPausedRoutines ? (
-              <IconButton
-                size="sm"
-                variant="ghost"
-                icon={({ size }) => (
-                  <Ionicons
-                    name={showingPausedRoutines ? 'eye' : 'eye-off'}
-                    size={size}
-                    color={NOTIFICATION_ICON_COLOR}
-                  />
-                )}
-                onPress={onPressPausedRoutines}
-                accessibilityLabel={
-                  showingPausedRoutines ? '전체 루틴 보기' : '숨김 루틴 보기'
-                }
-                accessibilityRole="button"
-                style={styles.actionButton}
-                testID="routine-paused-list-button"
-              />
-            ) : null}
             {onPressReorder ? (
               <IconButton
                 size="sm"

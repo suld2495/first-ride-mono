@@ -1,20 +1,23 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
-import Typography from './typography';
 import ThemeView from './theme-view';
+import Typography from './typography';
 
 interface EmptyStateProps {
   icon?: keyof typeof Ionicons.glyphMap;
   message: string;
+  messageColor?: string;
   transparent?: boolean;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
   icon = 'folder-open-outline',
   message,
+  messageColor,
   transparent = false,
 }) => {
   const { theme } = useAppTheme();
@@ -26,7 +29,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         size={baseFoundation.iconSize.xxl}
         color={theme.colors.text.tertiary}
       />
-      <Typography variant="body" style={styles.message}>
+      <Typography color={messageColor} variant="body" style={styles.message}>
         {message}
       </Typography>
     </ThemeView>

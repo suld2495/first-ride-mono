@@ -9,6 +9,7 @@ import { Pressable, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
+import { palette } from '../../../theme/tokens';
 import {
   act,
   describeAuthRedirect,
@@ -21,7 +22,6 @@ import {
   createMockRoutine,
   createMockRoutines,
 } from '../../setup/routine/mock';
-import { palette } from '../../../theme/tokens';
 
 const formatRoutineHeaderDate = (date: Date) => {
   const year = date.getFullYear();
@@ -190,6 +190,21 @@ describe('루틴 조회 페이지', () => {
         expect(queryByTestId('routine-scene-background')).toBeOnTheScreen();
         expect(queryByTestId('routine-scene-character')).toBeOnTheScreen();
       });
+
+      it('빈 상태 캐릭터는 하단 기준으로 고정 배치한다', async () => {
+        const { findByText, getByTestId } = render(<Index />);
+
+        await findByText('등록된 루틴이 없습니다.');
+
+        expect(
+          flattenStyles(getByTestId('routine-character-area').props.style),
+        ).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ bottom: 48 }),
+            expect.objectContaining({ position: 'absolute' }),
+          ]),
+        );
+      });
     });
 
     describe('루틴이 존재하는 경우', () => {
@@ -349,56 +364,22 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('숨김 루틴 버튼을 누르면 숨김 처리된 루틴만 표시한다', async () => {
-        const visibleRoutine = createMockRoutines(1, {
-          paused: false,
-        })[0];
-        const pausedRoutine = {
-          ...createMockRoutines(1, {
-            paused: true,
-          })[0],
-          routineId: 99,
-          routineName: '숨김 루틴',
-          successDate: null,
-        };
-
-        mockAxios.resetHandlers();
-        mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
-        mockAxios
-          .onGet(/\/routine\/list\?date=/)
-          .reply(200, { data: [visibleRoutine] });
-        mockAxios
-          .onGet('/routine/list/paused')
-          .reply(200, { data: [pausedRoutine] });
-
-        const { findByLabelText, findByText, queryByText } = render(<Index />);
+      it('루틴 화면에서는 숨김 루틴 보기 버튼을 표시하지 않는다', async () => {
+        const { findByText, queryByLabelText } = render(<Index />);
 
         expect(await findByText('테스트 루틴 1')).toBeOnTheScreen();
-
-        fireEvent.press(await findByLabelText('숨김 루틴 보기'));
-
-        expect(await findByText('숨김 루틴')).toBeOnTheScreen();
-        expect(queryByText('테스트 루틴 1')).toBeNull();
-        expect(
-          mockAxios.history.get.some(
-            (request) => request.url === '/routine/list/paused',
-          ),
-        ).toBe(true);
+        expect(queryByLabelText('숨김 루틴 보기')).not.toBeOnTheScreen();
       });
 
       it('헤더 액션 아이콘 간격을 좁게 유지한다', async () => {
         const { findByLabelText, findByTestId } = render(<Index />);
 
         const actions = await findByTestId('routine-header-actions');
-        const pausedButton = await findByLabelText('숨김 루틴 보기');
         const reorderButton = await findByLabelText('루틴 순서 변경');
         const notificationButton = await findByLabelText('인증 요청 알림');
 
         expect(flattenStyles(actions.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ gap: 4 })]),
-        );
-        expect(flattenPressableStyles(pausedButton.props.style)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ width: 24 })]),
         );
         expect(flattenPressableStyles(reorderButton.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ width: 24 })]),
@@ -749,19 +730,26 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('헤더 아래와 탭바 위 영역을 루틴 리스트 7, 캐릭터 3 비율로 나눈다', async () => {
+      it('루틴이 있어도 캐릭터는 빈 상태와 같은 하단 기준으로 고정 배치한다', async () => {
         const { findByText, getByTestId } = render(<Index />);
 
         await findByText('테스트 루틴 1');
 
         const routineListArea = getByTestId('routine-list-area');
         const routineCharacterArea = getByTestId('routine-character-area');
+        const routineBottomSpacer = getByTestId('routine-bottom-spacer');
 
         expect(flattenStyles(routineListArea.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ flex: 7 })]),
         );
-        expect(flattenStyles(routineCharacterArea.props.style)).toEqual(
+        expect(flattenStyles(routineBottomSpacer.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ flex: 3 })]),
+        );
+        expect(flattenStyles(routineCharacterArea.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ bottom: 48 }),
+            expect.objectContaining({ position: 'absolute' }),
+          ]),
         );
       });
 

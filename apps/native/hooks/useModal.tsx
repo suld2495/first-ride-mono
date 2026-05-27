@@ -1,6 +1,7 @@
 import Account from '@/app/account';
 import FriendRequestListModal from '@/components/modal/friend-request-list-modal';
 import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
+import HiddenRoutinesModal from '@/components/modal/hidden-routines-modal';
 import PrivacyModal from '@/components/modal/privacy-modal';
 import QuestDetailModal from '@/components/modal/quest-detail-modal';
 import QuestFormModal from '@/components/modal/quest-form-modal';
@@ -19,6 +20,7 @@ export type ModalType =
   | 'routine-update'
   | 'routine-detail'
   | 'routine-reorder'
+  | 'hidden-routines'
   | 'quest-add'
   | 'quest-detail'
   | 'request'
@@ -52,6 +54,8 @@ export const useModal = (
       return ['루틴 상세', RoutineDetailModal, {}];
     case 'routine-reorder':
       return ['루틴 순서 변경', RoutineReorderModal, {}];
+    case 'hidden-routines':
+      return ['숨긴 루틴 모아보기', HiddenRoutinesModal, {}];
     case 'quest-add':
       return ['퀘스트 추가', QuestFormModal, {}];
     case 'quest-detail':

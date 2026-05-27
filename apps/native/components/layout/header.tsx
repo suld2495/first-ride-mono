@@ -5,13 +5,17 @@ import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 import { baseFoundation } from '@/theme/tokens';
 
-const Header = () => {
+interface HeaderProps {
+  title?: string;
+}
+
+const Header = ({ title }: HeaderProps) => {
   const user = useAuthUser();
   const { data: requests } = useReceivedRequests(user?.nickname || '');
 
   return (
     <PageHeader
-      title={user?.nickname}
+      title={title ?? user?.nickname}
       right={
         <NotificationBell
           count={requests.length}

@@ -16,8 +16,8 @@ import AppTamaguiProvider, {
 } from '@/components/ui/tamagui-provider';
 import ToastContainer from '@/components/ui/toast-container';
 import { ToastProvider } from '@/contexts/ToastContext';
-import { useAuthUser } from '@/hooks/useAuthSession';
 import { useAppActiveRefresh } from '@/hooks/useAppActiveRefresh';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {
   setNotificationHandler,
@@ -65,6 +65,15 @@ const StackLayout = () => {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="account" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="routine-settings"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="notification-settings"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="inquiry" options={{ headerShown: false }} />
           </Stack.Protected>
           <Stack.Protected guard={!user}>
             <Stack.Screen name="sign-in" options={{ headerShown: false }} />
