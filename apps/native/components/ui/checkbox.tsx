@@ -1,5 +1,5 @@
-import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import type { TextStyle } from 'react-native';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import Svg, { Path } from 'react-native-svg';
 
 import { useAppTheme } from '@/components/ui/tamagui';
@@ -17,7 +17,6 @@ const DEFAULT_BORDER_RADIUS = 5;
 const DEFAULT_BORDER_COLOR = palette.theme.gray[5];
 const DEFAULT_BACKGROUND_COLOR = palette.white;
 const DEFAULT_CHECK_COLOR = palette.theme.gray[5];
-const DEFAULT_LABEL_COLOR = palette.theme.gray[90];
 
 const CHECKBOX_LABEL_STYLE_MAP: Record<
   CheckboxSize,
@@ -41,7 +40,12 @@ const CHECKBOX_LABEL_STYLE_MAP: Record<
 };
 
 const CheckboxCheckIcon = () => (
-  <Svg width={11} height={10} viewBox="0 0 11 10" fill="none">
+  <Svg
+    width={baseFoundation.dimension.x11}
+    height={baseFoundation.dimension.x10}
+    viewBox="0 0 11 10"
+    fill="none"
+  >
     <Path
       d="M1 5.9695L2.2045 7.261C2.869 7.9735 3.20125 8.329 3.57325 8.4415C3.90025 8.53975 4.24825 8.5135 4.5595 8.3665C4.91425 8.1985 5.1985 7.79575 5.7685 6.9895L10 1"
       stroke={DEFAULT_CHECK_COLOR}
@@ -87,6 +91,7 @@ const Checkbox = ({
 }: CheckboxProps) => {
   const { theme } = useAppTheme();
   const defaultFillColor = theme.colors.action.primary.default;
+  const defaultLabelColor = theme.colors.text.gray;
   const resolvedBorderRadius = borderRadius ?? DEFAULT_BORDER_RADIUS;
   const iconStyle = { borderRadius: resolvedBorderRadius };
   const innerIconStyle = {
@@ -94,7 +99,7 @@ const Checkbox = ({
     borderRadius: resolvedBorderRadius,
   };
   const textStyle = {
-    color: DEFAULT_LABEL_COLOR,
+    color: defaultLabelColor,
     ...CHECKBOX_LABEL_STYLE_MAP[size],
     ...(strikeThroughOnChecked ? {} : { textDecorationLine: 'none' as const }),
   };

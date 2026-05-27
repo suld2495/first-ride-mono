@@ -32,10 +32,11 @@ export const darkTheme: ThemeContract = {
       disabled: '#334155',
       inverse: '#0f172a',
       link: palette.stitch.primary,
-      gray: palette.gray[100],
-      title: palette.gray[100],
-      label: palette.gray[100],
-      input: palette.gray[100],
+      gray: palette.theme.gray[5],
+      title: palette.theme.gray[5],
+      pageHeaderTitle: palette.theme.gray[90],
+      label: palette.theme.gray[5],
+      input: palette.theme.gray[5],
     },
     action: {
       primary: {
@@ -47,14 +48,14 @@ export const darkTheme: ThemeContract = {
       secondary: {
         default: palette.blue[900],
         pressed: palette.blue[800],
-        disabled: palette.gray[800],
+        disabled: palette.theme.gray[40],
         label: palette.blue[300],
       },
       ghost: {
         default: 'transparent',
-        pressed: palette.gray[800],
+        pressed: palette.theme.gray[40],
         disabled: 'transparent',
-        label: palette.gray[300],
+        label: palette.theme.gray[8],
       },
     },
     feedback: {

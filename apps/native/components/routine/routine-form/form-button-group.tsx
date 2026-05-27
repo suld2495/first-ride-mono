@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import type { ModalType } from '@/hooks/useModal';
-import { palette } from '@/theme/tokens';
 
 interface FormButtonGroupProps {
   type: ModalType;
@@ -53,7 +52,7 @@ const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
           <Button
             title="수정"
             variant="primary"
-            backgroundColor={palette.theme.gray[90]}
+            backgroundColor={theme.colors.text.gray}
             onPress={() => handleSubmit()}
             style={styles.button}
             disabled={!isValid}

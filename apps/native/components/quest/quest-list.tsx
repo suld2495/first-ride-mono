@@ -1,72 +1,108 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Quest } from '@repo/types';
 import { useCallback } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
-import { PixelCard } from '@/components/ui/pixel-card';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import ThemeView from '@/components/ui/theme-view';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { baseFoundation } from '@/theme/tokens';
-
-import QuestTime from './quest-time';
-
-const QUEST_LABEL: Record<Quest['questType'], string> = {
-  DAILY: '일일 퀘스트',
-  WEEKLY: '주간 퀘스트',
-};
 
 interface QuestItemProps {
   quest: Quest;
   onClick: (item: Quest) => void;
 }
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const formatRemainingDays = (endDate: string) => {
+  const diff = new Date(endDate).getTime() - Date.now();
+  const days = Math.ceil(diff / MS_PER_DAY);
+
+  if (days > 0) {
+    return `${days}일 남음`;
+  }
+
+  if (days === 0) {
+    return '오늘 마감';
+  }
+
+  return '종료됨';
+};
+
+const getProgressPercent = (current: number, target: number) => {
+  if (target <= 0) {
+    return 0;
+  }
+
+  return Math.min((current / target) * 100, 100);
+};
+
 const QuestItem = ({ quest, onClick }: QuestItemProps) => {
-  const { theme } = useAppTheme();
-  const { questType, questName, description, endDate } = quest;
+  const {
+    currentVerificationCount,
+    endDate,
+    questName,
+    verificationTargetCount,
+  } = quest;
+  const currentCount = currentVerificationCount ?? 0;
+  const targetCount = verificationTargetCount ?? 0;
+  const progressPercent = getProgressPercent(currentCount, targetCount);
 
   return (
     <Pressable
       onPress={() => onClick(quest)}
       style={({ pressed }) => [pressed && { opacity: 0.9 }]}
     >
-      <PixelCard style={styles.card}>
-        {/* Type Badge */}
-        <ThemeView style={styles.headerRow} transparent>
-          <ThemeView style={styles.badge}>
-            <Typography
-              variant="label"
-              weight="semibold"
-              color={theme.colors.action.secondary.label}
-              style={styles.badgeText}
-            >
-              {QUEST_LABEL[questType]}
-            </Typography>
-          </ThemeView>
-          <QuestTime endDate={new Date(endDate)} />
-        </ThemeView>
-
-        {/* Quest Name */}
-        <Typography variant="body" style={styles.questName}>
-          {questName}
-        </Typography>
-
-        {/* GOAL Section */}
-        <ThemeView style={styles.goalSection} transparent>
-          <ThemeView style={styles.goalIcon} transparent>
-            <Ionicons
-              name="flag-outline"
-              size={baseFoundation.dimension.x14}
-              color={theme.colors.text.secondary}
+      <View style={styles.cardOuter}>
+        <View style={styles.cardInner}>
+          <View style={styles.cardContent} testID="quest-card-content">
+            <View
+              style={styles.iconPlaceholder}
+              testID="quest-icon-placeholder"
             />
-          </ThemeView>
-          <Typography variant="label" weight="semibold" style={styles.goalText}>
-            {description}
-          </Typography>
-        </ThemeView>
-      </PixelCard>
+            <View style={styles.contentColumn} testID="quest-content-column">
+              <View style={styles.titleStack} testID="quest-text-stack">
+                <Typography
+                  variant="caption3"
+                  weight="semibold"
+                  style={styles.remainingText}
+                >
+                  {formatRemainingDays(endDate)}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  weight="semibold"
+                  style={styles.questName}
+                >
+                  {questName}
+                </Typography>
+              </View>
+              <View style={styles.progressRow} testID="quest-progress-row">
+                <View
+                  style={styles.progressTrack}
+                  testID="quest-progress-track"
+                >
+                  <View
+                    style={[
+                      styles.progressFill,
+                      { width: `${progressPercent}%` },
+                    ]}
+                    testID="quest-progress-fill"
+                  />
+                </View>
+                <Typography
+                  variant="caption"
+                  weight="semibold"
+                  style={styles.progressValue}
+                >
+                  {currentCount}/{targetCount}
+                </Typography>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
     </Pressable>
   );
 };
@@ -77,11 +113,14 @@ interface QuestListProps {
 }
 
 const QUEST_ITEM_HEIGHT = 120;
+const QUEST_ITEM_GAP = 8;
 const getQuestItemLayout = (_: Quest[] | null, index: number) => ({
   length: QUEST_ITEM_HEIGHT,
-  offset: QUEST_ITEM_HEIGHT * index,
+  offset: (QUEST_ITEM_HEIGHT + QUEST_ITEM_GAP) * index,
   index,
 });
+
+const QuestItemSeparator = () => <View style={styles.itemSeparator} />;
 
 const QuestList = ({ quests, onClickItem }: QuestListProps) => {
   const renderQuestItem = useCallback<ListRenderItem<Quest>>(
@@ -96,6 +135,7 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
       renderItem={renderQuestItem}
       style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
+      ItemSeparatorComponent={QuestItemSeparator}
       showsVerticalScrollIndicator={false}
       estimatedItemSize={QUEST_ITEM_HEIGHT}
       removeClippedSubviews
@@ -120,59 +160,82 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   scrollContent: {
-    // paddingHorizontal removed to fix double padding
-    paddingTop: theme.foundation.spacing[4],
-    paddingBottom: theme.foundation.spacing[8],
-    gap: theme.foundation.spacing[4],
     flexGrow: 1,
   },
 
-  card: {
-    padding: theme.foundation.spacing[4],
+  itemSeparator: {
+    height: QUEST_ITEM_GAP,
+  },
+
+  cardOuter: {
+    borderColor: theme.colors.brand.text,
+    borderWidth: 2,
+    borderRadius: baseFoundation.dimension.x14,
+    backgroundColor: '#FFFFFF',
     marginVertical: baseFoundation.spacing[0],
+    padding: baseFoundation.dimension.x2,
   },
 
-  headerRow: {
+  cardInner: {
+    borderColor: '#FFFFFF',
+    borderWidth: 3,
+    borderRadius: baseFoundation.dimension.x12,
+    backgroundColor: theme.colors.brand.text,
+    padding: 17,
+  },
+
+  cardContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.foundation.spacing[2],
+    alignItems: 'flex-start',
+    gap: baseFoundation.dimension.x12,
   },
 
-  badge: {
-    backgroundColor: theme.colors.action.secondary.default,
-    paddingHorizontal: theme.foundation.spacing[2],
-    paddingVertical: baseFoundation.spacing[1],
-    borderRadius: theme.foundation.radii.s,
+  iconPlaceholder: {
+    width: baseFoundation.dimension.x40,
+    height: baseFoundation.dimension.x40,
+    borderRadius: baseFoundation.dimension.x6,
+    backgroundColor: '#FFFFFF',
   },
 
-  badgeText: {
-    fontSize: baseFoundation.typography.size.caption2,
-    fontWeight: 'bold',
+  contentColumn: {
+    flex: 1,
+    gap: baseFoundation.dimension.x8,
+  },
+
+  titleStack: {
+    gap: baseFoundation.dimension.x6,
+  },
+
+  remainingText: {
+    color: theme.colors.text.secondary,
   },
 
   questName: {
-    fontWeight: 'bold',
-    marginBottom: theme.foundation.spacing[4],
+    color: '#FFFFFF',
+    lineHeight: baseFoundation.typography.size.body2 * 1.3,
   },
 
-  goalSection: {
+  progressRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.spacing[2],
-    // backgroundColor removed
-    // padding removed or reduced
-    marginTop: theme.foundation.spacing[2],
+    gap: baseFoundation.dimension.x8,
   },
 
-  goalIcon: {
-    marginTop: baseFoundation.spacing[0],
-  },
-
-  goalText: {
+  progressTrack: {
     flex: 1,
-    color: theme.colors.text.tertiary,
-    fontSize: baseFoundation.typography.size.caption2,
-    lineHeight: 18, // Increased for better readability
+    height: baseFoundation.dimension.x8,
+    borderRadius: 999,
+    backgroundColor: theme.colors.text.muted,
+    overflow: 'hidden',
+  },
+
+  progressFill: {
+    height: '100%',
+    borderRadius: 999,
+    backgroundColor: theme.colors.brand.primary,
+  },
+
+  progressValue: {
+    color: theme.colors.brand.background ?? '#FFFFFF',
   },
 }));

@@ -1,6 +1,6 @@
 import type { FormContextType } from '@repo/shared/components';
 import { useFetchRewardsQuery } from '@repo/shared/hooks/useQuest';
-import { getMondayDate, getNextMonday, isMonday } from '@repo/shared/utils';
+import { getMondayDate, isMonday } from '@repo/shared/utils';
 import type { CreateQuestForm, VerificationType } from '@repo/types';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -82,10 +82,6 @@ const getQuestStartMonday = (date: Date) => {
   return getStartOfDay(getMondayDate(date));
 };
 
-const getFirstSelectableMonday = () => {
-  return getStartOfDay(getNextMonday(new Date()));
-};
-
 const sanitizeNumericInput = (text: string): string => {
   return text.replace(/[^0-9]/g, '');
 };
@@ -141,15 +137,6 @@ const QuestFormModal = () => {
           },
           startDate: (value) => {
             if (!value) return '시작 날짜를 선택해주세요.';
-            const today = new Date();
-
-            today.setHours(0, 0, 0, 0);
-            const selectedDate = new Date(value);
-
-            selectedDate.setHours(0, 0, 0, 0);
-            if (selectedDate < today) {
-              return '시작 날짜는 오늘 이후여야 합니다.';
-            }
             return undefined;
           },
           requiredLevel: (value) => {
@@ -253,7 +240,6 @@ const QuestFormModal = () => {
                 buttonSize="sm"
                 buttonStyle={styles.dateButton}
                 sheetLabel="날짜 선택"
-                minimumDate={getFirstSelectableMonday()}
                 isDateSelectable={isMonday}
                 onConfirmDate={(date) => {
                   setValue(

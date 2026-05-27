@@ -1,3 +1,4 @@
+import { blueTheme, greenTheme, lightTheme, redTheme } from '@/theme/themes';
 import {
   baseFoundation,
   createFoundation,
@@ -5,7 +6,6 @@ import {
   spacing,
   tokens,
 } from '@/theme/tokens';
-import { blueTheme, greenTheme, lightTheme, redTheme } from '@/theme/themes';
 
 describe('theme/tokens', () => {
   it('디자인 시스템 토큰 공개 API를 한 곳에서 제공한다', () => {
@@ -99,6 +99,7 @@ describe('theme/tokens', () => {
           link: '#0af',
           gray: '#eee',
           title: '#fff',
+          pageHeaderTitle: '#18191B',
           label: '#ddd',
           input: '#ddd',
         },

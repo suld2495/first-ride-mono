@@ -19,7 +19,7 @@ import { Typography } from '@/components/ui/typography';
 import { baseFoundation } from '@/theme/tokens';
 
 interface DateCalendarProps {
-  minimumDate: Date;
+  minimumDate?: Date;
   selectedDate: Date | null;
   onSelectDate: (date: Date) => void;
   onConfirm: () => void;
@@ -123,15 +123,15 @@ const DateCalendar = ({
   const yearListRef = React.useRef<FlashListRef<number>>(null);
   const monthListRef = React.useRef<FlashListRef<number>>(null);
   const [currentMonth, setCurrentMonth] = React.useState(() =>
-    getMonthStart(selectedDate ?? minimumDate),
+    getMonthStart(selectedDate ?? minimumDate ?? new Date()),
   );
   const [isMonthPickerOpen, setIsMonthPickerOpen] = React.useState(false);
   const [draftYear, setDraftYear] = React.useState(currentMonth.getFullYear());
   const [draftMonth, setDraftMonth] = React.useState(currentMonth.getMonth());
-  const minDate = getStartOfDay(minimumDate);
+  const minDate = minimumDate ? getStartOfDay(minimumDate) : null;
   const selectedKey = selectedDate ? formatDateKey(selectedDate) : null;
   const cells = getMonthCells(currentMonth);
-  const yearOptions = getYearOptions(minimumDate);
+  const yearOptions = getYearOptions(currentMonth);
 
   const openMonthPicker = () => {
     setDraftYear(currentMonth.getFullYear());
@@ -402,7 +402,8 @@ const DateCalendar = ({
                 date.getMonth() === currentMonth.getMonth();
               const dateKey = formatDateKey(date);
               const isSelectable =
-                getStartOfDay(date).getTime() >= minDate.getTime() &&
+                (!minDate ||
+                  getStartOfDay(date).getTime() >= minDate.getTime()) &&
                 (isDateSelectable ? isDateSelectable(date) : true);
               const isSelected = selectedKey === dateKey;
 

@@ -1,19 +1,32 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import ModalHeader from '@/components/modal/modal-header';
 import ModalHeaderActionProvider from '@/components/modal/modal-header-action-provider';
+import { baseFoundation } from '@/theme/tokens';
 
-import { render } from '../../setup/test-utils';
+import { fireEvent, render } from '../../setup/test-utils';
+
+const mockBack = jest.fn();
+const mockReplace = jest.fn();
 
 jest.mock('expo-router', () => ({
   router: {
-    back: jest.fn(),
+    back: mockBack,
     canGoBack: () => true,
-    replace: jest.fn(),
+    replace: mockReplace,
   },
+  useRouter: () => ({
+    back: mockBack,
+    replace: mockReplace,
+  }),
 }));
 
 describe('ModalHeader', () => {
+  beforeEach(() => {
+    mockBack.mockClear();
+    mockReplace.mockClear();
+  });
+
   it('타이틀을 좌우 컨텐츠와 무관하게 전체 너비 가운데에 둔다', () => {
     const { getByText } = render(
       <ModalHeaderActionProvider>
@@ -31,5 +44,27 @@ describe('ModalHeader', () => {
         textAlign: 'center',
       }),
     );
+  });
+
+  it('공통 헤더 높이와 뒤로가기 액션을 사용한다', () => {
+    const screen = render(
+      <ModalHeaderActionProvider>
+        <ModalHeader title="한마디" />
+      </ModalHeaderActionProvider>,
+    );
+
+    const commonHeaderViews = screen
+      .UNSAFE_getAllByType(View)
+      .filter(
+        (node) =>
+          StyleSheet.flatten(node.props.style)?.height ===
+          baseFoundation.dimension.x44,
+      );
+
+    expect(commonHeaderViews).toHaveLength(1);
+
+    fireEvent.press(screen.getByLabelText('뒤로가기'));
+
+    expect(mockBack).toHaveBeenCalledTimes(1);
   });
 });

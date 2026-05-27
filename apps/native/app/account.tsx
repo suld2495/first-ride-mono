@@ -263,7 +263,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: 0,
   },
   mottoInputText: {
-    color: palette.theme.gray[70],
+    color: theme.colors.text.label,
     fontSize: baseFoundation.typography.size.body2,
     fontWeight: baseFoundation.typography.weight.semibold,
     paddingVertical: 12,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: 8,
     paddingHorizontal: 0,
     paddingVertical: 0,
-    backgroundColor: palette.theme.gray[90],
+    backgroundColor: theme.colors.text.gray,
   },
   headerSaveButtonText: {
     fontSize: baseFoundation.typography.size.body3,

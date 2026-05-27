@@ -1,3 +1,7 @@
+import { StyleSheet, View } from 'react-native';
+
+import { baseFoundation } from '@/theme/tokens';
+
 import Header from '../../../components/layout/header';
 import { render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockRequestList } from '../../setup/request/mock';
@@ -64,5 +68,23 @@ describe('Header 컴포넌트', () => {
         expect(await findByText('1')).toBeOnTheScreen();
       });
     });
+  });
+
+  it('공통 헤더 높이를 사용한다', () => {
+    mockUseReceivedRequests.mockReturnValue({
+      data: [],
+    });
+
+    const screen = render(<Header />);
+
+    const commonHeaderViews = screen
+      .UNSAFE_getAllByType(View)
+      .filter(
+        (node) =>
+          StyleSheet.flatten(node.props.style)?.height ===
+          baseFoundation.dimension.x44,
+      );
+
+    expect(commonHeaderViews).toHaveLength(1);
   });
 });

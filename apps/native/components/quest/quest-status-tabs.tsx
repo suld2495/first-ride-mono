@@ -1,13 +1,17 @@
 import type { QuestStatusFilter } from '@repo/types';
+import type { ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { commonStatusFilterColors } from '@/theme/themes/common';
+import { baseFoundation } from '@/theme/tokens';
 
 interface QuestStatusTabsProps {
   selected: QuestStatusFilter;
   onSelect: (status: QuestStatusFilter) => void;
+  right?: ReactNode;
 }
 
 const TABS: { value: QuestStatusFilter; label: string }[] = [
@@ -17,37 +21,57 @@ const TABS: { value: QuestStatusFilter; label: string }[] = [
   { value: 'UPCOMING', label: '예정' },
 ];
 
-const QuestStatusTabs = ({ selected, onSelect }: QuestStatusTabsProps) => {
+const QuestStatusTabs = ({
+  selected,
+  onSelect,
+  right,
+}: QuestStatusTabsProps) => {
   const { theme } = useAppTheme();
+  const statusColors = theme.colors.filter?.status ?? commonStatusFilterColors;
 
   return (
     <ThemeView style={styles.container}>
-      {TABS.map((tab) => {
-        const isSelected = selected === tab.value;
+      <ThemeView style={styles.tabs} transparent>
+        {TABS.map((tab) => {
+          const isSelected = selected === tab.value;
 
-        return (
-          <Button
-            key={tab.value}
-            variant="ghost"
-            onPress={() => onSelect(tab.value)}
-            style={({ pressed }: { pressed: boolean }) => [
-              styles.tab,
-              isSelected && styles.tabSelected,
-              pressed && styles.tabPressed,
-            ]}
-          >
-            <Typography
-              variant="label"
-              weight="semibold"
-              color={
-                isSelected ? theme.colors.action.secondary.label : undefined
-              }
+          return (
+            <Button
+              key={tab.value}
+              variant="ghost"
+              onPress={() => onSelect(tab.value)}
+              style={({ pressed }: { pressed: boolean }) => [
+                styles.tab,
+                isSelected && {
+                  borderColor: statusColors.activeBorder,
+                  backgroundColor: statusColors.activeBackground,
+                },
+                !isSelected && {
+                  borderColor: statusColors.inactiveBorder,
+                },
+                pressed && styles.tabPressed,
+              ]}
             >
-              {tab.label}
-            </Typography>
-          </Button>
-        );
-      })}
+              <Typography
+                variant="body3"
+                weight="semibold"
+                color={
+                  isSelected
+                    ? statusColors.activeText
+                    : statusColors.inactiveText
+                }
+              >
+                {tab.label}
+              </Typography>
+            </Button>
+          );
+        })}
+      </ThemeView>
+      {right ? (
+        <ThemeView style={styles.right} transparent>
+          {right}
+        </ThemeView>
+      ) : null}
     </ThemeView>
   );
 };
@@ -57,24 +81,32 @@ export default QuestStatusTabs;
 const styles = StyleSheet.create((theme) => ({
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: theme.foundation.spacing[2],
-    // paddingHorizontal removed to fix double padding
+    alignItems: 'center',
+    paddingVertical: theme.foundation.spacing[1],
+  },
+
+  tabs: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    gap: baseFoundation.dimension.x4,
   },
 
   tab: {
-    flex: 1,
-    paddingVertical: theme.foundation.spacing[2],
-    paddingHorizontal: theme.foundation.spacing[4],
+    height: baseFoundation.dimension.x32,
+    paddingHorizontal: baseFoundation.dimension.x12,
+    justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: theme.foundation.radii.m,
-  },
-
-  tabSelected: {
-    backgroundColor: theme.colors.action.secondary.default,
+    borderRadius: baseFoundation.dimension.x99,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
 
   tabPressed: {
     opacity: 0.7,
+  },
+
+  right: {
+    marginLeft: theme.foundation.spacing[2],
   },
 }));

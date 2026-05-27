@@ -2,6 +2,14 @@ import { palette } from '@/theme/tokens';
 
 import { baseTheme, type ThemeContract } from './theme.contract';
 
+export const commonStatusFilterColors = {
+  activeBackground: palette.white,
+  activeBorder: palette.theme.gray[60],
+  activeText: palette.theme.gray[60],
+  inactiveBorder: palette.theme.softBlue[50],
+  inactiveText: palette.theme.softBlue[50],
+} as const;
+
 export const commonTheme: ThemeContract = {
   ...baseTheme,
   colors: {
@@ -9,6 +17,9 @@ export const commonTheme: ThemeContract = {
     border: {
       ...baseTheme.colors.border,
       input: palette.theme.gray[50],
+    },
+    filter: {
+      status: commonStatusFilterColors,
     },
     background: {
       ...baseTheme.colors.background,
@@ -20,6 +31,7 @@ export const commonTheme: ThemeContract = {
 
       gray: palette.theme.gray[90],
       title: palette.theme.gray[90],
+      pageHeaderTitle: palette.theme.gray[90],
       label: palette.theme.gray[70],
       input: palette.theme.gray[70],
     },

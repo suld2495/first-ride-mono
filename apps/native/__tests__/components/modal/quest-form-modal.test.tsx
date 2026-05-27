@@ -27,6 +27,13 @@ const getNextTuesday = (date: Date) => {
   return nextTuesday;
 };
 
+const getPreviousWeekDate = (date: Date) => {
+  const previousWeekDate = new Date(date);
+
+  previousWeekDate.setDate(previousWeekDate.getDate() - 7);
+  return previousWeekDate;
+};
+
 const mockRewards: Reward[] = [
   {
     rewardId: 1,
@@ -56,12 +63,15 @@ describe('QuestFormModal', () => {
   const mondayLabel = `${formatDateKey(nextMonday)} 선택 가능`;
   const nextTuesday = getNextTuesday(nextMonday);
   const tuesdayLabel = `${formatDateKey(nextTuesday)} 선택 불가`;
+  const previousMonday = getPreviousWeekDate(nextMonday);
+  const previousMondayLabel = `${formatDateKey(previousMonday)} 선택 가능`;
 
   const fillRequiredFields = async (
     getByPlaceholderText: (text: string) => any,
     getByText: (text: string) => any,
     getByLabelText: (text: string) => any,
     getAllByText: (text: string) => any[],
+    selectedDateLabel = mondayLabel,
   ) => {
     await waitFor(() => {
       expect(mockAxios.history.get.length).toBeGreaterThan(0);
@@ -105,7 +115,7 @@ describe('QuestFormModal', () => {
       fireEvent.press(getAllByText('선택')[0]);
     });
     await act(async () => {
-      fireEvent.press(getByLabelText(mondayLabel));
+      fireEvent.press(getByLabelText(selectedDateLabel));
     });
     await act(async () => {
       fireEvent.press(getByText('확인'));
@@ -185,6 +195,31 @@ describe('QuestFormModal', () => {
 
       expect(getByLabelText(mondayLabel)).toBeEnabled();
       expect(getByLabelText(tuesdayLabel)).toBeDisabled();
+    });
+
+    it('이전 월요일도 시작 날짜로 선택하여 생성할 수 있다', async () => {
+      const { getByPlaceholderText, getByText, getByLabelText, getAllByText } =
+        renderModal();
+
+      await fillRequiredFields(
+        getByPlaceholderText,
+        getByText,
+        getByLabelText,
+        getAllByText,
+        previousMondayLabel,
+      );
+
+      await act(async () => {
+        fireEvent.press(getByText('생성하기'));
+      });
+
+      await waitFor(() => {
+        expect(mockAxios.history.post).toHaveLength(1);
+      });
+
+      expect(JSON.parse(mockAxios.history.post[0].data)).toMatchObject({
+        startDate: `${formatDateKey(previousMonday)}T00:00:00`,
+      });
     });
 
     it('시작 날짜 선택 시 바텀 시트로 캘린더가 열린다', async () => {

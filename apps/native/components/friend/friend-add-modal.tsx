@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { FlashList } from '@/components/ui/flash-list';
 import { Input } from '@/components/ui/input';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
@@ -87,6 +87,7 @@ const UserItem = ({
   close,
   itemStyle,
 }: UserItemProps) => {
+  const { theme } = useAppTheme();
   const addMutation = useAddFriendMutation();
   const { showToast } = useToast();
   const characterImageSource = getCharacterImageSource(characterImageUrl);
@@ -151,7 +152,7 @@ const UserItem = ({
         title="친구 신청"
         variant="outline"
         size="sm"
-        textColor={palette.theme.gray[90]}
+        textColor={theme.colors.text.gray}
         onPress={handleAdd}
         style={styles.addButton}
         textStyle={styles.addButtonText}
@@ -360,7 +361,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: 17,
   },
   modalTitle: {
-    color: palette.theme.gray[90],
+    color: theme.colors.text.gray,
   },
   searchRow: {
     flexDirection: 'row',
@@ -460,11 +461,11 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x32,
     minHeight: baseFoundation.dimension.x32,
     borderRadius: baseFoundation.radii.xs,
-    borderColor: palette.theme.gray[90],
+    borderColor: theme.colors.text.gray,
     paddingHorizontal: theme.foundation.spacing[2],
   },
   addButtonText: {
-    color: palette.theme.gray[90],
+    color: theme.colors.text.gray,
     fontSize: theme.foundation.typography.size.body3,
     fontWeight: '500',
   },

@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import type { ThemeName } from '@/theme/themes';
@@ -51,6 +51,7 @@ const CharacterSpeechBubble = ({
   testID = 'character-speech-bubble',
   ...props
 }: CharacterSpeechBubbleProps) => {
+  const { theme } = useAppTheme();
   const themeName = useColorScheme();
   const { width: windowWidth } = useWindowDimensions();
   const borderColor = getCharacterSpeechBubbleBorderColor(themeName);
@@ -68,7 +69,7 @@ const CharacterSpeechBubble = ({
         testID={`${testID}-container`}
       >
         <Typography
-          color={palette.theme.gray[90]}
+          color={theme.colors.text.gray}
           variant="body3"
           weight="semibold"
           ellipsizeMode="tail"

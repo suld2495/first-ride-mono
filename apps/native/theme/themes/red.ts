@@ -1,6 +1,6 @@
 import { palette } from '@/theme/tokens';
 
-import { commonTheme } from './common';
+import { commonStatusFilterColors, commonTheme } from './common';
 import { type ThemeContract } from './theme.contract';
 
 export const redTheme: ThemeContract = {
@@ -34,6 +34,14 @@ export const redTheme: ThemeContract = {
       tertiary: palette.theme.softRed[80],
       muted: palette.theme.red[80],
       soft: palette.theme.softRed[60],
+    },
+    filter: {
+      ...commonTheme.colors.filter,
+      status: {
+        ...commonStatusFilterColors,
+        inactiveBorder: palette.theme.softRed[50],
+        inactiveText: palette.theme.softRed[50],
+      },
     },
     brand: {
       ...commonTheme.colors.brand,

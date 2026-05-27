@@ -1,6 +1,6 @@
 import { palette } from '@/theme/tokens';
 
-import { commonTheme } from './common';
+import { commonStatusFilterColors, commonTheme } from './common';
 import { type ThemeContract } from './theme.contract';
 
 export const blueTheme: ThemeContract = {
@@ -34,6 +34,14 @@ export const blueTheme: ThemeContract = {
       tertiary: palette.theme.softBlue[80],
       muted: palette.theme.blue[80],
       soft: palette.theme.softBlue[60],
+    },
+    filter: {
+      ...commonTheme.colors.filter,
+      status: {
+        ...commonStatusFilterColors,
+        inactiveBorder: palette.theme.softBlue[50],
+        inactiveText: palette.theme.softBlue[50],
+      },
     },
     brand: {
       ...commonTheme.colors.brand,

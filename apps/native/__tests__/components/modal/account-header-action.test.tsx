@@ -23,6 +23,10 @@ jest.mock('expo-router', () => ({
     canGoBack: () => true,
     replace: jest.fn(),
   },
+  useRouter: () => ({
+    back: jest.fn(),
+    replace: jest.fn(),
+  }),
 }));
 
 const getPressableStyle = (node: { props: { style: unknown } }) => {

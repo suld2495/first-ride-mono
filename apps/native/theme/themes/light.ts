@@ -32,10 +32,11 @@ export const lightTheme: ThemeContract = {
       disabled: '#cbd5e1',
       inverse: '#FFFFFF',
       link: palette.stitch.primary,
-      gray: palette.gray[900],
-      title: palette.gray[900],
-      label: palette.gray[700],
-      input: palette.gray[700],
+      gray: palette.theme.gray[80],
+      title: palette.theme.gray[80],
+      pageHeaderTitle: palette.theme.gray[90],
+      label: palette.theme.gray[30],
+      input: palette.theme.gray[30],
     },
     action: {
       primary: {
@@ -47,14 +48,14 @@ export const lightTheme: ThemeContract = {
       secondary: {
         default: palette.blue[50],
         pressed: palette.blue[100],
-        disabled: palette.gray[100],
+        disabled: palette.theme.gray[5],
         label: palette.blue[700],
       },
       ghost: {
         default: 'transparent',
-        pressed: palette.gray[100],
+        pressed: palette.theme.gray[5],
         disabled: 'transparent',
-        label: palette.gray[700],
+        label: palette.theme.gray[30],
       },
     },
     feedback: {

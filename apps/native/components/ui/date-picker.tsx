@@ -18,7 +18,7 @@ interface DatePickerProps {
   value: Date | null;
   buttonTitle: string;
   sheetLabel: string;
-  minimumDate: Date;
+  minimumDate?: Date;
   variant?: InputVariant;
   defaultDate?: Date | null;
   buttonSize?: ButtonSize;

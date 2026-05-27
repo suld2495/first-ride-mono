@@ -75,6 +75,11 @@ const mockTheme = {
       disabled: '#CCCCCC',
       inverse: '#FFFFFF',
       link: '#0000FF',
+      gray: '#18191B',
+      title: '#18191B',
+      pageHeaderTitle: '#18191B',
+      label: '#272A2D',
+      input: '#272A2D',
     },
     action: {
       primary: {

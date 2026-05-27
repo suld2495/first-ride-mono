@@ -1,67 +1,34 @@
-import { useRouter } from 'expo-router';
-
-import { Button } from '@/components/ui/button';
+import PageHeader from '@/components/layout/page-header';
+import NotificationBell from '@/components/notification/notification-bell';
 import { StyleSheet } from '@/components/ui/tamagui';
-import ThemeView from '@/components/ui/theme-view';
-import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 import { baseFoundation } from '@/theme/tokens';
 
 const QuestHeader = () => {
-  const router = useRouter();
   const user = useAuthUser();
-
-  // ADMIN 권한 체크
-  const isAdmin = user?.role === 'ADMIN';
+  const { data: requests } = useReceivedRequests(user?.nickname || '');
 
   return (
-    <ThemeView style={styles.container}>
-      <ThemeView style={styles.content}>
-        <Typography variant="title" weight="semibold" style={styles.title}>
-          퀘스트 리스트
-        </Typography>
-      </ThemeView>
-
-      {/* ADMIN 전용 추가 버튼 */}
-      {isAdmin && (
-        <Button
-          title="추가"
-          variant="primary"
+    <PageHeader
+      title="퀘스트 목록"
+      right={
+        <NotificationBell
+          count={requests.length}
           size="sm"
-          onPress={() => router.push('/modal?type=quest-add')}
-          style={styles.addButton}
+          style={styles.actionButton}
+          url="/modal?type=request-list"
         />
-      )}
-    </ThemeView>
+      }
+    />
   );
 };
 
 export default QuestHeader;
 
-const styles = StyleSheet.create((theme) => ({
-  container: {
-    width: '100%',
-    paddingVertical: theme.foundation.spacing[2],
-    // paddingHorizontal removed
-    marginTop: theme.foundation.spacing[2],
-    position: 'relative',
-    marginBottom: theme.foundation.spacing[2],
+const styles = StyleSheet.create({
+  actionButton: {
+    width: baseFoundation.dimension.x24,
+    minWidth: baseFoundation.dimension.x24,
   },
-
-  content: {
-    width: '100%',
-    alignItems: 'flex-start',
-  },
-
-  title: {
-    // marginBottom removed
-  },
-
-  addButton: {
-    position: 'absolute',
-    right: 16,
-    top: '50%',
-    transform: [{ translateY: -16 }],
-    minWidth: baseFoundation.dimension.x60,
-  },
-}));
+});

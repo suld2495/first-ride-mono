@@ -30,7 +30,7 @@ describe('AutocompleteInput', () => {
     );
     expect(optionStyle.backgroundColor).toBe('#F5F5F5');
     expect(getByText('yunji12345')).toHaveStyle({
-      color: '#000000',
+      color: palette.theme.gray[70],
     });
   });
 
@@ -55,7 +55,7 @@ describe('AutocompleteInput', () => {
     );
 
     expect(optionStyles[0].borderBottomWidth).toBe(1);
-    expect(optionStyles[0].borderBottomColor).toBe(palette.gray[200]);
+    expect(optionStyles[0].borderBottomColor).toBe(palette.theme.gray[5]);
     expect(optionStyles[0].borderTopLeftRadius).toBe(
       baseFoundation.dimension.x8,
     );
@@ -63,7 +63,7 @@ describe('AutocompleteInput', () => {
       baseFoundation.dimension.x8,
     );
     expect(optionStyles[1].borderBottomWidth).toBe(1);
-    expect(optionStyles[1].borderBottomColor).toBe(palette.gray[200]);
+    expect(optionStyles[1].borderBottomColor).toBe(palette.theme.gray[5]);
     expect(optionStyles[1].borderTopLeftRadius).toBe(0);
     expect(optionStyles[1].borderBottomLeftRadius).toBe(0);
     expect(optionStyles[2].borderBottomWidth).toBe(0);

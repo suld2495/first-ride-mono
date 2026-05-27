@@ -97,7 +97,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
       background: isDark
         ? theme.colors.background.surface
         : (theme.colors.background.input ?? theme.colors.background.surface),
-      divider: palette.gray[200],
+      divider: palette.theme.gray[5],
       text: isDark
         ? theme.colors.text.primary
         : (theme.colors.text.input ?? theme.colors.text.primary),

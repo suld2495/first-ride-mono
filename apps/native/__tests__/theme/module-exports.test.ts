@@ -1,3 +1,5 @@
+import type { BreakpointKey, ResponsiveValue } from '@/theme/responsive';
+import { isResponsiveValue, resolveResponsive } from '@/theme/responsive.utils';
 import {
   appThemes,
   darkTheme,
@@ -6,8 +8,7 @@ import {
   redTheme,
 } from '@/theme/themes';
 import type { ThemeContract } from '@/theme/themes';
-import type { BreakpointKey, ResponsiveValue } from '@/theme/responsive';
-import { isResponsiveValue, resolveResponsive } from '@/theme/responsive.utils';
+import { palette } from '@/theme/tokens';
 
 describe('theme module exports', () => {
   it('테마 파일을 theme 디렉토리에서 직접 제공한다', () => {
@@ -41,5 +42,11 @@ describe('theme module exports', () => {
     expect(isResponsiveValue(values)).toBe(true);
     expect(resolveResponsive(values, breakpoint)).toBe(16);
     expect(resolveResponsive(values, 'md')).toBe(24);
+  });
+
+  it('페이지 상단 헤더 타이틀 컬러 토큰은 모든 테마에서 skin gray 90을 사용한다', () => {
+    for (const theme of Object.values(appThemes)) {
+      expect(theme.colors.text.pageHeaderTitle).toBe(palette.theme.gray[90]);
+    }
   });
 });
