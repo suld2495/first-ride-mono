@@ -82,6 +82,10 @@ export type ThemeContract = {
         inactiveText: string;
       };
     };
+    questDetail: {
+      periodBackground: string;
+      periodText: string;
+    };
     brand: {
       grey: string;
       background: string;
@@ -204,6 +208,10 @@ export const baseTheme: ThemeContract = {
       focus: palette.stitch.primary,
       divider: '#334155',
       input: '#475569',
+    },
+    questDetail: {
+      periodBackground: palette.theme.gray[95],
+      periodText: palette.theme.gray[10],
     },
     brand: {
       grey: '#b2bec3',

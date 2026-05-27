@@ -46,7 +46,7 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
     verificationTargetCount,
   } = quest;
   const currentCount = currentVerificationCount ?? 0;
-  const targetCount = verificationTargetCount ?? 0;
+  const targetCount = Math.max(verificationTargetCount ?? 1, 1);
   const progressPercent = getProgressPercent(currentCount, targetCount);
 
   return (

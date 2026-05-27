@@ -137,6 +137,10 @@ describe('theme/tokens', () => {
           divider: '#555',
           input: '#666',
         },
+        questDetail: {
+          periodBackground: '#000',
+          periodText: '#fff',
+        },
         brand: {
           grey: '#999',
           background: '#000',

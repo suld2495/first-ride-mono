@@ -164,4 +164,28 @@ describe('QuestList', () => {
       color: '#FFFFFF',
     });
   });
+
+  it('uses 1 as the minimum progress target count', () => {
+    const emptyTargetQuest = createMockQuest(0, {
+      currentVerificationCount: 0,
+    });
+    const zeroTargetQuest = createMockQuest(1, {
+      currentVerificationCount: 0,
+      verificationTargetCount: 0,
+    });
+
+    delete (emptyTargetQuest as Partial<typeof emptyTargetQuest>)
+      .verificationTargetCount;
+
+    const screen = render(
+      <QuestList
+        quests={[emptyTargetQuest, zeroTargetQuest]}
+        onClickItem={jest.fn()}
+      />,
+    );
+
+    expect(screen.getAllByText('0/1')).toHaveLength(2);
+    expect(screen.queryByText('0/0')).not.toBeOnTheScreen();
+    expect(screen.queryByText('0/')).not.toBeOnTheScreen();
+  });
 });

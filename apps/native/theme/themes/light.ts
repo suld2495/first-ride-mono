@@ -88,6 +88,10 @@ export const lightTheme: ThemeContract = {
       divider: '#f1f5f9',
       input: '#e2e8f0',
     },
+    questDetail: {
+      periodBackground: palette.theme.gray[95],
+      periodText: palette.theme.gray[10],
+    },
     brand: {
       grey: '#636e72',
       background: '#F5F7FA',

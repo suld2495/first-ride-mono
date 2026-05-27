@@ -32,6 +32,7 @@ export type ModalType =
 
 interface ModalOptions {
   contentPadding?: boolean;
+  contentPaddingHorizontal?: number;
   contentTransparent?: boolean;
   fullBleedBackground?: boolean;
   headerTransparent?: boolean;
@@ -54,7 +55,13 @@ export const useModal = (
     case 'quest-add':
       return ['퀘스트 추가', QuestFormModal, {}];
     case 'quest-detail':
-      return ['퀘스트 상세', QuestDetailModal, {}];
+      return [
+        '퀘스트 상세',
+        QuestDetailModal,
+        {
+          contentPaddingHorizontal: 20,
+        },
+      ];
     case 'request':
       return ['인증 요청', RequestModal, {}];
     case 'request-list':

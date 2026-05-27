@@ -114,6 +114,10 @@ const mockTheme = {
       focus: '#007AFF',
       divider: '#E0E0E0',
     },
+    questDetail: {
+      periodBackground: '#000306',
+      periodText: '#B0B4BA',
+    },
     brand: {
       icon: '#000000',
       primary: '#0984e3',

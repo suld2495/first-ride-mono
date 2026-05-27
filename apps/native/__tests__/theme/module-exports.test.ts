@@ -49,4 +49,13 @@ describe('theme module exports', () => {
       expect(theme.colors.text.pageHeaderTitle).toBe(palette.theme.gray[90]);
     }
   });
+
+  it('퀘스트 상세 날짜 배지 컬러 토큰은 모든 테마에서 공통 gray 값을 사용한다', () => {
+    for (const theme of Object.values(appThemes)) {
+      expect(theme.colors.questDetail.periodBackground).toBe(
+        palette.theme.gray[95],
+      );
+      expect(theme.colors.questDetail.periodText).toBe(palette.theme.gray[10]);
+    }
+  });
 });

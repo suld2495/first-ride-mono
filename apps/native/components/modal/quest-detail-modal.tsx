@@ -1,24 +1,62 @@
 import { useFetchQuestDetailQuery } from '@repo/shared/hooks/useQuest';
-import { ScrollView } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
-import QuestInfo from '@/components/quest/quest-info';
-import QuestRewards from '@/components/quest/quest-rewards';
-import QuestTime from '@/components/quest/quest-time';
 import { Button } from '@/components/ui/button';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useQuestAction } from '@/hooks/useQuestAction';
 import { useQuestId } from '@/hooks/useQuestSelection';
 import { baseFoundation } from '@/theme/tokens';
 
-const QUEST_LABEL: Record<string, string> = {
-  DAILY: '일일 퀘스트',
-  WEEKLY: '주간 퀘스트',
+const getProgressPercent = (current: number, target: number) => {
+  if (target <= 0) {
+    return 0;
+  }
+
+  return Math.min((current / target) * 100, 100);
+};
+
+const formatDateRange = (startDate: string, endDate: string) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const startMonth = start.getMonth() + 1;
+  const startDay = start.getDate();
+  const endMonth = end.getMonth() + 1;
+  const endDay = end.getDate();
+
+  if (startMonth === endMonth) {
+    return `기간 ${startMonth}-${startDay} ~ ${endDay}`;
+  }
+
+  return `기간 ${startMonth}-${startDay} ~ ${endMonth}-${endDay}`;
+};
+
+const getQuestStatusLabel = ({
+  isAccepted,
+  isCompleted,
+  isExpired,
+}: {
+  isAccepted: boolean;
+  isCompleted: boolean;
+  isExpired: boolean;
+}) => {
+  if (isCompleted) {
+    return '완료';
+  }
+
+  if (isExpired) {
+    return '만료';
+  }
+
+  if (isAccepted) {
+    return '진행 중';
+  }
+
+  return '참여 가능';
 };
 
 const QuestDetailModal = () => {
-  const { theme } = useAppTheme();
   const questId = useQuestId();
   const { data: detail, isLoading } = useFetchQuestDetailQuery(questId || 0);
   const { handleQuestAction, isPending } = useQuestAction({
@@ -32,16 +70,13 @@ const QuestDetailModal = () => {
   }
 
   const {
-    questType,
     questName,
     currentParticipants,
     maxParticipants,
-    rewardName,
-    rewardType,
+    startDate,
     endDate,
     isAccepted,
     isCompleted,
-    verificationType,
     currentVerificationCount,
     verificationTargetCount,
   } = detail;
@@ -49,67 +84,114 @@ const QuestDetailModal = () => {
   const isFull = currentParticipants === maxParticipants;
   const isExpired = new Date(endDate).getTime() < Date.now();
   const isActionDisabled = isExpired || isCompleted || isFull || isPending;
+  const currentCount = currentVerificationCount ?? 0;
+  const targetCount = Math.max(verificationTargetCount ?? 1, 1);
+  const progressPercent = getProgressPercent(currentCount, targetCount);
+  const rewardButtonBackgroundColor = isActionDisabled
+    ? styles.rewardButtonDisabled.backgroundColor
+    : '#FFFFFF';
+  const rewardButtonTextColor = isActionDisabled
+    ? styles.rewardButtonDisabledText.color
+    : styles.rewardButtonText.color;
 
   return (
     <ThemeView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header Section */}
-        <ThemeView style={styles.headerSection}>
-          {/* Type Badge */}
-          <ThemeView style={styles.badgeContainer}>
-            <Typography
-              variant="label"
-              weight="semibold"
-              color={theme.colors.action.secondary.label}
-              style={styles.badgeText}
+        <ThemeView style={styles.cardOuter} testID="quest-detail-card-outer">
+          <ThemeView style={styles.cardInner} testID="quest-detail-card-inner">
+            <ThemeView
+              style={styles.contentStack}
+              testID="quest-detail-content"
+              transparent
             >
-              {QUEST_LABEL[questType]}
-            </Typography>
+              <ThemeView
+                style={styles.statusBadge}
+                testID="quest-detail-status-badge"
+                transparent
+              >
+                <Typography
+                  variant="caption"
+                  weight="semibold"
+                  style={styles.statusBadgeText}
+                >
+                  {getQuestStatusLabel({ isAccepted, isCompleted, isExpired })}
+                </Typography>
+              </ThemeView>
+
+              <Typography
+                variant="subtitle2"
+                weight="semibold"
+                style={styles.questName}
+              >
+                {questName}
+              </Typography>
+
+              <ThemeView
+                style={styles.progressRow}
+                testID="quest-detail-progress-row"
+                transparent
+              >
+                <View
+                  style={styles.progressTrack}
+                  testID="quest-detail-progress-track"
+                >
+                  <View
+                    style={[
+                      styles.progressFill,
+                      { width: `${progressPercent}%` },
+                    ]}
+                    testID="quest-detail-progress-fill"
+                  />
+                </View>
+                <Typography
+                  variant="caption"
+                  weight="semibold"
+                  style={styles.progressValue}
+                >
+                  {currentCount}/{targetCount}
+                </Typography>
+              </ThemeView>
+
+              <ThemeView
+                style={styles.imagePlaceholder}
+                testID="quest-detail-image-placeholder"
+              />
+
+              <ThemeView
+                style={styles.periodBadge}
+                testID="quest-detail-period-badge"
+              >
+                <Typography
+                  variant="caption"
+                  weight="semibold"
+                  style={styles.periodText}
+                >
+                  {formatDateRange(startDate, endDate)}
+                </Typography>
+              </ThemeView>
+            </ThemeView>
+
+            <ThemeView
+              style={styles.rewardButtonWrapper}
+              testID="quest-detail-reward-button-wrapper"
+              transparent
+            >
+              <Button
+                title="보상 받기"
+                testID="quest-detail-reward-button"
+                onPress={handleQuestAction}
+                disabled={isActionDisabled}
+                backgroundColor={rewardButtonBackgroundColor}
+                textColor={rewardButtonTextColor}
+                textStyle={styles.rewardButtonTextBase}
+                style={[
+                  styles.acceptButton,
+                  isActionDisabled && styles.acceptButtonDisabled,
+                ]}
+              />
+            </ThemeView>
           </ThemeView>
-
-          {/* Quest Name */}
-          <Typography
-            variant="title"
-            weight="semibold"
-            style={styles.questName}
-          >
-            {questName}
-          </Typography>
         </ThemeView>
-
-        {/* Quest Info */}
-        <QuestInfo
-          verificationType={verificationType}
-          currentVerificationCount={currentVerificationCount ?? 0}
-          verificationTargetCount={verificationTargetCount}
-        />
-
-        {/* Rewards */}
-        <QuestRewards rewardName={rewardName} rewardType={rewardType} />
-
-        {/* Time */}
-        <QuestTime endDate={new Date(endDate)} />
-
-        {/* Accept Button */}
-        <Button
-          title={
-            isExpired
-              ? '만료'
-              : isCompleted
-                ? '완료됨'
-                : isAccepted
-                  ? '완료'
-                  : isFull
-                    ? '참여불가 (정원 초과)'
-                    : '참여'
-          }
-          onPress={handleQuestAction}
-          disabled={isActionDisabled}
-          style={[
-            styles.acceptButton,
-            (isExpired || isCompleted || isFull) && styles.acceptButtonDisabled,
-          ]}
-        />
       </ScrollView>
     </ThemeView>
   );
@@ -124,37 +206,141 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   scrollContent: {
-    padding: theme.foundation.spacing[4],
-    gap: theme.foundation.spacing[4],
+    flexGrow: 1,
+    paddingTop: 0,
+    paddingBottom: theme.foundation.spacing[6],
   },
 
-  headerSection: {
+  cardOuter: {
+    flex: 1,
+    borderColor: theme.colors.brand.text,
+    borderWidth: 2,
+    borderRadius: baseFoundation.dimension.x14,
+    backgroundColor: '#FFFFFF',
+    padding: baseFoundation.dimension.x2,
+  },
+
+  cardInner: {
+    flex: 1,
+    justifyContent: 'space-between',
+    borderColor: '#FFFFFF',
+    borderWidth: 3,
+    borderRadius: baseFoundation.dimension.x12,
+    backgroundColor: theme.colors.brand.text,
+    paddingTop: 0,
+    paddingHorizontal: 17,
+    paddingBottom: 0,
+  },
+
+  contentStack: {
+    flex: 1,
     alignItems: 'center',
-    gap: theme.foundation.spacing[4],
-    marginBottom: theme.foundation.spacing[6],
+    paddingTop: 33,
+    paddingBottom: theme.foundation.spacing[6],
   },
 
-  badgeContainer: {
-    backgroundColor: theme.colors.action.secondary.default,
-    paddingHorizontal: theme.foundation.spacing[4],
-    paddingVertical: baseFoundation.spacing[1],
-    borderRadius: theme.foundation.radii.l,
+  statusBadge: {
+    height: 17,
+    borderWidth: 1,
+    borderColor: theme.colors.brand.primary,
+    borderRadius: baseFoundation.dimension.x4,
+    backgroundColor: 'transparent',
+    paddingHorizontal: baseFoundation.dimension.x3,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
-  badgeText: {
-    fontWeight: 'bold',
+  statusBadgeText: {
+    color: theme.colors.brand.primary,
   },
 
   questName: {
+    color: '#FFFFFF',
+    marginTop: baseFoundation.dimension.x14,
     textAlign: 'center',
-    marginBottom: theme.foundation.spacing[2],
   },
+
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.dimension.x8,
+    marginTop: baseFoundation.dimension.x36,
+  },
+
+  progressTrack: {
+    width: 115,
+    height: baseFoundation.dimension.x8,
+    borderRadius: 999,
+    backgroundColor: theme.colors.text.muted,
+    overflow: 'hidden',
+  },
+
+  progressFill: {
+    height: '100%',
+    borderRadius: 999,
+    backgroundColor: theme.colors.brand.primary,
+  },
+
+  progressValue: {
+    color: theme.colors.brand.background ?? '#FFFFFF',
+  },
+
+  imagePlaceholder: {
+    width: 140,
+    height: 140,
+    marginTop: baseFoundation.dimension.x36,
+    borderRadius: baseFoundation.dimension.x12,
+    backgroundColor: theme.colors.brand.background ?? '#FFFFFF',
+  },
+
+  periodBadge: {
+    height: 24,
+    marginTop: baseFoundation.dimension.x32,
+    borderRadius: baseFoundation.dimension.x8,
+    backgroundColor: theme.colors.questDetail.periodBackground,
+    paddingHorizontal: baseFoundation.dimension.x8,
+    paddingVertical: baseFoundation.dimension.x4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  periodText: {
+    color: theme.colors.questDetail.periodText,
+  },
+
+  rewardButtonWrapper: {
+    width: '100%',
+    marginBottom: 33,
+    paddingHorizontal: 21,
+  },
+
   acceptButton: {
-    marginTop: theme.foundation.spacing[4],
+    width: '100%',
+    height: 36,
+    borderRadius: baseFoundation.dimension.x6,
+    elevation: 0,
+    shadowOpacity: 0,
+    shadowRadius: 0,
   },
 
   acceptButtonDisabled: {
-    opacity: 0.5,
-    backgroundColor: theme.colors.text.tertiary, // Fallback to tertiary
+    opacity: 1,
+  },
+
+  rewardButtonTextBase: {
+    fontSize: baseFoundation.typography.size.body2,
+    fontWeight: baseFoundation.typography.weight.semibold,
+  },
+
+  rewardButtonText: {
+    color: theme.colors.text.gray,
+  },
+
+  rewardButtonDisabled: {
+    backgroundColor: theme.colors.text.muted,
+  },
+
+  rewardButtonDisabledText: {
+    color: theme.colors.text.soft,
   },
 }));

@@ -24,6 +24,10 @@ export default function Modal() {
   const modalTitle =
     type === 'friend-routines' && friendNickname ? friendNickname : title;
   const insets = useSafeAreaInsets();
+  const contentPaddingHorizontal =
+    modalOptions.contentPadding === false
+      ? 0
+      : (modalOptions.contentPaddingHorizontal ?? theme.foundation.spacing[6]);
 
   return (
     <ThemeView
@@ -41,6 +45,7 @@ export default function Modal() {
       ]}
     >
       <Animated.View
+        testID="modal-screen-container"
         entering={SlideInRight.duration(MODAL_ANIMATION_DURATION)}
         style={styles.container}
       >
@@ -51,10 +56,12 @@ export default function Modal() {
               transparent={modalOptions.headerTransparent}
             />
             <ThemeView
+              testID="modal-screen-content"
               style={[
                 styles.content,
-                modalOptions.contentPadding === false &&
-                  styles.contentNoPadding,
+                {
+                  paddingHorizontal: contentPaddingHorizontal,
+                },
               ]}
               transparent={modalOptions.contentTransparent}
             >
@@ -75,15 +82,12 @@ const styles = StyleSheet.create((theme) => ({
 
   container: {
     flex: 1,
-    paddingTop: theme.foundation.spacing[2],
   },
 
   content: {
     flex: 1,
     borderRadius: theme.foundation.radii.l,
-    paddingHorizontal: theme.foundation.spacing[6],
-  },
-  contentNoPadding: {
-    paddingHorizontal: theme.foundation.spacing[0],
+    marginTop: 0,
+    paddingTop: 0,
   },
 }));

@@ -25,6 +25,10 @@ export const commonTheme: ThemeContract = {
       ...baseTheme.colors.background,
       input: palette.white,
     },
+    questDetail: {
+      periodBackground: palette.theme.gray[95],
+      periodText: palette.theme.gray[10],
+    },
     text: {
       ...baseTheme.colors.text,
       primary: palette.white,

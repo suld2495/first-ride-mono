@@ -88,6 +88,10 @@ export const darkTheme: ThemeContract = {
       divider: '#334155',
       input: '#475569',
     },
+    questDetail: {
+      periodBackground: palette.theme.gray[95],
+      periodText: palette.theme.gray[10],
+    },
     brand: {
       grey: '#b2bec3',
       background: '#1e272e',

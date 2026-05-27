@@ -29,4 +29,10 @@ describe('useModal', () => {
     expect(title).toBe('한마디');
     expect(ModalComponent).toBe(Account);
   });
+
+  it('퀘스트 상세 모달은 공통 모달 좌우 패딩을 20px로 사용한다', () => {
+    const [, , options] = useModal('quest-detail');
+
+    expect(options.contentPaddingHorizontal).toBe(20);
+  });
 });
