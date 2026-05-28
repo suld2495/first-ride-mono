@@ -3,6 +3,7 @@ import {
   useUpdateRoutinePauseMutation,
   useUpdateRoutineVisibilityMutation,
 } from '@repo/shared/hooks/useRoutine';
+import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -90,6 +91,7 @@ const RoutineList = ({
   const updatePause = useUpdateRoutinePauseMutation(nickname);
   const updateVisibility = useUpdateRoutineVisibilityMutation();
   const deleteRoutine = useDeleteRoutineMutation(nickname);
+  const showsRequestMenuItem = date === getWeekMonday(new Date());
 
   const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
   const hasPreviewLayer = canExpandList;
@@ -374,6 +376,7 @@ const RoutineList = ({
             onPause={() => handleToggleRoutinePause(openMenuRoutine)}
             onRequest={() => handleShowRequestModal(openMenuRoutine.routineId)}
             onDelete={() => handleDeleteRoutine(openMenuRoutine)}
+            showsRequestItem={showsRequestMenuItem}
             style={{
               top:
                 openMenuRoutineIndex * routineItemHeight +

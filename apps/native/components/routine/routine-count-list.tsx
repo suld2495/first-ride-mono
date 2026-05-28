@@ -116,14 +116,12 @@ const RoutineCountList = ({
 
               </View>
 
-              {!readOnly && date === getWeekMonday(new Date()) ? (
+              {!readOnly ? (
                 <RoutineContextMenuTrigger
                   routineName={routineName}
                   iconColor={theme.colors.text.secondary}
                   onToggle={() => onToggleRoutineMenu(routineId)}
                 />
-              ) : !readOnly ? (
-                <View style={styles.requestPlaceholder} />
               ) : null}
 
               <View style={styles.headerRow}>
@@ -344,12 +342,5 @@ const styles = StyleSheet.create((theme) => ({
   },
   progressText: {
     color: theme.colors.text.secondary,
-  },
-  requestPlaceholder: {
-    position: 'absolute',
-    right: baseFoundation.spacing[4],
-    top: baseFoundation.spacing[0],
-    width: baseFoundation.dimension.x3,
-    height: baseFoundation.dimension.x14,
   },
 }));

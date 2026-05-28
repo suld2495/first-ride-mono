@@ -22,6 +22,7 @@ type RoutineContextMenuProps = {
   onPause: () => void;
   onRequest: () => void;
   onDelete: () => void;
+  showsRequestItem: boolean;
 };
 
 type RoutineContextMenuTriggerProps = Pick<
@@ -38,6 +39,7 @@ type RoutineContextMenuPanelProps = Pick<
   | 'onPause'
   | 'onRequest'
   | 'onDelete'
+  | 'showsRequestItem'
 > & {
   style?: StyleProp<ViewStyle>;
 };
@@ -73,13 +75,14 @@ export const RoutineContextMenuPanel = ({
   onPause,
   onRequest,
   onDelete,
+  showsRequestItem,
   style,
 }: RoutineContextMenuPanelProps) => {
   const items: RoutineContextMenuItem[] = [
+    ...(showsRequestItem ? [{ label: '인증요청', onPress: onRequest }] : []),
     { label: '수정', onPress: onEdit },
     { label: isHidden ? '보이기' : '숨김', onPress: onHide },
     { label: '일시정지', onPress: onPause },
-    { label: '인증요청', onPress: onRequest },
     { label: '삭제', onPress: onDelete, color: palette.theme.red[50] },
   ];
 
@@ -125,6 +128,7 @@ const RoutineContextMenu = ({
   onPause,
   onRequest,
   onDelete,
+  showsRequestItem,
 }: RoutineContextMenuProps) => (
   <>
     <RoutineContextMenuTrigger
@@ -141,6 +145,7 @@ const RoutineContextMenu = ({
         onPause={onPause}
         onRequest={onRequest}
         onDelete={onDelete}
+        showsRequestItem={showsRequestItem}
       />
     ) : null}
   </>

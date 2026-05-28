@@ -1414,7 +1414,7 @@ describe('루틴 조회 페이지', () => {
         expect(queryByTestId('routine-context-menu-1')).toBeNull();
       });
 
-      it('컨텍스트 메뉴는 수정, 숨김, 일시정지, 인증요청, 삭제 순으로 표시된다', async () => {
+      it('컨텍스트 메뉴는 인증요청, 수정, 숨김, 일시정지, 삭제 순으로 표시된다', async () => {
         const { findByLabelText, findAllByTestId } = render(<Index />);
 
         fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
@@ -1422,10 +1422,10 @@ describe('루틴 조회 페이지', () => {
         const menuItems = await findAllByTestId('routine-context-menu-item');
 
         expect(menuItems.map((item) => item.props.accessibilityLabel)).toEqual([
+          '인증요청',
           '수정',
           '숨김',
           '일시정지',
-          '인증요청',
           '삭제',
         ]);
       });
@@ -1446,10 +1446,10 @@ describe('루틴 조회 페이지', () => {
         const menuItems = await findAllByTestId('routine-context-menu-item');
 
         expect(menuItems.map((item) => item.props.accessibilityLabel)).toEqual([
+          '인증요청',
           '수정',
           '보이기',
           '일시정지',
-          '인증요청',
           '삭제',
         ]);
       });
@@ -1554,19 +1554,22 @@ describe('루틴 조회 페이지', () => {
           .reply(200, { data: createMockRoutines(1) });
       });
 
-      it('루틴 메뉴 버튼이 표시되지 않는다', async () => {
-        const { findByText, queryByLabelText, queryByTestId } = render(
+      it('컨텍스트 메뉴에서 인증요청을 표시하지 않는다', async () => {
+        const { findByLabelText, findAllByTestId, queryByLabelText } = render(
           <Index />,
         );
 
-        await findByText('테스트 루틴 1');
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
 
-        await waitFor(() => {
-          expect(
-            queryByLabelText('테스트 루틴 1 메뉴 열기'),
-          ).not.toBeOnTheScreen();
-          expect(queryByTestId('routine-request-icon')).not.toBeOnTheScreen();
-        });
+        const menuItems = await findAllByTestId('routine-context-menu-item');
+
+        expect(menuItems.map((item) => item.props.accessibilityLabel)).toEqual([
+          '수정',
+          '숨김',
+          '일시정지',
+          '삭제',
+        ]);
+        expect(queryByLabelText('인증요청')).not.toBeOnTheScreen();
       });
     });
   });
