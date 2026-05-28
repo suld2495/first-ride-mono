@@ -6,7 +6,7 @@ import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
 
 import ModalScreen from '../../../app/modal';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
-import { palette } from '../../../theme/tokens';
+import { baseFoundation, palette } from '../../../theme/tokens';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockFriends } from '../../setup/friend/mock';
 
@@ -95,12 +95,12 @@ jest.mock('@/hooks/useDebounce', () => ({
 
 jest.mock('@/hooks/useModal', () => ({
   useModal: (type: string) => {
-    const RoutineFormModal =
+    const RoutineFormModalComponent =
       require('@/components/modal/routine-form-modal').default;
 
     return [
       type === 'routine-update' ? '루틴 수정' : '루틴 추가',
-      RoutineFormModal,
+      RoutineFormModalComponent,
     ];
   },
 }));
@@ -109,8 +109,12 @@ jest.mock('@/components/modal/modal-header', () => {
   const React = require('react');
   const { Text } = require('react-native');
 
-  return ({ title }: { title: string }) =>
+  const MockModalHeader = ({ title }: { title: string }) =>
     React.createElement(Text, null, title);
+
+  MockModalHeader.displayName = 'MockModalHeader';
+
+  return MockModalHeader;
 });
 
 describe('RoutineFormModal (루틴 추가 모달)', () => {
@@ -699,9 +703,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(getByPlaceholderText('루틴 이름을 입력하세요.').props.value).toBe(
         '상세 루틴',
       );
-      expect(getByPlaceholderText('루틴 설명을 입력해주세요.').props.value).toBe(
-        '상세 설명',
-      );
+      expect(
+        getByPlaceholderText('루틴 설명을 입력해주세요.').props.value,
+      ).toBe('상세 설명');
       expect(getByText('일주일에 5회')).toBeOnTheScreen();
       expect(getByText('2026-05-26')).toBeOnTheScreen();
       expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(true);
@@ -969,6 +973,44 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           expect(payload).not.toHaveProperty('mateNickname');
         });
       });
+
+      it('일시정지와 숨김 상태를 수정 요청 본문에 포함한다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+        mockRoutineDetail({
+          paused: false,
+          hidden: false,
+        });
+        mockAxios.onPut('/routine/1').reply(200, { data: null });
+        const { findAllByTestId, findByText } = render(<RoutineFormModal />);
+
+        const [, pausedCheckbox, hiddenCheckbox] =
+          await findAllByTestId('bouncy-checkbox');
+
+        (global as any).mockCheckboxChecked = false;
+        await act(async () => {
+          fireEvent.press(pausedCheckbox);
+        });
+        (global as any).mockCheckboxChecked = false;
+        await act(async () => {
+          fireEvent.press(hiddenCheckbox);
+        });
+
+        await act(async () => {
+          fireEvent.press(await findByText('수정'));
+        });
+
+        await waitFor(() => {
+          const payload = JSON.parse(mockAxios.history.put[0]?.data ?? '{}');
+
+          expect(payload).toEqual(
+            expect.objectContaining({
+              paused: true,
+              hidden: true,
+            }),
+          );
+        });
+      });
     });
 
     describe('서버 에러 발생 시', () => {
@@ -1070,20 +1112,37 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     });
 
     it('폼 마지막에 루틴 상태 체크박스 항목이 표시된다', async () => {
-      const { getAllByTestId, getByTestId, getByText } = render(
+      const { findAllByTestId, findByTestId, findByText } = render(
         <RoutineFormModal />,
       );
 
+      const [statusSection, statusOptions, pausedLabel, hiddenLabel] =
+        await Promise.all([
+          findByTestId('routine-status-section'),
+          findByTestId('routine-status-options'),
+          findByText('루틴 일시정지'),
+          findByText('루틴 숨김'),
+        ]);
       const statusSectionStyle = RNStyleSheet.flatten(
-        getByTestId('routine-status-section').props.style,
+        statusSection.props.style,
       );
       const statusOptionsStyle = RNStyleSheet.flatten(
-        getByTestId('routine-status-options').props.style,
+        statusOptions.props.style,
       );
 
-      expect(getByText('루틴 일시정지')).toBeOnTheScreen();
-      expect(getByText('루틴 숨김')).toBeOnTheScreen();
-      expect(getAllByTestId('bouncy-checkbox')).toHaveLength(3);
+      expect(pausedLabel).toBeOnTheScreen();
+      expect(hiddenLabel).toBeOnTheScreen();
+      expect(pausedLabel.props.style).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ color: palette.theme.gray[90] }),
+        ]),
+      );
+      expect(hiddenLabel.props.style).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ color: palette.theme.gray[90] }),
+        ]),
+      );
+      expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(3);
       expect(statusSectionStyle).toEqual(
         expect.objectContaining({
           gap: 40,
@@ -1092,6 +1151,11 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         }),
       );
       expect(statusOptionsStyle).toEqual(expect.objectContaining({ gap: 16 }));
+      expect(statusOptionsStyle).toEqual(
+        expect.objectContaining({
+          alignItems: 'flex-start',
+        }),
+      );
     });
 
     it('기존 루틴의 일시정지와 숨김 상태를 체크박스 초기 상태로 표시한다', async () => {
@@ -1110,16 +1174,16 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(hiddenCheckbox.props.isChecked).toBe(true);
     });
 
-    it('루틴 수정 폼 스크롤 콘텐츠는 하단 패딩을 추가하지 않는다', async () => {
-      const { getByTestId } = render(<RoutineFormModal />);
+    it('루틴 수정 폼 스크롤 콘텐츠는 고정 footer 높이만큼 하단 여백을 둔다', async () => {
+      const { findByTestId } = render(<RoutineFormModal />);
 
       const scrollContentStyle = RNStyleSheet.flatten(
-        getByTestId('routine-form-scroll').props.contentContainerStyle,
+        (await findByTestId('routine-form-scroll')).props.contentContainerStyle,
       );
 
       expect(scrollContentStyle).toEqual(
         expect.objectContaining({
-          paddingBottom: 0,
+          paddingBottom: baseFoundation.dimension.x112,
         }),
       );
     });

@@ -1,7 +1,9 @@
 import { Routine, RoutineForm } from '../models/routine';
 
-export type UpdateRoutineForm = RoutineForm & {
+export type UpdateRoutineForm = Partial<RoutineForm> & {
   routineId: Routine['routineId'];
+  hidden?: Routine['hidden'];
+  paused?: Routine['paused'];
 };
 
 export type UpdateRoutinePauseRequest = {

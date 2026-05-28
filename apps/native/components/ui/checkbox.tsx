@@ -63,6 +63,8 @@ export interface CheckboxProps {
   borderRadius?: number;
   /** Optional text label */
   text?: string;
+  /** Hide BouncyCheckbox internal text container */
+  disableText?: boolean;
   /** Fill color - uses semantic token by default */
   fillColor?: string;
   /** Controlled checked state */
@@ -84,6 +86,7 @@ const Checkbox = ({
   size = 'md',
   borderRadius,
   text,
+  disableText,
   fillColor,
   isChecked,
   strikeThroughOnChecked = false,
@@ -112,6 +115,7 @@ const Checkbox = ({
     <BouncyCheckbox
       size={CHECKBOX_SIZE_MAP[size]}
       text={text}
+      disableText={disableText}
       isChecked={isChecked}
       fillColor={fillColor || defaultFillColor}
       unFillColor={DEFAULT_BACKGROUND_COLOR}

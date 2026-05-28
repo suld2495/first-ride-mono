@@ -30,9 +30,6 @@ import { useRoutineFormSubmission } from '@/hooks/useRoutineFormSubmission';
 import { useRoutineForm, useRoutineId } from '@/hooks/useRoutineSelection';
 import { baseFoundation, palette } from '@/theme/tokens';
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
-const { Form, FormItem, useForm } = useCreateForm<RoutineForm>();
-
 const ROUTINE_COUNT_OPTIONS = Array.from({ length: 7 }, (_, index) => {
   const count = index + 1;
 
@@ -59,11 +56,13 @@ const getStartOfToday = () => {
   return today;
 };
 
-const noop = () => undefined;
 type RoutineStatusForm = RoutineForm & {
   paused?: boolean;
   hidden?: boolean;
 };
+
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const { Form, FormItem, useForm } = useCreateForm<RoutineStatusForm>();
 
 const RoutineFormModal = () => {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
@@ -82,7 +81,7 @@ const RoutineFormModal = () => {
     sourceRoutineForm.isMe ||
     (!!sourceRoutineForm.mateNickname &&
       sourceRoutineForm.mateNickname === user?.nickname);
-  const normalizedRoutineForm = useMemo(
+  const normalizedRoutineForm = useMemo<RoutineStatusForm>(
     () =>
       isDirectRoutine
         ? {
@@ -93,7 +92,6 @@ const RoutineFormModal = () => {
         : sourceRoutineForm,
     [isDirectRoutine, sourceRoutineForm],
   );
-  const routineStatusForm = normalizedRoutineForm as RoutineStatusForm;
   const initialMateNickname = String(normalizedRoutineForm.mateNickname ?? '');
 
   const [mateKeyword, setMateKeyword] = useState(() =>
@@ -123,10 +121,7 @@ const RoutineFormModal = () => {
   const validators = useMemo(
     () => ({
       ...routineFormValidators,
-      mateNickname(
-        value: RoutineForm['mateNickname'],
-        values: RoutineForm,
-      ) {
+      mateNickname(value: RoutineForm['mateNickname'], values: RoutineForm) {
         if (values.isMe) {
           return undefined;
         }
@@ -368,19 +363,55 @@ const RoutineFormModal = () => {
               transparent
             >
               <ThemeView style={styles.statusOption} transparent>
-                <Checkbox
-                  size="md"
-                  text="루틴 일시정지"
-                  isChecked={!!routineStatusForm.paused}
-                  onPress={noop}
+                <FormItem
+                  name="paused"
+                  showErrors={false}
+                  item={({ value, setValue }) => (
+                    <ThemeView style={styles.statusCheckboxControl} transparent>
+                      <Checkbox
+                        size="md"
+                        disableText
+                        isChecked={!!value}
+                        onPress={(checked) => {
+                          setValue('paused', checked);
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        weight="semibold"
+                        color={palette.theme.gray[90]}
+                        style={styles.statusCheckboxLabel}
+                      >
+                        루틴 일시정지
+                      </Typography>
+                    </ThemeView>
+                  )}
                 />
               </ThemeView>
               <ThemeView style={styles.statusOption} transparent>
-                <Checkbox
-                  size="md"
-                  text="루틴 숨김"
-                  isChecked={!!routineStatusForm.hidden}
-                  onPress={noop}
+                <FormItem
+                  name="hidden"
+                  showErrors={false}
+                  item={({ value, setValue }) => (
+                    <ThemeView style={styles.statusCheckboxControl} transparent>
+                      <Checkbox
+                        size="md"
+                        disableText
+                        isChecked={!!value}
+                        onPress={(checked) => {
+                          setValue('hidden', checked);
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        weight="semibold"
+                        color={palette.theme.gray[90]}
+                        style={styles.statusCheckboxLabel}
+                      >
+                        루틴 숨김
+                      </Typography>
+                    </ThemeView>
+                  )}
                 />
               </ThemeView>
             </ThemeView>
@@ -415,7 +446,7 @@ const styles = StyleSheet.create((theme) => ({
   scrollContent: {
     flexGrow: 1,
     gap: theme.foundation.spacing[6],
-    paddingBottom: 0,
+    paddingBottom: baseFoundation.dimension.x112,
   },
 
   date: {
@@ -447,6 +478,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   statusOptions: {
+    alignItems: 'flex-start',
     gap: 16,
   },
 
@@ -454,6 +486,14 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.foundation.spacing[3],
+  },
+  statusCheckboxControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[2],
+  },
+  statusCheckboxLabel: {
+    color: palette.theme.gray[90],
   },
 
   deleteButton: {
