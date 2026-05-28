@@ -165,4 +165,37 @@ describe('routine widget snapshot', () => {
       },
     });
   });
+
+  it('정렬된 루틴 순서대로 서로 다른 주간 현황 색상을 전달한다', () => {
+    const snapshot = createRoutineWidgetSnapshot(
+      [
+        createRoutine({
+          routineId: 1,
+          routineName: '영어 공부',
+          weeklyCount: 1,
+          routineCount: 4,
+        }),
+        createRoutine({
+          routineId: 2,
+          routineName: '운동',
+          weeklyCount: 0,
+          routineCount: 3,
+        }),
+      ],
+      { today: new Date('2026-05-21T09:00:00+09:00') },
+    );
+
+    expect(snapshot.items.map((item) => item.title)).toEqual([
+      '운동',
+      '영어 공부',
+    ]);
+    expect(snapshot.items[0]).toMatchObject({
+      accentColor: '#8FAFEF',
+      darkAccentColor: '#9BB8F4',
+    });
+    expect(snapshot.items[1]).toMatchObject({
+      accentColor: '#FFD17A',
+      darkAccentColor: '#FFD98F',
+    });
+  });
 });

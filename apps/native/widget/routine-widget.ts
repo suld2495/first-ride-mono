@@ -14,6 +14,8 @@ export interface RoutineWidgetItem {
   achievementRate: number;
   successDate: string[];
   isTodayDone: boolean;
+  accentColor: string;
+  darkAccentColor: string;
 }
 
 export interface RoutineWidgetCountLabelStyle {
@@ -80,6 +82,18 @@ const DARK_COUNT_LABEL_STYLES: Record<ThemeName, RoutineWidgetCountLabelStyle> =
     },
   };
 
+const ROUTINE_STATUS_ACCENT_COLORS: Pick<
+  RoutineWidgetItem,
+  'accentColor' | 'darkAccentColor'
+>[] = [
+  { accentColor: '#8FAFEF', darkAccentColor: '#9BB8F4' },
+  { accentColor: '#FFD17A', darkAccentColor: '#FFD98F' },
+  { accentColor: '#F28B8B', darkAccentColor: '#FF9B9B' },
+  { accentColor: '#9AD58F', darkAccentColor: '#AEE7A5' },
+  { accentColor: '#C6A6FF', darkAccentColor: '#D3B8FF' },
+  { accentColor: '#7CD9D3', darkAccentColor: '#8BE8E3' },
+];
+
 const createRoutineDateKey = (date: Date): string => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
   const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
@@ -120,15 +134,17 @@ export const createRoutineWidgetSnapshot = (
 
   const widgetItems = routines
     .filter((routine) => !routine.paused && !routine.hidden)
-    .map<RoutineWidgetItem>((routine) => ({
-      id: routine.routineId,
-      title: routine.routineName,
-      weeklyCount: routine.weeklyCount,
-      routineCount: routine.routineCount,
-      achievementRate: getAchievementRate(routine),
-      successDate: routine.successDate,
-      isTodayDone: routine.successDate.includes(todayKey),
-    }))
+    .map<Omit<RoutineWidgetItem, 'accentColor' | 'darkAccentColor'>>(
+      (routine) => ({
+        id: routine.routineId,
+        title: routine.routineName,
+        weeklyCount: routine.weeklyCount,
+        routineCount: routine.routineCount,
+        achievementRate: getAchievementRate(routine),
+        successDate: routine.successDate,
+        isTodayDone: routine.successDate.includes(todayKey),
+      }),
+    )
     .filter((item) => item.weeklyCount < item.routineCount || item.isTodayDone)
     .sort((left, right) => {
       if (left.isTodayDone !== right.isTodayDone) {
@@ -140,7 +156,13 @@ export const createRoutineWidgetSnapshot = (
       }
 
       return left.id - right.id;
-    });
+    })
+    .map((item, index) => ({
+      ...item,
+      ...ROUTINE_STATUS_ACCENT_COLORS[
+        index % ROUTINE_STATUS_ACCENT_COLORS.length
+      ],
+    }));
 
   return {
     status: 'ready',

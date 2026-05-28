@@ -8,10 +8,26 @@ private let titleHeight: CGFloat = 18
 private let titleSpacing: CGFloat = 6
 private let routineRowHeight: CGFloat = 18
 private let minimumRoutineRowSpacing: CGFloat = 3
+private let weeklyStatusHorizontalPadding: CGFloat = 24
+private let weeklyStatusHeaderHeight: CGFloat = 20
+private let weeklyStatusNameColumnWidth: CGFloat = 150
+private let weeklyStatusRowHeight: CGFloat = 22
+private let weeklyStatusRowSpacing: CGFloat = 4
+private let weeklyStatusDotSize: CGFloat = 10
+private let weeklyStatusMaximumVisibleItemCount = 4
+private let weeklyStatusDayLabels = ["일", "월", "화", "수", "목", "금", "토"]
 private let shortYearOffset = 2000
 private let dailyRefreshEntryCount = 8
 private let fallbackCountLabelBackgroundColor = Color(red: 0.89, green: 0.95, blue: 0.99)
 private let fallbackCountLabelTextColor = Color(red: 0.08, green: 0.40, blue: 0.75)
+private let fallbackRoutineAccentColors = [
+  Color(red: 0.56, green: 0.69, blue: 0.94),
+  Color(red: 1.00, green: 0.82, blue: 0.48),
+  Color(red: 0.95, green: 0.55, blue: 0.55),
+  Color(red: 0.60, green: 0.84, blue: 0.56),
+  Color(red: 0.78, green: 0.65, blue: 1.00),
+  Color(red: 0.49, green: 0.85, blue: 0.83),
+]
 
 struct RoutineWidgetItem: Codable, Identifiable {
   let id: Int
@@ -20,6 +36,8 @@ struct RoutineWidgetItem: Codable, Identifiable {
   let routineCount: Int
   let successDate: [String]?
   let isTodayDone: Bool
+  let accentColor: String?
+  let darkAccentColor: String?
 }
 
 struct RoutineWidgetCountLabelStyle: Codable {
@@ -107,9 +125,23 @@ struct RoutineProvider: TimelineProvider {
 }
 
 struct RoutineWidgetEntryView: View {
+  @Environment(\.widgetFamily) private var widgetFamily
+
   var entry: RoutineProvider.Entry
 
   var body: some View {
+    Group {
+      if widgetFamily == .systemMedium {
+        RoutineWidgetWeeklyStatusView(entry: entry)
+      } else {
+        smallWidgetBody
+      }
+    }
+    .routineWidgetBackground()
+    .widgetURL(URL(string: "first-ride://"))
+  }
+
+  private var smallWidgetBody: some View {
     GeometryReader { geometry in
       VStack(alignment: .leading, spacing: titleSpacing) {
         Text(entry.snapshot.title)
@@ -137,8 +169,6 @@ struct RoutineWidgetEntryView: View {
       .padding(widgetPadding)
       .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
-    .routineWidgetBackground()
-    .widgetURL(URL(string: "first-ride://"))
   }
 
   private func visibleItems(for widgetHeight: CGFloat) -> [RoutineWidgetItem] {
@@ -165,6 +195,130 @@ struct RoutineWidgetEntryView: View {
     let rowStride = routineRowHeight + minimumRoutineRowSpacing
 
     return max(0, Int((availableListHeight + minimumRoutineRowSpacing) / rowStride))
+  }
+}
+
+struct RoutineWidgetWeeklyStatusView: View {
+  let entry: RoutineProvider.Entry
+
+  var body: some View {
+    GeometryReader { geometry in
+      if entry.snapshot.status == "signedOut" || entry.snapshot.items.isEmpty {
+        Text(entry.snapshot.message)
+          .font(.system(size: 13, weight: .medium))
+          .foregroundStyle(Color.secondary)
+          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+      } else {
+        let visibleItems = visibleItems(for: geometry.size.height)
+        let contentHeight = weeklyStatusContentHeight(itemCount: visibleItems.count)
+        let weekDateKeys = weekDateKeys(for: entry.date)
+        let todayDateKey = routineDateKey(for: entry.date)
+        VStack(alignment: .leading, spacing: weeklyStatusRowSpacing) {
+          RoutineWidgetWeeklyStatusHeader(currentDateKey: todayDateKey, weekDateKeys: weekDateKeys)
+          ForEach(Array(visibleItems.enumerated()), id: \.element.id) { index, item in
+            RoutineWidgetWeeklyStatusRow(
+              item: item,
+              index: index,
+              currentDateKey: todayDateKey,
+              weekDateKeys: weekDateKeys
+            )
+          }
+        }
+        .padding(.horizontal, weeklyStatusHorizontalPadding)
+        .padding(.top, weeklyStatusTopPadding(for: geometry.size.height, contentHeight: contentHeight))
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+      }
+    }
+  }
+
+  private func visibleItems(for widgetHeight: CGFloat) -> [RoutineWidgetItem] {
+    let itemLimit = min(visibleItemLimit(for: widgetHeight), weeklyStatusMaximumVisibleItemCount)
+
+    return Array(entry.snapshot.items.prefix(itemLimit))
+  }
+
+  private func visibleItemLimit(for widgetHeight: CGFloat) -> Int {
+    let rowStride = weeklyStatusRowHeight + weeklyStatusRowSpacing
+
+    return max(0, Int((widgetHeight - weeklyStatusHeaderHeight) / rowStride))
+  }
+
+  private func weeklyStatusContentHeight(itemCount: Int) -> CGFloat {
+    weeklyStatusHeaderHeight + (weeklyStatusRowHeight + weeklyStatusRowSpacing) * CGFloat(itemCount)
+  }
+
+  private func weeklyStatusTopPadding(for widgetHeight: CGFloat, contentHeight: CGFloat) -> CGFloat {
+    return max(0, (widgetHeight - contentHeight) / 2)
+  }
+}
+
+struct RoutineWidgetWeeklyStatusHeader: View {
+  let currentDateKey: String
+  let weekDateKeys: [String]
+
+  var body: some View {
+    HStack(spacing: 0) {
+      Color.clear
+        .frame(width: weeklyStatusNameColumnWidth, height: weeklyStatusHeaderHeight)
+
+      ForEach(Array(weeklyStatusDayLabels.enumerated()), id: \.offset) { index, label in
+        let isToday = weekDateKeys.indices.contains(index) && weekDateKeys[index] == currentDateKey
+        Text(label)
+          .font(.system(size: 12, weight: isToday ? .bold : .semibold))
+          .foregroundStyle(isToday ? Color.primary : Color.secondary)
+          .frame(maxWidth: .infinity, minHeight: weeklyStatusHeaderHeight)
+          .background(
+            isToday
+              ? Color.secondary.opacity(0.18)
+              : Color.clear
+          )
+          .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+      }
+    }
+  }
+}
+
+struct RoutineWidgetWeeklyStatusRow: View {
+  @Environment(\.colorScheme) private var colorScheme
+
+  let item: RoutineWidgetItem
+  let index: Int
+  let currentDateKey: String
+  let weekDateKeys: [String]
+
+  var body: some View {
+    let accentColor = routineAccentColor(for: item, index: index)
+    HStack(spacing: 0) {
+      Text(item.title)
+        .font(.system(size: 13, weight: .semibold))
+        .foregroundStyle(Color.primary)
+        .lineLimit(1)
+        .frame(width: weeklyStatusNameColumnWidth, height: weeklyStatusRowHeight, alignment: .leading)
+
+      ForEach(Array(weekDateKeys.enumerated()), id: \.offset) { _, dateKey in
+        let isCompleted = item.successDate?.contains(dateKey) ?? (dateKey == currentDateKey && item.isTodayDone)
+        RoutineWidgetWeeklyStatusDot(isCompleted: isCompleted, accentColor: accentColor)
+          .frame(maxWidth: .infinity, minHeight: weeklyStatusRowHeight)
+      }
+    }
+  }
+
+  private func routineAccentColor(for item: RoutineWidgetItem, index: Int) -> Color {
+    Color(
+      hex: colorScheme == .dark ? item.darkAccentColor : item.accentColor,
+      fallback: fallbackRoutineAccentColor(for: index)
+    )
+  }
+}
+
+struct RoutineWidgetWeeklyStatusDot: View {
+  let isCompleted: Bool
+  let accentColor: Color
+
+  var body: some View {
+    Circle()
+      .fill(isCompleted ? accentColor : accentColor.opacity(0.22))
+      .frame(width: weeklyStatusDotSize, height: weeklyStatusDotSize)
   }
 }
 
@@ -244,6 +398,22 @@ private func routineDateKey(for date: Date) -> String {
   return String(format: "%02d%02d%d", year - shortYearOffset, month, day)
 }
 
+private func weekDateKeys(for currentDate: Date) -> [String] {
+  let calendar = Calendar.autoupdatingCurrent
+  let startOfDay = calendar.startOfDay(for: currentDate)
+  let weekday = calendar.component(.weekday, from: startOfDay)
+  let sunday = calendar.date(byAdding: .day, value: 1 - weekday, to: startOfDay) ?? startOfDay
+
+  return (0..<weeklyStatusDayLabels.count).map { offset in
+    let date = calendar.date(byAdding: .day, value: offset, to: sunday) ?? sunday
+    return routineDateKey(for: date)
+  }
+}
+
+private func fallbackRoutineAccentColor(for index: Int) -> Color {
+  fallbackRoutineAccentColors[index % fallbackRoutineAccentColors.count]
+}
+
 extension Color {
   init(hex: String?, fallback: Color) {
     guard let hex else {
@@ -288,7 +458,7 @@ struct RoutineWidget: Widget {
     }
     .configurationDisplayName("이번 주 루틴")
     .description("이번 주 루틴 달성 상태를 확인합니다.")
-    .supportedFamilies([.systemSmall])
+    .supportedFamilies([.systemSmall, .systemMedium])
     .contentMarginsDisabled()
   }
 }
