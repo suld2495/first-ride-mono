@@ -5,15 +5,13 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 import AuthForm from '@/components/auth/auth-form';
+import JobOptionSelector from '@/components/auth/job-option-selector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from '@/components/ui/link';
 import PasswordInput from '@/components/ui/password-input';
-import { Select } from '@/components/ui/select';
 import ThemeView from '@/components/ui/theme-view';
-import type { JobType } from '@/constants/JOBS';
-import { JOB_OPTIONS } from '@/constants/JOBS';
-import { useJoinMutation } from '@/hooks/useAuth';
+import { useJobOptionsQuery, useJoinMutation } from '@/hooks/useAuth';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 const initial = () => ({
@@ -32,6 +30,11 @@ export default function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const join = useJoinMutation();
+  const {
+    data: jobOptions = [],
+    isError: isJobOptionsError,
+    isLoading: isJobOptionsLoading,
+  } = useJobOptionsQuery();
 
   const handleJoin = async () => {
     setFieldErrors({});
@@ -137,14 +140,16 @@ export default function SignUp() {
           error={!!fieldErrors.passwordConfirm}
           helperText={fieldErrors.passwordConfirm}
         />
-        <Select<JobType>
-          value={form.job as JobType | undefined}
-          items={JOB_OPTIONS}
+        <JobOptionSelector
+          options={jobOptions}
+          value={form.job}
           onSelect={(value) => handleChange('job', value)}
-          placeholder="직업을 선택해주세요."
           error={!!fieldErrors.job}
-          helperText={fieldErrors.job}
-          containerStyle={{ width: baseFoundation.dimension.x250 }}
+          helperText={
+            fieldErrors.job ||
+            (isJobOptionsError ? '직업 목록을 불러오지 못했습니다.' : undefined)
+          }
+          isLoading={isJobOptionsLoading}
         />
         <Button
           title="회원가입"

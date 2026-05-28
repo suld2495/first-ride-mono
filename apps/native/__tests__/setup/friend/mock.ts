@@ -7,6 +7,8 @@ import type { Friend, FriendRequest } from '@repo/types';
 export interface CreateMockFriendOptions {
   id?: number;
   nickname?: string;
+  motto?: string | null;
+  mottos?: string[];
   mateNickname?: string | null;
   job?: string;
   profileImage?: string | null;
@@ -22,6 +24,13 @@ export const createMockFriend = (
 ): Friend => ({
   id: options.id ?? index + 1,
   nickname: options.nickname ?? `friend${index + 1}`,
+  motto:
+    'motto' in options ? (options.motto ?? null) : `오늘도 전진 ${index + 1}`,
+  mottos:
+    options.mottos ??
+    ('motto' in options && options.motto
+      ? [options.motto]
+      : [`오늘도 전진 ${index + 1}`]),
   mateNickname:
     'mateNickname' in options
       ? (options.mateNickname ?? null)

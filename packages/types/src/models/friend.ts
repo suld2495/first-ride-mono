@@ -6,13 +6,15 @@ export interface Friend {
   friendId?: number | string;
   accountId?: number | string;
   nickname: User['nickname'];
-  mateNickname: null | string;
+  motto: null | string;
+  mottos: string[];
+  mateNickname?: null | string;
   job: string;
   profileImage: null | string;
   level: number;
   characterCode: string;
   characterImageUrl: null | string;
-  friendSince: string;
+  friendSince?: string;
 }
 
 export interface FriendRequest {

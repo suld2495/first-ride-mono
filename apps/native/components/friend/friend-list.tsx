@@ -87,8 +87,9 @@ const FriendItem = ({
   isRightColumn,
   onOpen,
 }: FriendItemProps) => {
-  const { nickname, mateNickname, job, level, characterImageUrl } = friend;
-  const subtitle = mateNickname?.trim() || job;
+  const { nickname, motto, mateNickname, job, level, characterImageUrl } =
+    friend;
+  const subtitle = motto?.trim() || mateNickname?.trim() || job;
   const characterSource = getFriendCharacterSource(characterImageUrl);
 
   return (

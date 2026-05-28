@@ -1,6 +1,6 @@
-import { join } from '@repo/shared/api';
+import { fetchJobOptions, join } from '@repo/shared/api';
 import { socialSignUp } from '@repo/shared/api/social-auth.api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -16,6 +16,12 @@ import {
 } from '@/providers/auth/types';
 
 import { useNotifications } from './useNotifications';
+
+const authQueryKeys = {
+  join: () => ['auth', 'join'] as const,
+  jobOptions: () => ['auth', 'job-options'] as const,
+  socialSignUp: () => ['auth', 'social-sign-up'] as const,
+};
 
 interface UseAuthReturn {
   login: {
@@ -95,10 +101,6 @@ export function useAuth(): UseAuthReturn {
 
 export const useJoinMutation = () => {
   const queryClient = useQueryClient();
-  const authQueryKeys = {
-    join: () => ['auth', 'join'],
-    socialSignUp: () => ['auth', 'social-sign-up'],
-  } as const;
 
   return useMutation({
     mutationFn: join,
@@ -119,11 +121,15 @@ export const useJoinMutation = () => {
   });
 };
 
+export const useJobOptionsQuery = () =>
+  useQuery({
+    queryKey: authQueryKeys.jobOptions(),
+    queryFn: fetchJobOptions,
+    staleTime: 1000 * 60 * 60 * 24,
+  });
+
 export const useSocialSignUpMutation = () => {
   const queryClient = useQueryClient();
-  const authQueryKeys = {
-    socialSignUp: () => ['auth', 'social-sign-up'],
-  } as const;
 
   return useMutation({
     mutationFn: socialSignUp,

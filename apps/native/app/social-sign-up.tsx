@@ -3,16 +3,14 @@ import { useState } from 'react';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
 import AuthForm from '@/components/auth/auth-form';
+import JobOptionSelector from '@/components/auth/job-option-selector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
-import type { JobType } from '@/constants/JOBS';
-import { JOB_OPTIONS } from '@/constants/JOBS';
 import { useToast } from '@/contexts/ToastContext';
-import { useSocialSignUpMutation } from '@/hooks/useAuth';
+import { useJobOptionsQuery, useSocialSignUpMutation } from '@/hooks/useAuth';
 import { useAuthSignIn } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
 import {
@@ -44,6 +42,11 @@ export default function SocialSignUp() {
   const { pushToken } = useNotifications();
   const signIn = useAuthSignIn();
   const socialSignUpMutation = useSocialSignUpMutation();
+  const {
+    data: jobOptions = [],
+    isError: isJobOptionsError,
+    isLoading: isJobOptionsLoading,
+  } = useJobOptionsQuery();
   const { showToast } = useToast();
 
   const getProviderName = () => {
@@ -139,14 +142,16 @@ export default function SocialSignUp() {
           error={!!fieldErrors.nickname}
           helperText={fieldErrors.nickname}
         />
-        <Select<JobType>
-          value={form.job as JobType | undefined}
-          items={JOB_OPTIONS}
+        <JobOptionSelector
+          options={jobOptions}
+          value={form.job}
           onSelect={(value) => handleChange('job', value)}
-          placeholder="직업을 선택해주세요."
           error={!!fieldErrors.job}
-          helperText={fieldErrors.job}
-          containerStyle={{ width: baseFoundation.dimension.x250 }}
+          helperText={
+            fieldErrors.job ||
+            (isJobOptionsError ? '직업 목록을 불러오지 못했습니다.' : undefined)
+          }
+          isLoading={isJobOptionsLoading}
         />
         <Button
           onPress={handleSubmit}

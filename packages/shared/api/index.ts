@@ -333,7 +333,7 @@ export const isRetryable = (error: AppError): boolean =>
 export default axiosInstance;
 
 export * from './AppError';
-export { join, login, logout, refreshToken } from './auth.api';
+export { fetchJobOptions, join, login, logout, refreshToken } from './auth.api';
 export {
   createRequest,
   fetchReceivedRequests,

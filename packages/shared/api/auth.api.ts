@@ -2,6 +2,7 @@ import type {
   AuthForm,
   AuthResponse,
   JoinForm,
+  JobOption,
   LogoutResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
@@ -39,6 +40,14 @@ export const join = async (form: JoinForm): Promise<void> => {
     const response: void = await http.post(`${baseURL}/signup`, form);
 
     return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const fetchJobOptions = async (): Promise<JobOption[]> => {
+  try {
+    return await http.get(`${baseURL}/job-options`);
   } catch (error) {
     throw toAppError(error);
   }

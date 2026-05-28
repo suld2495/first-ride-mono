@@ -59,7 +59,7 @@ describe('친구 리스트 페이지', () => {
 
         expect(await findByText('friend1')).toBeOnTheScreen();
         expect(await findByText('전체 3명')).toBeOnTheScreen();
-        expect(await findByText('mate1')).toBeOnTheScreen();
+        expect(await findByText('오늘도 전진 1')).toBeOnTheScreen();
         expect(await findByText('Lv. 1')).toBeOnTheScreen();
         expect(await findByLabelText('friend1 캐릭터')).toBeOnTheScreen();
       });
@@ -69,11 +69,13 @@ describe('친구 리스트 페이지', () => {
 
         expect(await screen.findByText('friend1')).toBeOnTheScreen();
 
-        const blueBackgroundViews = screen.UNSAFE_getAllByType(View).filter(
-          (node) =>
-            StyleSheet.flatten(node.props.style)?.backgroundColor ===
-            lightTheme.colors.brand.secondary,
-        );
+        const blueBackgroundViews = screen
+          .UNSAFE_getAllByType(View)
+          .filter(
+            (node) =>
+              StyleSheet.flatten(node.props.style)?.backgroundColor ===
+              lightTheme.colors.brand.secondary,
+          );
 
         expect(blueBackgroundViews).toHaveLength(0);
       });
@@ -93,9 +95,49 @@ describe('친구 리스트 페이지', () => {
   });
 
   describe('친구 목록 API 테스트', () => {
+    it('GET /friends 변경 응답의 한마디를 표시한다', async () => {
+      mockAxios
+        .onGet(/\/friends\/requests/)
+        .reply(200, wrapResponse(createMockFriendRequestResponse(1)));
+      mockAxios.onGet(/\/friends/).reply((config) => {
+        if (config.url?.includes('/requests')) {
+          return [200, wrapResponse(createMockFriendRequestResponse(1))];
+        }
+
+        return [
+          200,
+          wrapResponse([
+            {
+              nickname: '받는사람',
+              motto: '오늘도 전진',
+              mottos: ['오늘도 전진', '끝까지'],
+              job: '마법사',
+              profileImage: '...',
+              level: 7,
+              characterCode: 'MAGE_INTERMEDIATE',
+              characterImageUrl: '/assets/characters/mage_intermediate.png',
+            },
+          ]),
+        ];
+      });
+      mockAxios.onGet(/\/users\/search/).reply(200, wrapResponse([]));
+
+      const { findByLabelText, findByText, queryByText } = render(
+        <FriendPage />,
+      );
+
+      expect(await findByText('받는사람')).toBeOnTheScreen();
+      expect(await findByText('오늘도 전진')).toBeOnTheScreen();
+      expect(queryByText('마법사')).not.toBeOnTheScreen();
+      expect(await findByText('Lv. 7')).toBeOnTheScreen();
+      expect(await findByLabelText('받는사람 캐릭터')).toBeOnTheScreen();
+    });
+
     it('GET /friends 응답의 캐릭터 정보를 표시한다', async () => {
       const friend = createMockFriend(0, {
         nickname: '김혜연',
+        motto: null,
+        mottos: [],
         mateNickname: null,
         job: '마법사',
         level: 7,

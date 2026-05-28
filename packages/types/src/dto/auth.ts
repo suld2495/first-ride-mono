@@ -7,6 +7,13 @@ export type AuthForm = Pick<Auth, 'userId' | 'password'> & {
 
 export type JoinForm = Pick<Auth, 'userId' | 'nickname' | 'password' | 'job'>;
 
+export interface JobOption {
+  jobName: string;
+  jobType: string;
+  characterCode: string;
+  imageUrl: string;
+}
+
 // 토큰 응답 공통 타입
 export type TokenResponse = {
   userInfo: User;
