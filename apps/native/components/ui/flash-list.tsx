@@ -11,6 +11,7 @@ type BaseCompatFlashListProps<T> = Omit<
 >;
 
 type CompatFlashListProps<T> = BaseCompatFlashListProps<T> & {
+  columnWrapperStyle?: unknown;
   contentContainerStyle?: unknown;
   maxToRenderPerBatch?: number;
   windowSize?: number;

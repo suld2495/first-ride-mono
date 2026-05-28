@@ -1,7 +1,6 @@
 import type { Friend } from '@repo/types';
 import { useCallback } from 'react';
 import {
-  FlatList,
   Image,
   Pressable,
   View,
@@ -19,6 +18,7 @@ import { Loading } from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { appThemes, type ThemeName } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 
 interface FriendItemProps {
@@ -34,6 +34,8 @@ interface FriendRenderItemProps {
   item: Friend;
 }
 
+type FriendCharacterThemeName = Extract<ThemeName, 'blue' | 'green' | 'red'>;
+
 const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   /\/$/,
   '',
@@ -46,6 +48,12 @@ const FRIEND_GRID_COLUMN_GAP = baseFoundation.spacing[4];
 const FRIEND_GRID_COLUMN_COUNT = 2;
 const FRIEND_ITEM_TO_IMAGE_RATIO =
   FRIEND_LAYOUT_BASE_ITEM_WIDTH / FRIEND_LAYOUT_BASE_IMAGE_SIZE;
+const FRIEND_ITEM_TEXT_BLOCK_HEIGHT =
+  baseFoundation.spacing[2] +
+  baseFoundation.dimension.x10 +
+  baseFoundation.typography.size.body2 +
+  baseFoundation.typography.size.body3 +
+  baseFoundation.spacing[5];
 
 const getFriendItemLayoutSize = (screenWidth: number) => {
   const itemWidth = Math.round(
@@ -80,6 +88,50 @@ const getFriendCharacterSource = (
   return { uri: characterImageUrl };
 };
 
+const getFriendCharacterThemeName = ({
+  characterCode,
+  job,
+}: Pick<Friend, 'characterCode' | 'job'>): FriendCharacterThemeName => {
+  const normalizedCharacter = `${characterCode} ${job}`.toUpperCase();
+
+  if (
+    normalizedCharacter.includes('MAGE') ||
+    normalizedCharacter.includes('마법사')
+  ) {
+    return 'red';
+  }
+
+  if (
+    normalizedCharacter.includes('ARCHER') ||
+    normalizedCharacter.includes('궁수')
+  ) {
+    return 'green';
+  }
+
+  return 'blue';
+};
+
+const getFriendCharacterPanelStyle = (themeName: FriendCharacterThemeName) => {
+  if (themeName === 'red') return styles.characterPanelRed;
+  if (themeName === 'green') return styles.characterPanelGreen;
+
+  return styles.characterPanelBlue;
+};
+
+const getFriendLevelBadgeStyle = (themeName: FriendCharacterThemeName) => {
+  if (themeName === 'red') return styles.levelBadgeRed;
+  if (themeName === 'green') return styles.levelBadgeGreen;
+
+  return styles.levelBadgeBlue;
+};
+
+const getFriendLevelTextColor = (themeName: FriendCharacterThemeName) => {
+  if (themeName === 'red') return appThemes.red.colors.brand.text;
+  if (themeName === 'green') return appThemes.green.colors.brand.text;
+
+  return appThemes.blue.colors.brand.text;
+};
+
 const FriendItem = ({
   friend,
   itemWidth,
@@ -87,10 +139,22 @@ const FriendItem = ({
   isRightColumn,
   onOpen,
 }: FriendItemProps) => {
-  const { nickname, motto, mateNickname, job, level, characterImageUrl } =
-    friend;
+  const {
+    nickname,
+    motto,
+    mateNickname,
+    job,
+    level,
+    characterCode,
+    characterImageUrl,
+  } = friend;
   const subtitle = motto?.trim() || mateNickname?.trim() || job;
   const characterSource = getFriendCharacterSource(characterImageUrl);
+  const characterThemeName = getFriendCharacterThemeName({
+    characterCode,
+    job,
+  });
+  const testIdSuffix = nickname;
 
   return (
     <Pressable
@@ -105,7 +169,12 @@ const FriendItem = ({
       accessibilityLabel={`${nickname} 루틴 보기`}
     >
       <ThemeView
-        style={[styles.characterPanel, { width: itemWidth, height: itemWidth }]}
+        testID={`friend-character-panel-${testIdSuffix}`}
+        style={[
+          styles.characterPanel,
+          getFriendCharacterPanelStyle(characterThemeName),
+          { width: itemWidth, height: itemWidth },
+        ]}
         transparent
       >
         {characterSource ? (
@@ -116,13 +185,28 @@ const FriendItem = ({
             accessibilityLabel={`${nickname} 캐릭터`}
           />
         ) : (
-          renderRoutineSceneAsset(getRoutineSceneCharacterAsset('blue'), {
-            testID: `friend-character-fallback-${friend.userId}`,
-            style: { width: imageSize, height: imageSize },
-          })
+          renderRoutineSceneAsset(
+            getRoutineSceneCharacterAsset(characterThemeName),
+            {
+              testID: `friend-character-fallback-${testIdSuffix}`,
+              style: { width: imageSize, height: imageSize },
+            },
+          )
         )}
-        <View style={styles.levelBadge}>
-          <Typography variant="caption2" weight="semibold" style={styles.level}>
+        <View
+          testID={`friend-level-badge-${testIdSuffix}`}
+          style={[
+            styles.levelBadge,
+            getFriendLevelBadgeStyle(characterThemeName),
+          ]}
+        >
+          <Typography
+            testID={`friend-level-text-${testIdSuffix}`}
+            variant="caption2"
+            weight="semibold"
+            color={getFriendLevelTextColor(characterThemeName)}
+            style={styles.level}
+          >
             Lv. {level}
           </Typography>
         </View>
@@ -158,9 +242,9 @@ const FriendList = ({
   onRefresh,
   onOpenFriend,
 }: FriendListProps) => {
-  const isTestEnv = process.env.NODE_ENV === 'test';
   const { width: screenWidth } = useWindowDimensions();
   const { itemWidth, imageSize } = getFriendItemLayoutSize(screenWidth);
+  const itemHeight = itemWidth + FRIEND_ITEM_TEXT_BLOCK_HEIGHT;
 
   const renderFriendItem = useCallback(
     ({ index, item }: FriendRenderItemProps) => (
@@ -174,6 +258,14 @@ const FriendList = ({
     ),
     [imageSize, itemWidth, onOpenFriend],
   );
+  const getFriendItemLayout = useCallback(
+    (_: Friend[] | null, index: number) => ({
+      length: itemHeight,
+      offset: itemHeight * Math.floor(index / FRIEND_GRID_COLUMN_COUNT),
+      index,
+    }),
+    [itemHeight],
+  );
 
   if (isLoading) {
     return <Loading />;
@@ -183,10 +275,8 @@ const FriendList = ({
     return <EmptyState icon="people-outline" message="친구를 추가해보세요." />;
   }
 
-  const ListComponent = isTestEnv ? FlatList<Friend> : FlashList<Friend>;
-
   return (
-    <ListComponent
+    <FlashList
       data={friends}
       keyExtractor={(item) => item.nickname}
       renderItem={renderFriendItem}
@@ -195,6 +285,7 @@ const FriendList = ({
       style={styles.list}
       refreshing={refreshing}
       onRefresh={onRefresh}
+      getItemLayout={getFriendItemLayout}
       estimatedItemSize={baseFoundation.dimension.x180}
       removeClippedSubviews
       maxToRenderPerBatch={8}
@@ -229,11 +320,19 @@ const styles = StyleSheet.create((theme) => ({
   },
   characterPanel: {
     borderRadius: baseFoundation.dimension.x10,
-    backgroundColor: theme.colors.brand.card,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     position: 'relative',
+  },
+  characterPanelBlue: {
+    backgroundColor: appThemes.blue.colors.brand.card,
+  },
+  characterPanelGreen: {
+    backgroundColor: appThemes.green.colors.brand.card,
+  },
+  characterPanelRed: {
+    backgroundColor: appThemes.red.colors.brand.card,
   },
   levelBadge: {
     position: 'absolute',
@@ -243,13 +342,19 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x20,
     paddingHorizontal: theme.foundation.spacing[1.5],
     borderRadius: baseFoundation.dimension.x10,
-    backgroundColor: theme.colors.brand.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  level: {
-    color: theme.colors.action.primary.default,
+  levelBadgeBlue: {
+    backgroundColor: appThemes.blue.colors.brand.background,
   },
+  levelBadgeGreen: {
+    backgroundColor: appThemes.green.colors.brand.background,
+  },
+  levelBadgeRed: {
+    backgroundColor: appThemes.red.colors.brand.background,
+  },
+  level: {},
   nickname: {
     width: '100%',
     marginTop: theme.foundation.spacing[2],
