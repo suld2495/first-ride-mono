@@ -205,6 +205,23 @@ describe('루틴 조회 페이지', () => {
           ]),
         );
       });
+
+      it('빈 상태에서도 한마디 말풍선이 항상 표시된다', async () => {
+        mockAuthStore.user = {
+          ...mockUser,
+          motto: '오늘도 전진',
+          mottos: [],
+        };
+
+        const { findByTestId, findByText } = render(<Index />);
+
+        await findByText('등록된 루틴이 없습니다.');
+
+        expect(await findByText('오늘도 전진')).toBeOnTheScreen();
+        expect(
+          await findByTestId('routine-character-speech-bubble'),
+        ).toBeOnTheScreen();
+      });
     });
 
     describe('루틴이 존재하는 경우', () => {
@@ -410,20 +427,14 @@ describe('루틴 조회 페이지', () => {
         expect(await findByTestId('routine-scene-character')).toBeOnTheScreen();
       });
 
-      it('캐릭터를 누르면 계정 좌우명 말풍선이 표시된다', async () => {
+      it('계정 한마디 말풍선이 항상 표시된다', async () => {
         mockAuthStore.user = {
           ...mockUser,
           motto: '매일 조금씩 앞으로 간다',
-          mottos: ['매일 조금씩 앞으로 간다'],
+          mottos: [],
         };
 
-        const { findByTestId, findByText, queryByTestId } = render(<Index />);
-
-        const characterButton = await findByTestId('routine-character-button');
-
-        expect(queryByTestId('character-speech-bubble')).toBeNull();
-
-        fireEvent.press(characterButton);
+        const { findByTestId, findByText } = render(<Index />);
 
         const [motto, speechBubble] = await Promise.all([
           findByText('매일 조금씩 앞으로 간다'),
@@ -438,44 +449,40 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('캐릭터를 누를 때마다 한마디 목록에서 랜덤으로 표시한다', async () => {
-        const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.1);
+      it('단일 한마디 조회값을 캐릭터 말풍선에 표시한다', async () => {
+        mockAuthStore.user = {
+          ...mockUser,
+          motto: '오늘 할일을 내일로 미루지 말자',
+        };
 
+        const { findByText } = render(<Index />);
+
+        expect(
+          await findByText('오늘 할일을 내일로 미루지 말자'),
+        ).toBeOnTheScreen();
+      });
+
+      it('단일 한마디는 하나의 말풍선으로 표시한다', async () => {
         mockAuthStore.user = {
           ...mockUser,
           motto: '첫 번째 한마디',
-          mottos: ['첫 번째 한마디', '두 번째 한마디'],
+          mottos: [],
         };
 
-        const { findByTestId, findByText } = render(<Index />);
+        const { findAllByText, findByText } = render(<Index />);
 
-        const characterButton = await findByTestId('routine-character-button');
-
-        fireEvent.press(characterButton);
         expect(await findByText('첫 번째 한마디')).toBeOnTheScreen();
-
-        randomSpy.mockReturnValue(0.8);
-
-        fireEvent.press(characterButton);
-        expect(await findByText('두 번째 한마디')).toBeOnTheScreen();
-
-        randomSpy.mockRestore();
+        expect(await findAllByText('첫 번째 한마디')).toHaveLength(1);
       });
 
       it('한마디 배열 문자열은 개별 한마디로 풀어서 표시한다', async () => {
-        const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.1);
-
         mockAuthStore.user = {
           ...mockUser,
           motto: null,
           mottos: ['["작심삼일","오늘 할일을 내일로 미루지 말자!","테스트2"]'],
         };
 
-        const { findByTestId, findByText, queryByText } = render(<Index />);
-
-        const characterButton = await findByTestId('routine-character-button');
-
-        fireEvent.press(characterButton);
+        const { findByText, queryByText } = render(<Index />);
 
         expect(await findByText('작심삼일')).toBeOnTheScreen();
         expect(
@@ -483,8 +490,6 @@ describe('루틴 조회 페이지', () => {
             '["작심삼일","오늘 할일을 내일로 미루지 말자!","테스트2"]',
           ),
         ).toBeNull();
-
-        randomSpy.mockRestore();
       });
 
       it('좌우명이 없으면 캐릭터 말풍선에 기본 문구가 표시된다', async () => {
@@ -494,11 +499,7 @@ describe('루틴 조회 페이지', () => {
           mottos: [],
         };
 
-        const { findByTestId, findByText } = render(<Index />);
-
-        const characterButton = await findByTestId('routine-character-button');
-
-        fireEvent.press(characterButton);
+        const { findByText } = render(<Index />);
 
         expect(await findByText('안녕?')).toBeOnTheScreen();
       });
@@ -739,6 +740,7 @@ describe('루틴 조회 페이지', () => {
         const routineCharacterArea = getByTestId('routine-character-area');
         const routineBottomSpacer = getByTestId('routine-bottom-spacer');
 
+        expect(routineBottomSpacer.props.pointerEvents).toBe('none');
         expect(flattenStyles(routineListArea.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ flex: 7 })]),
         );

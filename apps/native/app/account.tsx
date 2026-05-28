@@ -2,7 +2,7 @@ import {
   useFetchMeQuery,
   useUpdateMottoMutation,
 } from '@repo/shared/hooks/useUser';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
 import ModalHeaderAction from '@/components/modal/modal-header-action';
@@ -13,12 +13,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StyleSheet } from '@/components/ui/tamagui';
+import Typography from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthSignIn, useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { baseFoundation, palette } from '@/theme/tokens';
 
-const MAX_MOTTO_LENGTH = 50;
+const MAX_MOTTO_BYTES = 60;
 const getSkinLevel5Color = (themeName: string) => {
   if (themeName === 'green') {
     return palette.theme.green[5];
@@ -42,19 +43,42 @@ const getSkinLevel50Color = (themeName: string) => {
   return palette.theme.blue[50];
 };
 
-const normalizeMottos = (mottos: string[]): string[] => {
-  const seen = new Set<string>();
+const getUtf8ByteLength = (value: string) => {
+  let byteLength = 0;
 
-  return mottos
-    .map((item) => item.trim())
-    .filter((item) => {
-      if (!item || seen.has(item)) {
-        return false;
-      }
+  for (const character of value) {
+    const codePoint = character.codePointAt(0) ?? 0;
 
-      seen.add(item);
-      return true;
-    });
+    if (codePoint <= 0x7f) {
+      byteLength += 1;
+    } else if (codePoint <= 0x7ff) {
+      byteLength += 2;
+    } else if (codePoint <= 0xffff) {
+      byteLength += 3;
+    } else {
+      byteLength += 4;
+    }
+  }
+
+  return byteLength;
+};
+
+const limitMottoBytes = (value: string) => {
+  let nextValue = '';
+  let byteLength = 0;
+
+  for (const character of value) {
+    const characterByteLength = getUtf8ByteLength(character);
+
+    if (byteLength + characterByteLength > MAX_MOTTO_BYTES) {
+      break;
+    }
+
+    nextValue += character;
+    byteLength += characterByteLength;
+  }
+
+  return nextValue;
 };
 
 const Account = () => {
@@ -67,17 +91,11 @@ const Account = () => {
   const displayUser = fetchedUser ?? user;
   const currentMotto = displayUser?.motto ?? '';
   const [primaryMottoInput, setPrimaryMottoInput] = useState(currentMotto);
-  const [savedMottos, setSavedMottos] = useState<string[] | null>(null);
-  const serverMottos = useMemo(
-    () =>
-      normalizeMottos(
-        displayUser?.mottos?.length ? displayUser.mottos : [currentMotto],
-      ),
-    [currentMotto, displayUser?.mottos],
-  );
-  const currentMottos = savedMottos ?? serverMottos;
-  const primaryMotto = currentMottos[0] ?? '';
+  const [savedMotto, setSavedMotto] = useState<null | string | undefined>();
+  const primaryMotto =
+    savedMotto === undefined ? currentMotto : (savedMotto ?? '');
   const hasPrimaryMottoChanged = primaryMottoInput !== primaryMotto;
+  const primaryMottoByteLength = getUtf8ByteLength(primaryMottoInput);
 
   useEffect(() => {
     if (fetchedUser) {
@@ -90,17 +108,14 @@ const Account = () => {
   }, [primaryMotto]);
 
   useEffect(() => {
-    setSavedMottos(null);
+    setSavedMotto(undefined);
   }, [displayUser?.userId]);
 
-  const updateMottos = useCallback(
-    (nextMottos: string[]) => {
-      const normalizedMottos = normalizeMottos(nextMottos);
-      const nextPrimaryMotto = normalizedMottos[0] ?? null;
-
+  const updatePrimaryMotto = useCallback(
+    (nextPrimaryMotto: null | string) => {
       updateMotto.mutate(
         {
-          mottos: normalizedMottos,
+          motto: nextPrimaryMotto,
         },
         {
           onSuccess: (updatedUser) => {
@@ -110,7 +125,7 @@ const Account = () => {
                 ? {
                     ...displayUser,
                     motto: nextPrimaryMotto,
-                    mottos: normalizedMottos,
+                    mottos: nextPrimaryMotto ? [nextPrimaryMotto] : [],
                   }
                 : undefined);
 
@@ -126,13 +141,13 @@ const Account = () => {
                 ? error.message
                 : '한마디 수정에 실패했습니다.';
 
-            setSavedMottos(null);
+            setSavedMotto(undefined);
             showToast(message, 'error');
           },
         },
       );
 
-      setSavedMottos(normalizedMottos);
+      setSavedMotto(nextPrimaryMotto);
     },
     [displayUser, showToast, signIn, updateMotto],
   );
@@ -142,24 +157,14 @@ const Account = () => {
       return;
     }
 
-    if (primaryMottoInput.length > MAX_MOTTO_LENGTH) {
-      showToast('한마디는 50자 이하로 입력해주세요.', 'error');
-      return;
-    }
-
     const trimmedMotto = primaryMottoInput.trim();
-    const remainingMottos = currentMottos.slice(1);
 
-    updateMottos(
-      trimmedMotto ? [trimmedMotto, ...remainingMottos] : remainingMottos,
-    );
-  }, [
-    currentMottos,
-    hasPrimaryMottoChanged,
-    primaryMottoInput,
-    showToast,
-    updateMottos,
-  ]);
+    updatePrimaryMotto(trimmedMotto || null);
+  }, [hasPrimaryMottoChanged, primaryMottoInput, updatePrimaryMotto]);
+
+  const handlePrimaryMottoChange = useCallback((value: string) => {
+    setPrimaryMottoInput(limitMottoBytes(value));
+  }, []);
 
   return (
     <>
@@ -207,7 +212,7 @@ const Account = () => {
               containerTestID="account-motto-input-container"
               fullWidth
               inputStyle={styles.mottoInputText}
-              onChangeText={setPrimaryMottoInput}
+              onChangeText={handlePrimaryMottoChange}
               onSubmitEditing={handlePrimaryMottoSubmit}
               placeholder="한마디를 입력하세요"
               returnKeyType="done"
@@ -216,6 +221,16 @@ const Account = () => {
               testID="account-motto-input"
               value={primaryMottoInput}
             />
+            <Typography
+              color={palette.theme.gray[60]}
+              testID="account-motto-byte-counter"
+              variant="caption2"
+              weight="semibold"
+              style={styles.mottoByteCounter}
+            >
+              {primaryMottoByteLength}
+              {' / 60byte'}
+            </Typography>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -254,6 +269,11 @@ const styles = StyleSheet.create((theme) => ({
   mottoInputWrapper: {
     width: '100%',
     marginTop: 16,
+  },
+  mottoByteCounter: {
+    marginTop: 6,
+    paddingRight: 4,
+    textAlign: 'right',
   },
   mottoInputContainer: {
     height: 44,

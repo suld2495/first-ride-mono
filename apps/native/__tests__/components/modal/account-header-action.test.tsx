@@ -57,8 +57,8 @@ describe('Account modal header action', () => {
       options?.onSuccess?.({
         userId: 'test123',
         nickname: 'testuser',
-        motto: _request.mottos[0] ?? null,
-        mottos: _request.mottos,
+        motto: _request.motto,
+        mottos: _request.motto ? [_request.motto] : [],
         role: 'USER',
       });
     });
@@ -110,7 +110,7 @@ describe('Account modal header action', () => {
     fireEvent.press(getByLabelText('한마디 상단 저장'));
 
     expect(mutate).toHaveBeenCalledWith(
-      { mottos: ['새 한마디'] },
+      { motto: '새 한마디' },
       expect.objectContaining({
         onError: expect.any(Function),
         onSuccess: expect.any(Function),
@@ -148,8 +148,8 @@ describe('Account modal header action', () => {
       options?.onSuccess?.({
         userId: 'test123',
         nickname: 'testuser',
-        motto: _request.mottos[0] ?? null,
-        mottos: _request.mottos,
+        motto: _request.motto,
+        mottos: _request.motto ? [_request.motto] : [],
         role: 'USER',
       });
     });
@@ -181,7 +181,7 @@ describe('Account modal header action', () => {
     fireEvent.press(getByLabelText('한마디 상단 저장'));
 
     expect(mutate).toHaveBeenCalledWith(
-      { mottos: [] },
+      { motto: null },
       expect.objectContaining({
         onError: expect.any(Function),
         onSuccess: expect.any(Function),
