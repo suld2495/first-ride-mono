@@ -52,6 +52,7 @@ struct RoutineWidgetSnapshot: Codable {
   let title: String
   let message: String
   let items: [RoutineWidgetItem]
+  let smallItems: [RoutineWidgetItem]?
   let remainingCount: Int
   let countLabelStyle: RoutineWidgetCountLabelStyle?
 
@@ -60,6 +61,7 @@ struct RoutineWidgetSnapshot: Codable {
     title: "이번 주 루틴",
     message: "로그인 해주세요",
     items: [],
+    smallItems: nil,
     remainingCount: 0,
     countLabelStyle: nil
   )
@@ -172,7 +174,9 @@ struct RoutineWidgetEntryView: View {
   }
 
   private func visibleItems(for widgetHeight: CGFloat) -> [RoutineWidgetItem] {
-    return Array(entry.snapshot.items.prefix(visibleItemLimit(for: widgetHeight)))
+    let items = entry.snapshot.smallItems ?? entry.snapshot.items
+
+    return Array(items.prefix(visibleItemLimit(for: widgetHeight)))
   }
 
   private func rowSpacing(for widgetHeight: CGFloat, itemCount: Int) -> CGFloat {

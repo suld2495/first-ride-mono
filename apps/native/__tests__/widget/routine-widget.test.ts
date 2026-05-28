@@ -37,7 +37,51 @@ describe('routine widget snapshot', () => {
     });
   });
 
-  it('오늘 미완료 루틴을 우선하고 주간 달성률이 낮은 순서로 정렬한다', () => {
+  it('기본 위젯 항목은 API 조회 순서를 유지한다', () => {
+    const snapshot = createRoutineWidgetSnapshot(
+      [
+        createRoutine({
+          routineId: 1,
+          routineName: '영어 공부',
+          weeklyCount: 1,
+          routineCount: 4,
+        }),
+        createRoutine({
+          routineId: 2,
+          routineName: '산책',
+          weeklyCount: 1,
+          routineCount: 2,
+          successDate: ['260521'],
+        }),
+        createRoutine({
+          routineId: 3,
+          routineName: '운동',
+          weeklyCount: 1,
+          routineCount: 3,
+          paused: true,
+        }),
+        createRoutine({
+          routineId: 4,
+          routineName: '물 마시기',
+          weeklyCount: 1,
+          routineCount: 1,
+          successDate: ['260521'],
+          hidden: true,
+        }),
+      ],
+      { today: new Date('2026-05-21T09:00:00+09:00') },
+    );
+
+    expect(snapshot.status).toBe('ready');
+    expect(snapshot.items.map((item) => item.title)).toEqual([
+      '영어 공부',
+      '산책',
+      '운동',
+      '물 마시기',
+    ]);
+  });
+
+  it('작은 위젯 항목은 오늘 미완료 루틴을 먼저 보여주고 API 조회 순서를 유지한다', () => {
     const snapshot = createRoutineWidgetSnapshot(
       [
         createRoutine({
@@ -71,19 +115,19 @@ describe('routine widget snapshot', () => {
     );
 
     expect(snapshot.status).toBe('ready');
-    expect(snapshot.items.map((item) => item.title)).toEqual([
-      '운동',
+    if (snapshot.status !== 'ready') {
+      throw new Error('ready snapshot expected');
+    }
+
+    expect(snapshot.smallItems.map((item) => item.title)).toEqual([
       '영어 공부',
+      '운동',
       '산책',
       '물 마시기',
     ]);
-    expect(snapshot.items[2]).toMatchObject({
-      title: '산책',
-      isTodayDone: true,
-    });
   });
 
-  it('위젯 높이에 맞춰 자를 수 있도록 정렬된 전체 루틴을 전달한다', () => {
+  it('위젯 높이에 맞춰 자를 수 있도록 전체 루틴을 전달한다', () => {
     const routines = Array.from({ length: 6 }, (_, index) =>
       createRoutine({
         routineId: index + 1,
@@ -166,7 +210,7 @@ describe('routine widget snapshot', () => {
     });
   });
 
-  it('정렬된 루틴 순서대로 서로 다른 주간 현황 색상을 전달한다', () => {
+  it('API 조회 순서대로 서로 다른 주간 현황 색상을 전달한다', () => {
     const snapshot = createRoutineWidgetSnapshot(
       [
         createRoutine({
@@ -186,8 +230,8 @@ describe('routine widget snapshot', () => {
     );
 
     expect(snapshot.items.map((item) => item.title)).toEqual([
-      '운동',
       '영어 공부',
+      '운동',
     ]);
     expect(snapshot.items[0]).toMatchObject({
       accentColor: '#8FAFEF',

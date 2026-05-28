@@ -38,6 +38,7 @@ export type RoutineWidgetSnapshot =
       title: string;
       message: string;
       items: RoutineWidgetItem[];
+      smallItems: RoutineWidgetItem[];
       remainingCount: 0;
       generatedAt: string;
       countLabelStyle: RoutineWidgetCountLabelStyle;
@@ -116,6 +117,24 @@ const createRoutineWidgetCountLabelStyle = (
   return DARK_COUNT_LABEL_STYLES[themeName] ?? DARK_COUNT_LABEL_STYLES.dark;
 };
 
+const createSmallRoutineWidgetItems = (
+  items: RoutineWidgetItem[],
+): RoutineWidgetItem[] => {
+  const pendingItems: RoutineWidgetItem[] = [];
+  const doneTodayItems: RoutineWidgetItem[] = [];
+
+  items.forEach((item) => {
+    if (item.isTodayDone) {
+      doneTodayItems.push(item);
+      return;
+    }
+
+    pendingItems.push(item);
+  });
+
+  return [...pendingItems, ...doneTodayItems];
+};
+
 export const createSignedOutRoutineWidgetSnapshot =
   (): RoutineWidgetSnapshot => ({
     status: 'signedOut',
@@ -133,7 +152,6 @@ export const createRoutineWidgetSnapshot = (
   const todayKey = createRoutineDateKey(today);
 
   const widgetItems = routines
-    .filter((routine) => !routine.paused && !routine.hidden)
     .map<Omit<RoutineWidgetItem, 'accentColor' | 'darkAccentColor'>>(
       (routine) => ({
         id: routine.routineId,
@@ -146,17 +164,6 @@ export const createRoutineWidgetSnapshot = (
       }),
     )
     .filter((item) => item.weeklyCount < item.routineCount || item.isTodayDone)
-    .sort((left, right) => {
-      if (left.isTodayDone !== right.isTodayDone) {
-        return left.isTodayDone ? 1 : -1;
-      }
-
-      if (left.achievementRate !== right.achievementRate) {
-        return left.achievementRate - right.achievementRate;
-      }
-
-      return left.id - right.id;
-    })
     .map((item, index) => ({
       ...item,
       ...ROUTINE_STATUS_ACCENT_COLORS[
@@ -169,6 +176,7 @@ export const createRoutineWidgetSnapshot = (
     title: '이번 주 루틴',
     message: widgetItems.length ? '' : '이번 주 루틴을 모두 달성했어요',
     items: widgetItems,
+    smallItems: createSmallRoutineWidgetItems(widgetItems),
     remainingCount: 0,
     generatedAt: today.toISOString(),
     countLabelStyle: createRoutineWidgetCountLabelStyle(options.themeName),
