@@ -15,6 +15,9 @@ export function makeServer() {
             userInfo: {
               userId: 'moon',
               nickname: '용사',
+              job: '용사',
+              jobType: 'WARRIOR',
+              characterCode: 'WARRIOR_BEGINNER',
               motto: '끝까지 간다',
               mottos: ['끝까지 간다'],
               role: 'ADMIN',

@@ -27,8 +27,12 @@ import {
 import { useSetRequestId } from '@/hooks/useRequestSelection';
 import { useSetRoutineId } from '@/hooks/useRoutineSelection';
 import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
-import { useSyncAppColorScheme } from '@/hooks/useThemePreference';
+import {
+  useSetAppColorScheme,
+  useSyncAppColorScheme,
+} from '@/hooks/useThemePreference';
 import { useVisitCheck } from '@/hooks/useVisitCheck';
+import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { NAV_THEME } from '@/theme/nav-theme';
 import type { NotificationHandlers } from '@/types/notification-types';
 import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
@@ -99,6 +103,7 @@ function AppShell() {
   const themeName = useColorScheme();
   const setRequestId = useSetRequestId();
   const setRoutineId = useSetRoutineId();
+  const setColorScheme = useSetAppColorScheme();
   const syncWithTamagui = useSyncAppColorScheme();
 
   /**
@@ -174,6 +179,14 @@ function AppShell() {
   useEffect(() => {
     syncWithTamagui();
   }, [syncWithTamagui]);
+
+  useEffect(() => {
+    const jobThemeName = getThemeNameFromUserJob(user);
+
+    if (jobThemeName && jobThemeName !== themeName) {
+      setColorScheme(jobThemeName);
+    }
+  }, [setColorScheme, themeName, user]);
 
   // 알림 핸들러 초기화
   useEffect(() => {

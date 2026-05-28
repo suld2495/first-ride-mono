@@ -272,11 +272,13 @@ describe('MyInfo 로그아웃', () => {
 
     fireEvent.press(getByText('한마디'));
     fireEvent.press(getByText('루틴 설정'));
+    fireEvent.press(getByText('테마 설정'));
     fireEvent.press(getByText('알림 설정'));
     fireEvent.press(getByText('문의'));
 
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
     expect(global.mockPush).toHaveBeenCalledWith('/routine-settings');
+    expect(global.mockPush).toHaveBeenCalledWith('/modal?type=theme');
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/inquiry');
   });

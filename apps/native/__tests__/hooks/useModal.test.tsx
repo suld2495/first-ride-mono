@@ -42,4 +42,10 @@ describe('useModal', () => {
 
     expect(title).toBe('숨긴 루틴 모아보기');
   });
+
+  it('테마 설정 모달을 공통 모달에 매핑한다', () => {
+    const [title] = useModal('theme');
+
+    expect(title).toBe('테마 설정');
+  });
 });

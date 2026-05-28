@@ -19,7 +19,7 @@ interface Action {
 export const useColorSchemeStore = create<ColorSchemeState & Action>()(
   persist(
     (set, get) => ({
-      colorScheme: 'dark',
+      colorScheme: 'blue',
       setColorScheme: (colorScheme: ColorScheme) => {
         set({ colorScheme });
       },

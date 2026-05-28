@@ -1,102 +1,56 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Pressable } from 'react-native';
+import { View } from 'react-native';
 
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useSetAppColorScheme } from '@/hooks/useThemePreference';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { useAuthUser } from '@/hooks/useAuthSession';
+import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import type { ThemeName } from '@/theme/themes';
 
-interface ThemeOptionProps {
-  name: ThemeName;
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  isSelected: boolean;
-  onSelect: (name: ThemeName) => void;
-}
+type FixedThemeName = Extract<ThemeName, 'blue' | 'green' | 'red'>;
 
-const ThemeOption = ({
-  name,
-  label,
-  icon,
-  isSelected,
-  onSelect,
-}: ThemeOptionProps) => {
-  return (
-    <Pressable
-      onPress={() => onSelect(name)}
-      style={({ pressed }) => [
-        styles.optionContainer,
-        isSelected && styles.optionSelected,
-        pressed && styles.optionPressed,
-      ]}
-    >
-      <ThemeView style={styles.optionContent} transparent>
-        <Ionicons
-          name={icon}
-          size={styles.optionIcon.fontSize}
-          style={styles.optionIcon}
-          color={
-            isSelected ? styles.selectedIcon.color : styles.optionIcon.color
-          }
-        />
-        <Typography
-          style={[styles.optionLabel, isSelected && styles.selectedLabel]}
-        >
-          {label}
-        </Typography>
-      </ThemeView>
-      {isSelected && (
-        <Ionicons
-          name="checkmark-circle"
-          size={styles.checkIcon.fontSize}
-          color={styles.checkIcon.color}
-        />
-      )}
-    </Pressable>
-  );
+const THEME_LABELS: Record<FixedThemeName, string> = {
+  blue: '블루',
+  green: '그린',
+  red: '레드',
 };
 
-const THEME_OPTIONS: {
-  name: ThemeName;
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-}[] = [
-  { name: 'light', label: '라이트', icon: 'sunny-outline' },
-  { name: 'dark', label: '다크', icon: 'moon-outline' },
-  { name: 'blue', label: '블루', icon: 'moon-outline' },
-  { name: 'green', label: '그린', icon: 'leaf-outline' },
-  { name: 'red', label: '레드', icon: 'heart-outline' },
-];
+const THEME_ICONS: Record<FixedThemeName, keyof typeof Ionicons.glyphMap> = {
+  blue: 'shield-outline',
+  green: 'leaf-outline',
+  red: 'sparkles-outline',
+};
+
+const getFixedThemeName = (themeName: string): FixedThemeName => {
+  if (themeName === 'green' || themeName === 'red') {
+    return themeName;
+  }
+
+  return 'blue';
+};
 
 const ThemeModal = () => {
-  const currentTheme = useColorScheme();
-  const setColorScheme = useSetAppColorScheme();
-
-  const handleSelectTheme = (name: ThemeName) => {
-    setColorScheme(name);
-  };
+  const user = useAuthUser();
+  const { theme } = useAppTheme();
+  const fixedThemeName = getThemeNameFromUserJob(user) ?? getFixedThemeName(theme.name);
+  const themeLabel = THEME_LABELS[fixedThemeName];
 
   return (
     <ThemeView style={styles.container}>
-      <ThemeView style={styles.header} transparent>
-        <Typography variant="body" color="secondary">
-          앱의 테마를 선택하세요
-        </Typography>
-      </ThemeView>
-
-      <ThemeView style={styles.optionList} transparent>
-        {THEME_OPTIONS.map((option) => (
-          <ThemeOption
-            key={option.name}
-            name={option.name}
-            label={option.label}
-            icon={option.icon}
-            isSelected={currentTheme === option.name}
-            onSelect={handleSelectTheme}
+      <ThemeView style={styles.summary} transparent>
+        <View style={styles.iconBadge}>
+          <Ionicons
+            name={THEME_ICONS[fixedThemeName]}
+            size={styles.icon.fontSize}
+            color={styles.icon.color}
           />
-        ))}
+        </View>
+        <ThemeView style={styles.textGroup} transparent>
+          <Typography variant="title" weight="bold" style={styles.title}>
+            {themeLabel}
+          </Typography>
+        </ThemeView>
       </ThemeView>
     </ThemeView>
   );
@@ -110,62 +64,33 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.foundation.spacing[4],
     paddingTop: theme.foundation.spacing[5],
   },
-
-  header: {
-    marginBottom: theme.foundation.spacing[6],
-  },
-
-  optionList: {
-    gap: theme.foundation.spacing[3],
-  },
-
-  optionContainer: {
+  summary: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: theme.foundation.spacing[4],
     padding: theme.foundation.spacing[4],
-    borderRadius: theme.foundation.dimension.x12,
     borderWidth: 1,
     borderColor: theme.colors.border.default,
+    borderRadius: theme.foundation.radii.s,
     backgroundColor: theme.colors.background.surface,
   },
-
-  optionSelected: {
-    borderColor: theme.colors.action.primary.default,
-    backgroundColor: theme.colors.action.secondary.default,
-  },
-
-  optionPressed: {
-    opacity: 0.7,
-  },
-
-  optionContent: {
-    flexDirection: 'row',
+  iconBadge: {
+    width: theme.foundation.dimension.x48,
+    height: theme.foundation.dimension.x48,
     alignItems: 'center',
-    gap: theme.foundation.spacing[3],
+    justifyContent: 'center',
+    borderRadius: theme.foundation.radii.round,
+    backgroundColor: theme.colors.brand.primary,
   },
-
-  optionIcon: {
+  icon: {
     fontSize: theme.foundation.iconSize.l,
-    color: theme.colors.text.secondary,
+    color: theme.colors.brand.text,
   },
-
-  selectedIcon: {
-    color: theme.colors.action.secondary.label,
+  textGroup: {
+    flex: 1,
+    gap: theme.foundation.spacing[1],
   },
-
-  optionLabel: {
-    fontSize: theme.foundation.typography.size.l,
+  title: {
     color: theme.colors.text.primary,
-  },
-
-  selectedLabel: {
-    fontWeight: '600',
-    color: theme.colors.action.secondary.label,
-  },
-
-  checkIcon: {
-    fontSize: theme.foundation.iconSize.l,
-    color: theme.colors.action.secondary.label,
   },
 }));
