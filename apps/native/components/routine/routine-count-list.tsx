@@ -20,7 +20,8 @@ interface RoutineCountListProps {
   testID?: string;
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
-  onShowDetailModal: (id: number) => void;
+  canRequestRoutine?: boolean;
+  onRequestRoutine: (routine: Routine) => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
   readOnly?: boolean;
@@ -47,7 +48,8 @@ const RoutineCountList = ({
   testID,
   refreshing = false,
   onRefresh,
-  onShowDetailModal,
+  canRequestRoutine = false,
+  onRequestRoutine,
   openMenuRoutineId,
   onToggleRoutineMenu,
   readOnly = false,
@@ -68,6 +70,10 @@ const RoutineCountList = ({
       const pendingConfirmationCount = routine.hasPendingConfirmation
         ? routine.pendingConfirmationCount
         : 0;
+      const canRequestWithCheckBox = canRequestRoutine;
+      const handlePressCheckBox = canRequestWithCheckBox
+        ? () => onRequestRoutine(routine)
+        : undefined;
       const todayDateKey = createRoutineDateKey(new Date());
       const isCurrentWeek = date === getWeekMonday(new Date());
       const hasTodaySuccess =
@@ -88,32 +94,13 @@ const RoutineCountList = ({
           >
             <View style={styles.cardSurface}>
               <View style={styles.titleRow}>
-                {readOnly ? (
-                  <Typography
-                    variant="body3"
-                    weight="semibold"
-                    style={styles.title}
-                  >
-                    {routineName}
-                  </Typography>
-                ) : (
-                  <Pressable
-                    onPress={() => onShowDetailModal(routineId)}
-                    style={styles.titleButton}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${routineName} 상세 보기`}
-                    hitSlop={baseFoundation.dimension.x8}
-                  >
-                    <Typography
-                      variant="body3"
-                      weight="semibold"
-                      style={styles.title}
-                    >
-                      {routineName}
-                    </Typography>
-                  </Pressable>
-                )}
-
+                <Typography
+                  variant="body3"
+                  weight="semibold"
+                  style={styles.title}
+                >
+                  {routineName}
+                </Typography>
               </View>
 
               {!readOnly ? (
@@ -176,11 +163,15 @@ const RoutineCountList = ({
                         : `${countIndex}회 목표 없음`;
 
                   return (
-                    <View
+                    <Pressable
                       key={`${routineId}-status-${countIndex}`}
                       style={styles.column}
                       accessibilityLabel={label}
-                      accessibilityRole="image"
+                      accessibilityRole={
+                        canRequestWithCheckBox ? 'button' : 'image'
+                      }
+                      disabled={!canRequestWithCheckBox}
+                      onPress={handlePressCheckBox}
                     >
                       <View
                         style={[
@@ -204,7 +195,7 @@ const RoutineCountList = ({
                           />
                         )}
                       </View>
-                    </View>
+                    </Pressable>
                   );
                 })}
               </View>
@@ -215,8 +206,9 @@ const RoutineCountList = ({
     },
     [
       date,
+      canRequestRoutine,
       itemHeight,
-      onShowDetailModal,
+      onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
       theme.colors.brand.check,
@@ -280,10 +272,6 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: theme.colors.brand.primary,
     borderWidth: 3,
     justifyContent: 'center',
-  },
-  titleButton: {
-    paddingHorizontal: baseFoundation.spacing[0],
-    alignSelf: 'flex-start',
   },
   title: {
     color: theme.colors.text.secondary,

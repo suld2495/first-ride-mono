@@ -19,7 +19,8 @@ interface RoutineWeekListProps {
   testID?: string;
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
-  onShowDetailModal: (id: number) => void;
+  canRequestRoutine?: boolean;
+  onRequestRoutine: (routine: Routine) => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
   readOnly?: boolean;
@@ -65,7 +66,8 @@ const RoutineWeekList = ({
   testID,
   refreshing = false,
   onRefresh,
-  onShowDetailModal,
+  canRequestRoutine = false,
+  onRequestRoutine,
   openMenuRoutineId,
   onToggleRoutineMenu,
   readOnly = false,
@@ -86,7 +88,10 @@ const RoutineWeekList = ({
   const renderRoutineItem = useCallback<ListRenderItem<Routine>>(
     ({ item: routine }) => {
       const { routineId, routineName, weeklyCount, routineCount } = routine;
-      let count = 0;
+      const canRequestWithCheckBox = canRequestRoutine;
+      const handlePressCheckBox = canRequestWithCheckBox
+        ? () => onRequestRoutine(routine)
+        : undefined;
 
       return (
         <View style={[styles.cardContainer, { height: itemHeight }]}>
@@ -100,24 +105,9 @@ const RoutineWeekList = ({
               <View style={styles.cardInner}>
                 <View style={styles.cardSurface}>
                   <View style={styles.titleRow}>
-                    {readOnly ? (
-                      <Typography variant="body3" style={styles.title}>
-                        {routineName}
-                      </Typography>
-                    ) : (
-                      <Pressable
-                        onPress={() => onShowDetailModal(routineId)}
-                        style={styles.titleButton}
-                        accessibilityRole="button"
-                        accessibilityLabel={`${routineName} 상세 보기`}
-                        hitSlop={baseFoundation.dimension.x8}
-                      >
-                        <Typography variant="body3" style={styles.title}>
-                          {routineName}
-                        </Typography>
-                      </Pressable>
-                    )}
-
+                    <Typography variant="body3" style={styles.title}>
+                      {routineName}
+                    </Typography>
                   </View>
 
                   {!readOnly ? (
@@ -143,7 +133,6 @@ const RoutineWeekList = ({
 
                   <View style={styles.checkRow}>
                     {weeklyData[routineId].map((check, index) => {
-                      count += +check;
                       const dateKey = weekDateKeys[index];
                       const isTodaySuccess = check && dateKey === todayDateKey;
                       const isPendingConfirmation =
@@ -175,11 +164,15 @@ const RoutineWeekList = ({
                           : '미달성';
 
                       return (
-                        <View
+                        <Pressable
                           key={`${routineId}-status-${index}`}
                           style={styles.dayColumn}
                           accessibilityLabel={`${DAY_LABELS[index]}요일 ${statusLabel}`}
-                          accessibilityRole="image"
+                          accessibilityRole={
+                            canRequestWithCheckBox ? 'button' : 'image'
+                          }
+                          disabled={!canRequestWithCheckBox}
+                          onPress={handlePressCheckBox}
                         >
                           <View
                             style={[
@@ -196,7 +189,7 @@ const RoutineWeekList = ({
                               />
                             ) : null}
                           </View>
-                        </View>
+                        </Pressable>
                       );
                     })}
                   </View>
@@ -234,8 +227,9 @@ const RoutineWeekList = ({
     },
     [
       date,
+      canRequestRoutine,
       itemHeight,
-      onShowDetailModal,
+      onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
       theme.colors.brand.pendingConfirmationCheck,
@@ -311,10 +305,6 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: baseFoundation.spacing[4],
     backgroundColor: theme.colors.brand.routineBackground,
     justifyContent: 'center',
-  },
-  titleButton: {
-    paddingHorizontal: baseFoundation.spacing[0],
-    alignSelf: 'flex-start',
   },
   title: {
     color: theme.colors.text.secondary,

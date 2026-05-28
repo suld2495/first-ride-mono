@@ -251,13 +251,11 @@ describe('루틴 조회 페이지', () => {
       });
 
       it('number 타입 루틴 제목 아래 라벨까지의 간격을 12px로 둔다', async () => {
-        const { findByLabelText } = render(<Index />);
+        const { findByText } = render(<Index />);
 
-        const routineTitleButton = await findByLabelText(
-          '테스트 루틴 1 상세 보기',
-        );
+        const routineTitle = await findByText('테스트 루틴 1');
         const titleRowStyles = findAncestorStyleWith(
-          routineTitleButton,
+          routineTitle,
           'marginBottom',
         );
 
@@ -1026,13 +1024,11 @@ describe('루틴 조회 페이지', () => {
       });
 
       it('week 타입 루틴 제목 아래 라벨까지의 간격을 12px로 둔다', async () => {
-        const { findByLabelText } = render(<Index />);
+        const { findByText } = render(<Index />);
 
-        const routineTitleButton = await findByLabelText(
-          '테스트 루틴 1 상세 보기',
-        );
+        const routineTitle = await findByText('테스트 루틴 1');
         const titleRowStyles = findAncestorStyleWith(
-          routineTitleButton,
+          routineTitle,
           'marginBottom',
         );
 
@@ -1216,6 +1212,64 @@ describe('루틴 조회 페이지', () => {
       const { findByText } = render(<Index />);
 
       expect(await findByText('1회')).toBeOnTheScreen();
+    });
+  });
+
+  describe('체크박스 인증 요청 이동 테스트', () => {
+    beforeEach(() => {
+      mockSearchParams.date = getWeekMonday(new Date());
+    });
+
+    it('메이트가 지정된 number 타입 루틴 체크박스를 누르면 인증 요청 모달로 이동한다', async () => {
+      mockRoutineStore.type = 'number';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, { mateNickname: 'mate' }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(await findByTestId('routine-count-check-1-4'));
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
+      });
+      expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
+    });
+
+    it('메이트가 없는 number 타입 루틴 체크박스를 눌러도 인증 요청 모달로 이동한다', async () => {
+      mockRoutineStore.type = 'number';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, { mateNickname: '' }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(await findByTestId('routine-count-check-1-4'));
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
+      });
+      expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
+    });
+
+    it('메이트가 지정된 week 타입 루틴 체크박스를 누르면 인증 요청 모달로 이동한다', async () => {
+      mockRoutineStore.type = 'week';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, { mateNickname: 'mate' }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(
+        await findByTestId(
+          `routine-week-check-1-${getRoutineWeekIndex(new Date())}`,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
+      });
+      expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
     });
   });
 
@@ -1581,16 +1635,15 @@ describe('루틴 조회 페이지', () => {
         .reply(200, { data: createMockRoutines(1) });
     });
 
-    it('루틴 이름을 클릭하면 상세 모달이 열린다', async () => {
-      const { findByText } = render(<Index />);
+    it('루틴 이름을 눌러도 상세 모달로 이동하지 않는다', async () => {
+      const { findByText, queryByLabelText } = render(<Index />);
 
       const routineTitle = await findByText('테스트 루틴 1');
 
       fireEvent.press(routineTitle);
 
-      await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/modal?type=routine-detail');
-      });
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=routine-detail');
+      expect(queryByLabelText('테스트 루틴 1 상세 보기')).toBeNull();
     });
   });
 

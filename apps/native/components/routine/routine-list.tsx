@@ -138,11 +138,25 @@ const RoutineList = ({
     }).start();
   }, [isExpanded, overlayOpacity]);
 
-  const handleShowRequestModal = (id: number) => {
-    setOpenMenuRoutineId(null);
-    router.push('/modal?type=request');
-    setRoutineId(id);
-  };
+  const handleShowRequestModal = useCallback(
+    (id: number) => {
+      setOpenMenuRoutineId(null);
+      router.push('/modal?type=request');
+      setRoutineId(id);
+    },
+    [router, setRoutineId],
+  );
+
+  const handlePressRoutineCheck = useCallback(
+    (routine: Routine) => {
+      if (!showsRequestMenuItem) {
+        return;
+      }
+
+      handleShowRequestModal(routine.routineId);
+    },
+    [handleShowRequestModal, showsRequestMenuItem],
+  );
 
   const handleShowUpdateModal = useCallback(
     (routine: Routine) => {
@@ -153,11 +167,6 @@ const RoutineList = ({
     },
     [router, setRoutineForm, setRoutineId],
   );
-
-  const handleShowDetailModal = (id: number) => {
-    router.push('/modal?type=routine-detail');
-    setRoutineId(id);
-  };
 
   const handleToggleRoutinePause = useCallback(
     (routine: Routine) => {
@@ -308,7 +317,8 @@ const RoutineList = ({
               scrollEnabled={isScrollableList}
               refreshing={refreshing}
               onRefresh={onRefresh}
-              onShowDetailModal={handleShowDetailModal}
+              canRequestRoutine={showsRequestMenuItem && !readOnly}
+              onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               readOnly={readOnly}
@@ -323,7 +333,8 @@ const RoutineList = ({
               scrollEnabled={isScrollableList}
               refreshing={refreshing}
               onRefresh={onRefresh}
-              onShowDetailModal={handleShowDetailModal}
+              canRequestRoutine={showsRequestMenuItem && !readOnly}
+              onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               readOnly={readOnly}
