@@ -20,7 +20,7 @@ import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
 
 const getFriendAccountId = (friend: Friend): number | string | undefined =>
-  friend.id ?? friend.userId ?? friend.friendId ?? friend.accountId;
+  friend.id ?? friend.friendId ?? friend.accountId;
 
 const FriendPage = () => {
   const router = useRouter();

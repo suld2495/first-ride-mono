@@ -101,6 +101,30 @@ describe('FriendList', () => {
     expect(firstCardWidth).toBe(347);
   });
 
+  it('shows the friend user id below the nickname', () => {
+    const friends = [
+      createMockFriend(0, {
+        nickname: 'Fffft',
+        userId: 'Fff1234',
+        motto: '오늘 할일을 내일로 미루지 말',
+        job: '용사',
+      }),
+    ];
+    const { getByText, queryByText } = render(
+      <FriendList
+        friends={friends}
+        isLoading={false}
+        refreshing={false}
+        onRefresh={jest.fn()}
+        onOpenFriend={jest.fn()}
+      />,
+    );
+
+    expect(getByText('Fffft')).toBeOnTheScreen();
+    expect(getByText('Fff1234')).toBeOnTheScreen();
+    expect(queryByText('오늘 할일을 내일로 미루지 말')).toBeNull();
+  });
+
   it('uses each friend character color for the character panel and level badge', () => {
     const friends = [
       createMockFriend(0, {

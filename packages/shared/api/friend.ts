@@ -15,7 +15,7 @@ const baseURL = '/friends';
 const userBaseURL = '/users';
 
 const getFriendAccountId = (friend: Friend): number | string | undefined =>
-  friend.id ?? friend.userId ?? friend.friendId ?? friend.accountId;
+  friend.id ?? friend.friendId ?? friend.accountId;
 
 const fetchFriendAccountIdByNickname = async (
   nickname: User['nickname'],
@@ -31,7 +31,7 @@ const fetchFriendAccountIdByNickname = async (
     );
     const user = users.find((item) => item.nickname === nickname);
 
-    return user?.id ?? user?.accountId ?? user?.userId;
+    return user?.id ?? user?.accountId;
   } catch (error) {
     throw toAppError(error);
   }
@@ -43,9 +43,9 @@ const withFriendAccountId = async (friend: Friend): Promise<Friend> => {
   }
 
   try {
-    const userId = await fetchFriendAccountIdByNickname(friend.nickname);
+    const accountId = await fetchFriendAccountIdByNickname(friend.nickname);
 
-    return userId ? { ...friend, userId } : friend;
+    return accountId ? { ...friend, accountId } : friend;
   } catch {
     return friend;
   }

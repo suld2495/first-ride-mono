@@ -2,7 +2,7 @@ import { User } from './user';
 
 export interface Friend {
   id?: number | string;
-  userId?: number | string;
+  userId?: User['userId'];
   friendId?: number | string;
   accountId?: number | string;
   nickname: User['nickname'];

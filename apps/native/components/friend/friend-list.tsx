@@ -140,15 +140,14 @@ const FriendItem = ({
   onOpen,
 }: FriendItemProps) => {
   const {
+    userId,
     nickname,
-    motto,
-    mateNickname,
     job,
     level,
     characterCode,
     characterImageUrl,
   } = friend;
-  const subtitle = motto?.trim() || mateNickname?.trim() || job;
+  const subtitle = userId?.trim() ?? '';
   const characterSource = getFriendCharacterSource(characterImageUrl);
   const characterThemeName = getFriendCharacterThemeName({
     characterCode,

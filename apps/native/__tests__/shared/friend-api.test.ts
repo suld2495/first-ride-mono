@@ -64,5 +64,25 @@ describe('friend.api', () => {
         fetchFriends({ page: 1, keyword: 'ㅇㅇㅇ' }),
       ).resolves.toEqual([]);
     });
+
+    it('친구의 로그인 아이디와 계정 식별자를 분리해서 반환한다', async () => {
+      const friendWithoutAccountId = {
+        ...friends[2],
+        userId: 'Fff1234',
+      };
+
+      mockAxios.resetHandlers();
+      mockAxios.onGet('/friends').reply(200, { data: [friendWithoutAccountId] });
+      mockAxios.onGet('/users/search?nickname=Fff').reply(200, {
+        data: [{ id: 49, userId: 'Fff1234', nickname: 'Fff' }],
+      });
+
+      await expect(fetchFriends({ page: 1, keyword: '' })).resolves.toEqual([
+        {
+          ...friendWithoutAccountId,
+          accountId: 49,
+        },
+      ]);
+    });
   });
 });
