@@ -1,6 +1,7 @@
 import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Href } from 'expo-router';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -30,6 +31,7 @@ import { useSyncAppColorScheme } from '@/hooks/useThemePreference';
 import { useVisitCheck } from '@/hooks/useVisitCheck';
 import { NAV_THEME } from '@/theme/nav-theme';
 import type { NotificationHandlers } from '@/types/notification-types';
+import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
 import { getKakaoNativeAppKey } from '@/utils/env';
 import {
   extractDeepLinkData,
@@ -92,7 +94,9 @@ const StackLayout = () => {
 function AppShell() {
   useInitialAndroidBarSync();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const user = useAuthUser();
+  const themeName = useColorScheme();
   const setRequestId = useSetRequestId();
   const setRoutineId = useSetRoutineId();
   const syncWithTamagui = useSyncAppColorScheme();
@@ -111,6 +115,12 @@ function AppShell() {
         return;
       }
 
+      void refreshRoutineWidgetSnapshot({
+        nickname: user.nickname,
+        themeName,
+        queryClient,
+      });
+
       const data = extractDeepLinkData(response.notification);
       const path = getDeepLinkPath(data);
 
@@ -125,7 +135,7 @@ function AppShell() {
       // 해당 화면으로 이동
       router.push(path as Href);
     },
-    [user, router, setRequestId, setRoutineId],
+    [user, themeName, queryClient, router, setRequestId, setRoutineId],
   );
 
   const handleNotificationReceived = useCallback(
@@ -139,8 +149,13 @@ function AppShell() {
       }
 
       void syncBadgeCountFromNotification(notification);
+      void refreshRoutineWidgetSnapshot({
+        nickname: user.nickname,
+        themeName,
+        queryClient,
+      });
     },
-    [user],
+    [user, themeName, queryClient],
   );
 
   const notificationHandlers: NotificationHandlers = useMemo(
@@ -153,7 +168,7 @@ function AppShell() {
 
   const { pushToken, isInitialized } = useNotifications(notificationHandlers);
 
-  useAppActiveRefresh(user?.nickname || '');
+  useAppActiveRefresh(user?.nickname || '', themeName);
 
   // 앱 시작 시 저장된 테마를 Tamagui에 동기화
   useEffect(() => {

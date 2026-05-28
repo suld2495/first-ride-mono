@@ -2,16 +2,19 @@ import * as requestApi from '@repo/shared/api/request.api';
 import { requestKey } from '@repo/shared/types/query-keys/request';
 import { routineKey } from '@repo/shared/types/query-keys/routine';
 import { useQueryClient } from '@tanstack/react-query';
-import { usePathname } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
-const isRoutinePage = (pathname: string) => pathname.includes('routine');
+import type { ThemeName } from '@/theme/themes';
+import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
+
 const wasInactive = (appState: AppStateStatus) =>
   appState === 'inactive' || appState === 'background';
 
-export const useAppActiveRefresh = (nickname: string) => {
-  const pathname = usePathname();
+export const useAppActiveRefresh = (
+  nickname: string,
+  themeName?: ThemeName,
+) => {
   const queryClient = useQueryClient();
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
@@ -29,11 +32,15 @@ export const useAppActiveRefresh = (nickname: string) => {
           queryFn: requestApi.fetchReceivedRequests,
         });
 
-        if (isRoutinePage(pathname)) {
-          void queryClient.invalidateQueries({
-            queryKey: routineKey.list(nickname),
-          });
-        }
+        void queryClient.invalidateQueries({
+          queryKey: routineKey.list(nickname),
+        });
+
+        void refreshRoutineWidgetSnapshot({
+          nickname,
+          themeName,
+          queryClient,
+        });
       }
 
       appStateRef.current = nextState;
@@ -42,5 +49,5 @@ export const useAppActiveRefresh = (nickname: string) => {
     return () => {
       subscription.remove();
     };
-  }, [nickname, pathname, queryClient]);
+  }, [nickname, queryClient, themeName]);
 };
