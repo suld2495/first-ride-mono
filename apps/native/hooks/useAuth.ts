@@ -63,7 +63,7 @@ export function useAuth(): UseAuthReturn {
           pathname: '/social-sign-up',
           params: {
             provider: providerType,
-            accessToken: result.accessToken,
+            accessToken: result.socialAccessToken,
           },
         });
       } else {

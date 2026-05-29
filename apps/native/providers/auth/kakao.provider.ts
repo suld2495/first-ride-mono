@@ -8,7 +8,8 @@ class KakaoAuthProvider extends SocialAuthProvider {
   name = '카카오';
 
   async authenticate(): Promise<SocialPayload> {
-    const [tokenResult, user] = await Promise.all([login(), me()]);
+    const tokenResult = await login();
+    const user = await me();
 
     return {
       provider: 'kakao',

@@ -4,6 +4,7 @@ import type { AuthProviderType, AuthResponse, DeviceInfo } from './types';
 // AuthManager 결과 타입 (providerType 포함)
 export interface AuthResult extends AuthResponse {
   providerType: AuthProviderType;
+  socialAccessToken?: string;
 }
 
 class AuthManager {
@@ -19,10 +20,14 @@ class AuthManager {
 
     // 2. Provider가 자신의 API 호출
     const response = await provider.callApi(payload, deviceInfo);
+    const socialAccessToken =
+      response.isNewUser && 'accessToken' in payload
+        ? payload.accessToken
+        : undefined;
 
     return {
       ...response,
-      accessToken: 'accessToken' in payload ? payload.accessToken : '',
+      socialAccessToken,
       providerType,
     };
   }
