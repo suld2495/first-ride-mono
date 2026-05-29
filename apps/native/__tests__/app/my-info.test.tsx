@@ -80,7 +80,7 @@ describe('MyInfo 로그아웃', () => {
         nickname: 'testuser',
         currentLevel: 3,
         currentLevelProgress: 12,
-        expForNextLevel: 30,
+        expRequiredForNextLevel: 42,
       },
     });
   });
@@ -98,7 +98,7 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('EXP')).toBeOnTheScreen();
     expect(getByText('12')).toBeOnTheScreen();
     expect(getByText('/')).toBeOnTheScreen();
-    expect(getByText('30')).toBeOnTheScreen();
+    expect(getByText('42')).toBeOnTheScreen();
   });
 
   it('설정 프로필 영역에 지정된 간격과 색상 토큰을 적용한다', () => {

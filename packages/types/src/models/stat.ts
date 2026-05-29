@@ -21,7 +21,7 @@ export interface StatResponse {
   currentLevel: number;
   currentTotalExp: number;
   currentLevelProgress: number;
-  expForNextLevel: number;
+  expRequiredForNextLevel: number;
   stats: UserStats;
   availablePoints: number;
   totalPointsEarned: number;

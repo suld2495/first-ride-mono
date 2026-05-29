@@ -85,7 +85,8 @@ const MyInfo = () => {
   const { data: stats } = useMyStatsQuery();
   const { theme } = useAppTheme();
   const currentExp = stats?.currentLevelProgress ?? FALLBACK_EXP;
-  const nextLevelExp = stats?.expForNextLevel ?? FALLBACK_NEXT_LEVEL_EXP;
+  const nextLevelExp =
+    stats?.expRequiredForNextLevel ?? FALLBACK_NEXT_LEVEL_EXP;
   const expProgress =
     nextLevelExp > 0 ? Math.min(currentExp / nextLevelExp, 1) : 0;
   const themeTone = getThemeTone(theme.name);

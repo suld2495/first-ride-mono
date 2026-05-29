@@ -140,7 +140,7 @@ export default function StatPage() {
           nickname={data.nickname}
           level={data.currentLevel}
           currentExp={data.currentTotalExp}
-          expForNextLevel={data.expForNextLevel}
+          expRequiredForNextLevel={data.expRequiredForNextLevel}
         />
 
         <StatDesignTabs activeTab={activeTab} onTabChange={setActiveTab} />
