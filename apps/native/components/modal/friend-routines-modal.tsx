@@ -20,11 +20,15 @@ import EmptyState from '@/components/ui/empty-state';
 import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
 import RoutineCharacter from '@/feature/character/routine-character';
 import { useScopedColorSchemeOverride } from '@/hooks/useScopedColorSchemeOverride';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
+
+const SPEECH_BUBBLE_BOTTOM_OFFSET =
+  baseFoundation.dimension.x100 + baseFoundation.spacing[1];
 
 const FriendRoutinesModal = () => {
   const {
@@ -100,6 +104,22 @@ const FriendRoutinesModal = () => {
   const characterAsset =
     getRoutineSceneRemoteAsset(profile?.characterImageUrl) ??
     getRoutineSceneCharacterAsset(appliedProfileThemeName);
+  const speechBubbleMessage = profile?.motto?.trim() || '안녕?';
+  const friendCharacter = (
+    <View style={styles.characterStage}>
+      <RoutineCharacter
+        asset={characterAsset}
+        testID="friend-routine-scene-character"
+      />
+      <View
+        testID="friend-routine-character-speech-bubble"
+        style={styles.speechBubble}
+        pointerEvents="none"
+      >
+        <CharacterSpeechBubble message={speechBubbleMessage} />
+      </View>
+    </View>
+  );
 
   return (
     <ThemeView
@@ -141,12 +161,7 @@ const FriendRoutinesModal = () => {
                 readOnly
               />
             </View>
-            <View style={styles.routineCharacterArea}>
-              <RoutineCharacter
-                asset={characterAsset}
-                testID="friend-routine-scene-character"
-              />
-            </View>
+            <View style={styles.routineCharacterArea}>{friendCharacter}</View>
           </>
         ) : (
           <>
@@ -159,12 +174,7 @@ const FriendRoutinesModal = () => {
                 readOnly
               />
             </View>
-            <View style={styles.routineCharacterArea}>
-              <RoutineCharacter
-                asset={characterAsset}
-                testID="friend-routine-scene-character"
-              />
-            </View>
+            <View style={styles.routineCharacterArea}>{friendCharacter}</View>
           </>
         )}
       </View>
@@ -210,5 +220,14 @@ const styles = StyleSheet.create((theme) => ({
     flex: 3,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  characterStage: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  speechBubble: {
+    bottom: SPEECH_BUBBLE_BOTTOM_OFFSET,
+    position: 'absolute',
   },
 }));

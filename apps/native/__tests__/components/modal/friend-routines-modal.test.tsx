@@ -92,6 +92,10 @@ describe('FriendRoutinesModal', () => {
     ).toHaveProp('source', {
       uri: 'https://cdn.example.com/backgrounds/mage.png',
     });
+    expect(
+      await screen.findByTestId('friend-routine-character-speech-bubble'),
+    ).toBeOnTheScreen();
+    expect(await screen.findByText('오늘도 전진')).toBeOnTheScreen();
 
     const redBackgroundViews = screen
       .UNSAFE_getAllByType(View)
