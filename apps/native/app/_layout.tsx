@@ -5,8 +5,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { Href } from 'expo-router';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useMemo } from 'react';
-import { Platform } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { AppState, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { updatePushToken } from '@/api/push-token.api';
@@ -35,6 +35,7 @@ import { useVisitCheck } from '@/hooks/useVisitCheck';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { NAV_THEME } from '@/theme/nav-theme';
 import type { NotificationHandlers } from '@/types/notification-types';
+import { getPendingRoutineShare } from '@/share/routine-share';
 import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
 import { getKakaoNativeAppKey } from '@/utils/env';
 import {
@@ -105,6 +106,7 @@ function AppShell() {
   const setRoutineId = useSetRoutineId();
   const setColorScheme = useSetAppColorScheme();
   const syncWithTamagui = useSyncAppColorScheme();
+  const handledShareSessionIdRef = useRef<string | null>(null);
 
   /**
    * 알림 탭 시 딥링크 처리
@@ -174,6 +176,41 @@ function AppShell() {
   const { pushToken, isInitialized } = useNotifications(notificationHandlers);
 
   useAppActiveRefresh(user?.nickname || '', themeName);
+
+  const openPendingRoutineShare = useCallback(async () => {
+    if (!user) {
+      return;
+    }
+
+    const pendingShare = await getPendingRoutineShare();
+
+    if (
+      !pendingShare ||
+      handledShareSessionIdRef.current === pendingShare.sessionId
+    ) {
+      return;
+    }
+
+    handledShareSessionIdRef.current = pendingShare.sessionId;
+    setRoutineId(pendingShare.routineId);
+    router.push(
+      `/modal?type=request&routineId=${pendingShare.routineId}&shareSessionId=${pendingShare.sessionId}` as Href,
+    );
+  }, [router, setRoutineId, user]);
+
+  useEffect(() => {
+    void openPendingRoutineShare();
+
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void openPendingRoutineShare();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [openPendingRoutineShare]);
 
   // 앱 시작 시 저장된 테마를 Tamagui에 동기화
   useEffect(() => {

@@ -18,13 +18,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    './plugins/with-routine-share-android',
     'expo-font',
     'react-native-edge-to-edge',
     [
       '@bacons/apple-targets',
       {
         root: './targets',
-        match: 'routine-widget',
+        match: '*',
       },
     ],
     ['expo-dev-launcher', { launchMode: 'most-recent' }],
@@ -80,11 +81,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.mannal.firstride',
+    appleTeamId: '8C683MXTH7',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       NSUserNotificationsUsageDescription:
         '알림을 통해 메이트의 루틴 인증 요청을 받을 수 있습니다.',
       CFBundleURLTypes: [
+        { CFBundleURLSchemes: ['first-ride'] },
+        { CFBundleURLSchemes: ['exp+first-ride'] },
         { CFBundleURLSchemes: [`kakao${KAKAO_NATIVE_APP_KEY}`] },
       ],
       LSApplicationQueriesSchemes: ['kakaokompassauth', 'kakaolink'],

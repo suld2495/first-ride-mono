@@ -21,6 +21,10 @@ import RoutineCharacter from '@/feature/character/routine-character';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useResetRoutineFormState } from '@/hooks/useRoutineFormState';
+import {
+  clearRoutineShareTargets,
+  syncRoutineShareTargets,
+} from '@/share/routine-share';
 import { baseFoundation } from '@/theme/tokens';
 import {
   createRoutineWidgetSnapshot,
@@ -131,6 +135,9 @@ export default function Index() {
       : createSignedOutRoutineWidgetSnapshot();
 
     void saveRoutineWidgetSnapshot(snapshot);
+    void (user
+      ? syncRoutineShareTargets(routines)
+      : clearRoutineShareTargets());
   }, [routines, themeName, user]);
 
   if (!user) {

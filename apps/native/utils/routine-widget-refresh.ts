@@ -3,6 +3,7 @@ import { routineKey } from '@repo/shared/types/query-keys/routine';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { QueryClient } from '@tanstack/react-query';
 
+import { syncRoutineShareTargets } from '@/share/routine-share';
 import type { ThemeName } from '@/theme/themes';
 import { createRoutineWidgetSnapshot } from '@/widget/routine-widget';
 import { saveRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
@@ -34,4 +35,5 @@ export const refreshRoutineWidgetSnapshot = async ({
   await saveRoutineWidgetSnapshot(
     createRoutineWidgetSnapshot(routines, { themeName }),
   );
+  await syncRoutineShareTargets(routines);
 };

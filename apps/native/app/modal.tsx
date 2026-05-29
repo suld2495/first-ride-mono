@@ -1,4 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import Animated, { SlideInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,15 +12,18 @@ import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import type { ModalType } from '@/hooks/useModal';
 import { useModal } from '@/hooks/useModal';
+import { useSetRoutineId } from '@/hooks/useRoutineSelection';
 
 const MODAL_ANIMATION_DURATION = 250;
 
 export default function Modal() {
-  const { type, friendNickname } = useLocalSearchParams<{
+  const { type, friendNickname, routineId } = useLocalSearchParams<{
     type: ModalType;
     friendNickname?: string;
+    routineId?: string;
   }>();
   const [title, ModalComponent, modalOptions] = useModal(type);
+  const setRoutineId = useSetRoutineId();
   const { theme } = useAppTheme();
   const modalTitle =
     type === 'friend-routines' && friendNickname ? friendNickname : title;
@@ -28,6 +32,18 @@ export default function Modal() {
     modalOptions.contentPadding === false
       ? 0
       : (modalOptions.contentPaddingHorizontal ?? theme.foundation.spacing[6]);
+
+  useEffect(() => {
+    if (type !== 'request' || !routineId) {
+      return;
+    }
+
+    const nextRoutineId = Number(routineId);
+
+    if (Number.isFinite(nextRoutineId) && nextRoutineId > 0) {
+      setRoutineId(nextRoutineId);
+    }
+  }, [routineId, setRoutineId, type]);
 
   return (
     <ThemeView

@@ -4,6 +4,9 @@ import ModalScreen from '../../app/modal';
 import { render } from '../setup/test-utils';
 
 declare const mockSearchParams: Record<string, string | undefined>;
+declare const mockRoutineStore: {
+  setRoutineId: jest.Mock;
+};
 
 let mockModalOptions: Record<string, unknown> = {};
 
@@ -28,6 +31,7 @@ describe('ModalScreen', () => {
     }
     mockSearchParams.type = 'routine-add';
     mockModalOptions = {};
+    mockRoutineStore.setRoutineId.mockClear();
   });
 
   it('does not add extra top padding above the shared page header', () => {
@@ -78,5 +82,14 @@ describe('ModalScreen', () => {
     );
 
     expect(contentStyle.paddingHorizontal).toBe(20);
+  });
+
+  it('stores routineId from shared certification request links', () => {
+    mockSearchParams.type = 'request';
+    mockSearchParams.routineId = '42';
+
+    render(<ModalScreen />);
+
+    expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(42);
   });
 });

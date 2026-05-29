@@ -9,6 +9,7 @@ import { createMockRoutine } from '../../setup/routine/mock';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
+declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockRoutineStore: {
   type: 'number' | 'week';
   setType: jest.Mock;
@@ -22,6 +23,15 @@ const mockLaunchImageLibraryAsync = jest.fn();
 const mockLaunchCameraAsync = jest.fn();
 const mockRequestMediaLibraryPermissionsAsync = jest.fn();
 const mockRequestCameraPermissionsAsync = jest.fn();
+const mockGetPendingRoutineShare = jest.fn();
+const mockClearPendingRoutineShare = jest.fn();
+
+jest.mock('@/share/routine-share', () => ({
+  getPendingRoutineShare: (...args: unknown[]) =>
+    mockGetPendingRoutineShare(...args),
+  clearPendingRoutineShare: (...args: unknown[]) =>
+    mockClearPendingRoutineShare(...args),
+}));
 
 jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: () =>
@@ -42,12 +52,18 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
     mockRoutineStore.routineId = 1;
     mockShowToast.mockClear();
     mockPush.mockClear();
+    for (const key of Object.keys(mockSearchParams)) {
+      delete mockSearchParams[key];
+    }
 
     // ImagePicker mock 초기화
     mockLaunchImageLibraryAsync.mockClear();
     mockLaunchCameraAsync.mockClear();
     mockRequestMediaLibraryPermissionsAsync.mockClear();
     mockRequestCameraPermissionsAsync.mockClear();
+    mockGetPendingRoutineShare.mockReset();
+    mockClearPendingRoutineShare.mockReset();
+    mockGetPendingRoutineShare.mockResolvedValue(null);
 
     // 기본 권한 설정 (granted)
     mockRequestMediaLibraryPermissionsAsync.mockResolvedValue({
@@ -247,6 +263,33 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
           width: 100,
           height: 100,
         });
+      });
+    });
+
+    it('공유 세션 이미지가 있으면 미리 첨부된 상태로 표시한다', async () => {
+      mockSearchParams.shareSessionId = 'session-1';
+      mockGetPendingRoutineShare.mockResolvedValue({
+        sessionId: 'session-1',
+        routineId: 1,
+        createdAt: '2026-05-29T00:00:00.000Z',
+        images: [
+          {
+            base64: 'shared-base64-image-data',
+            previewUri: 'file:///shared-image.jpg',
+          },
+        ],
+      });
+
+      const { findByText, getByTestId } = render(<RequestModal />);
+
+      await findByText('테스트 루틴 1');
+
+      await waitFor(() => {
+        expect(mockGetPendingRoutineShare).toHaveBeenCalledWith('session-1');
+        expect(getByTestId('request-image-preview')).toHaveProp('source', {
+          uri: 'file:///shared-image.jpg',
+        });
+        expect(mockClearPendingRoutineShare).toHaveBeenCalledWith('session-1');
       });
     });
 

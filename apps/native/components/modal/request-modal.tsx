@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Validators } from '@repo/shared/components';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { requestFormValidators } from '@repo/shared/service/validatorMessage';
+import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { Image, Pressable, ScrollView } from 'react-native';
 
@@ -12,6 +13,7 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useCreateForm } from '@/hooks/useForm';
+import { usePendingRoutineShareImages } from '@/hooks/usePendingRoutineShareImages';
 import {
   type RequestImage,
   useRequestSubmission,
@@ -26,11 +28,15 @@ const requestImageValidators = requestFormValidators as unknown as Validators<{
 }>;
 
 const RequestModal = () => {
+  const { shareSessionId } = useLocalSearchParams<{
+    shareSessionId?: string;
+  }>();
   const routineId = useRoutineId();
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
+  const sharedImages = usePendingRoutineShareImages(routineId, shareSessionId);
   const initialForm = useMemo<{ images: RequestImage[] }>(
-    () => ({ images: [] }),
-    [],
+    () => ({ images: sharedImages }),
+    [sharedImages],
   );
   const { handleSubmit, pickImage, takePicture, isPending } =
     useRequestSubmission(
