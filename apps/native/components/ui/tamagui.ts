@@ -17,7 +17,10 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { useColorSchemeStore } from '@/store/color-scheme.store';
+import {
+  getEffectiveColorSchemeSnapshot,
+  useEffectiveColorScheme,
+} from '@/hooks/useEffectiveColorScheme';
 import { appThemes } from '@/theme/themes';
 import { createFoundation } from '@/theme/tokens';
 
@@ -55,7 +58,7 @@ type CreatedStyles<T> = T & {
   useVariants: (_variants?: unknown) => void;
 };
 
-const getThemeName = () => useColorSchemeStore.getState().colorScheme;
+const getThemeName = () => getEffectiveColorSchemeSnapshot();
 
 const getTheme = (): AppTheme =>
   appStyleThemes[getThemeName()] ?? appStyleThemes.dark;
@@ -65,9 +68,7 @@ const evaluateStyles = <T extends Record<string, unknown>>(
 ) => (typeof factory === 'function' ? factory(getTheme()) : factory);
 
 export const StyleSheet = {
-  create<T extends NamedStyles<T> | NamedStyles<any>>(
-    factory: StyleFactory<T>,
-  ) {
+  create<T extends NamedStyles<T>>(factory: StyleFactory<T>) {
     return new Proxy(
       {},
       {
@@ -89,7 +90,7 @@ export const StyleSheet = {
 };
 
 export const useAppTheme = () => {
-  const colorScheme = useColorSchemeStore((state) => state.colorScheme);
+  const colorScheme = useEffectiveColorScheme();
 
   return {
     theme: appStyleThemes[colorScheme] ?? appStyleThemes.dark,

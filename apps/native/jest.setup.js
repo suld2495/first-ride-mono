@@ -226,6 +226,25 @@ jest.mock('@/components/ui/tamagui', () => {
     React.forwardRef(({ children, ...props }, ref) =>
       React.createElement(Component, { ref, ...props }, children),
     );
+  const getMockTheme = () => {
+    try {
+      const {
+        getEffectiveColorScheme,
+        useColorSchemeStore,
+      } = require('@/store/color-scheme.store');
+      const { appThemes } = require('@/theme/themes');
+      const { createFoundation } = require('@/theme/tokens');
+      const themeName = getEffectiveColorScheme(useColorSchemeStore.getState());
+      const theme = appThemes[themeName] ?? appThemes.blue;
+
+      return {
+        ...theme,
+        foundation: createFoundation(theme),
+      };
+    } catch {
+      return mockTheme;
+    }
+  };
 
   return {
     TamaguiButton: createComponent(Pressable),
@@ -237,16 +256,25 @@ jest.mock('@/components/ui/tamagui', () => {
     TamaguiYStack: createComponent(View),
     StyleSheet: {
       create: (styles) => {
-        const mockStyles =
-          typeof styles === 'function' ? styles(mockTheme) : styles;
-        return {
-          ...mockStyles,
-          useVariants: jest.fn(() => mockStyles),
-        };
+        return new Proxy(
+          {},
+          {
+            get(_, prop) {
+              const mockStyles =
+                typeof styles === 'function' ? styles(getMockTheme()) : styles;
+
+              if (prop === 'useVariants') {
+                return jest.fn(() => mockStyles);
+              }
+
+              return mockStyles[prop];
+            },
+          },
+        );
       },
     },
     useAppTheme: () => ({
-      theme: mockTheme,
+      theme: getMockTheme(),
     }),
     TamaguiRuntime: {},
   };

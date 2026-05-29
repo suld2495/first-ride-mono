@@ -20,6 +20,17 @@ export interface FriendRoutineProfile {
   characterImageUrl: null | string;
 }
 
+export interface FriendProfileResponse {
+  friendId: number | string;
+  nickname: User['nickname'];
+  job: string;
+  motto: string;
+  level: number;
+  characterCode: string;
+  characterImageUrl: string;
+  backgroundImageUrl: string;
+}
+
 export interface FriendRoutineItem {
   routineId: Routine['routineId'];
   routineName: Routine['routineName'];

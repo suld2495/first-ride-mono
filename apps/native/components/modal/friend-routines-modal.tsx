@@ -1,4 +1,7 @@
-import { useFriendRoutinesQuery } from '@repo/shared/hooks/useFriend';
+import {
+  useFriendProfileQuery,
+  useFriendRoutinesQuery,
+} from '@repo/shared/hooks/useFriend';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { Href } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
@@ -9,13 +12,18 @@ import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
   renderRoutineSceneAsset,
-  routineSceneAssets,
+  getRoutineSceneBackgroundAsset,
+  getRoutineSceneCharacterAsset,
+  getRoutineSceneRemoteAsset,
 } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
 import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import RoutineCharacter from '@/feature/character/routine-character';
+import { useScopedColorSchemeOverride } from '@/hooks/useScopedColorSchemeOverride';
+import { getThemeNameFromUserJob } from '@/theme/job-theme';
+import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 
 const FriendRoutinesModal = () => {
@@ -33,6 +41,12 @@ const FriendRoutinesModal = () => {
 
   const { data, isLoading, isRefetching, refetch, isError } =
     useFriendRoutinesQuery(friendId, date);
+  const { data: profile, isLoading: isProfileLoading } =
+    useFriendProfileQuery(friendId);
+  const profileThemeName = profile
+    ? getThemeNameFromUserJob(profile)
+    : undefined;
+  const isProfileThemeApplied = useScopedColorSchemeOverride(profileThemeName);
 
   const handleRoutineListAreaLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -41,9 +55,10 @@ const FriendRoutinesModal = () => {
     [],
   );
 
-  const handleRefresh = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
+  const handleRefresh = useCallback(
+    () => refetch().then(() => undefined),
+    [refetch],
+  );
 
   const getDateHref = useCallback(
     (targetDate: string) =>
@@ -62,7 +77,7 @@ const FriendRoutinesModal = () => {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || isProfileLoading || !isProfileThemeApplied) {
     return <Loading />;
   }
 
@@ -77,12 +92,25 @@ const FriendRoutinesModal = () => {
 
   const { routines } = data;
   const hasRoutines = routines.length > 0;
+  const appliedProfileThemeName = profileThemeName ?? 'blue';
+  const profileTheme = appThemes[appliedProfileThemeName];
+  const backgroundAsset =
+    getRoutineSceneRemoteAsset(profile?.backgroundImageUrl) ??
+    getRoutineSceneBackgroundAsset(appliedProfileThemeName);
+  const characterAsset =
+    getRoutineSceneRemoteAsset(profile?.characterImageUrl) ??
+    getRoutineSceneCharacterAsset(appliedProfileThemeName);
 
   return (
-    <ThemeView style={styles.container}>
+    <ThemeView
+      style={[
+        styles.container,
+        { backgroundColor: profileTheme.colors.brand.secondary },
+      ]}
+    >
       <View style={styles.scene} pointerEvents="none">
         <View style={styles.backgroundArt}>
-          {renderRoutineSceneAsset(routineSceneAssets.background, {
+          {renderRoutineSceneAsset(backgroundAsset, {
             testID: 'friend-routine-scene-background',
             style: styles.backgroundImage,
             resizeMode: 'stretch',
@@ -114,17 +142,30 @@ const FriendRoutinesModal = () => {
               />
             </View>
             <View style={styles.routineCharacterArea}>
-              <RoutineCharacter />
+              <RoutineCharacter
+                asset={characterAsset}
+                testID="friend-routine-scene-character"
+              />
             </View>
           </>
         ) : (
-          <RoutineList
-            routines={routines}
-            date={date}
-            refreshing={isRefetching}
-            onRefresh={handleRefresh}
-            readOnly
-          />
+          <>
+            <View style={styles.routineListArea}>
+              <RoutineList
+                routines={routines}
+                date={date}
+                refreshing={isRefetching}
+                onRefresh={handleRefresh}
+                readOnly
+              />
+            </View>
+            <View style={styles.routineCharacterArea}>
+              <RoutineCharacter
+                asset={characterAsset}
+                testID="friend-routine-scene-character"
+              />
+            </View>
+          </>
         )}
       </View>
     </ThemeView>

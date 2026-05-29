@@ -16,6 +16,11 @@ import {
 } from '@/components/icons/routine-character-icons';
 import type { ThemeName } from '@/theme/themes';
 
+const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
+  /\/$/,
+  '',
+);
+
 const routineBackgroundSource =
   require('@/assets/routine/background.png') as ImageSourcePropType;
 const routinePreviewOverlaySource =
@@ -32,6 +37,24 @@ const routineRedPreviewOverlaySource =
 export type RoutineSceneAsset = {
   Character?: ComponentType<RoutineCharacterIconProps>;
   source?: ImageSourcePropType;
+};
+
+export const getRoutineSceneRemoteAsset = (
+  imageUrl: null | string | undefined,
+): RoutineSceneAsset | null => {
+  if (!imageUrl) {
+    return null;
+  }
+
+  if (/^(https?:|data:|file:)/.test(imageUrl)) {
+    return { source: { uri: imageUrl } };
+  }
+
+  if (imageUrl.startsWith('/') && REMOTE_ASSET_HOST) {
+    return { source: { uri: `${REMOTE_ASSET_HOST}${imageUrl}` } };
+  }
+
+  return { source: { uri: imageUrl } };
 };
 
 const blueCharacterAsset = {

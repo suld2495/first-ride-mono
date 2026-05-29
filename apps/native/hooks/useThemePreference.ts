@@ -1,7 +1,7 @@
+import { useEffectiveColorScheme } from '@/hooks/useEffectiveColorScheme';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 
-export const useThemePreference = () =>
-  useColorSchemeStore((state) => state.colorScheme);
+export const useThemePreference = useEffectiveColorScheme;
 
 export const useColorSchemeValue = useThemePreference;
 

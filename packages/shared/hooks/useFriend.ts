@@ -5,6 +5,7 @@ import {
   acceptFriendRequest,
   addFriend,
   deleteFriend,
+  fetchFriendProfile,
   fetchFriendRoutines,
   fetchFriendRequests,
   fetchFriends,
@@ -41,6 +42,17 @@ export const useFriendRoutinesQuery = (
     queryKey: friendKey.routines(friendId ?? '', date),
     queryFn: () => fetchFriendRoutines(friendId, date),
     enabled: !!friendId && !!date,
+    refetchOnMount: 'always',
+  });
+};
+
+export const useFriendProfileQuery = (
+  friendId: number | string | undefined,
+) => {
+  return useQuery({
+    queryKey: friendKey.profile(friendId ?? ''),
+    queryFn: () => fetchFriendProfile(friendId),
+    enabled: !!friendId,
     refetchOnMount: 'always',
   });
 };

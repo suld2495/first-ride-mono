@@ -1,5 +1,6 @@
 import type {
   Friend,
+  FriendProfileResponse,
   FriendRoutinesResponse,
   FriendRequestResponse,
   Routine,
@@ -89,6 +90,18 @@ export const fetchFriendRequests = async (
     );
 
     return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const fetchFriendProfile = async (
+  friendId: Friend['id'],
+): Promise<FriendProfileResponse> => {
+  try {
+    return await http.get(
+      `${baseURL}/${encodeURIComponent(String(friendId))}/profile`,
+    );
   } catch (error) {
     throw toAppError(error);
   }

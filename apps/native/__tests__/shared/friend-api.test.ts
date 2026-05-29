@@ -1,5 +1,5 @@
 import axiosInstance from '@repo/shared/api';
-import { fetchFriends } from '@repo/shared/api/friend';
+import { fetchFriendProfile, fetchFriends } from '@repo/shared/api/friend';
 import MockAdapter from 'axios-mock-adapter';
 
 let mockAxios: MockAdapter;
@@ -72,7 +72,9 @@ describe('friend.api', () => {
       };
 
       mockAxios.resetHandlers();
-      mockAxios.onGet('/friends').reply(200, { data: [friendWithoutAccountId] });
+      mockAxios
+        .onGet('/friends')
+        .reply(200, { data: [friendWithoutAccountId] });
       mockAxios.onGet('/users/search?nickname=Fff').reply(200, {
         data: [{ id: 49, userId: 'Fff1234', nickname: 'Fff' }],
       });
@@ -83,6 +85,29 @@ describe('friend.api', () => {
           accountId: 49,
         },
       ]);
+    });
+  });
+
+  describe('fetchFriendProfile', () => {
+    it('친구 프로필을 friendId로 조회한다', async () => {
+      const profile = {
+        friendId: 9007199254740991,
+        nickname: 'yunji12345',
+        job: '마법사',
+        motto: '오늘도 전진',
+        level: 7,
+        characterCode: 'MAGE_INTERMEDIATE',
+        characterImageUrl: '/assets/characters/mage_intermediate.png',
+        backgroundImageUrl: '/assets/backgrounds/mage.png',
+      };
+
+      mockAxios
+        .onGet('/friends/9007199254740991/profile')
+        .reply(200, { data: profile });
+
+      await expect(fetchFriendProfile('9007199254740991')).resolves.toEqual(
+        profile,
+      );
     });
   });
 });
