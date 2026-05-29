@@ -20,7 +20,7 @@ describe('QuestPage', () => {
     jest.clearAllMocks();
     useQuestStore.setState({
       questId: null,
-      statusFilter: 'ALL',
+      statusFilter: 'ACTIVE',
       typeFilter: 'WEEKLY',
     });
     jest.mocked(useFetchQuestsQuery).mockReturnValue({
@@ -29,13 +29,19 @@ describe('QuestPage', () => {
     } as ReturnType<typeof useFetchQuestsQuery>);
   });
 
-  it('does not render the quest type filter or pass questType to the quest query', () => {
-    const { queryByText } = render(<QuestPage />);
+  it('shows status filters and requests active incomplete quests without the quest type filter', () => {
+    const { getByText, queryByText } = render(<QuestPage />);
 
     expect(queryByText('일일')).not.toBeOnTheScreen();
     expect(queryByText('주간')).not.toBeOnTheScreen();
+    expect(getByText('전체')).toBeOnTheScreen();
+    expect(getByText('진행전')).toBeOnTheScreen();
+    expect(getByText('진행중')).toBeOnTheScreen();
+    expect(queryByText('만료')).not.toBeOnTheScreen();
+    expect(queryByText('예정')).not.toBeOnTheScreen();
     expect(useFetchQuestsQuery).toHaveBeenCalledWith({
-      status: 'ALL',
+      status: 'ACTIVE',
+      completed: false,
     });
   });
 
@@ -50,6 +56,45 @@ describe('QuestPage', () => {
 
     expect(StyleSheet.flatten(filterListStack?.props.style)).toMatchObject({
       gap: 8,
+    });
+  });
+
+  it('shows the same incomplete quest list when the all status filter is selected', () => {
+    useQuestStore.setState({ statusFilter: 'ALL' });
+    jest.mocked(useFetchQuestsQuery).mockReturnValue({
+      data: [
+        createMockQuest(0),
+        createMockQuest(1),
+        createMockQuest(2),
+      ],
+      isLoading: false,
+    } as ReturnType<typeof useFetchQuestsQuery>);
+
+    const { getByText } = render(<QuestPage />);
+
+    expect(getByText('테스트 퀘스트 1')).toBeOnTheScreen();
+    expect(getByText('테스트 퀘스트 2')).toBeOnTheScreen();
+    expect(getByText('테스트 퀘스트 3')).toBeOnTheScreen();
+    expect(useFetchQuestsQuery).toHaveBeenCalledWith({
+      status: 'ACTIVE',
+      completed: false,
+    });
+  });
+
+  it('shows the same incomplete quest list when the upcoming status filter is selected', () => {
+    useQuestStore.setState({ statusFilter: 'UPCOMING' });
+    jest.mocked(useFetchQuestsQuery).mockReturnValue({
+      data: [createMockQuest(0), createMockQuest(1)],
+      isLoading: false,
+    } as ReturnType<typeof useFetchQuestsQuery>);
+
+    const { getByText } = render(<QuestPage />);
+
+    expect(getByText('테스트 퀘스트 1')).toBeOnTheScreen();
+    expect(getByText('테스트 퀘스트 2')).toBeOnTheScreen();
+    expect(useFetchQuestsQuery).toHaveBeenCalledWith({
+      status: 'ACTIVE',
+      completed: false,
     });
   });
 });

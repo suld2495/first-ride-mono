@@ -8,6 +8,7 @@ export const questKeys = {
       ...questKeys.lists(),
       params.status ?? 'ALL',
       params.questType ?? 'ALL',
+      params.completed ?? 'ALL',
     ] as const,
   details: () => [...questKeys.all, 'detail'] as const,
   detail: (id: number) => [...questKeys.details(), id] as const,

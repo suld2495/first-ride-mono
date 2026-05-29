@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import QuestStatusTabs from '@/components/quest/quest-status-tabs';
@@ -21,8 +21,20 @@ describe('QuestStatusTabs', () => {
     );
 
     expect(getByText('전체')).toBeOnTheScreen();
+    expect(getByText('진행전')).toBeOnTheScreen();
     expect(getByText('진행중')).toBeOnTheScreen();
     expect(getByText('추가')).toBeOnTheScreen();
+  });
+
+  it('selects upcoming status for the upcoming tab', () => {
+    const onSelect = jest.fn();
+    const { getByText } = render(
+      <QuestStatusTabs selected="ALL" onSelect={onSelect} />,
+    );
+
+    fireEvent.press(getByText('진행전'));
+
+    expect(onSelect).toHaveBeenCalledWith('UPCOMING');
   });
 
   it('uses the quest filter row and badge style tokens', () => {
@@ -51,7 +63,7 @@ describe('QuestStatusTabs', () => {
       gap: 4,
     });
 
-    const badges = UNSAFE_getAllByType(Pressable).slice(0, 4);
+    const badges = UNSAFE_getAllByType(Pressable).slice(0, 3);
     const [activeBadge, inactiveBadge] = badges;
     const activeStyle = StyleSheet.flatten(
       activeBadge.props.style({ pressed: false }),
@@ -79,7 +91,7 @@ describe('QuestStatusTabs', () => {
     expect(inactiveStyle.flex).toBeUndefined();
 
     const activeText = getByText('전체');
-    const inactiveText = getByText('진행중');
+    const inactiveText = getByText('진행전');
 
     expect(activeText.props.fontSize).toBe('$body3');
     expect(activeText.props.fontWeight).toBe('600');

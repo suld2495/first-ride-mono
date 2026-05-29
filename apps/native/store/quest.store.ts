@@ -18,7 +18,7 @@ interface Action {
 
 const initialState: State = {
   questId: null,
-  statusFilter: 'ALL',
+  statusFilter: 'ACTIVE',
   typeFilter: 'ALL',
 };
 

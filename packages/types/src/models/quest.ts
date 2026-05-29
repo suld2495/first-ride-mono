@@ -50,5 +50,5 @@ export type QuestForm = Omit<
 export type CreateQuestForm = Omit<QuestForm, 'endDate'>;
 
 // 필터 타입
-export type QuestStatusFilter = 'ALL' | 'ACTIVE' | 'EXPIRED' | 'UPCOMING';
+export type QuestStatusFilter = 'ALL' | 'UPCOMING' | 'ACTIVE';
 export type QuestTypeFilter = 'ALL' | 'DAILY' | 'WEEKLY';

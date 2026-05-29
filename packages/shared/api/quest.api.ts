@@ -12,6 +12,7 @@ import http from './client';
 export interface FetchQuestsParams {
   status?: QuestStatusFilter;
   questType?: QuestTypeFilter;
+  completed?: boolean;
 }
 
 // 목록 조회
@@ -25,6 +26,9 @@ export const fetchQuests = async (
     }
     if (params.questType && params.questType !== 'ALL') {
       searchParams.append('questType', params.questType);
+    }
+    if (typeof params.completed === 'boolean') {
+      searchParams.append('completed', String(params.completed));
     }
     const query = searchParams.toString();
     const response: Quest[] = await http.get(
