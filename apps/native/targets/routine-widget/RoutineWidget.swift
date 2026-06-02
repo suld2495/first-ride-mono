@@ -15,7 +15,7 @@ private let weeklyStatusRowHeight: CGFloat = 22
 private let weeklyStatusRowSpacing: CGFloat = 4
 private let weeklyStatusDotSize: CGFloat = 10
 private let weeklyStatusMaximumVisibleItemCount = 4
-private let weeklyStatusDayLabels = ["일", "월", "화", "수", "목", "금", "토"]
+private let weeklyStatusDayLabels = ["월", "화", "수", "목", "금", "토", "일"]
 private let shortYearOffset = 2000
 private let dailyRefreshEntryCount = 8
 private let fallbackCountLabelBackgroundColor = Color(red: 0.89, green: 0.95, blue: 0.99)
@@ -406,10 +406,11 @@ private func weekDateKeys(for currentDate: Date) -> [String] {
   let calendar = Calendar.autoupdatingCurrent
   let startOfDay = calendar.startOfDay(for: currentDate)
   let weekday = calendar.component(.weekday, from: startOfDay)
-  let sunday = calendar.date(byAdding: .day, value: 1 - weekday, to: startOfDay) ?? startOfDay
+  let daysFromMonday = (weekday + 5) % 7
+  let monday = calendar.date(byAdding: .day, value: -daysFromMonday, to: startOfDay) ?? startOfDay
 
   return (0..<weeklyStatusDayLabels.count).map { offset in
-    let date = calendar.date(byAdding: .day, value: offset, to: sunday) ?? sunday
+    let date = calendar.date(byAdding: .day, value: offset, to: monday) ?? monday
     return routineDateKey(for: date)
   }
 }

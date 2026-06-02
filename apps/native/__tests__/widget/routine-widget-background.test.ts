@@ -72,13 +72,17 @@ describe('routine widget background', () => {
     expect(source).toContain('if widgetFamily == .systemMedium');
   });
 
-  it('renders seven weekday status columns from routine success dates', () => {
+  it('renders weekly status columns from Monday through Sunday', () => {
     const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
 
     expect(source).toContain(
-      'private let weeklyStatusDayLabels = ["일", "월", "화", "수", "목", "금", "토"]',
+      'private let weeklyStatusDayLabels = ["월", "화", "수", "목", "금", "토", "일"]',
     );
     expect(source).toContain('weekDateKeys(for: entry.date)');
+    expect(source).toContain('let daysFromMonday = (weekday + 5) % 7');
+    expect(source).toContain(
+      'let monday = calendar.date(byAdding: .day, value: -daysFromMonday, to: startOfDay) ?? startOfDay',
+    );
     expect(source).toContain(
       'item.successDate?.contains(dateKey) ?? (dateKey == currentDateKey && item.isTodayDone)',
     );
