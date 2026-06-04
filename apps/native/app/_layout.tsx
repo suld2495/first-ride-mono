@@ -2,6 +2,7 @@ import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
 import { useQueryClient } from '@tanstack/react-query';
+import { useFonts } from 'expo-font';
 import type { Href } from 'expo-router';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -33,6 +34,7 @@ import {
 } from '@/hooks/useThemePreference';
 import { useVisitCheck } from '@/hooks/useVisitCheck';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
+import { fontFamilies } from '@/theme';
 import { NAV_THEME } from '@/theme/nav-theme';
 import type { NotificationHandlers } from '@/types/notification-types';
 import { getPendingRoutineShare } from '@/share/routine-share';
@@ -55,7 +57,11 @@ if (kakaoNativeAppKey) {
   initializeKakaoSDK(kakaoNativeAppKey);
 }
 
-const StackLayout = () => {
+interface StackLayoutProps {
+  isFontReady: boolean;
+}
+
+const StackLayout = ({ isFontReady }: StackLayoutProps) => {
   const user = useAuthUser();
   const colorScheme = useColorScheme();
 
@@ -65,7 +71,7 @@ const StackLayout = () => {
         key={`root-status-bar-${colorScheme}`}
         style={colorScheme === 'light' ? 'dark' : 'light'}
       />
-      <SplashScreenController />
+      <SplashScreenController isReady={isFontReady} />
       <NavThemeProvider value={NAV_THEME[colorScheme]}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={!!user}>
@@ -96,7 +102,11 @@ const StackLayout = () => {
   );
 };
 
-function AppShell() {
+interface AppShellProps {
+  isFontReady: boolean;
+}
+
+function AppShell({ isFontReady }: AppShellProps) {
   useInitialAndroidBarSync();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -256,20 +266,32 @@ function AppShell() {
   return (
     <>
       <MockProvider />
-      <StackLayout />
+      <StackLayout isFontReady={isFontReady} />
       <ToastContainer />
     </>
   );
 }
 
 export default function RootLayout() {
+  const [fontsLoaded, fontLoadError] = useFonts({
+    [fontFamilies.regular]: require('../assets/fonts/Pretendard-Regular.otf'),
+    [fontFamilies.medium]: require('../assets/fonts/Pretendard-Medium.otf'),
+    [fontFamilies.semibold]: require('../assets/fonts/Pretendard-SemiBold.otf'),
+    [fontFamilies.bold]: require('../assets/fonts/Pretendard-Bold.otf'),
+  });
+  const isFontReady = fontsLoaded || !!fontLoadError;
+
+  if (!isFontReady) {
+    return null;
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppTamaguiProvider>
         <QueryProvider>
           <ToastProvider>
             <ThemeStyleRefreshBoundary>
-              <AppShell />
+              <AppShell isFontReady={isFontReady} />
             </ThemeStyleRefreshBoundary>
           </ToastProvider>
         </QueryProvider>

@@ -3,14 +3,20 @@ import { useEffect } from 'react';
 
 import { useAuthIsLoading } from '@/hooks/useAuthSession';
 
-export default function SplashScreenController() {
+interface SplashScreenControllerProps {
+  isReady?: boolean;
+}
+
+export default function SplashScreenController({
+  isReady = true,
+}: SplashScreenControllerProps) {
   const isLoading = useAuthIsLoading();
 
   useEffect(() => {
-    if (!isLoading) {
+    if (isReady && !isLoading) {
       SplashScreen.hideAsync();
     }
-  }, [isLoading]);
+  }, [isLoading, isReady]);
 
   return null;
 }

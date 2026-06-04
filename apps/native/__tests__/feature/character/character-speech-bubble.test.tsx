@@ -43,7 +43,8 @@ describe('CharacterSpeechBubble', () => {
         borderColor: palette.theme.green[50],
         backgroundColor: palette.white,
         paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingBottom: 8,
+        paddingTop: 8,
       }),
     );
   });

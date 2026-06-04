@@ -129,9 +129,9 @@ export const baseTheme: ThemeContract = {
   radiusStyle: 'rounded',
   typography: {
     fontFamily: {
-      regular: 'System',
-      medium: 'System',
-      bold: 'System',
+      regular: 'Pretendard-Regular',
+      medium: 'Pretendard-Medium',
+      bold: 'Pretendard-Bold',
     },
     scale: 1,
   },

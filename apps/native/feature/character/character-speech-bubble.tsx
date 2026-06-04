@@ -1,6 +1,8 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useCallback, useState } from 'react';
 import {
   View,
+  type NativeSyntheticEvent,
+  type TextLayoutEventData,
   type TextStyle,
   type ViewProps,
   type StyleProp,
@@ -8,7 +10,7 @@ import {
 } from 'react-native';
 
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { Typography } from '@/components/ui/typography';
+import { Typography, type TypographyVariant } from '@/components/ui/typography';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import type { ThemeName } from '@/theme/themes';
 import { baseFoundation, palette } from '@/theme/tokens';
@@ -17,14 +19,29 @@ type SpeechBubbleTailPosition = 'bottom' | 'left' | 'right' | 'none';
 
 type CharacterSpeechBubbleProps = ViewProps & {
   children?: ReactNode;
+  containerMinHeight?: number | null;
+  containerMinWidth?: number;
+  containerPaddingBottom?: number;
+  containerPaddingHorizontal?: number;
+  containerPaddingTop?: number;
+  containerPaddingVertical?: number;
+  maxWidth?: number;
   numberOfLines?: number;
   message?: string;
+  singleLinePaddingTop?: number;
   tailPosition?: SpeechBubbleTailPosition;
   textStyle?: StyleProp<TextStyle>;
+  textVariant?: TypographyVariant;
+  themeName?: ThemeName;
+  wrapperTop?: number;
+  singleLineWrapperTop?: number;
 };
 
 const BUBBLE_BORDER_WIDTH = 2;
 const BUBBLE_MIN_WIDTH = baseFoundation.dimension.x96;
+const BUBBLE_DEFAULT_MIN_HEIGHT = baseFoundation.dimension.x32;
+const BUBBLE_DEFAULT_PADDING_HORIZONTAL = baseFoundation.spacing[4];
+const BUBBLE_DEFAULT_PADDING_VERTICAL = baseFoundation.spacing[2];
 const SCREEN_HORIZONTAL_MARGIN = 17.5;
 
 const speechBubbleBorderColors = {
@@ -43,37 +60,81 @@ export const getCharacterSpeechBubbleMaxWidth = (windowWidth: number) =>
 
 const CharacterSpeechBubble = ({
   children,
+  containerMinHeight = BUBBLE_DEFAULT_MIN_HEIGHT,
+  containerMinWidth = BUBBLE_MIN_WIDTH,
+  containerPaddingBottom,
+  containerPaddingHorizontal = BUBBLE_DEFAULT_PADDING_HORIZONTAL,
+  containerPaddingTop,
+  containerPaddingVertical = BUBBLE_DEFAULT_PADDING_VERTICAL,
+  maxWidth: maxWidthOverride,
   message,
   numberOfLines = 2,
+  singleLinePaddingTop,
   style,
   tailPosition = 'bottom',
   textStyle,
+  textVariant = 'body3',
+  themeName: themeNameOverride,
+  wrapperTop,
+  singleLineWrapperTop,
   testID = 'character-speech-bubble',
   ...props
 }: CharacterSpeechBubbleProps) => {
   const { theme } = useAppTheme();
   const themeName = useColorScheme();
   const { width: windowWidth } = useWindowDimensions();
-  const borderColor = getCharacterSpeechBubbleBorderColor(themeName);
-  const maxWidth = getCharacterSpeechBubbleMaxWidth(windowWidth);
+  const [renderedLineCount, setRenderedLineCount] = useState(numberOfLines);
+  const borderColor = getCharacterSpeechBubbleBorderColor(
+    themeNameOverride ?? themeName,
+  );
+  const maxWidth =
+    maxWidthOverride ?? getCharacterSpeechBubbleMaxWidth(windowWidth);
+  const defaultPaddingTop = containerPaddingTop ?? containerPaddingVertical;
+  const paddingTop =
+    renderedLineCount <= 1 && singleLinePaddingTop !== undefined
+      ? singleLinePaddingTop
+      : defaultPaddingTop;
+  const top =
+    renderedLineCount <= 1 && singleLineWrapperTop !== undefined
+      ? singleLineWrapperTop
+      : wrapperTop;
+  const wrapperPositionStyle = top === undefined ? undefined : { top };
+  const containerLayoutStyle = {
+    borderColor,
+    maxWidth,
+    minWidth: containerMinWidth,
+    paddingBottom: containerPaddingBottom ?? containerPaddingVertical,
+    paddingHorizontal: containerPaddingHorizontal,
+    paddingTop,
+    ...(containerMinHeight === null ? {} : { minHeight: containerMinHeight }),
+  };
+  const handleTextLayout = useCallback(
+    (event: NativeSyntheticEvent<TextLayoutEventData>) => {
+      setRenderedLineCount(
+        Math.min(event.nativeEvent.lines.length, numberOfLines),
+      );
+    },
+    [numberOfLines],
+  );
 
   return (
     <View
       accessibilityRole="text"
-      style={[styles.wrapper, style]}
+      style={[styles.wrapper, style, wrapperPositionStyle]}
       testID={testID}
       {...props}
     >
       <View
-        style={[styles.container, { borderColor, maxWidth }]}
+        style={[styles.container, containerLayoutStyle]}
         testID={`${testID}-container`}
       >
         <Typography
           color={theme.colors.text.gray}
-          variant="body3"
+          variant={textVariant}
           weight="semibold"
           ellipsizeMode="tail"
           numberOfLines={numberOfLines}
+          onTextLayout={handleTextLayout}
           style={[styles.message, textStyle]}
         >
           {children ?? message}
@@ -103,10 +164,6 @@ const styles = StyleSheet.create(() => ({
     zIndex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: BUBBLE_MIN_WIDTH,
-    minHeight: baseFoundation.dimension.x32,
-    paddingHorizontal: baseFoundation.spacing[4],
-    paddingVertical: baseFoundation.spacing[2],
     borderRadius: baseFoundation.radii.xs,
     borderWidth: BUBBLE_BORDER_WIDTH,
     backgroundColor: palette.white,

@@ -461,9 +461,9 @@ export const createFoundation = (theme: ThemeContract) => {
       ]),
     ) as typeof baseFoundation.typography.size,
     fontFamily: theme.typography?.fontFamily ?? {
-      regular: 'System',
-      medium: 'System',
-      bold: 'System',
+      regular: 'Pretendard-Regular',
+      medium: 'Pretendard-Medium',
+      bold: 'Pretendard-Bold',
     },
   };
 

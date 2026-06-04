@@ -18,13 +18,13 @@ import { Loading } from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
 import { appThemes, type ThemeName } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 
 interface FriendItemProps {
   friend: Friend;
   itemWidth: number;
-  imageSize: number;
   isRightColumn: boolean;
   onOpen: (friend: Friend) => void;
 }
@@ -40,14 +40,27 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   /\/$/,
   '',
 );
-const FRIEND_LAYOUT_BASE_ITEM_WIDTH = 183;
-const FRIEND_LAYOUT_BASE_IMAGE_SIZE = 120;
-const FRIEND_IMAGE_MIN_SIZE = 100;
+const FRIEND_CHARACTER_HORIZONTAL_PADDING = 35;
 const FRIEND_LIST_HORIZONTAL_PADDING = baseFoundation.spacing[5];
 const FRIEND_GRID_COLUMN_GAP = baseFoundation.spacing[4];
 const FRIEND_GRID_COLUMN_COUNT = 2;
-const FRIEND_ITEM_TO_IMAGE_RATIO =
-  FRIEND_LAYOUT_BASE_ITEM_WIDTH / FRIEND_LAYOUT_BASE_IMAGE_SIZE;
+const FRIEND_MOTTO_CHARACTER_OFFSET_Y = 17;
+const FRIEND_MOTTO_BUBBLE_MIN_WIDTH = 80;
+const FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN = baseFoundation.spacing[2];
+const FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING = 5;
+const FRIEND_MOTTO_BUBBLE_TOP_MARGIN = baseFoundation.spacing[1.5];
+const FRIEND_MOTTO_BUBBLE_CHARACTER_GAP = baseFoundation.dimension.x2;
+const FRIEND_MOTTO_MAX_LINE_COUNT = 2;
+const FRIEND_MOTTO_LINE_HEIGHT = 16;
+const FRIEND_MOTTO_BUBBLE_SINGLE_LINE_TOP_MARGIN =
+  FRIEND_MOTTO_BUBBLE_TOP_MARGIN + FRIEND_MOTTO_LINE_HEIGHT;
+const FRIEND_MOTTO_BUBBLE_BORDER_WIDTH = 2;
+const FRIEND_MOTTO_BUBBLE_TAIL_SPACE = baseFoundation.spacing[2];
+const FRIEND_MOTTO_MAX_BUBBLE_HEIGHT =
+  FRIEND_MOTTO_MAX_LINE_COUNT * FRIEND_MOTTO_LINE_HEIGHT +
+  FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING * 2 +
+  FRIEND_MOTTO_BUBBLE_BORDER_WIDTH * 2 +
+  FRIEND_MOTTO_BUBBLE_TAIL_SPACE;
 const FRIEND_ITEM_TEXT_BLOCK_HEIGHT =
   baseFoundation.spacing[2] +
   baseFoundation.dimension.x10 +
@@ -62,12 +75,25 @@ const getFriendItemLayoutSize = (screenWidth: number) => {
       FRIEND_GRID_COLUMN_GAP) /
       FRIEND_GRID_COLUMN_COUNT,
   );
-  const imageSize = Math.max(
-    FRIEND_IMAGE_MIN_SIZE,
-    Math.round(itemWidth / FRIEND_ITEM_TO_IMAGE_RATIO),
+  return { itemWidth };
+};
+
+const getFriendCharacterImageSize = (itemWidth: number) => {
+  const widthBasedImageSize = Math.max(
+    0,
+    itemWidth - FRIEND_CHARACTER_HORIZONTAL_PADDING * 2,
+  );
+  const fixedTopSpace =
+    FRIEND_MOTTO_BUBBLE_TOP_MARGIN +
+    FRIEND_MOTTO_MAX_BUBBLE_HEIGHT +
+    FRIEND_MOTTO_BUBBLE_CHARACTER_GAP;
+
+  const heightBasedImageSize = Math.max(
+    0,
+    itemWidth - (fixedTopSpace - FRIEND_MOTTO_CHARACTER_OFFSET_Y) * 2,
   );
 
-  return { imageSize, itemWidth };
+  return Math.min(widthBasedImageSize, heightBasedImageSize);
 };
 
 const getFriendCharacterSource = (
@@ -135,25 +161,25 @@ const getFriendLevelTextColor = (themeName: FriendCharacterThemeName) => {
 const FriendItem = ({
   friend,
   itemWidth,
-  imageSize,
   isRightColumn,
   onOpen,
 }: FriendItemProps) => {
-  const {
-    userId,
-    nickname,
-    job,
-    level,
-    characterCode,
-    characterImageUrl,
-  } = friend;
+  const { userId, nickname, job, level, characterCode, characterImageUrl } =
+    friend;
   const subtitle = userId?.trim() ?? '';
+  const motto = friend.motto?.trim() ?? '';
+  const hasMotto = motto.length > 0;
+  const characterImageSize = getFriendCharacterImageSize(itemWidth);
   const characterSource = getFriendCharacterSource(characterImageUrl);
   const characterThemeName = getFriendCharacterThemeName({
     characterCode,
     job,
   });
   const testIdSuffix = nickname;
+  const characterStyle = [
+    { width: characterImageSize, height: characterImageSize },
+    hasMotto ? styles.characterWithMotto : null,
+  ];
 
   return (
     <Pressable
@@ -176,10 +202,26 @@ const FriendItem = ({
         ]}
         transparent
       >
+        {hasMotto && (
+          <CharacterSpeechBubble
+            containerMinHeight={null}
+            containerMinWidth={FRIEND_MOTTO_BUBBLE_MIN_WIDTH}
+            containerPaddingVertical={FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING}
+            maxWidth={itemWidth - FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN * 2}
+            message={motto}
+            numberOfLines={2}
+            singleLineWrapperTop={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_TOP_MARGIN}
+            style={styles.speechBubble}
+            testID={`friend-character-speech-bubble-${testIdSuffix}`}
+            textVariant="caption2"
+            themeName={characterThemeName}
+            wrapperTop={FRIEND_MOTTO_BUBBLE_TOP_MARGIN}
+          />
+        )}
         {characterSource ? (
           <Image
             source={characterSource}
-            style={{ width: imageSize, height: imageSize }}
+            style={characterStyle}
             resizeMode="contain"
             accessibilityLabel={`${nickname} 캐릭터`}
           />
@@ -188,7 +230,7 @@ const FriendItem = ({
             getRoutineSceneCharacterAsset(characterThemeName),
             {
               testID: `friend-character-fallback-${testIdSuffix}`,
-              style: { width: imageSize, height: imageSize },
+              style: characterStyle,
             },
           )
         )}
@@ -242,7 +284,7 @@ const FriendList = ({
   onOpenFriend,
 }: FriendListProps) => {
   const { width: screenWidth } = useWindowDimensions();
-  const { itemWidth, imageSize } = getFriendItemLayoutSize(screenWidth);
+  const { itemWidth } = getFriendItemLayoutSize(screenWidth);
   const itemHeight = itemWidth + FRIEND_ITEM_TEXT_BLOCK_HEIGHT;
 
   const renderFriendItem = useCallback(
@@ -250,12 +292,11 @@ const FriendList = ({
       <FriendItem
         friend={item}
         itemWidth={itemWidth}
-        imageSize={imageSize}
         isRightColumn={index % 2 === 1}
         onOpen={onOpenFriend}
       />
     ),
-    [imageSize, itemWidth, onOpenFriend],
+    [itemWidth, onOpenFriend],
   );
   const getFriendItemLayout = useCallback(
     (_: Friend[] | null, index: number) => ({
@@ -321,8 +362,15 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: baseFoundation.dimension.x10,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
+    overflow: 'visible',
     position: 'relative',
+  },
+  characterWithMotto: {
+    transform: [{ translateY: FRIEND_MOTTO_CHARACTER_OFFSET_Y }],
+  },
+  speechBubble: {
+    position: 'absolute',
+    zIndex: 2,
   },
   characterPanelBlue: {
     backgroundColor: appThemes.blue.colors.brand.card,
@@ -335,8 +383,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   levelBadge: {
     position: 'absolute',
-    top: theme.foundation.spacing[2],
-    right: theme.foundation.spacing[2],
+    right: theme.foundation.spacing[1.5],
+    bottom: theme.foundation.spacing[1.5],
     minWidth: baseFoundation.dimension.x40,
     height: baseFoundation.dimension.x20,
     paddingHorizontal: theme.foundation.spacing[1.5],

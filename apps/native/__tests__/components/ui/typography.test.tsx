@@ -2,6 +2,7 @@ import { render } from '@testing-library/react-native';
 
 import AppTamaguiProvider from '../../../components/ui/tamagui-provider';
 import { Typography } from '../../../components/ui/typography';
+import { fontFamilies, tamaguiConfig } from '../../../theme';
 
 describe('Typography', () => {
   it('Tamagui provider 안에서 텍스트를 렌더링한다', () => {
@@ -74,6 +75,16 @@ describe('Typography', () => {
     );
 
     expect(getByText('굵은 본문').props.fontWeight).toBe('600');
+  });
+
+  it('공통 폰트 패밀리로 Pretendard weight face를 사용한다', () => {
+    expect(tamaguiConfig.fonts.body.family).toBe(fontFamilies.regular);
+    expect(tamaguiConfig.fonts.body.face).toEqual({
+      400: { normal: fontFamilies.regular },
+      500: { normal: fontFamilies.medium },
+      600: { normal: fontFamilies.semibold },
+      700: { normal: fontFamilies.bold },
+    });
   });
 
   it('semantic color 대신 사용자 지정 색상을 직접 적용할 수 있다', () => {

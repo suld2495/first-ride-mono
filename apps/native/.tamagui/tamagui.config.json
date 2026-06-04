@@ -28403,7 +28403,7 @@
   "tamaguiConfig": {
     "fonts": {
       "body": {
-        "family": "System",
+        "family": "Pretendard-Regular",
         "size": {
           "caption3": 11,
           "caption2": 12,
@@ -28476,36 +28476,36 @@
         },
         "face": {
           "100": {
-            "normal": "System"
+            "normal": "Pretendard-Regular"
           },
           "200": {
-            "normal": "System"
+            "normal": "Pretendard-Regular"
           },
           "300": {
-            "normal": "System"
+            "normal": "Pretendard-Regular"
           },
           "400": {
-            "normal": "System"
+            "normal": "Pretendard-Regular"
           },
           "500": {
-            "normal": "System"
+            "normal": "Pretendard-Medium"
           },
           "600": {
-            "normal": "System"
+            "normal": "Pretendard-SemiBold"
           },
           "700": {
-            "normal": "System"
+            "normal": "Pretendard-Bold"
           },
           "800": {
-            "normal": "System"
+            "normal": "Pretendard-Bold"
           },
           "900": {
-            "normal": "System"
+            "normal": "Pretendard-Bold"
           }
         }
       },
       "heading": {
-        "family": "System",
+        "family": "Pretendard-Regular",
         "size": {
           "caption3": 11,
           "caption2": 12,
@@ -28578,31 +28578,31 @@
         },
         "face": {
           "100": {
-            "normal": "System"
+            "normal": "Pretendard-Regular"
           },
           "200": {
-            "normal": "System"
+            "normal": "Pretendard-Regular"
           },
           "300": {
-            "normal": "System"
+            "normal": "Pretendard-Regular"
           },
           "400": {
-            "normal": "System"
+            "normal": "Pretendard-Regular"
           },
           "500": {
-            "normal": "System"
+            "normal": "Pretendard-Medium"
           },
           "600": {
-            "normal": "System"
+            "normal": "Pretendard-SemiBold"
           },
           "700": {
-            "normal": "System"
+            "normal": "Pretendard-Bold"
           },
           "800": {
-            "normal": "System"
+            "normal": "Pretendard-Bold"
           },
           "900": {
-            "normal": "System"
+            "normal": "Pretendard-Bold"
           }
         }
       }

@@ -38,4 +38,12 @@ describe('SplashScreenController', () => {
       expect(mockHideAsync).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('앱 준비가 끝나기 전에는 splash를 유지한다', () => {
+    mockUseAuthIsLoading.mockReturnValue(false);
+
+    render(<SplashScreenController isReady={false} />);
+
+    expect(mockHideAsync).not.toHaveBeenCalled();
+  });
 });
