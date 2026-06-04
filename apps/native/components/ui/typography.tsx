@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TextProps } from 'react-native';
+import type { TextProps, TextStyle } from 'react-native';
 
 import { useAppTheme, TamaguiText } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
@@ -75,6 +75,11 @@ export interface TypographyProps extends TextProps {
   weight?: TypographyWeight;
 
   /**
+   * Text alignment
+   */
+  textAlign?: TextStyle['textAlign'];
+
+  /**
    * Glow effect for highlighted text
    * @default false
    */
@@ -110,6 +115,7 @@ export const Typography: React.FC<TypographyProps> = ({
   color = 'primary',
   weight = 'regular',
   glow = false,
+  textAlign,
   style,
   children,
   ...props
@@ -135,6 +141,7 @@ export const Typography: React.FC<TypographyProps> = ({
       color={semanticColor}
       fontFamily="$body"
       fontWeight={fontWeight}
+      textAlign={textAlign}
       style={[customColorStyle, glowStyle, style]}
       {...variantProps}
       {...props}

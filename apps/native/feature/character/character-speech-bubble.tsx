@@ -135,6 +135,7 @@ const CharacterSpeechBubble = ({
           ellipsizeMode="tail"
           numberOfLines={numberOfLines}
           onTextLayout={handleTextLayout}
+          textAlign="center"
           style={[styles.message, textStyle]}
         >
           {children ?? message}
@@ -170,6 +171,7 @@ const styles = StyleSheet.create(() => ({
     overflow: 'visible',
   },
   message: {
+    alignSelf: 'stretch',
     lineHeight: 16,
     textAlign: 'center',
   },

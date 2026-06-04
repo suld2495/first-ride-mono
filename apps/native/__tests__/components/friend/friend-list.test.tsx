@@ -174,9 +174,12 @@ describe('FriendList', () => {
     expect(motto.props.ellipsizeMode).toBe('tail');
     expect(motto.props.fontSize).toBe('$caption2');
     expect(motto.props.fontWeight).toBe('600');
+    expect(motto.props.textAlign).toBe('center');
     expect(StyleSheet.flatten(motto.props.style)).toEqual(
       expect.objectContaining({
+        alignSelf: 'stretch',
         color: palette.theme.gray[90],
+        textAlign: 'center',
       }),
     );
     expect(StyleSheet.flatten(speechBubble.props.style)).toEqual(
