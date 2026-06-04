@@ -20,7 +20,7 @@ const createFriendRoutineResponse = () => ({
     nickname: '혜연',
     level: 7,
     motto: '오늘도 전진',
-    job: '용사',
+    job: '검사',
     characterCode: 'WARRIOR_INTERMEDIATE',
     characterImageUrl: null,
   },
@@ -116,7 +116,7 @@ describe('FriendRoutinesModal', () => {
       wrapResponse({
         friendId: 42,
         nickname: '혜연',
-        job: '용사',
+        job: '검사',
         motto: '오늘도 전진',
         level: 7,
         characterCode: 'WARRIOR_INTERMEDIATE',

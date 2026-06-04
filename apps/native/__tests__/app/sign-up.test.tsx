@@ -19,7 +19,7 @@ const jobOptions = [
     imageUrl: 'https://api.irura.uk/assets/characters/mage_beginner.png',
   },
   {
-    jobName: '용사',
+    jobName: '검사',
     jobType: 'WARRIOR',
     characterCode: 'WARRIOR_BEGINNER',
     imageUrl: 'https://api.irura.uk/assets/characters/warrior_beginner.png',
@@ -379,7 +379,7 @@ describe('SignUp 페이지', () => {
             nickname: 'testnick',
             password: 'password123',
             confirmPassword: 'password123',
-            job: '용사',
+            job: '검사',
           });
 
           const submitButton = getSubmitButton(getAllByText);
@@ -495,7 +495,7 @@ describe('SignUp 페이지', () => {
             nickname: 'verylongnickname',
             password: 'password123',
             confirmPassword: 'password123',
-            job: '용사',
+            job: '검사',
           });
 
           const submitButton = getSubmitButton(getAllByText);
@@ -612,7 +612,7 @@ describe('SignUp 페이지', () => {
           nickname: 'testnick',
           password: 'password123',
           confirmPassword: 'password123',
-          job: '용사',
+          job: '검사',
         });
 
         const submitButton = getSubmitButton(getAllByText);
@@ -661,9 +661,9 @@ describe('SignUp 페이지', () => {
       const { findByText, queryByText } = render(<SignUp />);
 
       expect(await findByText('마법사')).toBeOnTheScreen();
-      expect(await findByText('용사')).toBeOnTheScreen();
+      expect(await findByText('검사')).toBeOnTheScreen();
       expect(await findByText('궁수')).toBeOnTheScreen();
-      expect(queryByText('검사')).not.toBeOnTheScreen();
+      expect(queryByText('도적')).not.toBeOnTheScreen();
     });
 
     it('선택한 직업의 jobName을 회원가입 job 필드로 전달한다', async () => {
@@ -689,12 +689,12 @@ describe('SignUp 페이지', () => {
         getByPlaceholderText('비밀번호를 다시 입력해주세요.'),
         'password123',
       );
-      fireEvent.press(await findByText('용사'));
+      fireEvent.press(await findByText('검사'));
 
       fireEvent.press(getSubmitButton(getAllByText));
 
       await waitFor(() => {
-        expect(mockAxios.history.post[0]?.data).toContain('"job":"용사"');
+        expect(mockAxios.history.post[0]?.data).toContain('"job":"검사"');
       });
     });
   });

@@ -4,9 +4,10 @@ import type { ThemeName } from '@/theme/themes';
 
 type JobThemeName = Extract<ThemeName, 'blue' | 'green' | 'red'>;
 
-type UserJobSource = Partial<
-  Pick<User, 'job' | 'jobType' | 'characterCode'>
-> | null | undefined;
+type UserJobSource =
+  | Partial<Pick<User, 'job' | 'jobType' | 'characterCode'>>
+  | null
+  | undefined;
 
 const normalizeJobSource = (source: UserJobSource) =>
   `${source?.jobType ?? ''} ${source?.characterCode ?? ''} ${
@@ -30,7 +31,7 @@ export const getThemeNameFromUserJob = (
     return 'green';
   }
 
-  if (normalizedJob.includes('WARRIOR') || normalizedJob.includes('용사')) {
+  if (normalizedJob.includes('WARRIOR') || normalizedJob.includes('검사')) {
     return 'blue';
   }
 

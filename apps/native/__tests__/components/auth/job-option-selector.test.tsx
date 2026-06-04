@@ -13,7 +13,7 @@ const options = [
     imageUrl: 'https://api.irura.uk/assets/characters/mage_beginner.png',
   },
   {
-    jobName: '용사',
+    jobName: '검사',
     jobType: 'WARRIOR',
     characterCode: 'WARRIOR_BEGINNER',
     imageUrl: 'https://api.irura.uk/assets/characters/warrior_beginner.png',
@@ -37,7 +37,7 @@ describe('JobOptionSelector', () => {
     ).toEqual(
       expect.objectContaining({ backgroundColor: palette.theme.softRed[10] }),
     );
-    expect(StyleSheet.flatten(getByLabelText('용사 선택').props.style)).toEqual(
+    expect(StyleSheet.flatten(getByLabelText('검사 선택').props.style)).toEqual(
       expect.objectContaining({ backgroundColor: '#8DB9DC' }),
     );
     expect(StyleSheet.flatten(getByLabelText('궁수 선택').props.style)).toEqual(

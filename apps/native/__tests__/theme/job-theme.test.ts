@@ -8,19 +8,19 @@ describe('job theme mapping', () => {
   });
 
   it('캐릭터 코드로도 직업 테마를 해석한다', () => {
-    expect(
-      getThemeNameFromUserJob({ characterCode: 'WARRIOR_BEGINNER' }),
-    ).toBe('blue');
-    expect(getThemeNameFromUserJob({ characterCode: 'MAGE_INTERMEDIATE' })).toBe(
-      'red',
+    expect(getThemeNameFromUserJob({ characterCode: 'WARRIOR_BEGINNER' })).toBe(
+      'blue',
     );
+    expect(
+      getThemeNameFromUserJob({ characterCode: 'MAGE_INTERMEDIATE' }),
+    ).toBe('red');
     expect(
       getThemeNameFromUserJob({ characterCode: 'ARCHER_INTERMEDIATE' }),
     ).toBe('green');
   });
 
   it('한국어 직업명으로도 직업 테마를 해석한다', () => {
-    expect(getThemeNameFromUserJob({ job: '용사' })).toBe('blue');
+    expect(getThemeNameFromUserJob({ job: '검사' })).toBe('blue');
     expect(getThemeNameFromUserJob({ job: '마법사' })).toBe('red');
     expect(getThemeNameFromUserJob({ job: '메이지' })).toBe('red');
     expect(getThemeNameFromUserJob({ job: '궁수' })).toBe('green');

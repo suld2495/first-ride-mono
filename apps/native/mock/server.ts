@@ -14,8 +14,8 @@ export function makeServer() {
             refreshToken: 'refreshToken',
             userInfo: {
               userId: 'moon',
-              nickname: '용사',
-              job: '용사',
+              nickname: '검사',
+              job: '검사',
               jobType: 'WARRIOR',
               characterCode: 'WARRIOR_BEGINNER',
               motto: '끝까지 간다',

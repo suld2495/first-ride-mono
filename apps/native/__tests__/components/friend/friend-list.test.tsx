@@ -145,7 +145,7 @@ describe('FriendList', () => {
         nickname: 'Fffft',
         userId: 'Fff1234',
         motto: '오늘 할일을 내일로 미루지 말고 내일 할일도 오늘로 당겨보자',
-        job: '용사',
+        job: '검사',
       }),
     ];
     const { getByLabelText, getByTestId, getByText } = render(
