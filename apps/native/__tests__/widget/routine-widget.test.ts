@@ -164,6 +164,25 @@ describe('routine widget snapshot', () => {
     });
   });
 
+  it('API의 6자리 날짜 키로 한 자리 일자 완료 여부를 계산한다', () => {
+    const snapshot = createRoutineWidgetSnapshot(
+      [
+        createRoutine({
+          routineId: 1,
+          routineName: '독서하기',
+          successDate: ['260604'],
+        }),
+      ],
+      { today: new Date('2026-06-04T09:00:00+09:00') },
+    );
+
+    expect(snapshot.items[0]).toMatchObject({
+      title: '독서하기',
+      successDate: ['260604'],
+      isTodayDone: true,
+    });
+  });
+
   it('선택한 테마의 횟수 라벨 색상을 전달한다', () => {
     const snapshot = createRoutineWidgetSnapshot(
       [

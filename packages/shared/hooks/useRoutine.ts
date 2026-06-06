@@ -28,7 +28,9 @@ const updateRoutineVisibilityInCache = (
   { routineId, hidden }: UpdateRoutineVisibilityRequest,
 ): unknown => {
   if (Array.isArray(data)) {
-    return data.map((routine) =>
+    const routines: unknown[] = data;
+
+    return routines.map((routine) =>
       isRoutineLike(routine) && routine.routineId === routineId
         ? { ...routine, hidden }
         : routine,
@@ -213,7 +215,7 @@ const createWeeklyData = (startDate: string): string[] => {
 
     const year = newDate.getFullYear() - SHORT_YEAR_OFFSET;
     const month = (newDate.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
-    const day = newDate.getDate();
+    const day = newDate.getDate().toString().padStart(PAD_LENGTH, '0');
 
     return `${year}${month}${day}`;
   });
@@ -231,7 +233,7 @@ export const useWeeklyData = (
 
   return routines.reduce((acc, { routineId, successDate }) => {
     const successDateSet = new Set(successDate);
-    const data = weekDates.map((date) => successDateSet.has(date));
+    const data = weekDates.map((weekDate) => successDateSet.has(weekDate));
 
     acc[routineId] = data;
     return acc;

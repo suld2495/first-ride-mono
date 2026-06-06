@@ -399,7 +399,7 @@ private func routineDateKey(for date: Date) -> String {
     return ""
   }
 
-  return String(format: "%02d%02d%d", year - shortYearOffset, month, day)
+  return String(format: "%02d%02d%02d", year - shortYearOffset, month, day)
 }
 
 private func weekDateKeys(for currentDate: Date) -> [String] {

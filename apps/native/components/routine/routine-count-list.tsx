@@ -34,7 +34,7 @@ const PAD_LENGTH = 2;
 const createRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
   const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
-  const day = date.getDate();
+  const day = date.getDate().toString().padStart(PAD_LENGTH, '0');
 
   return `${year}${month}${day}`;
 };

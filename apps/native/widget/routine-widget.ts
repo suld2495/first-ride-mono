@@ -98,7 +98,7 @@ const ROUTINE_STATUS_ACCENT_COLORS: Pick<
 const createRoutineDateKey = (date: Date): string => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
   const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
-  const day = date.getDate();
+  const day = date.getDate().toString().padStart(PAD_LENGTH, '0');
 
   return `${year}${month}${day}`;
 };
@@ -123,14 +123,14 @@ const createSmallRoutineWidgetItems = (
   const pendingItems: RoutineWidgetItem[] = [];
   const doneTodayItems: RoutineWidgetItem[] = [];
 
-  items.forEach((item) => {
+  for (const item of items) {
     if (item.isTodayDone) {
       doneTodayItems.push(item);
-      return;
+      continue;
     }
 
     pendingItems.push(item);
-  });
+  }
 
   return [...pendingItems, ...doneTodayItems];
 };
@@ -153,15 +153,19 @@ export const createRoutineWidgetSnapshot = (
 
   const widgetItems = routines
     .map<Omit<RoutineWidgetItem, 'accentColor' | 'darkAccentColor'>>(
-      (routine) => ({
-        id: routine.routineId,
-        title: routine.routineName,
-        weeklyCount: routine.weeklyCount,
-        routineCount: routine.routineCount,
-        achievementRate: getAchievementRate(routine),
-        successDate: routine.successDate,
-        isTodayDone: routine.successDate.includes(todayKey),
-      }),
+      (routine) => {
+        const successDateSet = new Set(routine.successDate);
+
+        return {
+          id: routine.routineId,
+          title: routine.routineName,
+          weeklyCount: routine.weeklyCount,
+          routineCount: routine.routineCount,
+          achievementRate: getAchievementRate(routine),
+          successDate: routine.successDate,
+          isTodayDone: successDateSet.has(todayKey),
+        };
+      },
     )
     .filter((item) => item.weeklyCount < item.routineCount || item.isTodayDone)
     .map((item, index) => ({

@@ -89,6 +89,14 @@ describe('routine widget background', () => {
     expect(source).toContain('RoutineWidgetWeeklyStatusDot');
   });
 
+  it('formats widget date keys as the API 6 digit YYMMDD value', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(source).toContain(
+      'return String(format: "%02d%02d%02d", year - shortYearOffset, month, day)',
+    );
+  });
+
   it('fits four routine rows in the medium widget height', () => {
     const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
     const mediumWidgetHeight = 155;

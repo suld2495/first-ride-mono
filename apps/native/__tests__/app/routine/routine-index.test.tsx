@@ -35,7 +35,7 @@ const formatRoutineHeaderDate = (date: Date) => {
 const formatRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - 2000;
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate();
+  const day = date.getDate().toString().padStart(2, '0');
 
   return `${year}${month}${day}`;
 };
@@ -1048,7 +1048,7 @@ describe('루틴 조회 페이지', () => {
         const createSuccessDate = (date: Date) => {
           const year = date.getFullYear() - 2000;
           const month = (date.getMonth() + 1).toString().padStart(2, '0');
-          const day = date.getDate();
+          const day = date.getDate().toString().padStart(2, '0');
 
           return `${year}${month}${day}`;
         };

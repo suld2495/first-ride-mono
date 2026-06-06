@@ -43,7 +43,7 @@ const createWeekDateKeys = (startDate: string) => {
     const month = (weekDate.getMonth() + 1)
       .toString()
       .padStart(PAD_LENGTH, '0');
-    const day = weekDate.getDate();
+    const day = weekDate.getDate().toString().padStart(PAD_LENGTH, '0');
 
     return `${year}${month}${day}`;
   });
@@ -52,7 +52,7 @@ const createWeekDateKeys = (startDate: string) => {
 const createRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
   const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
-  const day = date.getDate();
+  const day = date.getDate().toString().padStart(PAD_LENGTH, '0');
 
   return `${year}${month}${day}`;
 };
