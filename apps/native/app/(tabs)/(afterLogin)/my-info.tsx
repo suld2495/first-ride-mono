@@ -1,6 +1,7 @@
 import { useMyStatsQuery } from '@repo/shared/hooks/useStat';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
+import { useCallback } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 
 import { deletePushToken } from '@/api/push-token.api';
@@ -82,7 +83,7 @@ const MyInfo = () => {
   const signOut = useAuthSignOut();
   const user = useAuthUser();
   const { pushToken } = useNotifications();
-  const { data: stats } = useMyStatsQuery();
+  const { data: stats, refetch: refetchMyStats } = useMyStatsQuery();
   const { theme } = useAppTheme();
   const currentExp = stats?.currentLevelProgress ?? FALLBACK_EXP;
   const nextLevelExp =
@@ -92,6 +93,12 @@ const MyInfo = () => {
   const themeTone = getThemeTone(theme.name);
   const { themeColor, softThemeColor } = getThemePalette(themeTone);
   const characterThemeName = getCharacterThemeName(theme.name);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refetchMyStats();
+    }, [refetchMyStats]),
+  );
 
   const handleLogout = () => {
     Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [

@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
@@ -90,10 +90,10 @@ export default function Index() {
   const speechBubbleMessage = mottos[0] ?? '안녕?';
 
   useEffect(() => {
-    if (!isLoading && isFirstLoadRef.current) {
+    if (user && !isLoading && isFirstLoadRef.current) {
       isFirstLoadRef.current = false;
     }
-  }, [isLoading]);
+  }, [isLoading, user]);
 
   const showLoading = isLoading && isFirstLoadRef.current;
 
@@ -106,6 +106,16 @@ export default function Index() {
       setIsManualRefreshing(false);
     }
   }, [refetch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!user || isFirstLoadRef.current) {
+        return;
+      }
+
+      void refetch();
+    }, [refetch, user]),
+  );
 
   const handleRoutineListAreaLayout = useCallback(
     (event: LayoutChangeEvent) => {

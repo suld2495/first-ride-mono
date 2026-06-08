@@ -13,6 +13,7 @@ import { render } from '../setup/test-utils';
 declare global {
   var mockReplace: jest.Mock;
   var mockPush: jest.Mock;
+  var mockMyInfoFocusEffect: (() => void) | null;
 }
 
 jest.mock('@/api/push-token.api', () => ({
@@ -48,6 +49,9 @@ jest.mock('expo-router', () => {
       push: (...args: unknown[]) => global.mockPush(...args),
       replace: (...args: unknown[]) => global.mockReplace(...args),
     },
+    useFocusEffect: (effect: () => void) => {
+      global.mockMyInfoFocusEffect = effect;
+    },
     Link: ({
       children,
       asChild,
@@ -72,6 +76,7 @@ describe('MyInfo 로그아웃', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.mockPush = jest.fn();
+    global.mockMyInfoFocusEffect = null;
     (useNotifications as jest.Mock).mockReturnValue({
       pushToken: { data: 'expo-push-token' },
     });
@@ -99,6 +104,27 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('12')).toBeOnTheScreen();
     expect(getByText('/')).toBeOnTheScreen();
     expect(getByText('42')).toBeOnTheScreen();
+  });
+
+  it('프로필 페이지가 포커스될 때 경험치 정보를 다시 조회한다', () => {
+    const refetch = jest.fn();
+
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+    (useMyStatsQuery as jest.Mock).mockReturnValue({
+      data: {
+        nickname: 'testuser',
+        currentLevel: 3,
+        currentLevelProgress: 12,
+        expRequiredForNextLevel: 42,
+      },
+      refetch,
+    });
+
+    render(<MyInfo />);
+
+    global.mockMyInfoFocusEffect?.();
+
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it('설정 프로필 영역에 지정된 간격과 색상 토큰을 적용한다', () => {

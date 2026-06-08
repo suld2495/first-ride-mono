@@ -373,6 +373,24 @@ describe('루틴 조회 페이지', () => {
         pausedRoutinesSpy.mockRestore();
       });
 
+      it('루틴 페이지가 포커스될 때 루틴 목록을 다시 조회한다', () => {
+        const refetch = jest.fn();
+        const routinesSpy = jest
+          .spyOn(routineHooks, 'useRoutinesQuery')
+          .mockReturnValue({
+            data: createMockRoutines(1),
+            isLoading: false,
+            isRefetching: false,
+            refetch,
+          } as unknown as ReturnType<typeof routineHooks.useRoutinesQuery>);
+
+        render(<Index />);
+
+        expect(refetch).toHaveBeenCalledTimes(1);
+
+        routinesSpy.mockRestore();
+      });
+
       it('루틴 순서 변경 버튼을 누르면 정렬 모달로 이동한다', async () => {
         const { findByLabelText } = render(<Index />);
 
