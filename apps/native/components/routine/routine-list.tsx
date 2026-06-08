@@ -78,7 +78,9 @@ const RoutineList = ({
   const { showToast } = useToast();
   const user = useAuthUser();
   const themeName = useColorScheme();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(
+    () => routines.length > MAX_VISIBLE_ROUTINES,
+  );
   const [openMenuRoutineId, setOpenMenuRoutineId] = useState<number | null>(
     null,
   );
@@ -98,11 +100,11 @@ const RoutineList = ({
   const expandedListHeight = routineItemHeight * MAX_VISIBLE_ROUTINES;
   const visibleListHeight =
     routineItemHeight * Math.min(routines.length, MAX_VISIBLE_ROUTINES);
-  const rawListHeight = isExpanded
-    ? expandedListHeight
-    : hasPreviewLayer
-      ? collapsedListHeight
-      : visibleListHeight;
+  const rawListHeight = canExpandList
+    ? isExpanded
+      ? expandedListHeight
+      : collapsedListHeight
+    : visibleListHeight;
   const maxListHeight =
     typeof listAreaHeight === 'number'
       ? Math.max(
@@ -122,11 +124,11 @@ const RoutineList = ({
     openMenuRoutineIndex >= 0 ? routines[openMenuRoutineIndex] : null;
 
   useEffect(() => {
-    setIsExpanded(false);
+    setIsExpanded(canExpandList);
     setOpenMenuRoutineId(null);
     setRoutineListScrollOffset(0);
-    overlayOpacity.setValue(1);
-  }, [date, overlayOpacity, routines.length]);
+    overlayOpacity.setValue(canExpandList ? 0 : 1);
+  }, [canExpandList, date, overlayOpacity, routines.length]);
 
   useEffect(() => {
     Animated.timing(overlayOpacity, {

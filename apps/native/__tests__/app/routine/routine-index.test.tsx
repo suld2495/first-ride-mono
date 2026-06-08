@@ -544,7 +544,7 @@ describe('루틴 조회 페이지', () => {
         ).toBeOnTheScreen();
       });
 
-      it('루틴이 4개를 넘으면 접힌 상태에서 두 번째 카드 위에 오버레이가 표시된다', async () => {
+      it('루틴이 4개를 넘으면 프리뷰 오버레이 레이어가 표시된다', async () => {
         mockAxios
           .onGet(/\/routine\/list/)
           .reply(200, { data: createMockRoutines(5) });
@@ -556,7 +556,7 @@ describe('루틴 조회 페이지', () => {
         expect(await findByTestId('routine-preview-overlay')).toBeOnTheScreen();
       });
 
-      it('기본 상태에서는 화면 높이와 관계없이 리스트 컨테이너 높이가 2개 기준으로 제한되고 스크롤이 비활성화된다', async () => {
+      it('기본 상태에서는 리스트가 4개 높이로 펼쳐지고 스크롤이 활성화된다', async () => {
         mockAxios
           .onGet(/\/routine\/list/)
           .reply(200, { data: createMockRoutines(5) });
@@ -577,10 +577,10 @@ describe('루틴 조회 페이지', () => {
         expect(viewportStyles).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ overflow: 'hidden' }),
-            expect.objectContaining({ height: ROUTINE_ITEM_HEIGHT * 2 }),
+            expect.objectContaining({ height: ROUTINE_ITEM_HEIGHT * 4 }),
           ]),
         );
-        expect(routineListScroll.props.scrollEnabled).toBe(false);
+        expect(routineListScroll.props.scrollEnabled).toBe(true);
         expect(routineListScroll.props.estimatedItemSize).toBe(
           ROUTINE_ITEM_HEIGHT,
         );
@@ -591,7 +591,7 @@ describe('루틴 조회 페이지', () => {
 
         expect(flattenStyles(routineListViewport.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ height: ROUTINE_ITEM_HEIGHT * 2 }),
+            expect.objectContaining({ height: ROUTINE_ITEM_HEIGHT * 4 }),
           ]),
         );
         expect(routineListScroll.props.estimatedItemSize).toBe(
@@ -599,7 +599,7 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('하단 버튼을 누르면 리스트가 4개 높이로 확장되고 스크롤이 활성화된다', async () => {
+      it('하단 버튼을 누르면 리스트가 2개 높이로 접히고 스크롤이 비활성화된다', async () => {
         mockAxios
           .onGet(/\/routine\/list/)
           .reply(200, { data: createMockRoutines(5) });
@@ -612,20 +612,20 @@ describe('루틴 조회 페이지', () => {
           nativeEvent: { layout: { height: 520 } },
         });
 
-        fireEvent.press(getByTestId('routine-scroll-indicator'));
-
         const routineListViewport = getByTestId('routine-list-viewport');
         const routineListScroll = getByTestId('routine-list-scroll');
+
+        fireEvent.press(getByTestId('routine-scroll-indicator'));
 
         const viewportStyles = flattenStyles(routineListViewport.props.style);
 
         expect(viewportStyles).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ overflow: 'hidden' }),
-            expect.objectContaining({ height: ROUTINE_ITEM_HEIGHT * 4 }),
+            expect.objectContaining({ height: ROUTINE_ITEM_HEIGHT * 2 }),
           ]),
         );
-        expect(routineListScroll.props.scrollEnabled).toBe(true);
+        expect(routineListScroll.props.scrollEnabled).toBe(false);
         expect(await findByTestId('routine-preview-overlay')).toBeOnTheScreen();
       });
 
@@ -643,8 +643,6 @@ describe('루틴 조회 페이지', () => {
             nativeEvent: { layout: { height: 360 } },
           });
         });
-
-        fireEvent.press(getByTestId('routine-scroll-indicator'));
 
         const routineListViewport = getByTestId('routine-list-viewport');
         const routineListScroll = getByTestId('routine-list-scroll');
@@ -664,7 +662,7 @@ describe('루틴 조회 페이지', () => {
         expect(routineListScroll.props.scrollEnabled).toBe(true);
       });
 
-      it('펼친 뒤 버튼을 다시 누르면 리스트가 다시 접힌다', async () => {
+      it('기본 펼침 상태에서 버튼을 누르면 리스트가 접힌다', async () => {
         mockAxios
           .onGet(/\/routine\/list/)
           .reply(200, { data: createMockRoutines(5) });
@@ -677,7 +675,6 @@ describe('루틴 조회 페이지', () => {
           nativeEvent: { layout: { height: 520 } },
         });
 
-        fireEvent.press(getByTestId('routine-scroll-indicator'));
         expect(await findByLabelText('루틴 리스트 접기')).toBeOnTheScreen();
 
         fireEvent.press(getByTestId('routine-scroll-indicator'));
@@ -713,12 +710,12 @@ describe('루틴 조회 페이지', () => {
         const scrollIndicatorContainer = getByTestId(
           'routine-scroll-indicator-container',
         );
-        const collapsedListHeight = ROUTINE_ITEM_HEIGHT * 2;
 
         expect(flattenStyles(scrollIndicatorContainer.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              top: collapsedListHeight + ROUTINE_SCROLL_INDICATOR_TOP_SPACING,
+              top:
+                ROUTINE_ITEM_HEIGHT * 4 + ROUTINE_SCROLL_INDICATOR_TOP_SPACING,
             }),
           ]),
         );
@@ -729,7 +726,7 @@ describe('루틴 조회 페이지', () => {
           expect.arrayContaining([
             expect.objectContaining({
               top:
-                ROUTINE_ITEM_HEIGHT * 4 + ROUTINE_SCROLL_INDICATOR_TOP_SPACING,
+                ROUTINE_ITEM_HEIGHT * 2 + ROUTINE_SCROLL_INDICATOR_TOP_SPACING,
             }),
           ]),
         );
