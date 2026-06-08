@@ -115,7 +115,7 @@ describe('routine widget background', () => {
       4,
     );
     expect(source).toContain(
-      'min(visibleItemLimit(for: widgetHeight), weeklyStatusMaximumVisibleItemCount)',
+      'min(rawVisibleItemLimit(for: widgetHeight), weeklyStatusMaximumVisibleItemCount)',
     );
   });
 
@@ -130,14 +130,26 @@ describe('routine widget background', () => {
     expect(source).toContain('private let weeklyStatusDotSize: CGFloat = 10');
   });
 
-  it('adds half of the remaining medium widget height above the content', () => {
+  it('anchors medium weekly status rows using the maximum visible row count', () => {
     const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
 
     expect(source).toContain(
-      'let contentHeight = weeklyStatusContentHeight(itemCount: visibleItems.count)',
+      'let layoutItemCount = weeklyStatusLayoutItemCount(for: geometry.size.height, itemCount: visibleItems.count)',
+    );
+    expect(source).toContain(
+      'let contentHeight = weeklyStatusContentHeight(itemCount: layoutItemCount)',
     );
     expect(source).toContain(
       '.padding(.top, weeklyStatusTopPadding(for: geometry.size.height, contentHeight: contentHeight))',
+    );
+    expect(source).toContain(
+      'private func weeklyStatusLayoutItemCount(for widgetHeight: CGFloat, itemCount: Int) -> Int',
+    );
+    expect(source).toContain(
+      'max(itemCount, weeklyStatusVisibleItemLimit(for: widgetHeight))',
+    );
+    expect(source).toContain(
+      'private func weeklyStatusVisibleItemLimit(for widgetHeight: CGFloat) -> Int',
     );
     expect(source).toContain(
       'private func weeklyStatusContentHeight(itemCount: Int) -> CGFloat',

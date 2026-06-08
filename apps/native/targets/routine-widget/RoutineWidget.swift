@@ -214,7 +214,8 @@ struct RoutineWidgetWeeklyStatusView: View {
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
       } else {
         let visibleItems = visibleItems(for: geometry.size.height)
-        let contentHeight = weeklyStatusContentHeight(itemCount: visibleItems.count)
+        let layoutItemCount = weeklyStatusLayoutItemCount(for: geometry.size.height, itemCount: visibleItems.count)
+        let contentHeight = weeklyStatusContentHeight(itemCount: layoutItemCount)
         let weekDateKeys = weekDateKeys(for: entry.date)
         let todayDateKey = routineDateKey(for: entry.date)
         VStack(alignment: .leading, spacing: weeklyStatusRowSpacing) {
@@ -236,15 +237,23 @@ struct RoutineWidgetWeeklyStatusView: View {
   }
 
   private func visibleItems(for widgetHeight: CGFloat) -> [RoutineWidgetItem] {
-    let itemLimit = min(visibleItemLimit(for: widgetHeight), weeklyStatusMaximumVisibleItemCount)
+    let itemLimit = weeklyStatusVisibleItemLimit(for: widgetHeight)
 
     return Array(entry.snapshot.items.prefix(itemLimit))
   }
 
-  private func visibleItemLimit(for widgetHeight: CGFloat) -> Int {
+  private func weeklyStatusVisibleItemLimit(for widgetHeight: CGFloat) -> Int {
+    min(rawVisibleItemLimit(for: widgetHeight), weeklyStatusMaximumVisibleItemCount)
+  }
+
+  private func rawVisibleItemLimit(for widgetHeight: CGFloat) -> Int {
     let rowStride = weeklyStatusRowHeight + weeklyStatusRowSpacing
 
     return max(0, Int((widgetHeight - weeklyStatusHeaderHeight) / rowStride))
+  }
+
+  private func weeklyStatusLayoutItemCount(for widgetHeight: CGFloat, itemCount: Int) -> Int {
+    max(itemCount, weeklyStatusVisibleItemLimit(for: widgetHeight))
   }
 
   private func weeklyStatusContentHeight(itemCount: Int) -> CGFloat {
