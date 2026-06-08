@@ -403,6 +403,7 @@ global.mockPush = jest.fn();
 global.mockReplace = jest.fn();
 global.mockBack = jest.fn();
 global.mockSearchParams = {};
+global.mockFocusEffectCleanup = null;
 
 jest.mock('expo-router', () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -417,6 +418,18 @@ jest.mock('expo-router', () => {
       back: global.mockBack,
     }),
     useLocalSearchParams: () => global.mockSearchParams,
+    useFocusEffect: (effect) => {
+      React.useEffect(() => {
+        global.mockFocusEffectCleanup = effect();
+
+        return () => {
+          if (typeof global.mockFocusEffectCleanup === 'function') {
+            global.mockFocusEffectCleanup();
+          }
+          global.mockFocusEffectCleanup = null;
+        };
+      }, [effect]);
+    },
     Redirect: ({ href }) =>
       React.createElement('Redirect', { href, testID: 'redirect' }),
     Link: ({ href, children, asChild }) => {

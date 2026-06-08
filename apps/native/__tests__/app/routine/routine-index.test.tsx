@@ -156,6 +156,12 @@ declare const mockRoutineStore: {
   setRoutineId: jest.Mock;
   resetRoutineForm: jest.Mock;
 };
+const getMockFocusEffectCleanup = () =>
+  (
+    globalThis as typeof globalThis & {
+      mockFocusEffectCleanup: null | (() => void);
+    }
+  ).mockFocusEffectCleanup;
 
 // axios mock adapter
 let mockAxios: MockAdapter;
@@ -1439,7 +1445,26 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('컨텍스트 메뉴가 열린 상태에서 다른 루틴 메뉴 버튼을 누르면 해당 메뉴로 전환한다', async () => {
+      it('컨텍스트 메뉴 닫기 영역은 루틴 리스트 바깥까지 확장된다', async () => {
+        const { findByLabelText, findByTestId } = render(<Index />);
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+
+        const backdrop = await findByTestId('routine-context-menu-backdrop');
+
+        expect(flattenStyles(backdrop.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              top: -1000,
+              right: -1000,
+              bottom: -1000,
+              left: -1000,
+            }),
+          ]),
+        );
+      });
+
+      it('컨텍스트 메뉴가 열린 상태에서 다른 루틴 메뉴 버튼 영역을 눌러도 메뉴를 닫는다', async () => {
         mockAxios.resetHandlers();
         mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
         mockAxios.onGet(/\/routine\/list/).reply(200, {
@@ -1462,7 +1487,24 @@ describe('루틴 조회 페이지', () => {
           nativeEvent: { locationX: 350, locationY: ROUTINE_ITEM_HEIGHT + 10 },
         });
 
-        expect(await findByTestId('routine-context-menu-2')).toBeOnTheScreen();
+        await waitFor(() => {
+          expect(queryByTestId('routine-context-menu-1')).toBeNull();
+          expect(queryByTestId('routine-context-menu-2')).toBeNull();
+        });
+      });
+
+      it('다른 페이지로 이동했다가 돌아오면 열린 컨텍스트 메뉴를 닫는다', async () => {
+        const { findByLabelText, findByTestId, queryByTestId } = render(
+          <Index />,
+        );
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+        expect(await findByTestId('routine-context-menu-1')).toBeOnTheScreen();
+
+        await act(async () => {
+          getMockFocusEffectCleanup()?.();
+        });
+
         expect(queryByTestId('routine-context-menu-1')).toBeNull();
       });
 

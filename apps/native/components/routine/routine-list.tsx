@@ -5,17 +5,15 @@ import {
 } from '@repo/shared/hooks/useRoutine';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Alert,
   Image,
   LayoutAnimation,
-  type LayoutChangeEvent,
   Platform,
   Pressable,
-  type GestureResponderEvent,
   UIManager,
   View,
 } from 'react-native';
@@ -52,8 +50,7 @@ const MAX_VISIBLE_ROUTINES = 4;
 const COLLAPSED_VISIBLE_ROUTINES = 2;
 const ROUTINE_ITEM_HEIGHT = 108; // 루틴 높이 + 루틴 간 간격
 const ROUTINE_CONTEXT_MENU_TOP_OFFSET = 15;
-const ROUTINE_CONTEXT_MENU_TRIGGER_HIT_WIDTH = baseFoundation.dimension.x32;
-const ROUTINE_CONTEXT_MENU_TRIGGER_HIT_HEIGHT = baseFoundation.dimension.x56;
+const ROUTINE_CONTEXT_MENU_BACKDROP_OVERFLOW = 1000;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing[2];
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
@@ -85,7 +82,6 @@ const RoutineList = ({
   const [openMenuRoutineId, setOpenMenuRoutineId] = useState<number | null>(
     null,
   );
-  const [containerWidth, setContainerWidth] = useState(0);
   const [routineListScrollOffset, setRoutineListScrollOffset] = useState(0);
   const overlayOpacity = useRef(new Animated.Value(1)).current;
   const nickname = user?.nickname || '';
@@ -139,6 +135,15 @@ const RoutineList = ({
       useNativeDriver: true,
     }).start();
   }, [isExpanded, overlayOpacity]);
+
+  useFocusEffect(
+    useCallback(
+      () => () => {
+        setOpenMenuRoutineId(null);
+      },
+      [],
+    ),
+  );
 
   const handleShowRequestModal = useCallback(
     (id: number) => {
@@ -274,48 +279,12 @@ const RoutineList = ({
     [],
   );
 
-  const handleContainerLayout = useCallback((event: LayoutChangeEvent) => {
-    setContainerWidth(event.nativeEvent.layout.width);
+  const handlePressContextMenuBackdrop = useCallback(() => {
+    setOpenMenuRoutineId(null);
   }, []);
 
-  const handlePressContextMenuBackdrop = useCallback(
-    (event: GestureResponderEvent) => {
-      const { locationX, locationY } = event.nativeEvent;
-      const triggerRoutineIndex = routines.findIndex((_, index) => {
-        const triggerTop = index * routineItemHeight - routineListScrollOffset;
-
-        return (
-          containerWidth > 0 &&
-          locationX >=
-            containerWidth - ROUTINE_CONTEXT_MENU_TRIGGER_HIT_WIDTH &&
-          locationX <= containerWidth &&
-          locationY >= triggerTop &&
-          locationY <= triggerTop + ROUTINE_CONTEXT_MENU_TRIGGER_HIT_HEIGHT
-        );
-      });
-
-      if (triggerRoutineIndex >= 0) {
-        handleToggleRoutineMenu(routines[triggerRoutineIndex].routineId);
-        return;
-      }
-
-      setOpenMenuRoutineId(null);
-    },
-    [
-      containerWidth,
-      handleToggleRoutineMenu,
-      routineItemHeight,
-      routineListScrollOffset,
-      routines,
-    ],
-  );
-
   return (
-    <ThemeView
-      style={styles.container}
-      onLayout={handleContainerLayout}
-      testID="routine-list-container"
-    >
+    <ThemeView style={styles.container} testID="routine-list-container">
       {routines.length ? (
         <ThemeView
           style={[
@@ -459,10 +428,10 @@ const styles = StyleSheet.create((theme) => ({
   },
   contextMenuBackdrop: {
     position: 'absolute',
-    top: baseFoundation.spacing[0],
-    right: baseFoundation.spacing[0],
-    bottom: baseFoundation.spacing[0],
-    left: baseFoundation.spacing[0],
+    top: -ROUTINE_CONTEXT_MENU_BACKDROP_OVERFLOW,
+    right: -ROUTINE_CONTEXT_MENU_BACKDROP_OVERFLOW,
+    bottom: -ROUTINE_CONTEXT_MENU_BACKDROP_OVERFLOW,
+    left: -ROUTINE_CONTEXT_MENU_BACKDROP_OVERFLOW,
     zIndex: baseFoundation.zIndex.popover - 1,
   },
   previewOverlay: {

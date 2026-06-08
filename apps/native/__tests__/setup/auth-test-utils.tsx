@@ -77,6 +77,11 @@ export const resetAuthMocks = () => {
   mockPush.mockClear();
   mockReplace.mockClear();
   mockBack.mockClear();
+  (
+    globalThis as typeof globalThis & {
+      mockFocusEffectCleanup: null | (() => void);
+    }
+  ).mockFocusEffectCleanup = null;
   for (const key of Object.keys(mockSearchParams)) delete mockSearchParams[key];
   mockAuthStore.user = mockUser;
   mockAuthStore.signIn.mockClear();
