@@ -20,6 +20,7 @@ jest.mock('@/components/modal/request-modal', () => jest.fn());
 jest.mock('@/components/modal/routine-detail-modal', () => jest.fn());
 jest.mock('@/components/modal/routine-form-modal', () => jest.fn());
 jest.mock('@/components/modal/routine-reorder-modal', () => jest.fn());
+jest.mock('@/components/modal/stat-modal', () => jest.fn());
 jest.mock('@/components/modal/terms-policy-modal', () => jest.fn());
 jest.mock('@/components/modal/theme-modal', () => jest.fn());
 
@@ -47,5 +48,11 @@ describe('useModal', () => {
     const [title] = useModal('theme');
 
     expect(title).toBe('테마 설정');
+  });
+
+  it('스탯 모달을 공통 모달에 매핑한다', () => {
+    const [title] = useModal('stat');
+
+    expect(title).toBe('스탯');
   });
 });

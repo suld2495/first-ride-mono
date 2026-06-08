@@ -85,7 +85,8 @@ describe('MyInfo 로그아웃', () => {
         nickname: 'testuser',
         currentLevel: 3,
         currentLevelProgress: 12,
-        expRequiredForNextLevel: 42,
+        expForNextLevel: 42,
+        availablePoints: 4,
       },
     });
   });
@@ -93,7 +94,7 @@ describe('MyInfo 로그아웃', () => {
   it('프로필과 경험치 요약을 설정 화면 상단에 표시한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
-    const { getByText, queryAllByText } = render(<MyInfo />);
+    const { getByText, queryAllByText, queryByTestId } = render(<MyInfo />);
 
     expect(getByText('설정')).toBeOnTheScreen();
     expect(queryAllByText('testuser')).toHaveLength(1);
@@ -104,6 +105,7 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('12')).toBeOnTheScreen();
     expect(getByText('/')).toBeOnTheScreen();
     expect(getByText('42')).toBeOnTheScreen();
+    expect(queryByTestId('settings-stat-point-badge')).toBeNull();
   });
 
   it('프로필 페이지가 포커스될 때 경험치 정보를 다시 조회한다', () => {
@@ -115,7 +117,8 @@ describe('MyInfo 로그아웃', () => {
         nickname: 'testuser',
         currentLevel: 3,
         currentLevelProgress: 12,
-        expRequiredForNextLevel: 42,
+        expForNextLevel: 42,
+        availablePoints: 4,
       },
       refetch,
     });
@@ -288,6 +291,7 @@ describe('MyInfo 로그아웃', () => {
     const { getByText } = render(<MyInfo />);
 
     expect(getByText('한마디')).toBeOnTheScreen();
+    expect(getByText('스탯')).toBeOnTheScreen();
     expect(getByText('루틴 설정')).toBeOnTheScreen();
     expect(getByText('테마 설정')).toBeOnTheScreen();
     expect(getByText('알림 설정')).toBeOnTheScreen();
@@ -297,12 +301,14 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('로그아웃')).toBeOnTheScreen();
 
     fireEvent.press(getByText('한마디'));
+    fireEvent.press(getByText('스탯'));
     fireEvent.press(getByText('루틴 설정'));
     fireEvent.press(getByText('테마 설정'));
     fireEvent.press(getByText('알림 설정'));
     fireEvent.press(getByText('문의'));
 
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
+    expect(global.mockPush).toHaveBeenCalledWith('/modal?type=stat');
     expect(global.mockPush).toHaveBeenCalledWith('/routine-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=theme');
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');

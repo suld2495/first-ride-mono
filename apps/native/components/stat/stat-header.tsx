@@ -12,14 +12,14 @@ interface StatHeaderProps {
   nickname: string;
   level: number;
   currentExp: number;
-  expRequiredForNextLevel: number;
+  expForNextLevel: number;
 }
 
 export const StatHeader: React.FC<StatHeaderProps> = ({
   nickname,
   level,
   currentExp,
-  expRequiredForNextLevel,
+  expForNextLevel,
 }) => {
   return (
     <PixelCard>
@@ -60,12 +60,12 @@ export const StatHeader: React.FC<StatHeaderProps> = ({
               EXP
             </Typography>
             <Typography variant="label" weight="semibold">
-              {currentExp} / {expRequiredForNextLevel}
+              {currentExp} / {expForNextLevel}
             </Typography>
           </View>
           <PixelProgressBar
             value={currentExp}
-            maxValue={expRequiredForNextLevel}
+            maxValue={expForNextLevel}
             color={palette.rpg.exp}
             height={baseFoundation.dimension.x16}
           />

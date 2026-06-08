@@ -18,7 +18,8 @@ export const useDistributeStatsMutation = () => {
   return useMutation({
     mutationFn: (request: DistributeStatsRequest) =>
       statApi.distributeStats(request),
-    onSuccess: async () => {
+    onSuccess: async (stats) => {
+      queryClient.setQueryData(statKey.me(), stats);
       await queryClient.invalidateQueries({
         queryKey: statKey.me(),
       });

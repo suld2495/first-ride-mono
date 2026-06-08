@@ -97,7 +97,9 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
           </>
         ) : (
           <Pressable
-            style={[styles.button, styles.editButton]}
+            accessibilityLabel="스탯 분배하기"
+            accessibilityRole="button"
+            style={[styles.button, styles.iconButton, styles.editButton]}
             onPress={onEdit}
           >
             <Ionicons
@@ -105,9 +107,6 @@ export const StatPointsBar: React.FC<StatPointsBarProps> = ({
               size={baseFoundation.iconSize.s}
               color={palette.white}
             />
-            <Typography variant="label" weight="semibold" color={palette.white}>
-              Edit
-            </Typography>
           </Pressable>
         )}
       </View>
@@ -145,6 +144,13 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: baseFoundation.dimension.x6,
     borderRadius: baseFoundation.dimension.x4,
     borderWidth: 2,
+  },
+  iconButton: {
+    width: baseFoundation.dimension.x36,
+    height: baseFoundation.dimension.x36,
+    justifyContent: 'center',
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   editButton: {
     backgroundColor: theme.colors.action.primary.default,

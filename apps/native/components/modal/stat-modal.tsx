@@ -3,13 +3,9 @@ import {
   useMyStatsQuery,
 } from '@repo/shared/hooks/useStat';
 import type { UserStats } from '@repo/types';
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { StyleSheet } from '@/components/ui/tamagui';
 
-import Container from '@/components/layout/container';
-import Header from '@/components/layout/header';
 import ClassicStatList from '@/components/stat/classic/classic-stat-list';
 import GridStatList from '@/components/stat/grid/grid-stat-list';
 import RadarStatView from '@/components/stat/radar/radar-stat-view';
@@ -19,17 +15,13 @@ import StatDesignTabs, {
 import StatHeader from '@/components/stat/stat-header';
 import StatPointsBar from '@/components/stat/stat-points-bar';
 import Loading from '@/components/ui/loading';
-import { useAuthUser } from '@/hooks/useAuthSession';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { useStatEditor } from '@/hooks/useStatEditor';
 
-export default function StatPage() {
-  const router = useRouter();
-  const user = useAuthUser();
+const StatModal = () => {
   const [activeTab, setActiveTab] = useState<StatDesignType>('classic');
-
   const { data, isLoading, refetch } = useMyStatsQuery();
   const { mutate: distributeStats, isPending } = useDistributeStatsMutation();
-
   const {
     isEditing,
     originalStats,
@@ -64,7 +56,7 @@ export default function StatPage() {
         },
       },
     );
-  }, [distributeStats, getDistributions, finishEditing, refetch]);
+  }, [distributeStats, finishEditing, getDistributions, refetch]);
 
   const handleReset = useCallback(() => {
     resetChanges();
@@ -84,53 +76,23 @@ export default function StatPage() {
     [decrementStat],
   );
 
-  useEffect(() => {
-    if (!user) {
-      router.push('/sign-in');
-    }
-  }, [router, user]);
-
-  if (!user) {
-    return null;
-  }
-
   if (isLoading || !data) {
-    return (
-      <Container style={styles.container} noPadding>
-        <Header />
-        <Loading />
-      </Container>
-    );
+    return <Loading />;
   }
 
   const displayStats = isEditing && pendingStats ? pendingStats : data.stats;
   const canIncrement = usedPoints < availablePoints;
-
-  const renderStatView = () => {
-    const commonProps = {
-      stats: displayStats,
-      originalStats: isEditing ? originalStats || undefined : undefined,
-      isEditing,
-      canIncrement,
-      onIncrement: handleIncrement,
-      onDecrement: handleDecrement,
-    };
-
-    switch (activeTab) {
-      case 'classic':
-        return <ClassicStatList {...commonProps} />;
-      case 'grid':
-        return <GridStatList {...commonProps} />;
-      case 'radar':
-        return <RadarStatView {...commonProps} />;
-      default:
-        return null;
-    }
+  const commonStatListProps = {
+    stats: displayStats,
+    originalStats: isEditing ? originalStats || undefined : undefined,
+    isEditing,
+    canIncrement,
+    onIncrement: handleIncrement,
+    onDecrement: handleDecrement,
   };
 
   return (
-    <Container style={styles.container} noPadding>
-      <Header />
+    <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
@@ -139,8 +101,8 @@ export default function StatPage() {
         <StatHeader
           nickname={data.nickname}
           level={data.currentLevel}
-          currentExp={data.currentTotalExp}
-          expRequiredForNextLevel={data.expRequiredForNextLevel}
+          currentExp={data.currentLevelProgress}
+          expForNextLevel={data.expForNextLevel}
         />
 
         <StatDesignTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -154,17 +116,29 @@ export default function StatPage() {
           onReset={handleReset}
         />
 
-        <View style={styles.statContainer}>{renderStatView()}</View>
-
-        {isPending && (
-          <View style={styles.loadingOverlay}>
-            <Loading />
-          </View>
-        )}
+        <View style={styles.statContainer}>
+          {activeTab === 'classic' ? (
+            <ClassicStatList {...commonStatListProps} />
+          ) : null}
+          {activeTab === 'grid' ? (
+            <GridStatList {...commonStatListProps} />
+          ) : null}
+          {activeTab === 'radar' ? (
+            <RadarStatView {...commonStatListProps} />
+          ) : null}
+        </View>
       </ScrollView>
-    </Container>
+
+      {isPending ? (
+        <View style={styles.loadingOverlay}>
+          <Loading />
+        </View>
+      ) : null}
+    </View>
   );
-}
+};
+
+export default StatModal;
 
 const styles = StyleSheet.create((theme) => ({
   container: {

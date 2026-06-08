@@ -1,11 +1,39 @@
-import type { AuthResponse } from '@repo/types';
+import type { AuthResponse, StatKey, StatResponse } from '@repo/types';
 import { createServer } from 'miragejs';
+
+const statFieldByApiKey: Record<StatKey, keyof StatResponse['stats']> = {
+  STRENGTH: 'strength',
+  AGILITY: 'agility',
+  INTELLIGENCE: 'intelligence',
+  LUCK: 'luck',
+  VITALITY: 'vitality',
+  MANA: 'mana',
+};
 
 export function makeServer() {
   return createServer({
     routes() {
       this.urlPrefix = process.env.EXPO_PUBLIC_VITE_BASE_URL || '';
       this.namespace = '/api';
+      let mockStats: StatResponse = {
+        userId: 71,
+        nickname: '맨날12',
+        currentLevel: 9,
+        currentTotalExp: 249,
+        currentLevelProgress: 9,
+        expForNextLevel: 21,
+        stats: {
+          strength: 0,
+          agility: 0,
+          intelligence: 0,
+          luck: 0,
+          vitality: 0,
+          mana: 0,
+        },
+        availablePoints: 24,
+        totalPointsEarned: 24,
+        totalPointsUsed: 0,
+      };
 
       this.post<{ data: AuthResponse }>('/auth/login', () => {
         return {
@@ -23,6 +51,45 @@ export function makeServer() {
               role: 'ADMIN',
             },
           },
+        };
+      });
+
+      this.get('/stats/me', () => {
+        return {
+          data: mockStats,
+        };
+      });
+
+      this.post('/stats/distribute', (_schema, request) => {
+        const body = JSON.parse(request.requestBody) as {
+          distributions?: Partial<Record<StatKey, number>>;
+        };
+        const distributions = body.distributions ?? {};
+        const nextStats = { ...mockStats.stats };
+        let usedPoints = 0;
+
+        for (const [apiKey, point] of Object.entries(distributions) as Array<
+          [StatKey, number]
+        >) {
+          const statField = statFieldByApiKey[apiKey];
+
+          if (!statField || point <= 0) {
+            continue;
+          }
+
+          nextStats[statField] += point;
+          usedPoints += point;
+        }
+
+        mockStats = {
+          ...mockStats,
+          stats: nextStats,
+          availablePoints: Math.max(mockStats.availablePoints - usedPoints, 0),
+          totalPointsUsed: mockStats.totalPointsUsed + usedPoints,
+        };
+
+        return {
+          data: mockStats,
         };
       });
 

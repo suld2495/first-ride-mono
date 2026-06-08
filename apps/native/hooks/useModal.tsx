@@ -11,6 +11,7 @@ import RequestModal from '@/components/modal/request-modal';
 import RoutineDetailModal from '@/components/modal/routine-detail-modal';
 import RoutineFormModal from '@/components/modal/routine-form-modal';
 import RoutineReorderModal from '@/components/modal/routine-reorder-modal';
+import StatModal from '@/components/modal/stat-modal';
 import TermsPolicyModal from '@/components/modal/terms-policy-modal';
 import ThemeModal from '@/components/modal/theme-modal';
 
@@ -28,6 +29,7 @@ export type ModalType =
   | 'request-detail'
   | 'friend-request-list'
   | 'friend-routines'
+  | 'stat'
   | 'policies'
   | 'privacy'
   | 'theme';
@@ -85,6 +87,8 @@ export const useModal = (
           headerTransparent: true,
         },
       ];
+    case 'stat':
+      return ['스탯', StatModal, { contentPadding: false }];
     case 'policies':
       return ['약관 및 정책', TermsPolicyModal, {}];
     case 'privacy':
