@@ -2,7 +2,12 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
 import { useCallback } from 'react';
-import { Pressable, View } from 'react-native';
+import {
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  Pressable,
+  View,
+} from 'react-native';
 
 import { RoutineCheckmarkIcon } from '@/components/icons/routine-icons';
 import { RoutineContextMenuTrigger } from '@/components/routine/routine-context-menu';
@@ -24,6 +29,7 @@ interface RoutineCountListProps {
   onRequestRoutine: (routine: Routine) => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
+  onScrollOffsetChange?: (scrollOffset: number) => void;
   readOnly?: boolean;
 }
 
@@ -52,6 +58,7 @@ const RoutineCountList = ({
   onRequestRoutine,
   openMenuRoutineId,
   onToggleRoutineMenu,
+  onScrollOffsetChange,
   readOnly = false,
 }: RoutineCountListProps) => {
   const { theme } = useAppTheme();
@@ -62,6 +69,12 @@ const RoutineCountList = ({
       index,
     }),
     [itemHeight],
+  );
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      onScrollOffsetChange?.(event.nativeEvent.contentOffset.y);
+    },
+    [onScrollOffsetChange],
   );
 
   const renderRoutineItem = useCallback<ListRenderItem<Routine>>(
@@ -234,7 +247,9 @@ const RoutineCountList = ({
       removeClippedSubviews={true}
       refreshing={refreshing}
       onRefresh={onRefresh}
+      onScroll={handleScroll}
       scrollEnabled={scrollEnabled}
+      scrollEventThrottle={16}
       showsVerticalScrollIndicator={false}
       testID={testID}
     />

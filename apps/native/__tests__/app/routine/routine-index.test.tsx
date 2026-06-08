@@ -1441,9 +1441,7 @@ describe('루틴 조회 페이지', () => {
 
       it('컨텍스트 메뉴가 열린 상태에서 다른 루틴 메뉴 버튼을 누르면 해당 메뉴로 전환한다', async () => {
         mockAxios.resetHandlers();
-        mockAxios
-          .onGet(/\/routine\/confirm\/list/)
-          .reply(200, { data: [] });
+        mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(2),
         });
@@ -1581,6 +1579,39 @@ describe('루틴 조회 페이지', () => {
         expect(flattenStyles(menuTexts[4].props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ color: palette.theme.red[50] }),
+          ]),
+        );
+      });
+
+      it('스크롤 후 루틴 메뉴 버튼을 클릭하면 보이는 위치에 컨텍스트 메뉴를 표시한다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(5),
+        });
+
+        const { findByLabelText, findByText, findByTestId, getByTestId } =
+          render(<Index />);
+
+        await findByText('테스트 루틴 1');
+
+        fireEvent.press(getByTestId('routine-scroll-indicator'));
+        fireEvent.scroll(getByTestId('routine-list-scroll'), {
+          nativeEvent: {
+            contentOffset: { y: ROUTINE_ITEM_HEIGHT * 2 },
+            contentSize: { height: ROUTINE_ITEM_HEIGHT * 5, width: 360 },
+            layoutMeasurement: { height: ROUTINE_ITEM_HEIGHT * 4, width: 360 },
+          },
+        });
+        fireEvent.press(await findByLabelText('테스트 루틴 5 메뉴 열기'));
+
+        const menu = await findByTestId('routine-context-menu-5');
+
+        expect(flattenStyles(menu.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              top: ROUTINE_ITEM_HEIGHT * 2 + 15,
+            }),
           ]),
         );
       });

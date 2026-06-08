@@ -86,6 +86,7 @@ const RoutineList = ({
     null,
   );
   const [containerWidth, setContainerWidth] = useState(0);
+  const [routineListScrollOffset, setRoutineListScrollOffset] = useState(0);
   const overlayOpacity = useRef(new Animated.Value(1)).current;
   const nickname = user?.nickname || '';
   const updatePause = useUpdateRoutinePauseMutation(nickname);
@@ -127,6 +128,7 @@ const RoutineList = ({
   useEffect(() => {
     setIsExpanded(false);
     setOpenMenuRoutineId(null);
+    setRoutineListScrollOffset(0);
     overlayOpacity.setValue(1);
   }, [date, overlayOpacity, routines.length]);
 
@@ -265,6 +267,13 @@ const RoutineList = ({
     );
   }, []);
 
+  const handleRoutineListScrollOffsetChange = useCallback(
+    (scrollOffset: number) => {
+      setRoutineListScrollOffset(Math.max(scrollOffset, 0));
+    },
+    [],
+  );
+
   const handleContainerLayout = useCallback((event: LayoutChangeEvent) => {
     setContainerWidth(event.nativeEvent.layout.width);
   }, []);
@@ -273,11 +282,12 @@ const RoutineList = ({
     (event: GestureResponderEvent) => {
       const { locationX, locationY } = event.nativeEvent;
       const triggerRoutineIndex = routines.findIndex((_, index) => {
-        const triggerTop = index * routineItemHeight;
+        const triggerTop = index * routineItemHeight - routineListScrollOffset;
 
         return (
           containerWidth > 0 &&
-          locationX >= containerWidth - ROUTINE_CONTEXT_MENU_TRIGGER_HIT_WIDTH &&
+          locationX >=
+            containerWidth - ROUTINE_CONTEXT_MENU_TRIGGER_HIT_WIDTH &&
           locationX <= containerWidth &&
           locationY >= triggerTop &&
           locationY <= triggerTop + ROUTINE_CONTEXT_MENU_TRIGGER_HIT_HEIGHT
@@ -291,7 +301,13 @@ const RoutineList = ({
 
       setOpenMenuRoutineId(null);
     },
-    [containerWidth, handleToggleRoutineMenu, routineItemHeight, routines],
+    [
+      containerWidth,
+      handleToggleRoutineMenu,
+      routineItemHeight,
+      routineListScrollOffset,
+      routines,
+    ],
   );
 
   return (
@@ -321,6 +337,7 @@ const RoutineList = ({
               onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
+              onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
               testID="routine-list-scroll"
             />
@@ -337,6 +354,7 @@ const RoutineList = ({
               onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
+              onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
               testID="routine-list-scroll"
             />
@@ -391,7 +409,8 @@ const RoutineList = ({
             style={{
               top:
                 openMenuRoutineIndex * routineItemHeight +
-                ROUTINE_CONTEXT_MENU_TOP_OFFSET,
+                ROUTINE_CONTEXT_MENU_TOP_OFFSET -
+                routineListScrollOffset,
             }}
           />
         </>

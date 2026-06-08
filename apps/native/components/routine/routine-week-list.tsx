@@ -1,14 +1,19 @@
 import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
 import type { Routine } from '@repo/types';
 import { useCallback, useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import {
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  Pressable,
+  View,
+} from 'react-native';
+
 import { RoutineCheckmarkIcon } from '@/components/icons/routine-icons';
 import { RoutineContextMenuTrigger } from '@/components/routine/routine-context-menu';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
-
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
 interface RoutineWeekListProps {
   routines: Routine[];
@@ -23,6 +28,7 @@ interface RoutineWeekListProps {
   onRequestRoutine: (routine: Routine) => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
+  onScrollOffsetChange?: (scrollOffset: number) => void;
   readOnly?: boolean;
 }
 
@@ -70,6 +76,7 @@ const RoutineWeekList = ({
   onRequestRoutine,
   openMenuRoutineId,
   onToggleRoutineMenu,
+  onScrollOffsetChange,
   readOnly = false,
 }: RoutineWeekListProps) => {
   const { theme } = useAppTheme();
@@ -83,6 +90,12 @@ const RoutineWeekList = ({
       index,
     }),
     [itemHeight],
+  );
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      onScrollOffsetChange?.(event.nativeEvent.contentOffset.y);
+    },
+    [onScrollOffsetChange],
   );
 
   const renderRoutineItem = useCallback<ListRenderItem<Routine>>(
@@ -257,7 +270,9 @@ const RoutineWeekList = ({
       removeClippedSubviews={true}
       refreshing={refreshing}
       onRefresh={onRefresh}
+      onScroll={handleScroll}
       scrollEnabled={scrollEnabled}
+      scrollEventThrottle={16}
       showsVerticalScrollIndicator={false}
       testID={testID}
     />
