@@ -14,6 +14,7 @@ const TAB_BAR_TOP_PADDING = 0;
 const TAB_ROUTE_NAMES = new Set([
   '(afterLogin)/(routine)/index',
   '(afterLogin)/(quest)/index',
+  '(afterLogin)/(ranking)/index',
   '(afterLogin)/(friend)/index',
   '(afterLogin)/my-info',
 ]);

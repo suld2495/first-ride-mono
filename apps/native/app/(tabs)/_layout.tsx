@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 
+import { RankingTabIcon } from '@/components/icons/ranking-tab-icon';
 import {
   FriendTabIcon,
   HomeTabIcon,
@@ -13,6 +14,7 @@ import { baseFoundation } from '@/theme/tokens';
 const TAB_BAR_ICONS = {
   home: HomeTabIcon,
   quest: QuestTabIcon,
+  ranking: RankingTabIcon,
   friend: FriendTabIcon,
   settings: ProfileTabIcon,
 } as const;
@@ -57,6 +59,15 @@ export default function TabLayout() {
           title: '퀘스트',
           tabBarIcon: ({ color }) => (
             <TabBarIcon icon={TAB_BAR_ICONS.quest} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(afterLogin)/(ranking)/index"
+        options={{
+          title: '랭킹',
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon icon={TAB_BAR_ICONS.ranking} color={color} />
           ),
         }}
       />
