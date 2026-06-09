@@ -418,7 +418,34 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       await waitFor(
         () => {
-          const addButton = getByText('추가');
+          const addButton = getByText('등록');
+
+          expect(addButton).toBeEnabled();
+        },
+        { timeout: 3000 },
+      );
+    });
+
+    it('벌금 없이 필수값을 입력하면 추가 버튼이 활성화된다', async () => {
+      const { getByLabelText, getByPlaceholderText, getByText } = render(
+        <RoutineFormModal />,
+      );
+
+      await waitFor(() => {
+        expect(mockAxios.history.get.length).toBeGreaterThan(0);
+      });
+
+      await fillForm(getByPlaceholderText, getByText, {
+        routineName: '테스트 루틴',
+        routineDetail: '테스트 설명',
+        routineCount: 3,
+      });
+
+      await selectStartDate(getByText, getByLabelText);
+
+      await waitFor(
+        () => {
+          const addButton = getByText('등록');
 
           expect(addButton).toBeEnabled();
         },
@@ -504,6 +531,38 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith('루틴이 생성되었습니다.');
           expect(mockBack).toHaveBeenCalled();
+        });
+      });
+
+      it('벌금을 입력하지 않으면 0원으로 생성 요청을 보낸다', async () => {
+        const { getByLabelText, getByPlaceholderText, getByText } = render(
+          <RoutineFormModal />,
+        );
+
+        await waitFor(() => {
+          expect(mockAxios.history.get.length).toBeGreaterThan(0);
+        });
+
+        await fillForm(getByPlaceholderText, getByText, {
+          routineName: '테스트 루틴',
+          routineDetail: '테스트 설명',
+          routineCount: 3,
+        });
+
+        await selectStartDate(getByText, getByLabelText);
+
+        await waitFor(() => {
+          expect(getByText('등록')).toBeEnabled();
+        });
+
+        await act(async () => {
+          fireEvent.press(getByText('등록'));
+        });
+
+        await waitFor(() => {
+          const payload = JSON.parse(mockAxios.history.post[0]?.data ?? '{}');
+
+          expect(payload.penalty).toBe(0);
         });
       });
     });

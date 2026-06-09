@@ -21,8 +21,8 @@ export const routineFormValidators: Validators<InternalFormType> = {
     }
   },
   penalty(value) {
-    if (!value) {
-      return '벌금을 입력해주세요.';
+    if (value === '' || typeof value === 'undefined') {
+      return undefined;
     }
 
     const penalty = Number(value) || 0;

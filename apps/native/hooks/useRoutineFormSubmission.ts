@@ -24,6 +24,14 @@ type RoutineStatusSubmitForm = RoutineForm & {
   paused?: boolean;
 };
 
+const normalizePenalty = (penalty: RoutineForm['penalty'] | string): number => {
+  if (penalty === '') {
+    return 0;
+  }
+
+  return Number(penalty) || 0;
+};
+
 const normalizeRoutineSubmitForm = (
   data: RoutineStatusSubmitForm,
   nickname: string,
@@ -34,7 +42,7 @@ const normalizeRoutineSubmitForm = (
     startDate: data.startDate,
     endDate: data.endDate,
     routineDetail: data.routineDetail,
-    penalty: data.penalty,
+    penalty: normalizePenalty(data.penalty),
     routineCount: data.routineCount,
     isMe: data.isMe,
   };
