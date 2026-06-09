@@ -1,66 +1,250 @@
-import { fireEvent } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import axiosInstance from '@repo/shared/api';
+import { fireEvent, waitFor } from '@testing-library/react-native';
+import MockAdapter from 'axios-mock-adapter';
+import { processColor, StyleSheet } from 'react-native';
 
 import InquiryPage from '../../app/inquiry';
 import NotificationSettingsPage from '../../app/notification-settings';
 import RoutineSettingsPage from '../../app/routine-settings';
 import { palette } from '../../theme/tokens';
-import { render } from '../setup/test-utils';
+import { render, resetAuthMocks } from '../setup/auth-test-utils';
+import { createMockRoutine } from '../setup/routine/mock';
 
 declare const mockBack: jest.Mock;
 declare const mockPush: jest.Mock;
 
 describe('설정 하위 페이지', () => {
+  let mockAxios: MockAdapter;
+
   beforeEach(() => {
-    mockBack.mockClear();
-    mockPush.mockClear();
+    resetAuthMocks();
+    mockAxios = new MockAdapter(axiosInstance);
+    mockAxios.onGet('/routine/list/all').reply(200, { data: [] });
+  });
+
+  afterEach(() => {
+    mockAxios.restore();
   });
 
   it.each([
-    ['루틴 설정', <RoutineSettingsPage />],
+    ['전체 루틴 목록', <RoutineSettingsPage />],
     ['알림 설정', <NotificationSettingsPage />],
     ['문의', <InquiryPage />],
-  ])('%s 페이지는 상단 타이틀과 뒤로가기를 표시한다', (title, page) => {
-    const { getByLabelText, getByText } = render(page);
+  ])('%s 페이지는 상단 타이틀과 뒤로가기를 표시한다', async (title, page) => {
+    const { getByLabelText, getByTestId, getByText } = render(page);
 
     expect(getByText(title)).toBeOnTheScreen();
+
+    if (title === '전체 루틴 목록') {
+      await waitFor(() => {
+        expect(getByTestId('routine-settings-routine-list')).toBeOnTheScreen();
+      });
+    }
 
     fireEvent.press(getByLabelText('뒤로가기'));
 
     expect(mockBack).toHaveBeenCalledTimes(1);
   });
 
-  it('루틴 설정 페이지는 헤더 아래 12px 여백과 숨긴 루틴 링크를 표시한다', () => {
-    const { getByTestId, getByText } = render(<RoutineSettingsPage />);
+  it('전체 루틴 목록 페이지는 필터와 루틴 목록을 즉시 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/routine/list/all').reply(200, {
+      data: [
+        { ...createMockRoutine(0), routineName: '물 마시기' },
+        {
+          ...createMockRoutine(1, { paused: true }),
+          routineName: '책 읽기',
+        },
+        {
+          ...createMockRoutine(2, { hidden: true }),
+          routineName: '명상하기',
+        },
+        {
+          ...createMockRoutine(5, { hidden: true, paused: true }),
+          routineName: '숨김 일시정지 루틴',
+        },
+        {
+          ...createMockRoutine(3, {
+            weeklyCount: 5,
+            routineCount: 5,
+          }),
+          routineName: '목표 달성 루틴',
+        },
+        {
+          ...createMockRoutine(4, {
+            endDate: '2000-01-01',
+          }),
+          routineName: '종료된 루틴',
+        },
+      ],
+    });
+
+    const {
+      findByText,
+      getAllByTestId,
+      getByTestId,
+      getByText,
+      queryByTestId,
+      queryByText,
+    } = render(<RoutineSettingsPage />);
     const contentStyle = StyleSheet.flatten(
       getByTestId('routine-settings-content').props.style,
     );
-    const menuItemStyle = StyleSheet.flatten(
-      getByTestId('routine-settings-hidden-routines-item').props.style,
+    const filterAreaStyle = StyleSheet.flatten(
+      getByTestId('routine-settings-filter-area').props.style,
     );
-    const menuText = getByText('숨긴 루틴 모아보기');
-    const menuTextStyle = StyleSheet.flatten(menuText.props.style);
+    const statusFiltersStyle = StyleSheet.flatten(
+      getByTestId('routine-settings-status-filters').props.style,
+    );
+    const activeStatusFilterStyle = StyleSheet.flatten(
+      getByTestId('routine-status-filter-active').props.style,
+    );
+    const optionFiltersStyle = StyleSheet.flatten(
+      getByTestId('routine-settings-option-filters').props.style,
+    );
+    const pausedCheckboxStyle = StyleSheet.flatten(
+      getByTestId('routine-settings-paused-checkbox').props.style,
+    );
+    const activeStatusFilterText = getByText('진행 중');
+    const pausedCheckboxLabel = getByTestId(
+      'routine-settings-paused-checkbox-label',
+    );
 
     expect(contentStyle).toEqual(
+      expect.objectContaining({
+        backgroundColor: palette.theme.blue[20],
+      }),
+    );
+    expect(filterAreaStyle).toEqual(
       expect.objectContaining({
         paddingTop: 12,
       }),
     );
-    expect(menuItemStyle).toEqual(
+    expect(statusFiltersStyle).toEqual(
       expect.objectContaining({
-        height: 44,
+        gap: 4,
       }),
     );
-    expect(menuText.props.fontSize).toBe('$body2');
-    expect(menuText.props.fontWeight).toBe('600');
-    expect(menuTextStyle).toEqual(
+    expect(activeStatusFilterStyle).toEqual(
       expect.objectContaining({
-        color: palette.theme.gray[60],
+        height: 32,
+        paddingHorizontal: 12,
+        backgroundColor: palette.theme.gray[90],
+      }),
+    );
+    expect(activeStatusFilterText.props.fontSize).toBe('$body3');
+    expect(activeStatusFilterText.props.fontWeight).toBe('600');
+    expect(optionFiltersStyle).toEqual(
+      expect.objectContaining({
+        gap: 12,
+        marginTop: 10,
+        marginBottom: 6,
+      }),
+    );
+    expect(pausedCheckboxStyle).toEqual(
+      expect.objectContaining({
+        gap: 6,
+      }),
+    );
+    expect(pausedCheckboxLabel.props.fontSize).toBe('$body3');
+    expect(StyleSheet.flatten(pausedCheckboxLabel.props.style)).toEqual(
+      expect.objectContaining({
+        color: palette.theme.blue[90],
       }),
     );
 
-    fireEvent.press(getByTestId('routine-settings-hidden-routines-item'));
+    expect(await findByText('물 마시기')).toBeOnTheScreen();
+    expect(await findByText('책 읽기')).toBeOnTheScreen();
+    expect(await findByText('명상하기')).toBeOnTheScreen();
+    expect(await findByText('목표 달성 루틴')).toBeOnTheScreen();
+    expect(queryByText('종료된 루틴')).toBeNull();
+    const firstRoutineRowStyle = StyleSheet.flatten(
+      getByTestId('routine-settings-routine-row-1').props.style,
+    );
+    const firstRoutineText = getByText('물 마시기');
+    const firstRoutineIconPath = getByTestId(
+      'routine-settings-routine-icon-path-1-middle',
+      { includeHiddenElements: true },
+    );
+    const bothStatusIconsStyle = StyleSheet.flatten(
+      getByTestId('routine-settings-routine-status-icons-6').props.style,
+    );
+    const menuTriggerStyle = StyleSheet.flatten(
+      getByTestId('routine-settings-routine-menu-trigger-1').props.style,
+    );
 
-    expect(mockPush).toHaveBeenCalledWith('/modal?type=hidden-routines');
+    expect(firstRoutineRowStyle).toEqual(
+      expect.objectContaining({
+        paddingVertical: 10,
+      }),
+    );
+    expect(firstRoutineText.props.fontSize).toBe('$body2');
+    expect(StyleSheet.flatten(firstRoutineText.props.style)).toEqual(
+      expect.objectContaining({
+        color: palette.theme.gray[90],
+      }),
+    );
+    expect(firstRoutineIconPath.props.stroke).toEqual(
+      expect.objectContaining({
+        payload: processColor(palette.theme.softBlue[40]),
+      }),
+    );
+    expect(
+      getByTestId('routine-settings-routine-hidden-icon-3'),
+    ).toBeOnTheScreen();
+    expect(
+      getByTestId('routine-settings-routine-paused-icon-2'),
+    ).toBeOnTheScreen();
+    expect(
+      getByTestId('routine-settings-routine-hidden-icon-6'),
+    ).toBeOnTheScreen();
+    expect(
+      getByTestId('routine-settings-routine-paused-icon-6'),
+    ).toBeOnTheScreen();
+    expect(queryByTestId('routine-settings-routine-hidden-icon-1')).toBeNull();
+    expect(queryByTestId('routine-settings-routine-paused-icon-1')).toBeNull();
+    expect(bothStatusIconsStyle).toEqual(
+      expect.objectContaining({
+        gap: 8,
+      }),
+    );
+    expect(menuTriggerStyle).toEqual(
+      expect.objectContaining({
+        width: 24,
+        height: 24,
+        marginLeft: 4,
+      }),
+    );
+    fireEvent.press(getByTestId('routine-settings-routine-menu-trigger-1'));
+
+    expect(getByTestId('routine-context-menu-1')).toBeOnTheScreen();
+    expect(
+      getAllByTestId('routine-context-menu-item-text').map(
+        (item) => item.props.children,
+      ),
+    ).toEqual(['수정', '숨김', '일시정지', '삭제']);
+    expect(getByTestId('routine-context-menu-1')).toHaveStyle({
+      width: 144,
+    });
+    expect(queryByTestId('routine-context-menu-backdrop')).toBeOnTheScreen();
+    expect(getByTestId('routine-status-filter-active')).toBeOnTheScreen();
+    expect(getByTestId('routine-status-filter-done')).toBeOnTheScreen();
+    expect(getByTestId('routine-status-filter-upcoming')).toBeOnTheScreen();
+    expect(getByTestId('routine-settings-paused-checkbox')).toBeOnTheScreen();
+    expect(getByTestId('routine-settings-hidden-checkbox')).toBeOnTheScreen();
+    expect(queryByTestId('routine-settings-hidden-routines-item')).toBeNull();
+    fireEvent.press(getByTestId('routine-status-filter-done'));
+
+    expect(await findByText('종료된 루틴')).toBeOnTheScreen();
+    expect(queryByText('목표 달성 루틴')).toBeNull();
+
+    await waitFor(() => {
+      expect(
+        mockAxios.history.get.some(
+          (request) => request.url === '/routine/list/all',
+        ),
+      ).toBe(true);
+    });
+    expect(mockPush).not.toHaveBeenCalledWith('/modal?type=hidden-routines');
   });
 });
