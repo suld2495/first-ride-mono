@@ -12,12 +12,14 @@ import { createMockRoutine } from '../setup/routine/mock';
 
 declare const mockBack: jest.Mock;
 declare const mockPush: jest.Mock;
+declare const mockShowToast: jest.Mock;
 
 describe('설정 하위 페이지', () => {
   let mockAxios: MockAdapter;
 
   beforeEach(() => {
     resetAuthMocks();
+    mockShowToast.mockClear();
     mockAxios = new MockAdapter(axiosInstance);
     mockAxios.onGet('/routine/list/all').reply(200, { data: [] });
   });
@@ -246,5 +248,58 @@ describe('설정 하위 페이지', () => {
       ).toBe(true);
     });
     expect(mockPush).not.toHaveBeenCalledWith('/modal?type=hidden-routines');
+  });
+
+  it('문의 페이지는 앱 안에서 작성한 내용을 이메일 문의로 전송한다', async () => {
+    mockAxios.onPost('/inquiry').reply((config) => {
+      expect(JSON.parse(config.data ?? '{}')).toEqual({
+        recipientEmail: 'irura@gmail.com',
+        subject: '이루라 건의사항',
+        replyEmail: 'rider@example.com',
+        title: '로그인이 안돼요',
+        content: '카카오 로그인 버튼을 눌러도 다음 화면으로 넘어가지 않습니다.',
+      });
+
+      return [200, { data: undefined }];
+    });
+
+    const { getByLabelText, getByText } = render(<InquiryPage />);
+
+    fireEvent.changeText(
+      getByLabelText('답변 받을 이메일'),
+      'rider@example.com',
+    );
+    fireEvent.changeText(getByLabelText('문의 제목'), '로그인이 안돼요');
+    fireEvent.changeText(
+      getByLabelText('문의 내용'),
+      '카카오 로그인 버튼을 눌러도 다음 화면으로 넘어가지 않습니다.',
+    );
+    fireEvent.press(getByText('문의 보내기'));
+
+    await waitFor(() => {
+      expect(mockShowToast).toHaveBeenCalledWith(
+        '문의가 접수되었습니다.',
+        'success',
+      );
+    });
+
+    expect(getByLabelText('답변 받을 이메일').props.value).toBe('');
+    expect(getByLabelText('문의 제목').props.value).toBe('');
+    expect(getByLabelText('문의 내용').props.value).toBe('');
+  });
+
+  it('문의 페이지는 올바르지 않은 답변 이메일을 전송하지 않는다', () => {
+    const { getByLabelText, getByText } = render(<InquiryPage />);
+
+    fireEvent.changeText(getByLabelText('답변 받을 이메일'), 'wrong-email');
+    fireEvent.changeText(getByLabelText('문의 제목'), '로그인이 안돼요');
+    fireEvent.changeText(
+      getByLabelText('문의 내용'),
+      '카카오 로그인 버튼을 눌러도 다음 화면으로 넘어가지 않습니다.',
+    );
+    fireEvent.press(getByText('문의 보내기'));
+
+    expect(getByText('올바른 이메일 주소를 입력해주세요.')).toBeOnTheScreen();
+    expect(mockAxios.history.post).toHaveLength(0);
   });
 });
