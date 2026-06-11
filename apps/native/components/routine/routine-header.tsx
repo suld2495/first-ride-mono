@@ -5,6 +5,7 @@ import { View } from 'react-native';
 
 import PageHeader from '@/components/layout/page-header';
 import NotificationBell from '@/components/notification/notification-bell';
+import { Button } from '@/components/ui/button';
 import IconButton from '@/components/ui/icon-button';
 import Link from '@/components/ui/link';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
@@ -18,6 +19,7 @@ const NOTIFICATION_ICON_COLOR = '#0E0E0E';
 interface RoutineHeaderProps {
   date: string;
   getDateHref?: (date: string) => Href;
+  onDateChange?: (date: string) => void;
   onPressReorder?: () => void;
   showNotification?: boolean;
 }
@@ -26,6 +28,7 @@ const RoutineHeader = ({
   date,
   getDateHref = (targetDate) =>
     `/(tabs)/(afterLogin)/(routine)?date=${targetDate}` as Href,
+  onDateChange,
   onPressReorder,
   showNotification = true,
 }: RoutineHeaderProps) => {
@@ -40,25 +43,43 @@ const RoutineHeader = ({
   }. ${currentDate.getDate()} ${
     ['일', '월', '화', '수', '목', '금', '토'][currentDate.getDay()]
   }`;
+  const previousDate = beforeWeek(currentDate);
+  const nextDate = afterWeek(currentDate);
+
+  const renderDateArrow = (
+    targetDate: string,
+    iconName: 'chevron-back' | 'chevron-forward',
+    accessibilityLabel: string,
+  ) => {
+    const leftIcon = () => (
+      <Ionicons
+        name={iconName}
+        size={baseFoundation.iconSize.m}
+        color={theme.colors.text.title}
+      />
+    );
+    const sharedProps = {
+      leftIcon,
+      variant: 'ghost' as const,
+      accessibilityLabel,
+      accessibilityRole: 'button' as const,
+      style: styles.dateArrow,
+    };
+
+    if (onDateChange) {
+      return (
+        <Button {...sharedProps} onPress={() => onDateChange(targetDate)} />
+      );
+    }
+
+    return <Link {...sharedProps} href={getDateHref(targetDate)} />;
+  };
 
   return (
     <PageHeader
       center={
         <View style={styles.dateNavigation}>
-          <Link
-            variant="ghost"
-            href={getDateHref(beforeWeek(currentDate))}
-            leftIcon={() => (
-              <Ionicons
-                name="chevron-back"
-                size={baseFoundation.iconSize.m}
-                color={theme.colors.text.title}
-              />
-            )}
-            accessibilityLabel="이전 주"
-            accessibilityRole="button"
-            style={styles.dateArrow}
-          />
+          {renderDateArrow(previousDate, 'chevron-back', '이전 주')}
           <Typography
             variant="body1"
             weight="semibold"
@@ -66,20 +87,7 @@ const RoutineHeader = ({
           >
             {formattedDate}
           </Typography>
-          <Link
-            variant="ghost"
-            href={getDateHref(afterWeek(currentDate))}
-            leftIcon={() => (
-              <Ionicons
-                name="chevron-forward"
-                size={baseFoundation.iconSize.m}
-                color={theme.colors.text.title}
-              />
-            )}
-            accessibilityLabel="다음 주"
-            accessibilityRole="button"
-            style={styles.dateArrow}
-          />
+          {renderDateArrow(nextDate, 'chevron-forward', '다음 주')}
         </View>
       }
       right={

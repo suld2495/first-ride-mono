@@ -3,12 +3,19 @@ import MockAdapter from 'axios-mock-adapter';
 import { Image, StyleSheet, View } from 'react-native';
 
 import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
+import * as routineSceneArt from '@/components/routine/routine-scene-art';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
 
-import { act, render, resetAuthMocks } from '../../setup/auth-test-utils';
+import {
+  act,
+  fireEvent,
+  render,
+  resetAuthMocks,
+} from '../../setup/auth-test-utils';
 
 declare const mockSearchParams: Record<string, string | undefined>;
+declare const mockPush: jest.Mock;
 
 let mockAxios: MockAdapter;
 
@@ -59,6 +66,7 @@ describe('FriendRoutinesModal', () => {
       useColorSchemeStore.getState().clearColorSchemeOverride();
       useColorSchemeStore.getState().setColorScheme('blue');
     });
+    jest.restoreAllMocks();
     mockAxios.restore();
   });
 
@@ -134,5 +142,59 @@ describe('FriendRoutinesModal', () => {
     expect(await screen.findByTestId('routine-count-check-1-1')).toHaveStyle({
       backgroundColor: appThemes.blue.colors.brand.selectedCheckbox,
     });
+  });
+
+  it('날짜를 이동해도 라우터 push 없이 루틴 영역만 갱신한다', async () => {
+    const getRemoteAssetSpy = jest.spyOn(
+      routineSceneArt,
+      'getRoutineSceneRemoteAsset',
+    );
+
+    mockAxios.onGet('/friends/42/profile').reply(
+      200,
+      wrapResponse({
+        friendId: 42,
+        nickname: '혜연',
+        job: '검사',
+        motto: '오늘도 전진',
+        level: 7,
+        characterCode: 'WARRIOR_INTERMEDIATE',
+        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
+        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.png',
+      }),
+    );
+    mockAxios
+      .onGet('/friends/42/routines?date=2026-05-25')
+      .reply(200, wrapResponse(createFriendRoutineResponse()))
+      .onGet('/friends/42/routines?date=2026-06-01')
+      .reply(
+        200,
+        wrapResponse({
+          friend: { id: 42 },
+          routines: [
+            {
+              ...createFriendRoutineResponse().routines[0],
+              routineId: 2,
+              routineName: '휴식하기',
+            },
+          ],
+        }),
+      );
+
+    const screen = render(<FriendRoutinesModal />);
+
+    expect(await screen.findByText('운동 10분 이상')).toBeOnTheScreen();
+    const initialRemoteAssetCallCount = getRemoteAssetSpy.mock.calls.length;
+
+    fireEvent.press(await screen.findByLabelText('다음 주'));
+
+    expect(
+      screen.getByTestId('friend-routine-scene-character'),
+    ).toBeOnTheScreen();
+    expect(await screen.findByText('휴식하기')).toBeOnTheScreen();
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(getRemoteAssetSpy).toHaveBeenCalledTimes(
+      initialRemoteAssetCallCount,
+    );
   });
 });

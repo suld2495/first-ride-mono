@@ -3,9 +3,9 @@ import {
   useFriendRoutinesQuery,
 } from '@repo/shared/hooks/useFriend';
 import { getWeekMonday } from '@repo/shared/utils';
-import type { Href } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useState } from 'react';
+import type { ReactNode } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
 
 import RoutineHeader from '@/components/routine/routine-header';
@@ -15,6 +15,7 @@ import {
   getRoutineSceneBackgroundAsset,
   getRoutineSceneCharacterAsset,
   getRoutineSceneRemoteAsset,
+  type RoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
 import Loading from '@/components/ui/loading';
@@ -30,82 +31,36 @@ import { baseFoundation } from '@/theme/tokens';
 const SPEECH_BUBBLE_BOTTOM_OFFSET =
   baseFoundation.dimension.x100 + baseFoundation.spacing[1];
 
-const FriendRoutinesModal = () => {
-  const {
-    friendId,
-    friendNickname,
-    date: dateParam,
-  } = useLocalSearchParams<{
-    friendId?: string;
-    friendNickname?: string;
-    date?: string;
-  }>();
-  const date = dateParam || getWeekMonday(new Date());
-  const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
+interface FriendRoutineSceneBackgroundProps {
+  backgroundAsset: RoutineSceneAsset;
+}
 
-  const { data, isLoading, isRefetching, refetch, isError } =
-    useFriendRoutinesQuery(friendId, date);
-  const { data: profile, isLoading: isProfileLoading } =
-    useFriendProfileQuery(friendId);
-  const profileThemeName = profile
-    ? getThemeNameFromUserJob(profile)
-    : undefined;
-  const isProfileThemeApplied = useScopedColorSchemeOverride(profileThemeName);
+const FriendRoutineSceneBackground = memo(
+  ({ backgroundAsset }: FriendRoutineSceneBackgroundProps) => (
+    <View style={styles.scene} pointerEvents="none">
+      <View style={styles.backgroundArt}>
+        {renderRoutineSceneAsset(backgroundAsset, {
+          testID: 'friend-routine-scene-background',
+          style: styles.backgroundImage,
+          resizeMode: 'stretch',
+        })}
+      </View>
+    </View>
+  ),
+);
 
-  const handleRoutineListAreaLayout = useCallback(
-    (event: LayoutChangeEvent) => {
-      setRoutineListAreaHeight(event.nativeEvent.layout.height);
-    },
-    [],
-  );
+FriendRoutineSceneBackground.displayName = 'FriendRoutineSceneBackground';
 
-  const handleRefresh = useCallback(
-    () => refetch().then(() => undefined),
-    [refetch],
-  );
+interface FriendRoutineCharacterStageProps {
+  characterAsset: RoutineSceneAsset;
+  speechBubbleMessage: string;
+}
 
-  const getDateHref = useCallback(
-    (targetDate: string) =>
-      `/modal?type=friend-routines&friendId=${friendId}&friendNickname=${encodeURIComponent(
-        friendNickname ?? '',
-      )}&date=${targetDate}` as Href,
-    [friendId, friendNickname],
-  );
-
-  if (!friendId) {
-    return (
-      <EmptyState
-        icon="alert-circle-outline"
-        message="친구 정보를 불러올 수 없습니다."
-      />
-    );
-  }
-
-  if (isLoading || isProfileLoading || !isProfileThemeApplied) {
-    return <Loading />;
-  }
-
-  if (isError || !data) {
-    return (
-      <EmptyState
-        icon="alert-circle-outline"
-        message="친구 루틴을 불러오지 못했습니다."
-      />
-    );
-  }
-
-  const { routines } = data;
-  const hasRoutines = routines.length > 0;
-  const appliedProfileThemeName = profileThemeName ?? 'blue';
-  const profileTheme = appThemes[appliedProfileThemeName];
-  const backgroundAsset =
-    getRoutineSceneRemoteAsset(profile?.backgroundImageUrl) ??
-    getRoutineSceneBackgroundAsset(appliedProfileThemeName);
-  const characterAsset =
-    getRoutineSceneRemoteAsset(profile?.characterImageUrl) ??
-    getRoutineSceneCharacterAsset(appliedProfileThemeName);
-  const speechBubbleMessage = profile?.motto?.trim() || '안녕?';
-  const friendCharacter = (
+const FriendRoutineCharacterStage = memo(
+  ({
+    characterAsset,
+    speechBubbleMessage,
+  }: FriendRoutineCharacterStageProps) => (
     <View style={styles.characterStage}>
       <RoutineCharacter
         asset={characterAsset}
@@ -119,7 +74,148 @@ const FriendRoutinesModal = () => {
         <CharacterSpeechBubble message={speechBubbleMessage} />
       </View>
     </View>
+  ),
+);
+
+FriendRoutineCharacterStage.displayName = 'FriendRoutineCharacterStage';
+
+interface FriendRoutineDateSectionProps {
+  children: ReactNode;
+  friendId: string;
+}
+
+const FriendRoutineDateSection = ({
+  children,
+  friendId,
+}: FriendRoutineDateSectionProps) => {
+  const { date: dateParam } = useLocalSearchParams<{ date?: string }>();
+  const [date, setDate] = useState(
+    () => dateParam || getWeekMonday(new Date()),
   );
+  const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
+  const { data, isLoading, isRefetching, refetch, isError } =
+    useFriendRoutinesQuery(friendId, date);
+
+  const handleRoutineListAreaLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      setRoutineListAreaHeight(event.nativeEvent.layout.height);
+    },
+    [],
+  );
+
+  const handleRefresh = useCallback(
+    () => refetch().then(() => undefined),
+    [refetch],
+  );
+
+  const handleDateChange = useCallback((targetDate: string) => {
+    setDate(targetDate);
+  }, []);
+
+  const routines = data?.routines ?? [];
+  const hasRoutines = routines.length > 0;
+  const showRoutineList = !isLoading && !isError && !!data;
+
+  return (
+    <>
+      <RoutineHeader
+        date={date}
+        onDateChange={handleDateChange}
+        showNotification={false}
+      />
+
+      <View style={styles.content} testID="friend-routine-content">
+        <View
+          style={styles.routineListArea}
+          onLayout={
+            showRoutineList && hasRoutines
+              ? handleRoutineListAreaLayout
+              : undefined
+          }
+          testID={hasRoutines ? 'friend-routine-list-area' : undefined}
+        >
+          {isLoading ? (
+            <Loading />
+          ) : isError || !data ? (
+            <EmptyState
+              icon="alert-circle-outline"
+              message="친구 루틴을 불러오지 못했습니다."
+            />
+          ) : (
+            <RoutineList
+              routines={routines}
+              date={date}
+              listAreaHeight={
+                hasRoutines ? routineListAreaHeight || undefined : undefined
+              }
+              refreshing={isRefetching}
+              onRefresh={handleRefresh}
+              readOnly
+            />
+          )}
+        </View>
+        {children}
+      </View>
+    </>
+  );
+};
+
+const FriendRoutinesModal = () => {
+  const { friendId } = useLocalSearchParams<{
+    friendId?: string;
+  }>();
+  const { data: profile, isLoading: isProfileLoading } =
+    useFriendProfileQuery(friendId);
+  const profileThemeName = profile
+    ? getThemeNameFromUserJob(profile)
+    : undefined;
+  const isProfileThemeApplied = useScopedColorSchemeOverride(profileThemeName);
+  const appliedProfileThemeName = profileThemeName ?? 'blue';
+  const hasProfile = !!profile;
+  const backgroundImageUrl = profile?.backgroundImageUrl;
+  const characterImageUrl = profile?.characterImageUrl;
+  const backgroundAsset = useMemo(() => {
+    const defaultBackgroundAsset = getRoutineSceneBackgroundAsset(
+      appliedProfileThemeName,
+    );
+
+    if (!hasProfile) {
+      return defaultBackgroundAsset;
+    }
+
+    return (
+      getRoutineSceneRemoteAsset(backgroundImageUrl) ?? defaultBackgroundAsset
+    );
+  }, [appliedProfileThemeName, backgroundImageUrl, hasProfile]);
+  const characterAsset = useMemo(() => {
+    const defaultCharacterAsset = getRoutineSceneCharacterAsset(
+      appliedProfileThemeName,
+    );
+
+    if (!hasProfile) {
+      return defaultCharacterAsset;
+    }
+
+    return (
+      getRoutineSceneRemoteAsset(characterImageUrl) ?? defaultCharacterAsset
+    );
+  }, [appliedProfileThemeName, characterImageUrl, hasProfile]);
+  const speechBubbleMessage = profile?.motto?.trim() || '안녕?';
+
+  if (!friendId) {
+    return (
+      <EmptyState
+        icon="alert-circle-outline"
+        message="친구 정보를 불러올 수 없습니다."
+      />
+    );
+  }
+
+  if (isProfileLoading || !isProfileThemeApplied) {
+    return <Loading />;
+  }
+
+  const profileTheme = appThemes[appliedProfileThemeName];
 
   return (
     <ThemeView
@@ -128,56 +224,16 @@ const FriendRoutinesModal = () => {
         { backgroundColor: profileTheme.colors.brand.secondary },
       ]}
     >
-      <View style={styles.scene} pointerEvents="none">
-        <View style={styles.backgroundArt}>
-          {renderRoutineSceneAsset(backgroundAsset, {
-            testID: 'friend-routine-scene-background',
-            style: styles.backgroundImage,
-            resizeMode: 'stretch',
-          })}
+      <FriendRoutineSceneBackground backgroundAsset={backgroundAsset} />
+
+      <FriendRoutineDateSection friendId={friendId}>
+        <View style={styles.routineCharacterArea}>
+          <FriendRoutineCharacterStage
+            characterAsset={characterAsset}
+            speechBubbleMessage={speechBubbleMessage}
+          />
         </View>
-      </View>
-
-      <RoutineHeader
-        date={date}
-        getDateHref={getDateHref}
-        showNotification={false}
-      />
-
-      <View style={styles.content} testID="friend-routine-content">
-        {hasRoutines ? (
-          <>
-            <View
-              style={styles.routineListArea}
-              onLayout={handleRoutineListAreaLayout}
-              testID="friend-routine-list-area"
-            >
-              <RoutineList
-                routines={routines}
-                date={date}
-                listAreaHeight={routineListAreaHeight || undefined}
-                refreshing={isRefetching}
-                onRefresh={handleRefresh}
-                readOnly
-              />
-            </View>
-            <View style={styles.routineCharacterArea}>{friendCharacter}</View>
-          </>
-        ) : (
-          <>
-            <View style={styles.routineListArea}>
-              <RoutineList
-                routines={routines}
-                date={date}
-                refreshing={isRefetching}
-                onRefresh={handleRefresh}
-                readOnly
-              />
-            </View>
-            <View style={styles.routineCharacterArea}>{friendCharacter}</View>
-          </>
-        )}
-      </View>
+      </FriendRoutineDateSection>
     </ThemeView>
   );
 };
