@@ -77,14 +77,14 @@ const QuestDetailModal = () => {
     endDate,
     isAccepted,
     isCompleted,
-    currentVerificationCount,
+    successCount,
     verificationTargetCount,
   } = detail;
 
   const isFull = currentParticipants === maxParticipants;
   const isExpired = new Date(endDate).getTime() < Date.now();
   const isActionDisabled = isExpired || isCompleted || isFull || isPending;
-  const currentCount = currentVerificationCount ?? 0;
+  const currentCount = successCount ?? 0;
   const targetCount = Math.max(verificationTargetCount ?? 1, 1);
   const progressPercent = getProgressPercent(currentCount, targetCount);
   const rewardButtonBackgroundColor = isActionDisabled

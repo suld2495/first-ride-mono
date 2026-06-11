@@ -39,13 +39,8 @@ const getProgressPercent = (current: number, target: number) => {
 };
 
 const QuestItem = ({ quest, onClick }: QuestItemProps) => {
-  const {
-    currentVerificationCount,
-    endDate,
-    questName,
-    verificationTargetCount,
-  } = quest;
-  const currentCount = currentVerificationCount ?? 0;
+  const { endDate, questName, successCount, verificationTargetCount } = quest;
+  const currentCount = successCount ?? 0;
   const targetCount = Math.max(verificationTargetCount ?? 1, 1);
   const progressPercent = getProgressPercent(currentCount, targetCount);
 

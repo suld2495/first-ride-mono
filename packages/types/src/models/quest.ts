@@ -25,7 +25,7 @@ export interface Quest {
   myRank: number;
   status: QuestStatus;
   verificationType: VerificationType;
-  currentVerificationCount?: number;
+  successCount?: number;
   verificationTargetCount: number;
   isAccepted: boolean;
   isCompleted: boolean;
@@ -44,7 +44,7 @@ export interface Reward {
 // 폼 타입
 export type QuestForm = Omit<
   Quest,
-  'questId' | 'rewardName' | 'createdAt' | 'updatedAt' | 'currentParticipants' | 'currentParticipants' | 'completedCount' | 'myRank' | 'status' | 'isAccepted' | 'isCompleted' | 'currentVerificationCount'
+  'questId' | 'rewardName' | 'createdAt' | 'updatedAt' | 'currentParticipants' | 'currentParticipants' | 'completedCount' | 'myRank' | 'status' | 'isAccepted' | 'isCompleted' | 'successCount'
 >;
 
 export type CreateQuestForm = Omit<QuestForm, 'endDate'>;

@@ -15,7 +15,7 @@ export interface CreateMockQuestOptions {
   maxParticipants?: number;
   currentParticipants?: number;
   verificationType?: Quest['verificationType'];
-  currentVerificationCount?: number;
+  successCount?: number;
   verificationTargetCount?: Quest['verificationTargetCount'];
 }
 
@@ -42,7 +42,7 @@ export const createMockQuest = (
   myRank: 0,
   status: options.status ?? 'ACTIVE',
   verificationType: options.verificationType ?? 'WEEKLY_APP_VISIT',
-  currentVerificationCount: options.currentVerificationCount ?? 0,
+  successCount: options.successCount ?? 0,
   verificationTargetCount: options.verificationTargetCount ?? 1,
   isAccepted: options.isAccepted ?? false,
   isCompleted: options.isCompleted ?? false,

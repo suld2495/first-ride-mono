@@ -8,7 +8,7 @@ import { baseFoundation } from '@/theme/tokens';
 
 interface QuestInfoProps {
   verificationType: VerificationType;
-  currentVerificationCount: number;
+  successCount: number;
   verificationTargetCount: number;
 }
 
@@ -56,7 +56,7 @@ const DEFAULT_VERIFICATION_CONTENT = {
 
 const QuestInfo = ({
   verificationType,
-  currentVerificationCount,
+  successCount,
   verificationTargetCount,
 }: QuestInfoProps) => {
   const { theme } = useAppTheme();
@@ -64,13 +64,10 @@ const QuestInfo = ({
     VERIFICATION_CONTENT[verificationType] ?? DEFAULT_VERIFICATION_CONTENT;
   const verificationProgress =
     verificationTargetCount > 0
-      ? Math.min(
-          (currentVerificationCount / verificationTargetCount) * 100,
-          100,
-        )
+      ? Math.min((successCount / verificationTargetCount) * 100, 100)
       : 0;
   const verificationProgressLabel = `${Math.round(verificationProgress)}%`;
-  const verificationCountLabel = `${currentVerificationCount}회 / ${verificationTargetCount}회`;
+  const verificationCountLabel = `${successCount}회 / ${verificationTargetCount}회`;
   const verificationColor =
     verificationInfo.colorKey === 'success'
       ? theme.colors.feedback.success.text

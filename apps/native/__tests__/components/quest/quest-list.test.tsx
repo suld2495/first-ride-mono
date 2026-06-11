@@ -76,9 +76,10 @@ describe('QuestList', () => {
     const quest = createMockQuest(0, {
       description: '기존 설명은 숨겨져야 합니다.',
       endDate: '2026-06-03T00:00:00.000Z',
-      currentVerificationCount: 2,
+      successCount: 2,
       verificationTargetCount: 7,
     });
+
     const screen = render(
       <QuestList quests={[quest]} onClickItem={jest.fn()} />,
     );
@@ -165,12 +166,25 @@ describe('QuestList', () => {
     });
   });
 
+  it('uses successCount as the current progress count', () => {
+    const quest = createMockQuest(0, {
+      successCount: 2,
+      verificationTargetCount: 7,
+    });
+
+    const screen = render(
+      <QuestList quests={[quest]} onClickItem={jest.fn()} />,
+    );
+
+    expect(screen.getByText('2/7')).toBeOnTheScreen();
+  });
+
   it('uses 1 as the minimum progress target count', () => {
     const emptyTargetQuest = createMockQuest(0, {
-      currentVerificationCount: 0,
+      successCount: 0,
     });
     const zeroTargetQuest = createMockQuest(1, {
-      currentVerificationCount: 0,
+      successCount: 0,
       verificationTargetCount: 0,
     });
 

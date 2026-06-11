@@ -118,9 +118,9 @@ describe('QuestDetailModal', () => {
 
   it('이미지 시안 기준의 핵심 구성품을 상세 카드 안에 배치한다', async () => {
     const mockDetail = createMockQuest(0, {
-      currentVerificationCount: 2,
       endDate: '2026-06-18T00:00:00.000Z',
       isAccepted: true,
+      successCount: 2,
       verificationTargetCount: 7,
     });
 
@@ -143,7 +143,7 @@ describe('QuestDetailModal', () => {
 
   it('목표 인증 횟수가 비어 있어도 진행률 분모를 최소 1로 표시한다', async () => {
     const mockDetail = createMockQuest(0, {
-      currentVerificationCount: 0,
+      successCount: 0,
     });
 
     delete (mockDetail as Partial<typeof mockDetail>).verificationTargetCount;
@@ -155,11 +155,24 @@ describe('QuestDetailModal', () => {
     expect(screen.queryByText('0/')).not.toBeOnTheScreen();
   });
 
+  it('현재 진행 횟수로 successCount 를 사용한다', async () => {
+    const mockDetail = createMockQuest(0, {
+      successCount: 2,
+      verificationTargetCount: 7,
+    });
+
+    mockAxios.onGet('/quest/1').reply(200, { data: mockDetail });
+
+    const screen = render(<QuestDetailModal />);
+
+    expect(await screen.findByText('2/7')).toBeOnTheScreen();
+  });
+
   it('상세 콘텐츠의 배치와 기본 스타일 값을 적용한다', async () => {
     const mockDetail = createMockQuest(0, {
-      currentVerificationCount: 2,
       endDate: '2026-06-18T00:00:00.000Z',
       isAccepted: true,
+      successCount: 2,
       verificationTargetCount: 7,
     });
 

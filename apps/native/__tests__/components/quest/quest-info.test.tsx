@@ -8,7 +8,7 @@ describe('QuestInfo', () => {
       title: '앱 방문 진행률',
       currentLabel: '방문 횟수',
       description: '이번 주 앱 방문 횟수를 기준으로 달성 여부를 확인해요.',
-      currentVerificationCount: 2,
+      successCount: 2,
       verificationTargetCount: 7,
       progressLabel: '29%',
       countLabel: '2회 / 7회',
@@ -19,7 +19,7 @@ describe('QuestInfo', () => {
       currentLabel: '리뷰 처리 횟수',
       description:
         '메이트 루틴 인증 요청을 처리한 횟수를 기준으로 달성 여부를 확인해요.',
-      currentVerificationCount: 1,
+      successCount: 1,
       verificationTargetCount: 3,
       progressLabel: '33%',
       countLabel: '1회 / 3회',
@@ -30,7 +30,7 @@ describe('QuestInfo', () => {
       currentLabel: '인증 성공 횟수',
       description:
         '내 루틴 인증이 승인된 횟수를 기준으로 달성 여부를 확인해요.',
-      currentVerificationCount: 4,
+      successCount: 4,
       verificationTargetCount: 5,
       progressLabel: '80%',
       countLabel: '4회 / 5회',
@@ -41,7 +41,7 @@ describe('QuestInfo', () => {
       verificationType,
       title,
       description,
-      currentVerificationCount,
+      successCount,
       verificationTargetCount,
       progressLabel,
       countLabel,
@@ -49,7 +49,7 @@ describe('QuestInfo', () => {
       const { getByText } = render(
         <QuestInfo
           verificationType={verificationType}
-          currentVerificationCount={currentVerificationCount}
+          successCount={successCount}
           verificationTargetCount={verificationTargetCount}
         />,
       );
@@ -65,7 +65,7 @@ describe('QuestInfo', () => {
     const { getByText } = render(
       <QuestInfo
         verificationType={undefined as never}
-        currentVerificationCount={2}
+        successCount={2}
         verificationTargetCount={7}
       />,
     );
@@ -82,7 +82,7 @@ describe('QuestInfo', () => {
     const { queryByText } = render(
       <QuestInfo
         verificationType="WEEKLY_APP_VISIT"
-        currentVerificationCount={2}
+        successCount={2}
         verificationTargetCount={7}
       />,
     );
@@ -98,7 +98,7 @@ describe('QuestInfo', () => {
     const { queryByText } = render(
       <QuestInfo
         verificationType="WEEKLY_APP_VISIT"
-        currentVerificationCount={2}
+        successCount={2}
         verificationTargetCount={7}
       />,
     );
