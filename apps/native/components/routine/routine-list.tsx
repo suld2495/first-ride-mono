@@ -378,6 +378,7 @@ const RoutineList = ({
             onRequest={() => handleShowRequestModal(openMenuRoutine.routineId)}
             onDelete={() => handleDeleteRoutine(openMenuRoutine)}
             showsRequestItem={showsRequestMenuItem}
+            showsStatusItems={false}
             style={{
               top:
                 openMenuRoutineIndex * routineItemHeight +

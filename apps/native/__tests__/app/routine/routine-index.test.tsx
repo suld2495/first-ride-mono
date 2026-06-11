@@ -1523,7 +1523,7 @@ describe('루틴 조회 페이지', () => {
         expect(queryByTestId('routine-context-menu-1')).toBeNull();
       });
 
-      it('컨텍스트 메뉴는 인증요청, 수정, 숨김, 일시정지, 삭제 순으로 표시된다', async () => {
+      it('컨텍스트 메뉴는 인증요청, 수정, 삭제 순으로 표시된다', async () => {
         const { findByLabelText, findAllByTestId } = render(<Index />);
 
         fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
@@ -1533,13 +1533,11 @@ describe('루틴 조회 페이지', () => {
         expect(menuItems.map((item) => item.props.accessibilityLabel)).toEqual([
           '인증요청',
           '수정',
-          '숨김',
-          '일시정지',
           '삭제',
         ]);
       });
 
-      it('숨김 상태 루틴의 컨텍스트 메뉴는 보이기 라벨을 표시한다', async () => {
+      it('숨김 상태 루틴의 컨텍스트 메뉴도 숨김/일시정지 라벨을 표시하지 않는다', async () => {
         mockAxios.resetHandlers();
         mockAxios
           .onGet(/\/routine\/confirm\/list/)
@@ -1557,31 +1555,8 @@ describe('루틴 조회 페이지', () => {
         expect(menuItems.map((item) => item.props.accessibilityLabel)).toEqual([
           '인증요청',
           '수정',
-          '보이기',
-          '일시정지',
           '삭제',
         ]);
-      });
-
-      it('숨김/보이기 클릭 후 컨텍스트 메뉴 라벨을 즉시 변경한다', async () => {
-        mockAxios.onPatch('/routine/1/visibility').reply(200, {
-          data: { message: '변경되었습니다.' },
-        });
-
-        const { findByLabelText } = render(<Index />);
-
-        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
-        fireEvent.press(await findByLabelText('숨김'));
-
-        await waitFor(() => {
-          expect(mockAxios.history.patch[0]?.url).toBe(
-            '/routine/1/visibility',
-          );
-        });
-
-        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
-
-        expect(await findByLabelText('보이기')).toBeOnTheScreen();
       });
 
       it('컨텍스트 메뉴 스타일을 디자인 값으로 표시한다', async () => {
@@ -1633,7 +1608,7 @@ describe('루틴 조회 페이지', () => {
             expect.objectContaining({ color: palette.theme.gray[50] }),
           ]),
         );
-        expect(flattenStyles(menuTexts[4].props.style)).toEqual(
+        expect(flattenStyles(menuTexts[2].props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ color: palette.theme.red[50] }),
           ]),
@@ -1707,8 +1682,6 @@ describe('루틴 조회 페이지', () => {
 
         expect(menuItems.map((item) => item.props.accessibilityLabel)).toEqual([
           '수정',
-          '숨김',
-          '일시정지',
           '삭제',
         ]);
         expect(queryByLabelText('인증요청')).not.toBeOnTheScreen();
