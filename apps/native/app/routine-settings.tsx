@@ -471,6 +471,7 @@ export default function RoutineSettingsPage() {
               <RoutineContextMenuPanel
                 routineId={openMenuRoutine.routineId}
                 isHidden={openMenuRoutine.hidden}
+                isPaused={openMenuRoutine.paused}
                 onEdit={() => handleShowUpdateModal(openMenuRoutine)}
                 onHide={() => handleToggleRoutineVisibility(openMenuRoutine)}
                 onPause={() => handleToggleRoutinePause(openMenuRoutine)}

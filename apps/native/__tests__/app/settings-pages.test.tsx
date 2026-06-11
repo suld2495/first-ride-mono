@@ -229,6 +229,15 @@ describe('설정 하위 페이지', () => {
       width: 144,
     });
     expect(queryByTestId('routine-context-menu-backdrop')).toBeOnTheScreen();
+    fireEvent.press(getByTestId('routine-context-menu-backdrop'));
+    fireEvent.press(getByTestId('routine-settings-routine-menu-trigger-2'));
+
+    expect(
+      getAllByTestId('routine-context-menu-item-text').map(
+        (item) => item.props.children,
+      ),
+    ).toEqual(['수정', '숨김', '시작', '삭제']);
+
     expect(getByTestId('routine-status-filter-active')).toBeOnTheScreen();
     expect(getByTestId('routine-status-filter-done')).toBeOnTheScreen();
     expect(getByTestId('routine-status-filter-upcoming')).toBeOnTheScreen();

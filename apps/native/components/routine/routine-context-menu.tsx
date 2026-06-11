@@ -15,6 +15,7 @@ type RoutineContextMenuProps = {
   routineName: string;
   isOpen: boolean;
   isHidden: boolean;
+  isPaused: boolean;
   iconColor: string;
   onToggle: () => void;
   onEdit: () => void;
@@ -34,6 +35,7 @@ type RoutineContextMenuPanelProps = Pick<
   RoutineContextMenuProps,
   | 'routineId'
   | 'isHidden'
+  | 'isPaused'
   | 'onEdit'
   | 'onHide'
   | 'onPause'
@@ -70,6 +72,7 @@ export const RoutineContextMenuTrigger = ({
 export const RoutineContextMenuPanel = ({
   routineId,
   isHidden,
+  isPaused,
   onEdit,
   onHide,
   onPause,
@@ -82,7 +85,7 @@ export const RoutineContextMenuPanel = ({
     ...(showsRequestItem ? [{ label: '인증요청', onPress: onRequest }] : []),
     { label: '수정', onPress: onEdit },
     { label: isHidden ? '보이기' : '숨김', onPress: onHide },
-    { label: '일시정지', onPress: onPause },
+    { label: isPaused ? '시작' : '일시정지', onPress: onPause },
     { label: '삭제', onPress: onDelete, color: palette.theme.red[50] },
   ];
 
@@ -121,6 +124,7 @@ const RoutineContextMenu = ({
   routineName,
   isOpen,
   isHidden,
+  isPaused,
   iconColor,
   onToggle,
   onEdit,
@@ -140,6 +144,7 @@ const RoutineContextMenu = ({
       <RoutineContextMenuPanel
         routineId={routineId}
         isHidden={isHidden}
+        isPaused={isPaused}
         onEdit={onEdit}
         onHide={onHide}
         onPause={onPause}
