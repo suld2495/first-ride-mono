@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import type { JobOption } from '@repo/types';
 import { Image, Pressable, View } from 'react-native';
 
@@ -15,19 +14,27 @@ interface JobOptionSelectorProps {
   isLoading?: boolean;
 }
 
-const getJobBackgroundStyle = (option: JobOption) => {
-  const normalizedCode =
-    `${option.jobType} ${option.characterCode}`.toUpperCase();
-
-  if (normalizedCode.includes('MAGE') || normalizedCode.includes('RED')) {
-    return styles.optionRed;
+const getJobDisplayName = (option: JobOption) => {
+  if (option.jobType.toUpperCase().includes('WARRIOR')) {
+    return '전사';
   }
 
-  if (normalizedCode.includes('ARCHER') || normalizedCode.includes('GREEN')) {
-    return styles.optionGreen;
+  return option.jobName;
+};
+
+const getVisibleOptions = (options: JobOption[], value: string) => {
+  const selectedIndex = options.findIndex((option) => option.jobName === value);
+
+  if (selectedIndex < 0 || options.length < 3) {
+    return options;
   }
 
-  return styles.optionBlue;
+  const previous =
+    options[(selectedIndex - 1 + options.length) % options.length];
+  const selected = options[selectedIndex];
+  const next = options[(selectedIndex + 1) % options.length];
+
+  return [previous, selected, next];
 };
 
 const JobOptionSelector = ({
@@ -41,51 +48,50 @@ const JobOptionSelector = ({
   const statusText = isLoading
     ? '직업을 불러오는 중입니다.'
     : helperText || undefined;
+  const hasSelection = value.length > 0;
+  const visibleOptions = hasSelection
+    ? getVisibleOptions(options, value)
+    : options;
 
   return (
     <View style={styles.container}>
-      <View style={styles.optionRow}>
-        {options.map((option) => {
+      <View
+        testID="job-option-row"
+        style={[
+          styles.optionRow,
+          hasSelection ? styles.selectedOptionRow : styles.defaultOptionRow,
+        ]}
+      >
+        {visibleOptions.map((option) => {
           const isSelected = option.jobName === value;
+          const displayName = getJobDisplayName(option);
 
           return (
             <Pressable
               key={option.jobType}
-              accessibilityLabel={`${option.jobName} 선택`}
+              accessibilityLabel={`${displayName} 선택`}
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
               onPress={() => onSelect(option.jobName)}
               style={[
                 styles.option,
-                getJobBackgroundStyle(option),
+                hasSelection ? styles.sideOption : styles.defaultOption,
+                isSelected ? styles.centerOption : null,
                 isSelected ? styles.optionSelected : null,
                 error ? styles.optionError : null,
               ]}
             >
-              {isSelected ? (
-                <View
-                  style={styles.selectedBadge}
-                  testID={`job-option-selected-check-${option.jobType}`}
-                  pointerEvents="none"
-                >
-                  <Ionicons
-                    name="checkmark"
-                    size={baseFoundation.iconSize.s}
-                    color={palette.white}
-                  />
-                </View>
-              ) : null}
               <Image
                 source={{ uri: option.imageUrl }}
                 resizeMode="contain"
-                style={styles.image}
+                style={[styles.image, isSelected ? styles.selectedImage : null]}
               />
               <Typography
-                variant="caption1"
+                variant="body2"
                 weight="semibold"
                 style={styles.optionLabel}
               >
-                {option.jobName}
+                {displayName}
               </Typography>
             </Pressable>
           );
@@ -108,66 +114,66 @@ export default JobOptionSelector;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    width: baseFoundation.dimension.x250,
+    width: '100%',
+    alignItems: 'center',
   },
   optionRow: {
+    width: '100%',
     flexDirection: 'row',
-    gap: theme.foundation.spacing[2],
-  },
-  option: {
-    flex: 1,
-    minHeight: baseFoundation.dimension.x96,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: theme.foundation.spacing[2],
-    paddingVertical: theme.foundation.spacing[2],
-    borderWidth: 1,
+    gap: theme.foundation.spacing[3],
+  },
+  selectedOptionRow: {
+    width: '102.5%',
+  },
+  defaultOptionRow: {
+    paddingHorizontal: baseFoundation.dimension.x18,
+  },
+  option: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.foundation.spacing[3],
+    paddingVertical: theme.foundation.spacing[4],
+    borderWidth: 0,
     borderRadius: theme.foundation.radii.s,
-    borderColor: theme.colors.border.default,
-    backgroundColor: theme.colors.background.surface,
+    backgroundColor: palette.theme.blue[5],
     position: 'relative',
+  },
+  defaultOption: {
+    flex: 1,
+    height: 138,
+  },
+  sideOption: {
+    flex: 100,
+    height: 138,
+  },
+  centerOption: {
+    flex: 148,
+    height: 205,
   },
   optionSelected: {
     borderWidth: 3,
-    borderColor: palette.theme.gray[95],
-    shadowColor: palette.theme.gray[95],
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.18,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  optionBlue: {
-    backgroundColor: '#8DB9DC',
-  },
-  optionGreen: {
-    backgroundColor: palette.theme.softGreen[20],
-  },
-  optionRed: {
-    backgroundColor: palette.theme.softRed[10],
+    borderColor: palette.theme.blue[50],
   },
   optionError: {
     borderColor: theme.colors.feedback.error.border,
+    borderWidth: 2,
   },
   image: {
-    width: baseFoundation.dimension.x48,
-    height: baseFoundation.dimension.x48,
+    width: 64,
+    height: 64,
   },
-  selectedBadge: {
-    position: 'absolute',
-    top: theme.foundation.spacing[1],
-    right: theme.foundation.spacing[1],
-    width: baseFoundation.dimension.x20,
-    height: baseFoundation.dimension.x20,
-    borderRadius: baseFoundation.radii.round,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.theme.gray[95],
+  selectedImage: {
+    width: 92,
+    height: 92,
   },
   optionLabel: {
-    marginTop: theme.foundation.spacing[1],
+    marginTop: theme.foundation.spacing[3],
     textAlign: 'center',
+    color: palette.theme.blue[100],
   },
   helperText: {
-    marginTop: theme.foundation.spacing[1],
+    marginTop: theme.foundation.spacing[3],
   },
 }));

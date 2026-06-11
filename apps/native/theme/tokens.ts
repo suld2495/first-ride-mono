@@ -85,6 +85,12 @@ export const palette = {
     },
   },
 
+  tag: {
+    critical: {
+      700: '#CA3E3E',
+    },
+  },
+
   blue: {
     50: '#E3F2FD',
     100: '#BBDEFB',

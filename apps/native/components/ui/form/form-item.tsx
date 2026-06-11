@@ -134,8 +134,9 @@ export function createFormItem<T extends Record<string, unknown>>(
             {field.errors.map((error, index) => (
               <Typography
                 key={`${name as string}-error-${index}`}
-                color="error"
-                variant="caption"
+                variant="caption1"
+                weight="medium"
+                style={styles.errorText}
               >
                 {error}
               </Typography>
@@ -154,6 +155,10 @@ const styles = StyleSheet.create((theme) => ({
 
   required: {
     color: theme.colors.brand.icon,
+  },
+
+  errorText: {
+    color: theme.colors.tag.critical[700],
   },
 
   labelRow: {

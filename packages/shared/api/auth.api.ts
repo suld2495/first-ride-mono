@@ -1,6 +1,9 @@
 import type {
   AuthForm,
   AuthResponse,
+  EmailCheckResponse,
+  EmailVerificationRequestResponse,
+  EmailVerificationStatusResponse,
   JoinForm,
   JobOption,
   LogoutResponse,
@@ -40,6 +43,47 @@ export const join = async (form: JoinForm): Promise<void> => {
     const response: void = await http.post(`${baseURL}/signup`, form);
 
     return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const checkEmailAvailability = async (
+  email: string,
+): Promise<EmailCheckResponse> => {
+  try {
+    return await http.get<EmailCheckResponse, Record<string, string>>(
+      `${baseURL}/email/check`,
+      {
+        params: { email },
+      },
+    );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const requestEmailVerification = async (
+  email: string,
+): Promise<EmailVerificationRequestResponse> => {
+  try {
+    return await http.post<
+      EmailVerificationRequestResponse,
+      { email: string }
+    >(`${baseURL}/email/verification-requests`, { email });
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const confirmEmailVerification = async (
+  email: string,
+): Promise<EmailVerificationStatusResponse> => {
+  try {
+    return await http.post<EmailVerificationStatusResponse, { email: string }>(
+      `${baseURL}/email/verification-confirm`,
+      { email },
+    );
   } catch (error) {
     throw toAppError(error);
   }

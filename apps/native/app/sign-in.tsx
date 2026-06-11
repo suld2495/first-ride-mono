@@ -1,16 +1,15 @@
 import type { AuthForm as AuthFormType } from '@repo/types';
 import { useState } from 'react';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
+import { View } from 'react-native';
 
-import AuthForm from '@/components/auth/auth-form';
+import AuthPage from '@/components/auth/auth-page';
 import { KakaoLoginButton } from '@/components/auth/kakao-login-button';
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { Input } from '@/components/ui/input';
 import Link from '@/components/ui/link';
 import PasswordInput from '@/components/ui/password-input';
-import ThemeView from '@/components/ui/theme-view';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/hooks/useAuth';
 import type { CredentialsParams } from '@/providers/auth/credentials.provider';
@@ -19,7 +18,10 @@ import type {
   SocialProviderType,
 } from '@/providers/auth/types';
 import { AUTH_PROVIDER_NAMES } from '@/providers/auth/types';
+import { baseFoundation, palette } from '@/theme/tokens';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
+
+const FORM_WIDTH = baseFoundation.dimension.x250;
 
 const initial = () => ({
   userId: '',
@@ -118,73 +120,89 @@ export default function SignIn() {
   const isLoading = loadingProvider !== null;
 
   return (
-    <ThemeView style={styles.container}>
-      <AuthForm title="로그인">
-        <Input
-          placeholder="아이디를 입력해주세요."
-          value={form.userId}
-          onChangeText={(value) => handleChange('userId', value)}
-          style={styles.input}
-          error={!!fieldErrors.userId}
-          helperText={fieldErrors.userId}
-        />
-        <PasswordInput
-          width={baseFoundation.dimension.x250}
-          placeholder="비밀번호를 입력해주세요."
-          value={form.password}
-          onChangeText={(value) => handleChange('password', value)}
-          error={!!fieldErrors.password}
-          helperText={fieldErrors.password}
-        />
-        <Button
-          title="로그인"
-          onPress={handleLogin}
-          style={styles.button}
-          loading={loadingProvider === 'credentials'}
-          disabled={isLoading && loadingProvider !== 'credentials'}
-        />
-        <Link
-          href="/sign-up"
-          variant="ghost"
-          title="회원가입"
-          style={styles.link}
-          onPress={() => setForm(initial())}
-        />
+    <AuthPage>
+      <AuthPage.Header title="로그인" style={styles.header} />
 
-        <Divider text="또는" spacing={16} />
+      <AuthPage.Body>
+        <View style={styles.form}>
+          <Input
+            placeholder="아이디를 입력해주세요."
+            value={form.userId}
+            onChangeText={(value) => handleChange('userId', value)}
+            style={styles.input}
+            error={!!fieldErrors.userId}
+            helperText={fieldErrors.userId}
+          />
+          <PasswordInput
+            width={FORM_WIDTH}
+            placeholder="비밀번호를 입력해주세요."
+            value={form.password}
+            onChangeText={(value) => handleChange('password', value)}
+            error={!!fieldErrors.password}
+            helperText={fieldErrors.password}
+          />
+          <Button
+            title="로그인"
+            onPress={handleLogin}
+            style={styles.button}
+            loading={loadingProvider === 'credentials'}
+            disabled={isLoading && loadingProvider !== 'credentials'}
+            fullWidth
+            backgroundColor={palette.theme.blue[50]}
+          />
+          <Link
+            href="/sign-up"
+            variant="ghost"
+            title="회원가입"
+            style={styles.link}
+            onPress={() => setForm(initial())}
+          />
 
-        <KakaoLoginButton
-          onPress={() => handleSocialLogin('kakao')}
-          loading={loadingProvider === 'kakao'}
-          disabled={isLoading && loadingProvider !== 'kakao'}
-          style={styles.kakaoButton}
-        />
-      </AuthForm>
-    </ThemeView>
+          <Divider text="또는" spacing={16} />
+
+          <KakaoLoginButton
+            onPress={() => handleSocialLogin('kakao')}
+            loading={loadingProvider === 'kakao'}
+            disabled={isLoading && loadingProvider !== 'kakao'}
+            style={styles.kakaoButton}
+          />
+        </View>
+      </AuthPage.Body>
+    </AuthPage>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  container: {
-    flex: 1,
-    gap: theme.foundation.spacing[2],
-    justifyContent: 'center',
-    alignItems: 'center',
+  header: {
+    marginTop: baseFoundation.dimension.x120,
+  },
+
+  form: {
+    width: FORM_WIDTH,
+    gap: theme.foundation.spacing[3],
+    marginTop: baseFoundation.dimension.x20,
   },
 
   input: {
-    width: baseFoundation.dimension.x250,
+    width: FORM_WIDTH,
+    borderWidth: 0,
+    borderRadius: theme.foundation.radii.xs,
   },
 
   button: {
     marginTop: theme.foundation.spacing[2],
+    borderRadius: theme.foundation.radii.xs,
+    shadowOpacity: 0,
+    elevation: 0,
   },
 
   link: {
-    alignItems: 'flex-end',
+    width: FORM_WIDTH,
+    shadowOpacity: 0,
+    elevation: 0,
   },
 
   kakaoButton: {
-    width: baseFoundation.dimension.x250,
+    width: FORM_WIDTH,
   },
 }));

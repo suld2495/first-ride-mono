@@ -92,6 +92,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
             <Stack.Screen name="sign-in" options={{ headerShown: false }} />
             <Stack.Screen name="sign-up" options={{ headerShown: false }} />
             <Stack.Screen
+              name="sign-up-email-verification"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="social-sign-up"
               options={{ headerShown: false }}
             />

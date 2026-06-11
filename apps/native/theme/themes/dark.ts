@@ -80,6 +80,11 @@ export const darkTheme: ThemeContract = {
         border: palette.blue[700],
       },
     },
+    tag: {
+      critical: {
+        700: palette.tag.critical[700],
+      },
+    },
     border: {
       default: palette.stitch.dark.border,
       strong: '#475569',

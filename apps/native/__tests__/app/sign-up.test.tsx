@@ -3,12 +3,12 @@ import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
 import SignUp from '../../app/sign-up';
+import { usePendingSignUpStore } from '../../store/pending-sign-up.store';
 import { render } from '../setup/test-utils';
 
-// global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
+declare const mockReplace: jest.Mock;
 
-// axios mock adapter
 let mockAxios: MockAdapter;
 
 const jobOptions = [
@@ -32,670 +32,365 @@ const jobOptions = [
   },
 ];
 
+const fillBasicFields = (getByPlaceholderText: (text: string) => any) => {
+  fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'a@b.co');
+  fireEvent.changeText(getByPlaceholderText('닉네임을 입력하세요'), '윤윤');
+  fireEvent.changeText(
+    getByPlaceholderText('비밀번호를 입력하세요'),
+    'password1234',
+  );
+  fireEvent.changeText(
+    getByPlaceholderText('비밀번호를 한 번 더 입력하세요'),
+    'password1234',
+  );
+};
+
+const goToJobStep = async (
+  getByPlaceholderText: (text: string) => any,
+  getByText: (text: string) => any,
+  findByText: (text: string) => Promise<any>,
+) => {
+  fillBasicFields(getByPlaceholderText);
+  fireEvent.press(getByText('다음'));
+
+  await findByText('캐릭터 선택');
+  await findByText('마법사');
+};
+
 describe('SignUp 페이지', () => {
   beforeEach(() => {
     mockPush.mockClear();
+    mockReplace.mockClear();
+    usePendingSignUpStore.getState().clearPayload();
     mockAxios = new MockAdapter(axiosInstance);
     mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(200, {
+      data: { email: 'a@b.co', available: true },
+    });
+    mockAxios.onPost('/auth/email/verification-requests').reply(200, {
+      data: { message: '이메일 인증 메일을 발송했습니다.' },
+    });
   });
 
   afterEach(() => {
     mockAxios.restore();
   });
 
-  // 버튼 찾기 헬퍼 함수 (제목이 아닌 버튼만 선택)
-  const getSubmitButton = (getAllByText: (text: string) => any[]) => {
-    const buttons = getAllByText('회원가입');
+  it('기본 입력값이 비어 있으면 다음 단계로 이동하지 않고 에러를 표시한다', async () => {
+    const { getByText, findByText, queryByText } = render(<SignUp />);
 
-    // 두 번째 요소가 버튼 (첫 번째는 제목)
-    return buttons[1];
-  };
+    fireEvent.press(getByText('다음'));
 
-  describe('유효성 검증 테스트', () => {
-    it('모든 필드가 비어있을 때 회원가입 버튼을 누르면 모든 필드에서 에러가 표시된다', async () => {
-      const { getAllByText, findByText } = render(<SignUp />);
+    expect(await findByText('아이디를 입력해주세요.')).toBeOnTheScreen();
+    expect(await findByText('닉네임을 입력해주세요.')).toBeOnTheScreen();
+    expect(await findByText('비밀번호를 입력해주세요.')).toBeOnTheScreen();
+    expect(await findByText('비밀번호 확인을 입력해주세요.')).toBeOnTheScreen();
+    expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
+  });
 
-      await findByText('마법사');
+  it('비밀번호와 비밀번호 확인이 일치하지 않으면 에러를 표시한다', async () => {
+    const { getByPlaceholderText, getByText, findByText } = render(<SignUp />);
 
-      const submitButton = getSubmitButton(getAllByText);
+    fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'a@b.co');
+    fireEvent.changeText(
+      getByPlaceholderText('닉네임을 입력하세요'),
+      'newnick',
+    );
+    fireEvent.changeText(
+      getByPlaceholderText('비밀번호를 입력하세요'),
+      'password123',
+    );
+    fireEvent.changeText(
+      getByPlaceholderText('비밀번호를 한 번 더 입력하세요'),
+      'differentpassword',
+    );
+    fireEvent.press(getByText('다음'));
 
-      fireEvent.press(submitButton);
+    expect(await findByText('비밀번호가 일치하지 않습니다.')).toBeOnTheScreen();
+  });
 
-      expect(await findByText('아이디를 입력해주세요.')).toBeOnTheScreen();
-      expect(await findByText('닉네임을 입력해주세요.')).toBeOnTheScreen();
-      expect(await findByText('비밀번호를 입력해주세요.')).toBeOnTheScreen();
-      expect(
-        await findByText('비밀번호 확인을 입력해주세요.'),
-      ).toBeOnTheScreen();
-      const jobTexts = getAllByText('직업을 선택해주세요.');
+  it('아이디 이메일 형식을 검증한다', async () => {
+    const { getByPlaceholderText, getByText, findByText, queryByText } = render(
+      <SignUp />,
+    );
 
-      expect(jobTexts.length).toBe(1);
-    });
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'abc');
+    fireEvent.press(getByText('다음'));
 
-    it('아이디만 입력하고 회원가입 버튼을 누르면 나머지 필드에서 에러가 표시된다', async () => {
-      const { getByPlaceholderText, getAllByText, findByText, queryByText } =
-        render(<SignUp />);
+    expect(
+      await findByText('아이디는 이메일 형식이어야 합니다.'),
+    ).toBeOnTheScreen();
+    expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
+  });
 
-      await findByText('마법사');
+  it('아이디가 100자를 넘으면 다음 단계로 이동하지 않는다', async () => {
+    const { getByPlaceholderText, getByText, findByText, queryByText } = render(
+      <SignUp />,
+    );
 
-      const userIdInput = getByPlaceholderText('아이디를 입력해주세요.');
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.changeText(
+      getByPlaceholderText('아이디를 입력하세요'),
+      `${'a'.repeat(96)}@b.co`,
+    );
+    fireEvent.press(getByText('다음'));
 
-      fireEvent.changeText(userIdInput, 'testuser');
+    expect(
+      await findByText('아이디는 100자 이하로 입력해주세요.'),
+    ).toBeOnTheScreen();
+    expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
+  });
 
-      const submitButton = getSubmitButton(getAllByText);
+  it('닉네임 길이를 검증한다', async () => {
+    const { getByPlaceholderText, getByText, findByText } = render(<SignUp />);
 
-      fireEvent.press(submitButton);
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.changeText(getByPlaceholderText('닉네임을 입력하세요'), 'a');
+    fireEvent.press(getByText('다음'));
 
-      await waitFor(() => {
-        expect(queryByText('아이디를 입력해주세요.')).not.toBeOnTheScreen();
-      });
-      expect(await findByText('닉네임을 입력해주세요.')).toBeOnTheScreen();
-      expect(await findByText('비밀번호를 입력해주세요.')).toBeOnTheScreen();
-      expect(
-        await findByText('비밀번호 확인을 입력해주세요.'),
-      ).toBeOnTheScreen();
-    });
+    expect(
+      await findByText('닉네임은 2~10자로 입력해주세요.'),
+    ).toBeOnTheScreen();
+  });
 
-    it('아이디, 닉네임만 입력하고 회원가입 버튼을 누르면 나머지 필드에서 에러가 표시된다', async () => {
-      const { getByPlaceholderText, getAllByText, findByText, queryByText } =
-        render(<SignUp />);
+  it('비밀번호 길이를 검증한다', async () => {
+    const { getByPlaceholderText, getByText, findByText } = render(<SignUp />);
 
-      await findByText('마법사');
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.changeText(
+      getByPlaceholderText('비밀번호를 입력하세요'),
+      'short1',
+    );
+    fireEvent.changeText(
+      getByPlaceholderText('비밀번호를 한 번 더 입력하세요'),
+      'short1',
+    );
+    fireEvent.press(getByText('다음'));
 
-      const userIdInput = getByPlaceholderText('아이디를 입력해주세요.');
+    expect(
+      await findByText('비밀번호는 8~15자로 입력해주세요.'),
+    ).toBeOnTheScreen();
+  });
 
-      fireEvent.changeText(userIdInput, 'testuser');
+  it('에러 상태에서 필드를 수정하면 해당 에러가 사라진다', async () => {
+    const { getByPlaceholderText, getByText, findByText, queryByText } = render(
+      <SignUp />,
+    );
 
-      const nicknameInput = getByPlaceholderText('닉네임을 입력해주세요.');
+    fireEvent.press(getByText('다음'));
 
-      fireEvent.changeText(nicknameInput, 'testnick');
+    expect(await findByText('아이디를 입력해주세요.')).toBeOnTheScreen();
 
-      const submitButton = getSubmitButton(getAllByText);
+    fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'a@b.co');
 
-      fireEvent.press(submitButton);
-
-      await waitFor(() => {
-        expect(queryByText('아이디를 입력해주세요.')).not.toBeOnTheScreen();
-        expect(queryByText('닉네임을 입력해주세요.')).not.toBeOnTheScreen();
-      });
-      expect(await findByText('비밀번호를 입력해주세요.')).toBeOnTheScreen();
-      expect(
-        await findByText('비밀번호 확인을 입력해주세요.'),
-      ).toBeOnTheScreen();
-    });
-
-    it('비밀번호 확인만 입력하지 않으면 비밀번호 확인 에러만 표시된다', async () => {
-      const { getByPlaceholderText, getAllByText, findByText, queryByText } =
-        render(<SignUp />);
-
-      await findByText('마법사');
-
-      const userIdInput = getByPlaceholderText('아이디를 입력해주세요.');
-
-      fireEvent.changeText(userIdInput, 'testuser');
-
-      const nicknameInput = getByPlaceholderText('닉네임을 입력해주세요.');
-
-      fireEvent.changeText(nicknameInput, 'testnick');
-
-      const passwordInput = getByPlaceholderText('비밀번호를 입력해주세요.');
-
-      fireEvent.changeText(passwordInput, 'password123');
-
-      const submitButton = getSubmitButton(getAllByText);
-
-      fireEvent.press(submitButton);
-
-      await waitFor(() => {
-        expect(queryByText('아이디를 입력해주세요.')).not.toBeOnTheScreen();
-        expect(queryByText('닉네임을 입력해주세요.')).not.toBeOnTheScreen();
-        expect(queryByText('비밀번호를 입력해주세요.')).not.toBeOnTheScreen();
-      });
-      expect(
-        await findByText('비밀번호 확인을 입력해주세요.'),
-      ).toBeOnTheScreen();
-    });
-
-    it('비밀번호와 비밀번호 확인이 일치하지 않으면 에러가 표시된다', async () => {
-      const { getByPlaceholderText, getAllByText, findByText } = render(
-        <SignUp />,
-      );
-
-      await findByText('마법사');
-
-      const userIdInput = getByPlaceholderText('아이디를 입력해주세요.');
-
-      fireEvent.changeText(userIdInput, 'testuser');
-
-      const nicknameInput = getByPlaceholderText('닉네임을 입력해주세요.');
-
-      fireEvent.changeText(nicknameInput, 'testnick');
-
-      const passwordInput = getByPlaceholderText('비밀번호를 입력해주세요.');
-
-      fireEvent.changeText(passwordInput, 'password123');
-
-      const confirmPasswordInput =
-        getByPlaceholderText('비밀번호를 다시 입력해주세요.');
-
-      fireEvent.changeText(confirmPasswordInput, 'differentpassword');
-
-      const submitButton = getSubmitButton(getAllByText);
-
-      fireEvent.press(submitButton);
-
-      expect(
-        await findByText('비밀번호가 일치하지 않습니다.'),
-      ).toBeOnTheScreen();
-    });
-
-    it('에러 상태에서 필드를 수정하면 해당 에러가 사라진다', async () => {
-      const { getByPlaceholderText, getAllByText, findByText, queryByText } =
-        render(<SignUp />);
-
-      await findByText('마법사');
-
-      const submitButton = getSubmitButton(getAllByText);
-
-      fireEvent.press(submitButton);
-
-      expect(await findByText('아이디를 입력해주세요.')).toBeOnTheScreen();
-
-      const userIdInput = getByPlaceholderText('아이디를 입력해주세요.');
-
-      fireEvent.changeText(userIdInput, 'testuser');
-
-      await waitFor(() => {
-        expect(queryByText('아이디를 입력해주세요.')).not.toBeOnTheScreen();
-      });
+    await waitFor(() => {
+      expect(queryByText('아이디를 입력해주세요.')).not.toBeOnTheScreen();
     });
   });
 
-  describe('API 통합 테스트', () => {
-    // 직업 선택 헬퍼 함수
-    const selectJob = async (
-      findByText: (text: string) => Promise<any>,
-      job: string,
-    ) => {
-      const jobOption = await findByText(job);
+  it('기본 입력값을 채우고 다음을 누르면 캐릭터 선택 화면을 표시한다', async () => {
+    const { getByPlaceholderText, getByText, findByText } = render(<SignUp />);
 
-      fireEvent.press(jobOption);
-    };
+    await goToJobStep(getByPlaceholderText, getByText, findByText);
 
-    // 폼 입력 헬퍼 함수
-    const fillForm = async (
-      getByPlaceholderText: (text: string) => any,
-      findByText: (text: string) => Promise<any>,
-      data: {
-        userId: string;
-        nickname: string;
-        password: string;
-        confirmPassword: string;
-        job: string;
+    expect(
+      mockAxios.history.get.some((req) => req.url === '/auth/email/check'),
+    ).toBe(true);
+    expect(await findByText('마법사')).toBeOnTheScreen();
+    expect(await findByText('전사')).toBeOnTheScreen();
+    expect(await findByText('궁수')).toBeOnTheScreen();
+  });
+
+  it('다음 클릭 후 아이디가 중복이면 기본 입력 화면에 에러를 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(200, {
+      data: { email: 'a@b.co', available: false },
+    });
+
+    const { getByPlaceholderText, getByText, findByText, queryByText } = render(
+      <SignUp />,
+    );
+
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.press(getByText('다음'));
+
+    expect(await findByText('이미 사용 중인 아이디입니다.')).toBeOnTheScreen();
+    expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
+  });
+
+  it('아이디 중복 체크 중에는 다음 버튼 텍스트 대신 로딩 상태를 표시한다', async () => {
+    let resolveEmailCheck: (value: [number, unknown]) => void = () => {};
+
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(
+      () =>
+        new Promise((resolve) => {
+          resolveEmailCheck = resolve;
+        }),
+    );
+
+    const { getByPlaceholderText, getByText, queryByText, findByText } = render(
+      <SignUp />,
+    );
+
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.press(getByText('다음'));
+
+    await waitFor(() => {
+      expect(queryByText('다음')).not.toBeOnTheScreen();
+    });
+
+    resolveEmailCheck([
+      200,
+      {
+        data: { email: 'a@b.co', available: true },
       },
-    ) => {
-      fireEvent.changeText(
-        getByPlaceholderText('아이디를 입력해주세요.'),
-        data.userId,
-      );
+    ]);
 
-      fireEvent.changeText(
-        getByPlaceholderText('닉네임을 입력해주세요.'),
-        data.nickname,
-      );
+    expect(await findByText('캐릭터 선택')).toBeOnTheScreen();
+  });
 
-      fireEvent.changeText(
-        getByPlaceholderText('비밀번호를 입력해주세요.'),
-        data.password,
-      );
+  it('직업을 선택하지 않고 가입을 누르면 직업 에러를 표시한다', async () => {
+    const { getByPlaceholderText, getByText, findByText } = render(<SignUp />);
 
-      fireEvent.changeText(
-        getByPlaceholderText('비밀번호를 다시 입력해주세요.'),
-        data.confirmPassword,
-      );
+    await goToJobStep(getByPlaceholderText, getByText, findByText);
+    fireEvent.press(getByText('가입'));
 
-      await selectJob(findByText, data.job);
-    };
+    expect(await findByText('직업을 선택해주세요.')).toBeOnTheScreen();
+  });
 
-    describe('회원가입 성공 시', () => {
-      beforeEach(() => {
-        mockAxios.onPost('/auth/signup').reply(200, { data: null });
-      });
+  it('선택한 직업의 jobName을 인증 대기 payload의 job 필드로 저장한다', async () => {
+    const { getByPlaceholderText, getByText, getByLabelText, findByText } =
+      render(<SignUp />);
 
-      it('로그인 페이지로 이동한다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignUp />,
-        );
+    await goToJobStep(getByPlaceholderText, getByText, findByText);
+    fireEvent.press(getByLabelText('전사 선택'));
+    fireEvent.press(getByText('가입'));
 
-        await fillForm(getByPlaceholderText, findByText, {
-          userId: 'newuser',
-          nickname: 'newnick',
-          password: 'password123',
-          confirmPassword: 'password123',
-          job: '마법사',
-        });
-
-        const submitButton = getSubmitButton(getAllByText);
-
-        fireEvent.press(submitButton);
-
-        await waitFor(() => {
-          expect(mockPush).toHaveBeenCalledWith('/sign-in');
-        });
-      });
-    });
-
-    describe('아이디 중복 시', () => {
-      beforeEach(() => {
-        mockAxios.onPost('/auth/signup').reply(400, {
-          error: {
-            message: '아이디 중복',
-            data: [{ field: 'userId', message: '이미 사용중인 아이디입니다.' }],
-          },
-        });
-      });
-
-      it('에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignUp />,
-        );
-
-        await fillForm(getByPlaceholderText, findByText, {
-          userId: 'duplicate',
-          nickname: 'testnick',
-          password: 'password123',
-          confirmPassword: 'password123',
-          job: '마법사',
-        });
-
-        const submitButton = getSubmitButton(getAllByText);
-
-        fireEvent.press(submitButton);
-
-        expect(
-          await findByText('이미 사용중인 아이디입니다.'),
-        ).toBeOnTheScreen();
-      });
-    });
-
-    describe('닉네임 중복 시', () => {
-      beforeEach(() => {
-        mockAxios.onPost('/auth/signup').reply(400, {
-          error: {
-            message: '닉네임 중복',
-            data: [
-              { field: 'nickname', message: '이미 사용중인 닉네임입니다.' },
-            ],
-          },
-        });
-      });
-
-      it('에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignUp />,
-        );
-
-        await fillForm(getByPlaceholderText, findByText, {
-          userId: 'testuser',
-          nickname: 'duplicatenick',
-          password: 'password123',
-          confirmPassword: 'password123',
-          job: '궁수',
-        });
-
-        const submitButton = getSubmitButton(getAllByText);
-
-        fireEvent.press(submitButton);
-
-        expect(
-          await findByText('이미 사용중인 닉네임입니다.'),
-        ).toBeOnTheScreen();
-      });
-    });
-
-    describe('아이디 길이가 유효하지 않을 시', () => {
-      describe('4자 미만일 때', () => {
-        beforeEach(() => {
-          mockAxios.onPost('/auth/signup').reply(400, {
-            error: {
-              message: '아이디 길이 오류',
-              data: [
-                {
-                  field: 'userId',
-                  message: '크기가 4에서 10 사이여야 합니다.',
-                },
-              ],
-            },
-          });
-        });
-
-        it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
-
-          await fillForm(getByPlaceholderText, findByText, {
-            userId: 'abc',
-            nickname: 'testnick',
-            password: 'password123',
-            confirmPassword: 'password123',
-            job: '검사',
-          });
-
-          const submitButton = getSubmitButton(getAllByText);
-
-          fireEvent.press(submitButton);
-
-          expect(
-            await findByText('크기가 4에서 10 사이여야 합니다.'),
-          ).toBeOnTheScreen();
-        });
-      });
-
-      describe('10자 초과일 때', () => {
-        beforeEach(() => {
-          mockAxios.onPost('/auth/signup').reply(400, {
-            error: {
-              message: '아이디 길이 오류',
-              data: [
-                {
-                  field: 'userId',
-                  message: '크기가 4에서 10 사이여야 합니다.',
-                },
-              ],
-            },
-          });
-        });
-
-        it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
-
-          await fillForm(getByPlaceholderText, findByText, {
-            userId: 'verylonguser',
-            nickname: 'testnick',
-            password: 'password123',
-            confirmPassword: 'password123',
-            job: '마법사',
-          });
-
-          const submitButton = getSubmitButton(getAllByText);
-
-          fireEvent.press(submitButton);
-
-          expect(
-            await findByText('크기가 4에서 10 사이여야 합니다.'),
-          ).toBeOnTheScreen();
-        });
-      });
-    });
-
-    describe('닉네임 길이가 유효하지 않을 시', () => {
-      describe('2자 미만일 때', () => {
-        beforeEach(() => {
-          mockAxios.onPost('/auth/signup').reply(400, {
-            error: {
-              message: '닉네임 길이 오류',
-              data: [
-                {
-                  field: 'nickname',
-                  message: '크기가 2에서 10 사이여야 합니다.',
-                },
-              ],
-            },
-          });
-        });
-
-        it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
-
-          await fillForm(getByPlaceholderText, findByText, {
-            userId: 'testuser',
-            nickname: 'a',
-            password: 'password123',
-            confirmPassword: 'password123',
-            job: '궁수',
-          });
-
-          const submitButton = getSubmitButton(getAllByText);
-
-          fireEvent.press(submitButton);
-
-          expect(
-            await findByText('크기가 2에서 10 사이여야 합니다.'),
-          ).toBeOnTheScreen();
-        });
-      });
-
-      describe('10자 초과일 때', () => {
-        beforeEach(() => {
-          mockAxios.onPost('/auth/signup').reply(400, {
-            error: {
-              message: '닉네임 길이 오류',
-              data: [
-                {
-                  field: 'nickname',
-                  message: '크기가 2에서 10 사이여야 합니다.',
-                },
-              ],
-            },
-          });
-        });
-
-        it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
-
-          await fillForm(getByPlaceholderText, findByText, {
-            userId: 'testuser',
-            nickname: 'verylongnickname',
-            password: 'password123',
-            confirmPassword: 'password123',
-            job: '검사',
-          });
-
-          const submitButton = getSubmitButton(getAllByText);
-
-          fireEvent.press(submitButton);
-
-          expect(
-            await findByText('크기가 2에서 10 사이여야 합니다.'),
-          ).toBeOnTheScreen();
-        });
-      });
-    });
-
-    describe('비밀번호 길이가 유효하지 않을 시', () => {
-      describe('8자 미만일 때', () => {
-        beforeEach(() => {
-          mockAxios.onPost('/auth/signup').reply(400, {
-            error: {
-              message: '비밀번호 길이 오류',
-              data: [
-                {
-                  field: 'password',
-                  message: '크기가 8에서 15 사이여야 합니다.',
-                },
-              ],
-            },
-          });
-        });
-
-        it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
-
-          await fillForm(getByPlaceholderText, findByText, {
-            userId: 'testuser',
-            nickname: 'testnick',
-            password: 'short',
-            confirmPassword: 'short',
-            job: '마법사',
-          });
-
-          const submitButton = getSubmitButton(getAllByText);
-
-          fireEvent.press(submitButton);
-
-          expect(
-            await findByText('크기가 8에서 15 사이여야 합니다.'),
-          ).toBeOnTheScreen();
-        });
-      });
-
-      describe('15자 초과일 때', () => {
-        beforeEach(() => {
-          mockAxios.onPost('/auth/signup').reply(400, {
-            error: {
-              message: '비밀번호 길이 오류',
-              data: [
-                {
-                  field: 'password',
-                  message: '크기가 8에서 15 사이여야 합니다.',
-                },
-              ],
-            },
-          });
-        });
-
-        it('에러 메시지가 표시된다', async () => {
-          const { getByPlaceholderText, getAllByText, findByText } = render(
-            <SignUp />,
-          );
-
-          await fillForm(getByPlaceholderText, findByText, {
-            userId: 'testuser',
-            nickname: 'testnick',
-            password: 'verylongpassword123',
-            confirmPassword: 'verylongpassword123',
-            job: '궁수',
-          });
-
-          const submitButton = getSubmitButton(getAllByText);
-
-          fireEvent.press(submitButton);
-
-          expect(
-            await findByText('크기가 8에서 15 사이여야 합니다.'),
-          ).toBeOnTheScreen();
-        });
-      });
-    });
-
-    describe('비밀번호와 비밀번호 확인 불일치 시', () => {
-      beforeEach(() => {
-        mockAxios.onPost('/auth/signup').reply(400, {
-          error: {
-            message: '비밀번호 불일치',
-            data: [
-              {
-                field: 'passwordConfirm',
-                message: '비밀번호가 일치하지 않습니다.',
-              },
-            ],
-          },
-        });
-      });
-
-      it('에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignUp />,
-        );
-
-        await fillForm(getByPlaceholderText, findByText, {
-          userId: 'testuser',
-          nickname: 'testnick',
-          password: 'password123',
-          confirmPassword: 'password123',
-          job: '검사',
-        });
-
-        const submitButton = getSubmitButton(getAllByText);
-
-        fireEvent.press(submitButton);
-
-        expect(
-          await findByText('비밀번호가 일치하지 않습니다.'),
-        ).toBeOnTheScreen();
-      });
-    });
-
-    describe('서버 에러 발생 시', () => {
-      beforeEach(() => {
-        mockAxios.onPost('/auth/signup').reply(500, {
-          error: {
-            message: '서버 오류가 발생했습니다.',
-          },
-        });
-      });
-
-      it('일반 에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignUp />,
-        );
-
-        await fillForm(getByPlaceholderText, findByText, {
-          userId: 'testuser',
-          nickname: 'testnick',
-          password: 'password123',
-          confirmPassword: 'password123',
-          job: '마법사',
-        });
-
-        const submitButton = getSubmitButton(getAllByText);
-
-        fireEvent.press(submitButton);
-
-        expect(await findByText('서버 오류가 발생했습니다.')).toBeOnTheScreen();
-      });
+    await waitFor(() => {
+      expect(usePendingSignUpStore.getState().payload?.job).toBe('검사');
     });
   });
 
-  describe('직업 선택 UI', () => {
-    it('직업 조회 API 응답의 모든 직업 옵션을 표시한다', async () => {
-      const { findByText, queryByText } = render(<SignUp />);
+  it('가입 버튼을 누르면 인증 메일 요청 후 이메일 인증 대기 화면으로 이동한다', async () => {
+    const { getByPlaceholderText, getByText, getByLabelText, findByText } =
+      render(<SignUp />);
 
-      expect(await findByText('마법사')).toBeOnTheScreen();
-      expect(await findByText('검사')).toBeOnTheScreen();
-      expect(await findByText('궁수')).toBeOnTheScreen();
-      expect(queryByText('도적')).not.toBeOnTheScreen();
-    });
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.changeText(
+      getByPlaceholderText('아이디를 입력하세요'),
+      '  a@b.co  ',
+    );
+    fireEvent.changeText(
+      getByPlaceholderText('닉네임을 입력하세요'),
+      '  새닉네임  ',
+    );
+    fireEvent.press(getByText('다음'));
 
-    it('선택한 직업의 jobName을 회원가입 job 필드로 전달한다', async () => {
-      mockAxios.onPost('/auth/signup').reply(200, { data: null });
+    await findByText('캐릭터 선택');
+    fireEvent.press(getByLabelText('마법사 선택'));
+    fireEvent.press(getByText('가입'));
 
-      const { getByPlaceholderText, getAllByText, findByText } = render(
-        <SignUp />,
+    await waitFor(() => {
+      expect(mockAxios.history.post[0]?.url).toBe(
+        '/auth/email/verification-requests',
       );
-
-      fireEvent.changeText(
-        getByPlaceholderText('아이디를 입력해주세요.'),
-        'newuser',
-      );
-      fireEvent.changeText(
-        getByPlaceholderText('닉네임을 입력해주세요.'),
-        'newnick',
-      );
-      fireEvent.changeText(
-        getByPlaceholderText('비밀번호를 입력해주세요.'),
-        'password123',
-      );
-      fireEvent.changeText(
-        getByPlaceholderText('비밀번호를 다시 입력해주세요.'),
-        'password123',
-      );
-      fireEvent.press(await findByText('검사'));
-
-      fireEvent.press(getSubmitButton(getAllByText));
-
-      await waitFor(() => {
-        expect(mockAxios.history.post[0]?.data).toContain('"job":"검사"');
+      expect(mockAxios.history.post[0]?.data).toContain('"email":"a@b.co"');
+      expect(mockAxios.history.post).toHaveLength(1);
+      expect(usePendingSignUpStore.getState().payload).toEqual({
+        userId: 'a@b.co',
+        nickname: '새닉네임',
+        password: 'password1234',
+        job: '마법사',
       });
+      expect(mockPush).toHaveBeenCalledWith('/sign-up-email-verification');
     });
+  });
+
+  it('인증 메일 요청 중에는 가입 버튼에 로딩 상태를 표시한다', async () => {
+    let resolveVerificationRequest: (
+      value: [number, unknown],
+    ) => void = () => {};
+
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(200, {
+      data: { email: 'a@b.co', available: true },
+    });
+    mockAxios.onPost('/auth/email/verification-requests').reply(
+      () =>
+        new Promise((resolve) => {
+          resolveVerificationRequest = resolve;
+        }),
+    );
+
+    const { getByPlaceholderText, getByText, getByLabelText, findByText } =
+      render(<SignUp />);
+
+    await goToJobStep(getByPlaceholderText, getByText, findByText);
+    fireEvent.press(getByLabelText('마법사 선택'));
+    fireEvent.press(getByText('가입'));
+
+    await waitFor(() => {
+      expect(() => getByText('가입')).toThrow();
+    });
+
+    resolveVerificationRequest([
+      200,
+      { data: { message: '이메일 인증 메일을 발송했습니다.' } },
+    ]);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/sign-up-email-verification');
+    });
+  });
+
+  it('인증 메일 요청 필드 에러는 기본 입력 화면에서 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(200, {
+      data: { email: 'a@b.co', available: true },
+    });
+    mockAxios.onPost('/auth/email/verification-requests').reply(400, {
+      error: {
+        message: '잘못 입력된 값입니다.',
+        data: [{ field: 'email', message: '이미 사용 중인 이메일입니다.' }],
+      },
+    });
+
+    const { getByPlaceholderText, getByText, getByLabelText, findByText } =
+      render(<SignUp />);
+
+    await goToJobStep(getByPlaceholderText, getByText, findByText);
+    fireEvent.press(getByLabelText('마법사 선택'));
+    fireEvent.press(getByText('가입'));
+
+    expect(await findByText('이미 사용 중인 이메일입니다.')).toBeOnTheScreen();
+    expect(await findByText('회원가입')).toBeOnTheScreen();
+  });
+
+  it('인증 메일 요청 일반 서버 에러는 비밀번호 필드 아래에 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(200, {
+      data: { email: 'a@b.co', available: true },
+    });
+    mockAxios.onPost('/auth/email/verification-requests').reply(500, {
+      error: {
+        message: '서버 오류가 발생했습니다.',
+      },
+    });
+
+    const { getByPlaceholderText, getByText, getByLabelText, findByText } =
+      render(<SignUp />);
+
+    await goToJobStep(getByPlaceholderText, getByText, findByText);
+    fireEvent.press(getByLabelText('궁수 선택'));
+    fireEvent.press(getByText('가입'));
+
+    expect(await findByText('서버 오류가 발생했습니다.')).toBeOnTheScreen();
   });
 });

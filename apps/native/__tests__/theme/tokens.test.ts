@@ -34,6 +34,7 @@ describe('theme/tokens', () => {
     expect(palette.theme.blue[50]).toBe('#107AD6');
     expect(palette.theme.gray[95]).toBe('#000306');
     expect(palette.theme.gray[200]).toBe('#E2E8F0');
+    expect(palette.tag.critical[700]).toBe('#CA3E3E');
     expect('skinSoftBlue' in palette).toBe(false);
     expect('skinBlue' in palette).toBe(false);
     expect('skinGray' in palette).toBe(false);
@@ -128,6 +129,11 @@ describe('theme/tokens', () => {
           error: { bg: '#f00', text: '#600', border: '#c00' },
           warning: { bg: '#ff0', text: '#660', border: '#cc0' },
           info: { bg: '#00f', text: '#006', border: '#00c' },
+        },
+        tag: {
+          critical: {
+            700: '#CA3E3E',
+          },
         },
         border: {
           default: '#111',

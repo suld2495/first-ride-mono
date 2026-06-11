@@ -65,6 +65,11 @@ export type ThemeContract = {
       warning: { bg: string; text: string; border: string };
       info: { bg: string; text: string; border: string };
     };
+    tag: {
+      critical: {
+        700: string;
+      };
+    };
     border: {
       default: string;
       strong: string;
@@ -199,6 +204,11 @@ export const baseTheme: ThemeContract = {
         bg: palette.blue[900],
         text: palette.blue[300],
         border: palette.blue[700],
+      },
+    },
+    tag: {
+      critical: {
+        700: palette.tag.critical[700],
       },
     },
     border: {

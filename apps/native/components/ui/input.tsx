@@ -294,7 +294,9 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text.secondary,
   },
   helperError: {
-    color: theme.colors.feedback.error.text,
+    fontSize: theme.foundation.typography.size.caption1,
+    fontWeight: theme.foundation.typography.weight.medium,
+    color: theme.colors.tag.critical[700],
   },
   helperSuccess: {
     color: theme.colors.feedback.success.text,

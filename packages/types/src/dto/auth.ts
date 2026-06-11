@@ -14,6 +14,20 @@ export interface JobOption {
   imageUrl: string;
 }
 
+export interface EmailCheckResponse {
+  email: string;
+  available: boolean;
+}
+
+export interface EmailVerificationStatusResponse {
+  email: string;
+  verified: boolean;
+}
+
+export interface EmailVerificationRequestResponse {
+  message: string;
+}
+
 // 토큰 응답 공통 타입
 export type TokenResponse = {
   userInfo: User;

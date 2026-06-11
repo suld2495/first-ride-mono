@@ -7,6 +7,7 @@ import { render } from '../setup/test-utils';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
+declare const mockShowToast: jest.Mock;
 
 // setAuthorization, setRefreshToken mock
 jest.mock('@/api', () => ({
@@ -27,6 +28,7 @@ let mockAxios: MockAdapter;
 describe('SignIn 페이지', () => {
   beforeEach(() => {
     mockPush.mockClear();
+    mockShowToast.mockClear();
     mockAxios = new MockAdapter(axiosInstance);
   });
 
@@ -174,9 +176,7 @@ describe('SignIn 페이지', () => {
       });
 
       it('에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignIn />,
-        );
+        const { getByPlaceholderText, getAllByText } = render(<SignIn />);
 
         fillForm(getByPlaceholderText, {
           userId: 'wronguser',
@@ -187,9 +187,12 @@ describe('SignIn 페이지', () => {
 
         fireEvent.press(submitButton);
 
-        expect(
-          await findByText('아이디 또는 비밀번호가 일치하지 않습니다.'),
-        ).toBeOnTheScreen();
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '아이디 또는 비밀번호가 일치하지 않습니다.',
+            'error',
+          );
+        });
       });
     });
 
@@ -203,9 +206,7 @@ describe('SignIn 페이지', () => {
       });
 
       it('기본 에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignIn />,
-        );
+        const { getByPlaceholderText, getAllByText } = render(<SignIn />);
 
         fillForm(getByPlaceholderText, {
           userId: 'testuser',
@@ -216,7 +217,12 @@ describe('SignIn 페이지', () => {
 
         fireEvent.press(submitButton);
 
-        expect(await findByText('서버 오류가 발생했습니다.')).toBeOnTheScreen();
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '서버 오류가 발생했습니다.',
+            'error',
+          );
+        });
       });
     });
 
@@ -226,9 +232,7 @@ describe('SignIn 페이지', () => {
       });
 
       it('기본 에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignIn />,
-        );
+        const { getByPlaceholderText, getAllByText } = render(<SignIn />);
 
         fillForm(getByPlaceholderText, {
           userId: 'testuser',
@@ -239,9 +243,12 @@ describe('SignIn 페이지', () => {
 
         fireEvent.press(submitButton);
 
-        expect(
-          await findByText('로그인에 실패했습니다. 다시 시도해주세요.'),
-        ).toBeOnTheScreen();
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '아이디/비밀번호 로그인에 실패했습니다. 다시 시도해주세요.',
+            'error',
+          );
+        });
       });
     });
 
@@ -251,9 +258,7 @@ describe('SignIn 페이지', () => {
       });
 
       it('기본 에러 메시지가 표시된다', async () => {
-        const { getByPlaceholderText, getAllByText, findByText } = render(
-          <SignIn />,
-        );
+        const { getByPlaceholderText, getAllByText } = render(<SignIn />);
 
         fillForm(getByPlaceholderText, {
           userId: 'testuser',
@@ -264,9 +269,12 @@ describe('SignIn 페이지', () => {
 
         fireEvent.press(submitButton);
 
-        expect(
-          await findByText('로그인에 실패했습니다. 다시 시도해주세요.'),
-        ).toBeOnTheScreen();
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '아이디/비밀번호 로그인에 실패했습니다. 다시 시도해주세요.',
+            'error',
+          );
+        });
       });
     });
   });

@@ -80,6 +80,11 @@ export const lightTheme: ThemeContract = {
         border: palette.blue[200],
       },
     },
+    tag: {
+      critical: {
+        700: palette.tag.critical[700],
+      },
+    },
     border: {
       default: palette.stitch.light.border,
       strong: '#e2e8f0',
