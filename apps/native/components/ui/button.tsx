@@ -93,6 +93,11 @@ export interface ButtonProps extends Omit<PressableProps, 'style'> {
   textStyle?: StyleProp<TextStyle>;
 
   /**
+   * 커스텀 콘텐츠 래퍼 스타일
+   */
+  contentStyle?: StyleProp<ViewStyle>;
+
+  /**
    * 버튼 내용 (children 우선, 없으면 title 사용)
    */
   children?: React.ReactNode;
@@ -116,6 +121,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   style,
   textStyle,
+  contentStyle,
   children,
   title,
   ...props
@@ -188,7 +194,7 @@ export const Button: React.FC<ButtonProps> = ({
     const content = children || title;
 
     return (
-      <View style={internalStyles.contentWrapper}>
+      <View style={[internalStyles.contentWrapper, contentStyle]}>
         {renderIcon(leftIcon)}
         {typeof content === 'string' ? (
           <Text
@@ -217,6 +223,11 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <Pressable
+      {...props}
+      accessibilityState={{
+        ...props.accessibilityState,
+        disabled: disabled || loading,
+      }}
       style={({ pressed }) => [
         styles.container,
         sizeStyle,
@@ -228,7 +239,6 @@ export const Button: React.FC<ButtonProps> = ({
         typeof style === 'function' ? style({ pressed }) : style,
       ]}
       disabled={disabled || loading}
-      {...props}
       onPress={handlePress}
     >
       {renderContent()}

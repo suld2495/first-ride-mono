@@ -1,8 +1,10 @@
 import axiosInstance from '@repo/shared/api';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import { StyleSheet as RNStyleSheet } from 'react-native';
 
 import SignIn from '../../app/sign-in';
+import { palette } from '../../theme/tokens';
 import { render } from '../setup/test-utils';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
@@ -45,70 +47,125 @@ describe('SignIn 페이지', () => {
   };
 
   describe('유효성 검증 테스트', () => {
-    it('모든 필드가 비어있을 때 로그인 버튼을 누르면 모든 필드에서 에러가 표시된다', async () => {
-      const { getAllByText, findByText } = render(<SignIn />);
+    const getButtonStyle = (button: any) =>
+      RNStyleSheet.flatten(
+        typeof button.props.style === 'function'
+          ? button.props.style({ pressed: false })
+          : button.props.style,
+      );
 
-      const submitButton = getSubmitButton(getAllByText);
+    it('모든 필드가 비어있으면 로그인 버튼이 비활성화된다', () => {
+      const { getByTestId, queryByText } = render(<SignIn />);
+
+      const submitButton = getByTestId('sign-in-submit-button');
 
       fireEvent.press(submitButton);
 
-      expect(await findByText('아이디를 입력해주세요.')).toBeOnTheScreen();
-      expect(await findByText('비밀번호를 입력해주세요.')).toBeOnTheScreen();
+      expect(submitButton.props.accessibilityState).toEqual(
+        expect.objectContaining({ disabled: true }),
+      );
+      expect(getButtonStyle(submitButton)).toEqual(
+        expect.objectContaining({
+          backgroundColor: palette.theme.gray[10],
+          opacity: 1,
+        }),
+      );
+      expect(queryByText('이메일을 입력해주세요.')).not.toBeOnTheScreen();
+      expect(queryByText('비밀번호를 입력해주세요.')).not.toBeOnTheScreen();
     });
 
-    it('아이디만 입력하고 로그인 버튼을 누르면 비밀번호 에러만 표시된다', async () => {
-      const { getByPlaceholderText, getAllByText, findByText, queryByText } =
-        render(<SignIn />);
+    it('이메일만 입력하면 로그인 버튼은 비활성 상태를 유지한다', () => {
+      const { getByPlaceholderText, getByTestId } = render(<SignIn />);
 
-      const userIdInput = getByPlaceholderText('아이디를 입력해주세요.');
+      const userIdInput = getByPlaceholderText('이메일을 입력하세요');
 
       fireEvent.changeText(userIdInput, 'testuser');
 
-      const submitButton = getSubmitButton(getAllByText);
+      const submitButton = getByTestId('sign-in-submit-button');
 
-      fireEvent.press(submitButton);
-
-      await waitFor(() => {
-        expect(queryByText('아이디를 입력해주세요.')).not.toBeOnTheScreen();
-      });
-      expect(await findByText('비밀번호를 입력해주세요.')).toBeOnTheScreen();
+      expect(submitButton.props.accessibilityState).toEqual(
+        expect.objectContaining({ disabled: true }),
+      );
     });
 
-    it('비밀번호만 입력하고 로그인 버튼을 누르면 아이디 에러만 표시된다', async () => {
-      const { getByPlaceholderText, getAllByText, findByText, queryByText } =
-        render(<SignIn />);
+    it('비밀번호만 입력하면 로그인 버튼은 비활성 상태를 유지한다', () => {
+      const { getByPlaceholderText, getByTestId } = render(<SignIn />);
 
-      const passwordInput = getByPlaceholderText('비밀번호를 입력해주세요.');
+      const passwordInput = getByPlaceholderText('비밀번호를 입력하세요');
 
       fireEvent.changeText(passwordInput, 'password123');
 
-      const submitButton = getSubmitButton(getAllByText);
+      const submitButton = getByTestId('sign-in-submit-button');
 
-      fireEvent.press(submitButton);
+      expect(submitButton.props.accessibilityState).toEqual(
+        expect.objectContaining({ disabled: true }),
+      );
+    });
 
-      await waitFor(() => {
-        expect(queryByText('비밀번호를 입력해주세요.')).not.toBeOnTheScreen();
-      });
-      expect(await findByText('아이디를 입력해주세요.')).toBeOnTheScreen();
+    it('이메일과 비밀번호를 모두 입력하면 로그인 버튼이 활성화된다', () => {
+      const { getByPlaceholderText, getByTestId } = render(<SignIn />);
+
+      fireEvent.changeText(
+        getByPlaceholderText('이메일을 입력하세요'),
+        'testuser',
+      );
+      fireEvent.changeText(
+        getByPlaceholderText('비밀번호를 입력하세요'),
+        'password123',
+      );
+
+      const submitButton = getByTestId('sign-in-submit-button');
+
+      expect(submitButton.props.accessibilityState).toEqual(
+        expect.objectContaining({ disabled: false }),
+      );
     });
 
     it('에러 상태에서 필드를 수정하면 해당 에러가 사라진다', async () => {
-      const { getByPlaceholderText, getAllByText, findByText, queryByText } =
+      mockAxios.onPost('/auth/login').reply(400, {
+        error: {
+          message: '잘못 입력된 값입니다.',
+          data: [{ field: 'userId', message: '이메일을 확인해주세요.' }],
+        },
+      });
+
+      const { getByPlaceholderText, getByTestId, findByText, queryByText } =
         render(<SignIn />);
 
-      const submitButton = getSubmitButton(getAllByText);
+      fireEvent.changeText(
+        getByPlaceholderText('이메일을 입력하세요'),
+        'wrong@example.com',
+      );
+      fireEvent.changeText(
+        getByPlaceholderText('비밀번호를 입력하세요'),
+        'password123',
+      );
+
+      const submitButton = getByTestId('sign-in-submit-button');
 
       fireEvent.press(submitButton);
 
-      expect(await findByText('아이디를 입력해주세요.')).toBeOnTheScreen();
+      expect(await findByText('이메일을 확인해주세요.')).toBeOnTheScreen();
 
-      const userIdInput = getByPlaceholderText('아이디를 입력해주세요.');
+      const userIdInput = getByPlaceholderText('이메일을 입력하세요');
 
-      fireEvent.changeText(userIdInput, 'testuser');
+      fireEvent.changeText(userIdInput, 'test@example.com');
 
       await waitFor(() => {
-        expect(queryByText('아이디를 입력해주세요.')).not.toBeOnTheScreen();
+        expect(queryByText('이메일을 확인해주세요.')).not.toBeOnTheScreen();
       });
+    });
+  });
+
+  describe('하단 링크', () => {
+    it('이용약관과 개인정보 처리방침 모달로 이동한다', () => {
+      const { getByText } = render(<SignIn />);
+
+      fireEvent.press(getByText('이용약관'));
+      fireEvent.press(getByText('개인정보 처리방침'));
+
+      expect(mockPush).toHaveBeenCalledWith('/modal?type=policies');
+      expect(mockPush).toHaveBeenCalledWith('/modal?type=privacy');
     });
   });
 
@@ -122,12 +179,12 @@ describe('SignIn 페이지', () => {
       },
     ) => {
       fireEvent.changeText(
-        getByPlaceholderText('아이디를 입력해주세요.'),
+        getByPlaceholderText('이메일을 입력하세요'),
         data.userId,
       );
 
       fireEvent.changeText(
-        getByPlaceholderText('비밀번호를 입력해주세요.'),
+        getByPlaceholderText('비밀번호를 입력하세요'),
         data.password,
       );
     };

@@ -8,15 +8,25 @@ import { StyleSheet } from '@/components/ui/tamagui';
 interface ModalHeaderProps {
   title: string;
   transparent?: boolean;
+  onBackPress?: () => void;
 }
 
-const ModalHeader = ({ title, transparent = false }: ModalHeaderProps) => {
+const ModalHeader = ({
+  title,
+  transparent = false,
+  onBackPress,
+}: ModalHeaderProps) => {
   const modalRouter = useRouter();
   const isPresented = router.canGoBack();
   const actionContext = useContext(ModalHeaderActionContext);
   const headerAction = actionContext?.action ?? null;
 
   const handleBack = () => {
+    if (onBackPress) {
+      onBackPress();
+      return;
+    }
+
     if (isPresented) {
       modalRouter.back();
     } else {

@@ -1,16 +1,11 @@
 import { createAnimations } from '@tamagui/animations-react-native';
 import { createFont, createTamagui } from 'tamagui';
 
-import { baseFoundation } from '@/theme/tokens';
+import { fontFamilies } from './font-families';
 import { themes } from './themes';
-import { tokens } from './tokens';
+import { baseFoundation, tokens } from './tokens';
 
-export const fontFamilies = {
-  regular: 'Pretendard-Regular',
-  medium: 'Pretendard-Medium',
-  semibold: 'Pretendard-SemiBold',
-  bold: 'Pretendard-Bold',
-} as const;
+export { fontFamilies };
 
 const bodyFont = createFont({
   family: fontFamilies.regular,

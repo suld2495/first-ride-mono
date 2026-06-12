@@ -29,6 +29,8 @@ export interface PasswordInputProps {
   inputStyle?: StyleProp<TextStyle>;
   /** Placeholder text color */
   placeholderTextColor?: string;
+  /** Toggle icon color */
+  iconColor?: string;
 }
 
 /**
@@ -54,9 +56,11 @@ const PasswordInput = ({
   style,
   inputStyle,
   placeholderTextColor,
+  iconColor,
 }: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const { theme } = useAppTheme();
+  const toggleIconColor = iconColor ?? theme.colors.text.secondary;
 
   const togglePasswordVisibility = (): void => {
     setShowPassword((prev) => !prev);
@@ -88,7 +92,7 @@ const PasswordInput = ({
         <Ionicons
           name={showPassword ? 'eye-off' : 'eye'}
           size={baseFoundation.iconSize.m}
-          color={theme.colors.text.secondary}
+          color={toggleIconColor}
         />
       </Pressable>
     </View>

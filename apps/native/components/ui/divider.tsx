@@ -1,5 +1,13 @@
 import React from 'react';
-import { Text, View, type ViewProps, type ViewStyle } from 'react-native';
+import {
+  Text,
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewProps,
+  type ViewStyle,
+} from 'react-native';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -46,6 +54,21 @@ export interface DividerProps extends Omit<ViewProps, 'style'> {
    * Only works with horizontal orientation
    */
   text?: string;
+
+  /**
+   * Custom line color
+   */
+  lineColor?: string;
+
+  /**
+   * Custom text color
+   */
+  textColor?: string;
+
+  /**
+   * Custom text style
+   */
+  textStyle?: StyleProp<TextStyle>;
 }
 
 export const Divider: React.FC<DividerProps> = ({
@@ -54,14 +77,19 @@ export const Divider: React.FC<DividerProps> = ({
   thickness = 1,
   spacing = 0,
   text,
+  lineColor,
+  textColor,
+  textStyle,
   ...props
 }) => {
   const { theme } = useAppTheme();
-  const backgroundColor = {
-    subtle: theme.colors.border.subtle,
-    default: theme.colors.border.default,
-    emphasis: theme.colors.border.strong,
-  }[variant];
+  const backgroundColor =
+    lineColor ??
+    {
+      subtle: theme.colors.border.subtle,
+      default: theme.colors.border.default,
+      emphasis: theme.colors.border.strong,
+    }[variant];
 
   // 동적 스타일 (thickness와 spacing은 props로 받음)
   const lineStyle: ViewStyle =
@@ -86,7 +114,15 @@ export const Divider: React.FC<DividerProps> = ({
         {...props}
       >
         <View style={[styles.base, lineStyle]} />
-        <Text style={styles.text}>{text}</Text>
+        <Text
+          style={[
+            styles.text,
+            textColor ? { color: textColor } : null,
+            textStyle,
+          ]}
+        >
+          {text}
+        </Text>
         <View style={[styles.base, lineStyle]} />
       </View>
     );

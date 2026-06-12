@@ -100,7 +100,7 @@ const JobOptionSelector = ({
       {statusText ? (
         <Typography
           variant="caption2"
-          color={error ? 'error' : 'secondary'}
+          color={error ? palette.tag.critical[700] : palette.theme.gray[70]}
           style={styles.helperText}
         >
           {statusText}
@@ -157,7 +157,7 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: palette.theme.blue[50],
   },
   optionError: {
-    borderColor: theme.colors.feedback.error.border,
+    borderColor: palette.tag.critical[700],
     borderWidth: 2,
   },
   image: {

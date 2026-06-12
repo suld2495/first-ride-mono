@@ -2,6 +2,7 @@ import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
 import { useQueryClient } from '@tanstack/react-query';
+import type { FontSource } from 'expo-font';
 import { useFonts } from 'expo-font';
 import type { Href } from 'expo-router';
 import { Stack, useRouter } from 'expo-router';
@@ -33,12 +34,11 @@ import {
   useSyncAppColorScheme,
 } from '@/hooks/useThemePreference';
 import { useVisitCheck } from '@/hooks/useVisitCheck';
+import { getPendingRoutineShare } from '@/share/routine-share';
+import { fontFamilies } from '@/theme/font-families';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
-import { fontFamilies } from '@/theme';
 import { NAV_THEME } from '@/theme/nav-theme';
 import type { NotificationHandlers } from '@/types/notification-types';
-import { getPendingRoutineShare } from '@/share/routine-share';
-import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
 import { getKakaoNativeAppKey } from '@/utils/env';
 import {
   extractDeepLinkData,
@@ -46,12 +46,23 @@ import {
   syncBadgeCountFromNotification,
   syncBadgeCountWithReceivedRequests,
 } from '@/utils/notifications';
+import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
 
 // Tamagui initialization - must be imported before any component using styles
 import '@/api/bootstrap.api';
 import 'react-native-url-polyfill/auto';
 
 const kakaoNativeAppKey = getKakaoNativeAppKey();
+const fontAssets: Record<string, FontSource> = {
+  [fontFamilies.regular]:
+    require('../assets/fonts/Pretendard-Regular.otf') as FontSource,
+  [fontFamilies.medium]:
+    require('../assets/fonts/Pretendard-Medium.otf') as FontSource,
+  [fontFamilies.semibold]:
+    require('../assets/fonts/Pretendard-SemiBold.otf') as FontSource,
+  [fontFamilies.bold]:
+    require('../assets/fonts/Pretendard-Bold.otf') as FontSource,
+};
 
 if (kakaoNativeAppKey) {
   initializeKakaoSDK(kakaoNativeAppKey);
@@ -74,10 +85,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
       <SplashScreenController isReady={isFontReady} />
       <NavThemeProvider value={NAV_THEME[colorScheme]}>
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="modal" options={{ headerShown: false }} />
           <Stack.Protected guard={!!user}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="account" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ headerShown: false }} />
             <Stack.Screen
               name="routine-settings"
               options={{ headerShown: false }}
@@ -277,12 +288,7 @@ function AppShell({ isFontReady }: AppShellProps) {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded, fontLoadError] = useFonts({
-    [fontFamilies.regular]: require('../assets/fonts/Pretendard-Regular.otf'),
-    [fontFamilies.medium]: require('../assets/fonts/Pretendard-Medium.otf'),
-    [fontFamilies.semibold]: require('../assets/fonts/Pretendard-SemiBold.otf'),
-    [fontFamilies.bold]: require('../assets/fonts/Pretendard-Bold.otf'),
-  });
+  const [fontsLoaded, fontLoadError] = useFonts(fontAssets);
   const isFontReady = fontsLoaded || !!fontLoadError;
 
   if (!isFontReady) {

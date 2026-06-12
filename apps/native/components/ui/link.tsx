@@ -48,17 +48,42 @@ const Link = ({
   accessibilityLabel,
   accessibilityHint,
   accessibilityRole,
-  ...props
+  size,
+  variant,
+  backgroundColor,
+  textColor,
+  leftIcon,
+  rightIcon,
+  loading,
+  fullWidth,
+  style,
+  textStyle,
+  contentStyle,
+  children,
+  ...linkProps
 }: LinkProps) => {
   return (
-    <RNLink {...props} asChild>
+    <RNLink {...linkProps} asChild>
       <Button
         title={title}
+        size={size}
+        variant={variant}
+        backgroundColor={backgroundColor}
+        textColor={textColor}
+        leftIcon={leftIcon}
+        rightIcon={rightIcon}
+        loading={loading}
+        fullWidth={fullWidth}
+        style={style}
+        textStyle={textStyle}
+        contentStyle={contentStyle}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
         accessibilityRole={accessibilityRole}
         disabled={disabled}
-      />
+      >
+        {children}
+      </Button>
     </RNLink>
   );
 };

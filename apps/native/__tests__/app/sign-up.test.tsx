@@ -1,9 +1,11 @@
 import axiosInstance from '@repo/shared/api';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import { StyleSheet as RNStyleSheet } from 'react-native';
 
 import SignUp from '../../app/sign-up';
 import { usePendingSignUpStore } from '../../store/pending-sign-up.store';
+import { palette } from '../../theme/tokens';
 import { render } from '../setup/test-utils';
 
 declare const mockPush: jest.Mock;
@@ -57,6 +59,13 @@ const goToJobStep = async (
   await findByText('마법사');
 };
 
+const getButtonStyle = (button: any) =>
+  RNStyleSheet.flatten(
+    typeof button.props.style === 'function'
+      ? button.props.style({ pressed: false })
+      : button.props.style,
+  );
+
 describe('SignUp 페이지', () => {
   beforeEach(() => {
     mockPush.mockClear();
@@ -76,16 +85,56 @@ describe('SignUp 페이지', () => {
     mockAxios.restore();
   });
 
-  it('기본 입력값이 비어 있으면 다음 단계로 이동하지 않고 에러를 표시한다', async () => {
-    const { getByText, findByText, queryByText } = render(<SignUp />);
+  it('기본 입력값이 비어 있으면 다음 버튼이 비활성화된다', async () => {
+    const { getByTestId, queryByText } = render(<SignUp />);
 
-    fireEvent.press(getByText('다음'));
+    const submitButton = getByTestId('sign-up-submit-button');
 
-    expect(await findByText('아이디를 입력해주세요.')).toBeOnTheScreen();
-    expect(await findByText('닉네임을 입력해주세요.')).toBeOnTheScreen();
-    expect(await findByText('비밀번호를 입력해주세요.')).toBeOnTheScreen();
-    expect(await findByText('비밀번호 확인을 입력해주세요.')).toBeOnTheScreen();
+    fireEvent.press(submitButton);
+
+    expect(submitButton.props.accessibilityState).toEqual(
+      expect.objectContaining({ disabled: true }),
+    );
+    expect(getButtonStyle(submitButton)).toEqual(
+      expect.objectContaining({
+        backgroundColor: palette.theme.gray[10],
+        opacity: 1,
+      }),
+    );
+    expect(queryByText('아이디를 입력해주세요.')).not.toBeOnTheScreen();
+    expect(queryByText('닉네임을 입력해주세요.')).not.toBeOnTheScreen();
+    expect(queryByText('비밀번호를 입력해주세요.')).not.toBeOnTheScreen();
+    expect(queryByText('비밀번호 확인을 입력해주세요.')).not.toBeOnTheScreen();
     expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
+
+    await waitFor(() => {
+      expect(
+        mockAxios.history.get.some((req) => req.url === '/auth/job-options'),
+      ).toBe(true);
+    });
+  });
+
+  it('기본 입력값이 모두 입력되면 다음 버튼이 활성화된다', async () => {
+    const { getByPlaceholderText, getByTestId } = render(<SignUp />);
+
+    fillBasicFields(getByPlaceholderText);
+
+    const submitButton = getByTestId('sign-up-submit-button');
+
+    expect(submitButton.props.accessibilityState).toEqual(
+      expect.objectContaining({ disabled: false }),
+    );
+    expect(getButtonStyle(submitButton)).toEqual(
+      expect.objectContaining({
+        backgroundColor: palette.theme.blue[50],
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        mockAxios.history.get.some((req) => req.url === '/auth/job-options'),
+      ).toBe(true);
+    });
   });
 
   it('비밀번호와 비밀번호 확인이 일치하지 않으면 에러를 표시한다', async () => {
@@ -178,14 +227,20 @@ describe('SignUp 페이지', () => {
       <SignUp />,
     );
 
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'abc');
     fireEvent.press(getByText('다음'));
 
-    expect(await findByText('아이디를 입력해주세요.')).toBeOnTheScreen();
+    expect(
+      await findByText('아이디는 이메일 형식이어야 합니다.'),
+    ).toBeOnTheScreen();
 
     fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'a@b.co');
 
     await waitFor(() => {
-      expect(queryByText('아이디를 입력해주세요.')).not.toBeOnTheScreen();
+      expect(
+        queryByText('아이디는 이메일 형식이어야 합니다.'),
+      ).not.toBeOnTheScreen();
     });
   });
 

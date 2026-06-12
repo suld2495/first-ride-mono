@@ -250,6 +250,13 @@ export default function SignUp() {
   };
 
   const isJobStep = step === 'job';
+  const isBasicFieldsIncomplete =
+    !form.userId.trim() ||
+    !form.nickname.trim() ||
+    !form.password.trim() ||
+    !form.passwordConfirm.trim();
+  const isNextDisabled =
+    !isJobStep && (isBasicFieldsIncomplete || isCheckingUserId);
 
   return (
     <AuthPage contentStyle={isJobStep ? styles.jobPageContent : undefined}>
@@ -305,6 +312,7 @@ export default function SignUp() {
                   style={styles.input}
                   inputStyle={styles.inputText}
                   placeholderTextColor={palette.theme.gray[10]}
+                  iconColor={palette.theme.blue[30]}
                   error={!!fieldErrors.password}
                   helperText={fieldErrors.password}
                 />
@@ -318,6 +326,7 @@ export default function SignUp() {
                   style={styles.input}
                   inputStyle={styles.inputText}
                   placeholderTextColor={palette.theme.gray[10]}
+                  iconColor={palette.theme.blue[30]}
                   error={!!fieldErrors.passwordConfirm}
                   helperText={fieldErrors.passwordConfirm}
                 />
@@ -344,14 +353,25 @@ export default function SignUp() {
 
         <View style={[styles.actions, isJobStep ? styles.jobActions : null]}>
           <Button
+            testID="sign-up-submit-button"
             title={step === 'basic' ? '다음' : '가입'}
             onPress={step === 'basic' ? handleNext : handleJoin}
-            style={styles.button}
+            style={[
+              styles.button,
+              !isJobStep && isBasicFieldsIncomplete
+                ? styles.buttonDisabled
+                : null,
+            ]}
             textStyle={styles.primaryButtonText}
             textColor={palette.white}
             loading={step === 'basic' ? isCheckingUserId : isLoading}
+            disabled={isNextDisabled}
             fullWidth
-            backgroundColor={palette.theme.blue[50]}
+            backgroundColor={
+              !isJobStep && isBasicFieldsIncomplete
+                ? palette.theme.gray[10]
+                : palette.theme.blue[50]
+            }
           />
           {step === 'basic' ? (
             <Button
@@ -391,6 +411,7 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x44,
     borderWidth: 0,
     borderRadius: theme.foundation.radii.xs,
+    backgroundColor: palette.white,
   },
 
   inputText: {
@@ -417,6 +438,10 @@ const styles = StyleSheet.create((theme) => ({
     elevation: 0,
   },
 
+  buttonDisabled: {
+    opacity: 1,
+  },
+
   primaryButtonText: {
     fontSize: theme.foundation.typography.size.body1,
   },
@@ -430,6 +455,7 @@ const styles = StyleSheet.create((theme) => ({
 
   loginButtonText: {
     fontSize: theme.foundation.typography.size.body1,
+    fontWeight: theme.foundation.typography.weight.regular,
   },
 
   actions: {
