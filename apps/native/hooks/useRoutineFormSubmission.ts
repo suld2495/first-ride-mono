@@ -11,6 +11,7 @@ import { useToast } from '@/contexts/ToastContext';
 interface UseRoutineFormSubmissionParams {
   nickname: string;
   routineId: number;
+  originalForm?: Pick<RoutineStatusSubmitForm, 'startDate' | 'endDate'>;
 }
 
 type RoutineSubmitForm = Omit<RoutineForm, 'mateNickname'> & {
@@ -62,9 +63,31 @@ const normalizeRoutineSubmitForm = (
   return form;
 };
 
+const omitUnchangedRoutineDateFields = (
+  form: RoutineSubmitForm,
+  originalForm?: Pick<RoutineStatusSubmitForm, 'startDate' | 'endDate'>,
+): Partial<RoutineSubmitForm> => {
+  if (!originalForm) {
+    return form;
+  }
+
+  const nextForm: Partial<RoutineSubmitForm> = { ...form };
+
+  if (originalForm.startDate === form.startDate) {
+    delete nextForm.startDate;
+  }
+
+  if (originalForm.endDate === form.endDate) {
+    delete nextForm.endDate;
+  }
+
+  return nextForm;
+};
+
 export const useRoutineFormSubmission = ({
   nickname,
   routineId,
+  originalForm,
 }: UseRoutineFormSubmissionParams) => {
   const router = useRouter();
   const toast = useToast();
@@ -96,7 +119,10 @@ export const useRoutineFormSubmission = ({
     (data: RoutineStatusSubmitForm) => {
       updateMutation.mutate(
         {
-          ...normalizeRoutineSubmitForm(data, nickname),
+          ...omitUnchangedRoutineDateFields(
+            normalizeRoutineSubmitForm(data, nickname),
+            originalForm,
+          ),
           routineId,
         },
         {
@@ -115,7 +141,7 @@ export const useRoutineFormSubmission = ({
         },
       );
     },
-    [nickname, routineId, router, toast, updateMutation],
+    [nickname, originalForm, routineId, router, toast, updateMutation],
   );
 
   return {

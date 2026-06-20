@@ -11,9 +11,9 @@ import ModalHeaderActionProvider from '@/components/modal/modal-header-action-pr
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { useAuthUser } from '@/hooks/useAuthSession';
-import type { ModalType } from '@/hooks/useModal';
 import { useModal } from '@/hooks/useModal';
 import { useSetRoutineId } from '@/hooks/useRoutineSelection';
+import { normalizeModalType, type ModalType } from '@/types/modal';
 
 const MODAL_ANIMATION_DURATION = 250;
 
@@ -25,26 +25,37 @@ export default function Modal() {
     friendNickname?: string;
     routineId?: string;
   }>();
-  const [title, ModalComponent, modalOptions] = useModal(type);
+  const modalType = normalizeModalType(type);
+  const safeModalType = modalType ?? 'routine-add';
+  const [title, ModalComponent, modalOptions] = useModal(safeModalType);
   const setRoutineId = useSetRoutineId();
   const { theme } = useAppTheme();
   const modalTitle =
-    type === 'friend-routines' && friendNickname ? friendNickname : title;
+    modalType === 'friend-routines' && friendNickname ? friendNickname : title;
   const insets = useSafeAreaInsets();
-  const isPublicModal = type === 'policies' || type === 'privacy';
+  const isPublicModal = modalType === 'policies' || modalType === 'privacy';
   const contentPaddingHorizontal =
     modalOptions.contentPadding === false
       ? 0
       : (modalOptions.contentPaddingHorizontal ?? theme.foundation.spacing[6]);
 
   useEffect(() => {
+    if (!modalType) {
+      if (user) {
+        router.push('/(tabs)/(afterLogin)/(routine)');
+      } else {
+        router.replace('/sign-in');
+      }
+      return;
+    }
+
     if (!user && !isPublicModal) {
       router.replace('/sign-in');
     }
-  }, [isPublicModal, router, user]);
+  }, [isPublicModal, modalType, router, user]);
 
   useEffect(() => {
-    if (type !== 'request' || !routineId) {
+    if (modalType !== 'request' || !routineId) {
       return;
     }
 
@@ -53,9 +64,9 @@ export default function Modal() {
     if (Number.isFinite(nextRoutineId) && nextRoutineId > 0) {
       setRoutineId(nextRoutineId);
     }
-  }, [routineId, setRoutineId, type]);
+  }, [modalType, routineId, setRoutineId]);
 
-  if (!user && !isPublicModal) {
+  if (!modalType || (!user && !isPublicModal)) {
     return null;
   }
 

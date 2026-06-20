@@ -8,7 +8,7 @@ import ModalFooter from '@/components/modal/modal-footer';
 import { Button } from '@/components/ui/button';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
-import type { ModalType } from '@/hooks/useModal';
+import type { ModalType } from '@/types/modal';
 
 interface FormButtonGroupProps {
   type: ModalType;

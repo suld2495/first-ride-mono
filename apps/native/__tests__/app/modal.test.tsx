@@ -3,12 +3,22 @@ import { StyleSheet } from 'react-native';
 import ModalScreen from '../../app/modal';
 import { render } from '../setup/test-utils';
 
+declare const mockReplace: jest.Mock;
+declare const mockPush: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockRoutineStore: {
   setRoutineId: jest.Mock;
 };
 
 let mockModalOptions: Record<string, unknown> = {};
+const createMockUseModalResult = (type: unknown) => {
+  if (type === 'unknown-modal') {
+    throw new Error('존재하지 않은 모달입니다.');
+  }
+
+  return ['테스트 모달', () => null, mockModalOptions];
+};
+const mockUseModal = jest.fn(createMockUseModalResult);
 
 jest.mock('@/components/modal/modal-header', () => {
   const { Text } = require('react-native');
@@ -21,7 +31,21 @@ jest.mock('@/components/modal/modal-header', () => {
 });
 
 jest.mock('@/hooks/useModal', () => ({
-  useModal: () => ['테스트 모달', () => null, mockModalOptions],
+  useModal: (type: unknown) => mockUseModal(type),
+}));
+
+jest.mock('@/types/modal', () => ({
+  normalizeModalType: (type: unknown) => {
+    if (type === 'routine-edit') {
+      return 'routine-update';
+    }
+
+    if (type === 'unknown-modal') {
+      return null;
+    }
+
+    return type;
+  },
 }));
 
 describe('ModalScreen', () => {
@@ -31,6 +55,10 @@ describe('ModalScreen', () => {
     }
     mockSearchParams.type = 'routine-add';
     mockModalOptions = {};
+    mockReplace.mockClear();
+    mockPush.mockClear();
+    mockUseModal.mockClear();
+    mockUseModal.mockImplementation(createMockUseModalResult);
     mockRoutineStore.setRoutineId.mockClear();
   });
 
@@ -91,5 +119,24 @@ describe('ModalScreen', () => {
     render(<ModalScreen />);
 
     expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(42);
+  });
+
+  it('normalizes the legacy routine-edit modal type to routine-update', () => {
+    mockSearchParams.type = 'routine-edit';
+
+    render(<ModalScreen />);
+
+    expect(mockUseModal).toHaveBeenCalledWith('routine-update');
+  });
+
+  it('redirects without rendering when modal type is unknown', () => {
+    mockSearchParams.type = 'unknown-modal';
+
+    const { queryByTestId } = render(<ModalScreen />);
+
+    expect(mockUseModal).toHaveBeenCalledWith('routine-add');
+    expect(queryByTestId('modal-screen-container')).not.toBeOnTheScreen();
+    expect(mockPush).toHaveBeenCalledWith('/(tabs)/(afterLogin)/(routine)');
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 });

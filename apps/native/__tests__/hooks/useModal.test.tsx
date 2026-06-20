@@ -1,5 +1,6 @@
 import Account from '@/app/account';
 import { useModal } from '@/hooks/useModal';
+import { normalizeModalType } from '@/types/modal';
 
 jest.mock('expo-image-picker', () => ({
   launchCameraAsync: jest.fn(),
@@ -54,5 +55,13 @@ describe('useModal', () => {
     const [title] = useModal('stat');
 
     expect(title).toBe('스탯');
+  });
+
+  it('기존 routine-edit 모달 타입을 routine-update로 정규화한다', () => {
+    expect(normalizeModalType('routine-edit')).toBe('routine-update');
+  });
+
+  it('알 수 없는 모달 타입은 null로 정규화한다', () => {
+    expect(normalizeModalType('unknown-modal')).toBeNull();
   });
 });

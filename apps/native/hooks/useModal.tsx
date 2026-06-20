@@ -14,25 +14,8 @@ import RoutineReorderModal from '@/components/modal/routine-reorder-modal';
 import StatModal from '@/components/modal/stat-modal';
 import TermsPolicyModal from '@/components/modal/terms-policy-modal';
 import ThemeModal from '@/components/modal/theme-modal';
-
-export type ModalType =
-  | 'account'
-  | 'routine-add'
-  | 'routine-update'
-  | 'routine-detail'
-  | 'routine-reorder'
-  | 'hidden-routines'
-  | 'quest-add'
-  | 'quest-detail'
-  | 'request'
-  | 'request-list'
-  | 'request-detail'
-  | 'friend-request-list'
-  | 'friend-routines'
-  | 'stat'
-  | 'policies'
-  | 'privacy'
-  | 'theme';
+import type { ModalType } from '@/types/modal';
+export { normalizeModalType, type ModalType } from '@/types/modal';
 
 interface ModalOptions {
   contentPadding?: boolean;

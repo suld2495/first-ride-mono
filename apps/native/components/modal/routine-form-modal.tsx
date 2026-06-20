@@ -24,11 +24,11 @@ import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
-import type { ModalType } from '@/hooks/useModal';
 import { useRoutineDelete } from '@/hooks/useRoutineDelete';
 import { useRoutineFormSubmission } from '@/hooks/useRoutineFormSubmission';
 import { useRoutineForm, useRoutineId } from '@/hooks/useRoutineSelection';
 import { baseFoundation, palette } from '@/theme/tokens';
+import type { ModalType } from '@/types/modal';
 
 const ROUTINE_COUNT_OPTIONS = Array.from({ length: 7 }, (_, index) => {
   const count = index + 1;
@@ -106,6 +106,7 @@ const RoutineFormModal = () => {
   const { handleCreate, handleUpdate } = useRoutineFormSubmission({
     nickname: user!.nickname,
     routineId,
+    originalForm: isRoutineAdd ? undefined : sourceRoutineForm,
   });
 
   // Debounce keyword for friend search
