@@ -1,10 +1,10 @@
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { PixelCard } from '@/components/ui/pixel-card';
+import { StyleSheet } from '@/components/ui/tamagui';
+import { baseFoundation } from '@/theme/tokens';
 
 import { RadarChart } from './radar-chart';
 import { RadarStatList } from './radar-stat-list';

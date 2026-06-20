@@ -62,11 +62,7 @@ describe('QuestPage', () => {
   it('shows the same incomplete quest list when the all status filter is selected', () => {
     useQuestStore.setState({ statusFilter: 'ALL' });
     jest.mocked(useFetchQuestsQuery).mockReturnValue({
-      data: [
-        createMockQuest(0),
-        createMockQuest(1),
-        createMockQuest(2),
-      ],
+      data: [createMockQuest(0), createMockQuest(1), createMockQuest(2)],
       isLoading: false,
     } as ReturnType<typeof useFetchQuestsQuery>);
 

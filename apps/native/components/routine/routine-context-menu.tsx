@@ -1,3 +1,4 @@
+/* eslint-disable local-rules/no-multiple-components-in-file */
 import { Pressable, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
@@ -96,7 +97,11 @@ export const RoutineContextMenuPanel = ({
     { label: '삭제', onPress: onDelete, color: palette.theme.red[50] },
   ];
 
-  const renderMenuItem = ({ label, onPress, color }: RoutineContextMenuItem) => (
+  const renderMenuItem = ({
+    label,
+    onPress,
+    color,
+  }: RoutineContextMenuItem) => (
     <Pressable
       key={label}
       accessibilityRole="button"

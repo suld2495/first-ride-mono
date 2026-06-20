@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, type ViewProps } from 'react-native';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 

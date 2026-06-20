@@ -1,6 +1,6 @@
 import { ApiError } from '@repo/shared/api/AppError';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
-import { routineKey } from '@repo/shared/types/query-keys/routine';
+import { routineKeys } from '@repo/shared/types/query-keys/routine';
 import { useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -67,7 +67,7 @@ export const useRequestSubmission = (
       saveRequest.mutate(formData, {
         onSuccess: () => {
           void queryClient.invalidateQueries({
-            queryKey: routineKey.list(detail.nickname),
+            queryKey: routineKeys.list(detail.nickname),
           });
           showToast(
             detail.isMe

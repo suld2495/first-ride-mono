@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, View, type ViewProps } from 'react-native';
+
 import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -36,7 +37,10 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.foundation.radii.l,
     backgroundColor: theme.colors.background.surface,
     shadowColor: theme.colors.border.default,
-    shadowOffset: { width: baseFoundation.dimension.x0, height: baseFoundation.dimension.x4 },
+    shadowOffset: {
+      width: baseFoundation.dimension.x0,
+      height: baseFoundation.dimension.x4,
+    },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 3,

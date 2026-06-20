@@ -1,10 +1,10 @@
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
+import { StyleSheet } from '@/components/ui/tamagui';
 import { STAT_CONFIGS } from '@/constants/STATS';
+import { baseFoundation } from '@/theme/tokens';
 
 import GridStatCard from './grid-stat-card';
 

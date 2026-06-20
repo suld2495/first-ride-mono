@@ -1,11 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { formatTimeRemaining } from '@repo/shared/utils/date-utils';
 import { useEffect, useState } from 'react';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
+import { baseFoundation } from '@/theme/tokens';
 
 interface QuestTimeProps {
   endDate: Date;

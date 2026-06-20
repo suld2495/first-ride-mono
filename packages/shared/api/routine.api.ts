@@ -11,8 +11,17 @@ import type {
 import { toAppError } from '.';
 import http from './client';
 
-type RoutineResponse = Omit<Routine, 'successDate'> & {
+type RoutineResponse = Omit<
+  Routine,
+  | 'successDate'
+  | 'hasPendingConfirmation'
+  | 'pendingConfirmationCount'
+  | 'pendingConfirmationIds'
+> & {
   successDate?: Routine['successDate'] | null;
+  hasPendingConfirmation?: Routine['hasPendingConfirmation'] | null;
+  pendingConfirmationCount?: Routine['pendingConfirmationCount'] | null;
+  pendingConfirmationIds?: Routine['pendingConfirmationIds'] | null;
 };
 
 const normalizeRoutine = (routine: RoutineResponse): Routine => ({
@@ -38,35 +47,39 @@ export const fetchRoutines = async (date: string): Promise<Routine[]> => {
 };
 
 export const fetchAllRoutines = async (): Promise<Routine[]> => {
-  const responses = await Promise.allSettled([
-    http.get<RoutineResponse[], void>('/routine/list/all'),
-    http.get<RoutineResponse[], void>('/routine/list'),
-  ]);
-  const routinesById = new Map<Routine['routineId'], Routine>();
+  try {
+    const responses = await Promise.allSettled([
+      http.get<RoutineResponse[], void>('/routine/list/all'),
+      http.get<RoutineResponse[], void>('/routine/list'),
+    ]);
+    const routinesById = new Map<Routine['routineId'], Routine>();
 
-  responses.forEach((response) => {
-    if (response.status !== 'fulfilled') {
-      return;
+    responses.forEach((response) => {
+      if (response.status !== 'fulfilled') {
+        return;
+      }
+
+      response.value.map(normalizeRoutine).forEach((routine) => {
+        routinesById.set(routine.routineId, routine);
+      });
+    });
+
+    if (routinesById.size) {
+      return Array.from(routinesById.values());
     }
 
-    response.value.map(normalizeRoutine).forEach((routine) => {
-      routinesById.set(routine.routineId, routine);
-    });
-  });
+    const rejectedResponse = responses.find(
+      (response) => response.status === 'rejected',
+    );
 
-  if (routinesById.size) {
-    return Array.from(routinesById.values());
+    throw toAppError(
+      rejectedResponse?.status === 'rejected'
+        ? rejectedResponse.reason
+        : new Error('루틴 목록을 조회하지 못했습니다.'),
+    );
+  } catch (error) {
+    throw toAppError(error);
   }
-
-  const rejectedResponse = responses.find(
-    (response) => response.status === 'rejected',
-  );
-
-  throw toAppError(
-    rejectedResponse?.status === 'rejected'
-      ? rejectedResponse.reason
-      : new Error('루틴 목록을 조회하지 못했습니다.'),
-  );
 };
 
 export const fetchPausedRoutines = async (): Promise<Routine[]> => {

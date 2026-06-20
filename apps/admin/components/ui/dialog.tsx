@@ -1,3 +1,4 @@
+/* eslint-disable local-rules/no-multiple-components-in-file */
 'use client';
 
 import * as React from 'react';

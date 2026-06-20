@@ -1,10 +1,13 @@
-export const routineKey = {
+export const routineKeys = {
   all: () => ['routine'] as const,
-  list: (nickname: string) => [...routineKey.all(), nickname] as const,
-  allList: (nickname: string) => [...routineKey.list(nickname), 'all'] as const,
+  list: (nickname: string) => [...routineKeys.all(), nickname] as const,
+  allList: (nickname: string) =>
+    [...routineKeys.list(nickname), 'all'] as const,
   pausedList: (nickname: string) =>
-    [...routineKey.list(nickname), 'paused'] as const,
+    [...routineKeys.list(nickname), 'paused'] as const,
   listByDate: (nickname: string, date: string) =>
-    [...routineKey.list(nickname), { date }] as const,
-  detail: (id: number) => [...routineKey.all(), id] as const,
+    [...routineKeys.list(nickname), { date }] as const,
+  detail: (id: number) => [...routineKeys.all(), id] as const,
 };
+
+export const routineKey = routineKeys;

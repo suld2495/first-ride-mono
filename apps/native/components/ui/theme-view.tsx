@@ -1,4 +1,5 @@
 import { View, type ViewProps } from 'react-native';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 /**

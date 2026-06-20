@@ -1,8 +1,8 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 
-import AppTamaguiProvider from '../../../components/ui/tamagui-provider';
 import { Select } from '../../../components/ui/select';
+import AppTamaguiProvider from '../../../components/ui/tamagui-provider';
 import { baseFoundation } from '../../../theme/tokens';
 
 describe('Select', () => {

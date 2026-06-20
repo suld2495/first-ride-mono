@@ -1,6 +1,6 @@
 import * as requestApi from '@repo/shared/api/request.api';
 import { requestKey } from '@repo/shared/types/query-keys/request';
-import { routineKey } from '@repo/shared/types/query-keys/routine';
+import { routineKeys } from '@repo/shared/types/query-keys/routine';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
@@ -33,7 +33,7 @@ export const useAppActiveRefresh = (
         });
 
         void queryClient.invalidateQueries({
-          queryKey: routineKey.list(nickname),
+          queryKey: routineKeys.list(nickname),
         });
 
         void refreshRoutineWidgetSnapshot({

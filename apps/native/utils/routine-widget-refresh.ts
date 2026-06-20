@@ -1,5 +1,5 @@
 import * as routineApi from '@repo/shared/api/routine.api';
-import { routineKey } from '@repo/shared/types/query-keys/routine';
+import { routineKeys } from '@repo/shared/types/query-keys/routine';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { QueryClient } from '@tanstack/react-query';
 
@@ -27,7 +27,7 @@ export const refreshRoutineWidgetSnapshot = async ({
 
   const routines = queryClient
     ? await queryClient.fetchQuery({
-        queryKey: routineKey.listByDate(nickname, date),
+        queryKey: routineKeys.listByDate(nickname, date),
         queryFn: () => routineApi.fetchRoutines(date),
       })
     : await routineApi.fetchRoutines(date);

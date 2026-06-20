@@ -240,7 +240,6 @@ const RoutineWeekList = ({
       );
     },
     [
-      date,
       canRequestRoutine,
       itemHeight,
       onRequestRoutine,
@@ -275,6 +274,8 @@ const RoutineWeekList = ({
       scrollEnabled={scrollEnabled}
       scrollEventThrottle={16}
       showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+      maxToRenderPerBatch={10}
+      windowSize={5}
       testID={testID}
     />
   );

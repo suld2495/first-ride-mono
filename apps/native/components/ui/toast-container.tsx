@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect } from 'react';
 import { Animated, Pressable, View } from 'react-native';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { type Toast, type ToastType, useToast } from '@/contexts/ToastContext';
 
 import { Typography } from './typography';
@@ -94,10 +94,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
         <Typography color="inverse" style={styles.message}>
           {toast.message}
         </Typography>
-        <Pressable
-          onPress={handleClose}
-          hitSlop={theme.foundation.spacing[2]}
-        >
+        <Pressable onPress={handleClose} hitSlop={theme.foundation.spacing[2]}>
           <Ionicons
             name="close"
             size={theme.foundation.iconSize.m}

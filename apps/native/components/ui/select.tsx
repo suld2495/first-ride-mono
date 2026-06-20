@@ -6,7 +6,6 @@ import {
   type LayoutRectangle,
   Modal,
   Pressable,
-  ScrollView,
   type StyleProp,
   Text,
   type TextStyle,
@@ -16,6 +15,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
@@ -136,6 +136,7 @@ const DROPDOWN_ITEM_HEIGHT = 44;
  *   placeholder="옵션을 선택하세요"
  * />
  */
+// eslint-disable-next-line sonarjs/cognitive-complexity
 export function Select<T = string | number>({
   value,
   items = [],
@@ -248,10 +249,9 @@ export function Select<T = string | number>({
     [closeDropdown, onSelect],
   );
 
-  const renderDropdownItem = useCallback(
-    (item: SelectItem<T>) => (
+  const renderDropdownItem: ListRenderItem<SelectItem<T>> = useCallback(
+    ({ item }) => (
       <TouchableOpacity
-        key={String(item.value)}
         style={[
           styles.dropdownItem,
           item.value === value && styles.dropdownItemSelected,
@@ -318,13 +318,23 @@ export function Select<T = string | number>({
             },
       ]}
     >
-      <ScrollView
+      <FlashList
+        data={items}
+        renderItem={renderDropdownItem}
+        keyExtractor={(item) => String(item.value)}
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled={true}
+        estimatedItemSize={DROPDOWN_ITEM_HEIGHT}
+        getItemLayout={(_, index) => ({
+          length: DROPDOWN_ITEM_HEIGHT,
+          offset: DROPDOWN_ITEM_HEIGHT * index,
+          index,
+        })}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        windowSize={5}
         showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
-      >
-        {items.map(renderDropdownItem)}
-      </ScrollView>
+      />
     </ThemeView>
   );
 

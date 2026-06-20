@@ -1,3 +1,4 @@
+/* eslint-disable local-rules/no-multiple-components-in-file */
 import Svg, { Path } from 'react-native-svg';
 
 import type { TabBarIconSvgProps } from '@/components/ui/tab-bar-icon';

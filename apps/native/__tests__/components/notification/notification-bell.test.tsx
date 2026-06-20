@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react-native';
 
-import NotificationBell from '@/components/notification/notification-bell';
 import { NotificationBellIcon } from '@/components/icons/notification-icons';
+import NotificationBell from '@/components/notification/notification-bell';
 
 jest.mock('@/components/icons/notification-icons', () => {
   const React = require('react');

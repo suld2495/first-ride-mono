@@ -4,7 +4,6 @@ import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import type { SearchOption, User } from '@repo/types';
 import { useCallback, useState } from 'react';
 import {
-  FlatList,
   Image,
   Modal,
   Pressable,
@@ -45,6 +44,7 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   /\/$/,
   '',
 );
+const FRIEND_ADD_RESULT_ITEM_HEIGHT = 48;
 
 const getCharacterImageSource = (
   characterImageUrl: SearchResultUser['characterImageUrl'],
@@ -168,7 +168,6 @@ interface FriendAddModalProps {
 }
 
 const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
-  const isTestEnv = process.env.NODE_ENV === 'test';
   const [keyword, setKeyword] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [searchOption, setSearchOption] = useState<SearchOption>({
@@ -206,21 +205,15 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
     [handleClose, userList?.length],
   );
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = useCallback(() => {
     if (!searchOption.keyword) return;
 
     setRefreshing(true);
 
-    try {
-      await refetch();
-    } finally {
+    void refetch().finally(() => {
       setRefreshing(false);
-    }
+    });
   }, [refetch, searchOption.keyword]);
-
-  const ListComponent = isTestEnv
-    ? FlatList<SearchResultUser>
-    : FlashList<SearchResultUser>;
 
   return (
     <Modal
@@ -284,7 +277,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
             </ThemeView>
 
             <ThemeView style={styles.listContainer} transparent>
-              <ListComponent
+              <FlashList
                 data={userList ?? []}
                 keyExtractor={(item) => item.userId.toString()}
                 renderItem={renderUserItem}
@@ -308,6 +301,11 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                   />
                 }
                 estimatedItemSize={48}
+                getItemLayout={(_, index) => ({
+                  length: FRIEND_ADD_RESULT_ITEM_HEIGHT,
+                  offset: FRIEND_ADD_RESULT_ITEM_HEIGHT * index,
+                  index,
+                })}
                 removeClippedSubviews={false}
                 maxToRenderPerBatch={10}
                 windowSize={5}

@@ -43,7 +43,9 @@ describe('스타일 패키지 제거 상태', () => {
 
     const remaining = files.filter((file) => {
       const content = fs.readFileSync(file, 'utf8');
-      return FORBIDDEN_PATTERNS.some((pattern) => content.includes(pattern));
+      return FORBIDDEN_PATTERNS.some(
+        (pattern) => content.indexOf(pattern) >= 0,
+      );
     });
 
     expect(remaining).toEqual([]);

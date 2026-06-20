@@ -10,9 +10,8 @@ module.exports = (config) => ({
     $widgetBackground: '#FFFFFF',
   },
   entitlements: {
-    'com.apple.security.application-groups':
-      config.ios?.entitlements?.['com.apple.security.application-groups'] ?? [
-        'group.com.mannal.firstride',
-      ],
+    'com.apple.security.application-groups': config.ios?.entitlements?.[
+      'com.apple.security.application-groups'
+    ] ?? ['group.com.mannal.firstride'],
   },
 });

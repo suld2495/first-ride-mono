@@ -72,7 +72,10 @@ describe('SocialSignUp 페이지', () => {
       <SocialSignUp />,
     );
 
-    fireEvent.changeText(getByPlaceholderText('닉네임을 입력해주세요.'), '테스터');
+    fireEvent.changeText(
+      getByPlaceholderText('닉네임을 입력해주세요.'),
+      '테스터',
+    );
     fireEvent.press(await findByText('개발자'));
     fireEvent.press(getByText('가입 완료'));
 

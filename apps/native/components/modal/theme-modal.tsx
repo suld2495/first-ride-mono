@@ -33,7 +33,8 @@ const getFixedThemeName = (themeName: string): FixedThemeName => {
 const ThemeModal = () => {
   const user = useAuthUser();
   const { theme } = useAppTheme();
-  const fixedThemeName = getThemeNameFromUserJob(user) ?? getFixedThemeName(theme.name);
+  const fixedThemeName =
+    getThemeNameFromUserJob(user) ?? getFixedThemeName(theme.name);
   const themeLabel = THEME_LABELS[fixedThemeName];
 
   return (

@@ -1,11 +1,11 @@
 import type { Href } from 'expo-router';
 import { useRouter } from 'expo-router';
 import { View, type StyleProp, type ViewStyle } from 'react-native';
-import { NotificationBellIcon } from '@/components/icons/notification-icons';
-import { StyleSheet } from '@/components/ui/tamagui';
 
+import { NotificationBellIcon } from '@/components/icons/notification-icons';
 import { Badge } from '@/components/ui/badge';
 import { IconButton, type IconButtonSize } from '@/components/ui/icon-button';
+import { StyleSheet } from '@/components/ui/tamagui';
 
 interface NotificationBellProps {
   accessibilityLabel?: string;
@@ -43,9 +43,9 @@ const NotificationBell = ({
       accessibilityLabel={
         accessibilityLabel ?? `인증 요청 알림${count > 0 ? ` ${count}건` : ''}`
       }
-      icon={({ size }) => (
+      icon={({ size: iconSize }) => (
         <View>
-          <NotificationBellIcon size={size} />
+          <NotificationBellIcon size={iconSize} />
           {count > 0 && (
             <View style={styles.badge_container}>
               <Badge count={count} variant="error" size="sm" />

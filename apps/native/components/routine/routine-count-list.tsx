@@ -46,6 +46,34 @@ const createRoutineDateKey = (date: Date) => {
   return `${year}${month}${day}`;
 };
 
+const getRoutineCountAccessibilityLabel = ({
+  countIndex,
+  isTodaySuccess,
+  achieved,
+  isPendingConfirmation,
+  isGoalRange,
+}: {
+  countIndex: number;
+  isTodaySuccess: boolean;
+  achieved: boolean;
+  isPendingConfirmation: boolean;
+  isGoalRange: boolean;
+}) => {
+  if (isTodaySuccess) {
+    return `${countIndex}회 오늘 완료`;
+  }
+
+  if (achieved) {
+    return isGoalRange ? `${countIndex}회 달성` : `${countIndex}회 초과 달성`;
+  }
+
+  if (isPendingConfirmation) {
+    return `${countIndex}회 요청 중`;
+  }
+
+  return isGoalRange ? `${countIndex}회 미달성` : `${countIndex}회 목표 없음`;
+};
+
 const RoutineCountList = ({
   routines,
   date,
@@ -164,17 +192,13 @@ const RoutineCountList = ({
                   const checkmarkColor = isPendingConfirmation
                     ? theme.colors.brand.pendingConfirmationCheck
                     : theme.colors.brand.selectedCheck;
-                  const label = achieved
-                    ? isTodaySuccess
-                      ? `${countIndex}회 오늘 완료`
-                      : countIndex <= routineCount
-                        ? `${countIndex}회 달성`
-                        : `${countIndex}회 초과 달성`
-                    : isPendingConfirmation
-                      ? `${countIndex}회 요청 중`
-                      : isGoalRange
-                        ? `${countIndex}회 미달성`
-                        : `${countIndex}회 목표 없음`;
+                  const label = getRoutineCountAccessibilityLabel({
+                    countIndex,
+                    isTodaySuccess,
+                    achieved,
+                    isPendingConfirmation,
+                    isGoalRange,
+                  });
 
                   return (
                     <Pressable
@@ -252,6 +276,8 @@ const RoutineCountList = ({
       scrollEnabled={scrollEnabled}
       scrollEventThrottle={16}
       showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+      maxToRenderPerBatch={10}
+      windowSize={5}
       testID={testID}
     />
   );

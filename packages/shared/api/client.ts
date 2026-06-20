@@ -13,7 +13,7 @@ const get = async <R, D>(
       D
     >(url, config);
 
-    return response.data?.data as R;
+    return response.data.data;
   } catch (error) {
     throw toAppError(error);
   }
@@ -31,7 +31,7 @@ const post = async <R, D>(
       D
     >(url, data, config);
 
-    return response.data?.data as R;
+    return response.data.data;
   } catch (error) {
     throw toAppError(error);
   }
@@ -49,7 +49,7 @@ const put = async <R, D>(
       D
     >(url, data, config);
 
-    return response.data?.data as R;
+    return response.data.data;
   } catch (error) {
     throw toAppError(error);
   }
@@ -67,7 +67,7 @@ const patch = async <R, D>(
       D
     >(url, data, config);
 
-    return response.data?.data as R;
+    return response.data.data;
   } catch (error) {
     throw toAppError(error);
   }
@@ -84,7 +84,7 @@ const deleteApi = async <R, D>(
       D
     >(url, config);
 
-    return response.data?.data as R;
+    return response.data.data;
   } catch (error) {
     throw toAppError(error);
   }

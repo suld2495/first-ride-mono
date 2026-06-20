@@ -1,23 +1,23 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   useFetchFriendRequestsQuery,
   useFetchFriendsQuery,
 } from '@repo/shared/hooks/useFriend';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import type { Friend } from '@repo/types';
 import { getWeekMonday } from '@repo/shared/utils';
+import type { Friend } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import FriendAddModal from '@/components/friend/friend-add-modal';
 import FriendHeader from '@/components/friend/friend-header';
 import FriendList from '@/components/friend/friend-list';
 import Container from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
-import { Typography } from '@/components/ui/typography';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
+import { baseFoundation } from '@/theme/tokens';
 
 const getFriendAccountId = (friend: Friend): number | string | undefined =>
   friend.id ?? friend.friendId ?? friend.accountId;

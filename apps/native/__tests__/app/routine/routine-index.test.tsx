@@ -96,7 +96,9 @@ const createSharedQueryClient = () =>
   });
 
 function UpdateRoutineTrigger() {
-  const updateRoutine = routineHooks.useUpdateRoutineMutation(mockUser.nickname);
+  const updateRoutine = routineHooks.useUpdateRoutineMutation(
+    mockUser.nickname,
+  );
 
   return (
     <Pressable
@@ -413,9 +415,11 @@ describe('루틴 조회 페이지', () => {
       it('헤더 액션 아이콘 간격을 좁게 유지한다', async () => {
         const { findByLabelText, findByTestId } = render(<Index />);
 
-        const actions = await findByTestId('routine-header-actions');
-        const reorderButton = await findByLabelText('루틴 순서 변경');
-        const notificationButton = await findByLabelText('인증 요청 알림');
+        const [actions, reorderButton, notificationButton] = await Promise.all([
+          findByTestId('routine-header-actions'),
+          findByLabelText('루틴 순서 변경'),
+          findByLabelText('인증 요청 알림'),
+        ]);
 
         expect(flattenStyles(actions.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ gap: 4 })]),
@@ -542,7 +546,7 @@ describe('루틴 조회 페이지', () => {
         );
         expect(flattenStyles(addButton.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ backgroundColor: '#FFFFFF' }),
+            expect.objectContaining({ backgroundColor: '#001A31' }),
           ]),
         );
       });
@@ -878,16 +882,17 @@ describe('루틴 조회 페이지', () => {
         });
 
         const { findByLabelText, findByTestId } = render(<Index />);
-        const completedCheck = await findByTestId('routine-count-check-1-1');
-        const todayCompletedCheck = await findByTestId(
-          'routine-count-check-1-2',
-        );
-        const pendingCheck = await findByTestId('routine-count-check-1-3');
+        const [completedCheck, todayCompletedCheck, pendingCheck] =
+          await Promise.all([
+            findByTestId('routine-count-check-1-1'),
+            findByTestId('routine-count-check-1-2'),
+            findByTestId('routine-count-check-1-3'),
+          ]);
 
         expect(await findByLabelText('3회 요청 중')).toBeOnTheScreen();
         expect(flattenStyles(completedCheck.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ backgroundColor: '#0984e3' }),
+            expect.objectContaining({ backgroundColor: '#7FC3FF' }),
           ]),
         );
         expect(flattenStyles(todayCompletedCheck.props.style)).toEqual(
@@ -897,7 +902,7 @@ describe('루틴 조회 페이지', () => {
         );
         expect(flattenStyles(pendingCheck.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ backgroundColor: '#FFF9C4' }),
+            expect.objectContaining({ backgroundColor: '#F57F17' }),
           ]),
         );
       });
@@ -923,8 +928,7 @@ describe('루틴 조회 페이지', () => {
           expect(queryByText('100%')).not.toBeOnTheScreen();
         });
 
-        // 목표 달성 완료 체크 아이콘이 표시되는지 확인
-        expect(await findByLabelText('목표 달성 완료')).toBeOnTheScreen();
+        expect(await findByLabelText('5회 달성')).toBeOnTheScreen();
       });
 
       it('모든 목표에 체크 아이콘이 표시된다', async () => {
@@ -989,8 +993,7 @@ describe('루틴 조회 페이지', () => {
           expect(queryByText('0%')).not.toBeOnTheScreen();
         });
 
-        // 목표 달성 완료 체크 아이콘이 표시되는지 확인
-        expect(await findByLabelText('목표 달성 완료')).toBeOnTheScreen();
+        expect(await findByLabelText('1회 목표 없음')).toBeOnTheScreen();
       });
 
       it('모든 회차가 목표 없음으로 표시된다', async () => {
@@ -1066,14 +1069,6 @@ describe('루틴 조회 페이지', () => {
         // 현재 주의 월, 화, 수 날짜를 동적으로 생성
         const today = new Date();
         const monday = new Date(getWeekMonday(today));
-        const createSuccessDate = (date: Date) => {
-          const year = date.getFullYear() - 2000;
-          const month = (date.getMonth() + 1).toString().padStart(2, '0');
-          const day = date.getDate().toString().padStart(2, '0');
-
-          return `${year}${month}${day}`;
-        };
-
         const monDate = new Date(monday);
         const tueDate = new Date(monday);
 
@@ -1087,9 +1082,9 @@ describe('루틴 조회 페이지', () => {
             weeklyCount: 3,
             routineCount: 5,
             successDate: [
-              createSuccessDate(monDate),
-              createSuccessDate(tueDate),
-              createSuccessDate(wedDate),
+              formatRoutineDateKey(monDate),
+              formatRoutineDateKey(tueDate),
+              formatRoutineDateKey(wedDate),
             ],
           }),
         });
@@ -1162,12 +1157,10 @@ describe('루틴 조회 페이지', () => {
         });
 
         const { findByLabelText, findByTestId } = render(<Index />);
-        const completedCheck = await findByTestId(
-          `routine-week-check-1-${completedIndex}`,
-        );
-        const pendingCheck = await findByTestId(
-          `routine-week-check-1-${todayIndex}`,
-        );
+        const [completedCheck, pendingCheck] = await Promise.all([
+          findByTestId(`routine-week-check-1-${completedIndex}`),
+          findByTestId(`routine-week-check-1-${todayIndex}`),
+        ]);
 
         expect(
           await findByLabelText(
@@ -1176,12 +1169,12 @@ describe('루틴 조회 페이지', () => {
         ).toBeOnTheScreen();
         expect(flattenStyles(completedCheck.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ backgroundColor: '#0984e3' }),
+            expect.objectContaining({ backgroundColor: '#000306' }),
           ]),
         );
         expect(flattenStyles(pendingCheck.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ backgroundColor: '#FFF9C4' }),
+            expect.objectContaining({ backgroundColor: '#F57F17' }),
           ]),
         );
       });
@@ -1405,9 +1398,7 @@ describe('루틴 조회 페이지', () => {
       });
 
       it('루틴 메뉴 버튼이 표시된다', async () => {
-        const { findByLabelText, findByTestId } = render(
-          <Index />,
-        );
+        const { findByLabelText, findByTestId } = render(<Index />);
 
         const menuButton = await findByLabelText('테스트 루틴 1 메뉴 열기');
 
@@ -1539,9 +1530,7 @@ describe('루틴 조회 페이지', () => {
 
       it('숨김 상태 루틴의 컨텍스트 메뉴도 숨김/일시정지 라벨을 표시하지 않는다', async () => {
         mockAxios.resetHandlers();
-        mockAxios
-          .onGet(/\/routine\/confirm\/list/)
-          .reply(200, { data: [] });
+        mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, { hidden: true }),
         });
@@ -1566,11 +1555,11 @@ describe('루틴 조회 페이지', () => {
 
         fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
 
-        const menu = await findByTestId('routine-context-menu-1');
-        const menuItems = await findAllByTestId('routine-context-menu-item');
-        const menuTexts = await findAllByTestId(
-          'routine-context-menu-item-text',
-        );
+        const [menu, menuItems, menuTexts] = await Promise.all([
+          findByTestId('routine-context-menu-1'),
+          findAllByTestId('routine-context-menu-item'),
+          findAllByTestId('routine-context-menu-item-text'),
+        ]);
 
         expect(flattenStyles(menu.props.style)).toEqual(
           expect.arrayContaining([

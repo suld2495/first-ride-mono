@@ -2,10 +2,11 @@ import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { FlatList, StyleSheet, View } from 'react-native';
 
+import { lightTheme } from '@/theme/themes/light';
+
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
 import { act, render, resetAuthMocks, waitFor } from '../setup/auth-test-utils';
 import { createMockFriend, createMockFriends } from '../setup/friend/mock';
-import { lightTheme } from '@/theme/themes/light';
 
 // FriendRequestResponse 형식에 맞는 mock 데이터 생성
 const createMockFriendRequestResponse = (count: number) =>
@@ -22,6 +23,8 @@ let mockAxios: MockAdapter;
 // axios response interceptor가 response.data.data를 반환하므로
 // { data: [...] } 형태로 감싸야 함
 const wrapResponse = <T,>(data: T) => ({ data });
+const isFriendRequestsUrl = (url?: string) =>
+  url?.includes('/friends/requests') ?? false;
 
 // mock 설정 헬퍼 함수
 const setupMocks = (friendsData: ReturnType<typeof createMockFriends> = []) => {
@@ -158,7 +161,7 @@ describe('친구 리스트 페이지', () => {
       const { findByLabelText, findByText } = render(<FriendPage />);
 
       expect(await findByText('김혜연')).toBeOnTheScreen();
-      expect(await findByText('마법사')).toBeOnTheScreen();
+      expect(await findByText('friend-id-1')).toBeOnTheScreen();
       expect(await findByText('Lv. 7')).toBeOnTheScreen();
       expect(await findByLabelText('김혜연 캐릭터')).toBeOnTheScreen();
     });
@@ -182,9 +185,8 @@ describe('친구 리스트 페이지', () => {
         mockAxios.history.get.filter(({ url }) => url === '/friends').length,
       ).toBe(1);
       expect(
-        mockAxios.history.get.filter(({ url }) =>
-          url?.includes('/friends/requests'),
-        ).length,
+        mockAxios.history.get.filter(({ url }) => isFriendRequestsUrl(url))
+          .length,
       ).toBe(1);
 
       const list = screen.UNSAFE_getByType(FlatList);
@@ -198,9 +200,8 @@ describe('친구 리스트 페이지', () => {
           mockAxios.history.get.filter(({ url }) => url === '/friends').length,
         ).toBe(2);
         expect(
-          mockAxios.history.get.filter(({ url }) =>
-            url?.includes('/friends/requests'),
-          ).length,
+          mockAxios.history.get.filter(({ url }) => isFriendRequestsUrl(url))
+            .length,
         ).toBe(2);
       });
     });

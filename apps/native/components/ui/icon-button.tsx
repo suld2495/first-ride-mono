@@ -6,6 +6,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 export type IconButtonSize = 'sm' | 'md' | 'lg';

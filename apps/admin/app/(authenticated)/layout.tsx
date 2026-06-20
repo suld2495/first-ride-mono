@@ -15,7 +15,8 @@ export default function AuthenticatedLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, signOut } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
+  const signOut = useAuthStore((state) => state.signOut);
 
   useEffect(() => {
     const checkAuth = async () => {

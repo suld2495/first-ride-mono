@@ -1,11 +1,8 @@
 import * as Haptics from 'expo-haptics';
 import React from 'react';
-import {
-  Pressable,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { Pressable, type StyleProp, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
+
 import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -52,12 +49,7 @@ export const DockTabItem: React.FC<DockTabItemProps> = ({
       accessibilityState={{ selected: focused }}
       accessibilityLabel={label}
     >
-      <Animated.View
-        style={[
-          styles.itemContainer,
-          animatedStyle,
-        ]}
-      >
+      <Animated.View style={[styles.itemContainer, animatedStyle]}>
         {icon({ color, focused })}
       </Animated.View>
     </Pressable>

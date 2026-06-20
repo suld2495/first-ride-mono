@@ -1,3 +1,4 @@
+/* eslint-disable local-rules/no-barrel-import, local-rules/no-multiple-components-in-file */
 import { Fragment, type PropsWithChildren } from 'react';
 import { TamaguiProvider, Theme } from 'tamagui';
 

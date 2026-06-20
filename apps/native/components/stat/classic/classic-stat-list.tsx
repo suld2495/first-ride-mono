@@ -1,11 +1,11 @@
 import type { UserStats } from '@repo/types';
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import PixelCard from '@/components/ui/pixel-card';
+import { StyleSheet } from '@/components/ui/tamagui';
 import { STAT_CONFIGS } from '@/constants/STATS';
+import { baseFoundation } from '@/theme/tokens';
 
 import ClassicStatItem from './classic-stat-item';
 

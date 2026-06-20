@@ -1,10 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 import { IconButton } from '@/components/ui/icon-button';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { useRoutineType, useSetRoutineType } from '@/hooks/useRoutineSelection';
+import { baseFoundation } from '@/theme/tokens';
 
 interface RoutineDateProps {
   date?: string;
@@ -21,7 +21,11 @@ const RoutineDate = (_props: RoutineDateProps) => {
           <>
             <IconButton
               icon={({ color }) => (
-                <Ionicons name="keypad-sharp" size={baseFoundation.dimension.x22} color={color} />
+                <Ionicons
+                  name="keypad-sharp"
+                  size={baseFoundation.dimension.x22}
+                  color={color}
+                />
               )}
               variant="ghost"
               onPress={() => setType('number')}
@@ -31,7 +35,11 @@ const RoutineDate = (_props: RoutineDateProps) => {
             />
             <IconButton
               icon={({ color }) => (
-                <Ionicons name="grid-outline" size={baseFoundation.dimension.x22} color={color} />
+                <Ionicons
+                  name="grid-outline"
+                  size={baseFoundation.dimension.x22}
+                  color={color}
+                />
               )}
               variant="ghost"
               onPress={() => setType('week')}
@@ -44,7 +52,11 @@ const RoutineDate = (_props: RoutineDateProps) => {
           <>
             <IconButton
               icon={({ color }) => (
-                <Ionicons name="keypad-outline" size={baseFoundation.dimension.x22} color={color} />
+                <Ionicons
+                  name="keypad-outline"
+                  size={baseFoundation.dimension.x22}
+                  color={color}
+                />
               )}
               variant="ghost"
               onPress={() => setType('number')}
@@ -54,7 +66,11 @@ const RoutineDate = (_props: RoutineDateProps) => {
             />
             <IconButton
               icon={({ color }) => (
-                <Ionicons name="grid" size={baseFoundation.dimension.x22} color={color} />
+                <Ionicons
+                  name="grid"
+                  size={baseFoundation.dimension.x22}
+                  color={color}
+                />
               )}
               variant="ghost"
               onPress={() => setType('week')}

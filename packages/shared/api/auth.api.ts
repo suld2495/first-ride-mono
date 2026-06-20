@@ -67,10 +67,10 @@ export const requestEmailVerification = async (
   email: string,
 ): Promise<EmailVerificationRequestResponse> => {
   try {
-    return await http.post<
-      EmailVerificationRequestResponse,
-      { email: string }
-    >(`${baseURL}/email/verification-requests`, { email });
+    return await http.post<EmailVerificationRequestResponse, { email: string }>(
+      `${baseURL}/email/verification-requests`,
+      { email },
+    );
   } catch (error) {
     throw toAppError(error);
   }

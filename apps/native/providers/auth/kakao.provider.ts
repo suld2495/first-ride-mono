@@ -9,6 +9,7 @@ class KakaoAuthProvider extends SocialAuthProvider {
 
   async authenticate(): Promise<SocialPayload> {
     const tokenResult = await login();
+    // eslint-disable-next-line local-rules/async-parallel
     const user = await me();
 
     return {

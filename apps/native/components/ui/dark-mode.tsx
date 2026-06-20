@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
+import { useAppTheme } from '@/components/ui/tamagui';
 import { useColorScheme, useSetColorScheme } from '@/hooks/useColorScheme';
+import { baseFoundation } from '@/theme/tokens';
 
 import { IconButton } from './icon-button';
 
@@ -21,9 +21,17 @@ const DarkMode = () => {
       onPress={() => toggleColorScheme()}
       icon={
         colorScheme === 'light' ? (
-          <Ionicons name="moon" size={baseFoundation.iconSize.l} color={theme.colors.text.primary} />
+          <Ionicons
+            name="moon"
+            size={baseFoundation.iconSize.l}
+            color={theme.colors.text.primary}
+          />
         ) : (
-          <Ionicons name="sunny" size={baseFoundation.iconSize.l} color={theme.colors.text.primary} />
+          <Ionicons
+            name="sunny"
+            size={baseFoundation.iconSize.l}
+            color={theme.colors.text.primary}
+          />
         )
       }
     />

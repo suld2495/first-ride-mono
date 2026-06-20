@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
+
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 export interface LoadingProps {

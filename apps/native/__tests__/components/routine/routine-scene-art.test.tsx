@@ -1,3 +1,5 @@
+import { render } from '@testing-library/react-native';
+
 import {
   getRoutineSceneBackgroundAsset,
   getRoutineSceneCharacterAsset,
@@ -7,7 +9,6 @@ import {
   routineSceneCharacterAssets,
   routineScenePreviewOverlayAssets,
 } from '@/components/routine/routine-scene-art';
-import { render } from '@testing-library/react-native';
 
 describe('routine-scene-art', () => {
   it('테마 이름에 맞는 루틴 캐릭터 에셋을 반환한다', () => {

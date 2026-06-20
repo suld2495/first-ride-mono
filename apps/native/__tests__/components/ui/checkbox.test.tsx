@@ -197,8 +197,6 @@ describe('Checkbox', () => {
     );
 
     expect(getByTestId('bouncy-checkbox').props.iconComponent).toBeDefined();
-    expect(
-      getByTestId('bouncy-checkbox').props.ImageComponent,
-    ).toBeUndefined();
+    expect(getByTestId('bouncy-checkbox').props.ImageComponent).toBeUndefined();
   });
 });

@@ -1,20 +1,29 @@
-import { useShallow } from 'zustand/react/shallow';
-
 import { useStatStore } from '@/store/stat.store';
 
-export const useStatEditor = () =>
-  useStatStore(
-    useShallow((state) => ({
-      isEditing: state.isEditing,
-      originalStats: state.originalStats,
-      pendingStats: state.pendingStats,
-      availablePoints: state.availablePoints,
-      usedPoints: state.usedPoints,
-      startEditing: state.startEditing,
-      incrementStat: state.incrementStat,
-      decrementStat: state.decrementStat,
-      resetChanges: state.resetChanges,
-      finishEditing: state.finishEditing,
-      getDistributions: state.getDistributions,
-    })),
-  );
+export const useStatEditor = () => {
+  const isEditing = useStatStore((state) => state.isEditing);
+  const originalStats = useStatStore((state) => state.originalStats);
+  const pendingStats = useStatStore((state) => state.pendingStats);
+  const availablePoints = useStatStore((state) => state.availablePoints);
+  const usedPoints = useStatStore((state) => state.usedPoints);
+  const startEditing = useStatStore((state) => state.startEditing);
+  const incrementStat = useStatStore((state) => state.incrementStat);
+  const decrementStat = useStatStore((state) => state.decrementStat);
+  const resetChanges = useStatStore((state) => state.resetChanges);
+  const finishEditing = useStatStore((state) => state.finishEditing);
+  const getDistributions = useStatStore((state) => state.getDistributions);
+
+  return {
+    isEditing,
+    originalStats,
+    pendingStats,
+    availablePoints,
+    usedPoints,
+    startEditing,
+    incrementStat,
+    decrementStat,
+    resetChanges,
+    finishEditing,
+    getDistributions,
+  };
+};

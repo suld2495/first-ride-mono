@@ -6,11 +6,11 @@ import {
 import { getFormatDate } from '@repo/shared/utils';
 import type { FriendRequest } from '@repo/types';
 import { useCallback, useState } from 'react';
-import { StyleSheet } from '@/components/ui/tamagui';
 
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
 import { FlashList } from '@/components/ui/flash-list';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
@@ -145,7 +145,9 @@ const FriendRequestListModal = () => {
         data={list}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderNotificationItem}
-        ItemSeparatorComponent={() => <Divider spacing={baseFoundation.spacing[3]} />}
+        ItemSeparatorComponent={() => (
+          <Divider spacing={baseFoundation.spacing[3]} />
+        )}
         estimatedItemSize={72}
         removeClippedSubviews
         maxToRenderPerBatch={10}

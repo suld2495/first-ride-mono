@@ -73,8 +73,7 @@ const createExtensionStorage = (): ExtensionStorageInstance | null => {
 };
 
 const isUsableRoutine = (routine: Routine): boolean =>
-  routine.routineCount > 0 &&
-  routine.weeklyCount < routine.routineCount;
+  routine.routineCount > 0 && routine.weeklyCount < routine.routineCount;
 
 const createTargetSubtitle = (routine: Routine): string =>
   routine.isMe ? '나에게 인증' : `${routine.mateNickname}에게 인증`;
