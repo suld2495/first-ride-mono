@@ -4,12 +4,13 @@ import {
 } from '@repo/shared/api';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 import AuthPage from '@/components/auth/auth-page';
 import { Button } from '@/components/ui/button';
 import { StyleSheet } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
+import { useToast } from '@/contexts/ToastContext';
 import {
   useClearPendingSignUpPayload,
   usePendingSignUpPayload,
@@ -26,6 +27,7 @@ export default function SignUpEmailVerification() {
   const router = useRouter();
   const payload = usePendingSignUpPayload();
   const clearPayload = useClearPendingSignUpPayload();
+  const { showToast } = useToast();
   const [status, setStatus] = useState<VerificationStatus>('waiting');
   const [message, setMessage] = useState(
     '이메일로 보낸 인증 링크를 클릭해주세요',
@@ -73,6 +75,7 @@ export default function SignUpEmailVerification() {
         }
         isLeavingRef.current = true;
         clearPayload();
+        showToast('회원가입이 완료되었습니다.', 'success');
         router.replace('/sign-in');
       } catch (error) {
         if (!isActive) {
@@ -131,7 +134,7 @@ export default function SignUpEmailVerification() {
       isActive = false;
       stopPolling();
     };
-  }, [clearPayload, payload, router]);
+  }, [clearPayload, payload, router, showToast]);
 
   const handleSignInPress = () => {
     isLeavingRef.current = true;
@@ -147,10 +150,6 @@ export default function SignUpEmailVerification() {
 
       <AuthPage.Body>
         <View style={styles.content}>
-          {isWaiting ? (
-            <ActivityIndicator color={palette.theme.blue[50]} size="small" />
-          ) : null}
-
           <View style={styles.messageGroup}>
             <Typography
               variant="body1"

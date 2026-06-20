@@ -1,6 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import { act, fireEvent } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import { ActivityIndicator } from 'react-native';
 
 import SignUpEmailVerification from '../../app/sign-up-email-verification';
 import { usePendingSignUpStore } from '../../store/pending-sign-up.store';
@@ -8,6 +9,7 @@ import { render } from '../setup/test-utils';
 
 declare const mockPush: jest.Mock;
 declare const mockReplace: jest.Mock;
+declare const mockShowToast: jest.Mock;
 
 let mockAxios: MockAdapter;
 
@@ -23,6 +25,7 @@ describe('SignUpEmailVerification 페이지', () => {
     jest.useFakeTimers();
     mockPush.mockClear();
     mockReplace.mockClear();
+    mockShowToast.mockClear();
     usePendingSignUpStore.getState().setPayload(pendingPayload);
     mockAxios = new MockAdapter(axiosInstance);
   });
@@ -40,13 +43,16 @@ describe('SignUpEmailVerification 페이지', () => {
       data: { email: 'a@b.co', verified: false },
     });
 
-    const { getByText } = render(<SignUpEmailVerification />);
+    const { getByText, UNSAFE_queryByType } = render(
+      <SignUpEmailVerification />,
+    );
 
     expect(
       getByText('이메일로 보낸 인증 링크를 클릭해주세요'),
     ).toBeOnTheScreen();
     expect(getByText('a@b.co')).toBeOnTheScreen();
     expect(getByText('로그인하기')).toBeOnTheScreen();
+    expect(UNSAFE_queryByType(ActivityIndicator)).toBeNull();
   });
 
   it('인증 완료가 확인되면 회원가입 후 로그인 페이지로 이동한다', async () => {
@@ -75,6 +81,10 @@ describe('SignUpEmailVerification 페이지', () => {
     expect(mockAxios.history.post[2]?.url).toBe('/auth/signup');
     expect(mockAxios.history.post[2]?.data).toContain('"userId":"a@b.co"');
     expect(usePendingSignUpStore.getState().payload).toBeNull();
+    expect(mockShowToast).toHaveBeenCalledWith(
+      '회원가입이 완료되었습니다.',
+      'success',
+    );
     expect(mockReplace).toHaveBeenCalledWith('/sign-in');
   });
 
