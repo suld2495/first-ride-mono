@@ -117,7 +117,9 @@ const RoutineCountList = ({
         ? () => onRequestRoutine(routine)
         : undefined;
       const todayDateKey = createRoutineDateKey(new Date());
-      const isCurrentWeek = date === getWeekMonday(new Date());
+      const currentWeekStartDate = getWeekMonday(new Date());
+      const isCurrentWeek = date === currentWeekStartDate;
+      const isPastWeek = date < currentWeekStartDate;
       const hasTodaySuccess =
         isCurrentWeek && routine.successDate.includes(todayDateKey);
 
@@ -175,6 +177,11 @@ const RoutineCountList = ({
                     !achieved &&
                     countIndex <= weeklyCount + pendingConfirmationCount;
                   const isGoalRange = countIndex <= routineCount;
+                  const isMissedPastGoal =
+                    isPastWeek &&
+                    isGoalRange &&
+                    !achieved &&
+                    !isPendingConfirmation;
                   const isTodaySuccess =
                     achieved && hasTodaySuccess && countIndex === weeklyCount;
                   const successCheckBoxStyle = isTodaySuccess
@@ -189,9 +196,16 @@ const RoutineCountList = ({
                           theme.colors.brand.pendingConfirmationCheckbox,
                       }
                     : null;
+                  const missedPastGoalCheckBoxStyle = isMissedPastGoal
+                    ? {
+                        backgroundColor: theme.colors.feedback.error.bg,
+                      }
+                    : null;
                   const checkmarkColor = isPendingConfirmation
                     ? theme.colors.brand.pendingConfirmationCheck
-                    : theme.colors.brand.selectedCheck;
+                    : isMissedPastGoal
+                      ? theme.colors.feedback.error.text
+                      : theme.colors.brand.selectedCheck;
                   const label = getRoutineCountAccessibilityLabel({
                     countIndex,
                     isTodaySuccess,
@@ -217,6 +231,7 @@ const RoutineCountList = ({
                           achieved ? styles.achievedCheckBox : null,
                           successCheckBoxStyle,
                           pendingConfirmationCheckBoxStyle,
+                          missedPastGoalCheckBoxStyle,
                         ]}
                         testID={`routine-count-check-${routineId}-${countIndex}`}
                       >
@@ -254,6 +269,8 @@ const RoutineCountList = ({
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.selectedCheck,
       theme.colors.brand.todaySuccessCheckbox,
+      theme.colors.feedback.error.bg,
+      theme.colors.feedback.error.text,
       theme.colors.text.secondary,
     ],
   );

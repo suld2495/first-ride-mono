@@ -14,6 +14,7 @@ import {
   type AuthProviderType,
   type SocialProviderType,
 } from '@/providers/auth/types';
+import { pushAfterProtectedRoutesReady } from '@/utils/protected-route-navigation';
 
 import { useNotifications } from './useNotifications';
 
@@ -73,7 +74,10 @@ export function useAuth(): UseAuthReturn {
           setAuthorization(result.accessToken!),
           setRefreshToken(result.refreshToken!),
         ]);
-        router.push('/(tabs)/(afterLogin)/(routine)');
+        await pushAfterProtectedRoutesReady(
+          router,
+          '/(tabs)/(afterLogin)/(routine)',
+        );
       }
     } catch (err) {
       const authError =

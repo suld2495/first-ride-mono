@@ -20,6 +20,7 @@ import {
 } from '@/providers/auth/types';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
+import { pushAfterProtectedRoutesReady } from '@/utils/protected-route-navigation';
 
 interface ProfileForm {
   nickname: string;
@@ -89,7 +90,10 @@ export default function SocialSignUp() {
         setRefreshToken(response.refreshToken),
       ]);
 
-      router.push('/(tabs)/(afterLogin)/(routine)');
+      await pushAfterProtectedRoutesReady(
+        router,
+        '/(tabs)/(afterLogin)/(routine)',
+      );
     } catch (error) {
       const serverErrors = getFieldErrors(error);
 

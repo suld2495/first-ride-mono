@@ -9,6 +9,7 @@ import { Pressable, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
+import { appThemes } from '../../../theme/themes';
 import { palette } from '../../../theme/tokens';
 import {
   act,
@@ -905,6 +906,19 @@ describe('루틴 조회 페이지', () => {
             expect.objectContaining({ backgroundColor: '#F57F17' }),
           ]),
         );
+      });
+
+      it('과거 주에 목표만큼 못한 회차를 빨간 계열 컬러로 표시한다', async () => {
+        mockSearchParams.date = beforeWeek(new Date(getWeekMonday(new Date())));
+
+        const { findByTestId } = render(<Index />);
+
+        expect(await findByTestId('routine-count-check-1-4')).toHaveStyle({
+          backgroundColor: appThemes.blue.colors.feedback.error.bg,
+        });
+        expect(await findByTestId('routine-count-check-1-5')).toHaveStyle({
+          backgroundColor: appThemes.blue.colors.feedback.error.bg,
+        });
       });
     });
 
