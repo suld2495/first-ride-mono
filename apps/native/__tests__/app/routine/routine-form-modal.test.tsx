@@ -452,6 +452,32 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         { timeout: 3000 },
       );
     });
+
+    it('루틴 설명 없이 필수값을 입력하면 추가 버튼이 활성화된다', async () => {
+      const { getByLabelText, getByPlaceholderText, getByText } = render(
+        <RoutineFormModal />,
+      );
+
+      await waitFor(() => {
+        expect(mockAxios.history.get.length).toBeGreaterThan(0);
+      });
+
+      await fillForm(getByPlaceholderText, getByText, {
+        routineName: '테스트 루틴',
+        routineCount: 3,
+      });
+
+      await selectStartDate(getByText, getByLabelText);
+
+      await waitFor(
+        () => {
+          const addButton = getByText('등록');
+
+          expect(addButton).toBeEnabled();
+        },
+        { timeout: 3000 },
+      );
+    });
   });
 
   describe('사용자 인풋 유효성 검사 테스트', () => {
@@ -858,6 +884,26 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       });
 
       // 폼이 렌더링되고 유효성 검사가 완료될 때까지 대기
+      await waitFor(
+        () => {
+          const editButton = getByText('수정');
+
+          expect(editButton).toBeEnabled();
+        },
+        { timeout: 3000 },
+      );
+    });
+
+    it('루틴 설명을 비워도 수정 버튼이 활성화된다', async () => {
+      const { findByPlaceholderText, getByText } = render(<RoutineFormModal />);
+
+      const routineDetailInput =
+        await findByPlaceholderText('루틴 설명을 입력해주세요.');
+
+      await act(async () => {
+        fireEvent.changeText(routineDetailInput, '');
+      });
+
       await waitFor(
         () => {
           const editButton = getByText('수정');

@@ -15,11 +15,6 @@ export const routineFormValidators: Validators<InternalFormType> = {
       return '루틴 이름을 입력해주세요.';
     }
   },
-  routineDetail(value) {
-    if (!value) {
-      return '루틴 설명을 입력해주세요.';
-    }
-  },
   penalty(value) {
     if (value === '' || typeof value === 'undefined') {
       return undefined;
