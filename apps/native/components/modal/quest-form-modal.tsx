@@ -12,6 +12,7 @@ import { Select } from '@/components/ui/select';
 import { StyleSheet, type AppThemes } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useCreateForm } from '@/hooks/useForm';
 import { useQuestFormSubmission } from '@/hooks/useQuestFormSubmission';
 import { baseFoundation } from '@/theme/tokens';
@@ -116,6 +117,7 @@ const QuestFormModal = () => {
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
       enableResetScrollToCoords={false}
+      showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
     >
       <Form
         form={initialForm as CreateQuestForm}

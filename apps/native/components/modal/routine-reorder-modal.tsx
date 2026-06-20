@@ -22,6 +22,7 @@ import Loading from '@/components/ui/loading';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation } from '@/theme/tokens';
@@ -258,7 +259,7 @@ const RoutineReorderModal = () => {
             renderItem={renderRoutineItem}
             onDragEnd={handleDragEnd}
             contentContainerStyle={styles.listContent}
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
             testID="routine-reorder-list"
           />
         ) : (

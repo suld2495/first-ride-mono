@@ -2,6 +2,7 @@ import { act } from '@testing-library/react-native';
 import { Text, View } from 'react-native';
 
 import { PullToRefresh } from '../../../components/ui/pull-to-refresh';
+import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
 import { render } from '../../setup/test-utils';
 
 describe('PullToRefresh', () => {
@@ -120,7 +121,7 @@ describe('PullToRefresh', () => {
       expect(scrollView.props.contentContainerStyle).toEqual({ flexGrow: 1 });
     });
 
-    it('showsVerticalScrollIndicator가 false로 설정된다', () => {
+    it('showsVerticalScrollIndicator가 공통 설정값으로 적용된다', () => {
       const { getByTestId } = render(
         <PullToRefresh>
           <Text>Test Content</Text>
@@ -129,7 +130,9 @@ describe('PullToRefresh', () => {
 
       const scrollView = getByTestId('pull-to-refresh-scroll-view');
 
-      expect(scrollView.props.showsVerticalScrollIndicator).toBe(false);
+      expect(scrollView.props.showsVerticalScrollIndicator).toBe(
+        SHOW_SCROLL_INDICATOR,
+      );
     });
   });
 

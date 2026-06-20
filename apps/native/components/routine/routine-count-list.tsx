@@ -14,6 +14,7 @@ import { RoutineContextMenuTrigger } from '@/components/routine/routine-context-
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
 
 interface RoutineCountListProps {
@@ -250,7 +251,7 @@ const RoutineCountList = ({
       onScroll={handleScroll}
       scrollEnabled={scrollEnabled}
       scrollEventThrottle={16}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       testID={testID}
     />
   );

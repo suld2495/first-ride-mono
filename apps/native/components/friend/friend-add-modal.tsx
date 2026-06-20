@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useToast } from '@/contexts/ToastContext';
 import { baseFoundation, palette } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
@@ -310,7 +311,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                 removeClippedSubviews={false}
                 maxToRenderPerBatch={10}
                 windowSize={5}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
                 style={styles.list}
               />
             </ThemeView>

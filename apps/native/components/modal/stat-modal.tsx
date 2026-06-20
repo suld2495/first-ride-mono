@@ -16,6 +16,7 @@ import StatHeader from '@/components/stat/stat-header';
 import StatPointsBar from '@/components/stat/stat-points-bar';
 import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useStatEditor } from '@/hooks/useStatEditor';
 
 const StatModal = () => {
@@ -96,7 +97,7 @@ const StatModal = () => {
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       >
         <StatHeader
           nickname={data.nickname}

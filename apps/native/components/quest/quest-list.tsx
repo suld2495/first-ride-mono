@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
 
 interface QuestItemProps {
@@ -131,7 +132,7 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
       style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
       ItemSeparatorComponent={QuestItemSeparator}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       estimatedItemSize={QUEST_ITEM_HEIGHT}
       removeClippedSubviews
       maxToRenderPerBatch={10}

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import { useAppTheme } from '@/components/ui/tamagui';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 import { Input, type InputProps } from './input';
@@ -224,7 +225,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           <ScrollView
             keyboardShouldPersistTaps="handled"
             nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={true}
+            showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
           >
             {renderDropdownContent()}
           </ScrollView>

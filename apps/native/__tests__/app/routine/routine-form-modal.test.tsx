@@ -6,6 +6,7 @@ import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
 
 import ModalScreen from '../../../app/modal';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
+import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
 import { baseFoundation, palette } from '../../../theme/tokens';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockFriends } from '../../setup/friend/mock';
@@ -1307,11 +1308,15 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
     it('루틴 수정 폼 스크롤 콘텐츠는 고정 footer 높이만큼 하단 여백을 둔다', async () => {
       const { findByTestId } = render(<RoutineFormModal />);
+      const scrollView = await findByTestId('routine-form-scroll');
 
       const scrollContentStyle = RNStyleSheet.flatten(
-        (await findByTestId('routine-form-scroll')).props.contentContainerStyle,
+        scrollView.props.contentContainerStyle,
       );
 
+      expect(scrollView.props.showsVerticalScrollIndicator).toBe(
+        SHOW_SCROLL_INDICATOR,
+      );
       expect(scrollContentStyle).toEqual(
         expect.objectContaining({
           paddingBottom: baseFoundation.dimension.x112,

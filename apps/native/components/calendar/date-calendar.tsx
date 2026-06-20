@@ -16,6 +16,7 @@ import {
 import { StyleSheet, type AppThemes } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
 
 interface DateCalendarProps {
@@ -326,7 +327,7 @@ const DateCalendar = ({
                   ref={yearListRef}
                   data={yearOptions}
                   keyExtractor={(item) => `${item}`}
-                  showsVerticalScrollIndicator={false}
+                  showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
                   snapToInterval={PICKER_ITEM_HEIGHT}
                   decelerationRate="fast"
                   getItemLayout={getPickerItemLayout}
@@ -349,7 +350,7 @@ const DateCalendar = ({
                   ref={monthListRef}
                   data={MONTH_OPTIONS}
                   keyExtractor={(item) => `${item}`}
-                  showsVerticalScrollIndicator={false}
+                  showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
                   snapToInterval={PICKER_ITEM_HEIGHT}
                   decelerationRate="fast"
                   getItemLayout={getPickerItemLayout}

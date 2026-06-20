@@ -21,6 +21,7 @@ import { Select } from '@/components/ui/select';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
@@ -186,6 +187,7 @@ const RoutineFormModal = () => {
         enableOnAndroid={true}
         keyboardShouldPersistTaps="handled"
         enableResetScrollToCoords={false}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       >
         <FormItem
           name="routineName"

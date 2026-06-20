@@ -5,6 +5,8 @@ import {
 } from '@shopify/flash-list';
 import React from 'react';
 
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
+
 type BaseCompatFlashListProps<T> = Omit<
   FlashListProps<T>,
   'contentContainerStyle' | 'getItemLayout'
@@ -29,7 +31,14 @@ function FlashListInner<T>(
   props: CompatFlashListProps<T>,
   ref: React.ForwardedRef<BaseFlashList<T>>,
 ) {
-  return <BaseFlashList ref={ref} {...(props as FlashListProps<T>)} />;
+  return (
+    <BaseFlashList
+      ref={ref}
+      {...(props as FlashListProps<T>)}
+      showsHorizontalScrollIndicator={SHOW_SCROLL_INDICATOR}
+      showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+    />
+  );
 }
 
 const FlashList = React.forwardRef(FlashListInner) as <T>(

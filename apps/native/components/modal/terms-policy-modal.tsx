@@ -1,13 +1,17 @@
 import { ScrollView } from 'react-native';
 import Markdown from 'react-native-markdown-display';
-import { StyleSheet } from '@/components/ui/tamagui';
 
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 
 const TermsPolicyModal = () => {
   return (
     <ThemeView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+      >
         <Markdown
           style={{
             body: styles.body,

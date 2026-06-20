@@ -19,6 +19,7 @@ import { FlashList } from '@/components/ui/flash-list';
 import Loading from '@/components/ui/loading';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import {
@@ -463,7 +464,7 @@ export default function RoutineSettingsPage() {
               }
               maxToRenderPerBatch={10}
               removeClippedSubviews
-              showsVerticalScrollIndicator={false}
+              showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
               testID="routine-settings-routine-list"
               windowSize={7}
             />

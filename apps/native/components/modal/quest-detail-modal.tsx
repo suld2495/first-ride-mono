@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useQuestAction } from '@/hooks/useQuestAction';
 import { useQuestId } from '@/hooks/useQuestSelection';
 import { baseFoundation } from '@/theme/tokens';
@@ -96,7 +97,10 @@ const QuestDetailModal = () => {
 
   return (
     <ThemeView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+      >
         <ThemeView style={styles.cardOuter} testID="quest-detail-card-outer">
           <ThemeView style={styles.cardInner} testID="quest-detail-card-inner">
             <ThemeView

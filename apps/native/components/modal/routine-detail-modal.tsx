@@ -8,6 +8,7 @@ import { Divider } from '@/components/ui/divider';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useRoutineDelete } from '@/hooks/useRoutineDelete';
 import { useRoutineManagement } from '@/hooks/useRoutineManagement';
@@ -75,7 +76,10 @@ const RoutineDetailModal = () => {
 
   return (
     <ThemeView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+      >
         <ThemeView
           style={{ marginBottom: -baseFoundation.spacing[5] }}
           transparent

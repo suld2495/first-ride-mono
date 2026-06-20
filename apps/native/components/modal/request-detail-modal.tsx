@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useCreateForm } from '@/hooks/useForm';
 import { useRequestReply } from '@/hooks/useRequestReply';
@@ -49,9 +50,13 @@ const RequestDetailModal = () => {
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
       enableResetScrollToCoords={false}
+      showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
     >
       <ThemeView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+        >
           <ThemeView style={styles.routinesNameContainer} transparent>
             <Typography
               variant="subtitle"

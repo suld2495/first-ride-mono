@@ -8,6 +8,7 @@ import Loading from '@/components/ui/loading';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { STAT_LABEL_BY_TYPE } from '@/constants/RANKING';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
 
 type RankingEntry = LevelRankingEntry | StatRankingEntry;
@@ -186,7 +187,7 @@ const RankingList = ({
         maxToRenderPerBatch={10}
         windowSize={5}
         getItemLayout={getRankingItemLayout}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

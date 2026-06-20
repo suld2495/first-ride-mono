@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
 
 import type { InputSize, InputVariant } from './input';
@@ -320,7 +321,7 @@ export function Select<T = string | number>({
       <ScrollView
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled={true}
-        showsVerticalScrollIndicator={true}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       >
         {items.map(renderDropdownItem)}
       </ScrollView>

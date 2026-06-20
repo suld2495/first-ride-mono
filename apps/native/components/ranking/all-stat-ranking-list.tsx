@@ -11,6 +11,7 @@ import Loading from '@/components/ui/loading';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { RANKING_STAT_OPTIONS, STAT_LABEL_BY_TYPE } from '@/constants/RANKING';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
 
 interface AllStatRankingListProps {
@@ -159,7 +160,7 @@ const AllStatRankingList = ({
         maxToRenderPerBatch={10}
         windowSize={5}
         getItemLayout={getAllStatItemLayout}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

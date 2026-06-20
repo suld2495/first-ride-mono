@@ -1,6 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, type ScrollViewProps } from 'react-native';
 
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
+
 export interface PullToRefreshProps {
   children: React.ReactNode;
   onRefresh?: () => Promise<void>;
@@ -51,9 +53,9 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
     <ScrollView
       testID="pull-to-refresh-scroll-view"
       contentContainerStyle={{ flexGrow: 1 }}
-      showsVerticalScrollIndicator={false}
-      refreshControl={refreshControl}
       {...scrollViewProps}
+      showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+      refreshControl={refreshControl}
     >
       {children}
     </ScrollView>

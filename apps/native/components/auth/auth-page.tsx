@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import Typography from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { palette } from '@/theme/tokens';
 
 const AUTH_PAGE_HORIZONTAL_PADDING = 32;
@@ -38,7 +39,7 @@ const AuthPageRoot = ({ children, style, contentStyle }: AuthPageProps) => {
         enableOnAndroid={true}
         keyboardShouldPersistTaps="handled"
         enableResetScrollToCoords={false}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       >
         <ThemeView
           transparent

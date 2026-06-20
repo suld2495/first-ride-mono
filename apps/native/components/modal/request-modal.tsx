@@ -12,6 +12,7 @@ import { Divider } from '@/components/ui/divider';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useCreateForm } from '@/hooks/useForm';
 import { usePendingRoutineShareImages } from '@/hooks/usePendingRoutineShareImages';
 import {
@@ -58,7 +59,7 @@ const RequestModal = () => {
     <ThemeView style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       >
         <ThemeView transparent>
           <Typography

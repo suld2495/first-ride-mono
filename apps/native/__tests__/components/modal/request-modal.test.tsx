@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { ActivityIndicator, ScrollView } from 'react-native';
 
 import RequestModal from '../../../components/modal/request-modal';
+import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockRoutine } from '../../setup/routine/mock';
 
@@ -137,7 +138,9 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       const scrollView = screen.UNSAFE_getByType(ScrollView);
 
-      expect(scrollView.props.showsVerticalScrollIndicator).toBe(false);
+      expect(scrollView.props.showsVerticalScrollIndicator).toBe(
+        SHOW_SCROLL_INDICATOR,
+      );
     });
   });
 

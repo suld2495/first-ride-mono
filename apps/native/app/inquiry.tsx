@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useToast } from '@/contexts/ToastContext';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
@@ -93,6 +94,7 @@ export default function InquiryPage() {
         <ScrollView
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
         >
           <View style={styles.formSection}>
             <Typography variant="body2" weight="semibold">

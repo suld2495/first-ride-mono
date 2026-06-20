@@ -4,6 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import PixelCard from '@/components/ui/pixel-card';
 import ThemeView from '@/components/ui/theme-view';
 import Typography from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
 
 interface AuthFormProps {
@@ -18,7 +19,7 @@ const AuthForm = ({ title, children }: AuthFormProps) => {
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
       enableResetScrollToCoords={false}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
     >
       <ThemeView style={styles.container}>
         <Typography variant="title" weight="semibold" glow style={styles.title}>

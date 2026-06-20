@@ -6,6 +6,7 @@ import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
 
 interface QuestTypeFilterProps {
@@ -73,7 +74,7 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
         horizontal
         keyExtractor={(item) => item.value}
         renderItem={renderFilterItem}
-        showsHorizontalScrollIndicator={false}
+        showsHorizontalScrollIndicator={SHOW_SCROLL_INDICATOR}
         contentContainerStyle={styles.scrollContent}
         estimatedItemSize={FILTER_ITEM_WIDTH}
         getItemLayout={getFilterItemLayout}
