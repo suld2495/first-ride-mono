@@ -9,12 +9,14 @@ export {
 } from 'tamagui';
 
 import {
+  Dimensions,
   StyleSheet as ReactNativeStyleSheet,
   type ImageStyle,
   type RegisteredStyle,
   type StyleProp,
   type TextStyle,
   type ViewStyle,
+  useWindowDimensions,
 } from 'react-native';
 
 import {
@@ -24,27 +26,24 @@ import {
 import { appThemes } from '@/theme/themes';
 import { createFoundation } from '@/theme/tokens';
 
+const createAppStyleTheme = (
+  themeName: keyof typeof appThemes,
+  viewportWidth?: number,
+) => {
+  const theme = appThemes[themeName] ?? appThemes.dark;
+
+  return {
+    ...theme,
+    foundation: createFoundation(theme, viewportWidth),
+  };
+};
+
 const appStyleThemes = {
-  light: {
-    ...appThemes.light,
-    foundation: createFoundation(appThemes.light),
-  },
-  dark: {
-    ...appThemes.dark,
-    foundation: createFoundation(appThemes.dark),
-  },
-  blue: {
-    ...appThemes.blue,
-    foundation: createFoundation(appThemes.blue),
-  },
-  green: {
-    ...appThemes.green,
-    foundation: createFoundation(appThemes.green),
-  },
-  red: {
-    ...appThemes.red,
-    foundation: createFoundation(appThemes.red),
-  },
+  light: createAppStyleTheme('light'),
+  dark: createAppStyleTheme('dark'),
+  blue: createAppStyleTheme('blue'),
+  green: createAppStyleTheme('green'),
+  red: createAppStyleTheme('red'),
 } as const;
 
 export type AppTheme = (typeof appStyleThemes)[keyof typeof appStyleThemes];
@@ -61,7 +60,7 @@ type CreatedStyles<T> = T & {
 const getThemeName = () => getEffectiveColorSchemeSnapshot();
 
 const getTheme = (): AppTheme =>
-  appStyleThemes[getThemeName()] ?? appStyleThemes.dark;
+  createAppStyleTheme(getThemeName(), Dimensions.get('window').width);
 
 const evaluateStyles = <T extends Record<string, unknown>>(
   factory: StyleFactory<T>,
@@ -91,9 +90,10 @@ export const StyleSheet = {
 
 export const useAppTheme = () => {
   const colorScheme = useEffectiveColorScheme();
+  const { width } = useWindowDimensions();
 
   return {
-    theme: appStyleThemes[colorScheme] ?? appStyleThemes.dark,
+    theme: createAppStyleTheme(colorScheme, width),
     rt: {
       themeName: colorScheme,
     },

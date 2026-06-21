@@ -144,7 +144,30 @@ export const baseFoundation = {
   },
 } as const;
 
-export const createFoundation = (theme: ThemeContract) => {
+const WIDE_SCREEN_TYPOGRAPHY_START = 390;
+const WIDE_SCREEN_TYPOGRAPHY_END = 430;
+const WIDE_SCREEN_TYPOGRAPHY_MAX_SCALE = 1.08;
+
+export const getTypographyScaleForWidth = (viewportWidth?: number) => {
+  if (!viewportWidth || viewportWidth <= WIDE_SCREEN_TYPOGRAPHY_START) {
+    return 1;
+  }
+
+  if (viewportWidth >= WIDE_SCREEN_TYPOGRAPHY_END) {
+    return WIDE_SCREEN_TYPOGRAPHY_MAX_SCALE;
+  }
+
+  const progress =
+    (viewportWidth - WIDE_SCREEN_TYPOGRAPHY_START) /
+    (WIDE_SCREEN_TYPOGRAPHY_END - WIDE_SCREEN_TYPOGRAPHY_START);
+
+  return 1 + progress * (WIDE_SCREEN_TYPOGRAPHY_MAX_SCALE - 1);
+};
+
+export const createFoundation = (
+  theme: ThemeContract,
+  viewportWidth?: number,
+) => {
   const densityScale =
     theme.density === 'compact'
       ? 0.85
@@ -152,7 +175,8 @@ export const createFoundation = (theme: ThemeContract) => {
         ? 1.15
         : 1;
 
-  const typographyScale = theme.typography?.scale ?? 1;
+  const typographyScale =
+    (theme.typography?.scale ?? 1) * getTypographyScaleForWidth(viewportWidth);
 
   const spacing = Object.fromEntries(
     Object.entries(baseFoundation.spacing).map(([k, v]) => [

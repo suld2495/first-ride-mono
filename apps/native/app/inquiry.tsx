@@ -184,7 +184,7 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: -theme.foundation.spacing[3],
   },
   messageField: {
-    gap: theme.foundation.spacing[1.5],
+    gap: theme.foundation.spacing[1],
   },
   messageLabel: {
     marginLeft: theme.foundation.spacing[1],
