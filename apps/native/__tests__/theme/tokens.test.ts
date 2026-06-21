@@ -2,6 +2,7 @@ import { blueTheme, greenTheme, lightTheme, redTheme } from '@/theme/themes';
 import {
   baseFoundation,
   createFoundation,
+  getTypographyScaleForWidth,
   palette,
   spacing,
   tokens,
@@ -190,5 +191,16 @@ describe('theme/tokens', () => {
     expect(foundation.radii.m).toBe(9999);
     expect(foundation.typography.size.subtitle2).toBeCloseTo(19.8);
     expect(foundation.typography.size.h0).toBeCloseTo(44);
+  });
+
+  it('넓은 모바일 화면에서는 타이포그래피를 살짝 키운다', () => {
+    expect(getTypographyScaleForWidth(360)).toBe(1);
+    expect(getTypographyScaleForWidth(390)).toBe(1);
+    expect(getTypographyScaleForWidth(430)).toBe(1.08);
+
+    const foundation = createFoundation(lightTheme, 430);
+
+    expect(foundation.typography.size.body1).toBeCloseTo(17.28);
+    expect(foundation.typography.size.body2).toBeCloseTo(16.2);
   });
 });

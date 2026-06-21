@@ -260,7 +260,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   formItem: {
-    gap: theme.foundation.spacing[1.5],
+    gap: theme.foundation.spacing[1],
   },
 
   fieldLabel: {

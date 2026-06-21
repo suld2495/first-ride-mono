@@ -538,7 +538,7 @@ const styles = StyleSheet.create((theme) => ({
   label: {
     fontSize: theme.foundation.typography.size.m,
     fontWeight: '600',
-    marginBottom: baseFoundation.spacing[1.5],
+    marginBottom: baseFoundation.spacing[1],
     marginLeft: baseFoundation.spacing[1],
     color: theme.colors.text.secondary,
   },

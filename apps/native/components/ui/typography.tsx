@@ -122,9 +122,11 @@ export const Typography: React.FC<TypographyProps> = ({
 }) => {
   const { theme } = useAppTheme();
   const variantProps = typographyVariantStyles[variant];
+  const typographySizeKey = typographyVariantSizeKeys[variant];
   const semanticColor = typographyColorMap[color as TypographySemanticColor];
   const customColorStyle = semanticColor ? undefined : { color };
   const fontWeight = typographyWeightMap[weight];
+  const scaledFontSize = theme.foundation.typography.size[typographySizeKey];
   const glowStyle = glow
     ? {
         textShadowColor: theme.colors.action.primary.default,
@@ -142,8 +144,8 @@ export const Typography: React.FC<TypographyProps> = ({
       fontFamily="$body"
       fontWeight={fontWeight}
       textAlign={textAlign}
-      style={[customColorStyle, glowStyle, style]}
       {...variantProps}
+      style={[customColorStyle, glowStyle, { fontSize: scaledFontSize }, style]}
       {...props}
     >
       {children}
@@ -207,6 +209,30 @@ const typographyVariantStyles = {
     fontSize: baseFoundation.typography.size.xxl,
   },
 } as const;
+
+const typographyVariantSizeKeys = {
+  caption3: 'caption3',
+  caption2: 'caption2',
+  caption1: 'caption1',
+  body3: 'body3',
+  body2: 'body2',
+  body1: 'body1',
+  subtitle2: 'subtitle2',
+  subtitle1: 'subtitle1',
+  title: 'title',
+  h3: 'h3',
+  h2: 'h2',
+  h1: 'h1',
+  h0: 'h0',
+  subtitle: 'subtitle2',
+  body: 'body1',
+  label: 'body3',
+  caption: 'caption2',
+  value: 'xxl',
+} as const satisfies Record<
+  TypographyVariant,
+  keyof typeof baseFoundation.typography.size
+>;
 
 const typographyWeightMap = baseFoundation.typography.weight;
 
