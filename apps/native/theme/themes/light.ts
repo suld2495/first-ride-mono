@@ -93,6 +93,16 @@ export const lightTheme: ThemeContract = {
       divider: '#f1f5f9',
       input: '#e2e8f0',
     },
+    field: {
+      label: palette.theme.gray[70],
+      required: palette.theme.blue[50],
+      optional: palette.theme.softBlue[50],
+      placeholder: palette.theme.gray[10],
+      text: palette.theme.gray[70],
+      icon: palette.theme.blue[50],
+      border: palette.theme.gray[70],
+      background: palette.white,
+    },
     questDetail: {
       periodBackground: palette.theme.gray[95],
       periodText: palette.theme.gray[10],

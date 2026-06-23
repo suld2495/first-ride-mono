@@ -43,6 +43,12 @@ export const greenTheme: ThemeContract = {
         inactiveText: palette.theme.softGreen[50],
       },
     },
+    field: {
+      ...commonTheme.colors.field,
+      required: palette.theme.green[50],
+      optional: palette.theme.softGreen[50],
+      icon: palette.theme.green[50],
+    },
     brand: {
       ...commonTheme.colors.brand,
       primary: palette.theme.green[30],

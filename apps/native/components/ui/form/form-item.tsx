@@ -13,6 +13,7 @@ export type FormItemProps<
   name: K;
   label?: string;
   required?: boolean;
+  optionalLabel?: string;
   item: (props: {
     value: T[K];
     onChange: (text: string) => void;
@@ -55,6 +56,7 @@ export function createFormItem<T extends Record<string, unknown>>(
     tooltipIcon,
     flex = false,
     required = false,
+    optionalLabel,
   }: FormItemProps<T, K>) {
     const field = useFormField(name);
     const formContext = useForm();
@@ -81,6 +83,11 @@ export function createFormItem<T extends Record<string, unknown>>(
               {label}
             </Typography>
             {required && <Typography style={styles.required}>*</Typography>}
+            {!required && optionalLabel && (
+              <Typography variant="body2" style={styles.optional}>
+                {optionalLabel}
+              </Typography>
+            )}
             {tooltipText && (
               <View style={styles.tooltipContainer}>
                 <Pressable
@@ -154,7 +161,11 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   required: {
-    color: theme.colors.brand.icon,
+    color: theme.colors.field.required,
+  },
+
+  optional: {
+    color: theme.colors.field.optional,
   },
 
   errorText: {
@@ -179,7 +190,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   label: {
-    color: theme.colors.text.label,
+    color: theme.colors.field.label,
   },
 
   tooltipContainer: {
@@ -195,7 +206,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   tooltipIcon: {
-    color: theme.colors.feedback.info.text,
+    color: theme.colors.field.optional,
   },
 
   tooltipBubble: {

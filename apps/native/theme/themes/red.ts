@@ -43,6 +43,12 @@ export const redTheme: ThemeContract = {
         inactiveText: palette.theme.softRed[50],
       },
     },
+    field: {
+      ...commonTheme.colors.field,
+      required: palette.theme.red[50],
+      optional: palette.theme.softRed[50],
+      icon: palette.theme.red[50],
+    },
     brand: {
       ...commonTheme.colors.brand,
       primary: palette.theme.red[30],

@@ -78,6 +78,16 @@ export type ThemeContract = {
       divider: string;
       input: string;
     };
+    field: {
+      label: string;
+      required: string;
+      optional: string;
+      placeholder: string;
+      text: string;
+      icon: string;
+      border: string;
+      background: string;
+    };
     filter?: {
       status: {
         activeBackground: string;
@@ -218,6 +228,16 @@ export const baseTheme: ThemeContract = {
       focus: palette.stitch.primary,
       divider: '#334155',
       input: '#475569',
+    },
+    field: {
+      label: palette.theme.gray[5],
+      required: palette.stitch.primary,
+      optional: palette.theme.gray[10],
+      placeholder: palette.theme.gray[10],
+      text: palette.theme.gray[5],
+      icon: palette.stitch.primary,
+      border: palette.theme.gray[70],
+      background: palette.white,
     },
     questDetail: {
       periodBackground: palette.theme.gray[95],

@@ -273,7 +273,8 @@ const RoutineFormModal = () => {
         />
         <FormItem
           name="routineDetail"
-          label="루틴 설명"
+          label="설명"
+          optionalLabel="선택"
           item={({ value, onChange }) => (
             <Input
               variant="filled"
