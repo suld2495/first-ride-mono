@@ -49,6 +49,7 @@ export const palette = {
     },
 
     softGreen: {
+      10: '#B9E9CF',
       20: '#84D4A9',
       40: '#7FCFA2', // 임시
       50: '#7FA892',

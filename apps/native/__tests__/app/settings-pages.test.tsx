@@ -114,7 +114,7 @@ describe('설정 하위 페이지', () => {
 
     expect(contentStyle).toEqual(
       expect.objectContaining({
-        backgroundColor: palette.theme.blue[20],
+        backgroundColor: palette.theme.blue[10],
       }),
     );
     expect(filterAreaStyle).toEqual(
@@ -138,9 +138,10 @@ describe('설정 하위 페이지', () => {
     expect(activeStatusFilterText.props.fontWeight).toBe('600');
     expect(optionFiltersStyle).toEqual(
       expect.objectContaining({
+        justifyContent: 'flex-start',
         gap: 12,
-        marginTop: 10,
-        marginBottom: 6,
+        marginTop: 16,
+        marginBottom: 12,
       }),
     );
     expect(pausedCheckboxStyle).toEqual(
@@ -154,7 +155,6 @@ describe('설정 하위 페이지', () => {
         color: palette.theme.blue[90],
       }),
     );
-
     expect(await findByText('물 마시기')).toBeOnTheScreen();
     expect(await findByText('책 읽기')).toBeOnTheScreen();
     expect(await findByText('명상하기')).toBeOnTheScreen();
@@ -243,6 +243,28 @@ describe('설정 하위 페이지', () => {
     expect(getByTestId('routine-status-filter-upcoming')).toBeOnTheScreen();
     expect(getByTestId('routine-settings-paused-checkbox')).toBeOnTheScreen();
     expect(getByTestId('routine-settings-hidden-checkbox')).toBeOnTheScreen();
+    fireEvent.press(getByTestId('routine-settings-paused-checkbox'));
+
+    expect(queryByText('물 마시기')).toBeNull();
+    expect(getByText('책 읽기')).toBeOnTheScreen();
+    expect(queryByText('명상하기')).toBeNull();
+    expect(getByText('숨김 일시정지 루틴')).toBeOnTheScreen();
+    fireEvent.press(getByTestId('routine-settings-hidden-checkbox'));
+
+    expect(getByText('책 읽기')).toBeOnTheScreen();
+    expect(getByText('명상하기')).toBeOnTheScreen();
+    expect(getByText('숨김 일시정지 루틴')).toBeOnTheScreen();
+    fireEvent.press(getByTestId('routine-settings-paused-checkbox'));
+
+    expect(queryByText('책 읽기')).toBeNull();
+    expect(getByText('명상하기')).toBeOnTheScreen();
+    expect(getByText('숨김 일시정지 루틴')).toBeOnTheScreen();
+    fireEvent.press(getByTestId('routine-settings-hidden-checkbox'));
+
+    expect(await findByText('물 마시기')).toBeOnTheScreen();
+    expect(await findByText('책 읽기')).toBeOnTheScreen();
+    expect(await findByText('명상하기')).toBeOnTheScreen();
+    expect(await findByText('숨김 일시정지 루틴')).toBeOnTheScreen();
     expect(queryByTestId('routine-settings-hidden-routines-item')).toBeNull();
     fireEvent.press(getByTestId('routine-status-filter-done'));
 
@@ -257,6 +279,60 @@ describe('설정 하위 페이지', () => {
       ).toBe(true);
     });
     expect(mockPush).not.toHaveBeenCalledWith('/modal?type=hidden-routines');
+  });
+
+  it('전체 루틴 목록 페이지는 조건에 맞는 옵션 루틴이 없으면 빈 목록을 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/routine/list/all').reply(200, {
+      data: [
+        { ...createMockRoutine(0), routineName: '물 마시기' },
+        { ...createMockRoutine(1), routineName: '책 읽기' },
+      ],
+    });
+
+    const { findByText, getByTestId, queryByText } = render(
+      <RoutineSettingsPage />,
+    );
+
+    expect(await findByText('물 마시기')).toBeOnTheScreen();
+    const pausedCheckbox = getByTestId('routine-settings-paused-checkbox');
+    const hiddenCheckbox = getByTestId('routine-settings-hidden-checkbox');
+
+    expect(pausedCheckbox.props.accessibilityState).toEqual(
+      expect.objectContaining({
+        checked: false,
+      }),
+    );
+    expect(hiddenCheckbox.props.accessibilityState).toEqual(
+      expect.objectContaining({
+        checked: false,
+      }),
+    );
+    fireEvent.press(pausedCheckbox);
+
+    expect(queryByText('물 마시기')).toBeNull();
+    expect(queryByText('책 읽기')).toBeNull();
+    expect(await findByText('루틴이 존재하지 않습니다.')).toBeOnTheScreen();
+    expect(
+      getByTestId('routine-settings-paused-checkbox').props.accessibilityState,
+    ).toEqual(
+      expect.objectContaining({
+        checked: true,
+      }),
+    );
+    fireEvent.press(pausedCheckbox);
+    fireEvent.press(hiddenCheckbox);
+
+    expect(queryByText('물 마시기')).toBeNull();
+    expect(queryByText('책 읽기')).toBeNull();
+    expect(await findByText('루틴이 존재하지 않습니다.')).toBeOnTheScreen();
+    expect(
+      getByTestId('routine-settings-hidden-checkbox').props.accessibilityState,
+    ).toEqual(
+      expect.objectContaining({
+        checked: true,
+      }),
+    );
   });
 
   it('문의 페이지는 앱 안에서 작성한 내용을 이메일 문의로 전송한다', async () => {

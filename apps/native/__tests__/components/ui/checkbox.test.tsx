@@ -20,10 +20,12 @@ jest.mock('react-native-bouncy-checkbox', () => {
       text,
       textContainerStyle,
       textStyle,
+      fillColor,
       unFillColor,
     }: {
       ImageComponent?: unknown;
       iconComponent?: unknown;
+      fillColor?: string;
       iconStyle?: { borderRadius?: number };
       innerIconStyle?: { borderColor?: string; borderRadius?: number };
       isChecked?: boolean;
@@ -50,6 +52,7 @@ jest.mock('react-native-bouncy-checkbox', () => {
         text,
         textContainerStyle,
         textStyle,
+        fillColor,
         unFillColor,
       }),
   };
@@ -133,6 +136,52 @@ describe('Checkbox', () => {
     );
 
     expect(getByTestId('bouncy-checkbox').props.isChecked).toBe(true);
+  });
+
+  it('checkedColor prop을 체크 상태 테두리와 체크 아이콘에 적용한다', () => {
+    const { getByTestId } = render(
+      <AppTamaguiProvider>
+        <Checkbox
+          checkedColor={palette.theme.softBlue[40]}
+          fillColor={palette.theme.softBlue[10]}
+          isChecked={true}
+          onPress={jest.fn()}
+        />
+      </AppTamaguiProvider>,
+    );
+    const checkbox = getByTestId('bouncy-checkbox');
+
+    expect(checkbox.props.innerIconStyle).toEqual(
+      expect.objectContaining({
+        borderColor: palette.theme.softBlue[40],
+      }),
+    );
+    expect(checkbox.props.fillColor).toBe(palette.theme.softBlue[10]);
+    expect(checkbox.props.iconComponent.props.color).toBe(
+      palette.theme.softBlue[40],
+    );
+  });
+
+  it('visualChecked prop을 전달하면 표시용 체크 상태에 적용한다', () => {
+    const { getByTestId } = render(
+      <AppTamaguiProvider>
+        <Checkbox
+          checkedColor={palette.theme.softBlue[40]}
+          fillColor={palette.theme.softBlue[10]}
+          isChecked={true}
+          visualChecked={false}
+          onPress={jest.fn()}
+        />
+      </AppTamaguiProvider>,
+    );
+    const checkbox = getByTestId('bouncy-checkbox');
+
+    expect(checkbox.props.isChecked).toBe(false);
+    expect(checkbox.props.innerIconStyle).toEqual(
+      expect.objectContaining({
+        borderColor: palette.theme.gray[5],
+      }),
+    );
   });
 
   it('체크되어도 기본 라벨 취소선은 표시하지 않는다', () => {

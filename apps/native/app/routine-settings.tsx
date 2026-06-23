@@ -71,6 +71,18 @@ const getSoftThemePalette40 = (themeName?: string): string => {
   return palette.theme.softBlue[40];
 };
 
+const getSoftThemePalette10 = (themeName?: string): string => {
+  if (themeName === 'green') {
+    return palette.theme.softGreen[10];
+  }
+
+  if (themeName === 'red') {
+    return palette.theme.softRed[10];
+  }
+
+  return palette.theme.softBlue[10];
+};
+
 interface RoutineListMoreIconProps {
   color: string;
   routineId: Routine['routineId'];
@@ -199,32 +211,46 @@ export default function RoutineSettingsPage() {
   );
   const [selectedStatus, setSelectedStatus] =
     useState<RoutineStatusFilter>('active');
-  const [showsPausedRoutines, setShowsPausedRoutines] = useState(true);
-  const [showsHiddenRoutines, setShowsHiddenRoutines] = useState(true);
+  const [filtersPausedRoutines, setFiltersPausedRoutines] = useState(false);
+  const [filtersHiddenRoutines, setFiltersHiddenRoutines] = useState(false);
   const [openMenuRoutineId, setOpenMenuRoutineId] = useState<
     Routine['routineId'] | null
   >(null);
   const checkboxLabelColor = getThemePalette90(theme.name);
+  const checkboxCheckedColor = getSoftThemePalette40(theme.name);
+  const checkboxCheckedBackgroundColor = getSoftThemePalette10(theme.name);
   const routineMoreIconColor = getSoftThemePalette40(theme.name);
   const nickname = user?.nickname || '';
   const updatePause = useUpdateRoutinePauseMutation(nickname);
   const updateVisibility = useUpdateRoutineVisibilityMutation();
   const deleteRoutine = useDeleteRoutineMutation(nickname);
   const routineStatusIconColor = palette.theme.softBlue[80];
+  const statusFilteredRoutines = useMemo(
+    () =>
+      routines.filter(
+        (routine) => getRoutineStatus(routine) === selectedStatus,
+      ),
+    [routines, selectedStatus],
+  );
+  const hasOptionFilter = filtersPausedRoutines || filtersHiddenRoutines;
   const filteredRoutines = useMemo(
     () =>
-      routines.filter((routine) => {
-        if (!showsPausedRoutines && routine.paused) {
-          return false;
+      statusFilteredRoutines.filter((routine) => {
+        if (!hasOptionFilter) {
+          return true;
         }
 
-        if (!showsHiddenRoutines && routine.hidden) {
-          return false;
-        }
-
-        return getRoutineStatus(routine) === selectedStatus;
+        return (
+          (filtersPausedRoutines && routine.paused) ||
+          (filtersHiddenRoutines && routine.hidden)
+        );
       }),
-    [routines, selectedStatus, showsHiddenRoutines, showsPausedRoutines],
+    [
+      filtersHiddenRoutines,
+      filtersPausedRoutines,
+      hasOptionFilter,
+      statusFilteredRoutines,
+    ],
   );
   const openMenuRoutineIndex = filteredRoutines.findIndex(
     (routine) => routine.routineId === openMenuRoutineId,
@@ -391,17 +417,29 @@ export default function RoutineSettingsPage() {
             style={styles.optionFilters}
             testID="routine-settings-option-filters"
           >
-            <View
+            <Pressable
+              accessibilityLabel="일시정지 루틴 표시"
+              accessibilityRole="checkbox"
+              accessibilityState={{
+                checked: filtersPausedRoutines,
+              }}
+              onPress={() => {
+                setFiltersPausedRoutines((current) => !current);
+              }}
               style={styles.optionCheckbox}
               testID="routine-settings-paused-checkbox"
             >
-              <Checkbox
-                size="md"
-                disableText
-                isChecked={showsPausedRoutines}
-                fillColor={palette.white}
-                onPress={setShowsPausedRoutines}
-              />
+              <View pointerEvents="none">
+                <Checkbox
+                  size="md"
+                  disableText
+                  isChecked={filtersPausedRoutines}
+                  visualChecked={!filtersPausedRoutines}
+                  checkedColor={checkboxCheckedColor}
+                  fillColor={checkboxCheckedBackgroundColor}
+                  onPress={setFiltersPausedRoutines}
+                />
+              </View>
               <Typography
                 color={checkboxLabelColor}
                 testID="routine-settings-paused-checkbox-label"
@@ -409,18 +447,30 @@ export default function RoutineSettingsPage() {
               >
                 일시정지
               </Typography>
-            </View>
-            <View
+            </Pressable>
+            <Pressable
+              accessibilityLabel="숨김 루틴 표시"
+              accessibilityRole="checkbox"
+              accessibilityState={{
+                checked: filtersHiddenRoutines,
+              }}
+              onPress={() => {
+                setFiltersHiddenRoutines((current) => !current);
+              }}
               style={styles.optionCheckbox}
               testID="routine-settings-hidden-checkbox"
             >
-              <Checkbox
-                size="md"
-                disableText
-                isChecked={showsHiddenRoutines}
-                fillColor={palette.white}
-                onPress={setShowsHiddenRoutines}
-              />
+              <View pointerEvents="none">
+                <Checkbox
+                  size="md"
+                  disableText
+                  isChecked={filtersHiddenRoutines}
+                  visualChecked={!filtersHiddenRoutines}
+                  checkedColor={checkboxCheckedColor}
+                  fillColor={checkboxCheckedBackgroundColor}
+                  onPress={setFiltersHiddenRoutines}
+                />
+              </View>
               <Typography
                 color={checkboxLabelColor}
                 testID="routine-settings-hidden-checkbox-label"
@@ -428,7 +478,7 @@ export default function RoutineSettingsPage() {
               >
                 숨김
               </Typography>
-            </View>
+            </Pressable>
           </View>
         </View>
         {isLoading ? (
@@ -457,7 +507,7 @@ export default function RoutineSettingsPage() {
               ListEmptyComponent={
                 <EmptyState
                   icon="list-outline"
-                  message="표시할 루틴이 없습니다."
+                  message="루틴이 존재하지 않습니다."
                   messageColor={palette.theme.gray[60]}
                   transparent
                 />
@@ -494,11 +544,11 @@ export default function RoutineSettingsPage() {
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    backgroundColor: theme.colors.brand.secondary,
+    backgroundColor: theme.colors.brand.background,
   },
   content: {
     flex: 1,
-    backgroundColor: theme.colors.brand.secondary,
+    backgroundColor: theme.colors.brand.background,
   },
   filterArea: {
     paddingTop: theme.foundation.spacing[3],
@@ -523,11 +573,10 @@ const styles = StyleSheet.create((theme) => ({
   },
   optionFilters: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     gap: theme.foundation.spacing[3],
-    marginTop: theme.foundation.spacing[2.5],
-    marginBottom: theme.foundation.spacing[1.5],
-    paddingRight: theme.foundation.spacing[1],
+    marginTop: theme.foundation.spacing[4],
+    marginBottom: theme.foundation.spacing[3],
   },
   optionCheckbox: {
     flexDirection: 'row',

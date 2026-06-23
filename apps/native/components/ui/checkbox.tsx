@@ -39,7 +39,11 @@ const CHECKBOX_LABEL_STYLE_MAP: Record<
   },
 };
 
-const CheckboxCheckIcon = () => (
+interface CheckboxCheckIconProps {
+  color: string;
+}
+
+const CheckboxCheckIcon = ({ color }: CheckboxCheckIconProps) => (
   <Svg
     width={baseFoundation.dimension.x11}
     height={baseFoundation.dimension.x10}
@@ -48,7 +52,7 @@ const CheckboxCheckIcon = () => (
   >
     <Path
       d="M1 5.9695L2.2045 7.261C2.869 7.9735 3.20125 8.329 3.57325 8.4415C3.90025 8.53975 4.24825 8.5135 4.5595 8.3665C4.91425 8.1985 5.1985 7.79575 5.7685 6.9895L10 1"
-      stroke={DEFAULT_CHECK_COLOR}
+      stroke={color}
       strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -67,8 +71,12 @@ export interface CheckboxProps {
   disableText?: boolean;
   /** Fill color - uses semantic token by default */
   fillColor?: string;
+  /** Checked border and check icon color */
+  checkedColor?: string;
   /** Controlled checked state */
   isChecked?: boolean;
+  /** Optional visual checked state override */
+  visualChecked?: boolean;
   /** Whether checked labels should use BouncyCheckbox strike-through */
   strikeThroughOnChecked?: boolean;
   /** Callback when checkbox is pressed */
@@ -88,7 +96,9 @@ const Checkbox = ({
   text,
   disableText,
   fillColor,
+  checkedColor,
   isChecked,
+  visualChecked,
   strikeThroughOnChecked = false,
   onPress,
 }: CheckboxProps) => {
@@ -96,9 +106,15 @@ const Checkbox = ({
   const defaultFillColor = theme.colors.action.primary.default;
   const defaultLabelColor = theme.colors.text.gray;
   const resolvedBorderRadius = borderRadius ?? DEFAULT_BORDER_RADIUS;
+  const resolvedCheckedColor = checkedColor ?? DEFAULT_CHECK_COLOR;
+  const resolvedFillColor = fillColor ?? defaultFillColor;
+  const resolvedVisualChecked = visualChecked ?? isChecked;
   const iconStyle = { borderRadius: resolvedBorderRadius };
   const innerIconStyle = {
-    borderColor: DEFAULT_BORDER_COLOR,
+    borderColor:
+      resolvedVisualChecked && checkedColor
+        ? checkedColor
+        : DEFAULT_BORDER_COLOR,
     borderRadius: resolvedBorderRadius,
   };
   const textStyle = {
@@ -116,10 +132,10 @@ const Checkbox = ({
       size={CHECKBOX_SIZE_MAP[size]}
       text={text}
       disableText={disableText}
-      isChecked={isChecked}
-      fillColor={fillColor || defaultFillColor}
+      isChecked={resolvedVisualChecked}
+      fillColor={resolvedFillColor}
       unFillColor={DEFAULT_BACKGROUND_COLOR}
-      iconComponent={<CheckboxCheckIcon />}
+      iconComponent={<CheckboxCheckIcon color={resolvedCheckedColor} />}
       iconStyle={iconStyle}
       innerIconStyle={innerIconStyle}
       textContainerStyle={textContainerStyle}
