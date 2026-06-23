@@ -43,6 +43,12 @@ export const blueTheme: ThemeContract = {
         inactiveText: palette.theme.softBlue[50],
       },
     },
+    field: {
+      ...commonTheme.colors.field,
+      required: palette.theme.blue[50],
+      optional: palette.theme.softBlue[50],
+      icon: palette.theme.blue[50],
+    },
     brand: {
       ...commonTheme.colors.brand,
       primary: palette.theme.blue[30],

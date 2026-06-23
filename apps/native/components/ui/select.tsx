@@ -281,7 +281,7 @@ export function Select<T = string | number>({
           <Ionicons
             name="checkmark"
             size={baseFoundation.iconSize.m}
-            color={theme.colors.action.primary.default}
+            color={theme.colors.field.icon}
           />
         )}
       </TouchableOpacity>
@@ -290,7 +290,7 @@ export function Select<T = string | number>({
       handleSelectItem,
       sizeTextStyle,
       textStyle,
-      theme.colors.action.primary.default,
+      theme.colors.field.icon,
       value,
     ],
   );
@@ -372,7 +372,7 @@ export function Select<T = string | number>({
           name={isOpen ? 'chevron-up' : 'chevron-down'}
           size={baseFoundation.iconSize.m}
           color={
-            disabled ? theme.colors.text.disabled : theme.colors.brand.icon
+            disabled ? theme.colors.text.disabled : theme.colors.field.icon
           }
         />
       </TouchableOpacity>
@@ -440,14 +440,14 @@ const styles = StyleSheet.create((theme) => ({
 
   variantOutlined: {
     borderWidth: 1,
-    borderColor: theme.colors.border.input ?? theme.colors.border.strong,
-    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
+    borderColor: theme.colors.field.border,
+    backgroundColor: theme.colors.field.background,
     borderRadius: baseFoundation.radii.xs,
   },
 
   variantFilled: {
     borderWidth: 0,
-    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
+    backgroundColor: theme.colors.field.background,
     borderRadius: baseFoundation.radii.xs,
   },
 
@@ -480,7 +480,7 @@ const styles = StyleSheet.create((theme) => ({
 
   selectText: {
     flex: 1,
-    color: theme.colors.text.input ?? theme.colors.brand.text,
+    color: theme.colors.field.text,
   },
 
   selectTextXs: {
@@ -500,7 +500,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   selectPlaceholder: {
-    color: theme.colors.text.tertiary,
+    color: theme.colors.field.placeholder,
   },
 
   selectTextDisabled: {
@@ -513,7 +513,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   helperDefault: {
-    color: theme.colors.text.secondary,
+    color: theme.colors.field.label,
   },
 
   helperTextError: {
@@ -536,7 +536,7 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     borderRadius: baseFoundation.radii.xs,
     borderWidth: 0,
-    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
+    backgroundColor: theme.colors.field.background,
     zIndex: 1002,
     overflow: 'hidden',
   },
@@ -562,11 +562,11 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.foundation.spacing[1],
     borderWidth: 0,
     borderBottomWidth: 0,
-    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
+    backgroundColor: theme.colors.field.background,
   },
 
   dropdownItemSelected: {
-    backgroundColor: theme.colors.background.input ?? theme.colors.brand.input,
+    backgroundColor: theme.colors.field.background,
   },
 
   dropdownItemContent: {
@@ -575,11 +575,11 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   dropdownItemLabel: {
-    color: theme.colors.text.input ?? theme.colors.brand.text,
+    color: theme.colors.field.text,
   },
 
   dropdownItemLabelSelected: {
-    color: theme.colors.text.input ?? theme.colors.brand.text,
+    color: theme.colors.field.text,
     fontWeight: theme.foundation.typography.weight.semibold,
   },
 

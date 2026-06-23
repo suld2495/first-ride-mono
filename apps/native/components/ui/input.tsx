@@ -144,7 +144,7 @@ export const Input: React.FC<InputProps> = ({
 }) => {
   const { theme } = useAppTheme();
   const inputColorMap = {
-    input: theme.colors.text.input,
+    input: theme.colors.field.text,
     title: theme.colors.text.title,
     subtitle: theme.colors.text.label,
     caption: theme.colors.text.tertiary,
@@ -207,7 +207,7 @@ export const Input: React.FC<InputProps> = ({
             { color: inputColor },
             inputStyle,
           ]}
-          placeholderTextColor={theme.colors.text.tertiary}
+          placeholderTextColor={theme.colors.field.placeholder}
           {...props}
         />
       </View>
@@ -238,13 +238,13 @@ const styles = StyleSheet.create((theme) => ({
   },
   variantOutlined: {
     borderWidth: 1,
-    borderColor: theme.colors.border.strong,
-    backgroundColor: theme.colors.background.input,
+    borderColor: theme.colors.field.border,
+    backgroundColor: theme.colors.field.background,
     borderRadius: theme.foundation.radii.xs,
   },
   variantFilled: {
     borderWidth: 0,
-    backgroundColor: theme.colors.background.input,
+    backgroundColor: theme.colors.field.background,
     borderRadius: theme.foundation.radii.xs,
   },
   variantUnderlined: {
@@ -265,7 +265,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   input: {
     flex: 1,
-    color: theme.colors.text.input,
+    color: theme.colors.field.text,
   },
   inputXs: {
     fontSize: theme.foundation.typography.size.s,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create((theme) => ({
     fontWeight: '600',
     marginBottom: baseFoundation.spacing[1],
     marginLeft: baseFoundation.spacing[1],
-    color: theme.colors.text.secondary,
+    color: theme.colors.field.label,
   },
   helperText: {
     fontSize: theme.foundation.typography.size.s,

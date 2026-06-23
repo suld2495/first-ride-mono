@@ -66,7 +66,7 @@ const DatePicker = ({
         title={buttonTitle}
         variant="secondary"
         size={buttonSize}
-        textColor={theme.colors.text.input}
+        textColor={theme.colors.field.text}
         onPress={open}
         leftIcon={({ color }) => (
           <Ionicons
@@ -138,8 +138,8 @@ export default DatePicker;
 const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   variantOutlined: {
     borderWidth: 1,
-    borderColor: theme.colors.border.input,
-    backgroundColor: theme.colors.background.input,
+    borderColor: theme.colors.field.border,
+    backgroundColor: theme.colors.field.background,
     borderRadius: theme.foundation.radii.xs,
     shadowOpacity: 0,
     elevation: 0,
@@ -147,7 +147,7 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
 
   variantFilled: {
     borderWidth: 0,
-    backgroundColor: theme.colors.background.input,
+    backgroundColor: theme.colors.field.background,
     borderRadius: theme.foundation.radii.xs,
     shadowOpacity: 0,
     elevation: 0,

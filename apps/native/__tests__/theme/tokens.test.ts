@@ -144,6 +144,16 @@ describe('theme/tokens', () => {
           divider: '#555',
           input: '#666',
         },
+        field: {
+          label: '#ddd',
+          required: '#0af',
+          optional: '#8cf',
+          placeholder: '#bbb',
+          text: '#ddd',
+          icon: '#0af',
+          border: '#666',
+          background: '#111',
+        },
         questDetail: {
           periodBackground: '#000',
           periodText: '#fff',

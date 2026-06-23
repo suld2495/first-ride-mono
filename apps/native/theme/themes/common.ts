@@ -18,6 +18,17 @@ export const commonTheme: ThemeContract = {
       ...baseTheme.colors.border,
       input: palette.theme.gray[50],
     },
+    field: {
+      ...baseTheme.colors.field,
+      label: palette.theme.gray[70],
+      required: palette.theme.blue[50],
+      optional: palette.theme.gray[10],
+      placeholder: palette.theme.gray[10],
+      text: palette.theme.gray[70],
+      icon: palette.theme.blue[50],
+      border: palette.theme.gray[70],
+      background: palette.white,
+    },
     filter: {
       status: commonStatusFilterColors,
     },
