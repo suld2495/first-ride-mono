@@ -1,7 +1,7 @@
 import { Routine } from './routine';
 
 export type RequestResponseStatus = 'DENY' | 'PASS';
-export type RequestStatus = 'DRAFT' | RequestResponseStatus;
+export type RequestStatus = 'WAIT' | RequestResponseStatus;
 
 export type Request = {
   id: number;
@@ -12,7 +12,7 @@ export type Request = {
 };
 
 export interface RequestResponseForm {
-  checkStatus: RequestStatus;
+  checkStatus: RequestResponseStatus;
   checkComment: string;
 }
 

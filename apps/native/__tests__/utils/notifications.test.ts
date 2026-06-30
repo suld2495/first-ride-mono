@@ -6,8 +6,10 @@ import { DEEP_LINK_SCREENS } from '../../constants/NOTIFICATIONS';
 import type { NotificationDeepLinkData } from '../../types/notification-types';
 import {
   clearBadgeCount,
+  getCompletedRoutineRequestToastMessage,
   getBadgeCount,
   getDeepLinkPath,
+  getNotificationNavigationIntent,
   setBadgeCount,
   syncBadgeCountFromNotification,
   syncBadgeCountWithReceivedRequests,
@@ -195,5 +197,68 @@ describe('getDeepLinkPath', () => {
       const data: NotificationDeepLinkData = {};
       expect(getDeepLinkPath(data)).toBe(DEEP_LINK_SCREENS.ROUTINE);
     });
+  });
+});
+
+describe('getNotificationNavigationIntent', () => {
+  const requestDetail = {
+    id: 123,
+    nickname: '윤윤',
+    requesterNickname: '메이트',
+    routineName: '아침 운동',
+    routineDetail: '30분 걷기',
+    imagePath: 'https://example.com/confirm.png',
+    createdAt: '2026-06-30T18:30:00',
+  };
+
+  it('routine-request가 WAIT 상태이면 인증 상세로 이동한다', async () => {
+    jest.spyOn(requestApi, 'fetchRequestDetail').mockResolvedValue({
+      ...requestDetail,
+      checkStatus: 'WAIT',
+    });
+
+    await expect(
+      getNotificationNavigationIntent({
+        type: 'routine-request',
+        requestId: 123,
+      }),
+    ).resolves.toEqual({
+      kind: 'navigate',
+      path: '/modal?type=request-detail',
+    });
+
+    expect(requestApi.fetchRequestDetail).toHaveBeenCalledWith(123);
+  });
+
+  it('routine-request가 WAIT 상태가 아니면 완료 안내 toast를 띄운다', async () => {
+    jest.spyOn(requestApi, 'fetchRequestDetail').mockResolvedValue({
+      ...requestDetail,
+      checkStatus: 'PASS',
+    });
+
+    await expect(
+      getNotificationNavigationIntent({
+        type: 'routine-request',
+        requestId: 123,
+      }),
+    ).resolves.toEqual({
+      kind: 'toast',
+      message: getCompletedRoutineRequestToastMessage(),
+    });
+  });
+
+  it('routine-request 외 알림은 기존 경로로 이동한다', async () => {
+    const fetchRequestDetailSpy = jest.spyOn(requestApi, 'fetchRequestDetail');
+
+    await expect(
+      getNotificationNavigationIntent({
+        type: 'friend-accepted',
+      }),
+    ).resolves.toEqual({
+      kind: 'navigate',
+      path: DEEP_LINK_SCREENS.FRIEND,
+    });
+
+    expect(fetchRequestDetailSpy).not.toHaveBeenCalled();
   });
 });

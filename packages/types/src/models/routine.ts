@@ -57,4 +57,5 @@ export interface RoutineDetail {
   routineDetail: Routine['routineDetail'];
   imagePath: Request['image'];
   createdAt: Request['createdAt'];
+  checkStatus: Request['checkStatus'];
 }

@@ -62,6 +62,7 @@ export interface CreateMockRoutineDetailOptions {
   routineDetail?: string;
   imagePath?: string;
   createdAt?: string;
+  checkStatus?: RoutineDetail['checkStatus'];
 }
 
 export const createMockRoutineDetail = (
@@ -75,4 +76,5 @@ export const createMockRoutineDetail = (
   routineDetail: options.routineDetail ?? `테스트 루틴 ${index + 1} 상세`,
   imagePath: options.imagePath ?? 'https://example.com/image.jpg',
   createdAt: options.createdAt ?? new Date().toISOString(),
+  checkStatus: options.checkStatus ?? 'WAIT',
 });

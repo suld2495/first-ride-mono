@@ -17,7 +17,7 @@ export const createMockRequest = (
 ): Request => ({
   id: index + 1,
   image: options.image ?? 'https://example.com/image.jpg',
-  checkStatus: options.checkStatus ?? 'DRAFT',
+  checkStatus: options.checkStatus ?? 'WAIT',
   checkComment: options.checkComment ?? '',
   createdAt: options.createdAt ?? new Date().toISOString(),
 });

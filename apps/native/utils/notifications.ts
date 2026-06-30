@@ -1,4 +1,7 @@
-import { fetchReceivedRequests } from '@repo/shared/api/request.api';
+import {
+  fetchReceivedRequests,
+  fetchRequestDetail,
+} from '@repo/shared/api/request.api';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
@@ -433,6 +436,53 @@ export function getDeepLinkPath(
   }
 
   return DEEP_LINK_SCREENS.ROUTINE;
+}
+
+export type NotificationNavigationIntent =
+  | {
+      kind: 'navigate';
+      path: string;
+    }
+  | {
+      kind: 'toast';
+      message: string;
+    };
+
+export function getCompletedRoutineRequestToastMessage(): string {
+  return '이미 완료된 인증 요청입니다.';
+}
+
+/**
+ * 알림 탭 시 실행할 동작을 결정한다.
+ *
+ * 메이트의 루틴 인증 요청은 상세 상태를 먼저 확인하고,
+ * WAIT 상태인 경우에만 인증 상세 화면으로 이동한다.
+ */
+export async function getNotificationNavigationIntent(
+  data: NotificationDeepLinkData | undefined,
+): Promise<NotificationNavigationIntent> {
+  const path = getDeepLinkPath(data);
+
+  if (data?.type !== 'routine-request' || !data.requestId) {
+    return {
+      kind: 'navigate',
+      path,
+    };
+  }
+
+  const detail = await fetchRequestDetail(data.requestId);
+
+  if (detail.checkStatus === 'WAIT') {
+    return {
+      kind: 'navigate',
+      path,
+    };
+  }
+
+  return {
+    kind: 'toast',
+    message: getCompletedRoutineRequestToastMessage(),
+  };
 }
 
 /**

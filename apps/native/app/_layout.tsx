@@ -18,7 +18,7 @@ import AppTamaguiProvider, {
   ThemeStyleRefreshBoundary,
 } from '@/components/ui/tamagui-provider';
 import ToastContainer from '@/components/ui/toast-container';
-import { ToastProvider } from '@/contexts/ToastContext';
+import { ToastProvider, useToast } from '@/contexts/ToastContext';
 import { useAppActiveRefresh } from '@/hooks/useAppActiveRefresh';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -42,7 +42,7 @@ import type { NotificationHandlers } from '@/types/notification-types';
 import { getKakaoNativeAppKey } from '@/utils/env';
 import {
   extractDeepLinkData,
-  getDeepLinkPath,
+  getNotificationNavigationIntent,
   syncBadgeCountFromNotification,
   syncBadgeCountWithReceivedRequests,
 } from '@/utils/notifications';
@@ -132,6 +132,7 @@ function AppShell({ isFontReady }: AppShellProps) {
   const setColorScheme = useSetAppColorScheme();
   const syncWithTamagui = useSyncAppColorScheme();
   const handledShareSessionIdRef = useRef<string | null>(null);
+  const { showToast } = useToast();
 
   /**
    * 알림 탭 시 딥링크 처리
@@ -154,20 +155,40 @@ function AppShell({ isFontReady }: AppShellProps) {
       });
 
       const data = extractDeepLinkData(response.notification);
-      const path = getDeepLinkPath(data);
 
-      // 알림 타입에 따라 store 설정
-      if (data?.requestId) {
-        setRequestId(data.requestId);
-      }
-      if (data?.routineId) {
-        setRoutineId(data.routineId);
-      }
+      void (async () => {
+        try {
+          const intent = await getNotificationNavigationIntent(data);
 
-      // 해당 화면으로 이동
-      router.push(path as Href);
+          if (intent.kind === 'toast') {
+            showToast(intent.message, 'info');
+            return;
+          }
+
+          // 알림 타입에 따라 store 설정
+          if (data?.requestId) {
+            setRequestId(data.requestId);
+          }
+          if (data?.routineId) {
+            setRoutineId(data.routineId);
+          }
+
+          // 해당 화면으로 이동
+          router.push(intent.path as Href);
+        } catch {
+          showToast('알림을 처리하지 못했습니다. 다시 시도해주세요.', 'error');
+        }
+      })();
     },
-    [user, themeName, queryClient, router, setRequestId, setRoutineId],
+    [
+      user,
+      themeName,
+      queryClient,
+      showToast,
+      router,
+      setRequestId,
+      setRoutineId,
+    ],
   );
 
   const handleNotificationReceived = useCallback(
