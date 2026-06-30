@@ -69,11 +69,11 @@ export function useAuth(): UseAuthReturn {
         });
       } else {
         // 기존 회원: 로그인 완료
-        signIn(result.userInfo!);
         await Promise.all([
           setAuthorization(result.accessToken!),
           setRefreshToken(result.refreshToken!),
         ]);
+        signIn(result.userInfo!);
         await pushAfterProtectedRoutesReady(
           router,
           '/(tabs)/(afterLogin)/(routine)',

@@ -2,6 +2,8 @@ import axiosInstance from '@repo/shared/api';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
+import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
+
 import SocialSignUp from '../../app/social-sign-up';
 import { render } from '../setup/test-utils';
 
@@ -16,6 +18,9 @@ jest.mock('@/api/token-storage.api', () => ({
   setRefreshToken: jest.fn(),
 }));
 
+const mockedSetAuthorization = jest.mocked(setAuthorization);
+const mockedSetRefreshToken = jest.mocked(setRefreshToken);
+
 jest.mock('@/hooks/useNotifications', () => ({
   useNotifications: () => ({
     pushToken: { data: 'mock-push-token' },
@@ -28,6 +33,8 @@ describe('SocialSignUp 페이지', () => {
   beforeEach(() => {
     mockPush.mockClear();
     mockAuthStore.signIn.mockClear();
+    mockedSetAuthorization.mockClear();
+    mockedSetRefreshToken.mockClear();
     for (const key of Object.keys(mockSearchParams)) {
       delete mockSearchParams[key];
     }
@@ -89,5 +96,44 @@ describe('SocialSignUp 페이지', () => {
       });
     });
     expect(mockPush).toHaveBeenCalledWith('/(tabs)/(afterLogin)/(routine)');
+  });
+
+  it('토큰 저장을 완료한 뒤 로그인 상태로 전환한다', async () => {
+    mockAxios.onPost('/auth/kakao/signup').reply(200, {
+      data: {
+        userInfo: { userId: 'testuser', nickname: '테스터' },
+        accessToken: 'service-access-token',
+        refreshToken: 'service-refresh-token',
+      },
+    });
+
+    const { getByPlaceholderText, getByText, findByText } = render(
+      <SocialSignUp />,
+    );
+
+    fireEvent.changeText(
+      getByPlaceholderText('닉네임을 입력해주세요.'),
+      '테스터',
+    );
+    fireEvent.press(await findByText('개발자'));
+    fireEvent.press(getByText('가입 완료'));
+
+    await waitFor(() => {
+      expect(mockAuthStore.signIn).toHaveBeenCalledWith({
+        userId: 'testuser',
+        nickname: '테스터',
+      });
+    });
+
+    const authorizationCallOrder =
+      mockedSetAuthorization.mock.invocationCallOrder[0];
+    const refreshTokenCallOrder =
+      mockedSetRefreshToken.mock.invocationCallOrder[0];
+    const signInCallOrder = mockAuthStore.signIn.mock.invocationCallOrder[0];
+
+    expect(mockedSetAuthorization).toHaveBeenCalledWith('service-access-token');
+    expect(mockedSetRefreshToken).toHaveBeenCalledWith('service-refresh-token');
+    expect(authorizationCallOrder).toBeLessThan(signInCallOrder);
+    expect(refreshTokenCallOrder).toBeLessThan(signInCallOrder);
   });
 });

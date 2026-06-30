@@ -83,12 +83,11 @@ export default function SocialSignUp() {
         deviceType: getDeviceType(),
       });
 
-      // 로그인 완료 처리
-      signIn(response.userInfo);
       await Promise.all([
         setAuthorization(response.accessToken),
         setRefreshToken(response.refreshToken),
       ]);
+      signIn(response.userInfo);
 
       await pushAfterProtectedRoutesReady(
         router,

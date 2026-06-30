@@ -3,6 +3,8 @@ import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { StyleSheet as RNStyleSheet } from 'react-native';
 
+import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
+
 import SignIn from '../../app/sign-in';
 import { palette } from '../../theme/tokens';
 import { render } from '../setup/test-utils';
@@ -10,12 +12,18 @@ import { render } from '../setup/test-utils';
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
 declare const mockShowToast: jest.Mock;
+declare const mockAuthStore: {
+  signIn: jest.Mock;
+};
 
 // setAuthorization, setRefreshToken mock
-jest.mock('@/api', () => ({
+jest.mock('@/api/token-storage.api', () => ({
   setAuthorization: jest.fn(),
   setRefreshToken: jest.fn(),
 }));
+
+const mockedSetAuthorization = jest.mocked(setAuthorization);
+const mockedSetRefreshToken = jest.mocked(setRefreshToken);
 
 // useNotifications mock
 jest.mock('@/hooks/useNotifications', () => ({
@@ -31,6 +39,9 @@ describe('SignIn 페이지', () => {
   beforeEach(() => {
     mockPush.mockClear();
     mockShowToast.mockClear();
+    mockAuthStore.signIn.mockClear();
+    mockedSetAuthorization.mockClear();
+    mockedSetRefreshToken.mockClear();
     mockAxios = new MockAdapter(axiosInstance);
   });
 
@@ -220,6 +231,42 @@ describe('SignIn 페이지', () => {
             '/(tabs)/(afterLogin)/(routine)',
           );
         });
+      });
+
+      it('토큰 저장을 완료한 뒤 로그인 상태로 전환한다', async () => {
+        const { getByPlaceholderText, getAllByText } = render(<SignIn />);
+
+        fillForm(getByPlaceholderText, {
+          userId: 'testuser',
+          password: 'password123',
+        });
+
+        const submitButton = getSubmitButton(getAllByText);
+
+        fireEvent.press(submitButton);
+
+        await waitFor(() => {
+          expect(mockAuthStore.signIn).toHaveBeenCalledWith({
+            userId: 'testuser',
+            nickname: 'testnick',
+          });
+        });
+
+        const authorizationCallOrder =
+          mockedSetAuthorization.mock.invocationCallOrder[0];
+        const refreshTokenCallOrder =
+          mockedSetRefreshToken.mock.invocationCallOrder[0];
+        const signInCallOrder =
+          mockAuthStore.signIn.mock.invocationCallOrder[0];
+
+        expect(mockedSetAuthorization).toHaveBeenCalledWith(
+          'mock-access-token',
+        );
+        expect(mockedSetRefreshToken).toHaveBeenCalledWith(
+          'mock-refresh-token',
+        );
+        expect(authorizationCallOrder).toBeLessThan(signInCallOrder);
+        expect(refreshTokenCallOrder).toBeLessThan(signInCallOrder);
       });
     });
 
