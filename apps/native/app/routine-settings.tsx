@@ -144,12 +144,14 @@ const RoutineHiddenIcon = ({ color, routineId }: RoutineStatusIconProps) => (
       clipRule="evenodd"
       d="M1.9107 1.91205C2.23614 1.58661 2.76378 1.58661 3.08921 1.91205L18.0892 16.912C18.4147 17.2375 18.4147 17.7651 18.0892 18.0906C17.7638 18.416 17.2361 18.416 16.9107 18.0906L1.9107 3.09056C1.58527 2.76512 1.58527 2.23748 1.9107 1.91205Z"
       fill={color}
+      testID={`routine-settings-routine-hidden-icon-path-${routineId}-slash`}
     />
     <Path
       fillRule="evenodd"
       clipRule="evenodd"
       d="M5.95756 5.47074C5.76861 5.59075 5.58574 5.71511 5.40936 5.84201C4.15024 6.74788 3.15006 7.83484 2.53351 8.58341C1.84967 9.41366 1.84967 10.5889 2.53351 11.4192C3.15006 12.1678 4.15024 13.2547 5.40936 14.1606C6.66189 15.0617 8.24183 15.8346 10.0001 15.8346C11.7584 15.8346 13.3383 15.0617 14.5909 14.1606C14.6018 14.1527 14.6128 14.1448 14.6237 14.1369L12.5885 12.1017C11.9773 12.8539 11.0448 13.3346 9.99996 13.3346C8.15901 13.3346 6.66663 11.8423 6.66663 10.0013C6.66663 8.9565 7.14732 8.02397 7.89961 7.4128L5.95756 5.47074ZM13.3022 10.4584C13.3227 10.3089 13.3333 10.1564 13.3333 10.0013C13.3333 8.16035 11.8409 6.66797 9.99996 6.66797C9.8449 6.66797 9.69231 6.67856 9.54288 6.69905L7.96016 5.11632C7.74831 4.90448 7.82325 4.54579 8.10988 4.4586C8.70981 4.27609 9.34248 4.16797 10.0001 4.16797C11.7584 4.16797 13.3383 4.94086 14.5909 5.84201C15.85 6.74789 16.8501 7.83484 17.4667 8.58341C18.1505 9.41366 18.1505 10.5889 17.4667 11.4192C17.1449 11.8099 16.7186 12.2928 16.2055 12.794C16.0452 12.9506 15.7893 12.9455 15.6309 12.787L13.3022 10.4584ZM9.09094 8.60413C8.63481 8.9015 8.33329 9.41619 8.33329 10.0013C8.33329 10.9218 9.07948 11.668 9.99996 11.668C10.5851 11.668 11.0998 11.3665 11.3971 10.9103L9.09094 8.60413Z"
       fill={color}
+      testID={`routine-settings-routine-hidden-icon-path-${routineId}-body`}
     />
   </Svg>
 );
@@ -167,6 +169,7 @@ const RoutinePausedIcon = ({ color, routineId }: RoutineStatusIconProps) => (
       clipRule="evenodd"
       d="M8.33333 0C3.73096 0 0 3.73096 0 8.33333C0 12.9357 3.73096 16.6667 8.33333 16.6667C12.9357 16.6667 16.6667 12.9357 16.6667 8.33333C16.6667 3.73096 12.9357 0 8.33333 0ZM6.66667 5.83333C7.1269 5.83333 7.5 6.20643 7.5 6.66667V10C7.5 10.4602 7.1269 10.8333 6.66667 10.8333C6.20643 10.8333 5.83333 10.4602 5.83333 10V6.66667C5.83333 6.20643 6.20643 5.83333 6.66667 5.83333ZM10 5.83333C10.4602 5.83333 10.8333 6.20643 10.8333 6.66667V10C10.8333 10.4602 10.4602 10.8333 10 10.8333C9.53976 10.8333 9.16667 10.4602 9.16667 10V6.66667C9.16667 6.20643 9.53976 5.83333 10 5.83333Z"
       fill={color}
+      testID={`routine-settings-routine-paused-icon-path-${routineId}`}
     />
   </Svg>
 );
@@ -220,11 +223,16 @@ export default function RoutineSettingsPage() {
   const checkboxCheckedColor = getSoftThemePalette40(theme.name);
   const checkboxCheckedBackgroundColor = getSoftThemePalette10(theme.name);
   const routineMoreIconColor = getSoftThemePalette40(theme.name);
+  const statusFilterColors = theme.colors.filter?.status;
+  const inactiveStatusFilterBorderColor =
+    statusFilterColors?.inactiveBorder ?? palette.theme.softBlue[50];
+  const inactiveStatusFilterTextColor =
+    statusFilterColors?.inactiveText ?? palette.theme.softBlue[50];
   const nickname = user?.nickname || '';
   const updatePause = useUpdateRoutinePauseMutation(nickname);
   const updateVisibility = useUpdateRoutineVisibilityMutation();
   const deleteRoutine = useDeleteRoutineMutation(nickname);
-  const routineStatusIconColor = palette.theme.softBlue[80];
+  const routineStatusIconColor = theme.colors.text.tertiary;
   const statusFilteredRoutines = useMemo(
     () =>
       routines.filter(
@@ -396,13 +404,16 @@ export default function RoutineSettingsPage() {
                   }}
                   style={[
                     styles.statusFilter,
+                    !isSelected && {
+                      borderColor: inactiveStatusFilterBorderColor,
+                    },
                     isSelected && styles.statusFilterSelected,
                   ]}
                   testID={filter.testID}
                 >
                   <Typography
                     color={
-                      isSelected ? palette.white : palette.theme.softBlue[50]
+                      isSelected ? palette.white : inactiveStatusFilterTextColor
                     }
                     variant="body3"
                     weight="semibold"

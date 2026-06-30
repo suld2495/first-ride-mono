@@ -6,6 +6,8 @@ import { processColor, StyleSheet } from 'react-native';
 import InquiryPage from '../../app/inquiry';
 import NotificationSettingsPage from '../../app/notification-settings';
 import RoutineSettingsPage from '../../app/routine-settings';
+import { useColorSchemeStore } from '../../store/color-scheme.store';
+import { appThemes } from '../../theme/themes';
 import { palette } from '../../theme/tokens';
 import { render, resetAuthMocks } from '../setup/auth-test-utils';
 import { createMockRoutine } from '../setup/routine/mock';
@@ -19,6 +21,7 @@ describe('설정 하위 페이지', () => {
 
   beforeEach(() => {
     resetAuthMocks();
+    useColorSchemeStore.getState().setColorScheme('blue');
     mockShowToast.mockClear();
     mockAxios = new MockAdapter(axiosInstance);
     mockAxios.onGet('/routine/list/all').reply(200, { data: [] });
@@ -279,6 +282,77 @@ describe('설정 하위 페이지', () => {
       ).toBe(true);
     });
     expect(mockPush).not.toHaveBeenCalledWith('/modal?type=hidden-routines');
+  });
+
+  it('전체 루틴 목록 페이지는 상태 필터와 루틴 상태 아이콘에 현재 테마 컬러를 적용한다', async () => {
+    useColorSchemeStore.getState().setColorScheme('green');
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/routine/list/all').reply(200, {
+      data: [
+        {
+          ...createMockRoutine(1, { hidden: true, paused: true }),
+          routineName: '테마 확인 루틴',
+        },
+      ],
+    });
+
+    const { findByText, getByTestId, getByText } = render(
+      <RoutineSettingsPage />,
+    );
+
+    expect(await findByText('테마 확인 루틴')).toBeOnTheScreen();
+
+    const doneStatusFilterStyle = StyleSheet.flatten(
+      getByTestId('routine-status-filter-done').props.style,
+    );
+    const upcomingStatusFilterStyle = StyleSheet.flatten(
+      getByTestId('routine-status-filter-upcoming').props.style,
+    );
+    const hiddenIconSlashPath = getByTestId(
+      'routine-settings-routine-hidden-icon-path-2-slash',
+    );
+    const hiddenIconBodyPath = getByTestId(
+      'routine-settings-routine-hidden-icon-path-2-body',
+    );
+    const pausedIconPath = getByTestId(
+      'routine-settings-routine-paused-icon-path-2',
+    );
+
+    expect(doneStatusFilterStyle).toEqual(
+      expect.objectContaining({
+        borderColor: appThemes.green.colors.filter?.status.inactiveBorder,
+      }),
+    );
+    expect(upcomingStatusFilterStyle).toEqual(
+      expect.objectContaining({
+        borderColor: appThemes.green.colors.filter?.status.inactiveBorder,
+      }),
+    );
+    expect(StyleSheet.flatten(getByText('완료').props.style)).toEqual(
+      expect.objectContaining({
+        color: appThemes.green.colors.filter?.status.inactiveText,
+      }),
+    );
+    expect(StyleSheet.flatten(getByText('진행 전').props.style)).toEqual(
+      expect.objectContaining({
+        color: appThemes.green.colors.filter?.status.inactiveText,
+      }),
+    );
+    expect(hiddenIconSlashPath.props.fill).toEqual(
+      expect.objectContaining({
+        payload: processColor(appThemes.green.colors.text.tertiary),
+      }),
+    );
+    expect(hiddenIconBodyPath.props.fill).toEqual(
+      expect.objectContaining({
+        payload: processColor(appThemes.green.colors.text.tertiary),
+      }),
+    );
+    expect(pausedIconPath.props.fill).toEqual(
+      expect.objectContaining({
+        payload: processColor(appThemes.green.colors.text.tertiary),
+      }),
+    );
   });
 
   it('전체 루틴 목록 페이지는 조건에 맞는 옵션 루틴이 없으면 빈 목록을 표시한다', async () => {
