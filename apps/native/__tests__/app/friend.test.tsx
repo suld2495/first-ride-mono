@@ -2,6 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { FlatList, StyleSheet, View } from 'react-native';
 
+import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { lightTheme } from '@/theme/themes/light';
 
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
@@ -42,13 +43,18 @@ const setupMocks = (friendsData: ReturnType<typeof createMockFriends> = []) => {
 describe('친구 리스트 페이지', () => {
   beforeEach(() => {
     resetAuthMocks();
+    useColorSchemeStore.getState().setColorScheme('blue');
+    useColorSchemeStore.getState().clearColorSchemeOverride();
     mockAxios = new MockAdapter(axiosInstance);
   });
 
   afterEach(async () => {
     mockAxios.restore();
     // 비동기 업데이트 완료 대기
-    await act(async () => {});
+    await act(async () => {
+      useColorSchemeStore.getState().clearColorSchemeOverride();
+      useColorSchemeStore.getState().setColorScheme('blue');
+    });
   });
 
   describe('친구 리스트 표시 테스트', () => {
@@ -81,6 +87,19 @@ describe('친구 리스트 페이지', () => {
           );
 
         expect(blueBackgroundViews).toHaveLength(0);
+      });
+
+      it('친구 목록 화면이 포커스되면 친구 테마 override를 즉시 해제한다', async () => {
+        useColorSchemeStore.getState().setColorScheme('red');
+        useColorSchemeStore.getState().setColorSchemeOverride('green');
+
+        const screen = render(<FriendPage />);
+
+        expect(await screen.findByText('friend1')).toBeOnTheScreen();
+        await waitFor(() => {
+          expect(useColorSchemeStore.getState().colorSchemeOverride).toBeNull();
+        });
+        expect(useColorSchemeStore.getState().colorScheme).toBe('red');
       });
     });
 

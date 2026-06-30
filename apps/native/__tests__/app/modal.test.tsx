@@ -77,6 +77,12 @@ describe('ModalScreen', () => {
     expect(containerStyle.paddingTop).toBeUndefined();
   });
 
+  it('slides the modal container out when the modal closes', () => {
+    const { getByTestId } = render(<ModalScreen />);
+
+    expect(getByTestId('modal-screen-container').props.exiting).toBeDefined();
+  });
+
   it('keeps the gap between the modal header and body at 0px', () => {
     const { getByTestId } = render(<ModalScreen />);
 
@@ -86,6 +92,16 @@ describe('ModalScreen', () => {
 
     expect(contentStyle.marginTop).toBe(0);
     expect(contentStyle.paddingTop).toBe(0);
+  });
+
+  it('does not round the modal content corners', () => {
+    const { getByTestId } = render(<ModalScreen />);
+
+    const contentStyle = StyleSheet.flatten(
+      getByTestId('modal-screen-content').props.style,
+    );
+
+    expect(contentStyle.borderRadius).toBeUndefined();
   });
 
   it('uses 24px as the default horizontal content padding', () => {

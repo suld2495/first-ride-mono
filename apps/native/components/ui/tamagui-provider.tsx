@@ -3,6 +3,7 @@ import { Fragment, type PropsWithChildren } from 'react';
 import { TamaguiProvider, Theme } from 'tamagui';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useBaseColorSchemeValue } from '@/hooks/useThemePreference';
 import tamaguiConfig from '@/theme';
 
 export const AppTamaguiProvider = ({ children }: PropsWithChildren) => {
@@ -16,9 +17,9 @@ export const AppTamaguiProvider = ({ children }: PropsWithChildren) => {
 };
 
 export const ThemeStyleRefreshBoundary = ({ children }: PropsWithChildren) => {
-  const colorScheme = useColorScheme();
+  const baseColorScheme = useBaseColorSchemeValue();
 
-  return <Fragment key={colorScheme}>{children}</Fragment>;
+  return <Fragment key={baseColorScheme}>{children}</Fragment>;
 };
 
 export default AppTamaguiProvider;

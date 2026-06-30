@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import Animated, { SlideInRight } from 'react-native-reanimated';
+import Animated, { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ModalFooterOutlet from '@/components/modal/modal-footer-outlet';
@@ -88,6 +88,7 @@ export default function Modal() {
       <Animated.View
         testID="modal-screen-container"
         entering={SlideInRight.duration(MODAL_ANIMATION_DURATION)}
+        exiting={SlideOutRight.duration(MODAL_ANIMATION_DURATION)}
         style={styles.container}
       >
         <ModalHeaderActionProvider>
@@ -121,7 +122,7 @@ export default function Modal() {
   );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create(() => ({
   wrapper: {
     flex: 1,
   },
@@ -132,7 +133,6 @@ const styles = StyleSheet.create((theme) => ({
 
   content: {
     flex: 1,
-    borderRadius: theme.foundation.radii.l,
     marginTop: 0,
     paddingTop: 0,
   },

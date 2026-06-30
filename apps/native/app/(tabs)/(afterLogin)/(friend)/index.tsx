@@ -5,7 +5,7 @@ import {
 } from '@repo/shared/hooks/useFriend';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { Friend } from '@repo/types';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 
 import FriendAddModal from '@/components/friend/friend-add-modal';
@@ -17,6 +17,7 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
+import { useClearAppColorSchemeOverride } from '@/hooks/useThemePreference';
 import { baseFoundation } from '@/theme/tokens';
 
 const getFriendAccountId = (friend: Friend): number | string | undefined =>
@@ -28,6 +29,7 @@ const FriendPage = () => {
   const [page] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const clearColorSchemeOverride = useClearAppColorSchemeOverride();
 
   const { data: requests = [], refetch: refetchRequests } =
     useFetchFriendRequestsQuery(page);
@@ -46,6 +48,12 @@ const FriendPage = () => {
       setRefreshing(false);
     }
   }, [refetchFriends, refetchRequests]);
+
+  useFocusEffect(
+    useCallback(() => {
+      clearColorSchemeOverride();
+    }, [clearColorSchemeOverride]),
+  );
 
   const handleOpenFriend = useCallback(
     (friend: Friend) => {
