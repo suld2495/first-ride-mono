@@ -214,7 +214,7 @@ describe('SignIn 페이지', () => {
         });
       });
 
-      it('루틴 페이지로 이동한다', async () => {
+      it('로그인 상태로 전환하고 화면 이동은 루트 레이아웃에 맡긴다', async () => {
         const { getByPlaceholderText, getAllByText } = render(<SignIn />);
 
         fillForm(getByPlaceholderText, {
@@ -227,10 +227,14 @@ describe('SignIn 페이지', () => {
         fireEvent.press(submitButton);
 
         await waitFor(() => {
-          expect(mockPush).toHaveBeenCalledWith(
-            '/(tabs)/(afterLogin)/(routine)',
-          );
+          expect(mockAuthStore.signIn).toHaveBeenCalledWith({
+            userId: 'testuser',
+            nickname: 'testnick',
+          });
         });
+        expect(mockPush).not.toHaveBeenCalledWith(
+          '/(tabs)/(afterLogin)/(routine)',
+        );
       });
 
       it('토큰 저장을 완료한 뒤 로그인 상태로 전환한다', async () => {

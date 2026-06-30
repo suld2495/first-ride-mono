@@ -1090,6 +1090,10 @@ describe('루틴 조회 페이지', () => {
         const wedDate = new Date(monday);
 
         wedDate.setDate(wedDate.getDate() + 2);
+        const getSuccessLabel = (date: Date, dayName: string) =>
+          formatRoutineDateKey(date) === formatRoutineDateKey(today)
+            ? `${dayName}요일 오늘 완료`
+            : `${dayName}요일 달성`;
 
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
@@ -1106,9 +1110,15 @@ describe('루틴 조회 페이지', () => {
         const { findAllByTestId, findByLabelText } = render(<Index />);
 
         // 달성한 요일 (월, 화, 수)
-        expect(await findByLabelText('월요일 달성')).toBeOnTheScreen();
-        expect(await findByLabelText('화요일 달성')).toBeOnTheScreen();
-        expect(await findByLabelText('수요일 달성')).toBeOnTheScreen();
+        expect(
+          await findByLabelText(getSuccessLabel(monDate, '월')),
+        ).toBeOnTheScreen();
+        expect(
+          await findByLabelText(getSuccessLabel(tueDate, '화')),
+        ).toBeOnTheScreen();
+        expect(
+          await findByLabelText(getSuccessLabel(wedDate, '수')),
+        ).toBeOnTheScreen();
         expect(
           (await findAllByTestId('routine-checkmark-icon')).length,
         ).toBeGreaterThan(0);

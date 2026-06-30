@@ -96,7 +96,8 @@ export const resetAuthMocks = () => {
 };
 
 /**
- * 비로그인 상태 테스트를 위한 describe 블록을 생성합니다.
+ * 비로그인 상태에서 보호 화면이 직접 루트 밖으로 라우팅하지 않는지 확인합니다.
+ * 실제 인증 리다이렉트는 루트 레이아웃에서 처리합니다.
  *
  * @example
  * describeAuthRedirect(() => render(<MyPage />));
@@ -105,13 +106,13 @@ export const describeAuthRedirect = (
   renderComponent: () => ReturnType<typeof render>,
 ) => {
   describe('사용자 인증 테스트', () => {
-    it('사용자가 로그인되지 않은 경우 로그인 페이지로 리다이렉트된다', async () => {
+    it('사용자가 로그인되지 않은 경우 화면 자체에서 로그인 페이지로 이동하지 않는다', async () => {
       mockAuthStore.user = null;
 
       renderComponent();
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/sign-in');
+        expect(mockPush).not.toHaveBeenCalledWith('/sign-in');
       });
     });
   });

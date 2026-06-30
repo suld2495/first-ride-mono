@@ -339,7 +339,7 @@ describe('MyInfo 로그아웃', () => {
 
     await waitFor(() => {
       expect(signOut).toHaveBeenCalledTimes(1);
-      expect(global.mockReplace).toHaveBeenCalledWith('/sign-in');
+      expect(global.mockReplace).not.toHaveBeenCalledWith('/sign-in');
     });
   });
 });

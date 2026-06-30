@@ -134,12 +134,6 @@ export default function Index() {
   }, [resetRoutineForm, router]);
 
   useEffect(() => {
-    if (!user) {
-      router.push('/sign-in');
-    }
-  }, [router, user]);
-
-  useEffect(() => {
     const snapshot = user
       ? createRoutineWidgetSnapshot(routines, { themeName })
       : createSignedOutRoutineWidgetSnapshot();

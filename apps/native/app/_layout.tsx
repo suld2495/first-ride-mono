@@ -39,6 +39,10 @@ import { fontFamilies } from '@/theme/font-families';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { NAV_THEME } from '@/theme/nav-theme';
 import type { NotificationHandlers } from '@/types/notification-types';
+import {
+  getAuthStackInitialRouteName,
+  getAuthStackKey,
+} from '@/utils/auth-stack-route';
 import { getKakaoNativeAppKey } from '@/utils/env';
 import {
   extractDeepLinkData,
@@ -84,7 +88,11 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
       />
       <SplashScreenController isReady={isFontReady} />
       <NavThemeProvider value={NAV_THEME[colorScheme]}>
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack
+          key={getAuthStackKey(!!user)}
+          initialRouteName={getAuthStackInitialRouteName(!!user)}
+          screenOptions={{ headerShown: false }}
+        >
           <Stack.Screen name="modal" options={{ headerShown: false }} />
           <Stack.Protected guard={!!user}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

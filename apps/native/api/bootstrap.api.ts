@@ -2,7 +2,6 @@ import { createHttp, UN_AUTHORIZATION_URL } from '@repo/shared/api';
 import { ApiError } from '@repo/shared/api/AppError';
 import { REQUEST_TIMEOUT_MS } from '@repo/shared/api/auth.api';
 import type { User } from '@repo/types';
-import { router } from 'expo-router';
 
 import {
   BASE_URL,
@@ -41,7 +40,6 @@ createHttp({
   async onUnauthorized() {
     try {
       await useAuthStore.getState().signOut();
-      router.replace('/sign-in');
     } catch (error) {
       throw new ApiError(
         [],

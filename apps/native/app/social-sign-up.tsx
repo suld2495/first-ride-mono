@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
@@ -20,7 +20,6 @@ import {
 } from '@/providers/auth/types';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
-import { pushAfterProtectedRoutesReady } from '@/utils/protected-route-navigation';
 
 interface ProfileForm {
   nickname: string;
@@ -33,7 +32,6 @@ const initial = (): ProfileForm => ({
 });
 
 export default function SocialSignUp() {
-  const router = useRouter();
   const { provider, accessToken } = useLocalSearchParams<{
     provider: string;
     accessToken: string;
@@ -88,11 +86,6 @@ export default function SocialSignUp() {
         setRefreshToken(response.refreshToken),
       ]);
       signIn(response.userInfo);
-
-      await pushAfterProtectedRoutesReady(
-        router,
-        '/(tabs)/(afterLogin)/(routine)',
-      );
     } catch (error) {
       const serverErrors = getFieldErrors(error);
 

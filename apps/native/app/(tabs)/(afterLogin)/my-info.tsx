@@ -128,7 +128,6 @@ const MyInfo = () => {
           }
 
           await signOut();
-          router.replace('/sign-in');
         },
       },
     ]);
