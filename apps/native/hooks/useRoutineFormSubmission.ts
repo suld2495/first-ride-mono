@@ -101,7 +101,7 @@ export const useRoutineFormSubmission = ({
         {
           onSuccess: () => {
             toast.showToast('루틴이 생성되었습니다.');
-            router.back();
+            router.dismissTo('/(tabs)/(afterLogin)/(routine)');
           },
           onError: (error) => {
             const message =
@@ -128,7 +128,7 @@ export const useRoutineFormSubmission = ({
         {
           onSuccess: () => {
             toast.showToast('루틴이 수정되었습니다.');
-            router.back();
+            router.dismissTo('/(tabs)/(afterLogin)/(routine)');
           },
           onError: (error) => {
             const message =

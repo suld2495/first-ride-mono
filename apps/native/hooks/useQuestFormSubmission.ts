@@ -16,7 +16,7 @@ export const useQuestFormSubmission = () => {
       createQuestMutation.mutate(data, {
         onSuccess: () => {
           showToast('퀘스트가 생성되었습니다.', 'success');
-          router.back();
+          router.dismissTo('/(tabs)/(afterLogin)/(quest)');
         },
         onError: (error) => {
           const message = getApiErrorMessage(

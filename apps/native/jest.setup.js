@@ -401,6 +401,7 @@ jest.mock('expo-notifications', () => ({
 // expo-router mock
 global.mockPush = jest.fn();
 global.mockReplace = jest.fn();
+global.mockDismissTo = jest.fn();
 global.mockBack = jest.fn();
 global.mockSearchParams = {};
 global.mockFocusEffectCleanup = null;
@@ -415,6 +416,7 @@ jest.mock('expo-router', () => {
     useRouter: () => ({
       push: global.mockPush,
       replace: global.mockReplace,
+      dismissTo: global.mockDismissTo,
       back: global.mockBack,
     }),
     useLocalSearchParams: () => global.mockSearchParams,

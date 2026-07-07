@@ -10,6 +10,7 @@ import { createMockRoutine } from '../../setup/routine/mock';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
+declare const mockDismissTo: jest.Mock;
 declare const mockRoutineStore: {
   type: 'number' | 'week';
   setType: jest.Mock;
@@ -207,7 +208,7 @@ describe('RoutineDetailModal (루틴 상세 모달)', () => {
             '삭제되었습니다.',
             'success',
           );
-          expect(mockPush).toHaveBeenCalledWith(
+          expect(mockDismissTo).toHaveBeenCalledWith(
             '/(tabs)/(afterLogin)/(routine)',
           );
         });

@@ -10,6 +10,7 @@ import { createMockRoutine } from '../../setup/routine/mock';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
+declare const mockDismissTo: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockRoutineStore: {
   type: 'number' | 'week';
@@ -385,7 +386,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
             '인증이 완료되었습니다.',
             'success',
           );
-          expect(mockPush).toHaveBeenCalledWith(
+          expect(mockDismissTo).toHaveBeenCalledWith(
             '/(tabs)/(afterLogin)/(routine)',
           );
         });
@@ -474,7 +475,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         });
 
         await waitFor(() => {
-          expect(mockPush).toHaveBeenCalledWith(
+          expect(mockDismissTo).toHaveBeenCalledWith(
             '/(tabs)/(afterLogin)/(routine)',
           );
         });
@@ -512,7 +513,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
             '인증 요청이 완료되었습니다.',
             'success',
           );
-          expect(mockPush).toHaveBeenCalledWith(
+          expect(mockDismissTo).toHaveBeenCalledWith(
             '/(tabs)/(afterLogin)/(routine)',
           );
         });

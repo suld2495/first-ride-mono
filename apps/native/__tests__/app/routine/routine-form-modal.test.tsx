@@ -13,6 +13,7 @@ import { createMockFriends } from '../../setup/friend/mock';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockBack: jest.Mock;
+declare const mockDismissTo: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockRoutineStore: {
   type: 'number' | 'week';
@@ -532,7 +533,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         mockAxios.onPost('/routine').reply(200, { data: null });
       });
 
-      it('성공 알림이 표시되고 이전 페이지로 돌아간다', async () => {
+      it('성공 알림이 표시되고 루틴 페이지로 이동한다', async () => {
         const { getByLabelText, getByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
@@ -544,12 +545,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         );
 
         await waitFor(() => {
-          const addButton = getByText('추가');
+          const addButton = getByText('등록');
 
           expect(addButton).toBeEnabled();
         });
 
-        const addButton = getByText('추가');
+        const addButton = getByText('등록');
 
         await act(async () => {
           fireEvent.press(addButton);
@@ -557,7 +558,9 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith('루틴이 생성되었습니다.');
-          expect(mockBack).toHaveBeenCalled();
+          expect(mockDismissTo).toHaveBeenCalledWith(
+            '/(tabs)/(afterLogin)/(routine)',
+          );
         });
       });
 
@@ -1020,14 +1023,14 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         mockAxios.onPut('/routine/1').reply(200, { data: null });
       });
 
-      it('성공 알림이 표시되고 이전 페이지로 돌아간다', async () => {
-        const { getByPlaceholderText, getByText } = render(
+      it('성공 알림이 표시되고 루틴 페이지로 이동한다', async () => {
+        const { findByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
 
         // 루틴 이름 수정
         const routineNameInput =
-          getByPlaceholderText('루틴 이름을 입력하세요.');
+          await findByPlaceholderText('루틴 이름을 입력하세요.');
 
         await act(async () => {
           fireEvent.changeText(routineNameInput, '수정된 루틴');
@@ -1047,7 +1050,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith('루틴이 수정되었습니다.');
-          expect(mockBack).toHaveBeenCalled();
+          expect(mockDismissTo).toHaveBeenCalledWith(
+            '/(tabs)/(afterLogin)/(routine)',
+          );
         });
       });
 

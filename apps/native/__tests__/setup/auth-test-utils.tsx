@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 // global mock 타입 선언
 declare const mockPush: jest.Mock;
 declare const mockReplace: jest.Mock;
+declare const mockDismissTo: jest.Mock;
 declare const mockBack: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockUser: { nickname: string; userId: string };
@@ -76,6 +77,7 @@ const customRender = (
 export const resetAuthMocks = () => {
   mockPush.mockClear();
   mockReplace.mockClear();
+  mockDismissTo.mockClear();
   mockBack.mockClear();
   (
     globalThis as typeof globalThis & {

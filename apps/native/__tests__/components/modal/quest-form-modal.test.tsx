@@ -8,6 +8,7 @@ import QuestFormModal from '../../../components/modal/quest-form-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 
 declare const mockBack: jest.Mock;
+declare const mockDismissTo: jest.Mock;
 declare const mockShowToast: jest.Mock;
 
 let mockAxios: MockAdapter;
@@ -268,7 +269,9 @@ describe('QuestFormModal', () => {
         '퀘스트가 생성되었습니다.',
         'success',
       );
-      expect(mockBack).toHaveBeenCalled();
+      expect(mockDismissTo).toHaveBeenCalledWith(
+        '/(tabs)/(afterLogin)/(quest)',
+      );
     });
 
     it('월요일이 아닌 날짜는 아예 선택되지 않는다', async () => {

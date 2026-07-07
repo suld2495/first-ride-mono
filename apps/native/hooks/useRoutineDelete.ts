@@ -13,7 +13,7 @@ export const useRoutineDelete = (routineId: number, nickname: string) => {
     deleteRoutine.mutate(routineId, {
       onSuccess: () => {
         showToast('삭제되었습니다.', 'success');
-        router.push('/(tabs)/(afterLogin)/(routine)');
+        router.dismissTo('/(tabs)/(afterLogin)/(routine)');
       },
       onError: () => {
         showToast('문제가 발생하였습니다.', 'error');

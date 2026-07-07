@@ -75,7 +75,7 @@ export const useRequestSubmission = (
               : '인증 요청이 완료되었습니다.',
             'success',
           );
-          router.push('/(tabs)/(afterLogin)/(routine)');
+          router.dismissTo('/(tabs)/(afterLogin)/(routine)');
         },
         onError: (error) => {
           if (error instanceof ApiError && error.status === 413) {
