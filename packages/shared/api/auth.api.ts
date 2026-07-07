@@ -28,6 +28,27 @@ const refreshAxios = axios.create({
   timeout: REQUEST_TIMEOUT_MS,
 });
 
+type RawTokenResponse = Omit<RefreshTokenResponse, 'userInfo'> & {
+  user?: RefreshTokenResponse['userInfo'];
+  userInfo?: RefreshTokenResponse['userInfo'];
+};
+
+export const normalizeTokenResponse = (
+  response: RawTokenResponse,
+): RefreshTokenResponse => {
+  const userInfo = response.userInfo ?? response.user;
+
+  if (!userInfo) {
+    throw new Error('토큰 응답에 사용자 정보가 없습니다.');
+  }
+
+  return {
+    accessToken: response.accessToken,
+    refreshToken: response.refreshToken,
+    userInfo,
+  };
+};
+
 export const login = async (form: AuthForm): Promise<AuthResponse> => {
   try {
     const response: AuthResponse = await http.post(`${baseURL}/login`, form);
@@ -103,10 +124,10 @@ export const refreshToken = async (
   try {
     const dynamicBaseURL = axiosInstance.defaults.baseURL ?? '';
     const response = await refreshAxios.post<{
-      data: RefreshTokenResponse;
+      data: RawTokenResponse;
     }>(`${dynamicBaseURL}${baseURL}/refresh`, request);
 
-    return response.data.data;
+    return normalizeTokenResponse(response.data.data);
   } catch (error) {
     throw toAppError(error);
   }

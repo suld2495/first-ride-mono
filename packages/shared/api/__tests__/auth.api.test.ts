@@ -1,11 +1,23 @@
 import MockAdapter from 'axios-mock-adapter';
 
-import { join, login, logout, refreshToken } from '../auth.api';
+import {
+  join,
+  login,
+  logout,
+  normalizeTokenResponse,
+  refreshToken,
+} from '../auth.api';
 import axiosInstance from '../index';
 
 let mockAxios: MockAdapter;
 
-const TEST_USER_INFO = { userId: 'testuser', nickname: 'Test User' };
+const TEST_USER_INFO = {
+  userId: 'testuser',
+  nickname: 'Test User',
+  motto: null,
+  mottos: [],
+  role: 'USER' as const,
+};
 const TEST_PASSWORD = 'password123';
 const ACCESS_TOKEN = 'access-token';
 const REFRESH_TOKEN = 'refresh-token';
@@ -165,6 +177,22 @@ describe('auth.api', () => {
         it(THROW_ERROR_TEST_NAME, async () => {
           await expect(refreshToken(refreshTokenRequest)).rejects.toThrow();
         });
+      });
+    });
+  });
+
+  describe('normalizeTokenResponse', () => {
+    it('refresh 응답의 user 필드를 userInfo로 정규화한다', () => {
+      const result = normalizeTokenResponse({
+        accessToken: NEW_ACCESS_TOKEN,
+        refreshToken: NEW_REFRESH_TOKEN,
+        user: TEST_USER_INFO,
+      });
+
+      expect(result).toEqual({
+        userInfo: TEST_USER_INFO,
+        accessToken: NEW_ACCESS_TOKEN,
+        refreshToken: NEW_REFRESH_TOKEN,
       });
     });
   });
