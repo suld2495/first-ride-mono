@@ -1,5 +1,5 @@
 import axiosInstance from '@repo/shared/api';
-import { fireEvent, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { processColor, StyleSheet } from 'react-native';
 
@@ -25,6 +25,27 @@ describe('설정 하위 페이지', () => {
     mockShowToast.mockClear();
     mockAxios = new MockAdapter(axiosInstance);
     mockAxios.onGet('/routine/list/all').reply(200, { data: [] });
+    mockAxios.onGet('/notifications/settings').reply(200, {
+      data: {
+        allEnabled: true,
+        settings: {
+          ROUTINE_CONFIRM_REQUEST: true,
+          ROUTINE_CONFIRM_APPROVED: true,
+          ROUTINE_CONFIRM_REJECTED: true,
+          ROUTINE_CHANGE_REQUEST: true,
+          ROUTINE_CHANGE_APPROVED: true,
+          ROUTINE_CHANGE_REJECTED: true,
+          DAILY_ROUTINE_REMINDER: true,
+          LEVEL_UP: true,
+          FRIEND_REQUEST: true,
+          FRIEND_ACCEPTED: true,
+          QUEST_COMPLETE: true,
+          QUEST_REWARD: true,
+          SYSTEM: true,
+          RANKING: true,
+        },
+      },
+    });
   });
 
   afterEach(() => {
@@ -43,6 +64,14 @@ describe('설정 하위 페이지', () => {
     if (title === '전체 루틴 목록') {
       await waitFor(() => {
         expect(getByTestId('routine-settings-routine-list')).toBeOnTheScreen();
+      });
+    }
+
+    if (title === '알림 설정') {
+      await waitFor(() => {
+        expect(
+          getByTestId('notification-settings-toggle-all'),
+        ).toBeOnTheScreen();
       });
     }
 
@@ -407,6 +436,213 @@ describe('설정 하위 페이지', () => {
         checked: true,
       }),
     );
+  });
+
+  it('알림 설정 페이지는 서버 설정으로 전체/개별 토글을 표시하고 변경값을 PATCH한다', async () => {
+    mockAxios.onGet('/notifications/settings').reply(200, {
+      data: {
+        allEnabled: true,
+        settings: {
+          ROUTINE_CONFIRM_REQUEST: true,
+          ROUTINE_CONFIRM_APPROVED: true,
+          ROUTINE_CONFIRM_REJECTED: true,
+          ROUTINE_CHANGE_REQUEST: true,
+          ROUTINE_CHANGE_APPROVED: true,
+          ROUTINE_CHANGE_REJECTED: true,
+          DAILY_ROUTINE_REMINDER: true,
+          LEVEL_UP: true,
+          FRIEND_REQUEST: true,
+          FRIEND_ACCEPTED: true,
+          QUEST_COMPLETE: true,
+          QUEST_REWARD: true,
+          SYSTEM: true,
+          RANKING: true,
+        },
+      },
+    });
+    mockAxios.onPatch('/notifications/settings').reply((config) => {
+      expect(JSON.parse(config.data ?? '{}')).toEqual({
+        settings: {
+          FRIEND_REQUEST: false,
+        },
+      });
+
+      return [
+        200,
+        {
+          data: {
+            allEnabled: true,
+            settings: {
+              ROUTINE_CONFIRM_REQUEST: true,
+              ROUTINE_CONFIRM_APPROVED: true,
+              ROUTINE_CONFIRM_REJECTED: true,
+              ROUTINE_CHANGE_REQUEST: true,
+              ROUTINE_CHANGE_APPROVED: true,
+              ROUTINE_CHANGE_REJECTED: true,
+              DAILY_ROUTINE_REMINDER: true,
+              LEVEL_UP: true,
+              FRIEND_REQUEST: false,
+              FRIEND_ACCEPTED: true,
+              QUEST_COMPLETE: true,
+              QUEST_REWARD: true,
+              SYSTEM: true,
+              RANKING: true,
+            },
+          },
+        },
+      ];
+    });
+
+    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+
+    expect(await findByText('전체 알림')).toBeOnTheScreen();
+    expect(await findByText('친구 알림')).toBeOnTheScreen();
+    expect(await findByText('친구 요청')).toBeOnTheScreen();
+    expect(
+      getByTestId('notification-settings-toggle-all').props.accessibilityState
+        .checked,
+    ).toBe(true);
+    expect(
+      getByTestId('notification-settings-toggle-FRIEND_REQUEST').props
+        .accessibilityState.checked,
+    ).toBe(true);
+
+    await act(async () => {
+      fireEvent.press(
+        getByTestId('notification-settings-toggle-FRIEND_REQUEST'),
+      );
+    });
+
+    await waitFor(() => {
+      expect(
+        getByTestId('notification-settings-toggle-FRIEND_REQUEST').props
+          .accessibilityState.checked,
+      ).toBe(false);
+    });
+  });
+
+  it('알림 설정 페이지는 그룹 토글로 하위 알림을 한 번에 변경하고 OFF 그룹의 하위 항목을 숨긴다', async () => {
+    mockAxios.onGet('/notifications/settings').reply(200, {
+      data: {
+        allEnabled: true,
+        settings: {
+          ROUTINE_CONFIRM_REQUEST: true,
+          ROUTINE_CONFIRM_APPROVED: true,
+          ROUTINE_CONFIRM_REJECTED: true,
+          ROUTINE_CHANGE_REQUEST: true,
+          ROUTINE_CHANGE_APPROVED: true,
+          ROUTINE_CHANGE_REJECTED: true,
+          DAILY_ROUTINE_REMINDER: true,
+          LEVEL_UP: true,
+          FRIEND_REQUEST: true,
+          FRIEND_ACCEPTED: true,
+          QUEST_COMPLETE: true,
+          QUEST_REWARD: true,
+          SYSTEM: true,
+          RANKING: true,
+        },
+      },
+    });
+    mockAxios.onPatch('/notifications/settings').reply((config) => {
+      expect(JSON.parse(config.data ?? '{}')).toEqual({
+        settings: {
+          FRIEND_REQUEST: false,
+          FRIEND_ACCEPTED: false,
+        },
+      });
+
+      return [
+        200,
+        {
+          data: {
+            allEnabled: true,
+            settings: {
+              ROUTINE_CONFIRM_REQUEST: true,
+              ROUTINE_CONFIRM_APPROVED: true,
+              ROUTINE_CONFIRM_REJECTED: true,
+              ROUTINE_CHANGE_REQUEST: true,
+              ROUTINE_CHANGE_APPROVED: true,
+              ROUTINE_CHANGE_REJECTED: true,
+              DAILY_ROUTINE_REMINDER: true,
+              LEVEL_UP: true,
+              FRIEND_REQUEST: false,
+              FRIEND_ACCEPTED: false,
+              QUEST_COMPLETE: true,
+              QUEST_REWARD: true,
+              SYSTEM: true,
+              RANKING: true,
+            },
+          },
+        },
+      ];
+    });
+
+    const { findByText, getByTestId, queryByTestId } = render(
+      <NotificationSettingsPage />,
+    );
+
+    expect(await findByText('친구 알림')).toBeOnTheScreen();
+    expect(
+      getByTestId('notification-settings-toggle-group-friend').props
+        .accessibilityState.checked,
+    ).toBe(true);
+    expect(
+      getByTestId('notification-settings-toggle-FRIEND_REQUEST'),
+    ).toBeOnTheScreen();
+
+    await act(async () => {
+      fireEvent.press(getByTestId('notification-settings-toggle-group-friend'));
+    });
+
+    await waitFor(() => {
+      expect(
+        getByTestId('notification-settings-toggle-group-friend').props
+          .accessibilityState.checked,
+      ).toBe(false);
+    });
+    expect(queryByTestId('notification-settings-toggle-FRIEND_REQUEST')).toBe(
+      null,
+    );
+  });
+
+  it('알림 설정 페이지는 전체 알림 OFF 상태에서 차단 안내를 표시한다', async () => {
+    mockAxios.onGet('/notifications/settings').reply(200, {
+      data: {
+        allEnabled: false,
+        settings: {
+          ROUTINE_CONFIRM_REQUEST: true,
+          ROUTINE_CONFIRM_APPROVED: true,
+          ROUTINE_CONFIRM_REJECTED: true,
+          ROUTINE_CHANGE_REQUEST: true,
+          ROUTINE_CHANGE_APPROVED: true,
+          ROUTINE_CHANGE_REJECTED: true,
+          DAILY_ROUTINE_REMINDER: true,
+          LEVEL_UP: true,
+          FRIEND_REQUEST: true,
+          FRIEND_ACCEPTED: true,
+          QUEST_COMPLETE: true,
+          QUEST_REWARD: true,
+          SYSTEM: true,
+          RANKING: true,
+        },
+      },
+    });
+
+    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+
+    expect(await findByText('모든 알림이 차단됩니다.')).toBeOnTheScreen();
+    expect(
+      getByTestId('notification-settings-toggle-all').props.accessibilityState
+        .checked,
+    ).toBe(false);
+    expect(
+      getByTestId('notification-settings-toggle-group-friend').props
+        .accessibilityState.disabled,
+    ).toBe(true);
+    expect(
+      getByTestId('notification-settings-toggle-group-friend').props
+        .accessibilityState.checked,
+    ).toBe(false);
   });
 
   it('문의 페이지는 앱 안에서 작성한 내용을 이메일 문의로 전송한다', async () => {

@@ -360,3 +360,7 @@ export {
   updateRoutineVisibility,
 } from './routine.api';
 export { distributeStats, fetchMyStats } from './stat.api';
+export {
+  fetchNotificationSettings,
+  updateNotificationSettings,
+} from './notification-settings.api';
