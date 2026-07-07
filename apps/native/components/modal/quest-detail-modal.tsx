@@ -84,9 +84,12 @@ const QuestDetailModal = () => {
 
   const isFull = currentParticipants === maxParticipants;
   const isExpired = new Date(endDate).getTime() < Date.now();
-  const isActionDisabled = isExpired || isCompleted || isFull || isPending;
   const currentCount = successCount ?? 0;
   const targetCount = Math.max(verificationTargetCount ?? 1, 1);
+  const hasAchievedGoal = currentCount >= targetCount;
+  const isRewardUnavailable = isAccepted && !hasAchievedGoal;
+  const isActionDisabled =
+    isExpired || isCompleted || isFull || isPending || isRewardUnavailable;
   const progressPercent = getProgressPercent(currentCount, targetCount);
   const rewardButtonBackgroundColor = isActionDisabled
     ? styles.rewardButtonDisabled.backgroundColor
