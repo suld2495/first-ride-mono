@@ -476,6 +476,7 @@ global.mockUser = {
 };
 global.mockAuthStore = {
   user: global.mockUser,
+  lastUserId: null,
   signIn: jest.fn(),
   signOut: jest.fn(),
 };

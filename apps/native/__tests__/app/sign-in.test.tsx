@@ -13,6 +13,7 @@ import { render } from '../setup/test-utils';
 declare const mockPush: jest.Mock;
 declare const mockShowToast: jest.Mock;
 declare const mockAuthStore: {
+  lastUserId: string | null;
   signIn: jest.Mock;
 };
 
@@ -39,6 +40,7 @@ describe('SignIn 페이지', () => {
   beforeEach(() => {
     mockPush.mockClear();
     mockShowToast.mockClear();
+    mockAuthStore.lastUserId = null;
     mockAuthStore.signIn.mockClear();
     mockedSetAuthorization.mockClear();
     mockedSetRefreshToken.mockClear();
@@ -83,6 +85,17 @@ describe('SignIn 페이지', () => {
       );
       expect(queryByText('이메일을 입력해주세요.')).not.toBeOnTheScreen();
       expect(queryByText('비밀번호를 입력해주세요.')).not.toBeOnTheScreen();
+    });
+
+    it('마지막 로그인 아이디가 있으면 이메일 입력칸에 자동으로 채운다', () => {
+      mockAuthStore.lastUserId = 'last@example.com';
+
+      const { getByPlaceholderText } = render(<SignIn />);
+
+      expect(getByPlaceholderText('이메일을 입력하세요')).toHaveProp(
+        'value',
+        'last@example.com',
+      );
     });
 
     it('이메일만 입력하면 로그인 버튼은 비활성 상태를 유지한다', () => {

@@ -1,6 +1,6 @@
 import type { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import AuthPage from '@/components/auth/auth-page';
@@ -14,6 +14,7 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthLastUserId } from '@/hooks/useAuthSession';
 import type { CredentialsParams } from '@/providers/auth/credentials.provider';
 import type {
   AuthProviderType,
@@ -25,8 +26,8 @@ import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 const FORM_WIDTH = '100%';
 
-const initial = () => ({
-  userId: '',
+const initial = (userId = '') => ({
+  userId,
   password: '',
 });
 
@@ -39,10 +40,26 @@ class FieldError extends Error {
 
 export default function SignIn() {
   const router = useRouter();
-  const [form, setForm] = useState<AuthFormType>(initial());
+  const lastUserId = useAuthLastUserId();
+  const [form, setForm] = useState<AuthFormType>(() =>
+    initial(lastUserId ?? ''),
+  );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { login, loadingProvider } = useAuth();
   const { showToast } = useToast();
+
+  useEffect(() => {
+    if (!lastUserId) return;
+
+    setForm((prev) => {
+      if (prev.userId) return prev;
+
+      return {
+        ...prev,
+        userId: lastUserId,
+      };
+    });
+  }, [lastUserId]);
 
   const handleAuth = async (
     providerType: AuthProviderType,
@@ -214,7 +231,7 @@ export default function SignIn() {
                 style={styles.footerLink}
                 textStyle={styles.accountLinkText}
                 textColor={palette.theme.gray[90]}
-                onPress={() => setForm(initial())}
+                onPress={() => setForm(initial(lastUserId ?? ''))}
               />
               <Button
                 variant="ghost"

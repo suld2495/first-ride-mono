@@ -11,6 +11,7 @@ import { storage } from './storage-provider.store';
 
 interface State {
   user: User | null;
+  lastUserId: string | null;
   isLoading: boolean;
 }
 
@@ -26,7 +27,9 @@ export const useAuthStore = create<AuthStore>()(
     persist(
       (set) => ({
         user: null,
-        signIn: (user: User) => set({ user, isLoading: false }),
+        lastUserId: null,
+        signIn: (user: User) =>
+          set({ user, lastUserId: user.userId, isLoading: false }),
         signOut: async () => {
           try {
             // 서버에 로그아웃 요청 (API 실패 시에도 로컬 로그아웃 진행)
@@ -38,7 +41,11 @@ export const useAuthStore = create<AuthStore>()(
             await clearTokens();
             await clearRoutineWidgetSnapshot();
             await clearRoutineShareTargets();
-            set({ user: null, isLoading: false });
+            set((state) => ({
+              user: null,
+              lastUserId: state.user?.userId ?? state.lastUserId,
+              isLoading: false,
+            }));
           }
         },
         isLoading: true,
@@ -48,6 +55,7 @@ export const useAuthStore = create<AuthStore>()(
         storage,
         partialize: (state) => ({
           user: state.user,
+          lastUserId: state.lastUserId,
         }),
       },
     ),

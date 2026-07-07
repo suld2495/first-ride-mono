@@ -14,6 +14,7 @@ declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockUser: { nickname: string; userId: string };
 declare const mockAuthStore: {
   user: typeof mockUser | null;
+  lastUserId: string | null;
   signIn: jest.Mock;
   signOut: jest.Mock;
 };
@@ -86,6 +87,7 @@ export const resetAuthMocks = () => {
   ).mockFocusEffectCleanup = null;
   for (const key of Object.keys(mockSearchParams)) delete mockSearchParams[key];
   mockAuthStore.user = mockUser;
+  mockAuthStore.lastUserId = null;
   mockAuthStore.signIn.mockClear();
   mockAuthStore.signOut.mockClear();
   mockRoutineStore.type = 'number';
