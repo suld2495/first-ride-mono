@@ -1,4 +1,5 @@
 import axiosInstance from '@repo/shared/api';
+import { fireEvent } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { processColor } from 'react-native';
 
@@ -147,5 +148,123 @@ describe('StatsPage', () => {
     const { findByText } = render(<StatsPage />);
 
     expect(await findByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
+  });
+
+  it('전환 버튼으로 임시 통계 요약 화면을 표시한다', async () => {
+    mockAxios.onGet('/routine/list/all').reply(200, {
+      data: [
+        {
+          ...createMockRoutine(0, {
+            successDate: ['260604', '260611', '260619'],
+          }),
+          routineName: '운동 주 3회',
+        },
+      ],
+    });
+    mockAxios.onGet('/routine/list').reply(200, { data: [] });
+
+    const {
+      findByText,
+      getAllByTestId,
+      getByLabelText,
+      getByTestId,
+      getByText,
+      queryByTestId,
+      queryByText,
+    } = render(<StatsPage />);
+
+    expect(await findByText('운동 주 3회')).toBeOnTheScreen();
+    expect(queryByTestId('routine-stats-summary')).toBeNull();
+
+    fireEvent.press(getByLabelText('통계 보기'));
+
+    expect(getByTestId('routine-stats-summary')).toBeOnTheScreen();
+    expect(getByTestId('stats-summary-scroll')).toBeOnTheScreen();
+    expect(
+      getAllByTestId('routine-stats-summary-progress-marker'),
+    ).toHaveLength(4);
+    expect(getByText('3회 달성')).toBeOnTheScreen();
+    expect(getByText('5회 달성')).toBeOnTheScreen();
+    expect(queryByText('등록된 루틴이 없습니다.')).toBeNull();
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-track-exercise').props.style,
+      ),
+    ).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ borderWidth: expect.any(Number) }),
+      ]),
+    );
+    expect(
+      getByTestId('routine-stats-summary-track-row-exercise-0'),
+    ).toBeOnTheScreen();
+    expect(
+      getByTestId('routine-stats-summary-track-row-exercise-1'),
+    ).toBeOnTheScreen();
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-row-line-exercise-0').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ position: 'absolute' }),
+        expect.objectContaining({
+          backgroundColor: palette.theme.softBlue[50],
+        }),
+      ]),
+    );
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-turn-connector-exercise-0').props
+          .style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          borderTopRightRadius: 24,
+          borderBottomRightRadius: 24,
+        }),
+        expect.objectContaining({
+          borderRightWidth: 1,
+        }),
+      ]),
+    );
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-dot-exercise-6').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ backgroundColor: palette.theme.blue[10] }),
+        expect.objectContaining({
+          width: 36,
+          height: 36,
+          borderRadius: 18,
+          borderWidth: 1,
+          borderColor: palette.theme.softBlue[50],
+        }),
+        expect.objectContaining({ opacity: 0.7 }),
+      ]),
+    );
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-dot-exercise-0').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          width: 36,
+          height: 36,
+          borderRadius: 18,
+          borderWidth: 1,
+          borderColor: palette.theme.softBlue[50],
+        }),
+        expect.objectContaining({ backgroundColor: palette.theme.blue[50] }),
+      ]),
+    );
+
+    fireEvent.press(getByLabelText('캘린더 보기'));
+
+    expect(queryByTestId('routine-stats-summary')).toBeNull();
   });
 });

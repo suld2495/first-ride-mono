@@ -1,12 +1,14 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAllRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import type { Routine } from '@repo/types';
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import StatsMonthChevronIcon from '@/components/icons/stats-month-chevron-icon';
 import Container from '@/components/layout/container';
 import PageHeader from '@/components/layout/page-header';
 import RoutineStatsCalendar from '@/components/stat/routine-stats-calendar';
+import RoutineStatsSummary from '@/components/stat/routine-stats-summary';
 import EmptyState from '@/components/ui/empty-state';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import Loading from '@/components/ui/loading';
@@ -25,6 +27,7 @@ const ROUTINE_STATS_CALENDAR_ITEM_INTERVAL =
   ROUTINE_STATS_CALENDAR_ESTIMATED_SIZE +
   ROUTINE_STATS_CALENDAR_SEPARATOR_HEIGHT;
 const MONTH_HEADER_VERTICAL_PADDING = 10;
+type StatsViewMode = 'calendar' | 'summary';
 
 const getMonthStart = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), 1);
@@ -78,6 +81,7 @@ export default function StatsPage() {
   const [currentMonth, setCurrentMonth] = React.useState(() =>
     getMonthStart(new Date(Date.now())),
   );
+  const [viewMode, setViewMode] = React.useState<StatsViewMode>('calendar');
   const { data: routines = [], isLoading } = useAllRoutinesQuery(
     user?.nickname || '',
   );
@@ -90,6 +94,10 @@ export default function StatsPage() {
     setCurrentMonth(
       new Date(currentMonth.getFullYear(), currentMonth.getMonth() + offset, 1),
     );
+  };
+
+  const toggleViewMode = () => {
+    setViewMode((mode) => (mode === 'calendar' ? 'summary' : 'calendar'));
   };
 
   const renderRoutineCalendar = React.useCallback<ListRenderItem<Routine>>(
@@ -147,10 +155,39 @@ export default function StatsPage() {
     return null;
   }
 
+  const isSummaryMode = viewMode === 'summary';
+  const nextModeLabel = isSummaryMode ? '캘린더 보기' : '통계 보기';
+
   return (
     <Container noPadding>
-      <PageHeader title="통계" />
-      {isLoading ? (
+      <PageHeader
+        title="통계"
+        right={
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={nextModeLabel}
+            onPress={toggleViewMode}
+            style={styles.viewModeButton}
+            testID="stats-view-mode-toggle"
+          >
+            <Ionicons
+              name={isSummaryMode ? 'calendar-outline' : 'stats-chart-outline'}
+              size={baseFoundation.iconSize.m}
+              color={palette.theme.gray[700]}
+            />
+          </Pressable>
+        }
+      />
+      {isSummaryMode ? (
+        <ScrollView
+          testID="stats-summary-scroll"
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {renderMonthHeader()}
+          <RoutineStatsSummary />
+        </ScrollView>
+      ) : isLoading ? (
         <ThemeView transparent style={styles.content}>
           {renderMonthHeader()}
           <ThemeView transparent style={styles.stateContainer}>
@@ -204,6 +241,15 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.foundation.radii.round,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  viewModeButton: {
+    width: baseFoundation.dimension.x36,
+    height: baseFoundation.dimension.x36,
+    borderRadius: theme.foundation.radii.round,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: palette.white,
+    ...baseFoundation.shadow.s,
   },
   stateContainer: {
     minHeight: baseFoundation.dimension.x180,
