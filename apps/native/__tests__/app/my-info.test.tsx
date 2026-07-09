@@ -285,15 +285,15 @@ describe('MyInfo 로그아웃', () => {
     );
   });
 
-  it('설정 메뉴를 스크린샷의 항목 순서와 라우트로 표시한다', () => {
+  it('설정 메뉴에서 스탯과 테마 설정을 숨기고 나머지 항목 라우트는 유지한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
-    const { getByText } = render(<MyInfo />);
+    const { getByText, queryByText } = render(<MyInfo />);
 
     expect(getByText('한마디')).toBeOnTheScreen();
-    expect(getByText('스탯')).toBeOnTheScreen();
+    expect(queryByText('스탯')).toBeNull();
     expect(getByText('루틴 설정')).toBeOnTheScreen();
-    expect(getByText('테마 설정')).toBeOnTheScreen();
+    expect(queryByText('테마 설정')).toBeNull();
     expect(getByText('알림 설정')).toBeOnTheScreen();
     expect(getByText('이용약관')).toBeOnTheScreen();
     expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
@@ -301,16 +301,12 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('로그아웃')).toBeOnTheScreen();
 
     fireEvent.press(getByText('한마디'));
-    fireEvent.press(getByText('스탯'));
     fireEvent.press(getByText('루틴 설정'));
-    fireEvent.press(getByText('테마 설정'));
     fireEvent.press(getByText('알림 설정'));
     fireEvent.press(getByText('문의'));
 
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
-    expect(global.mockPush).toHaveBeenCalledWith('/modal?type=stat');
     expect(global.mockPush).toHaveBeenCalledWith('/routine-settings');
-    expect(global.mockPush).toHaveBeenCalledWith('/modal?type=theme');
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/inquiry');
   });

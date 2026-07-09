@@ -6,6 +6,7 @@ import {
   HomeTabIcon,
   ProfileTabIcon,
   QuestTabIcon,
+  StatsTabIcon,
 } from '@/components/icons/tab-bar-icons';
 import { DockTabBar } from '@/components/navigation/dock-tab-bar';
 import TabBarIcon from '@/components/ui/tab-bar-icon';
@@ -14,6 +15,7 @@ import { baseFoundation } from '@/theme/tokens';
 const TAB_BAR_ICONS = {
   home: HomeTabIcon,
   quest: QuestTabIcon,
+  stats: StatsTabIcon,
   ranking: RankingTabIcon,
   friend: FriendTabIcon,
   settings: ProfileTabIcon,
@@ -63,8 +65,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="(afterLogin)/(stats)/index"
+        options={{
+          title: '통계',
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon icon={TAB_BAR_ICONS.stats} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="(afterLogin)/(ranking)/index"
         options={{
+          href: null,
           title: '랭킹',
           tabBarIcon: ({ color }) => (
             <TabBarIcon icon={TAB_BAR_ICONS.ranking} color={color} />

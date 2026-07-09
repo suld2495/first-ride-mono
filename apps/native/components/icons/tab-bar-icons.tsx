@@ -25,6 +25,19 @@ export const QuestTabIcon = ({ color, size = 20 }: TabBarIconSvgProps) => (
   </Svg>
 );
 
+export const StatsTabIcon = ({ color, size = 20 }: TabBarIconSvgProps) => (
+  <Svg width={size} height={size} viewBox="0 0 20 20" fill="none">
+    <Path
+      d="M3 15.5L7.25 10.75L10.5 13L17 5"
+      stroke={color}
+      strokeWidth={2.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Path d="M3 18H17" stroke={color} strokeWidth={2} strokeLinecap="round" />
+  </Svg>
+);
+
 export const FriendTabIcon = ({ color, size = 20 }: TabBarIconSvgProps) => (
   <Svg width={size} height={size} viewBox="0 0 18 18" fill="none">
     <Path

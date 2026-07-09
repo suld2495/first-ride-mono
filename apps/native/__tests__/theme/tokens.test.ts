@@ -34,6 +34,15 @@ describe('theme/tokens', () => {
     expect(palette.theme.softBlue[20]).toBe('#A7CBEA');
     expect(palette.theme.softGreen[10]).toBe('#B9E9CF');
     expect(palette.theme.blue[50]).toBe('#107AD6');
+    expect(palette.theme.gray[45]).toBe('#3F3F46');
+    expect(palette.theme.gray[100]).toBe('#F5F5F5');
+    expect(palette.theme.gray[300]).toBe('#D0D4DB');
+    expect(palette.theme.gray[400]).toBe('#9BA2AE');
+    expect(palette.theme.gray[500]).toBe('#6C727E');
+    expect(palette.theme.gray[600]).toBe('#4B5666');
+    expect(palette.theme.gray[700]).toBe('#364050');
+    expect(palette.theme.gray[800]).toBe('#1F2937');
+    expect(palette.theme.gray[900]).toBe('#121826');
     expect(palette.theme.gray[95]).toBe('#000306');
     expect(palette.theme.gray[200]).toBe('#E2E8F0');
     expect(palette.tag.critical[700]).toBe('#CA3E3E');

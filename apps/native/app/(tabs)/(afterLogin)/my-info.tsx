@@ -21,21 +21,13 @@ import { baseFoundation, palette } from '@/theme/tokens';
 const FALLBACK_LEVEL = 1;
 const FALLBACK_EXP = 0;
 const FALLBACK_NEXT_LEVEL_EXP = 30;
-const STAT_PAGE_HREF = '/modal?type=stat' as const;
 
 const SETTING_ITEMS: Array<{
   title: string;
   href?: Href;
-  badge?: 'availableStatPoints';
 }> = [
   { title: '한마디', href: '/modal?type=account' },
-  {
-    title: '스탯',
-    href: STAT_PAGE_HREF,
-    badge: 'availableStatPoints',
-  },
   { title: '루틴 설정', href: '/routine-settings' },
-  { title: '테마 설정', href: '/modal?type=theme' },
   { title: '알림 설정', href: '/notification-settings' },
   { title: '이용약관', href: '/modal?type=policies' },
   { title: '개인정보 처리방침', href: '/modal?type=privacy' },
@@ -94,8 +86,6 @@ const MyInfo = () => {
   const { theme } = useAppTheme();
   const currentExp = stats?.currentLevelProgress ?? FALLBACK_EXP;
   const nextLevelExp = stats?.expForNextLevel ?? FALLBACK_NEXT_LEVEL_EXP;
-  const availableStatPoints = stats?.availablePoints ?? 0;
-  const hasAvailableStatPoints = availableStatPoints > 0;
   const expProgress =
     nextLevelExp > 0 ? Math.min(currentExp / nextLevelExp, 1) : 0;
   const themeTone = getThemeTone(theme.name);
@@ -277,22 +267,6 @@ const MyInfo = () => {
               >
                 {item.title}
               </Typography>
-              {item.badge === 'availableStatPoints' &&
-              hasAvailableStatPoints ? (
-                <View
-                  testID="settings-menu-stat-point-badge"
-                  style={styles.menuBadge}
-                >
-                  <Typography
-                    color={palette.white}
-                    testID="settings-menu-stat-point-text"
-                    variant="caption2"
-                    weight="semibold"
-                  >
-                    {availableStatPoints}
-                  </Typography>
-                </View>
-              ) : null}
             </View>
           </Pressable>
         ))}
@@ -401,14 +375,5 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  menuBadge: {
-    minWidth: 18,
-    height: 18,
-    paddingHorizontal: 5,
-    borderRadius: baseFoundation.dimension.x99,
-    backgroundColor: theme.colors.brand.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 }));
