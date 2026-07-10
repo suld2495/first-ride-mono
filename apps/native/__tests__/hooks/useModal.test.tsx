@@ -39,6 +39,24 @@ describe('useModal', () => {
     expect(options.contentPaddingHorizontal).toBe(20);
   });
 
+  it('인증 요청 목록 모달은 공통 모달 좌우 패딩을 제거한다', () => {
+    const [, , options] = useModal('request-list');
+
+    expect(options.contentPaddingHorizontal).toBe(0);
+  });
+
+  it('인증 요청 작성 모달은 공통 모달 좌우 패딩을 제거한다', () => {
+    const [, , options] = useModal('request');
+
+    expect(options.contentPaddingHorizontal).toBe(0);
+  });
+
+  it('인증 요청 상세 모달은 공통 모달 좌우 패딩을 제거한다', () => {
+    const [, , options] = useModal('request-detail');
+
+    expect(options.contentPaddingHorizontal).toBe(0);
+  });
+
   it('숨긴 루틴 모아보기 모달을 공통 모달에 매핑한다', () => {
     const [title] = useModal('hidden-routines');
 

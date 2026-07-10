@@ -3,6 +3,7 @@ import Markdown from 'react-native-markdown-display';
 
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 
 const PrivacyModal = () => {
@@ -12,6 +13,17 @@ const PrivacyModal = () => {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       >
+        <ThemeView style={styles.intro} transparent>
+          <Typography variant="h2" weight="bold" style={styles.introTitle}>
+            개인정보 처리방침
+          </Typography>
+          <Typography variant="body2" style={styles.introDescription}>
+            어떤 정보를 수집하고 보호하는지 안내해 드려요.
+          </Typography>
+          <Typography color="tertiary" variant="caption1">
+            시행일 2025.06.15
+          </Typography>
+        </ThemeView>
         <Markdown
           style={{
             body: styles.body,
@@ -42,21 +54,37 @@ const styles = StyleSheet.create((theme) => ({
 
   content: {},
 
+  intro: {
+    gap: theme.foundation.spacing[2],
+    paddingTop: theme.foundation.spacing[4],
+    paddingBottom: theme.foundation.spacing[5],
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.divider,
+  },
+
+  introTitle: {
+    color: theme.colors.brand.text,
+  },
+
+  introDescription: {
+    color: theme.colors.text.muted,
+  },
+
   body: {
-    color: theme.colors.text.secondary,
+    color: theme.colors.brand.text,
     fontSize: theme.foundation.typography.size.m,
     marginBottom: theme.foundation.spacing[12],
   },
 
   heading1: {
-    color: theme.colors.text.primary,
-    fontSize: theme.foundation.typography.size.xl,
+    color: theme.colors.brand.text,
+    fontSize: theme.foundation.typography.size.l,
     fontWeight: 'bold',
-    marginTop: theme.foundation.spacing[5],
+    marginTop: theme.foundation.spacing[6],
   },
 
   heading2: {
-    color: theme.colors.text.primary,
+    color: theme.colors.brand.text,
     fontSize: theme.foundation.typography.size.m,
     fontWeight: 'semibold',
     marginVertical: theme.foundation.spacing[2.5],

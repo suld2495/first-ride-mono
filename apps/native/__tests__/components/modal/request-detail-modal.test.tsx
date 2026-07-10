@@ -48,6 +48,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
       const { findByText } = render(<RequestDetailModal />);
 
       expect(await findByText('매일 운동하기')).toBeOnTheScreen();
+      expect(await findByText('메이트가 보낸 인증이에요')).toBeOnTheScreen();
     });
 
     it('루틴 상세 설명이 화면에 표시된다', async () => {

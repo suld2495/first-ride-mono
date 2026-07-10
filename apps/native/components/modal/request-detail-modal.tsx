@@ -6,7 +6,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import * as Svg from 'react-native-svg';
 
 import ConfirmRequestButtonGroup from '@/components/request/confirm-request-button-group';
-import { Divider } from '@/components/ui/divider';
 import { Input } from '@/components/ui/input';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
@@ -57,21 +56,39 @@ const RequestDetailModal = () => {
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
         >
-          <ThemeView style={styles.routinesNameContainer} transparent>
-            <Typography
-              variant="subtitle"
-              weight="semibold"
-              style={styles.infoLabel}
-            >
-              루틴 이름
+          <ThemeView style={styles.intro} transparent>
+            <Typography variant="h3" weight="bold" style={styles.introTitle}>
+              메이트가 보낸 인증이에요
             </Typography>
-            <Typography>{detail?.routineName}</Typography>
-            <Typography style={styles.routineDate} variant="body">
-              {detail?.createdAt ? getFormatDateTime(detail.createdAt) : ''}
+            <Typography variant="body2" style={styles.introDescription}>
+              사진과 내용을 확인한 뒤 응원을 남겨 주세요.
             </Typography>
           </ThemeView>
-          <ThemeView transparent>
-            <Typography>{detail?.routineDetail}</Typography>
+          <ThemeView style={styles.summary}>
+            <ThemeView style={styles.routinesNameContainer} transparent>
+              <Typography
+                variant="subtitle"
+                weight="semibold"
+                style={styles.infoLabel}
+              >
+                루틴 이름
+              </Typography>
+              <Typography
+                variant="body1"
+                weight="semibold"
+                style={styles.routineName}
+              >
+                {detail?.routineName}
+              </Typography>
+              <Typography style={styles.routineDate} variant="caption1">
+                {detail?.createdAt ? getFormatDateTime(detail.createdAt) : ''}
+              </Typography>
+            </ThemeView>
+            <ThemeView transparent>
+              <Typography variant="body2" style={styles.routineDescription}>
+                {detail?.routineDetail}
+              </Typography>
+            </ThemeView>
           </ThemeView>
           <ThemeView transparent>
             {detail?.imagePath?.endsWith('svg') ? (
@@ -85,7 +102,7 @@ const RequestDetailModal = () => {
                 style={[styles.image, { aspectRatio: ratio }]}
               />
             )}
-            <Divider spacing={baseFoundation.spacing[5]} />
+            <ThemeView style={styles.separator} />
           </ThemeView>
           <Form form={{ comment: '' }}>
             <FormItem
@@ -93,11 +110,15 @@ const RequestDetailModal = () => {
               label="응원의 한마디"
               item={({ value, onChange }) => (
                 <Input
+                  accessibilityLabel="응원의 한마디"
+                  fullWidth
+                  inputStyle={styles.textareaInput}
                   placeholder="응원의 한마디를 입력해주세요."
                   value={value}
                   onChangeText={onChange}
                   style={styles.textarea}
                   multiline
+                  variant="filled"
                 />
               )}
             />
@@ -115,11 +136,11 @@ const RequestDetailModal = () => {
 
 export default RequestDetailModal;
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    marginTop: baseFoundation.spacing[7],
-    paddingHorizontal: baseFoundation.spacing[2.5],
+    marginTop: baseFoundation.spacing[5],
+    paddingHorizontal: baseFoundation.spacing[5],
   },
 
   scroll: {
@@ -127,9 +148,28 @@ const styles = StyleSheet.create({
     paddingBottom: baseFoundation.spacing[12],
   },
 
+  intro: {
+    gap: baseFoundation.spacing[2],
+  },
+
+  introTitle: {
+    color: theme.colors.brand.text,
+  },
+
+  introDescription: {
+    color: theme.colors.text.muted,
+  },
+
+  summary: {
+    paddingBottom: baseFoundation.spacing[5],
+    gap: baseFoundation.spacing[3],
+    borderBottomWidth: baseFoundation.dimension.x1,
+    borderBottomColor: theme.colors.brand.card,
+  },
+
   infoLabel: {
-    fontWeight: 'bold',
-    marginBottom: baseFoundation.spacing[2.5],
+    color: theme.colors.text.muted,
+    marginBottom: baseFoundation.spacing[3],
   },
 
   routinesNameContainer: {
@@ -140,13 +180,38 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: baseFoundation.spacing[1],
     right: baseFoundation.spacing[0],
+    color: theme.colors.text.muted,
+  },
+
+  routineName: {
+    color: theme.colors.brand.text,
+  },
+
+  routineDescription: {
+    color: theme.colors.text.muted,
   },
 
   image: {
     width: '100%',
+    borderRadius: baseFoundation.radii.m,
+  },
+
+  separator: {
+    height: baseFoundation.dimension.x1,
+    marginTop: baseFoundation.spacing[5],
+    backgroundColor: theme.colors.brand.card,
   },
 
   textarea: {
-    height: baseFoundation.dimension.x100,
+    height: baseFoundation.dimension.x112,
+    borderWidth: baseFoundation.dimension.x0,
+    borderRadius: baseFoundation.radii.m,
+    backgroundColor: theme.colors.brand.card,
+    paddingHorizontal: baseFoundation.spacing[4],
+    paddingVertical: baseFoundation.spacing[3],
   },
-});
+
+  textareaInput: {
+    textAlignVertical: 'top',
+  },
+}));

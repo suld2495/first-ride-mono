@@ -128,6 +128,19 @@ describe('ModalScreen', () => {
     expect(contentStyle.paddingHorizontal).toBe(20);
   });
 
+  it('allows the horizontal content padding to be removed with a 0px option', () => {
+    mockModalOptions = {
+      contentPaddingHorizontal: 0,
+    };
+
+    const { getByTestId } = render(<ModalScreen />);
+    const contentStyle = StyleSheet.flatten(
+      getByTestId('modal-screen-content').props.style,
+    );
+
+    expect(contentStyle.paddingHorizontal).toBe(0);
+  });
+
   it('stores routineId from shared certification request links', () => {
     mockSearchParams.type = 'request';
     mockSearchParams.routineId = '42';

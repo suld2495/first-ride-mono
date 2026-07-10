@@ -69,12 +69,16 @@ describe('RequestListModal (인증 요청 확인 모달)', () => {
       });
 
       it('인증 요청 리스트가 화면에 표시된다', async () => {
-        const { findAllByText } = render(<RequestListModal />);
+        const { findAllByText, findByText } = render(<RequestListModal />);
 
         const routineItems = await findAllByText('아침 운동');
 
         expect(routineItems.length).toBe(3);
         expect(routineItems[0]).toBeOnTheScreen();
+        expect(
+          await findByText('도착한 인증을 확인해 주세요'),
+        ).toBeOnTheScreen();
+        expect(await findByText('오늘')).toBeOnTheScreen();
       });
 
       it('요청한 사람의 닉네임이 표시된다', async () => {

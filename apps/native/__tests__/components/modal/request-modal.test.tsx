@@ -1,7 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { ActivityIndicator, ScrollView } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView } from 'react-native';
 
 import RequestModal from '../../../components/modal/request-modal';
 import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
@@ -114,6 +114,131 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(await findByText('테스트 루틴 1')).toBeOnTheScreen();
     });
 
+    it('이미지 추가 방법을 텍스트 버튼으로 표시한다', async () => {
+      const { findByText } = render(<RequestModal />);
+
+      expect(await findByText('앨범에서 선택')).toBeOnTheScreen();
+      expect(await findByText('카메라로 촬영')).toBeOnTheScreen();
+    });
+
+    it('루틴과 인증 대상을 가로 요약 영역에 표시한다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      expect(screen.getByTestId('request-summary')).toHaveStyle({
+        flexDirection: 'row',
+        minHeight: 96,
+      });
+      expect(screen.getByTestId('request-summary-divider')).toHaveStyle({
+        height: 36,
+      });
+      expect(screen.getByTestId('request-target-summary')).toHaveStyle({
+        flex: 1,
+      });
+      expect(screen.getByTestId('request-routine-summary')).toHaveStyle({
+        width: '50%',
+      });
+    });
+
+    it('빈 이미지 스테이지에 선택 개수와 세 개의 미리보기 자리를 표시한다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      expect(screen.getByTestId('request-form-content')).toHaveStyle({
+        paddingHorizontal: 18,
+      });
+      expect(screen.getByTestId('request-media-stage')).toHaveStyle({
+        backgroundColor: '#FAFAFA',
+        borderRadius: 12,
+        borderWidth: 0,
+      });
+      expect(screen.getByTestId('request-empty-image-area')).toHaveStyle({
+        minHeight: 120,
+        alignItems: 'center',
+        justifyContent: 'center',
+      });
+      expect(screen.getByTestId('request-empty-image-button')).toHaveStyle({
+        width: 152,
+        minHeight: 88,
+      });
+      expect(screen.getByTestId('request-empty-image-icon')).toHaveProp(
+        'size',
+        44,
+      );
+      expect(screen.getByTestId('request-empty-image-icon')).toHaveStyle({
+        transform: [{ translateY: 2 }],
+      });
+      expect(screen.getByText('사진을 추가해 주세요')).toHaveStyle({
+        color: '#4C769C',
+        fontSize: 14,
+      });
+      expect(screen.getByText('이미지 업로드')).toHaveStyle({
+        fontSize: 14,
+      });
+      expect(screen.getByText('0/3')).toHaveStyle({
+        fontSize: 14,
+      });
+      expect(screen.getByText('0/3')).toBeOnTheScreen();
+      expect(screen.getByText('사진을 추가해 주세요')).toBeOnTheScreen();
+      const imageSlots = screen.getAllByTestId('request-image-slot');
+
+      expect(imageSlots).toHaveLength(3);
+      expect(imageSlots[0]).toHaveStyle({
+        borderColor: '#D0D4DB',
+        borderWidth: 1,
+        height: 80,
+        width: 96,
+      });
+      for (const slotIcon of screen.getAllByTestId('request-image-slot-icon')) {
+        expect(slotIcon).toHaveProp('size', 28);
+      }
+    });
+
+    it('앨범과 카메라 액션을 이미지 스테이지의 도구막대에 묶는다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      expect(screen.getByTestId('request-image-actions')).toHaveStyle({
+        flexDirection: 'row',
+        minHeight: 60,
+      });
+      expect(screen.getByText('앨범에서 선택')).toHaveStyle({
+        fontSize: 13,
+      });
+      expect(screen.getByText('카메라로 촬영')).toHaveStyle({
+        fontSize: 13,
+      });
+      expect(screen.getByTestId('gallery-button')).toBeOnTheScreen();
+      expect(screen.getByTestId('camera-button')).toBeOnTheScreen();
+    });
+
+    it('취소와 요청 액션을 모달 고정 푸터에 표시한다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      expect(screen.getByTestId('modal-footer')).toBeOnTheScreen();
+      expect(screen.getByTestId('request-form-button-container')).toHaveStyle({
+        paddingHorizontal: 24,
+        borderTopColor: '#A7CBEA',
+      });
+      expect(screen.getByTestId('request-cancel-button')).toHaveStyle({
+        backgroundColor: '#E2F1FF',
+        width: 140,
+      });
+      expect(screen.getByTestId('request-submit-button')).toHaveStyle({
+        backgroundColor: '#A7CBEA',
+        opacity: 1,
+      });
+      expect(screen.getByText('취소')).toBeOnTheScreen();
+      expect(screen.getByText('취소')).toHaveStyle({ fontSize: 16 });
+      expect(screen.getByText('요청')).toHaveStyle({ fontSize: 16 });
+      expect(screen.getByText('요청')).toBeDisabled();
+    });
+
     it('루틴 상세 설명이 화면에 표시된다', async () => {
       const { findByText } = render(<RequestModal />);
 
@@ -204,6 +329,71 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       });
     });
 
+    it('이미지 한 장을 업로드하면 1/3 상태를 표시한다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+      await selectImageFromGallery(screen.getByTestId);
+
+      await waitFor(() => {
+        expect(screen.getByText('1/3')).toBeOnTheScreen();
+        expect(screen.getAllByTestId('request-image-slot')).toHaveLength(3);
+      });
+    });
+
+    it('카메라로 촬영한 이미지 한 장을 미리보기에 추가한다', async () => {
+      mockLaunchCameraAsync.mockResolvedValue({
+        canceled: false,
+        assets: createPickedAssets(['camera-base64-image-data']),
+      });
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('camera-button'));
+      });
+
+      expect(mockLaunchCameraAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          allowsMultipleSelection: false,
+          base64: true,
+        }),
+      );
+      await waitFor(() => {
+        expect(screen.getByText('1/3')).toBeOnTheScreen();
+        expect(screen.getByTestId('request-image-preview')).toHaveProp(
+          'source',
+          { uri: 'file:///camera-base64-image-data.jpg' },
+        );
+      });
+    });
+
+    it('사진 권한이 없으면 설정 안내를 표시하고 선택기를 열지 않는다', async () => {
+      const alertSpy = jest
+        .spyOn(Alert, 'alert')
+        .mockImplementation(() => undefined);
+      mockRequestMediaLibraryPermissionsAsync.mockResolvedValue({
+        status: 'denied',
+      });
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('gallery-button'));
+      });
+
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Photos permission not granted',
+        'Please grant Photos permission to use this feature',
+        expect.any(Array),
+      );
+      expect(mockLaunchImageLibraryAsync).not.toHaveBeenCalled();
+
+      alertSpy.mockRestore();
+    });
+
     it('갤러리에서 이미지를 최대 3개까지 선택할 수 있다', async () => {
       const { findByText, getByTestId } = render(<RequestModal />);
 
@@ -224,20 +414,24 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
     });
 
     it('선택한 이미지 3개의 미리보기를 표시한다', async () => {
-      const { findByText, getAllByTestId, getByTestId } = render(
-        <RequestModal />,
-      );
+      const screen = render(<RequestModal />);
 
-      await findByText('테스트 루틴 1');
+      await screen.findByText('테스트 루틴 1');
 
-      await selectImageFromGallery(getByTestId, [
+      await selectImageFromGallery(screen.getByTestId, [
         'test-base64-image-data-1',
         'test-base64-image-data-2',
         'test-base64-image-data-3',
       ]);
 
       await waitFor(() => {
-        expect(getAllByTestId('request-image-preview')).toHaveLength(3);
+        expect(screen.getAllByTestId('request-image-preview')).toHaveLength(3);
+        expect(
+          screen.queryByTestId('request-empty-image-button'),
+        ).not.toBeOnTheScreen();
+        expect(
+          screen.queryByText('사진을 추가해 주세요'),
+        ).not.toBeOnTheScreen();
       });
     });
 
@@ -264,8 +458,8 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       await waitFor(() => {
         expect(getByTestId('request-image-preview')).toHaveStyle({
-          width: 100,
-          height: 100,
+          width: 96,
+          height: 80,
         });
       });
     });

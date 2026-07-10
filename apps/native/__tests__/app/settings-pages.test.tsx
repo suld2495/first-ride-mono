@@ -496,6 +496,9 @@ describe('설정 하위 페이지', () => {
     const { findByText, getByTestId } = render(<NotificationSettingsPage />);
 
     expect(await findByText('전체 알림')).toBeOnTheScreen();
+    expect(
+      await findByText('받고 싶은 알림만 선택해 주세요'),
+    ).toBeOnTheScreen();
     expect(await findByText('친구 알림')).toBeOnTheScreen();
     expect(await findByText('친구 요청')).toBeOnTheScreen();
     expect(

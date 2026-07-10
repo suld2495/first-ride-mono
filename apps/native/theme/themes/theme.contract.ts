@@ -23,6 +23,7 @@ export type ThemeContract = {
       sunken: string;
       overlay: string;
       input: string;
+      media: string;
     };
     text: {
       primary: string;
@@ -158,6 +159,7 @@ export const baseTheme: ThemeContract = {
       sunken: '#0f172a',
       overlay: 'rgba(0, 0, 0, 0.7)',
       input: palette.white,
+      media: palette.stitch.dark.surface,
     },
     text: {
       primary: palette.stitch.dark.text,

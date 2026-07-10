@@ -16,7 +16,7 @@ interface RoutineDetailInfo {
   paused: boolean;
 }
 
-const MAX_REQUEST_IMAGE_COUNT = 3;
+export const MAX_REQUEST_IMAGE_COUNT = 3;
 
 export type RequestImage = {
   base64: string;

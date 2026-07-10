@@ -22,6 +22,7 @@ export const lightTheme: ThemeContract = {
       sunken: '#f1f5f9',
       overlay: 'rgba(15, 23, 42, 0.5)',
       input: palette.white,
+      media: '#FAFAFA',
     },
     text: {
       primary: palette.stitch.light.text,

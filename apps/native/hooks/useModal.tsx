@@ -52,11 +52,17 @@ export const useModal = (
         },
       ];
     case 'request':
-      return ['인증 요청', RequestModal, {}];
+      return ['인증 요청', RequestModal, { contentPaddingHorizontal: 0 }];
     case 'request-list':
-      return ['인증 요청', RequestListModal, {}];
+      return [
+        '인증 요청',
+        RequestListModal,
+        {
+          contentPaddingHorizontal: 0,
+        },
+      ];
     case 'request-detail':
-      return ['인증 상세', RequestDetailModal, {}];
+      return ['인증 상세', RequestDetailModal, { contentPaddingHorizontal: 0 }];
     case 'friend-request-list':
       return ['친구 요청', FriendRequestListModal, {}];
     case 'friend-routines':

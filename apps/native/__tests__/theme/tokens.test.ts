@@ -99,6 +99,7 @@ describe('theme/tokens', () => {
           sunken: '#333',
           overlay: 'rgba(0, 0, 0, 0.5)',
           input: '#111',
+          media: '#111',
         },
         text: {
           primary: '#fff',

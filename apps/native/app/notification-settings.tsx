@@ -377,6 +377,14 @@ function NotificationSettingsContent({
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
+      <View style={styles.intro}>
+        <Typography variant="h3" weight="bold" style={styles.introTitle}>
+          받고 싶은 알림만 선택해 주세요
+        </Typography>
+        <Typography variant="body2" style={styles.introDescription}>
+          필요한 소식은 놓치지 않고, 나머지는 조용히 관리할 수 있어요.
+        </Typography>
+      </View>
       <AllNotificationSection
         allEnabled={settings.allEnabled}
         onToggle={onToggleAll}
@@ -494,6 +502,16 @@ const styles = StyleSheet.create((theme) => ({
     paddingTop: theme.foundation.spacing[4],
     paddingBottom: baseFoundation.dimension.x96,
     gap: theme.foundation.spacing[4],
+  },
+  intro: {
+    gap: theme.foundation.spacing[2],
+    paddingBottom: theme.foundation.spacing[2],
+  },
+  introTitle: {
+    color: theme.colors.brand.text,
+  },
+  introDescription: {
+    color: theme.colors.text.muted,
   },
   section: {
     borderRadius: theme.foundation.radii.m,
