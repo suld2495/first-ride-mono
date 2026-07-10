@@ -1,4 +1,5 @@
 /* eslint-disable local-rules/no-multiple-components-in-file */
+import { StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 interface RoutineMoreIndicatorIconProps {
@@ -69,6 +70,47 @@ interface RoutineCheckmarkIconProps {
   size: number;
 }
 
+interface RoutineMissedIconProps {
+  color: string;
+  size?: number;
+}
+
+export const RoutineMissedIcon = ({
+  color,
+  size = 12,
+}: RoutineMissedIconProps) => (
+  <Svg
+    testID="routine-missed-icon"
+    width={size}
+    height={size}
+    viewBox="0 0 12 12"
+    fill="none"
+    color={color}
+    style={styles.missedIcon}
+  >
+    <Path
+      d="M8.39999 2.79688L2.79999 8.39688"
+      stroke={color}
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Path
+      d="M2.79999 2.79688L8.39999 8.39688"
+      stroke={color}
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
+
+const styles = StyleSheet.create({
+  missedIcon: {
+    transform: [{ translateX: 0.4 }, { translateY: 0.4 }],
+  },
+});
+
 const ROUTINE_CHECKMARK_WIDTH = 12;
 const ROUTINE_CHECKMARK_HEIGHT = 9;
 const ROUTINE_CHECKMARK_SCALE = 0.7;
@@ -92,7 +134,7 @@ export const RoutineCheckmarkIcon = ({
       <Path
         d="M1.25 4.91667L3.69444 7.36111L9.80556 1.25"
         stroke={color}
-        strokeWidth={2.5}
+        strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
       />

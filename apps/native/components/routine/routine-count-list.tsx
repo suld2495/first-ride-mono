@@ -9,13 +9,17 @@ import {
   View,
 } from 'react-native';
 
-import { RoutineCheckmarkIcon } from '@/components/icons/routine-icons';
+import {
+  RoutineCheckmarkIcon,
+  RoutineMissedIcon,
+} from '@/components/icons/routine-icons';
 import { RoutineContextMenuTrigger } from '@/components/routine/routine-context-menu';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
+import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 interface RoutineCountListProps {
   routines: Routine[];
@@ -45,6 +49,29 @@ const createRoutineDateKey = (date: Date) => {
 
   return `${year}${month}${day}`;
 };
+
+const getMissedPastCheckBoxStyle = (
+  isMissedPast: boolean,
+  errorBackgroundColor: string,
+) => (isMissedPast ? { backgroundColor: errorBackgroundColor } : null);
+
+const getTodaySuccessCheckBoxStyle = (isTodaySuccess: boolean) =>
+  isTodaySuccess
+    ? {
+        borderColor: palette.theme.gray[5],
+        borderWidth: baseFoundation.dimension.x1,
+      }
+    : null;
+
+const isUnachievedGoalCheckBox = (
+  isGoalRange: boolean,
+  achieved: boolean,
+  isPendingConfirmation: boolean,
+  isMissedPastGoal: boolean,
+) => isGoalRange && !achieved && !isPendingConfirmation && !isMissedPastGoal;
+
+const getUnachievedCheckBoxStyle = (isUnachieved: boolean) =>
+  isUnachieved ? { backgroundColor: palette.theme.gray[80] } : null;
 
 const getRoutineCountAccessibilityLabel = ({
   countIndex,
@@ -108,7 +135,8 @@ const RoutineCountList = ({
 
   const renderRoutineItem = useCallback<ListRenderItem<Routine>>(
     ({ item: routine }) => {
-      const { routineId, routineName, weeklyCount, routineCount } = routine;
+      const { routineId, routineName, weeklyCount, routineCount, symbolColor } =
+        routine;
       const pendingConfirmationCount = routine.hasPendingConfirmation
         ? routine.pendingConfirmationCount
         : 0;
@@ -136,7 +164,10 @@ const RoutineCountList = ({
               { height: Math.max(itemHeight - baseFoundation.spacing[1], 0) },
             ]}
           >
-            <View style={styles.cardSurface}>
+            <View
+              testID={`routine-count-card-surface-${routineId}`}
+              style={styles.cardSurface}
+            >
               <View style={styles.titleRow}>
                 <Typography
                   variant="body3"
@@ -184,28 +215,35 @@ const RoutineCountList = ({
                     !isPendingConfirmation;
                   const isTodaySuccess =
                     achieved && hasTodaySuccess && countIndex === weeklyCount;
-                  const successCheckBoxStyle = isTodaySuccess
+                  const isUnachievedGoal = isUnachievedGoalCheckBox(
+                    isGoalRange,
+                    achieved,
+                    isPendingConfirmation,
+                    isMissedPastGoal,
+                  );
+                  const achievedCheckBoxStyle = achieved
                     ? {
-                        backgroundColor:
-                          theme.colors.brand.todaySuccessCheckbox,
+                        backgroundColor: symbolColor ?? DEFAULT_ROUTINE_COLOR,
                       }
                     : null;
+                  const todaySuccessCheckBoxStyle =
+                    getTodaySuccessCheckBoxStyle(isTodaySuccess);
+                  const unachievedCheckBoxStyle =
+                    getUnachievedCheckBoxStyle(isUnachievedGoal);
                   const pendingConfirmationCheckBoxStyle = isPendingConfirmation
                     ? {
                         backgroundColor:
                           theme.colors.brand.pendingConfirmationCheckbox,
                       }
                     : null;
-                  const missedPastGoalCheckBoxStyle = isMissedPastGoal
-                    ? {
-                        backgroundColor: theme.colors.feedback.error.bg,
-                      }
-                    : null;
+                  const missedPastGoalCheckBoxStyle =
+                    getMissedPastCheckBoxStyle(
+                      isMissedPastGoal,
+                      theme.colors.feedback.error.bg,
+                    );
                   const checkmarkColor = isPendingConfirmation
                     ? theme.colors.brand.pendingConfirmationCheck
-                    : isMissedPastGoal
-                      ? theme.colors.feedback.error.text
-                      : theme.colors.brand.selectedCheck;
+                    : theme.colors.brand.selectedCheck;
                   const label = getRoutineCountAccessibilityLabel({
                     countIndex,
                     isTodaySuccess,
@@ -228,25 +266,31 @@ const RoutineCountList = ({
                       <View
                         style={[
                           styles.checkBox,
-                          achieved ? styles.achievedCheckBox : null,
-                          successCheckBoxStyle,
+                          achievedCheckBoxStyle,
+                          todaySuccessCheckBoxStyle,
+                          unachievedCheckBoxStyle,
                           pendingConfirmationCheckBoxStyle,
                           missedPastGoalCheckBoxStyle,
                         ]}
                         testID={`routine-count-check-${routineId}-${countIndex}`}
                       >
-                        {isGoalRange || isPendingConfirmation ? (
+                        {isMissedPastGoal ? (
+                          <RoutineMissedIcon
+                            size={baseFoundation.iconSize.xs}
+                            color={palette.theme.gray[90]}
+                          />
+                        ) : achieved || isPendingConfirmation ? (
                           <RoutineCheckmarkIcon
                             size={baseFoundation.iconSize.s}
                             color={checkmarkColor}
                           />
-                        ) : (
+                        ) : !isGoalRange ? (
                           <Ionicons
                             name="remove"
                             size={baseFoundation.iconSize.s}
                             color={theme.colors.brand.check}
                           />
-                        )}
+                        ) : null}
                       </View>
                     </Pressable>
                   );
@@ -268,9 +312,7 @@ const RoutineCountList = ({
       theme.colors.brand.pendingConfirmationCheck,
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.selectedCheck,
-      theme.colors.brand.todaySuccessCheckbox,
       theme.colors.feedback.error.bg,
-      theme.colors.feedback.error.text,
       theme.colors.text.secondary,
     ],
   );
@@ -327,7 +369,7 @@ const styles = StyleSheet.create((theme) => ({
     position: 'relative',
     borderRadius: baseFoundation.dimension.x12,
     paddingHorizontal: baseFoundation.spacing[4],
-    backgroundColor: theme.colors.brand.routineBackground,
+    backgroundColor: palette.theme.gray[95],
     borderColor: theme.colors.brand.primary,
     borderWidth: 3,
     justifyContent: 'center',
@@ -366,9 +408,6 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.brand.checkbox,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  achievedCheckBox: {
-    backgroundColor: theme.colors.brand.selectedCheckbox,
   },
   footer: {
     flexDirection: 'row',

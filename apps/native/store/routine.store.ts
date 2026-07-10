@@ -2,6 +2,8 @@ import type { RoutineForm } from '@repo/types';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
+
 interface State {
   routineId: number;
   routineForm: RoutineForm;
@@ -25,6 +27,7 @@ const initialState: State = {
     routineDetail: '',
     penalty: 0,
     routineCount: 0,
+    symbolColor: DEFAULT_ROUTINE_COLOR,
     mateNickname: '',
     isMe: false,
   },

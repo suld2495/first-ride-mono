@@ -2,7 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import * as routineHooks from '@repo/shared/hooks/useRoutine';
 import { afterWeek, beforeWeek, getWeekMonday } from '@repo/shared/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render as renderNative } from '@testing-library/react-native';
+import { render as renderNative, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import type React from 'react';
 import { Pressable, Text } from 'react-native';
@@ -828,8 +828,18 @@ describe('루틴 조회 페이지', () => {
         expect(await findByText('7회')).toBeOnTheScreen();
       });
 
+      it('루틴 아이템 배경은 gray 95로 표시된다', async () => {
+        const { findByTestId } = render(<Index />);
+
+        expect(await findByTestId('routine-count-card-surface-1')).toHaveStyle({
+          backgroundColor: palette.theme.gray[95],
+        });
+      });
+
       it('달성한 횟수만큼 체크 아이콘이 표시된다', async () => {
-        const { findAllByTestId, findByLabelText } = render(<Index />);
+        const { findAllByTestId, findByLabelText, findByTestId } = render(
+          <Index />,
+        );
 
         // weeklyCount(3)회 달성: 1회, 2회, 3회에 체크 아이콘
         expect(await findByLabelText('1회 달성')).toBeOnTheScreen();
@@ -842,13 +852,21 @@ describe('루틴 조회 페이지', () => {
         // weeklyCount+1 ~ routineCount(4회, 5회)는 미달성 (목표 내)
         expect(await findByLabelText('4회 미달성')).toBeOnTheScreen();
         expect(await findByLabelText('5회 미달성')).toBeOnTheScreen();
+        const unachievedGoal = await findByTestId('routine-count-check-1-4');
+
+        expect(unachievedGoal).toHaveStyle({
+          backgroundColor: palette.theme.gray[80],
+        });
+        expect(
+          within(unachievedGoal).queryByTestId('routine-checkmark-icon'),
+        ).not.toBeOnTheScreen();
 
         // routineCount+1 ~ 7회(6회, 7회)는 목표 없음
         expect(await findByLabelText('6회 목표 없음')).toBeOnTheScreen();
         expect(await findByLabelText('7회 목표 없음')).toBeOnTheScreen();
       });
 
-      it('오늘 완료한 회차는 successDate의 오늘 날짜를 기준으로 더 밝은 같은 톤 컬러로 표시된다', async () => {
+      it('오늘 완료한 회차를 successDate의 오늘 날짜로 구분한다', async () => {
         const today = new Date();
 
         mockAxios.onGet(/\/routine\/list/).reply(200, {
@@ -865,8 +883,9 @@ describe('루틴 조회 페이지', () => {
         expect(await findByTestId('routine-count-check-1-4')).toBeOnTheScreen();
       });
 
-      it('완료, 오늘 완료, 요청 중 체크 표시를 서로 다른 컬러로 표시한다', async () => {
+      it('완료는 symbolColor, 오늘 완료는 gray 5 테두리, 요청 중은 대기 컬러로 표시한다', async () => {
         const today = new Date();
+        const symbolColor = '#FF8A3D';
         const pendingRoutine = {
           ...createMockRoutine(0, {
             weeklyCount: 2,
@@ -876,6 +895,7 @@ describe('루틴 조회 페이지', () => {
           hasPendingConfirmation: true,
           pendingConfirmationCount: 2,
           pendingConfirmationIds: [207, 208],
+          symbolColor,
         };
 
         mockAxios.onGet(/\/routine\/list/).reply(200, {
@@ -893,12 +913,16 @@ describe('루틴 조회 페이지', () => {
         expect(await findByLabelText('3회 요청 중')).toBeOnTheScreen();
         expect(flattenStyles(completedCheck.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ backgroundColor: '#7FC3FF' }),
+            expect.objectContaining({ backgroundColor: symbolColor }),
           ]),
         );
         expect(flattenStyles(todayCompletedCheck.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ backgroundColor: '#B0DAFF' }),
+            expect.objectContaining({ backgroundColor: symbolColor }),
+            expect.objectContaining({
+              borderColor: palette.theme.gray[5],
+              borderWidth: 1,
+            }),
           ]),
         );
         expect(flattenStyles(pendingCheck.props.style)).toEqual(
@@ -908,15 +932,38 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('과거 주에 목표만큼 못한 회차를 빨간 계열 컬러로 표시한다', async () => {
+      it('symbolColor가 없으면 성공 체크를 첫 번째 팔레트 컬러로 표시한다', async () => {
+        const { findByTestId } = render(<Index />);
+
+        expect(await findByTestId('routine-count-check-1-1')).toHaveStyle({
+          backgroundColor: '#00D68F',
+        });
+      });
+
+      it('과거 주에 목표만큼 못한 회차를 에러 배경과 gray 90 X 아이콘으로 표시한다', async () => {
         mockSearchParams.date = beforeWeek(new Date(getWeekMonday(new Date())));
 
         const { findByTestId } = render(<Index />);
+        const [missedFourth, missedFifth] = await Promise.all([
+          findByTestId('routine-count-check-1-4'),
+          findByTestId('routine-count-check-1-5'),
+        ]);
 
-        expect(await findByTestId('routine-count-check-1-4')).toHaveStyle({
+        const missedIcon = within(missedFourth).getByTestId(
+          'routine-missed-icon',
+        );
+
+        expect(missedIcon).toHaveProp('color', palette.theme.gray[90]);
+        expect(missedIcon).toHaveStyle({
+          transform: [{ translateX: 0.4 }, { translateY: 0.4 }],
+        });
+        expect(missedFourth).toHaveStyle({
           backgroundColor: appThemes.blue.colors.feedback.error.bg,
         });
-        expect(await findByTestId('routine-count-check-1-5')).toHaveStyle({
+        expect(
+          within(missedFifth).getByTestId('routine-missed-icon'),
+        ).toHaveProp('color', palette.theme.gray[90]);
+        expect(missedFifth).toHaveStyle({
           backgroundColor: appThemes.blue.colors.feedback.error.bg,
         });
       });
@@ -1049,6 +1096,14 @@ describe('루틴 조회 페이지', () => {
         expect(await findByText('일')).toBeOnTheScreen();
       });
 
+      it('루틴 아이템 배경은 gray 95로 표시된다', async () => {
+        const { findByTestId } = render(<Index />);
+
+        expect(await findByTestId('routine-week-card-surface-1')).toHaveStyle({
+          backgroundColor: palette.theme.gray[95],
+        });
+      });
+
       it('week 타입 루틴 제목을 왼쪽 정렬한다', async () => {
         const { findByText } = render(<Index />);
 
@@ -1079,7 +1134,7 @@ describe('루틴 조회 페이지', () => {
     });
 
     describe('요일별 달성 아이콘 표시', () => {
-      it('달성한 요일에는 체크 아이콘, 미달성 요일에는 빈 네모 아이콘이 표시된다', async () => {
+      it('달성한 요일에는 체크 아이콘, 미달성 요일에는 gray 80 배경만 표시된다', async () => {
         // 현재 주의 월, 화, 수 날짜를 동적으로 생성
         const today = new Date();
         const monday = new Date(getWeekMonday(today));
@@ -1107,7 +1162,9 @@ describe('루틴 조회 페이지', () => {
           }),
         });
 
-        const { findAllByTestId, findByLabelText } = render(<Index />);
+        const { findAllByTestId, findByLabelText, findByTestId } = render(
+          <Index />,
+        );
 
         // 달성한 요일 (월, 화, 수)
         expect(
@@ -1128,9 +1185,17 @@ describe('루틴 조회 페이지', () => {
         expect(await findByLabelText('금요일 미달성')).toBeOnTheScreen();
         expect(await findByLabelText('토요일 미달성')).toBeOnTheScreen();
         expect(await findByLabelText('일요일 미달성')).toBeOnTheScreen();
+        const unachievedDay = await findByTestId('routine-week-check-1-3');
+
+        expect(unachievedDay).toHaveStyle({
+          backgroundColor: palette.theme.gray[80],
+        });
+        expect(
+          within(unachievedDay).queryByTestId('routine-checkmark-icon'),
+        ).not.toBeOnTheScreen();
       });
 
-      it('오늘 완료한 요일은 successDate의 오늘 날짜를 기준으로 더 밝은 같은 톤 컬러로 표시된다', async () => {
+      it('오늘 완료한 요일을 successDate의 오늘 날짜로 구분한다', async () => {
         const today = new Date();
         const dayName = ['일', '월', '화', '수', '목', '금', '토'][
           today.getDay()
@@ -1149,14 +1214,18 @@ describe('루틴 조회 페이지', () => {
         expect(
           await findByLabelText(`${dayName}요일 오늘 완료`),
         ).toBeOnTheScreen();
-        expect(
-          await findByTestId(
-            `routine-week-check-1-${getRoutineWeekIndex(today)}`,
-          ),
-        ).toBeOnTheScreen();
+        const todayCompletedCheck = await findByTestId(
+          `routine-week-check-1-${getRoutineWeekIndex(today)}`,
+        );
+
+        expect(todayCompletedCheck).toBeOnTheScreen();
+        expect(todayCompletedCheck).toHaveStyle({
+          borderColor: palette.theme.gray[5],
+          borderWidth: 1,
+        });
       });
 
-      it('완료, 오늘 완료, 요청 중 체크 표시를 서로 다른 컬러로 표시한다', async () => {
+      it('완료는 symbolColor, 요청 중은 대기 컬러로 표시한다', async () => {
         const today = new Date();
         const monday = new Date(getWeekMonday(today));
         const todayIndex = getRoutineWeekIndex(today);
@@ -1165,6 +1234,7 @@ describe('루틴 조회 페이지', () => {
 
         completedDate.setDate(completedDate.getDate() + completedIndex);
 
+        const symbolColor = '#4CAF50';
         const pendingRoutine = {
           ...createMockRoutine(0, {
             weeklyCount: 1,
@@ -1174,6 +1244,7 @@ describe('루틴 조회 페이지', () => {
           hasPendingConfirmation: true,
           pendingConfirmationCount: 1,
           pendingConfirmationIds: [207],
+          symbolColor,
         };
 
         mockAxios.onGet(/\/routine\/list/).reply(200, {
@@ -1193,7 +1264,7 @@ describe('루틴 조회 페이지', () => {
         ).toBeOnTheScreen();
         expect(flattenStyles(completedCheck.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ backgroundColor: '#000306' }),
+            expect.objectContaining({ backgroundColor: symbolColor }),
           ]),
         );
         expect(flattenStyles(pendingCheck.props.style)).toEqual(
@@ -1201,6 +1272,45 @@ describe('루틴 조회 페이지', () => {
             expect.objectContaining({ backgroundColor: '#F57F17' }),
           ]),
         );
+      });
+
+      it('symbolColor가 없으면 성공 요일을 첫 번째 팔레트 컬러로 표시한다', async () => {
+        const monday = new Date(getWeekMonday(new Date()));
+
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 1,
+            routineCount: 5,
+            successDate: [formatRoutineDateKey(monday)],
+          }),
+        });
+
+        const { findByTestId } = render(<Index />);
+
+        expect(await findByTestId('routine-week-check-1-0')).toHaveStyle({
+          backgroundColor: '#00D68F',
+        });
+      });
+
+      it('과거 주의 미달성 요일을 에러 배경과 gray 90 X 아이콘으로 표시한다', async () => {
+        mockSearchParams.date = beforeWeek(new Date(getWeekMonday(new Date())));
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 0,
+            routineCount: 5,
+            successDate: [],
+          }),
+        });
+
+        const { findByTestId } = render(<Index />);
+        const missedMonday = await findByTestId('routine-week-check-1-0');
+
+        expect(
+          within(missedMonday).getByTestId('routine-missed-icon'),
+        ).toHaveProp('color', palette.theme.gray[90]);
+        expect(missedMonday).toHaveStyle({
+          backgroundColor: appThemes.blue.colors.feedback.error.bg,
+        });
       });
     });
   });

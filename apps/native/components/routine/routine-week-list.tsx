@@ -1,4 +1,5 @@
 import { useWeeklyData } from '@repo/shared/hooks/useRoutine';
+import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
 import { useCallback, useMemo } from 'react';
 import {
@@ -8,13 +9,17 @@ import {
   View,
 } from 'react-native';
 
-import { RoutineCheckmarkIcon } from '@/components/icons/routine-icons';
+import {
+  RoutineCheckmarkIcon,
+  RoutineMissedIcon,
+} from '@/components/icons/routine-icons';
 import { RoutineContextMenuTrigger } from '@/components/routine/routine-context-menu';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
+import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 interface RoutineWeekListProps {
   routines: Routine[];
@@ -64,6 +69,28 @@ const createRoutineDateKey = (date: Date) => {
   return `${year}${month}${day}`;
 };
 
+const getMissedPastCheckBoxStyle = (
+  isMissedPast: boolean,
+  errorBackgroundColor: string,
+) => (isMissedPast ? { backgroundColor: errorBackgroundColor } : null);
+
+const getTodaySuccessCheckBoxStyle = (isTodaySuccess: boolean) =>
+  isTodaySuccess
+    ? {
+        borderColor: palette.theme.gray[5],
+        borderWidth: baseFoundation.dimension.x1,
+      }
+    : null;
+
+const isUnachievedDayCheckBox = (
+  check: boolean,
+  isPendingConfirmation: boolean,
+  isMissedPastDay: boolean,
+) => !check && !isPendingConfirmation && !isMissedPastDay;
+
+const getUnachievedCheckBoxStyle = (isUnachieved: boolean) =>
+  isUnachieved ? { backgroundColor: palette.theme.gray[80] } : null;
+
 const RoutineWeekList = ({
   routines,
   date,
@@ -84,6 +111,7 @@ const RoutineWeekList = ({
   const weeklyData = useWeeklyData(routines, date);
   const weekDateKeys = useMemo(() => createWeekDateKeys(date), [date]);
   const todayDateKey = createRoutineDateKey(new Date());
+  const isPastWeek = date < getWeekMonday(new Date());
   const getRoutineItemLayout = useCallback(
     (_: Routine[] | null, index: number) => ({
       length: itemHeight,
@@ -101,7 +129,8 @@ const RoutineWeekList = ({
 
   const renderRoutineItem = useCallback<ListRenderItem<Routine>>(
     ({ item: routine }) => {
-      const { routineId, routineName, weeklyCount, routineCount } = routine;
+      const { routineId, routineName, weeklyCount, routineCount, symbolColor } =
+        routine;
       const canRequestWithCheckBox = canRequestRoutine;
       const handlePressCheckBox = canRequestWithCheckBox
         ? () => onRequestRoutine(routine)
@@ -117,7 +146,10 @@ const RoutineWeekList = ({
           >
             <View style={styles.cardGap}>
               <View style={styles.cardInner}>
-                <View style={styles.cardSurface}>
+                <View
+                  testID={`routine-week-card-surface-${routineId}`}
+                  style={styles.cardSurface}
+                >
                   <View style={styles.titleRow}>
                     <Typography variant="body3" style={styles.title}>
                       {routineName}
@@ -153,12 +185,23 @@ const RoutineWeekList = ({
                         !check &&
                         routine.hasPendingConfirmation &&
                         dateKey === todayDateKey;
-                      const successCheckBoxStyle = isTodaySuccess
+                      const isMissedPastDay =
+                        isPastWeek && !check && !isPendingConfirmation;
+                      const isUnachievedDay = isUnachievedDayCheckBox(
+                        check,
+                        isPendingConfirmation,
+                        isMissedPastDay,
+                      );
+                      const successCheckBoxStyle = check
                         ? {
                             backgroundColor:
-                              theme.colors.brand.todaySuccessCheckbox,
+                              symbolColor ?? DEFAULT_ROUTINE_COLOR,
                           }
                         : null;
+                      const todaySuccessCheckBoxStyle =
+                        getTodaySuccessCheckBoxStyle(isTodaySuccess);
+                      const unachievedCheckBoxStyle =
+                        getUnachievedCheckBoxStyle(isUnachievedDay);
                       const pendingConfirmationCheckBoxStyle =
                         isPendingConfirmation
                           ? {
@@ -166,6 +209,11 @@ const RoutineWeekList = ({
                                 theme.colors.brand.pendingConfirmationCheckbox,
                             }
                           : null;
+                      const missedPastDayCheckBoxStyle =
+                        getMissedPastCheckBoxStyle(
+                          isMissedPastDay,
+                          theme.colors.feedback.error.bg,
+                        );
                       const checkmarkColor = isPendingConfirmation
                         ? theme.colors.brand.pendingConfirmationCheck
                         : theme.colors.brand.selectedCheck;
@@ -192,11 +240,19 @@ const RoutineWeekList = ({
                             style={[
                               styles.checkBox,
                               successCheckBoxStyle,
+                              todaySuccessCheckBoxStyle,
+                              unachievedCheckBoxStyle,
                               pendingConfirmationCheckBoxStyle,
+                              missedPastDayCheckBoxStyle,
                             ]}
                             testID={`routine-week-check-${routineId}-${index}`}
                           >
-                            {check || isPendingConfirmation ? (
+                            {isMissedPastDay ? (
+                              <RoutineMissedIcon
+                                size={baseFoundation.iconSize.xs}
+                                color={palette.theme.gray[90]}
+                              />
+                            ) : check || isPendingConfirmation ? (
                               <RoutineCheckmarkIcon
                                 size={baseFoundation.iconSize.s}
                                 color={checkmarkColor}
@@ -242,13 +298,14 @@ const RoutineWeekList = ({
     [
       canRequestRoutine,
       itemHeight,
+      isPastWeek,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
       theme.colors.brand.pendingConfirmationCheck,
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.selectedCheck,
-      theme.colors.brand.todaySuccessCheckbox,
+      theme.colors.feedback.error.bg,
       theme.colors.text.secondary,
       todayDateKey,
       weekDateKeys,
@@ -320,7 +377,7 @@ const styles = StyleSheet.create((theme) => ({
     position: 'relative',
     borderRadius: baseFoundation.dimension.x10,
     paddingHorizontal: baseFoundation.spacing[4],
-    backgroundColor: theme.colors.brand.routineBackground,
+    backgroundColor: palette.theme.gray[95],
     justifyContent: 'center',
   },
   title: {

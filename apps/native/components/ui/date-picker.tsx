@@ -1,6 +1,18 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
-import { Modal, Pressable, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  type StyleProp,
+  View,
+  type ViewStyle,
+} from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  SlideOutDown,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import DateCalendar from '@/components/calendar/date-calendar';
@@ -27,6 +39,8 @@ interface DatePickerProps {
   onConfirmDate: (date: Date) => void;
 }
 
+const SHEET_ANIMATION_DURATION = baseFoundation.motion.duration.normal;
+
 const DatePicker = ({
   value,
   buttonTitle,
@@ -41,8 +55,12 @@ const DatePicker = ({
 }: DatePickerProps) => {
   const { theme } = useAppTheme();
   const insets = useSafeAreaInsets();
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [isContentVisible, setIsContentVisible] = React.useState(false);
   const [draftDate, setDraftDate] = React.useState<Date | null>(null);
+  const closeTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   const variantStyle = {
     outlined: styles.variantOutlined,
     filled: styles.variantFilled,
@@ -50,15 +68,35 @@ const DatePicker = ({
     ghost: styles.variantGhost,
   }[variant];
 
-  const close = () => {
-    setIsOpen(false);
-    setDraftDate(null);
-  };
+  const clearCloseTimer = React.useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }, []);
+
+  const close = React.useCallback(() => {
+    if (!isModalVisible || !isContentVisible) {
+      return;
+    }
+
+    clearCloseTimer();
+    setIsContentVisible(false);
+    closeTimerRef.current = setTimeout(() => {
+      setIsModalVisible(false);
+      setDraftDate(null);
+      closeTimerRef.current = null;
+    }, SHEET_ANIMATION_DURATION);
+  }, [clearCloseTimer, isContentVisible, isModalVisible]);
 
   const open = () => {
+    clearCloseTimer();
     setDraftDate(value ?? defaultDate);
-    setIsOpen(true);
+    setIsModalVisible(true);
+    setIsContentVisible(true);
   };
+
+  React.useEffect(() => clearCloseTimer, [clearCloseTimer]);
 
   return (
     <>
@@ -82,52 +120,71 @@ const DatePicker = ({
         }}
       />
       <Modal
-        visible={isOpen}
-        animationType="slide"
+        visible={isModalVisible}
+        animationType="none"
         transparent
         presentationStyle="overFullScreen"
         onRequestClose={close}
       >
-        <Pressable
-          accessibilityLabel={`${sheetLabel} 닫기`}
-          style={styles.sheetOverlay}
-          onPress={close}
-        >
-          <Pressable
-            accessibilityLabel={`${sheetLabel} 바텀 시트`}
-            accessibilityViewIsModal
-            style={styles.sheetContainer}
-            onPress={(event) => event?.stopPropagation?.()}
-          >
-            <ThemeView
-              style={[
-                styles.sheetContent,
-                {
-                  paddingBottom: insets.bottom + baseFoundation.spacing[4],
-                },
-              ]}
-              variant="surface"
-            >
-              <ThemeView transparent style={styles.sheetHandle} />
-              <DateCalendar
-                isInBottomSheet
-                minimumDate={minimumDate}
-                selectedDate={draftDate}
-                onSelectDate={setDraftDate}
-                isDateSelectable={isDateSelectable}
-                onCancel={close}
-                onConfirm={() => {
-                  if (!draftDate) {
-                    return;
-                  }
+        <View style={styles.modalRoot}>
+          {isContentVisible && (
+            <>
+              <Animated.View
+                testID="date-picker-backdrop"
+                entering={FadeIn.duration(SHEET_ANIMATION_DURATION)}
+                exiting={FadeOut.duration(SHEET_ANIMATION_DURATION)}
+                style={styles.sheetBackdrop}
+              >
+                <Pressable
+                  accessibilityLabel={`${sheetLabel} 닫기`}
+                  style={styles.backdropPressable}
+                  onPress={close}
+                />
+              </Animated.View>
+              <Animated.View
+                testID="date-picker-sheet"
+                entering={SlideInDown.duration(SHEET_ANIMATION_DURATION)}
+                exiting={SlideOutDown.duration(SHEET_ANIMATION_DURATION)}
+                style={styles.sheetContainer}
+              >
+                <Pressable
+                  accessibilityLabel={`${sheetLabel} 바텀 시트`}
+                  accessibilityViewIsModal
+                  onPress={(event) => event?.stopPropagation?.()}
+                >
+                  <ThemeView
+                    style={[
+                      styles.sheetContent,
+                      {
+                        paddingBottom:
+                          insets.bottom + baseFoundation.spacing[4],
+                      },
+                    ]}
+                    variant="surface"
+                  >
+                    <ThemeView transparent style={styles.sheetHandle} />
+                    <DateCalendar
+                      isInBottomSheet
+                      minimumDate={minimumDate}
+                      selectedDate={draftDate}
+                      onSelectDate={setDraftDate}
+                      isDateSelectable={isDateSelectable}
+                      onCancel={close}
+                      onConfirm={() => {
+                        if (!draftDate) {
+                          return;
+                        }
 
-                  onConfirmDate(draftDate);
-                  close();
-                }}
-              />
-            </ThemeView>
-          </Pressable>
-        </Pressable>
+                        onConfirmDate(draftDate);
+                        close();
+                      }}
+                    />
+                  </ThemeView>
+                </Pressable>
+              </Animated.View>
+            </>
+          )}
+        </View>
       </Modal>
     </>
   );
@@ -170,10 +227,22 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     elevation: 0,
   },
 
-  sheetOverlay: {
+  modalRoot: {
     flex: 1,
     justifyContent: 'flex-end',
+  },
+
+  sheetBackdrop: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
     backgroundColor: 'rgba(15, 23, 42, 0.38)',
+  },
+
+  backdropPressable: {
+    flex: 1,
   },
 
   sheetContainer: {

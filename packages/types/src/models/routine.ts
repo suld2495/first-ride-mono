@@ -8,6 +8,7 @@ export interface Routine {
   penalty: number;
   weeklyCount: number;
   routineCount: number;
+  symbolColor?: string;
   mateNickname: string;
   isMe: boolean;
   startDate: string;

@@ -2,7 +2,7 @@ import {
   useCreateRoutineMutation,
   useUpdateRoutineMutation,
 } from '@repo/shared/hooks/useRoutine';
-import type { RoutineForm } from '@repo/types';
+import type { CreateRoutineRequest, RoutineForm } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 
@@ -33,6 +33,35 @@ const normalizePenalty = (penalty: RoutineForm['penalty'] | string): number => {
   return Number(penalty) || 0;
 };
 
+const normalizeRoutineCreateRequest = (
+  data: RoutineStatusSubmitForm,
+): CreateRoutineRequest => {
+  const payload = {
+    routineName: data.routineName,
+    startDate: data.startDate,
+    routineDetail: data.routineDetail,
+    routineCount: data.routineCount,
+    symbolColor: data.symbolColor,
+    ...(data.endDate ? { endDate: data.endDate } : {}),
+  };
+
+  if (data.isMe) {
+    return {
+      target: 'me',
+      payload,
+    };
+  }
+
+  return {
+    target: 'mate',
+    payload: {
+      ...payload,
+      penalty: normalizePenalty(data.penalty),
+      mateNickname: data.mateNickname,
+    },
+  };
+};
+
 const normalizeRoutineSubmitForm = (
   data: RoutineStatusSubmitForm,
   nickname: string,
@@ -45,6 +74,7 @@ const normalizeRoutineSubmitForm = (
     routineDetail: data.routineDetail,
     penalty: normalizePenalty(data.penalty),
     routineCount: data.routineCount,
+    symbolColor: data.symbolColor,
     isMe: data.isMe,
   };
 
@@ -96,23 +126,20 @@ export const useRoutineFormSubmission = ({
 
   const handleCreate = useCallback(
     (data: RoutineStatusSubmitForm) => {
-      saveMutation.mutate(
-        normalizeRoutineSubmitForm(data, nickname) as RoutineForm,
-        {
-          onSuccess: () => {
-            toast.showToast('루틴이 생성되었습니다.');
-            router.dismissTo('/(tabs)/(afterLogin)/(routine)');
-          },
-          onError: (error) => {
-            const message =
-              error instanceof Error ? error.message : '문제가 발생하였습니다.';
-
-            toast.showToast(message, 'error');
-          },
+      saveMutation.mutate(normalizeRoutineCreateRequest(data), {
+        onSuccess: () => {
+          toast.showToast('루틴이 생성되었습니다.');
+          router.dismissTo('/(tabs)/(afterLogin)/(routine)');
         },
-      );
+        onError: (error) => {
+          const message =
+            error instanceof Error ? error.message : '문제가 발생하였습니다.';
+
+          toast.showToast(message, 'error');
+        },
+      });
     },
-    [nickname, router, saveMutation, toast],
+    [router, saveMutation, toast],
   );
 
   const handleUpdate = useCallback(

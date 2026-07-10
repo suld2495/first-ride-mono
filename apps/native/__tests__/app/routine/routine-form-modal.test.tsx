@@ -137,6 +137,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       isMe: true, // 직접 체크 기본값
       startDate: '',
       endDate: '',
+      symbolColor: '#00D68F',
     };
     mockRoutineStore.routineId = 0;
     (global as any).mockCheckboxChecked = false;
@@ -332,13 +333,29 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('시작일 선택 시 캘린더가 바텀 시트로 열린다', async () => {
-      const { getByLabelText, getByText } = render(<RoutineFormModal />);
+      const { getByLabelText, getByTestId, getByText } = render(
+        <RoutineFormModal />,
+      );
 
       await act(async () => {
         fireEvent.press(getByText('시작일 선택'));
       });
 
       expect(getByLabelText('시작일 선택 바텀 시트')).toBeOnTheScreen();
+      expect(
+        getByTestId('date-picker-backdrop').props.entering.constructor
+          .presetName,
+      ).toBe('FadeIn');
+      expect(
+        getByTestId('date-picker-backdrop').props.exiting.constructor
+          .presetName,
+      ).toBe('FadeOut');
+      expect(
+        getByTestId('date-picker-sheet').props.entering.constructor.presetName,
+      ).toBe('SlideInDown');
+      expect(
+        getByTestId('date-picker-sheet').props.exiting.constructor.presetName,
+      ).toBe('SlideOutDown');
       expect(
         getByLabelText(`${getFormatDate(getStartOfToday())} 선택 가능`),
       ).toBeOnTheScreen();
@@ -483,6 +500,43 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   });
 
   describe('사용자 인풋 유효성 검사 테스트', () => {
+    it('10개 컬러 중 하나를 선택한다', async () => {
+      const { getAllByTestId, getByLabelText, getByTestId } = render(
+        <RoutineFormModal />,
+      );
+
+      expect(getAllByTestId(/^routine-color-option-/)).toHaveLength(10);
+      expect(getAllByTestId(/^routine-color-row-/)).toHaveLength(2);
+      expect(
+        RNStyleSheet.flatten(getByTestId('routine-color-row-0').props.style),
+      ).toMatchObject({
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+      });
+      expect(
+        RNStyleSheet.flatten(
+          getByTestId('routine-color-option-00D68F').props.style,
+        ),
+      ).toMatchObject({
+        width: 24,
+        height: 24,
+        borderRadius: 6,
+        borderWidth: 3,
+        borderColor: '#FFFFFF',
+      });
+      expect(
+        getByLabelText('컬러 초록 선택됨').props.accessibilityState,
+      ).toEqual({ selected: true });
+
+      await act(async () => {
+        fireEvent.press(getByLabelText('컬러 파랑 선택'));
+      });
+
+      expect(
+        getByLabelText('컬러 파랑 선택됨').props.accessibilityState,
+      ).toEqual({ selected: true });
+    });
+
     it('루틴 횟수는 1회부터 7회까지 Select 옵션으로 선택한다', async () => {
       const { getByText } = render(<RoutineFormModal />);
 
@@ -530,7 +584,9 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   describe('API 통합 테스트', () => {
     describe('루틴 생성 성공 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/routine').reply(200, { data: null });
+        mockAxios.onPost('/routine/me').reply(201, {
+          data: { message: '내 루틴이 성공적으로 등록되었습니다.' },
+        });
       });
 
       it('성공 알림이 표시되고 루틴 페이지로 이동한다', async () => {
@@ -564,7 +620,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         });
       });
 
-      it('벌금을 입력하지 않으면 0원으로 생성 요청을 보낸다', async () => {
+      it('직접 루틴 체크 시 내 루틴 API에 허용된 필드만 보낸다', async () => {
         const { getByLabelText, getByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
@@ -592,14 +648,74 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         await waitFor(() => {
           const payload = JSON.parse(mockAxios.history.post[0]?.data ?? '{}');
 
-          expect(payload.penalty).toBe(0);
+          expect(mockAxios.history.post[0]?.url).toBe('/routine/me');
+          expect(payload).toMatchObject({
+            routineName: '테스트 루틴',
+            routineDetail: '테스트 설명',
+            routineCount: 3,
+            symbolColor: '#00D68F',
+          });
+          expect(payload).not.toHaveProperty('nickname');
+          expect(payload).not.toHaveProperty('isMe');
+          expect(payload).not.toHaveProperty('penalty');
+          expect(payload).not.toHaveProperty('mateNickname');
+          expect(payload).not.toHaveProperty('endDate');
+        });
+      });
+
+      it('직접 루틴 체크 해제 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
+        mockAxios.onPost('/routine/mate').reply(201, {
+          data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
+        });
+        mockRoutineStore.routineForm = {
+          ...mockRoutineStore.routineForm,
+          isMe: false,
+          mateNickname: 'friend1',
+          penalty: '5000',
+        };
+        const { getByLabelText, getByPlaceholderText, getByText } = render(
+          <RoutineFormModal />,
+        );
+
+        await fillForm(getByPlaceholderText, getByText, {
+          routineName: '메이트 루틴',
+          routineDetail: '함께 달리기',
+          routineCount: 3,
+        });
+        await selectStartDate(getByText, getByLabelText);
+
+        await waitFor(() => {
+          expect(getByText('등록')).toBeEnabled();
+        });
+
+        await act(async () => {
+          fireEvent.press(getByText('등록'));
+        });
+
+        await waitFor(() => {
+          const request = mockAxios.history.post.find(
+            ({ url }) => url === '/routine/mate',
+          );
+          const payload = JSON.parse(request?.data ?? '{}');
+
+          expect(payload).toMatchObject({
+            routineName: '메이트 루틴',
+            routineDetail: '함께 달리기',
+            routineCount: 3,
+            symbolColor: '#00D68F',
+            penalty: 5000,
+            mateNickname: 'friend1',
+          });
+          expect(payload).not.toHaveProperty('nickname');
+          expect(payload).not.toHaveProperty('isMe');
+          expect(payload).not.toHaveProperty('endDate');
         });
       });
     });
 
     describe('서버 에러 발생 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/routine').reply(500, {
+        mockAxios.onPost('/routine/me').reply(500, {
           error: {
             message: '서버 오류가 발생했습니다.',
           },
@@ -643,7 +759,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
     describe('네트워크 에러 발생 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/routine').networkError();
+        mockAxios.onPost('/routine/me').networkError();
       });
 
       it('실패 알림이 표시된다', async () => {

@@ -1,6 +1,6 @@
 import type {
+  CreateRoutineRequest,
   Routine,
-  RoutineForm,
   UpdateRoutineForm,
   UpdateRoutineOrderRequest,
   UpdateRoutinePauseRequest,
@@ -75,7 +75,7 @@ export const useCreateRoutineMutation = (nickname: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: RoutineForm) => routineApi.createRoutine(data),
+    mutationFn: (data: CreateRoutineRequest) => routineApi.createRoutine(data),
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({

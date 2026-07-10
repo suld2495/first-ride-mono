@@ -5,7 +5,7 @@ import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, Text } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { RoutinePeriodWarningIcon } from '@/components/icons/routine-period-warning-icon';
@@ -21,6 +21,10 @@ import { Select } from '@/components/ui/select';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import {
+  DEFAULT_ROUTINE_COLOR,
+  ROUTINE_COLOR_OPTIONS,
+} from '@/constants/ROUTINE_COLORS';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -39,6 +43,11 @@ const ROUTINE_COUNT_OPTIONS = Array.from({ length: 7 }, (_, index) => {
     value: count,
   };
 });
+
+const ROUTINE_COLOR_ROWS = [
+  ROUTINE_COLOR_OPTIONS.slice(0, 5),
+  ROUTINE_COLOR_OPTIONS.slice(5),
+];
 
 const getDateFromFormValue = (date?: string) => {
   if (!date) {
@@ -82,17 +91,20 @@ const RoutineFormModal = () => {
     sourceRoutineForm.isMe ||
     (!!sourceRoutineForm.mateNickname &&
       sourceRoutineForm.mateNickname === user?.nickname);
-  const normalizedRoutineForm = useMemo<RoutineStatusForm>(
-    () =>
-      isDirectRoutine
-        ? {
-            ...sourceRoutineForm,
-            isMe: true,
-            mateNickname: '',
-          }
-        : sourceRoutineForm,
-    [isDirectRoutine, sourceRoutineForm],
-  );
+  const normalizedRoutineForm = useMemo<RoutineStatusForm>(() => {
+    const formWithColor = {
+      ...sourceRoutineForm,
+      symbolColor: sourceRoutineForm.symbolColor || DEFAULT_ROUTINE_COLOR,
+    };
+
+    return isDirectRoutine
+      ? {
+          ...formWithColor,
+          isMe: true,
+          mateNickname: '',
+        }
+      : formWithColor;
+  }, [isDirectRoutine, sourceRoutineForm]);
   const initialMateNickname = String(normalizedRoutineForm.mateNickname ?? '');
 
   const [mateKeyword, setMateKeyword] = useState(() =>
@@ -200,6 +212,45 @@ const RoutineFormModal = () => {
               placeholder="루틴 이름을 입력하세요."
               onChangeText={onChange}
             />
+          )}
+          required
+        />
+        <FormItem
+          name="symbolColor"
+          label="컬러"
+          item={({ value, setValue }) => (
+            <View style={styles.colorGrid}>
+              {ROUTINE_COLOR_ROWS.map((row, rowIndex) => (
+                <View
+                  key={row[0].value}
+                  testID={`routine-color-row-${rowIndex}`}
+                  style={styles.colorRow}
+                >
+                  {row.map((option) => {
+                    const isSelected = value === option.value;
+                    const swatchColor = option.value;
+
+                    return (
+                      <Pressable
+                        key={option.value}
+                        testID={`routine-color-option-${option.value.slice(1)}`}
+                        accessibilityRole="radio"
+                        accessibilityLabel={`컬러 ${option.label} ${
+                          isSelected ? '선택됨' : '선택'
+                        }`}
+                        accessibilityState={{ selected: isSelected }}
+                        style={[
+                          styles.colorOption,
+                          { backgroundColor: swatchColor },
+                          isSelected && styles.colorOptionSelected,
+                        ]}
+                        onPress={() => setValue('symbolColor', option.value)}
+                      />
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
           )}
           required
         />
@@ -467,6 +518,26 @@ const styles = StyleSheet.create((theme) => ({
 
   button: {
     flex: 1,
+  },
+
+  colorGrid: {
+    rowGap: theme.foundation.spacing[4],
+  },
+
+  colorRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  colorOption: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+  },
+
+  colorOptionSelected: {
+    borderWidth: 3,
+    borderColor: palette.white,
   },
 
   mateField: {

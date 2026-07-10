@@ -1,7 +1,7 @@
 import type {
+  CreateRoutineRequest,
   Routine,
   RoutineActionResponse,
-  RoutineForm,
   UpdateRoutineForm,
   UpdateRoutineOrderRequest,
   UpdateRoutinePauseRequest,
@@ -106,11 +106,15 @@ export const fetchRoutineDetail = async (id: number): Promise<Routine> => {
   }
 };
 
-export const createRoutine = async (form: RoutineForm): Promise<void> => {
+export const createRoutine = async ({
+  target,
+  payload,
+}: CreateRoutineRequest): Promise<void> => {
   try {
-    const response: void = await http.post('/routine', form);
-
-    return response;
+    await http.post<void, CreateRoutineRequest['payload']>(
+      `/routine/${target}`,
+      payload,
+    );
   } catch (error) {
     throw toAppError(error);
   }
