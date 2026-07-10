@@ -46,11 +46,7 @@ const INTERNAL_SERVER_ERROR_STATUS = 500;
 let unauthorizedCallback: (() => Promise<void>) | null = null;
 let tokenManager: TokenManager | null = null;
 let isRedirecting = false;
-let isRefreshing = false;
-let refreshSubscribers: Array<{
-  resolve: (token: string) => void;
-  reject: (error: unknown) => void;
-}> = [];
+let refreshPromise: Promise<string> | null = null;
 // 재시도한 요청의 ID를 추적
 const retriedRequestIds = new Set<string>();
 
@@ -119,23 +115,6 @@ export const createHttp = (config: HttpConfig): void => {
   }
 };
 
-const onRefreshed = (newAccessToken: string): void => {
-  refreshSubscribers.forEach(({ resolve }) => resolve(newAccessToken));
-  refreshSubscribers = [];
-};
-
-const onRefreshFailed = (error: unknown): void => {
-  refreshSubscribers.forEach(({ reject }) => reject(error));
-  refreshSubscribers = [];
-};
-
-const addRefreshSubscriber = (
-  resolve: (token: string) => void,
-  reject: (error: unknown) => void,
-): void => {
-  refreshSubscribers.push({ resolve, reject });
-};
-
 // 401 에러 발생 시 로그아웃 처리 헬퍼 함수
 const handleUnauthorized = async (): Promise<void> => {
   if (unauthorizedCallback && !isRedirecting) {
@@ -156,43 +135,59 @@ const shouldSkipTokenRefresh = (
   );
 };
 
-const retryWithRefreshedToken = async (
-  originalRequest: InternalAxiosRequestConfig,
-): Promise<unknown> => {
-  return new Promise((resolve, reject) => {
-    addRefreshSubscriber(
-      (newAccessToken: string) => {
-        setHeaderValue(
-          originalRequest,
-          AUTHORIZATION_HEADER,
-          `Bearer ${newAccessToken}`,
-        );
-        resolve(axiosInstance(originalRequest));
-      },
-      (refreshError: unknown) => {
-        reject(refreshError);
-      },
-    );
-  });
-};
-
-const handleMissingRefreshToken = async (
-  error: AxiosError,
+const refreshAccessToken = async (
   activeTokenManager: TokenManager,
-): Promise<never> => {
-  isRefreshing = false;
-  onRefreshFailed(error);
-  await activeTokenManager.clearTokens();
+): Promise<string> => {
+  const storedRefreshToken = await activeTokenManager.getRefreshToken();
 
-  if (unauthorizedCallback) {
-    await unauthorizedCallback();
+  if (!storedRefreshToken) {
+    throw new Error('Refresh token is missing.');
   }
 
-  throw error;
+  const { refreshToken: refreshTokenFn } = await import('./auth.api');
+  const response = await refreshTokenFn({
+    refreshToken: storedRefreshToken,
+  });
+
+  await activeTokenManager.saveTokens(
+    response.accessToken,
+    response.refreshToken,
+  );
+  activeTokenManager.updateUser(response.userInfo);
+
+  return response.accessToken;
+};
+
+const runRefresh = async (
+  activeTokenManager: TokenManager,
+): Promise<string> => {
+  try {
+    return await refreshAccessToken(activeTokenManager);
+  } catch (error) {
+    await activeTokenManager.clearTokens();
+    await handleUnauthorized();
+    throw error;
+  } finally {
+    refreshPromise = null;
+  }
+};
+
+const getRefreshPromise = (
+  activeTokenManager: TokenManager,
+): Promise<string> => {
+  refreshPromise ??= runRefresh(activeTokenManager);
+
+  return refreshPromise;
 };
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => {
+    const requestId = getHeaderValue(response.config, REQUEST_ID_HEADER);
+
+    if (requestId) {
+      retriedRequestIds.delete(requestId);
+    }
+
     return response;
   },
   async (error: AxiosError) => {
@@ -212,6 +207,29 @@ axiosInstance.interceptors.response.use(
     }
 
     const requestId = getHeaderValue(originalRequest, REQUEST_ID_HEADER);
+    const activeTokenManager = tokenManager;
+    const currentAccessToken = await activeTokenManager.getAccessToken();
+    const requestAuthorization = getHeaderValue(
+      originalRequest,
+      AUTHORIZATION_HEADER,
+    );
+
+    if (
+      currentAccessToken &&
+      requestAuthorization !== `Bearer ${currentAccessToken}`
+    ) {
+      if (requestId) {
+        retriedRequestIds.add(requestId);
+      }
+
+      setHeaderValue(
+        originalRequest,
+        AUTHORIZATION_HEADER,
+        `Bearer ${currentAccessToken}`,
+      );
+
+      return axiosInstance(originalRequest);
+    }
 
     if (requestId && retriedRequestIds.has(requestId)) {
       retriedRequestIds.delete(requestId);
@@ -219,54 +237,24 @@ axiosInstance.interceptors.response.use(
       throw error;
     }
 
-    if (isRefreshing) {
-      return retryWithRefreshedToken(originalRequest);
-    }
-
     if (requestId) {
       retriedRequestIds.add(requestId);
     }
 
-    isRefreshing = true;
-
     try {
-      const activeTokenManager = tokenManager;
-
-      const storedRefreshToken = await activeTokenManager.getRefreshToken();
-
-      if (!storedRefreshToken) {
-        return handleMissingRefreshToken(error, activeTokenManager);
-      }
-
-      const { refreshToken: refreshTokenFn } = await import('./auth.api');
-      const response = await refreshTokenFn({
-        refreshToken: storedRefreshToken,
-      });
-
-      await activeTokenManager.saveTokens(
-        response.accessToken,
-        response.refreshToken,
-      );
-      activeTokenManager.updateUser(response.userInfo);
-
-      isRefreshing = false;
-      onRefreshed(response.accessToken);
+      const newAccessToken = await getRefreshPromise(activeTokenManager);
 
       setHeaderValue(
         originalRequest,
         AUTHORIZATION_HEADER,
-        `Bearer ${response.accessToken}`,
+        `Bearer ${newAccessToken}`,
       );
 
       return axiosInstance(originalRequest);
     } catch (refreshError) {
-      isRefreshing = false;
-      onRefreshFailed(refreshError);
       if (requestId) {
         retriedRequestIds.delete(requestId);
       }
-      await tokenManager.clearTokens();
-      await handleUnauthorized();
       throw refreshError;
     }
   },
