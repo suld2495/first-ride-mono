@@ -17,10 +17,8 @@ import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation, palette } from '@/theme/tokens';
+import { normalizeRoutineDateKey } from '@/utils/routine-stats';
 
-const SHORT_DATE_LENGTH = 6;
-const FULL_COMPACT_DATE_LENGTH = 8;
-const YEAR_PREFIX = '20';
 const ROUTINE_STATS_CALENDAR_ESTIMATED_SIZE = 300;
 const ROUTINE_STATS_CALENDAR_SEPARATOR_HEIGHT = 28;
 const ROUTINE_STATS_CALENDAR_ITEM_INTERVAL =
@@ -37,30 +35,8 @@ const formatMonthLabel = (date: Date) => {
   return `${date.getMonth() + 1}월`;
 };
 
-const normalizeSuccessDate = (dateKey: string) => {
-  if (dateKey.includes('-')) {
-    return dateKey;
-  }
-
-  if (dateKey.length === SHORT_DATE_LENGTH) {
-    return `${YEAR_PREFIX}${dateKey.slice(0, 2)}-${dateKey.slice(
-      2,
-      4,
-    )}-${dateKey.slice(4, 6)}`;
-  }
-
-  if (dateKey.length === FULL_COMPACT_DATE_LENGTH) {
-    return `${dateKey.slice(0, 4)}-${dateKey.slice(4, 6)}-${dateKey.slice(
-      6,
-      8,
-    )}`;
-  }
-
-  return dateKey;
-};
-
 const getPerformedDates = (routine: Routine) => {
-  return routine.successDate.map(normalizeSuccessDate);
+  return routine.successDate.map(normalizeRoutineDateKey);
 };
 
 const getRoutineCalendarItemLayout = (_: Routine[] | null, index: number) => ({
@@ -185,7 +161,10 @@ export default function StatsPage() {
           showsVerticalScrollIndicator={false}
         >
           {renderMonthHeader()}
-          <RoutineStatsSummary />
+          <RoutineStatsSummary
+            monthDate={currentMonth}
+            routines={visibleRoutines}
+          />
         </ScrollView>
       ) : isLoading ? (
         <ThemeView transparent style={styles.content}>

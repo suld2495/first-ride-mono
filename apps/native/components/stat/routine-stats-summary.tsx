@@ -1,3 +1,4 @@
+import type { Routine } from '@repo/types';
 import React from 'react';
 import {
   Image,
@@ -11,22 +12,30 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { baseFoundation, palette } from '@/theme/tokens';
+import { calculateMonthlyRoutineStats } from '@/utils/routine-stats';
 
 type RoutineStatsSummaryItem = {
-  id: string;
+  id: Routine['routineId'];
   routineName: string;
   achievedLabel: string;
   totalDotCount: number;
   completedIndexes: readonly number[];
 };
 
+export interface RoutineStatsSummaryProps {
+  monthDate: Date;
+  routines: readonly Routine[];
+}
+
 type DotProps = {
   completed: boolean;
+  markerTestID?: string;
   testID?: string;
 };
 
 type ProgressMarkerProps = {
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 };
 
 type SummaryItemProps = {
@@ -58,23 +67,6 @@ const getRoutineTrackColors = (themeName: string) => {
   };
 };
 
-const SAMPLE_SUMMARY_ITEMS: readonly RoutineStatsSummaryItem[] = [
-  {
-    id: 'exercise',
-    routineName: '운동 주 3회',
-    achievedLabel: '3회 달성',
-    totalDotCount: 14,
-    completedIndexes: [0, 1, 2, 3, 4, 5, 8, 10, 11],
-  },
-  {
-    id: 'instrument',
-    routineName: '악기연습 주 5회',
-    achievedLabel: '5회 달성',
-    totalDotCount: 21,
-    completedIndexes: [0, 2, 4, 9, 10, 11, 13, 15, 18],
-  },
-] as const;
-
 const PROGRESS_MARKER_IMAGE =
   require('@/assets/stat/routine-progress-marker.png') as ImageSourcePropType;
 
@@ -89,15 +81,17 @@ const getDotRows = (totalDotCount: number) => {
   return rows;
 };
 
-const Dot = ({ completed, testID }: DotProps) => (
+const Dot = ({ completed, markerTestID, testID }: DotProps) => (
   <View
     style={[styles.dot, completed ? styles.dotCompleted : styles.dotEmpty]}
     testID={testID}
-  />
+  >
+    {markerTestID ? <ProgressMarker testID={markerTestID} /> : null}
+  </View>
 );
 
-const ProgressMarker = ({ style }: ProgressMarkerProps) => (
-  <View style={[styles.progressMarker, style]}>
+const ProgressMarker = ({ style, testID }: ProgressMarkerProps) => (
+  <View style={[styles.progressMarker, style]} testID={testID}>
     <Image
       source={PROGRESS_MARKER_IMAGE}
       style={styles.progressMarkerImage}
@@ -166,6 +160,11 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
                   <Dot
                     key={index}
                     completed={completedSet.has(index)}
+                    markerTestID={
+                      index === item.totalDotCount - 1
+                        ? `routine-stats-summary-track-marker-${item.id}`
+                        : undefined
+                    }
                     testID={`routine-stats-summary-dot-${item.id}-${index}`}
                   />
                 ))}
@@ -173,14 +172,18 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
             );
           })}
         </View>
-        <ProgressMarker style={styles.panelProgressMarker} />
       </ThemeView>
 
-      <ThemeView transparent style={styles.achievementPill}>
+      <ThemeView
+        transparent
+        style={styles.achievementPill}
+        testID={`routine-stats-summary-achievement-${item.id}`}
+      >
         <Typography
           variant="body1"
           weight="bold"
           color={palette.theme.gray[700]}
+          testID={`routine-stats-summary-achievement-label-${item.id}`}
         >
           {item.achievedLabel}
         </Typography>
@@ -192,18 +195,55 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
   );
 };
 
-const RoutineStatsSummary = () => {
+const RoutineStatsSummary = ({
+  monthDate,
+  routines,
+}: RoutineStatsSummaryProps) => {
+  const summaryItems = React.useMemo<RoutineStatsSummaryItem[]>(
+    () =>
+      routines.flatMap((routine) => {
+        const { totalAvailableCount, achievedCount } =
+          calculateMonthlyRoutineStats({
+            monthDate,
+            startDate: routine.startDate,
+            endDate: routine.endDate,
+            routineCount: routine.routineCount,
+            successDates: routine.successDate,
+          });
+
+        if (totalAvailableCount === 0) {
+          return [];
+        }
+
+        const completedDotCount = Math.min(achievedCount, totalAvailableCount);
+
+        return [
+          {
+            id: routine.routineId,
+            routineName: routine.routineName,
+            achievedLabel: `${achievedCount}회 달성`,
+            totalDotCount: totalAvailableCount,
+            completedIndexes: Array.from(
+              { length: completedDotCount },
+              (_, index) => index,
+            ),
+          },
+        ];
+      }),
+    [monthDate, routines],
+  );
+
   return (
     <ThemeView
       transparent
       style={styles.container}
       testID="routine-stats-summary"
     >
-      {SAMPLE_SUMMARY_ITEMS.map((item, index) => (
+      {summaryItems.map((item, index) => (
         <SummaryItem
           key={item.id}
           item={item}
-          isLast={index === SAMPLE_SUMMARY_ITEMS.length - 1}
+          isLast={index === summaryItems.length - 1}
         />
       ))}
     </ThemeView>
@@ -227,10 +267,9 @@ const styles = StyleSheet.create((theme) => {
     },
     progressPanel: {
       position: 'relative',
-      minHeight: baseFoundation.dimension.x120,
       paddingHorizontal: theme.foundation.spacing[3],
       paddingTop: theme.foundation.spacing[2],
-      paddingBottom: theme.foundation.spacing[1],
+      paddingBottom: 0,
     },
     track: {
       gap: theme.foundation.spacing[3],
@@ -277,6 +316,8 @@ const styles = StyleSheet.create((theme) => {
       borderRadius: baseFoundation.dimension.x18,
       borderWidth: TRACK_LINE_WIDTH,
       borderColor: trackColors.track,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     dotCompleted: {
       backgroundColor: trackColors.checked,
@@ -295,13 +336,8 @@ const styles = StyleSheet.create((theme) => {
       width: 26,
       height: 33,
     },
-    panelProgressMarker: {
-      position: 'absolute',
-      right: theme.foundation.spacing[2],
-      bottom: theme.foundation.spacing[3],
-    },
     achievementPill: {
-      minHeight: baseFoundation.dimension.x28,
+      height: baseFoundation.dimension.x36,
       borderRadius: baseFoundation.dimension.x8,
       backgroundColor: palette.white,
       paddingHorizontal: theme.foundation.spacing[3],

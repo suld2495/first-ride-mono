@@ -1,5 +1,5 @@
 import axiosInstance from '@repo/shared/api';
-import { fireEvent } from '@testing-library/react-native';
+import { fireEvent, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { processColor } from 'react-native';
 
@@ -150,16 +150,24 @@ describe('StatsPage', () => {
     expect(await findByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
   });
 
-  it('전환 버튼으로 임시 통계 요약 화면을 표시한다', async () => {
+  it('전환 버튼으로 실제 루틴의 월간 통계 요약 화면을 표시한다', async () => {
     mockAxios.onGet('/routine/list/all').reply(200, {
       data: [
-        {
-          ...createMockRoutine(0, {
-            successDate: ['260604', '260611', '260619'],
-          }),
-          routineName: '운동 주 3회',
-        },
-      ],
+        createMockRoutine(0, {
+          startDate: '2026-06-07',
+          routineCount: 2,
+          successDate: ['260607', '260615'],
+        }),
+        createMockRoutine(1, {
+          startDate: '2026-06-01',
+          endDate: '2026-06-09',
+          routineCount: 3,
+          successDate: ['260604'],
+        }),
+      ].map((routine, index) => ({
+        ...routine,
+        routineName: index === 0 ? '운동 주 2회' : '악기연습 주 3회',
+      })),
     });
     mockAxios.onGet('/routine/list').reply(200, { data: [] });
 
@@ -173,7 +181,7 @@ describe('StatsPage', () => {
       queryByText,
     } = render(<StatsPage />);
 
-    expect(await findByText('운동 주 3회')).toBeOnTheScreen();
+    expect(await findByText('운동 주 2회')).toBeOnTheScreen();
     expect(queryByTestId('routine-stats-summary')).toBeNull();
 
     fireEvent.press(getByLabelText('통계 보기'));
@@ -183,27 +191,25 @@ describe('StatsPage', () => {
     expect(
       getAllByTestId('routine-stats-summary-progress-marker'),
     ).toHaveLength(4);
-    expect(getByText('3회 달성')).toBeOnTheScreen();
-    expect(getByText('5회 달성')).toBeOnTheScreen();
+    expect(getByText('2회 달성')).toBeOnTheScreen();
+    expect(getByText('1회 달성')).toBeOnTheScreen();
     expect(queryByText('등록된 루틴이 없습니다.')).toBeNull();
     expect(
-      flattenStyles(
-        getByTestId('routine-stats-summary-track-exercise').props.style,
-      ),
+      flattenStyles(getByTestId('routine-stats-summary-track-1').props.style),
     ).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ borderWidth: expect.any(Number) }),
       ]),
     );
     expect(
-      getByTestId('routine-stats-summary-track-row-exercise-0'),
+      getByTestId('routine-stats-summary-track-row-1-0'),
     ).toBeOnTheScreen();
     expect(
-      getByTestId('routine-stats-summary-track-row-exercise-1'),
+      getByTestId('routine-stats-summary-track-row-1-1'),
     ).toBeOnTheScreen();
     expect(
       flattenStyles(
-        getByTestId('routine-stats-summary-row-line-exercise-0').props.style,
+        getByTestId('routine-stats-summary-row-line-1-0').props.style,
       ),
     ).toEqual(
       expect.arrayContaining([
@@ -215,8 +221,7 @@ describe('StatsPage', () => {
     );
     expect(
       flattenStyles(
-        getByTestId('routine-stats-summary-turn-connector-exercise-0').props
-          .style,
+        getByTestId('routine-stats-summary-turn-connector-1-0').props.style,
       ),
     ).toEqual(
       expect.arrayContaining([
@@ -230,9 +235,7 @@ describe('StatsPage', () => {
       ]),
     );
     expect(
-      flattenStyles(
-        getByTestId('routine-stats-summary-dot-exercise-6').props.style,
-      ),
+      flattenStyles(getByTestId('routine-stats-summary-dot-1-6').props.style),
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ backgroundColor: palette.theme.blue[10] }),
@@ -247,9 +250,7 @@ describe('StatsPage', () => {
       ]),
     );
     expect(
-      flattenStyles(
-        getByTestId('routine-stats-summary-dot-exercise-0').props.style,
-      ),
+      flattenStyles(getByTestId('routine-stats-summary-dot-1-0').props.style),
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -262,6 +263,68 @@ describe('StatsPage', () => {
         expect.objectContaining({ backgroundColor: palette.theme.blue[50] }),
       ]),
     );
+    expect(
+      within(getByTestId('routine-stats-summary-dot-1-8')).getByTestId(
+        'routine-stats-summary-track-marker-1',
+      ),
+    ).toBeOnTheScreen();
+    expect(
+      within(getByTestId('routine-stats-summary-dot-2-4')).getByTestId(
+        'routine-stats-summary-track-marker-2',
+      ),
+    ).toBeOnTheScreen();
+    expect(queryByTestId('routine-stats-summary-dot-1-9')).toBeNull();
+    expect(
+      flattenStyles(getByTestId('routine-stats-summary-item-1').props.style),
+    ).toEqual(expect.arrayContaining([expect.objectContaining({ gap: 12 })]));
+    expect(
+      flattenStyles(getByTestId('routine-stats-summary-track-1').props.style),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          paddingHorizontal: 12,
+          paddingTop: 8,
+          paddingBottom: 0,
+        }),
+      ]),
+    );
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-achievement-1').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ height: 36, paddingHorizontal: 12 }),
+      ]),
+    );
+    expect(
+      getByTestId('routine-stats-summary-achievement-label-1').props,
+    ).toEqual(
+      expect.objectContaining({
+        fontSize: '$body1',
+        fontWeight: '700',
+      }),
+    );
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-achievement-label-1').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ color: palette.theme.gray[700] }),
+        expect.objectContaining({ fontSize: 16 }),
+      ]),
+    );
+
+    fireEvent.press(getByLabelText('이전 달'));
+
+    expect(getByText('5월')).toBeOnTheScreen();
+    expect(queryByTestId('routine-stats-summary-item-1')).toBeNull();
+
+    fireEvent.press(getByLabelText('다음 달'));
+
+    expect(getByText('6월')).toBeOnTheScreen();
+    expect(getByTestId('routine-stats-summary-item-1')).toBeOnTheScreen();
 
     fireEvent.press(getByLabelText('캘린더 보기'));
 
