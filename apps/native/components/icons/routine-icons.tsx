@@ -130,6 +130,7 @@ export const RoutineCheckmarkIcon = ({
       height={scaledHeight}
       viewBox="0 0 12 9"
       fill="none"
+      color={color}
     >
       <Path
         d="M1.25 4.91667L3.69444 7.36111L9.80556 1.25"

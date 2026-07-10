@@ -214,9 +214,6 @@ const RoutineWeekList = ({
                           isMissedPastDay,
                           theme.colors.feedback.error.bg,
                         );
-                      const checkmarkColor = isPendingConfirmation
-                        ? theme.colors.brand.pendingConfirmationCheck
-                        : theme.colors.brand.selectedCheck;
                       const statusLabel = check
                         ? isTodaySuccess
                           ? '오늘 완료'
@@ -255,7 +252,7 @@ const RoutineWeekList = ({
                             ) : check || isPendingConfirmation ? (
                               <RoutineCheckmarkIcon
                                 size={baseFoundation.iconSize.s}
-                                color={checkmarkColor}
+                                color={palette.theme.gray[90]}
                               />
                             ) : null}
                           </View>
@@ -302,7 +299,6 @@ const RoutineWeekList = ({
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
-      theme.colors.brand.pendingConfirmationCheck,
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.selectedCheck,
       theme.colors.feedback.error.bg,

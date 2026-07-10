@@ -864,6 +864,10 @@ describe('루틴 조회 페이지', () => {
         // routineCount+1 ~ 7회(6회, 7회)는 목표 없음
         expect(await findByLabelText('6회 목표 없음')).toBeOnTheScreen();
         expect(await findByLabelText('7회 목표 없음')).toBeOnTheScreen();
+        expect(await findByTestId('routine-count-no-goal-icon-1-6')).toHaveProp(
+          'color',
+          palette.theme.gray[90],
+        );
       });
 
       it('오늘 완료한 회차를 successDate의 오늘 날짜로 구분한다', async () => {
@@ -911,6 +915,12 @@ describe('루틴 조회 페이지', () => {
           ]);
 
         expect(await findByLabelText('3회 요청 중')).toBeOnTheScreen();
+        expect(
+          within(completedCheck).getByTestId('routine-checkmark-icon'),
+        ).toHaveProp('color', palette.theme.gray[90]);
+        expect(
+          within(pendingCheck).getByTestId('routine-checkmark-icon'),
+        ).toHaveProp('color', palette.theme.gray[90]);
         expect(flattenStyles(completedCheck.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ backgroundColor: symbolColor }),
@@ -1262,6 +1272,12 @@ describe('루틴 조회 페이지', () => {
             `${['월', '화', '수', '목', '금', '토', '일'][todayIndex]}요일 요청 중`,
           ),
         ).toBeOnTheScreen();
+        expect(
+          within(completedCheck).getByTestId('routine-checkmark-icon'),
+        ).toHaveProp('color', palette.theme.gray[90]);
+        expect(
+          within(pendingCheck).getByTestId('routine-checkmark-icon'),
+        ).toHaveProp('color', palette.theme.gray[90]);
         expect(flattenStyles(completedCheck.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ backgroundColor: symbolColor }),

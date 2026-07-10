@@ -241,9 +241,6 @@ const RoutineCountList = ({
                       isMissedPastGoal,
                       theme.colors.feedback.error.bg,
                     );
-                  const checkmarkColor = isPendingConfirmation
-                    ? theme.colors.brand.pendingConfirmationCheck
-                    : theme.colors.brand.selectedCheck;
                   const label = getRoutineCountAccessibilityLabel({
                     countIndex,
                     isTodaySuccess,
@@ -282,13 +279,14 @@ const RoutineCountList = ({
                         ) : achieved || isPendingConfirmation ? (
                           <RoutineCheckmarkIcon
                             size={baseFoundation.iconSize.s}
-                            color={checkmarkColor}
+                            color={palette.theme.gray[90]}
                           />
                         ) : !isGoalRange ? (
                           <Ionicons
+                            testID={`routine-count-no-goal-icon-${routineId}-${countIndex}`}
                             name="remove"
                             size={baseFoundation.iconSize.s}
-                            color={theme.colors.brand.check}
+                            color={palette.theme.gray[90]}
                           />
                         ) : null}
                       </View>
@@ -308,10 +306,7 @@ const RoutineCountList = ({
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
-      theme.colors.brand.check,
-      theme.colors.brand.pendingConfirmationCheck,
       theme.colors.brand.pendingConfirmationCheckbox,
-      theme.colors.brand.selectedCheck,
       theme.colors.feedback.error.bg,
       theme.colors.text.secondary,
     ],
