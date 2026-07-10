@@ -378,12 +378,12 @@ const styles = StyleSheet.create((theme) => ({
   },
   title: {
     color: theme.colors.text.secondary,
-    textAlign: 'left',
+    textAlign: 'center',
   },
   titleRow: {
     position: 'relative',
     justifyContent: 'center',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     minHeight: baseFoundation.dimension.x18,
     marginBottom: baseFoundation.spacing[3],
   },

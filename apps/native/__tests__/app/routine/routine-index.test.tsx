@@ -247,14 +247,23 @@ describe('루틴 조회 페이지', () => {
         expect(await findByText('테스트 루틴 2')).toBeOnTheScreen();
       });
 
-      it('number 타입 루틴 제목을 왼쪽 정렬한다', async () => {
+      it('number 타입 루틴 제목을 우측 아이콘과 무관하게 중앙 정렬한다', async () => {
         const { findByText } = render(<Index />);
 
         const routineTitle = await findByText('테스트 루틴 1');
+        const titleRowStyles = findAncestorStyleWith(
+          routineTitle,
+          'alignItems',
+        );
 
         expect(flattenStyles(routineTitle.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ textAlign: 'left' }),
+            expect.objectContaining({ textAlign: 'center' }),
+          ]),
+        );
+        expect(titleRowStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ alignItems: 'center' }),
           ]),
         );
       });
@@ -1114,14 +1123,23 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('week 타입 루틴 제목을 왼쪽 정렬한다', async () => {
+      it('week 타입 루틴 제목을 우측 아이콘과 무관하게 중앙 정렬한다', async () => {
         const { findByText } = render(<Index />);
 
         const routineTitle = await findByText('테스트 루틴 1');
+        const titleRowStyles = findAncestorStyleWith(
+          routineTitle,
+          'alignItems',
+        );
 
         expect(flattenStyles(routineTitle.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ textAlign: 'left' }),
+            expect.objectContaining({ textAlign: 'center' }),
+          ]),
+        );
+        expect(titleRowStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ alignItems: 'center' }),
           ]),
         );
       });
