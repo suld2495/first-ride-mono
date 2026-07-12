@@ -19,6 +19,9 @@ export interface Routine {
   hasPendingConfirmation: boolean;
   pendingConfirmationCount: number;
   pendingConfirmationIds: number[];
+  hasPendingChangeRequest?: boolean;
+  pendingChangeRequestId?: number | null;
+  pendingChangeRequestStatus?: 'PENDING' | null;
 }
 
 export type RoutineForm = Omit<
@@ -31,6 +34,9 @@ export type RoutineForm = Omit<
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
+  | 'hasPendingChangeRequest'
+  | 'pendingChangeRequestId'
+  | 'pendingChangeRequestStatus'
 >;
 
 export type WeeklyRoutine = Pick<

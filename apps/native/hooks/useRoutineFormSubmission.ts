@@ -13,6 +13,7 @@ interface UseRoutineFormSubmissionParams {
   nickname: string;
   routineId: number;
   originalForm?: Pick<RoutineStatusSubmitForm, 'startDate' | 'endDate'>;
+  initialPendingChangeRequestId?: number | null;
 }
 
 type RoutineSubmitForm = Omit<RoutineForm, 'mateNickname'> & {
@@ -119,6 +120,7 @@ export const useRoutineFormSubmission = ({
   nickname,
   routineId,
   originalForm,
+  initialPendingChangeRequestId = null,
 }: UseRoutineFormSubmissionParams) => {
   const router = useRouter();
   const toast = useToast();
@@ -128,9 +130,11 @@ export const useRoutineFormSubmission = ({
     nickname,
     routineId,
   );
-  const [pendingChangeRequestId, setPendingChangeRequestId] = useState<
+  const [submittedChangeRequestId, setSubmittedChangeRequestId] = useState<
     number | null
   >(null);
+  const pendingChangeRequestId =
+    submittedChangeRequestId ?? initialPendingChangeRequestId;
 
   const handleCreate = useCallback(
     (data: RoutineStatusSubmitForm) => {
@@ -163,7 +167,7 @@ export const useRoutineFormSubmission = ({
         {
           onSuccess: (response) => {
             if (response.mode === 'APPROVAL_REQUESTED') {
-              setPendingChangeRequestId(response.changeRequestId);
+              setSubmittedChangeRequestId(response.changeRequestId);
               toast.showToast('루틴 수정 요청을 보냈습니다.');
               return;
             }
@@ -192,7 +196,7 @@ export const useRoutineFormSubmission = ({
 
     cancelChangeRequestMutation.mutate(pendingChangeRequestId, {
       onSuccess: () => {
-        setPendingChangeRequestId(null);
+        setSubmittedChangeRequestId(null);
         toast.showToast('루틴 수정 요청이 취소되었습니다.');
       },
       onError: (error) => {

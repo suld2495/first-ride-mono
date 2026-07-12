@@ -1003,6 +1003,23 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         queryByPlaceholderText('메이트를 지정해주세요.'),
       ).not.toBeOnTheScreen();
     });
+
+    it('승인 대기 수정 요청이 있으면 수정 요청 버튼을 복원한다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        isMe: false,
+        mateNickname: '메이트닉네임',
+        hasPendingChangeRequest: true,
+        pendingChangeRequestId: 100,
+        pendingChangeRequestStatus: 'PENDING',
+      });
+
+      const { findByText } = render(<RoutineFormModal />);
+
+      expect(await findByText('수정 요청 보냄')).toBeOnTheScreen();
+      expect(mockAxios.history.put).toHaveLength(0);
+    });
   });
 
   describe('필수값 유효성 검사 테스트', () => {

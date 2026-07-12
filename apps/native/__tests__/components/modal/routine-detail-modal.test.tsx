@@ -141,6 +141,103 @@ describe('RoutineDetailModal (루틴 상세 모달)', () => {
       expect(mockPush).toHaveBeenCalledWith('/modal?type=routine-update');
       expect(mockRoutineStore.setRoutineForm).toHaveBeenCalled();
     });
+
+    it('승인 대기 요청이 있으면 확인 후 수정 요청을 취소한다', async () => {
+      const pendingRoutine = {
+        ...createMockRoutine(0),
+        hasPendingChangeRequest: true,
+        pendingChangeRequestId: 100,
+        pendingChangeRequestStatus: 'PENDING',
+      };
+      const appliedRoutine = {
+        ...pendingRoutine,
+        hasPendingChangeRequest: false,
+        pendingChangeRequestId: null,
+        pendingChangeRequestStatus: null,
+      };
+
+      mockAxios.resetHandlers();
+      mockAxios
+        .onGet(/\/routine\/details/)
+        .replyOnce(200, { data: pendingRoutine })
+        .onGet(/\/routine\/details/)
+        .reply(200, { data: appliedRoutine });
+      mockAxios
+        .onDelete('/routine/change-requests/100')
+        .reply(200, { data: { message: '루틴 변경 요청이 취소되었습니다.' } });
+
+      const { findByText, getByText } = render(<RoutineDetailModal />);
+
+      expect(await findByText('수정 요청 보냄')).toBeOnTheScreen();
+
+      await act(async () => {
+        fireEvent.press(getByText('수정 요청 보냄'));
+      });
+
+      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockAlert).toHaveBeenCalledWith(
+        '수정 요청 취소',
+        '수정 요청을 취소하시겠습니까?',
+        expect.any(Array),
+      );
+      expect(mockAxios.history.delete).toHaveLength(0);
+
+      const confirmButton = mockAlert.mock.calls[0][2]?.find(
+        (button: AlertButton) => button.text === '취소하기',
+      );
+
+      await act(async () => {
+        await confirmButton?.onPress?.();
+      });
+
+      await waitFor(() => {
+        expect(mockAxios.history.delete[0]?.url).toBe(
+          '/routine/change-requests/100',
+        );
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '루틴 수정 요청이 취소되었습니다.',
+        );
+        expect(getByText('수정')).toBeOnTheScreen();
+      });
+    });
+
+    it('수정 요청 취소에 실패하면 대기 상태를 유지한다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: {
+          ...createMockRoutine(0),
+          hasPendingChangeRequest: true,
+          pendingChangeRequestId: 100,
+          pendingChangeRequestStatus: 'PENDING',
+        },
+      });
+      mockAxios.onDelete('/routine/change-requests/100').reply(500, {
+        error: { message: '수정 요청을 취소하지 못했습니다.' },
+      });
+
+      const { findByText, getByText } = render(<RoutineDetailModal />);
+
+      await findByText('수정 요청 보냄');
+      await act(async () => {
+        fireEvent.press(getByText('수정 요청 보냄'));
+      });
+
+      const confirmButton = mockAlert.mock.calls[0][2]?.find(
+        (button: AlertButton) => button.text === '취소하기',
+      );
+
+      await act(async () => {
+        await confirmButton?.onPress?.();
+      });
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '수정 요청을 취소하지 못했습니다.',
+          'error',
+        );
+        expect(getByText('수정 요청 보냄')).toBeOnTheScreen();
+      });
+    });
   });
 
   describe('삭제 버튼 테스트', () => {

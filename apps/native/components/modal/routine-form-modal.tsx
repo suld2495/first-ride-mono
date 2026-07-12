@@ -114,6 +114,12 @@ const RoutineFormModal = () => {
     setMateKeyword(normalizedRoutineForm.isMe ? '' : initialMateNickname);
   }, [initialMateNickname, normalizedRoutineForm.isMe]);
   const today = useMemo(() => getStartOfToday(), []);
+  const initialPendingChangeRequestId =
+    routineDetail?.hasPendingChangeRequest &&
+    routineDetail.pendingChangeRequestStatus === 'PENDING' &&
+    typeof routineDetail.pendingChangeRequestId === 'number'
+      ? routineDetail.pendingChangeRequestId
+      : null;
 
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
   const {
@@ -126,6 +132,7 @@ const RoutineFormModal = () => {
     nickname: user!.nickname,
     routineId,
     originalForm: isRoutineAdd ? undefined : sourceRoutineForm,
+    initialPendingChangeRequestId,
   });
 
   // Debounce keyword for friend search

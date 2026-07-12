@@ -1,5 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
+import {
+  useCancelRoutineChangeRequestMutation,
+  useRoutineDetailQuery,
+} from '@repo/shared/hooks/useRoutine';
 import { useRouter } from 'expo-router';
 import { Alert, ScrollView } from 'react-native';
 
@@ -9,6 +12,7 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
+import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useRoutineDelete } from '@/hooks/useRoutineDelete';
 import { useRoutineManagement } from '@/hooks/useRoutineManagement';
@@ -22,6 +26,11 @@ const RoutineDetailModal = () => {
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
 
   const user = useAuthUser();
+  const { showToast } = useToast();
+  const cancelChangeRequest = useCancelRoutineChangeRequestMutation(
+    user?.nickname || '',
+    routineId,
+  );
   const { deleteRoutineById } = useRoutineDelete(
     routineId,
     user?.nickname || '',
@@ -56,6 +65,52 @@ const RoutineDetailModal = () => {
     if (detail) {
       setRoutineForm(detail);
     }
+  };
+
+  const pendingChangeRequestId =
+    detail?.hasPendingChangeRequest &&
+    detail.pendingChangeRequestStatus === 'PENDING' &&
+    typeof detail.pendingChangeRequestId === 'number'
+      ? detail.pendingChangeRequestId
+      : null;
+
+  const handleCancelChangeRequest = () => {
+    if (pendingChangeRequestId === null) {
+      return;
+    }
+
+    cancelChangeRequest.mutate(pendingChangeRequestId, {
+      onSuccess: () => {
+        showToast('루틴 수정 요청이 취소되었습니다.');
+      },
+      onError: (error) => {
+        const message =
+          error instanceof Error
+            ? error.message
+            : '루틴 수정 요청 취소에 실패했습니다.';
+
+        showToast(message, 'error');
+      },
+    });
+  };
+
+  const handlePressUpdate = () => {
+    if (pendingChangeRequestId === null) {
+      handleMoveUpdate();
+      return;
+    }
+
+    Alert.alert('수정 요청 취소', '수정 요청을 취소하시겠습니까?', [
+      {
+        text: '아니요',
+        style: 'cancel',
+      },
+      {
+        text: '취소하기',
+        style: 'destructive',
+        onPress: handleCancelChangeRequest,
+      },
+    ]);
   };
 
   const handleTogglePause = () => {
@@ -164,10 +219,11 @@ const RoutineDetailModal = () => {
 
         <ThemeView style={styles.buttonContainer} transparent>
           <Button
-            title="수정"
+            title={pendingChangeRequestId === null ? '수정' : '수정 요청 보냄'}
             variant="secondary"
             style={styles.button}
-            onPress={handleMoveUpdate}
+            loading={cancelChangeRequest.isPending}
+            onPress={handlePressUpdate}
           />
           <Button
             title="삭제"

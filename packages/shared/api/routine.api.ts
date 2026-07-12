@@ -18,11 +18,17 @@ type RoutineResponse = Omit<
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
+  | 'hasPendingChangeRequest'
+  | 'pendingChangeRequestId'
+  | 'pendingChangeRequestStatus'
 > & {
   successDate?: Routine['successDate'] | null;
   hasPendingConfirmation?: Routine['hasPendingConfirmation'] | null;
   pendingConfirmationCount?: Routine['pendingConfirmationCount'] | null;
   pendingConfirmationIds?: Routine['pendingConfirmationIds'] | null;
+  hasPendingChangeRequest?: Routine['hasPendingChangeRequest'] | null;
+  pendingChangeRequestId?: Routine['pendingChangeRequestId'];
+  pendingChangeRequestStatus?: Routine['pendingChangeRequestStatus'];
 };
 
 const normalizeRoutine = (routine: RoutineResponse): Routine => ({
@@ -33,6 +39,9 @@ const normalizeRoutine = (routine: RoutineResponse): Routine => ({
   pendingConfirmationIds: Array.isArray(routine.pendingConfirmationIds)
     ? routine.pendingConfirmationIds
     : [],
+  hasPendingChangeRequest: Boolean(routine.hasPendingChangeRequest),
+  pendingChangeRequestId: routine.pendingChangeRequestId ?? null,
+  pendingChangeRequestStatus: routine.pendingChangeRequestStatus ?? null,
 });
 
 export const fetchRoutines = async (date: string): Promise<Routine[]> => {

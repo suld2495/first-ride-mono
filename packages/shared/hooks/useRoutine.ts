@@ -91,10 +91,15 @@ export const useUpdateRoutineMutation = (nickname: string) => {
   return useMutation({
     mutationFn: (data: UpdateRoutineForm) => routineApi.updateRoutine(data),
 
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: routineKey.list(nickname),
-      });
+    onSuccess: async (_response, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: routineKey.list(nickname),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: routineKey.detail(variables.routineId),
+        }),
+      ]);
     },
   });
 };
