@@ -5,6 +5,7 @@ import type {
   UpdateRoutineForm,
   UpdateRoutineOrderRequest,
   UpdateRoutinePauseRequest,
+  UpdateRoutineResponse,
   UpdateRoutineVisibilityRequest,
 } from '@repo/types';
 
@@ -123,11 +124,26 @@ export const createRoutine = async ({
 export const updateRoutine = async ({
   routineId,
   ...form
-}: UpdateRoutineForm): Promise<void> => {
+}: UpdateRoutineForm): Promise<UpdateRoutineResponse> => {
   try {
-    const response: void = await http.put(`/routine/${routineId}`, form);
+    const response = await http.put<UpdateRoutineResponse, typeof form>(
+      `/routine/${routineId}`,
+      form,
+    );
 
     return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const cancelRoutineChangeRequest = async (
+  changeRequestId: number,
+): Promise<void> => {
+  try {
+    await http.delete<void, void>(
+      `/routine/change-requests/${changeRequestId}`,
+    );
   } catch (error) {
     throw toAppError(error);
   }

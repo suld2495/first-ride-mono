@@ -116,7 +116,13 @@ const RoutineFormModal = () => {
   const today = useMemo(() => getStartOfToday(), []);
 
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
-  const { handleCreate, handleUpdate } = useRoutineFormSubmission({
+  const {
+    handleCreate,
+    handleUpdate,
+    handleCancelChangeRequest,
+    pendingChangeRequestId,
+    isPending,
+  } = useRoutineFormSubmission({
     nickname: user!.nickname,
     routineId,
     originalForm: isRoutineAdd ? undefined : sourceRoutineForm,
@@ -167,6 +173,20 @@ const RoutineFormModal = () => {
       {
         text: '삭제',
         onPress: deleteRoutineById,
+      },
+    ]);
+  };
+
+  const handleConfirmCancelChangeRequest = () => {
+    Alert.alert('수정 요청 취소', '수정 요청을 취소하시겠습니까?', [
+      {
+        text: '아니요',
+        style: 'cancel',
+      },
+      {
+        text: '취소하기',
+        style: 'destructive',
+        onPress: handleCancelChangeRequest,
       },
     ]);
   };
@@ -492,7 +512,13 @@ const RoutineFormModal = () => {
           </ThemeView>
         )}
       </KeyboardAwareScrollView>
-      <FormButtonGroup type={type} useForm={useForm} />
+      <FormButtonGroup
+        type={type}
+        useForm={useForm}
+        hasPendingChangeRequest={pendingChangeRequestId !== null}
+        isPending={isPending}
+        onCancelChangeRequest={handleConfirmCancelChangeRequest}
+      />
     </Form>
   );
 };

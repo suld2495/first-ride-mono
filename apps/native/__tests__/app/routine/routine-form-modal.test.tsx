@@ -3,6 +3,7 @@ import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
+import type { AlertButton } from 'react-native';
 
 import ModalScreen from '../../../app/modal';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
@@ -79,6 +80,20 @@ const DEFAULT_UPDATE_ROUTINE_DETAIL = {
   successDate: [],
   paused: false,
   hidden: false,
+};
+const APPLIED_UPDATE_RESPONSE = {
+  mode: 'APPLIED',
+  message: '루틴이 수정되었습니다.',
+  changeRequestId: null,
+  changeRequest: null,
+};
+const APPROVAL_REQUESTED_UPDATE_RESPONSE = {
+  mode: 'APPROVAL_REQUESTED',
+  message: '메이트 승인 요청이 생성되었습니다.',
+  changeRequestId: 100,
+  changeRequest: {
+    id: 100,
+  },
 };
 
 const mockRoutineDetail = (overrides: Record<string, unknown> = {}) => {
@@ -1166,7 +1181,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
   describe('API 통합 테스트', () => {
     describe('루틴 수정 성공 시', () => {
       beforeEach(() => {
-        mockAxios.onPut('/routine/1').reply(200, { data: null });
+        mockAxios.onPut('/routine/1').reply(200, {
+          data: APPLIED_UPDATE_RESPONSE,
+        });
       });
 
       it('성공 알림이 표시되고 루틴 페이지로 이동한다', async () => {
@@ -1202,6 +1219,67 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
       });
 
+      it('승인 요청이 생성되면 확인 후 수정 요청을 취소한다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+        mockRoutineDetail({
+          isMe: false,
+          mateNickname: '메이트닉네임',
+        });
+        mockAxios.onPut('/routine/1').reply(200, {
+          data: APPROVAL_REQUESTED_UPDATE_RESPONSE,
+        });
+        mockAxios
+          .onDelete('/routine/change-requests/100')
+          .reply(200, { data: null });
+
+        const { findByText, getByText } = render(<RoutineFormModal />);
+
+        const editButton = await findByText('수정');
+
+        await act(async () => {
+          fireEvent.press(editButton);
+        });
+
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '루틴 수정 요청을 보냈습니다.',
+          );
+          expect(getByText('수정 요청 보냄')).toBeOnTheScreen();
+        });
+
+        expect(mockDismissTo).not.toHaveBeenCalled();
+
+        await act(async () => {
+          fireEvent.press(getByText('수정 요청 보냄'));
+        });
+
+        expect(mockAlert).toHaveBeenCalledWith(
+          '수정 요청 취소',
+          '수정 요청을 취소하시겠습니까?',
+          expect.any(Array),
+        );
+        expect(mockAxios.history.delete).toHaveLength(0);
+
+        const confirmButton = mockAlert.mock.calls[0][2]?.find(
+          (button: AlertButton) => button.text === '취소하기',
+        );
+
+        await act(async () => {
+          await confirmButton?.onPress?.();
+        });
+
+        await waitFor(() => {
+          expect(mockAxios.history.delete[0]?.url).toBe(
+            '/routine/change-requests/100',
+          );
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '루틴 수정 요청이 취소되었습니다.',
+          );
+          expect(getByText('수정')).toBeOnTheScreen();
+        });
+      });
+
       it('직접 루틴 수정 시 메이트 닉네임을 전송하지 않는다', async () => {
         mockAxios.resetHandlers();
         mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
@@ -1209,7 +1287,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           isMe: true,
           mateNickname: '',
         });
-        mockAxios.onPut('/routine/1').reply(200, { data: null });
+        mockAxios.onPut('/routine/1').reply(200, {
+          data: APPLIED_UPDATE_RESPONSE,
+        });
 
         const { findByText } = render(<RoutineFormModal />);
 
@@ -1238,7 +1318,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           startDate: '2026-07-01',
           endDate: '2026-07-31',
         });
-        mockAxios.onPut('/routine/1').reply(200, { data: null });
+        mockAxios.onPut('/routine/1').reply(200, {
+          data: APPLIED_UPDATE_RESPONSE,
+        });
 
         const { findByText } = render(<RoutineFormModal />);
 
@@ -1264,7 +1346,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           paused: false,
           hidden: false,
         });
-        mockAxios.onPut('/routine/1').reply(200, { data: null });
+        mockAxios.onPut('/routine/1').reply(200, {
+          data: APPLIED_UPDATE_RESPONSE,
+        });
         const { findAllByTestId, findByText } = render(<RoutineFormModal />);
 
         const [, pausedCheckbox, hiddenCheckbox] =

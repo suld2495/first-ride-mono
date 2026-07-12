@@ -1,10 +1,11 @@
 import {
+  useCancelRoutineChangeRequestMutation,
   useCreateRoutineMutation,
   useUpdateRoutineMutation,
 } from '@repo/shared/hooks/useRoutine';
 import type { CreateRoutineRequest, RoutineForm } from '@repo/types';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useToast } from '@/contexts/ToastContext';
 
@@ -123,6 +124,13 @@ export const useRoutineFormSubmission = ({
   const toast = useToast();
   const saveMutation = useCreateRoutineMutation(nickname);
   const updateMutation = useUpdateRoutineMutation(nickname);
+  const cancelChangeRequestMutation = useCancelRoutineChangeRequestMutation(
+    nickname,
+    routineId,
+  );
+  const [pendingChangeRequestId, setPendingChangeRequestId] = useState<
+    number | null
+  >(null);
 
   const handleCreate = useCallback(
     (data: RoutineStatusSubmitForm) => {
@@ -153,7 +161,13 @@ export const useRoutineFormSubmission = ({
           routineId,
         },
         {
-          onSuccess: () => {
+          onSuccess: (response) => {
+            if (response.mode === 'APPROVAL_REQUESTED') {
+              setPendingChangeRequestId(response.changeRequestId);
+              toast.showToast('루틴 수정 요청을 보냈습니다.');
+              return;
+            }
+
             toast.showToast('루틴이 수정되었습니다.');
             router.dismissTo('/(tabs)/(afterLogin)/(routine)');
           },
@@ -171,9 +185,35 @@ export const useRoutineFormSubmission = ({
     [nickname, originalForm, routineId, router, toast, updateMutation],
   );
 
+  const handleCancelChangeRequest = useCallback(() => {
+    if (pendingChangeRequestId === null) {
+      return;
+    }
+
+    cancelChangeRequestMutation.mutate(pendingChangeRequestId, {
+      onSuccess: () => {
+        setPendingChangeRequestId(null);
+        toast.showToast('루틴 수정 요청이 취소되었습니다.');
+      },
+      onError: (error) => {
+        const message =
+          error instanceof Error
+            ? error.message
+            : '루틴 수정 요청 취소에 실패했습니다.';
+
+        toast.showToast(message, 'error');
+      },
+    });
+  }, [cancelChangeRequestMutation, pendingChangeRequestId, toast]);
+
   return {
     handleCreate,
     handleUpdate,
-    isPending: saveMutation.isPending || updateMutation.isPending,
+    handleCancelChangeRequest,
+    pendingChangeRequestId,
+    isPending:
+      saveMutation.isPending ||
+      updateMutation.isPending ||
+      cancelChangeRequestMutation.isPending,
   };
 };

@@ -99,6 +99,29 @@ export const useUpdateRoutineMutation = (nickname: string) => {
   });
 };
 
+export const useCancelRoutineChangeRequestMutation = (
+  nickname: string,
+  routineId: number,
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (changeRequestId: number) =>
+      routineApi.cancelRoutineChangeRequest(changeRequestId),
+
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: routineKey.list(nickname),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: routineKey.detail(routineId),
+        }),
+      ]);
+    },
+  });
+};
+
 export const useRoutineDetailQuery = (routineId: number) => {
   return useQuery({
     queryKey: routineKey.detail(routineId),

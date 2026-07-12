@@ -30,6 +30,26 @@ export type UpdateRoutineForm = Partial<RoutineForm> & {
   paused?: Routine['paused'];
 };
 
+type AppliedRoutineUpdateResponse = {
+  mode: 'APPLIED';
+  message: string;
+  changeRequestId: null;
+  changeRequest: null;
+};
+
+type ApprovalRequestedRoutineUpdateResponse = {
+  mode: 'APPROVAL_REQUESTED';
+  message: string;
+  changeRequestId: number;
+  changeRequest: {
+    id: number;
+  };
+};
+
+export type UpdateRoutineResponse =
+  | AppliedRoutineUpdateResponse
+  | ApprovalRequestedRoutineUpdateResponse;
+
 export type UpdateRoutinePauseRequest = {
   routineId: Routine['routineId'];
   paused: Routine['paused'];

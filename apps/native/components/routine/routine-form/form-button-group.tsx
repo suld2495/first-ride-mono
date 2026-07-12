@@ -13,9 +13,18 @@ import type { ModalType } from '@/types/modal';
 interface FormButtonGroupProps {
   type: ModalType;
   useForm: () => FormContextType<RoutineForm>;
+  hasPendingChangeRequest: boolean;
+  isPending: boolean;
+  onCancelChangeRequest: () => void;
 }
 
-const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
+const FormButtonGroup = ({
+  type,
+  useForm,
+  hasPendingChangeRequest,
+  isPending,
+  onCancelChangeRequest,
+}: FormButtonGroupProps) => {
   const { theme } = useAppTheme();
   const { enabled: isValid, handleSubmit, validateAll } = useForm();
   const insets = useSafeAreaInsets();
@@ -50,17 +59,31 @@ const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
           />
         ) : (
           <Button
-            title="수정"
+            title={hasPendingChangeRequest ? '수정 요청 보냄' : '수정'}
             variant="primary"
             backgroundColor={theme.colors.text.gray}
-            onPress={() => handleSubmit()}
+            onPress={
+              hasPendingChangeRequest
+                ? onCancelChangeRequest
+                : () => handleSubmit()
+            }
             style={styles.button}
-            disabled={!isValid}
+            disabled={!hasPendingChangeRequest && !isValid}
+            loading={isPending}
           />
         )}
       </ThemeView>
     ),
-    [handleSubmit, insets.bottom, isValid, theme.colors.text.gray, type],
+    [
+      handleSubmit,
+      hasPendingChangeRequest,
+      insets.bottom,
+      isPending,
+      isValid,
+      onCancelChangeRequest,
+      theme.colors.text.gray,
+      type,
+    ],
   );
 
   return <ModalFooter>{footer}</ModalFooter>;
