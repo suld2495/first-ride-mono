@@ -954,6 +954,40 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       expect(cancelButton).toBeOnTheScreen();
     });
+
+    it('메이트가 지정된 루틴은 메이트 이름만 표시한다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        isMe: false,
+        mateNickname: '메이트닉네임',
+      });
+
+      const { findByText, queryByPlaceholderText, queryByText } = render(
+        <RoutineFormModal />,
+      );
+
+      expect(await findByText('메이트')).toBeOnTheScreen();
+      expect(await findByText('메이트닉네임')).toBeOnTheScreen();
+      expect(queryByText('직접 루틴 체크')).not.toBeOnTheScreen();
+      expect(
+        queryByPlaceholderText('메이트를 지정해주세요.'),
+      ).not.toBeOnTheScreen();
+    });
+
+    it('메이트가 지정되지 않은 루틴은 메이트 항목을 표시하지 않는다', async () => {
+      const { findByPlaceholderText, queryByPlaceholderText, queryByText } =
+        render(<RoutineFormModal />);
+
+      expect(
+        await findByPlaceholderText('루틴 이름을 입력하세요.'),
+      ).toBeOnTheScreen();
+      expect(queryByText('메이트')).not.toBeOnTheScreen();
+      expect(queryByText('직접 루틴 체크')).not.toBeOnTheScreen();
+      expect(
+        queryByPlaceholderText('메이트를 지정해주세요.'),
+      ).not.toBeOnTheScreen();
+    });
   });
 
   describe('필수값 유효성 검사 테스트', () => {
