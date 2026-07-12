@@ -6,8 +6,8 @@ const SHORT_YEAR_PREFIX = '20';
 
 export interface MonthlyRoutineStatsInput {
   monthDate: Date;
-  startDate: string;
-  endDate?: string;
+  startDate: string | null;
+  endDate?: string | null;
   routineCount: number;
   successDates: readonly string[];
 }
@@ -97,7 +97,7 @@ export const calculateMonthlyRoutineStats = ({
     monthDate.getMonth() + 1,
     0,
   );
-  const parsedStartDate = parseDateOnly(startDate);
+  const parsedStartDate = startDate ? parseDateOnly(startDate) : null;
   const parsedEndDate = endDate ? parseDateOnly(endDate) : monthEnd;
   const weeklyTarget = Math.max(0, Math.floor(routineCount));
 

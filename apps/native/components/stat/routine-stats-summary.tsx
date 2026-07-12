@@ -1,4 +1,4 @@
-import type { Routine } from '@repo/types';
+import type { RoutineMonthlySummary } from '@repo/types';
 import React from 'react';
 import {
   Image,
@@ -15,7 +15,7 @@ import { baseFoundation, palette } from '@/theme/tokens';
 import { calculateMonthlyRoutineStats } from '@/utils/routine-stats';
 
 type RoutineStatsSummaryItem = {
-  id: Routine['routineId'];
+  id: RoutineMonthlySummary['routineId'];
   routineName: string;
   achievedLabel: string;
   totalDotCount: number;
@@ -24,7 +24,7 @@ type RoutineStatsSummaryItem = {
 
 export interface RoutineStatsSummaryProps {
   monthDate: Date;
-  routines: readonly Routine[];
+  routines: readonly RoutineMonthlySummary[];
 }
 
 type DotProps = {
@@ -208,7 +208,7 @@ const RoutineStatsSummary = ({
             startDate: routine.startDate,
             endDate: routine.endDate,
             routineCount: routine.routineCount,
-            successDates: routine.successDate,
+            successDates: routine.achievedDates,
           });
 
         if (totalAvailableCount === 0) {

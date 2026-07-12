@@ -1,5 +1,5 @@
 import axiosInstance from '@repo/shared/api';
-import { fireEvent, within } from '@testing-library/react-native';
+import { fireEvent, waitFor, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { processColor } from 'react-native';
 
@@ -35,24 +35,77 @@ describe('StatsPage', () => {
     dateNowSpy.mockRestore();
   });
 
-  it('실제 루틴 목록 응답으로 통계 캘린더를 렌더링한다', async () => {
-    mockAxios.onGet('/routine/list/all').reply(200, {
-      data: [
-        {
-          ...createMockRoutine(0, {
-            successDate: ['260604', '260611', '260619'],
-          }),
-          routineName: '운동 주 3회',
+  it('선택한 월의 루틴 통계를 월별 API로 조회한다', async () => {
+    mockAxios
+      .onGet('/routine/list/monthly', {
+        params: { year: 2026, month: 6 },
+      })
+      .reply(200, {
+        data: {
+          year: 2026,
+          month: 6,
+          startDate: '2026-06-01',
+          endDate: '2026-06-30',
+          activeOnly: false,
+          routines: [
+            {
+              ...createMockRoutine(0),
+              category: '운동',
+              symbolColor: '#22CC88',
+              displayOrder: 1,
+              completed: false,
+              status: 'ACTIVE',
+              achievedDates: ['2026-06-04'],
+              monthlyAchievedCount: 1,
+            },
+          ],
         },
-        {
-          ...createMockRoutine(1, {
-            successDate: ['260604', '260622'],
-          }),
-          routineName: '악기연습 주 5회',
-        },
-      ],
+      });
+
+    const { findByLabelText } = render(<StatsPage />);
+
+    expect(await findByLabelText('2026-06-04 수행 완료')).toBeOnTheScreen();
+    await waitFor(() => {
+      expect(mockAxios.history.get).toHaveLength(1);
     });
-    mockAxios.onGet('/routine/list').reply(200, { data: [] });
+    expect(mockAxios.history.get[0]?.params).toEqual({
+      year: 2026,
+      month: 6,
+    });
+  });
+
+  it('실제 루틴 목록 응답으로 통계 캘린더를 렌더링한다', async () => {
+    mockAxios.onGet('/routine/list/monthly').reply(200, {
+      data: {
+        year: 2026,
+        month: 6,
+        startDate: '2026-06-01',
+        endDate: '2026-06-30',
+        activeOnly: false,
+        routines: [
+          {
+            ...createMockRoutine(0),
+            routineName: '운동 주 3회',
+            category: '운동',
+            displayOrder: 1,
+            completed: false,
+            status: 'ACTIVE',
+            achievedDates: ['2026-06-04', '2026-06-11', '2026-06-19'],
+            monthlyAchievedCount: 3,
+          },
+          {
+            ...createMockRoutine(1, { hidden: true }),
+            routineName: '악기연습 주 5회',
+            category: '취미',
+            displayOrder: 2,
+            completed: false,
+            status: 'ACTIVE',
+            achievedDates: ['2026-06-04', '2026-06-22'],
+            monthlyAchievedCount: 2,
+          },
+        ],
+      },
+    });
 
     const {
       findAllByLabelText,
@@ -142,8 +195,16 @@ describe('StatsPage', () => {
   });
 
   it('루틴이 없으면 빈 상태를 렌더링한다', async () => {
-    mockAxios.onGet('/routine/list/all').reply(200, { data: [] });
-    mockAxios.onGet('/routine/list').reply(200, { data: [] });
+    mockAxios.onGet('/routine/list/monthly').reply(200, {
+      data: {
+        year: 2026,
+        month: 6,
+        startDate: '2026-06-01',
+        endDate: '2026-06-30',
+        activeOnly: false,
+        routines: [],
+      },
+    });
 
     const { findByText } = render(<StatsPage />);
 
@@ -151,25 +212,55 @@ describe('StatsPage', () => {
   });
 
   it('전환 버튼으로 실제 루틴의 월간 통계 요약 화면을 표시한다', async () => {
-    mockAxios.onGet('/routine/list/all').reply(200, {
-      data: [
-        createMockRoutine(0, {
-          startDate: '2026-06-07',
-          routineCount: 2,
-          successDate: ['260607', '260615'],
-        }),
-        createMockRoutine(1, {
-          startDate: '2026-06-01',
-          endDate: '2026-06-09',
-          routineCount: 3,
-          successDate: ['260604'],
-        }),
-      ].map((routine, index) => ({
-        ...routine,
-        routineName: index === 0 ? '운동 주 2회' : '악기연습 주 3회',
-      })),
+    mockAxios.onGet('/routine/list/monthly').reply((config) => {
+      const month = Number(config.params?.month);
+      const routines =
+        month === 6
+          ? [
+              {
+                ...createMockRoutine(0, {
+                  startDate: '2026-06-07',
+                  routineCount: 2,
+                }),
+                routineName: '운동 주 2회',
+                category: '운동',
+                displayOrder: 1,
+                completed: false,
+                status: 'ACTIVE',
+                achievedDates: ['2026-06-07', '2026-06-15'],
+                monthlyAchievedCount: 2,
+              },
+              {
+                ...createMockRoutine(1, {
+                  startDate: '2026-06-01',
+                  endDate: '2026-06-09',
+                  routineCount: 3,
+                }),
+                routineName: '악기연습 주 3회',
+                category: '취미',
+                displayOrder: 2,
+                completed: true,
+                status: 'COMPLETED',
+                achievedDates: ['2026-06-04'],
+                monthlyAchievedCount: 1,
+              },
+            ]
+          : [];
+
+      return [
+        200,
+        {
+          data: {
+            year: 2026,
+            month,
+            startDate: `2026-${String(month).padStart(2, '0')}-01`,
+            endDate: month === 6 ? '2026-06-30' : '2026-05-31',
+            activeOnly: false,
+            routines,
+          },
+        },
+      ];
     });
-    mockAxios.onGet('/routine/list').reply(200, { data: [] });
 
     const {
       findByText,

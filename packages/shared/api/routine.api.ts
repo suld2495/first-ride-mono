@@ -1,5 +1,7 @@
 import type {
   CreateRoutineRequest,
+  MonthlyRoutineListRequest,
+  MonthlyRoutineListResponse,
   Routine,
   RoutineActionResponse,
   UpdateRoutineForm,
@@ -87,6 +89,19 @@ export const fetchAllRoutines = async (): Promise<Routine[]> => {
         ? rejectedResponse.reason
         : new Error('루틴 목록을 조회하지 못했습니다.'),
     );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const fetchMonthlyRoutines = async (
+  request: MonthlyRoutineListRequest,
+): Promise<MonthlyRoutineListResponse> => {
+  try {
+    return await http.get<
+      MonthlyRoutineListResponse,
+      MonthlyRoutineListRequest
+    >('/routine/list/monthly', { params: request });
   } catch (error) {
     throw toAppError(error);
   }

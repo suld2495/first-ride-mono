@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAllRoutinesQuery } from '@repo/shared/hooks/useRoutine';
-import type { Routine } from '@repo/types';
+import { useMonthlyRoutinesQuery } from '@repo/shared/hooks/useRoutine';
+import type { RoutineMonthlySummary } from '@repo/types';
 import React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
@@ -25,6 +25,7 @@ const ROUTINE_STATS_CALENDAR_ITEM_INTERVAL =
   ROUTINE_STATS_CALENDAR_ESTIMATED_SIZE +
   ROUTINE_STATS_CALENDAR_SEPARATOR_HEIGHT;
 const MONTH_HEADER_VERTICAL_PADDING = 10;
+const EMPTY_MONTHLY_ROUTINES: RoutineMonthlySummary[] = [];
 type StatsViewMode = 'calendar' | 'summary';
 
 const getMonthStart = (date: Date) => {
@@ -35,11 +36,14 @@ const formatMonthLabel = (date: Date) => {
   return `${date.getMonth() + 1}월`;
 };
 
-const getPerformedDates = (routine: Routine) => {
-  return routine.successDate.map(normalizeRoutineDateKey);
+const getPerformedDates = (routine: RoutineMonthlySummary) => {
+  return routine.achievedDates.map(normalizeRoutineDateKey);
 };
 
-const getRoutineCalendarItemLayout = (_: Routine[] | null, index: number) => ({
+const getRoutineCalendarItemLayout = (
+  _: RoutineMonthlySummary[] | null,
+  index: number,
+) => ({
   length: ROUTINE_STATS_CALENDAR_ESTIMATED_SIZE,
   offset: ROUTINE_STATS_CALENDAR_ITEM_INTERVAL * index,
   index,
@@ -58,13 +62,12 @@ export default function StatsPage() {
     getMonthStart(new Date(Date.now())),
   );
   const [viewMode, setViewMode] = React.useState<StatsViewMode>('calendar');
-  const { data: routines = [], isLoading } = useAllRoutinesQuery(
+  const { data, isLoading } = useMonthlyRoutinesQuery(
     user?.nickname || '',
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
   );
-  const visibleRoutines = React.useMemo(
-    () => routines.filter((routine) => !routine.hidden),
-    [routines],
-  );
+  const routines = data?.routines ?? EMPTY_MONTHLY_ROUTINES;
 
   const moveMonth = (offset: number) => {
     setCurrentMonth(
@@ -76,7 +79,9 @@ export default function StatsPage() {
     setViewMode((mode) => (mode === 'calendar' ? 'summary' : 'calendar'));
   };
 
-  const renderRoutineCalendar = React.useCallback<ListRenderItem<Routine>>(
+  const renderRoutineCalendar = React.useCallback<
+    ListRenderItem<RoutineMonthlySummary>
+  >(
     ({ item }) => (
       <RoutineStatsCalendar
         routineName={item.routineName}
@@ -161,10 +166,7 @@ export default function StatsPage() {
           showsVerticalScrollIndicator={false}
         >
           {renderMonthHeader()}
-          <RoutineStatsSummary
-            monthDate={currentMonth}
-            routines={visibleRoutines}
-          />
+          <RoutineStatsSummary monthDate={currentMonth} routines={routines} />
         </ScrollView>
       ) : isLoading ? (
         <ThemeView transparent style={styles.content}>
@@ -173,10 +175,10 @@ export default function StatsPage() {
             <Loading />
           </ThemeView>
         </ThemeView>
-      ) : visibleRoutines.length ? (
+      ) : routines.length ? (
         <FlashList
           testID="stats-routine-list"
-          data={visibleRoutines}
+          data={routines}
           renderItem={renderRoutineCalendar}
           keyExtractor={(routine) => routine.routineId.toString()}
           ListHeaderComponent={renderMonthHeader}

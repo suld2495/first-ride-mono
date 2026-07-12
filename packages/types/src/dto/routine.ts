@@ -67,3 +67,40 @@ export type UpdateRoutineOrderRequest = {
 export type RoutineActionResponse = {
   message: string;
 };
+
+export type MonthlyRoutineListRequest = {
+  year: number;
+  month: number;
+  activeOnly?: boolean;
+};
+
+export type MonthlyRoutineStatus = 'ACTIVE' | 'PAUSED' | 'COMPLETED';
+
+export type RoutineMonthlySummary = {
+  routineId: number;
+  routineName: string;
+  routineDetail: string;
+  category: string;
+  symbolColor: string | null;
+  penalty: number;
+  routineCount: number;
+  mateNickname: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  displayOrder: number | null;
+  paused: boolean;
+  hidden: boolean;
+  completed: boolean;
+  status: MonthlyRoutineStatus;
+  achievedDates: string[];
+  monthlyAchievedCount: number;
+};
+
+export type MonthlyRoutineListResponse = {
+  year: number;
+  month: number;
+  startDate: string;
+  endDate: string;
+  activeOnly: boolean;
+  routines: RoutineMonthlySummary[];
+};

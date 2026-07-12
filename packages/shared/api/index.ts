@@ -340,6 +340,7 @@ export {
 export {
   createRoutine,
   deleteRoutine,
+  fetchMonthlyRoutines,
   fetchPausedRoutines,
   fetchRoutineDetail,
   fetchRoutines,

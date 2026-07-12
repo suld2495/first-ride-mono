@@ -1,5 +1,6 @@
 import type {
   CreateRoutineRequest,
+  MonthlyRoutineListRequest,
   Routine,
   UpdateRoutineForm,
   UpdateRoutineOrderRequest,
@@ -57,6 +58,19 @@ export const useAllRoutinesQuery = (nickname: string) => {
   return useQuery({
     queryKey: routineKey.allList(nickname),
     queryFn: () => routineApi.fetchAllRoutines(),
+    enabled: !!nickname,
+    refetchOnMount: 'always',
+  });
+};
+
+export const useMonthlyRoutinesQuery = (
+  nickname: string,
+  year: MonthlyRoutineListRequest['year'],
+  month: MonthlyRoutineListRequest['month'],
+) => {
+  return useQuery({
+    queryKey: routineKey.monthlyList(nickname, year, month),
+    queryFn: () => routineApi.fetchMonthlyRoutines({ year, month }),
     enabled: !!nickname,
     refetchOnMount: 'always',
   });
