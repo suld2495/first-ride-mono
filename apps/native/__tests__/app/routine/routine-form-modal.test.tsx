@@ -1085,7 +1085,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       );
     });
 
-    it('기존 메이트 값이 내 닉네임이면 직접 루틴 체크로 표시하고 메이트 입력값은 비운다', async () => {
+    it('기존 메이트 값이 내 닉네임이면 메이트 항목을 표시하지 않는다', async () => {
       mockAxios.resetHandlers();
       mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
       mockRoutineDetail({
@@ -1093,19 +1093,17 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         mateNickname: 'testuser',
       });
 
-      const { findAllByTestId, getByPlaceholderText } = render(
-        <RoutineFormModal />,
-      );
+      const { findByPlaceholderText, queryByPlaceholderText, queryByText } =
+        render(<RoutineFormModal />);
 
-      const [directRoutineCheckbox] = await findAllByTestId('bouncy-checkbox');
-      const mateInput = getByPlaceholderText('메이트를 지정해주세요.');
-
-      expect(directRoutineCheckbox.props.isChecked).toBe(true);
-      expect(mateInput.props.value).toBe('');
-      expect(mateInput.props.editable).toBe(false);
+      await findByPlaceholderText('루틴 이름을 입력하세요.');
+      expect(queryByText('메이트')).not.toBeOnTheScreen();
+      expect(
+        queryByPlaceholderText('메이트를 지정해주세요.'),
+      ).not.toBeOnTheScreen();
     });
 
-    it('isMe가 false여도 메이트 값이 내 닉네임이면 직접 루틴 체크로 표시한다', async () => {
+    it('isMe가 false여도 메이트 값이 내 닉네임이면 메이트 항목을 표시하지 않는다', async () => {
       mockAxios.resetHandlers();
       mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
       mockRoutineDetail({
@@ -1113,16 +1111,14 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         mateNickname: 'testuser',
       });
 
-      const { findAllByTestId, getByPlaceholderText } = render(
-        <RoutineFormModal />,
-      );
+      const { findByPlaceholderText, queryByPlaceholderText, queryByText } =
+        render(<RoutineFormModal />);
 
-      const [directRoutineCheckbox] = await findAllByTestId('bouncy-checkbox');
-      const mateInput = getByPlaceholderText('메이트를 지정해주세요.');
-
-      expect(directRoutineCheckbox.props.isChecked).toBe(true);
-      expect(mateInput.props.value).toBe('');
-      expect(mateInput.props.editable).toBe(false);
+      await findByPlaceholderText('루틴 이름을 입력하세요.');
+      expect(queryByText('메이트')).not.toBeOnTheScreen();
+      expect(
+        queryByPlaceholderText('메이트를 지정해주세요.'),
+      ).not.toBeOnTheScreen();
     });
   });
 
@@ -1429,7 +1425,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           expect.objectContaining({ color: palette.theme.gray[90] }),
         ]),
       );
-      expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(3);
+      expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(2);
       expect(statusSectionStyle).toEqual(
         expect.objectContaining({
           gap: 40,
@@ -1454,7 +1450,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       });
       const { findAllByTestId } = render(<RoutineFormModal />);
 
-      const [, pausedCheckbox, hiddenCheckbox] =
+      const [pausedCheckbox, hiddenCheckbox] =
         await findAllByTestId('bouncy-checkbox');
 
       expect(pausedCheckbox.props.isChecked).toBe(true);

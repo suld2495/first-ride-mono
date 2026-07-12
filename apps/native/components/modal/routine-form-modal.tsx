@@ -335,47 +335,58 @@ const RoutineFormModal = () => {
             />
           )}
         />
-        <FormItem
-          name="mateNickname"
-          label="메이트"
-          item={({ value, onChange, form, setValue }) => (
-            <>
-              <ThemeView style={styles.mateField} transparent>
-                <Typography variant="body">직접 루틴 체크</Typography>
-                <Checkbox
-                  size="md"
-                  isChecked={!!form.isMe}
-                  onPress={(chcked) => {
-                    setValue('isMe', chcked);
+        {isRoutineAdd ? (
+          <FormItem
+            name="mateNickname"
+            label="메이트"
+            item={({ value, onChange, form, setValue }) => (
+              <>
+                <ThemeView style={styles.mateField} transparent>
+                  <Typography variant="body">직접 루틴 체크</Typography>
+                  <Checkbox
+                    size="md"
+                    isChecked={!!form.isMe}
+                    onPress={(chcked) => {
+                      setValue('isMe', chcked);
 
-                    if (chcked) {
-                      setValue('mateNickname', '');
-                      setMateKeyword('');
-                    }
+                      if (chcked) {
+                        setValue('mateNickname', '');
+                        setMateKeyword('');
+                      }
+                    }}
+                  />
+                </ThemeView>
+                <AutocompleteInput
+                  variant="filled"
+                  value={value !== undefined ? String(value) : value}
+                  placeholder="메이트를 지정해주세요."
+                  onChangeText={(text) => {
+                    onChange(text);
+                    setMateKeyword(text);
                   }}
+                  editable={!form.isMe}
+                  items={friendAutocompleteItems}
+                  loading={isFriendListLoading}
+                  onSelectItem={(item) => {
+                    onChange(item.value);
+                    setMateKeyword('');
+                  }}
+                  showDropdown={!form.isMe && mateKeyword.length > 0}
+                  emptyMessage="친구를 찾을 수 없습니다."
                 />
-              </ThemeView>
-              <AutocompleteInput
-                variant="filled"
-                value={value !== undefined ? String(value) : value}
-                placeholder="메이트를 지정해주세요."
-                onChangeText={(text) => {
-                  onChange(text);
-                  setMateKeyword(text);
-                }}
-                editable={!form.isMe}
-                items={friendAutocompleteItems}
-                loading={isFriendListLoading}
-                onSelectItem={(item) => {
-                  onChange(item.value);
-                  setMateKeyword('');
-                }}
-                showDropdown={!form.isMe && mateKeyword.length > 0}
-                emptyMessage="친구를 찾을 수 없습니다."
-              />
-            </>
-          )}
-        />
+              </>
+            )}
+          />
+        ) : initialMateNickname ? (
+          <FormItem
+            name="mateNickname"
+            label="메이트"
+            showErrors={false}
+            item={({ value }) => (
+              <Typography variant="body">{String(value)}</Typography>
+            )}
+          />
+        ) : null}
         <FormItem
           name="penalty"
           label="벌금"
