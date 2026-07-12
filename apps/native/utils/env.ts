@@ -5,3 +5,7 @@ export function getKakaoNativeAppKey(): string | null {
     null
   );
 }
+
+export function getClarityProjectId(): string | null {
+  return process.env.EXPO_PUBLIC_CLARITY_PROJECT_ID?.trim() || null;
+}

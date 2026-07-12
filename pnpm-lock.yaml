@@ -155,6 +155,9 @@ importers:
       '@expo/vector-icons':
         specifier: ^14.0.0
         version: 14.1.0(expo-font@13.3.2(expo@53.0.27(@babel/core@7.28.3)(@expo/metro-runtime@5.0.5(react-native@0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native@0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react@19.0.0))(react-native@0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
+      '@microsoft/react-native-clarity':
+        specifier: 4.6.3
+        version: 4.6.3(react-native-svg@15.11.2(react-native@0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
       '@react-native-async-storage/async-storage':
         specifier: 2.1.2
         version: 2.1.2(react-native@0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0))
@@ -1689,6 +1692,17 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.30':
     resolution: {integrity: sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q==}
+
+  '@microsoft/react-native-clarity@4.6.3':
+    resolution: {integrity: sha512-8+RKJM2Vx+Cj3fQIydBaE+YHrlFgWXtAHsyqdV56ooWqohM4HC2cTIXyC9xtIaPiv6nX6Y0H7XKJArxcobp3ww==}
+    engines: {node: '>= 16.0.0'}
+    peerDependencies:
+      react: 19.0.0
+      react-native: 0.79.6
+      react-native-svg: '>=14.0.0'
+    peerDependenciesMeta:
+      react-native-svg:
+        optional: true
 
   '@miragejs/pretender-node-polyfill@0.1.2':
     resolution: {integrity: sha512-M/BexG/p05C5lFfMunxo/QcgIJnMT2vDVCd00wNqK2ImZONIlEETZwWJu1QtLxtmYlSHlCFl3JNzp0tLe7OJ5g==}
@@ -8977,6 +8991,13 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@microsoft/react-native-clarity@4.6.3(react-native-svg@15.11.2(react-native@0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      react: 19.0.0
+      react-native: 0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0)
+    optionalDependencies:
+      react-native-svg: 15.11.2(react-native@0.79.6(@babel/core@7.28.3)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
 
   '@miragejs/pretender-node-polyfill@0.1.2': {}
 

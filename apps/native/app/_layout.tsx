@@ -43,6 +43,7 @@ import {
   getAuthStackInitialRouteName,
   getAuthStackKey,
 } from '@/utils/auth-stack-route';
+import { initializeClarity } from '@/utils/clarity';
 import { getKakaoNativeAppKey } from '@/utils/env';
 import {
   extractDeepLinkData,
@@ -71,6 +72,8 @@ const fontAssets: Record<string, FontSource> = {
 if (kakaoNativeAppKey) {
   initializeKakaoSDK(kakaoNativeAppKey);
 }
+
+initializeClarity();
 
 interface StackLayoutProps {
   isFontReady: boolean;

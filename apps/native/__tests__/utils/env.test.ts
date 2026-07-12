@@ -34,3 +34,31 @@ describe('getKakaoNativeAppKey', () => {
     expect(getKakaoNativeAppKey()).toBeNull();
   });
 });
+
+describe('getClarityProjectId', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = { ...originalEnv };
+    delete process.env.EXPO_PUBLIC_CLARITY_PROJECT_ID;
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  it('설정된 프로젝트 ID의 앞뒤 공백을 제거한다', () => {
+    process.env.EXPO_PUBLIC_CLARITY_PROJECT_ID = ' clarity-project-id ';
+
+    const { getClarityProjectId } = require('@/utils/env');
+
+    expect(getClarityProjectId()).toBe('clarity-project-id');
+  });
+
+  it('설정된 프로젝트 ID가 없으면 null을 반환한다', () => {
+    const { getClarityProjectId } = require('@/utils/env');
+
+    expect(getClarityProjectId()).toBeNull();
+  });
+});
