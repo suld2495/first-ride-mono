@@ -140,7 +140,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     mockAxios = new MockAdapter(axiosInstance);
     mockSearchParams.type = 'routine-add';
     // RoutineForm 타입에 맞는 초기값 설정
-    // isMe: true로 설정하여 mateNickname 검증 우회
     // 숫자 필드는 빈 문자열로 설정 (입력 전 상태)
     mockRoutineStore.routineForm = {
       nickname: '',
@@ -149,7 +148,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       penalty: '',
       routineCount: '',
       mateNickname: '',
-      isMe: true, // 직접 체크 기본값
+      isMe: true,
       startDate: '',
       endDate: '',
       symbolColor: '#00D68F',
@@ -285,6 +284,18 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   };
 
   describe('필수값 입력 전 추가 버튼 비활성화 테스트', () => {
+    it('메이트와 루틴 체크를 기본 해제하고 메이트 입력을 비활성화한다', () => {
+      const { getByPlaceholderText, getByTestId, getByText } = render(
+        <RoutineFormModal />,
+      );
+
+      expect(getByText('메이트와 루틴 체크')).toBeOnTheScreen();
+      expect(getByTestId('bouncy-checkbox').props.isChecked).toBe(false);
+      expect(
+        getByPlaceholderText('메이트를 지정해주세요.').props.editable,
+      ).toBe(false);
+    });
+
     it('추가 버튼은 modal.tsx의 고정 footer에 표시된다', () => {
       const { getByTestId, getByText, queryByText } = render(<ModalScreen />);
 
@@ -439,7 +450,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(addButton).toBeDisabled();
     });
 
-    it('모든 필수값 입력 + 직접 루틴 체크 시 추가 버튼이 활성화된다', async () => {
+    it('모든 필수값 입력 시 혼자 루틴 추가 버튼이 활성화된다', async () => {
       const { getByLabelText, getByPlaceholderText, getByText } = render(
         <RoutineFormModal />,
       );
@@ -635,7 +646,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         });
       });
 
-      it('직접 루틴 체크 시 내 루틴 API에 허용된 필드만 보낸다', async () => {
+      it('메이트 체크가 해제된 기본 상태에서 내 루틴 API에 허용된 필드만 보낸다', async () => {
         const { getByLabelText, getByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
@@ -678,23 +689,31 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         });
       });
 
-      it('직접 루틴 체크 해제 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
+      it('메이트와 루틴 체크 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
         mockAxios.onPost('/routine/mate').reply(201, {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
-        mockRoutineStore.routineForm = {
-          ...mockRoutineStore.routineForm,
-          isMe: false,
-          mateNickname: 'friend1',
-          penalty: '5000',
-        };
-        const { getByLabelText, getByPlaceholderText, getByText } = render(
-          <RoutineFormModal />,
-        );
+        const { getByLabelText, getByPlaceholderText, getByTestId, getByText } =
+          render(<RoutineFormModal />);
+
+        await act(async () => {
+          fireEvent.press(getByTestId('bouncy-checkbox'));
+        });
+
+        const mateInput = getByPlaceholderText('메이트를 지정해주세요.');
+
+        await waitFor(() => {
+          expect(mateInput.props.editable).toBe(true);
+        });
+
+        await act(async () => {
+          fireEvent.changeText(mateInput, 'friend1');
+        });
 
         await fillForm(getByPlaceholderText, getByText, {
           routineName: '메이트 루틴',
           routineDetail: '함께 달리기',
+          penalty: '5000',
           routineCount: 3,
         });
         await selectStartDate(getByText, getByLabelText);
@@ -984,7 +1003,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       expect(await findByText('메이트')).toBeOnTheScreen();
       expect(await findByText('메이트닉네임')).toBeOnTheScreen();
-      expect(queryByText('직접 루틴 체크')).not.toBeOnTheScreen();
+      expect(queryByText('메이트와 루틴 체크')).not.toBeOnTheScreen();
       expect(
         queryByPlaceholderText('메이트를 지정해주세요.'),
       ).not.toBeOnTheScreen();
@@ -998,7 +1017,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         await findByPlaceholderText('루틴 이름을 입력하세요.'),
       ).toBeOnTheScreen();
       expect(queryByText('메이트')).not.toBeOnTheScreen();
-      expect(queryByText('직접 루틴 체크')).not.toBeOnTheScreen();
+      expect(queryByText('메이트와 루틴 체크')).not.toBeOnTheScreen();
       expect(
         queryByPlaceholderText('메이트를 지정해주세요.'),
       ).not.toBeOnTheScreen();

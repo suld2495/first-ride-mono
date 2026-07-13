@@ -29,7 +29,7 @@ const initialState: State = {
     routineCount: 0,
     symbolColor: DEFAULT_ROUTINE_COLOR,
     mateNickname: '',
-    isMe: false,
+    isMe: true,
   },
   type: 'number',
 };

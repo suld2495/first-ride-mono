@@ -369,14 +369,14 @@ const RoutineFormModal = () => {
             item={({ value, onChange, form, setValue }) => (
               <>
                 <ThemeView style={styles.mateField} transparent>
-                  <Typography variant="body">직접 루틴 체크</Typography>
+                  <Typography variant="body">메이트와 루틴 체크</Typography>
                   <Checkbox
                     size="md"
-                    isChecked={!!form.isMe}
-                    onPress={(chcked) => {
-                      setValue('isMe', chcked);
+                    isChecked={!form.isMe}
+                    onPress={(checked) => {
+                      setValue('isMe', !checked);
 
-                      if (chcked) {
+                      if (!checked) {
                         setValue('mateNickname', '');
                         setMateKeyword('');
                       }
