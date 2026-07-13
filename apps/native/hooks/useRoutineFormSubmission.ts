@@ -17,7 +17,6 @@ interface UseRoutineFormSubmissionParams {
 }
 
 type RoutineSubmitForm = Omit<RoutineForm, 'mateNickname'> & {
-  mateNickname?: RoutineForm['mateNickname'];
   hidden?: boolean;
   paused?: boolean;
 };
@@ -79,10 +78,6 @@ const normalizeRoutineSubmitForm = (
     symbolColor: data.symbolColor,
     isMe: data.isMe,
   };
-
-  if (!data.isMe) {
-    form.mateNickname = data.mateNickname;
-  }
 
   if (typeof data.paused === 'boolean') {
     form.paused = data.paused;

@@ -1328,6 +1328,32 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
       });
 
+      it('메이트 루틴 수정 시 메이트 닉네임을 전송하지 않는다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+        mockRoutineDetail({
+          isMe: false,
+          mateNickname: '메이트닉네임',
+        });
+        mockAxios.onPut('/routine/1').reply(200, {
+          data: APPLIED_UPDATE_RESPONSE,
+        });
+
+        const { findByText } = render(<RoutineFormModal />);
+
+        await act(async () => {
+          fireEvent.press(await findByText('수정'));
+        });
+
+        await waitFor(() => {
+          expect(mockAxios.history.put).toHaveLength(1);
+
+          const payload = JSON.parse(mockAxios.history.put[0]?.data ?? '{}');
+
+          expect(payload).not.toHaveProperty('mateNickname');
+        });
+      });
+
       it('시작일과 종료일이 변경되지 않으면 수정 요청 본문에서 제외한다', async () => {
         mockAxios.resetHandlers();
         mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
