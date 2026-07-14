@@ -3,28 +3,40 @@ import {
   useCreateRoutineMutation,
   useUpdateRoutineMutation,
 } from '@repo/shared/hooks/useRoutine';
-import type { CreateRoutineRequest, RoutineForm } from '@repo/types';
+import type {
+  CreateRoutineRequest,
+  RoutineForm,
+  UpdateRoutinePayload,
+} from '@repo/types';
 import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 import { useToast } from '@/contexts/ToastContext';
 
 interface UseRoutineFormSubmissionParams {
   nickname: string;
   routineId: number;
-  originalForm?: Pick<RoutineStatusSubmitForm, 'startDate' | 'endDate'>;
+  originalForm?: RoutineStatusSubmitForm;
   initialPendingChangeRequestId?: number | null;
 }
-
-type RoutineSubmitForm = Omit<RoutineForm, 'mateNickname'> & {
-  hidden?: boolean;
-  paused?: boolean;
-};
 
 type RoutineStatusSubmitForm = RoutineForm & {
   hidden?: boolean;
   paused?: boolean;
 };
+
+type EditableRoutineUpdateValues = Pick<
+  UpdateRoutinePayload,
+  | 'routineName'
+  | 'routineDetail'
+  | 'penalty'
+  | 'routineCount'
+  | 'startDate'
+  | 'endDate'
+  | 'symbolColor'
+  | 'hidden'
+  | 'paused'
+>;
 
 const normalizePenalty = (penalty: RoutineForm['penalty'] | string): number => {
   if (penalty === '') {
@@ -63,12 +75,10 @@ const normalizeRoutineCreateRequest = (
   };
 };
 
-const normalizeRoutineSubmitForm = (
+const normalizeRoutineUpdateValues = (
   data: RoutineStatusSubmitForm,
-  nickname: string,
-): RoutineSubmitForm => {
-  const form: RoutineSubmitForm = {
-    nickname,
+): EditableRoutineUpdateValues => {
+  const values: EditableRoutineUpdateValues = {
     routineName: data.routineName,
     startDate: data.startDate,
     endDate: data.endDate,
@@ -76,39 +86,60 @@ const normalizeRoutineSubmitForm = (
     penalty: normalizePenalty(data.penalty),
     routineCount: data.routineCount,
     symbolColor: data.symbolColor,
-    isMe: data.isMe,
   };
 
   if (typeof data.paused === 'boolean') {
-    form.paused = data.paused;
+    values.paused = data.paused;
   }
 
   if (typeof data.hidden === 'boolean') {
-    form.hidden = data.hidden;
+    values.hidden = data.hidden;
   }
 
-  return form;
+  return values;
 };
 
-const omitUnchangedRoutineDateFields = (
-  form: RoutineSubmitForm,
-  originalForm?: Pick<RoutineStatusSubmitForm, 'startDate' | 'endDate'>,
-): Partial<RoutineSubmitForm> => {
+const buildChangedRoutinePayload = (
+  data: RoutineStatusSubmitForm,
+  originalForm?: RoutineStatusSubmitForm,
+): UpdateRoutinePayload => {
+  const values = normalizeRoutineUpdateValues(data);
+
   if (!originalForm) {
-    return form;
+    return values;
   }
 
-  const nextForm: Partial<RoutineSubmitForm> = { ...form };
+  const originalValues = normalizeRoutineUpdateValues(originalForm);
 
-  if (originalForm.startDate === form.startDate) {
-    delete nextForm.startDate;
-  }
-
-  if (originalForm.endDate === form.endDate) {
-    delete nextForm.endDate;
-  }
-
-  return nextForm;
+  return {
+    ...(values.routineName !== originalValues.routineName
+      ? { routineName: values.routineName }
+      : {}),
+    ...(values.routineDetail !== originalValues.routineDetail
+      ? { routineDetail: values.routineDetail }
+      : {}),
+    ...(values.penalty !== originalValues.penalty
+      ? { penalty: values.penalty }
+      : {}),
+    ...(values.routineCount !== originalValues.routineCount
+      ? { routineCount: values.routineCount }
+      : {}),
+    ...(values.startDate !== originalValues.startDate
+      ? { startDate: values.startDate }
+      : {}),
+    ...(values.endDate !== originalValues.endDate
+      ? { endDate: values.endDate }
+      : {}),
+    ...(values.symbolColor !== originalValues.symbolColor
+      ? { symbolColor: values.symbolColor }
+      : {}),
+    ...(values.hidden !== originalValues.hidden
+      ? { hidden: values.hidden }
+      : {}),
+    ...(values.paused !== originalValues.paused
+      ? { paused: values.paused }
+      : {}),
+  };
 };
 
 export const useRoutineFormSubmission = ({
@@ -125,11 +156,7 @@ export const useRoutineFormSubmission = ({
     nickname,
     routineId,
   );
-  const [submittedChangeRequestId, setSubmittedChangeRequestId] = useState<
-    number | null
-  >(null);
-  const pendingChangeRequestId =
-    submittedChangeRequestId ?? initialPendingChangeRequestId;
+  const pendingChangeRequestId = initialPendingChangeRequestId;
 
   const handleCreate = useCallback(
     (data: RoutineStatusSubmitForm) => {
@@ -153,17 +180,16 @@ export const useRoutineFormSubmission = ({
     (data: RoutineStatusSubmitForm) => {
       updateMutation.mutate(
         {
-          ...omitUnchangedRoutineDateFields(
-            normalizeRoutineSubmitForm(data, nickname),
-            originalForm,
-          ),
+          ...buildChangedRoutinePayload(data, originalForm),
           routineId,
         },
         {
           onSuccess: (response) => {
             if (response.mode === 'APPROVAL_REQUESTED') {
-              setSubmittedChangeRequestId(response.changeRequestId);
-              toast.showToast('루틴 수정 요청을 보냈습니다.');
+              toast.showToast(
+                '메이트 승인 요청이 생성되었습니다. 승인 전까지 기존 루틴 정보가 유지됩니다.',
+              );
+              router.dismissTo('/(tabs)/(afterLogin)/(routine)');
               return;
             }
 
@@ -181,7 +207,7 @@ export const useRoutineFormSubmission = ({
         },
       );
     },
-    [nickname, originalForm, routineId, router, toast, updateMutation],
+    [originalForm, routineId, router, toast, updateMutation],
   );
 
   const handleCancelChangeRequest = useCallback(() => {
@@ -191,7 +217,6 @@ export const useRoutineFormSubmission = ({
 
     cancelChangeRequestMutation.mutate(pendingChangeRequestId, {
       onSuccess: () => {
-        setSubmittedChangeRequestId(null);
         toast.showToast('루틴 수정 요청이 취소되었습니다.');
       },
       onError: (error) => {

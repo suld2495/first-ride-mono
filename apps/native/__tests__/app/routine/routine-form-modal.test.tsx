@@ -3,7 +3,6 @@ import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
-import type { AlertButton } from 'react-native';
 
 import ModalScreen from '../../../app/modal';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
@@ -1255,7 +1254,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
       });
 
-      it('승인 요청이 생성되면 확인 후 수정 요청을 취소한다', async () => {
+      it('승인 요청이 생성되면 기존 값 유지 안내 후 루틴 화면으로 이동한다', async () => {
         mockAxios.resetHandlers();
         mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
         mockRoutineDetail({
@@ -1265,11 +1264,17 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         mockAxios.onPut('/routine/1').reply(200, {
           data: APPROVAL_REQUESTED_UPDATE_RESPONSE,
         });
-        mockAxios
-          .onDelete('/routine/change-requests/100')
-          .reply(200, { data: null });
 
-        const { findByText, getByText } = render(<RoutineFormModal />);
+        const { findByPlaceholderText, findByText } = render(
+          <RoutineFormModal />,
+        );
+
+        await act(async () => {
+          fireEvent.changeText(
+            await findByPlaceholderText('루틴 이름을 입력하세요.'),
+            '승인 필요한 루틴명',
+          );
+        });
 
         const editButton = await findByText('수정');
 
@@ -1279,44 +1284,35 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith(
-            '루틴 수정 요청을 보냈습니다.',
+            '메이트 승인 요청이 생성되었습니다. 승인 전까지 기존 루틴 정보가 유지됩니다.',
           );
-          expect(getByText('수정 요청 보냄')).toBeOnTheScreen();
-        });
-
-        expect(mockDismissTo).not.toHaveBeenCalled();
-
-        await act(async () => {
-          fireEvent.press(getByText('수정 요청 보냄'));
-        });
-
-        expect(mockAlert).toHaveBeenCalledWith(
-          '수정 요청 취소',
-          '수정 요청을 취소하시겠습니까?',
-          expect.any(Array),
-        );
-        expect(mockAxios.history.delete).toHaveLength(0);
-
-        const confirmButton = mockAlert.mock.calls[0][2]?.find(
-          (button: AlertButton) => button.text === '취소하기',
-        );
-
-        await act(async () => {
-          await confirmButton?.onPress?.();
-        });
-
-        await waitFor(() => {
-          expect(mockAxios.history.delete[0]?.url).toBe(
-            '/routine/change-requests/100',
+          expect(mockDismissTo).toHaveBeenCalledWith(
+            '/(tabs)/(afterLogin)/(routine)',
           );
-          expect(mockShowToast).toHaveBeenCalledWith(
-            '루틴 수정 요청이 취소되었습니다.',
-          );
-          expect(getByText('수정')).toBeOnTheScreen();
         });
       });
 
-      it('직접 루틴 수정 시 메이트 닉네임을 전송하지 않는다', async () => {
+      it('컬러만 변경하면 symbolColor만 수정 요청 본문에 포함한다', async () => {
+        const { findByTestId, findByText } = render(<RoutineFormModal />);
+
+        await act(async () => {
+          fireEvent.press(await findByTestId('routine-color-option-00B8F0'));
+        });
+
+        await act(async () => {
+          fireEvent.press(await findByText('수정'));
+        });
+
+        await waitFor(() => {
+          const payload = JSON.parse(mockAxios.history.put[0]?.data ?? '{}');
+
+          expect(payload).toEqual({
+            symbolColor: '#00B8F0',
+          });
+        });
+      });
+
+      it('직접 루틴 수정 시 변경 필드 외 사용자 정보를 전송하지 않는다', async () => {
         mockAxios.resetHandlers();
         mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
         mockRoutineDetail({
@@ -1327,7 +1323,16 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           data: APPLIED_UPDATE_RESPONSE,
         });
 
-        const { findByText } = render(<RoutineFormModal />);
+        const { findByPlaceholderText, findByText } = render(
+          <RoutineFormModal />,
+        );
+
+        await act(async () => {
+          fireEvent.changeText(
+            await findByPlaceholderText('루틴 이름을 입력하세요.'),
+            '수정된 직접 루틴',
+          );
+        });
 
         const editButton = await findByText('수정');
 
@@ -1338,16 +1343,14 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         await waitFor(() => {
           const payload = JSON.parse(mockAxios.history.put[0]?.data ?? '{}');
 
-          expect(payload).toEqual(
-            expect.objectContaining({
-              isMe: true,
-            }),
-          );
+          expect(payload).toEqual({ routineName: '수정된 직접 루틴' });
+          expect(payload).not.toHaveProperty('nickname');
+          expect(payload).not.toHaveProperty('isMe');
           expect(payload).not.toHaveProperty('mateNickname');
         });
       });
 
-      it('메이트 루틴 수정 시 메이트 닉네임을 전송하지 않는다', async () => {
+      it('메이트 루틴 수정 시 변경 필드 외 사용자 정보를 전송하지 않는다', async () => {
         mockAxios.resetHandlers();
         mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
         mockRoutineDetail({
@@ -1358,7 +1361,16 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           data: APPLIED_UPDATE_RESPONSE,
         });
 
-        const { findByText } = render(<RoutineFormModal />);
+        const { findByPlaceholderText, findByText } = render(
+          <RoutineFormModal />,
+        );
+
+        await act(async () => {
+          fireEvent.changeText(
+            await findByPlaceholderText('루틴 이름을 입력하세요.'),
+            '수정된 메이트 루틴',
+          );
+        });
 
         await act(async () => {
           fireEvent.press(await findByText('수정'));
@@ -1369,6 +1381,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
           const payload = JSON.parse(mockAxios.history.put[0]?.data ?? '{}');
 
+          expect(payload).toEqual({ routineName: '수정된 메이트 루틴' });
+          expect(payload).not.toHaveProperty('nickname');
+          expect(payload).not.toHaveProperty('isMe');
           expect(payload).not.toHaveProperty('mateNickname');
         });
       });
@@ -1413,7 +1428,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
         const { findAllByTestId, findByText } = render(<RoutineFormModal />);
 
-        const [, pausedCheckbox, hiddenCheckbox] =
+        const [pausedCheckbox, hiddenCheckbox] =
           await findAllByTestId('bouncy-checkbox');
 
         (global as any).mockCheckboxChecked = false;

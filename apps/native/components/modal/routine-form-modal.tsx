@@ -131,7 +131,7 @@ const RoutineFormModal = () => {
   } = useRoutineFormSubmission({
     nickname: user!.nickname,
     routineId,
-    originalForm: isRoutineAdd ? undefined : sourceRoutineForm,
+    originalForm: isRoutineAdd ? undefined : normalizedRoutineForm,
     initialPendingChangeRequestId,
   });
 

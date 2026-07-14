@@ -107,15 +107,7 @@ function UpdateRoutineTrigger() {
       onPress={() =>
         updateRoutine.mutate({
           routineId: 1,
-          nickname: mockUser.nickname,
           routineName: '테스트 루틴 1',
-          routineDetail: '테스트 설명',
-          penalty: 1000,
-          routineCount: 3,
-          mateNickname: '',
-          isMe: true,
-          startDate: getWeekMonday(new Date()),
-          endDate: '',
         })
       }
     >

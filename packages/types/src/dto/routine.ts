@@ -24,10 +24,77 @@ export type CreateRoutineRequest =
   | CreateMyRoutineRequest
   | CreateMateRoutineRequest;
 
-export type UpdateRoutineForm = Partial<RoutineForm> & {
+export type UpdateRoutinePayload = Partial<
+  Pick<
+    RoutineForm,
+    | 'routineName'
+    | 'routineDetail'
+    | 'penalty'
+    | 'routineCount'
+    | 'mateNickname'
+    | 'startDate'
+    | 'endDate'
+    | 'symbolColor'
+  > &
+    Pick<Routine, 'hidden' | 'paused'> & {
+      category: string;
+    }
+>;
+
+export type UpdateRoutineForm = UpdateRoutinePayload & {
   routineId: Routine['routineId'];
-  hidden?: Routine['hidden'];
-  paused?: Routine['paused'];
+};
+
+export type RoutineChangeRequestSnapshot = {
+  routineName: string;
+  routineDetail: string;
+  routineCount: number;
+  startDate: string;
+  endDate: string;
+  penalty: number;
+  mateId: number | null;
+  mateNickname: string | null;
+  category: string;
+  symbolColor: string;
+  hidden: boolean;
+  paused: boolean;
+};
+
+export type RoutineChangeRequestChange = {
+  field: string;
+  label: string;
+  before: unknown;
+  after: unknown;
+};
+
+export type RoutineChangeRequest = {
+  id: number;
+  routineId: Routine['routineId'];
+  routineName: string;
+  requesterId: number;
+  requesterNickname: string;
+  approverId: number;
+  approverNickname: string;
+  status: 'PENDING';
+  requestedRoutineName: string | null;
+  requestedRoutineDetail: string | null;
+  requestedRoutineCount: number | null;
+  requestedStartDate: string | null;
+  requestedEndDate: string | null;
+  requestedPenalty: number | null;
+  requestedMateId: number | null;
+  requestedMateNickname: string | null;
+  requestedCategory: string | null;
+  requestedSymbolColor: string | null;
+  requestedHidden: boolean | null;
+  requestedPaused: boolean | null;
+  before: RoutineChangeRequestSnapshot;
+  after: RoutineChangeRequestSnapshot;
+  changes: RoutineChangeRequestChange[];
+  rejectReason: string | null;
+  requestedAt: string;
+  respondedAt: string | null;
+  expiresAt: string;
 };
 
 type AppliedRoutineUpdateResponse = {
@@ -41,9 +108,7 @@ type ApprovalRequestedRoutineUpdateResponse = {
   mode: 'APPROVAL_REQUESTED';
   message: string;
   changeRequestId: number;
-  changeRequest: {
-    id: number;
-  };
+  changeRequest: RoutineChangeRequest;
 };
 
 export type UpdateRoutineResponse =
