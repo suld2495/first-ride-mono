@@ -1,6 +1,7 @@
 import type {
   CreateRoutineRequest,
   MonthlyRoutineListRequest,
+  RejectRoutineChangeRequest,
   Routine,
   UpdateRoutineForm,
   UpdateRoutineOrderRequest,
@@ -20,6 +21,11 @@ const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 
 type RoutineVisibilitySnapshot = Array<[QueryKey, unknown]>;
+
+interface ApproveRoutineChangeRequestVariables {
+  changeRequestId: number;
+  routineId: number;
+}
 
 const isRoutineLike = (value: unknown): value is Pick<Routine, 'routineId'> =>
   typeof value === 'object' && value !== null && 'routineId' in value;
@@ -137,6 +143,54 @@ export const useCancelRoutineChangeRequestMutation = (
           queryKey: routineKey.detail(routineId),
         }),
       ]);
+    },
+  });
+};
+
+export const useReceivedRoutineChangeRequestsQuery = (nickname: string) => {
+  return useQuery({
+    queryKey: routineKey.receivedChangeRequests(nickname),
+    queryFn: () => routineApi.fetchReceivedRoutineChangeRequests(),
+    enabled: !!nickname,
+    refetchOnMount: 'always',
+  });
+};
+
+export const useApproveRoutineChangeRequestMutation = (nickname: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ changeRequestId }: ApproveRoutineChangeRequestVariables) =>
+      routineApi.approveRoutineChangeRequest(changeRequestId),
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: routineKey.receivedChangeRequests(nickname),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: routineKey.list(nickname),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: routineKey.detail(variables.routineId),
+        }),
+      ]);
+    },
+  });
+};
+
+export const useRejectRoutineChangeRequestMutation = (nickname: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      changeRequestId,
+      ...data
+    }: RejectRoutineChangeRequest & { changeRequestId: number }) =>
+      routineApi.rejectRoutineChangeRequest(changeRequestId, data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: routineKey.receivedChangeRequests(nickname),
+      });
     },
   });
 };

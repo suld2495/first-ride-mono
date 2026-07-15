@@ -97,6 +97,10 @@ export type RoutineChangeRequest = {
   expiresAt: string;
 };
 
+export type RejectRoutineChangeRequest = {
+  reason?: string;
+};
+
 type AppliedRoutineUpdateResponse = {
   mode: 'APPLIED';
   message: string;

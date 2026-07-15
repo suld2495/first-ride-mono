@@ -55,7 +55,7 @@ export const useModal = (
       return ['인증 요청', RequestModal, { contentPaddingHorizontal: 0 }];
     case 'request-list':
       return [
-        '인증 요청',
+        '받은 요청',
         RequestListModal,
         {
           contentPaddingHorizontal: 0,

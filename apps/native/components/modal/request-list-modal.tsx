@@ -1,9 +1,19 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import {
+  useApproveRoutineChangeRequestMutation,
+  useReceivedRoutineChangeRequestsQuery,
+  useRejectRoutineChangeRequestMutation,
+} from '@repo/shared/hooks/useRoutine';
 import { getFormatDate } from '@repo/shared/utils';
+import type { RoutineChangeRequest } from '@repo/types';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable } from 'react-native';
 
+import RoutineChangeRequestRow, {
+  toRoutineChangeRequestListItem,
+} from '@/components/modal/routine-change-request-row';
 import {
   getRoutineSceneCharacterAsset,
   renderRoutineSceneAsset,
@@ -12,11 +22,13 @@ import { FlashList } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 import { useSetRequestId } from '@/hooks/useRequestSelection';
 import type { ThemeName } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 interface RequestListItem {
   id: number;
@@ -31,6 +43,12 @@ type RequestListEntry =
 
 interface RequestRenderItemProps {
   item: RequestListEntry;
+}
+
+type RequestTab = 'confirmation' | 'routine-change';
+
+interface RoutineChangeRequestRenderItemProps {
+  item: RoutineChangeRequest;
 }
 
 const getRequestGroupLabel = (createdAt: string) => {
@@ -73,12 +91,182 @@ const mixWithWhite = (hexColor: string, whiteRatio: number) => {
   return `rgb(${mixChannel(match[1])}, ${mixChannel(match[2])}, ${mixChannel(match[3])})`;
 };
 
+interface RequestListSurfaceProps {
+  activeTab: RequestTab;
+  expandedRoutineChangeRequestId: number | null | undefined;
+  isRoutineChangeError: boolean;
+  isRoutineChangeLoading: boolean;
+  listEntries: RequestListEntry[];
+  onRetryRoutineChangeRequests: () => void;
+  renderRequestItem: (props: RequestRenderItemProps) => ReactElement;
+  renderRoutineChangeRequest: (
+    props: RoutineChangeRequestRenderItemProps,
+  ) => ReactElement;
+  requestsCount: number;
+  routineChangeRequests: RoutineChangeRequest[];
+}
+
+interface EmptyRequestListProps {
+  message: string;
+}
+
+const EmptyRequestList = ({ message }: EmptyRequestListProps) => (
+  <ThemeView style={styles.empty} transparent>
+    <Typography style={styles.emptyText}>{message}</Typography>
+  </ThemeView>
+);
+
+const RequestListSurface = ({
+  activeTab,
+  expandedRoutineChangeRequestId,
+  isRoutineChangeError,
+  isRoutineChangeLoading,
+  listEntries,
+  onRetryRoutineChangeRequests,
+  renderRequestItem,
+  renderRoutineChangeRequest,
+  requestsCount,
+  routineChangeRequests,
+}: RequestListSurfaceProps) => {
+  if (activeTab === 'confirmation') {
+    if (!requestsCount) {
+      return <EmptyRequestList message="요청이 없습니다." />;
+    }
+
+    return (
+      // Header and request rows intentionally use different heights.
+      // eslint-disable-next-line local-rules/no-flatlist-missing-get-item-layout
+      <FlashList
+        data={listEntries}
+        keyExtractor={({ id }) => id}
+        renderItem={renderRequestItem}
+        ItemSeparatorComponent={() => (
+          <ThemeView style={styles.listSeparator} />
+        )}
+        contentContainerStyle={styles.list}
+        estimatedItemSize={72}
+        removeClippedSubviews
+        maxToRenderPerBatch={10}
+        windowSize={5}
+      />
+    );
+  }
+
+  if (isRoutineChangeLoading) {
+    return <EmptyRequestList message="요청을 불러오는 중입니다." />;
+  }
+
+  if (isRoutineChangeError) {
+    return (
+      <ThemeView style={styles.empty} transparent>
+        <Typography style={styles.emptyText}>
+          요청을 불러오지 못했습니다.
+        </Typography>
+        <Pressable
+          accessibilityLabel="다시 시도"
+          accessibilityRole="button"
+          onPress={onRetryRoutineChangeRequests}
+          style={({ pressed }) => [
+            styles.retryButton,
+            pressed && styles.itemPressed,
+          ]}
+        >
+          <Typography
+            variant="body2"
+            weight="semibold"
+            style={styles.retryButtonText}
+          >
+            다시 시도
+          </Typography>
+        </Pressable>
+      </ThemeView>
+    );
+  }
+
+  if (!routineChangeRequests.length) {
+    return <EmptyRequestList message="요청이 없습니다." />;
+  }
+
+  return (
+    // Expanded and collapsed rows intentionally use different heights.
+    // eslint-disable-next-line local-rules/no-flatlist-missing-get-item-layout
+    <FlashList
+      data={routineChangeRequests}
+      estimatedItemSize={168}
+      extraData={expandedRoutineChangeRequestId}
+      keyExtractor={({ id }) => `routine-change-${id}`}
+      renderItem={renderRoutineChangeRequest}
+      contentContainerStyle={styles.changeRequestList}
+      removeClippedSubviews
+      showsVerticalScrollIndicator={false}
+      maxToRenderPerBatch={10}
+      windowSize={5}
+    />
+  );
+};
+
 const RequestListModal = () => {
   const router = useRouter();
   const { theme } = useAppTheme();
   const user = useAuthUser();
-  const { data: requests } = useReceivedRequests(user?.nickname || '');
+  const nickname = user?.nickname ?? '';
+  const { data: requests } = useReceivedRequests(nickname);
+  const routineChangeQuery = useReceivedRoutineChangeRequestsQuery(nickname);
+  const approveRoutineChangeRequest =
+    useApproveRoutineChangeRequestMutation(nickname);
+  const rejectRoutineChangeRequest =
+    useRejectRoutineChangeRequestMutation(nickname);
+  const { showToast } = useToast();
   const setRequestId = useSetRequestId();
+  const [activeTab, setActiveTab] = useState<RequestTab>('confirmation');
+  const [expandedRoutineChangeRequestId, setExpandedRoutineChangeRequestId] =
+    useState<number | null>();
+  const routineChangeRequests = useMemo(
+    () => routineChangeQuery.data ?? [],
+    [routineChangeQuery.data],
+  );
+  const totalRequestCount = requests.length + routineChangeRequests.length;
+  const resolvingRoutineChangeRequestId = approveRoutineChangeRequest.isPending
+    ? approveRoutineChangeRequest.variables?.changeRequestId
+    : rejectRoutineChangeRequest.isPending
+      ? rejectRoutineChangeRequest.variables?.changeRequestId
+      : undefined;
+
+  useEffect(() => {
+    if (!routineChangeQuery.data) return;
+
+    setExpandedRoutineChangeRequestId((currentRequestId) => {
+      if (currentRequestId === undefined) {
+        return routineChangeQuery.data.at(-1)?.id ?? null;
+      }
+
+      if (
+        currentRequestId !== null &&
+        !routineChangeQuery.data.some(
+          (request) => request.id === currentRequestId,
+        )
+      ) {
+        return null;
+      }
+
+      return currentRequestId;
+    });
+  }, [routineChangeQuery.data]);
+  const tabs = useMemo(
+    () => [
+      {
+        count: requests.length,
+        id: 'confirmation' as const,
+        label: '인증 요청',
+      },
+      {
+        count: routineChangeRequests.length,
+        id: 'routine-change' as const,
+        label: '루틴 수정',
+      },
+    ],
+    [requests.length, routineChangeRequests.length],
+  );
   const listEntries = useMemo<RequestListEntry[]>(() => {
     const today: RequestListItem[] = [];
     const previous: RequestListItem[] = [];
@@ -120,6 +308,67 @@ const RequestListModal = () => {
       setRequestId(requestId);
     },
     [router, setRequestId],
+  );
+
+  const handleToggleRoutineChangeRequest = useCallback((requestId: number) => {
+    setExpandedRoutineChangeRequestId((currentRequestId) =>
+      currentRequestId === requestId ? null : requestId,
+    );
+  }, []);
+
+  const handleApproveRoutineChangeRequest = useCallback(
+    (requestId: number) => {
+      const request = routineChangeRequests.find(
+        (routineChangeRequest) => routineChangeRequest.id === requestId,
+      );
+
+      if (!request) return;
+
+      approveRoutineChangeRequest.mutate(
+        {
+          changeRequestId: requestId,
+          routineId: request.routineId,
+        },
+        {
+          onSuccess: () => {
+            showToast('루틴 수정 요청을 승인했습니다.', 'success');
+          },
+          onError: (error) => {
+            showToast(
+              getApiErrorMessage(
+                error,
+                '루틴 수정 요청 승인에 실패했습니다. 다시 시도해주세요.',
+              ),
+              'error',
+            );
+          },
+        },
+      );
+    },
+    [approveRoutineChangeRequest, routineChangeRequests, showToast],
+  );
+
+  const handleRejectRoutineChangeRequest = useCallback(
+    (requestId: number) => {
+      rejectRoutineChangeRequest.mutate(
+        { changeRequestId: requestId },
+        {
+          onSuccess: () => {
+            showToast('루틴 수정 요청을 거절했습니다.', 'success');
+          },
+          onError: (error) => {
+            showToast(
+              getApiErrorMessage(
+                error,
+                '루틴 수정 요청 거절에 실패했습니다. 다시 시도해주세요.',
+              ),
+              'error',
+            );
+          },
+        },
+      );
+    },
+    [rejectRoutineChangeRequest, showToast],
   );
 
   const renderRequestItem = useCallback(
@@ -180,12 +429,36 @@ const RequestListModal = () => {
     [handleMove, requests, theme.colors.brand.text],
   );
 
+  const renderRoutineChangeRequest = useCallback(
+    ({ item }: RoutineChangeRequestRenderItemProps) => (
+      <RoutineChangeRequestRow
+        isExpanded={expandedRoutineChangeRequestId === item.id}
+        isResolving={resolvingRoutineChangeRequestId !== undefined}
+        onApprove={handleApproveRoutineChangeRequest}
+        onReject={handleRejectRoutineChangeRequest}
+        onToggle={handleToggleRoutineChangeRequest}
+        request={toRoutineChangeRequestListItem(item)}
+      />
+    ),
+    [
+      expandedRoutineChangeRequestId,
+      handleApproveRoutineChangeRequest,
+      handleRejectRoutineChangeRequest,
+      handleToggleRoutineChangeRequest,
+      resolvingRoutineChangeRequestId,
+    ],
+  );
+
+  const handleRetryRoutineChangeRequests = useCallback(() => {
+    void routineChangeQuery.refetch();
+  }, [routineChangeQuery]);
+
   return (
     <ThemeView style={styles.container}>
       <ThemeView style={styles.intro} transparent>
         <ThemeView style={styles.titleRow} transparent>
           <Typography variant="h1" weight="bold" style={styles.introTitle}>
-            인증 요청
+            받은 요청
           </Typography>
           <ThemeView style={styles.countBadge}>
             <Typography
@@ -193,7 +466,7 @@ const RequestListModal = () => {
               weight="semibold"
               style={styles.accentText}
             >
-              {requests.length}
+              {totalRequestCount}
             </Typography>
           </ThemeView>
         </ThemeView>
@@ -207,31 +480,68 @@ const RequestListModal = () => {
           )}
         </ThemeView>
         <Typography variant="body2" style={styles.introDescription}>
-          도착한 인증을 확인해 주세요
+          도착한 요청을 확인해 주세요
         </Typography>
       </ThemeView>
+      <ThemeView style={styles.tabBar}>
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+
+          return (
+            <Pressable
+              key={tab.id}
+              accessibilityLabel={`${tab.label} ${tab.count}건`}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isActive }}
+              onPress={() => setActiveTab(tab.id)}
+              style={({ pressed }) => [
+                styles.tab,
+                pressed && styles.tabPressed,
+              ]}
+            >
+              <ThemeView style={styles.tabContent} transparent>
+                <Typography
+                  variant="body1"
+                  weight="semibold"
+                  style={isActive ? styles.activeTabLabel : styles.tabLabel}
+                >
+                  {tab.label}
+                </Typography>
+                <ThemeView
+                  style={[
+                    styles.tabCountBadge,
+                    isActive && styles.activeTabCountBadge,
+                  ]}
+                >
+                  <Typography
+                    variant="caption1"
+                    weight="semibold"
+                    style={
+                      isActive ? styles.activeTabCountText : styles.tabCountText
+                    }
+                  >
+                    {tab.count}
+                  </Typography>
+                </ThemeView>
+              </ThemeView>
+              {isActive ? <ThemeView style={styles.tabIndicator} /> : null}
+            </Pressable>
+          );
+        })}
+      </ThemeView>
       <ThemeView style={styles.listSurface}>
-        {requests.length ? (
-          // Header and request rows intentionally use different heights.
-          // eslint-disable-next-line local-rules/no-flatlist-missing-get-item-layout
-          <FlashList
-            data={listEntries}
-            keyExtractor={({ id }) => id}
-            renderItem={renderRequestItem}
-            ItemSeparatorComponent={() => (
-              <ThemeView style={styles.listSeparator} />
-            )}
-            contentContainerStyle={styles.list}
-            estimatedItemSize={72}
-            removeClippedSubviews
-            maxToRenderPerBatch={10}
-            windowSize={5}
-          />
-        ) : (
-          <ThemeView style={styles.empty} transparent>
-            <Typography style={styles.emptyText}>요청이 없습니다.</Typography>
-          </ThemeView>
-        )}
+        <RequestListSurface
+          activeTab={activeTab}
+          expandedRoutineChangeRequestId={expandedRoutineChangeRequestId}
+          isRoutineChangeError={routineChangeQuery.isError}
+          isRoutineChangeLoading={routineChangeQuery.isLoading}
+          listEntries={listEntries}
+          onRetryRoutineChangeRequests={handleRetryRoutineChangeRequests}
+          renderRequestItem={renderRequestItem}
+          renderRoutineChangeRequest={renderRoutineChangeRequest}
+          requestsCount={requests.length}
+          routineChangeRequests={routineChangeRequests}
+        />
       </ThemeView>
     </ThemeView>
   );
@@ -298,6 +608,75 @@ const styles = StyleSheet.create((theme) => ({
   list: {
     paddingBottom: baseFoundation.spacing[12],
     flexGrow: 0,
+  },
+
+  changeRequestList: {
+    paddingBottom: baseFoundation.spacing[12],
+  },
+
+  tabBar: {
+    minHeight: baseFoundation.dimension.x52,
+    flexDirection: 'row',
+    backgroundColor: mixWithWhite(theme.colors.action.primary.default, 0.98),
+    borderBottomWidth: baseFoundation.dimension.x1,
+    borderBottomColor: mixWithWhite(theme.colors.action.primary.default, 0.86),
+  },
+
+  tab: {
+    position: 'relative',
+    minHeight: baseFoundation.dimension.x52,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  tabPressed: {
+    opacity: baseFoundation.opacity.medium,
+  },
+
+  tabContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.spacing[2],
+  },
+
+  tabLabel: {
+    color: theme.colors.brand.text,
+  },
+
+  activeTabLabel: {
+    color: theme.colors.action.primary.default,
+  },
+
+  tabCountBadge: {
+    minWidth: baseFoundation.dimension.x28,
+    height: baseFoundation.dimension.x28,
+    borderRadius: baseFoundation.radii.s,
+    paddingHorizontal: baseFoundation.spacing[2],
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: mixWithWhite(theme.colors.action.primary.default, 0.94),
+  },
+
+  activeTabCountBadge: {
+    backgroundColor: mixWithWhite(theme.colors.action.primary.default, 0.88),
+  },
+
+  tabCountText: {
+    color: theme.colors.text.muted,
+  },
+
+  activeTabCountText: {
+    color: theme.colors.action.primary.default,
+  },
+
+  tabIndicator: {
+    position: 'absolute',
+    right: baseFoundation.spacing[0],
+    bottom: baseFoundation.spacing[0],
+    left: baseFoundation.spacing[0],
+    height: baseFoundation.dimension.x2,
+    backgroundColor: theme.colors.action.primary.default,
   },
 
   listSurface: {
@@ -370,5 +749,18 @@ const styles = StyleSheet.create((theme) => ({
 
   emptyText: {
     color: theme.colors.brand.text,
+  },
+
+  retryButton: {
+    minHeight: baseFoundation.dimension.x40,
+    marginTop: baseFoundation.spacing[3],
+    borderRadius: baseFoundation.radii.s,
+    justifyContent: 'center',
+    paddingHorizontal: baseFoundation.spacing[4],
+    backgroundColor: theme.colors.action.primary.default,
+  },
+
+  retryButtonText: {
+    color: theme.colors.action.primary.label,
   },
 }));

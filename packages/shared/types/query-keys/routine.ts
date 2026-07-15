@@ -9,6 +9,9 @@ export const routineKeys = {
     [...routineKeys.list(nickname), 'monthly', { year, month }] as const,
   listByDate: (nickname: string, date: string) =>
     [...routineKeys.list(nickname), { date }] as const,
+  changeRequests: () => [...routineKeys.all(), 'change-requests'] as const,
+  receivedChangeRequests: (nickname: string) =>
+    [...routineKeys.changeRequests(), 'received', nickname] as const,
   detail: (id: number) => [...routineKeys.all(), id] as const,
 };
 

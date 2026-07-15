@@ -2,8 +2,10 @@ import type {
   CreateRoutineRequest,
   MonthlyRoutineListRequest,
   MonthlyRoutineListResponse,
+  RejectRoutineChangeRequest,
   Routine,
   RoutineActionResponse,
+  RoutineChangeRequest,
   UpdateRoutineForm,
   UpdateRoutineOrderRequest,
   UpdateRoutinePauseRequest,
@@ -167,6 +169,44 @@ export const cancelRoutineChangeRequest = async (
   try {
     await http.delete<void, void>(
       `/routine/change-requests/${changeRequestId}`,
+    );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const fetchReceivedRoutineChangeRequests = async (): Promise<
+  RoutineChangeRequest[]
+> => {
+  try {
+    return await http.get<RoutineChangeRequest[], void>(
+      '/routine/change-requests/received',
+    );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const approveRoutineChangeRequest = async (
+  changeRequestId: number,
+): Promise<void> => {
+  try {
+    await http.post<void, void>(
+      `/routine/change-requests/${changeRequestId}/approve`,
+    );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const rejectRoutineChangeRequest = async (
+  changeRequestId: number,
+  data: RejectRoutineChangeRequest = {},
+): Promise<void> => {
+  try {
+    await http.post<void, RejectRoutineChangeRequest>(
+      `/routine/change-requests/${changeRequestId}/reject`,
+      data,
     );
   } catch (error) {
     throw toAppError(error);

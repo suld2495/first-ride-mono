@@ -39,9 +39,10 @@ describe('useModal', () => {
     expect(options.contentPaddingHorizontal).toBe(20);
   });
 
-  it('인증 요청 목록 모달은 공통 모달 좌우 패딩을 제거한다', () => {
-    const [, , options] = useModal('request-list');
+  it('받은 요청 목록 모달은 타이틀을 변경하고 공통 모달 좌우 패딩을 제거한다', () => {
+    const [title, , options] = useModal('request-list');
 
+    expect(title).toBe('받은 요청');
     expect(options.contentPaddingHorizontal).toBe(0);
   });
 
