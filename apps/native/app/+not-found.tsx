@@ -1,5 +1,11 @@
 import { Redirect } from 'expo-router';
 
+import { useAuthUser } from '@/hooks/useAuthSession';
+
 export default function NotFoundScreen() {
-  return <Redirect href="/(tabs)/(afterLogin)/(routine)" />;
+  const user = useAuthUser();
+
+  return (
+    <Redirect href={user ? '/(tabs)/(afterLogin)/(routine)' : '/sign-in'} />
+  );
 }
