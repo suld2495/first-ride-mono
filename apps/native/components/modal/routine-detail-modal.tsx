@@ -69,7 +69,6 @@ const RoutineDetailModal = () => {
 
   const pendingChangeRequestId =
     detail?.hasPendingChangeRequest &&
-    detail.pendingChangeRequestStatus === 'PENDING' &&
     typeof detail.pendingChangeRequestId === 'number'
       ? detail.pendingChangeRequestId
       : null;

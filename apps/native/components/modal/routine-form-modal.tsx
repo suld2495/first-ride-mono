@@ -116,7 +116,6 @@ const RoutineFormModal = () => {
   const today = useMemo(() => getStartOfToday(), []);
   const initialPendingChangeRequestId =
     routineDetail?.hasPendingChangeRequest &&
-    routineDetail.pendingChangeRequestStatus === 'PENDING' &&
     typeof routineDetail.pendingChangeRequestId === 'number'
       ? routineDetail.pendingChangeRequestId
       : null;

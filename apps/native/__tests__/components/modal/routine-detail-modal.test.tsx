@@ -147,7 +147,7 @@ describe('RoutineDetailModal (루틴 상세 모달)', () => {
         ...createMockRoutine(0),
         hasPendingChangeRequest: true,
         pendingChangeRequestId: 100,
-        pendingChangeRequestStatus: 'PENDING',
+        pendingChangeRequestStatus: null,
       };
       const appliedRoutine = {
         ...pendingRoutine,
@@ -208,7 +208,7 @@ describe('RoutineDetailModal (루틴 상세 모달)', () => {
           ...createMockRoutine(0),
           hasPendingChangeRequest: true,
           pendingChangeRequestId: 100,
-          pendingChangeRequestStatus: 'PENDING',
+          pendingChangeRequestStatus: null,
         },
       });
       mockAxios.onDelete('/routine/change-requests/100').reply(500, {

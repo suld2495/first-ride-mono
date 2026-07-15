@@ -1030,7 +1030,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         mateNickname: '메이트닉네임',
         hasPendingChangeRequest: true,
         pendingChangeRequestId: 100,
-        pendingChangeRequestStatus: 'PENDING',
+        pendingChangeRequestStatus: null,
       });
 
       const { findByText } = render(<RoutineFormModal />);
