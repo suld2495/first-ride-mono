@@ -184,7 +184,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Base64
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -230,8 +229,7 @@ class RoutineShareReceiverActivity : Activity() {
         outputFile.outputStream().use { output -> output.write(bytes) }
         images.put(
           JSONObject()
-            .put("base64", Base64.encodeToString(bytes, Base64.NO_WRAP))
-            .put("previewUri", Uri.fromFile(outputFile).toString()),
+            .put("uri", Uri.fromFile(outputFile).toString()),
         )
       }
     }

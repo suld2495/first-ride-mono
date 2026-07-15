@@ -25,7 +25,7 @@ createHttp({
         config.headers.Authorization = `Bearer ${token}`;
       }
 
-      config.timeout = REQUEST_TIMEOUT_MS;
+      config.timeout ??= REQUEST_TIMEOUT_MS;
       return config;
     } catch (error) {
       throw new ApiError(

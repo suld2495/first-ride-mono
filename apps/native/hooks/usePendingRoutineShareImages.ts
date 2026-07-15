@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 
+import { useToast } from '@/contexts/ToastContext';
 import type { RequestImage } from '@/hooks/useRequestSubmission';
 import {
   clearPendingRoutineShare,
   getPendingRoutineShare,
 } from '@/share/routine-share';
+import { normalizeRequestImages } from '@/utils/request-image';
 
 export const usePendingRoutineShareImages = (
   routineId: number,
   shareSessionId?: string,
 ): RequestImage[] => {
   const [sharedImages, setSharedImages] = useState<RequestImage[]>([]);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!shareSessionId || !routineId) {
@@ -19,15 +22,34 @@ export const usePendingRoutineShareImages = (
 
     let isMounted = true;
 
-    const loadPendingShare = async () => {
-      const payload = await getPendingRoutineShare(shareSessionId);
+    const loadPendingShare = async (): Promise<void> => {
+      try {
+        const payload = await getPendingRoutineShare(shareSessionId);
 
-      if (!isMounted || !payload || payload.routineId !== routineId) {
-        return;
+        if (!payload || payload.routineId !== routineId) {
+          return;
+        }
+
+        const { images, rejectedCount } = await normalizeRequestImages(
+          payload.images,
+        );
+
+        if (!isMounted) {
+          return;
+        }
+
+        setSharedImages(images);
+
+        if (rejectedCount > 0) {
+          showToast('업로드할 수 없는 이미지는 제외했습니다.', 'error');
+        }
+
+        await clearPendingRoutineShare(shareSessionId);
+      } catch {
+        if (isMounted) {
+          showToast('공유 이미지를 불러오지 못했습니다.', 'error');
+        }
       }
-
-      setSharedImages(payload.images);
-      await clearPendingRoutineShare(shareSessionId);
     };
 
     void loadPendingShare();
@@ -35,7 +57,7 @@ export const usePendingRoutineShareImages = (
     return () => {
       isMounted = false;
     };
-  }, [routineId, shareSessionId]);
+  }, [routineId, shareSessionId, showToast]);
 
   return sharedImages;
 };

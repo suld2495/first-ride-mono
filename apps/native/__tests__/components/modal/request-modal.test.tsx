@@ -27,6 +27,8 @@ const mockRequestMediaLibraryPermissionsAsync = jest.fn();
 const mockRequestCameraPermissionsAsync = jest.fn();
 const mockGetPendingRoutineShare = jest.fn();
 const mockClearPendingRoutineShare = jest.fn();
+const mockManipulateAsync = jest.fn();
+const mockGetInfoAsync = jest.fn();
 
 jest.mock('@/share/routine-share', () => ({
   getPendingRoutineShare: (...args: unknown[]) =>
@@ -42,6 +44,15 @@ jest.mock('expo-image-picker', () => ({
   launchImageLibraryAsync: (options: unknown) =>
     mockLaunchImageLibraryAsync(options),
   launchCameraAsync: (options: unknown) => mockLaunchCameraAsync(options),
+}));
+
+jest.mock('expo-image-manipulator', () => ({
+  manipulateAsync: (...args: unknown[]) => mockManipulateAsync(...args),
+  SaveFormat: { JPEG: 'jpeg' },
+}));
+
+jest.mock('expo-file-system', () => ({
+  getInfoAsync: (...args: unknown[]) => mockGetInfoAsync(...args),
 }));
 
 // axios mock adapter
@@ -65,7 +76,17 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
     mockRequestCameraPermissionsAsync.mockClear();
     mockGetPendingRoutineShare.mockReset();
     mockClearPendingRoutineShare.mockReset();
+    mockManipulateAsync.mockReset();
+    mockGetInfoAsync.mockReset();
     mockGetPendingRoutineShare.mockResolvedValue(null);
+    mockManipulateAsync.mockImplementation(async (uri: string) => ({
+      uri: uri
+        .replace('file:///', 'file:///normalized/')
+        .replace(/\.[^.]+$/, '.jpg'),
+      width: 1_200,
+      height: 800,
+    }));
+    mockGetInfoAsync.mockResolvedValue({ exists: true, size: 512_000 });
 
     // 기본 권한 설정 (granted)
     mockRequestMediaLibraryPermissionsAsync.mockResolvedValue({
@@ -79,15 +100,16 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
   });
 
   // 이미지 선택 헬퍼 함수
-  const createPickedAssets = (images = ['test-base64-image-data']) =>
-    images.map((base64) => ({
-      base64,
-      uri: `file:///${base64}.jpg`,
+  const createPickedAssets = (images = ['test-image-data']) =>
+    images.map((image) => ({
+      uri: `file:///${image}.heic`,
+      width: 1_200,
+      height: 800,
     }));
 
   const selectImageFromGallery = async (
     getByTestId: (testId: string) => any,
-    images = ['test-base64-image-data'],
+    images = ['test-image-data'],
   ) => {
     mockLaunchImageLibraryAsync.mockResolvedValue({
       canceled: false,
@@ -344,7 +366,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
     it('카메라로 촬영한 이미지 한 장을 미리보기에 추가한다', async () => {
       mockLaunchCameraAsync.mockResolvedValue({
         canceled: false,
-        assets: createPickedAssets(['camera-base64-image-data']),
+        assets: createPickedAssets(['camera-image-data']),
       });
       const screen = render(<RequestModal />);
 
@@ -357,14 +379,17 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(mockLaunchCameraAsync).toHaveBeenCalledWith(
         expect.objectContaining({
           allowsMultipleSelection: false,
-          base64: true,
+          mediaTypes: ['images'],
         }),
+      );
+      expect(mockLaunchCameraAsync.mock.calls[0]?.[0]).not.toHaveProperty(
+        'base64',
       );
       await waitFor(() => {
         expect(screen.getByText('1/3')).toBeOnTheScreen();
         expect(screen.getByTestId('request-image-preview')).toHaveProp(
           'source',
-          { uri: 'file:///camera-base64-image-data.jpg' },
+          { uri: 'file:///normalized/camera-image-data.jpg' },
         );
       });
     });
@@ -400,9 +425,9 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await findByText('테스트 루틴 1');
 
       await selectImageFromGallery(getByTestId, [
-        'test-base64-image-data-1',
-        'test-base64-image-data-2',
-        'test-base64-image-data-3',
+        'test-image-data-1',
+        'test-image-data-2',
+        'test-image-data-3',
       ]);
 
       expect(mockLaunchImageLibraryAsync).toHaveBeenCalledWith(
@@ -419,9 +444,9 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await screen.findByText('테스트 루틴 1');
 
       await selectImageFromGallery(screen.getByTestId, [
-        'test-base64-image-data-1',
-        'test-base64-image-data-2',
-        'test-base64-image-data-3',
+        'test-image-data-1',
+        'test-image-data-2',
+        'test-image-data-3',
       ]);
 
       await waitFor(() => {
@@ -444,7 +469,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       await waitFor(() => {
         expect(getByTestId('request-image-preview')).toHaveProp('source', {
-          uri: 'file:///test-base64-image-data.jpg',
+          uri: 'file:///normalized/test-image-data.jpg',
         });
       });
     });
@@ -472,8 +497,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         createdAt: '2026-05-29T00:00:00.000Z',
         images: [
           {
-            base64: 'shared-base64-image-data',
-            previewUri: 'file:///shared-image.jpg',
+            uri: 'file:///shared-image.heic',
           },
         ],
       });
@@ -485,7 +509,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await waitFor(() => {
         expect(mockGetPendingRoutineShare).toHaveBeenCalledWith('session-1');
         expect(getByTestId('request-image-preview')).toHaveProp('source', {
-          uri: 'file:///shared-image.jpg',
+          uri: 'file:///normalized/shared-image.jpg',
         });
         expect(mockClearPendingRoutineShare).toHaveBeenCalledWith('session-1');
       });
@@ -498,11 +522,35 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       await findByText('테스트 루틴 1');
 
-      await selectImageFromGallery(getByTestId, ['test-base64-image-data-1']);
-      await selectImageFromGallery(getByTestId, ['test-base64-image-data-2']);
+      await selectImageFromGallery(getByTestId, ['test-image-data-1']);
+      await selectImageFromGallery(getByTestId, ['test-image-data-2']);
 
       await waitFor(() => {
         expect(getAllByTestId('request-image-preview')).toHaveLength(2);
+      });
+    });
+
+    it('같은 이미지를 다시 선택하면 중복으로 추가하지 않는다', async () => {
+      mockManipulateAsync
+        .mockResolvedValueOnce({
+          uri: 'file:///normalized/same-image-1.jpg',
+          width: 1_200,
+          height: 800,
+        })
+        .mockResolvedValueOnce({
+          uri: 'file:///normalized/same-image-2.jpg',
+          width: 1_200,
+          height: 800,
+        });
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+      await selectImageFromGallery(screen.getByTestId, ['same-image']);
+      await selectImageFromGallery(screen.getByTestId, ['same-image']);
+
+      await waitFor(() => {
+        expect(screen.getAllByTestId('request-image-preview')).toHaveLength(1);
+        expect(screen.getByText('1/3')).toBeOnTheScreen();
       });
     });
 
@@ -512,10 +560,10 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await findByText('테스트 루틴 1');
 
       await selectImageFromGallery(getByTestId, [
-        'test-base64-image-data-1',
-        'test-base64-image-data-2',
+        'test-image-data-1',
+        'test-image-data-2',
       ]);
-      await selectImageFromGallery(getByTestId, ['test-base64-image-data-3']);
+      await selectImageFromGallery(getByTestId, ['test-image-data-3']);
 
       expect(mockLaunchImageLibraryAsync).toHaveBeenLastCalledWith(
         expect.objectContaining({
@@ -532,8 +580,8 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await findByText('테스트 루틴 1');
 
       await selectImageFromGallery(getByTestId, [
-        'test-base64-image-data-1',
-        'test-base64-image-data-2',
+        'test-image-data-1',
+        'test-image-data-2',
       ]);
 
       await waitFor(() => {
@@ -547,6 +595,23 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await waitFor(() => {
         expect(getAllByTestId('request-image-preview')).toHaveLength(1);
         expect(queryByTestId('remove-request-image-1')).not.toBeOnTheScreen();
+      });
+    });
+
+    it('변환할 수 없는 이미지는 미리보기에 넣지 않고 안내한다', async () => {
+      mockManipulateAsync.mockRejectedValueOnce(new Error('unsupported'));
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+      await selectImageFromGallery(screen.getByTestId, ['invalid-image']);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('request-image-preview')).toBeNull();
+        expect(screen.getByText('0/3')).toBeOnTheScreen();
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '업로드할 수 없는 이미지는 제외했습니다.',
+          'error',
+        );
       });
     });
   });
@@ -587,20 +652,18 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       });
 
       it('선택한 이미지 3개를 인증 요청에 포함한다', async () => {
-        const expectedImages = [
-          'test-base64-image-data-1',
-          'test-base64-image-data-2',
-          'test-base64-image-data-3',
+        const selectedImages = [
+          'test-image-data-1',
+          'test-image-data-2',
+          'test-image-data-3',
         ];
-        let submittedFormData: FormData | undefined;
+        const appendSpy = jest.spyOn(FormData.prototype, 'append');
 
         mockAxios.resetHandlers();
         mockAxios.onGet(/\/routine\/details/).reply(200, {
           data: createMockRoutine(0, { isMe: true }),
         });
-        mockAxios.onPost('/routine/confirm').reply((config) => {
-          submittedFormData = config.data as FormData;
-
+        mockAxios.onPost('/routine/confirm').reply(() => {
           return [200, { data: null }];
         });
 
@@ -608,7 +671,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
         await findByText('테스트 루틴 1');
 
-        await selectImageFromGallery(getByTestId, expectedImages);
+        await selectImageFromGallery(getByTestId, selectedImages);
 
         await waitFor(() => {
           expect(getByText('요청')).toBeEnabled();
@@ -619,10 +682,25 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         });
 
         await waitFor(() => {
-          expect(submittedFormData?.getAll('base64images')).toEqual(
-            expectedImages,
+          for (const [index, image] of selectedImages.entries()) {
+            expect(appendSpy).toHaveBeenCalledWith('images', {
+              uri: `file:///normalized/${image}.jpg`,
+              name: `routine-confirm-${index + 1}.jpg`,
+              type: 'image/jpeg',
+            });
+          }
+          expect(appendSpy).not.toHaveBeenCalledWith(
+            'base64images',
+            expect.anything(),
+          );
+          expect(appendSpy).toHaveBeenCalledWith('routineId', '1');
+          expect(appendSpy).not.toHaveBeenCalledWith(
+            'nickname',
+            expect.anything(),
           );
         });
+
+        appendSpy.mockRestore();
       });
 
       it('요청 중에는 스피너를 표시하고 취소, 요청, 이미지 업로드 버튼을 비활성화한다', async () => {
@@ -779,7 +857,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith(
-            '용량은 1MB 이하만 업로드 가능합니다.',
+            '이미지는 1장당 10MB 이하로 업로드할 수 있습니다.',
             'error',
           );
         });

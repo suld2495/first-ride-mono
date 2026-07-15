@@ -22,8 +22,7 @@ struct RoutineShareTargetsPayload: Codable {
 }
 
 struct RoutineShareImage: Codable {
-  let base64: String
-  let previewUri: String
+  let uri: String
 }
 
 struct RoutineSharePayload: Codable {
@@ -193,14 +192,11 @@ final class ShareViewController: UIViewController {
     }
 
     let sessionDirectory = sharedImageDirectory()
-    let fileURL = sessionDirectory.appendingPathComponent("\(UUID().uuidString).jpg")
+    let fileURL = sessionDirectory.appendingPathComponent("\(UUID().uuidString).source")
 
     do {
       try data.write(to: fileURL, options: [.atomic])
-      return RoutineShareImage(
-        base64: data.base64EncodedString(),
-        previewUri: fileURL.absoluteString
-      )
+      return RoutineShareImage(uri: fileURL.absoluteString)
     } catch {
       return nil
     }

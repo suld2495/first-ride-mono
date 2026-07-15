@@ -230,7 +230,7 @@ const RequestModal = () => {
                         >
                           <Image
                             testID="request-image-preview"
-                            source={{ uri: image.previewUri }}
+                            source={{ uri: image.uri }}
                             style={styles.preview}
                             resizeMode="cover"
                           />

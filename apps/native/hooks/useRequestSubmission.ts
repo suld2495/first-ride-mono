@@ -9,6 +9,11 @@ import { Alert, Linking } from 'react-native';
 
 import { useToast } from '@/contexts/ToastContext';
 import { getApiErrorMessage } from '@/utils/error-utils';
+import {
+  normalizeRequestImages,
+  type RequestImage,
+  type RequestImageSource,
+} from '@/utils/request-image';
 
 interface RoutineDetailInfo {
   nickname: string;
@@ -18,10 +23,7 @@ interface RoutineDetailInfo {
 
 export const MAX_REQUEST_IMAGE_COUNT = 3;
 
-export type RequestImage = {
-  base64: string;
-  previewUri: string;
-};
+export type { RequestImage } from '@/utils/request-image';
 
 type RequestImageForm = {
   images: RequestImage[];
@@ -59,10 +61,15 @@ export const useRequestSubmission = (
       const formData = new FormData();
 
       for (const image of submittedForm.images) {
-        formData.append('base64images', image.base64);
+        const file = {
+          uri: image.uri,
+          name: image.name,
+          type: image.type,
+        };
+
+        formData.append('images', file as unknown as Blob);
       }
       formData.append('routineId', routineId.toString());
-      formData.append('nickname', detail.nickname);
 
       saveRequest.mutate(formData, {
         onSuccess: () => {
@@ -79,7 +86,10 @@ export const useRequestSubmission = (
         },
         onError: (error) => {
           if (error instanceof ApiError && error.status === 413) {
-            showToast('용량은 1MB 이하만 업로드 가능합니다.', 'error');
+            showToast(
+              '이미지는 1장당 10MB 이하로 업로드할 수 있습니다.',
+              'error',
+            );
             return;
           }
 
@@ -93,6 +103,37 @@ export const useRequestSubmission = (
       });
     },
     [detail, queryClient, routineId, router, saveRequest, showToast],
+  );
+
+  const addNormalizedImages = useCallback(
+    async (
+      sources: RequestImageSource[],
+      setValue: SetImageValue,
+      currentImages: RequestImage[],
+    ) => {
+      const { images, rejectedCount } = await normalizeRequestImages(sources);
+
+      if (rejectedCount > 0) {
+        showToast('업로드할 수 없는 이미지는 제외했습니다.', 'error');
+      }
+
+      if (!images.length) {
+        return;
+      }
+
+      const sourceUris = new Set<string>();
+      const nextImages = [...currentImages, ...images].filter((image) => {
+        if (sourceUris.has(image.sourceUri)) {
+          return false;
+        }
+
+        sourceUris.add(image.sourceUri);
+        return true;
+      });
+
+      setValue('images', nextImages.slice(0, MAX_REQUEST_IMAGE_COUNT));
+    },
+    [showToast],
   );
 
   const pickImage = useCallback(
@@ -117,43 +158,28 @@ export const useRequestSubmission = (
         }
 
         const result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images', 'livePhotos'],
+          mediaTypes: ['images'],
           allowsMultipleSelection: true,
           selectionLimit: remainingImageCount,
           orderedSelection: true,
-          base64: true,
         });
 
         if (!result.canceled) {
-          const selectedImages = result.assets
-            .map((asset) =>
-              asset.base64
-                ? {
-                    base64: asset.base64,
-                    previewUri: asset.uri,
-                  }
-                : null,
-            )
-            .filter((image): image is RequestImage => !!image);
-          const previewUris = new Set<string>();
-          const nextImages = [...currentImages, ...selectedImages].filter(
-            (image) => {
-              if (previewUris.has(image.previewUri)) {
-                return false;
-              }
-
-              previewUris.add(image.previewUri);
-              return true;
-            },
+          await addNormalizedImages(
+            result.assets.map(({ uri, width, height }) => ({
+              uri,
+              width,
+              height,
+            })),
+            setValue,
+            currentImages,
           );
-
-          setValue('images', nextImages.slice(0, MAX_REQUEST_IMAGE_COUNT));
         }
       } catch {
         showToast('이미지를 불러오지 못했습니다.', 'error');
       }
     },
-    [showToast],
+    [addNormalizedImages, showToast],
   );
 
   const takePicture = useCallback(
@@ -174,25 +200,24 @@ export const useRequestSubmission = (
         }
 
         const result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ['images', 'livePhotos'],
+          mediaTypes: ['images'],
           allowsMultipleSelection: false,
-          base64: true,
         });
 
         if (!result.canceled) {
-          const nextImage = result.assets[0]?.base64;
-          const nextPreviewUri = result.assets[0]?.uri;
+          const asset = result.assets[0];
 
-          if (nextImage && nextPreviewUri) {
-            setValue(
-              'images',
+          if (asset) {
+            await addNormalizedImages(
               [
-                ...currentImages,
                 {
-                  base64: nextImage,
-                  previewUri: nextPreviewUri,
+                  uri: asset.uri,
+                  width: asset.width,
+                  height: asset.height,
                 },
-              ].slice(0, MAX_REQUEST_IMAGE_COUNT),
+              ],
+              setValue,
+              currentImages,
             );
           }
         }
@@ -200,7 +225,7 @@ export const useRequestSubmission = (
         showToast('카메라를 실행하지 못했습니다.', 'error');
       }
     },
-    [showToast],
+    [addNormalizedImages, showToast],
   );
 
   return {

@@ -53,7 +53,6 @@ const retriedRequestIds = new Set<string>();
 const axiosInstance = axios.create({
   headers: {
     Accept: 'application/json',
-    'Content-Type': 'application/json',
   },
   timeout: REQUEST_TIMEOUT_MS,
 });

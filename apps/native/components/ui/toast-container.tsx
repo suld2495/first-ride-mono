@@ -1,11 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect } from 'react';
-import { Animated, Pressable, View } from 'react-native';
+import { Animated, Pressable, Text, View } from 'react-native';
 
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { type Toast, type ToastType, useToast } from '@/contexts/ToastContext';
-
-import { Typography } from './typography';
 
 interface ToastItemProps {
   toast: Toast;
@@ -91,10 +89,13 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
           color={theme.colors.text.inverse}
           style={styles.icon}
         />
-        <Typography color="inverse" style={styles.message}>
-          {toast.message}
-        </Typography>
-        <Pressable onPress={handleClose} hitSlop={theme.foundation.spacing[2]}>
+        <Text style={styles.message}>{toast.message}</Text>
+        <Pressable
+          accessibilityLabel="알림 닫기"
+          accessibilityRole="button"
+          onPress={handleClose}
+          hitSlop={theme.foundation.spacing[2]}
+        >
           <Ionicons
             name="close"
             size={theme.foundation.iconSize.m}
@@ -154,6 +155,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   message: {
     flex: 1,
+    color: theme.colors.text.inverse,
+    fontFamily: theme.foundation.typography.fontFamily.regular,
     fontSize: theme.foundation.typography.size.m,
   },
 }));

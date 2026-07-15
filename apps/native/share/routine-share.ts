@@ -1,7 +1,7 @@
 import type { Routine } from '@repo/types';
 import { NativeModules, Platform } from 'react-native';
 
-import type { RequestImage } from '@/hooks/useRequestSubmission';
+import type { RequestImageSource } from '@/utils/request-image';
 
 export const ROUTINE_SHARE_APP_GROUP_IDENTIFIER = 'group.com.mannal.firstride';
 export const ROUTINE_SHARE_TARGETS_KEY = 'routineShareTargetsV2';
@@ -29,7 +29,7 @@ export interface PendingRoutineSharePayload {
   sessionId: string;
   routineId: number;
   createdAt: string;
-  images: RequestImage[];
+  images: RequestImageSource[];
 }
 
 interface RoutineShareNativeModule {
@@ -124,19 +124,14 @@ export const buildRoutineShareUrl = (
     shareSessionId,
   )}`;
 
-const isRequestImage = (value: unknown): value is RequestImage => {
+const isRequestImageSource = (value: unknown): value is RequestImageSource => {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
 
-  const image = value as Partial<RequestImage>;
+  const image = value as Partial<RequestImageSource>;
 
-  return (
-    typeof image.base64 === 'string' &&
-    image.base64.length > 0 &&
-    typeof image.previewUri === 'string' &&
-    image.previewUri.length > 0
-  );
+  return typeof image.uri === 'string' && image.uri.length > 0;
 };
 
 export const parsePendingRoutineSharePayload = (
@@ -166,7 +161,7 @@ export const parsePendingRoutineSharePayload = (
     }
 
     const images = payload.images
-      .filter(isRequestImage)
+      .filter(isRequestImageSource)
       .slice(0, MAX_SHARED_IMAGE_COUNT);
 
     if (!images.length) {

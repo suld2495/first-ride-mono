@@ -7,6 +7,8 @@ import type {
 import { toAppError } from '.';
 import http from './client';
 
+const IMAGE_UPLOAD_TIMEOUT_MS = 60_000;
+
 export const fetchReceivedRequests = async (): Promise<RequestList> => {
   try {
     const response: RequestList = await http.get(`/routine/confirm/list`);
@@ -34,9 +36,7 @@ export const fetchRequestDetail = async (
 export const createRequest = async (data: FormData): Promise<void> => {
   try {
     const response: void = await http.post(`/routine/confirm`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      timeout: IMAGE_UPLOAD_TIMEOUT_MS,
     });
 
     return response;

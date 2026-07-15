@@ -2,7 +2,6 @@ import { RequestResponseForm } from '../models/request';
 
 interface CreateRequestDto {
   routineId: number;
-  nickname: string;
 }
 
 export type CreateRequestWebDto = CreateRequestDto & {
@@ -10,7 +9,11 @@ export type CreateRequestWebDto = CreateRequestDto & {
 };
 
 export type CreateRequestAppDto = CreateRequestDto & {
-  base64images: string[];
+  images: {
+    uri: string;
+    name: string;
+    type: 'image/jpeg';
+  }[];
 };
 
 export type CreateRequestResponseDto = RequestResponseForm & {

@@ -111,14 +111,14 @@ describe('routine share', () => {
       sessionId: 'session-1',
       routineId: 12,
       createdAt: '2026-05-29T00:00:00.000Z',
-      images: [{ base64: 'abc', previewUri: 'file:///shared.jpg' }],
+      images: [{ uri: 'file:///shared.heic' }],
     });
 
     expect(parsePendingRoutineSharePayload(raw, 'session-1')).toEqual({
       sessionId: 'session-1',
       routineId: 12,
       createdAt: '2026-05-29T00:00:00.000Z',
-      images: [{ base64: 'abc', previewUri: 'file:///shared.jpg' }],
+      images: [{ uri: 'file:///shared.heic' }],
     });
     expect(parsePendingRoutineSharePayload(raw, 'other-session')).toBeNull();
   });
