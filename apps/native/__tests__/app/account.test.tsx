@@ -173,7 +173,7 @@ describe('Account', () => {
     expect(mottoInput.props.value).toBe('바뀐 한마디');
   });
 
-  it('한마디 입력은 60byte를 넘는 문자를 입력할 수 없다', () => {
+  it('한마디 입력은 80byte를 넘는 문자를 입력할 수 없다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
@@ -181,16 +181,16 @@ describe('Account', () => {
 
     const { getByTestId } = render(<Account />);
     const mottoInput = getByTestId('account-motto-input');
-    const sixtyBytes =
-      '123456789012345678901234567890123456789012345678901234567890';
+    const eightyBytes =
+      '12345678901234567890123456789012345678901234567890123456789012345678901234567890';
 
-    fireEvent.changeText(mottoInput, `${sixtyBytes}1`);
+    fireEvent.changeText(mottoInput, `${eightyBytes}1`);
 
-    expect(mottoInput.props.value).toBe(sixtyBytes);
+    expect(mottoInput.props.value).toBe(eightyBytes);
 
-    fireEvent.changeText(mottoInput, `${'가'.repeat(20)}나`);
+    fireEvent.changeText(mottoInput, `${'가'.repeat(26)}ab나`);
 
-    expect(mottoInput.props.value).toBe('가'.repeat(20));
+    expect(mottoInput.props.value).toBe(`${'가'.repeat(26)}ab`);
   });
 
   it('한마디 입력 아래에 현재 byte 수와 최대 byte 수를 표시한다', () => {
@@ -204,14 +204,14 @@ describe('Account', () => {
 
     expect(getByTestId('account-motto-byte-counter').props.children).toEqual([
       16,
-      ' / 60byte',
+      ' / 80byte',
     ]);
 
     fireEvent.changeText(mottoInput, 'abc가');
 
     expect(getByTestId('account-motto-byte-counter').props.children).toEqual([
       6,
-      ' / 60byte',
+      ' / 80byte',
     ]);
   });
 

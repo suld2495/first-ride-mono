@@ -25,9 +25,7 @@ export const useUpdateMottoMutation = () => {
   return useMutation({
     mutationFn: updateMotto,
     onSuccess: async (user) => {
-      if (user) {
-        queryClient.setQueryData(userKey.me(), user);
-      }
+      queryClient.setQueryData(userKey.me(), user);
 
       try {
         await queryClient.invalidateQueries({

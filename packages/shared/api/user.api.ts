@@ -1,6 +1,6 @@
 import type { SearchOption, UpdateMottoRequest, User } from '@repo/types';
 
-import { toAppError } from '.';
+import axiosInstance, { toAppError } from '.';
 import http from './client';
 
 const baseURL = '/users';
@@ -31,14 +31,14 @@ export const fetchMe = async (): Promise<User> => {
 
 export const updateMotto = async (
   request: UpdateMottoRequest,
-): Promise<User | undefined> => {
+): Promise<User> => {
   try {
-    const response: User | undefined = await http.put(
+    const response = await axiosInstance.put<User>(
       `${baseURL}/me/motto`,
       request,
     );
 
-    return response;
+    return response.data;
   } catch (error) {
     throw toAppError(error);
   }

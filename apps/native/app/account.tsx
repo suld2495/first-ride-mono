@@ -19,7 +19,7 @@ import { useAuthSignIn, useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { baseFoundation, palette } from '@/theme/tokens';
 
-const MAX_MOTTO_BYTES = 60;
+const MAX_MOTTO_BYTES = 80;
 const getSkinLevel5Color = (themeName: string) => {
   if (themeName === 'green') {
     return palette.theme.green[5];
@@ -119,19 +119,7 @@ const Account = () => {
         },
         {
           onSuccess: (updatedUser) => {
-            const nextUser =
-              updatedUser ??
-              (displayUser
-                ? {
-                    ...displayUser,
-                    motto: nextPrimaryMotto,
-                    mottos: nextPrimaryMotto ? [nextPrimaryMotto] : [],
-                  }
-                : undefined);
-
-            if (nextUser) {
-              signIn(nextUser);
-            }
+            signIn(updatedUser);
 
             showToast('한마디가 수정되었습니다.', 'success');
           },
@@ -149,7 +137,7 @@ const Account = () => {
 
       setSavedMotto(nextPrimaryMotto);
     },
-    [displayUser, showToast, signIn, updateMotto],
+    [showToast, signIn, updateMotto],
   );
 
   const handlePrimaryMottoSubmit = useCallback(() => {
@@ -229,7 +217,7 @@ const Account = () => {
               style={styles.mottoByteCounter}
             >
               {primaryMottoByteLength}
-              {' / 60byte'}
+              {` / ${MAX_MOTTO_BYTES}byte`}
             </Typography>
           </View>
         </View>
