@@ -1,10 +1,8 @@
 import { User } from './user';
 
 export interface Friend {
-  id?: number | string;
+  friendId: number | string;
   userId?: User['userId'];
-  friendId?: number | string;
-  accountId?: number | string;
   nickname: User['nickname'];
   motto: null | string;
   mottos: string[];

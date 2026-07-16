@@ -5,7 +5,7 @@ import type { Friend, FriendRequest } from '@repo/types';
 // ========================================
 
 export interface CreateMockFriendOptions {
-  id?: number;
+  friendId?: number;
   userId?: string;
   nickname?: string;
   motto?: string | null;
@@ -23,7 +23,7 @@ export const createMockFriend = (
   index: number = 0,
   options: CreateMockFriendOptions = {},
 ): Friend => ({
-  id: options.id ?? index + 1,
+  friendId: options.friendId ?? index + 1,
   userId: options.userId ?? `friend-id-${index + 1}`,
   nickname: options.nickname ?? `friend${index + 1}`,
   motto:

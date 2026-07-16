@@ -16,16 +16,11 @@ import { Button } from '@/components/ui/button';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
-import { useToast } from '@/contexts/ToastContext';
 import { useClearAppColorSchemeOverride } from '@/hooks/useThemePreference';
 import { baseFoundation } from '@/theme/tokens';
 
-const getFriendAccountId = (friend: Friend): number | string | undefined =>
-  friend.id ?? friend.friendId ?? friend.accountId;
-
 const FriendPage = () => {
   const router = useRouter();
-  const { showToast } = useToast();
   const [page] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -57,23 +52,13 @@ const FriendPage = () => {
 
   const handleOpenFriend = useCallback(
     (friend: Friend) => {
-      const friendAccountId = getFriendAccountId(friend);
-
-      if (!friendAccountId) {
-        showToast(
-          '친구 루틴을 보려면 친구 목록 응답에 친구 id가 필요합니다.',
-          'error',
-        );
-        return;
-      }
-
       router.push(
-        `/modal?type=friend-routines&friendId=${friendAccountId}&friendNickname=${encodeURIComponent(
+        `/modal?type=friend-routines&friendId=${friend.friendId}&friendNickname=${encodeURIComponent(
           friend.nickname,
         )}&date=${getWeekMonday(new Date())}`,
       );
     },
-    [router, showToast],
+    [router],
   );
 
   return (

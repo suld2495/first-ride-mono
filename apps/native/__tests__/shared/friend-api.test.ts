@@ -8,6 +8,7 @@ const FRIEND_SINCE = '2026-05-21T08:28:25.407Z';
 
 const friends = [
   {
+    friendId: 1,
     nickname: 'yunji12345',
     mateNickname: 'mate1',
     job: '직장인',
@@ -18,6 +19,7 @@ const friends = [
     friendSince: FRIEND_SINCE,
   },
   {
+    friendId: 2,
     nickname: 'hy',
     mateNickname: 'mate2',
     job: '직장인',
@@ -28,6 +30,7 @@ const friends = [
     friendSince: FRIEND_SINCE,
   },
   {
+    friendId: 3,
     nickname: 'Fff',
     mateNickname: 'mate3',
     job: '직장인',
@@ -65,26 +68,11 @@ describe('friend.api', () => {
       ).resolves.toEqual([]);
     });
 
-    it('친구의 로그인 아이디와 계정 식별자를 분리해서 반환한다', async () => {
-      const friendWithoutAccountId = {
-        ...friends[2],
-        userId: 'Fff1234',
-      };
-
-      mockAxios.resetHandlers();
-      mockAxios
-        .onGet('/friends')
-        .reply(200, { data: [friendWithoutAccountId] });
-      mockAxios.onGet('/users/search?nickname=Fff').reply(200, {
-        data: [{ id: 49, userId: 'Fff1234', nickname: 'Fff' }],
-      });
-
-      await expect(fetchFriends({ page: 1, keyword: '' })).resolves.toEqual([
-        {
-          ...friendWithoutAccountId,
-          accountId: 49,
-        },
-      ]);
+    it('목록 응답의 friendId를 그대로 반환한다', async () => {
+      await expect(fetchFriends({ page: 1, keyword: '' })).resolves.toEqual(
+        friends,
+      );
+      expect(mockAxios.history.get).toHaveLength(1);
     });
   });
 

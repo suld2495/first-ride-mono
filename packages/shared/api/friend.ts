@@ -13,44 +13,6 @@ import axiosInstance, { toAppError } from '.';
 import http from './client';
 
 const baseURL = '/friends';
-const userBaseURL = '/users';
-
-const getFriendAccountId = (friend: Friend): number | string | undefined =>
-  friend.id ?? friend.friendId ?? friend.accountId;
-
-const fetchFriendAccountIdByNickname = async (
-  nickname: User['nickname'],
-): Promise<number | string | undefined> => {
-  try {
-    const users: Array<
-      User & {
-        id?: number | string;
-        accountId?: number | string;
-      }
-    > = await http.get(
-      `${userBaseURL}/search?nickname=${encodeURIComponent(nickname)}`,
-    );
-    const user = users.find((item) => item.nickname === nickname);
-
-    return user?.id ?? user?.accountId;
-  } catch (error) {
-    throw toAppError(error);
-  }
-};
-
-const withFriendAccountId = async (friend: Friend): Promise<Friend> => {
-  if (getFriendAccountId(friend)) {
-    return friend;
-  }
-
-  try {
-    const accountId = await fetchFriendAccountIdByNickname(friend.nickname);
-
-    return accountId ? { ...friend, accountId } : friend;
-  } catch {
-    return friend;
-  }
-};
 
 const filterFriendsByKeyword = (
   friends: Friend[],
@@ -73,9 +35,8 @@ export const fetchFriends = async ({
 }: SearchOption): Promise<Friend[]> => {
   try {
     const response: Friend[] = await http.get(baseURL);
-    const filteredFriends = filterFriendsByKeyword(response, keyword);
 
-    return Promise.all(filteredFriends.map(withFriendAccountId));
+    return filterFriendsByKeyword(response, keyword);
   } catch (error) {
     throw toAppError(error);
   }
@@ -96,7 +57,7 @@ export const fetchFriendRequests = async (
 };
 
 export const fetchFriendProfile = async (
-  friendId: Friend['id'],
+  friendId: Friend['friendId'],
 ): Promise<FriendProfileResponse> => {
   try {
     return await http.get(
@@ -179,7 +140,7 @@ const unwrapFriendRoutinesResponse = (
 };
 
 export const fetchFriendRoutines = async (
-  friendId: Friend['id'],
+  friendId: Friend['friendId'],
   date: string,
 ): Promise<{
   friend: FriendRoutinesResponse['friend'];

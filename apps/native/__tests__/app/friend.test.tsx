@@ -129,7 +129,6 @@ describe('친구 리스트 페이지', () => {
       setupMocks([
         {
           ...createMockFriend(0),
-          id: 1,
           friendId: 42,
         },
       ]);
