@@ -6,8 +6,16 @@ import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { lightTheme } from '@/theme/themes/light';
 
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
-import { act, render, resetAuthMocks, waitFor } from '../setup/auth-test-utils';
+import {
+  act,
+  fireEvent,
+  render,
+  resetAuthMocks,
+  waitFor,
+} from '../setup/auth-test-utils';
 import { createMockFriend, createMockFriends } from '../setup/friend/mock';
+
+declare const mockPush: jest.Mock;
 
 // FriendRequestResponse 형식에 맞는 mock 데이터 생성
 const createMockFriendRequestResponse = (count: number) =>
@@ -117,6 +125,24 @@ describe('친구 리스트 페이지', () => {
   });
 
   describe('친구 목록 API 테스트', () => {
+    it('친구 카드 선택 시 목록 응답의 friendId로 루틴 화면을 연다', async () => {
+      setupMocks([
+        {
+          ...createMockFriend(0),
+          id: 1,
+          friendId: 42,
+        },
+      ]);
+
+      const screen = render(<FriendPage />);
+
+      fireEvent.press(await screen.findByLabelText('friend1 루틴 보기'));
+
+      expect(mockPush).toHaveBeenCalledWith(
+        expect.stringContaining('friendId=42'),
+      );
+    });
+
     it('GET /friends 변경 응답의 한마디를 표시한다', async () => {
       mockAxios
         .onGet(/\/friends\/requests/)
