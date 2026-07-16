@@ -1,6 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, Modal, StyleSheet, View } from 'react-native';
 
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { lightTheme } from '@/theme/themes/light';
@@ -120,6 +120,22 @@ describe('친구 리스트 페이지', () => {
         const { findByText } = render(<FriendPage />);
 
         expect(await findByText('친구를 추가해보세요.')).toBeOnTheScreen();
+      });
+    });
+
+    it('친구 추가 모달을 열고 닫는다', async () => {
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+
+      fireEvent.press(await screen.findByText('친구 추가'));
+      await waitFor(() => {
+        expect(screen.UNSAFE_getByType(Modal).props.visible).toBe(true);
+      });
+
+      fireEvent(screen.UNSAFE_getByType(Modal), 'requestClose');
+      await waitFor(() => {
+        expect(screen.UNSAFE_getByType(Modal).props.visible).toBe(false);
       });
     });
   });
