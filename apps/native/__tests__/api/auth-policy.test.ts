@@ -11,6 +11,9 @@ describe('인증 요청 정책', () => {
     '/auth/kakao/check',
     '/auth/kakao/login',
     '/auth/kakao/signup',
+    '/auth/apple/check',
+    '/auth/apple/login',
+    '/auth/apple/signup',
   ])('%s 요청을 공개 인증 요청으로 분류한다', (url) => {
     expect(isPublicAuthUrl(url)).toBe(true);
   });

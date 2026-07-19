@@ -3,6 +3,7 @@ import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
+import { usePendingAppleAuthStore } from '@/store/pending-apple-auth.store';
 import { getDeviceId } from '@/utils/device-id';
 
 import SocialSignUp from '../../app/social-sign-up';
@@ -47,6 +48,7 @@ describe('SocialSignUp 페이지', () => {
     }
     mockSearchParams.provider = 'kakao';
     mockSearchParams.accessToken = 'kakao-access-token';
+    usePendingAppleAuthStore.getState().clearCredential();
     mockAxios = new MockAdapter(axiosInstance);
     mockAxios.onGet('/auth/job-options').reply(200, {
       data: [
@@ -143,5 +145,82 @@ describe('SocialSignUp 페이지', () => {
     expect(mockedSetRefreshToken).toHaveBeenCalledWith('service-refresh-token');
     expect(authorizationCallOrder).toBeLessThan(signInCallOrder);
     expect(refreshTokenCallOrder).toBeLessThan(signInCallOrder);
+  });
+
+  it('Apple 신규 가입에는 임시 credential과 성별을 전송한다', async () => {
+    mockSearchParams.provider = 'apple';
+    delete mockSearchParams.accessToken;
+    usePendingAppleAuthStore.getState().setCredential({
+      provider: 'apple',
+      identityToken: 'apple-identity-token',
+      authorizationCode: 'apple-authorization-code',
+    });
+    let signupRequest: unknown;
+
+    mockAxios.onPost('/auth/apple/signup').reply((config) => {
+      signupRequest = JSON.parse(config.data as string);
+
+      return [
+        201,
+        {
+          data: {
+            userInfo: { userId: 'apple_user', nickname: '애플 사용자' },
+            accessToken: 'service-access-token',
+            refreshToken: 'service-refresh-token',
+          },
+        },
+      ];
+    });
+
+    const { getByPlaceholderText, getByText, findByText } = render(
+      <SocialSignUp />,
+    );
+
+    fireEvent.changeText(
+      getByPlaceholderText('닉네임을 입력해주세요.'),
+      '애플 사용자',
+    );
+    fireEvent.press(await findByText('개발자'));
+    fireEvent.press(getByText('여성'));
+    fireEvent.press(getByText('가입 완료'));
+
+    await waitFor(() => {
+      expect(signupRequest).toEqual({
+        identityToken: 'apple-identity-token',
+        authorizationCode: 'apple-authorization-code',
+        nickname: '애플 사용자',
+        job: '개발자',
+        gender: 'FEMALE',
+        pushToken: 'mock-push-token',
+        deviceType: 'ios',
+        deviceId: 'installation-device-id',
+      });
+    });
+    expect(usePendingAppleAuthStore.getState().credential).toBeNull();
+  });
+
+  it('Apple 신규 가입은 성별을 선택하기 전 제출하지 않는다', async () => {
+    mockSearchParams.provider = 'apple';
+    delete mockSearchParams.accessToken;
+    usePendingAppleAuthStore.getState().setCredential({
+      provider: 'apple',
+      identityToken: 'apple-identity-token',
+      authorizationCode: 'apple-authorization-code',
+    });
+    mockAxios.onPost('/auth/apple/signup').reply(201, { data: {} });
+
+    const { getByPlaceholderText, getByText, findByText } = render(
+      <SocialSignUp />,
+    );
+
+    fireEvent.changeText(
+      getByPlaceholderText('닉네임을 입력해주세요.'),
+      '애플 사용자',
+    );
+    fireEvent.press(await findByText('개발자'));
+    fireEvent.press(getByText('가입 완료'));
+
+    expect(await findByText('성별을 선택해주세요.')).toBeOnTheScreen();
+    expect(mockAxios.history.post).toHaveLength(0);
   });
 });

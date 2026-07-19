@@ -10,6 +10,47 @@ jest.mock('@react-native-kakao/user', () => ({
   me: jest.fn(),
 }));
 
+// expo-apple-authentication 모킹
+global.mockAppleSignIn = jest.fn();
+global.mockAppleIsAvailable = jest.fn(() => Promise.resolve(true));
+
+jest.mock(
+  'expo-apple-authentication',
+  () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const React = require('react');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { Pressable, Text } = require('react-native');
+
+    return {
+      AppleAuthenticationButton: ({ onPress, style }) =>
+        React.createElement(
+          Pressable,
+          {
+            accessibilityLabel: 'Apple로 로그인',
+            accessibilityRole: 'button',
+            onPress,
+            style,
+          },
+          React.createElement(Text, null, 'Apple로 로그인'),
+        ),
+      AppleAuthenticationButtonStyle: {
+        BLACK: 2,
+      },
+      AppleAuthenticationButtonType: {
+        SIGN_IN: 0,
+      },
+      AppleAuthenticationScope: {
+        FULL_NAME: 0,
+        EMAIL: 1,
+      },
+      isAvailableAsync: global.mockAppleIsAvailable,
+      signInAsync: global.mockAppleSignIn,
+    };
+  },
+  { virtual: true },
+);
+
 // expo-notifications 모킹
 jest.mock('expo-notifications', () => ({
   getExpoPushTokenAsync: jest.fn(),

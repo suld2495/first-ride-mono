@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { Platform, StyleSheet as RNStyleSheet } from 'react-native';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
+import { usePendingAppleAuthStore } from '@/store/pending-apple-auth.store';
 import { getDeviceId } from '@/utils/device-id';
 
 import SignIn from '../../app/sign-in';
@@ -13,6 +14,8 @@ import { render } from '../setup/test-utils';
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
 declare const mockShowToast: jest.Mock;
+declare const mockAppleSignIn: jest.Mock;
+declare const mockAppleIsAvailable: jest.Mock;
 declare const mockAuthStore: {
   lastUserId: string | null;
   signIn: jest.Mock;
@@ -51,6 +54,10 @@ describe('SignIn 페이지', () => {
     mockedSetAuthorization.mockClear();
     mockedSetRefreshToken.mockClear();
     mockedGetDeviceId.mockResolvedValue('installation-device-id');
+    mockAppleSignIn.mockReset();
+    mockAppleIsAvailable.mockReset();
+    mockAppleIsAvailable.mockResolvedValue(true);
+    usePendingAppleAuthStore.getState().clearCredential();
     mockAxios = new MockAdapter(axiosInstance);
   });
 
@@ -213,6 +220,141 @@ describe('SignIn 페이지', () => {
         const { queryByText } = render(<SignIn />);
 
         expect(queryByText('카카오로 로그인')).not.toBeOnTheScreen();
+      } finally {
+        Object.defineProperty(Platform, 'OS', {
+          configurable: true,
+          value: originalPlatform,
+        });
+      }
+    });
+
+    it('iOS에서 Apple 로그인을 노출하고 기존 사용자를 로그인시킨다', async () => {
+      const originalPlatform = Platform.OS;
+
+      Object.defineProperty(Platform, 'OS', {
+        configurable: true,
+        value: 'ios',
+      });
+      mockAppleSignIn.mockResolvedValue({
+        user: 'apple-user-id',
+        identityToken: 'apple-identity-token',
+        authorizationCode: 'apple-authorization-code',
+      });
+      mockAxios.onPost('/auth/apple/check').reply(200, {
+        data: {
+          isNewUser: false,
+          appleUserInfo: {
+            appleId: 'apple-user-id',
+            email: 'relay@privaterelay.appleid.com',
+            nickname: '애플 사용자',
+          },
+        },
+      });
+      mockAxios.onPost('/auth/apple/login').reply(200, {
+        data: {
+          accessToken: 'service-access-token',
+          refreshToken: 'service-refresh-token',
+          userInfo: { userId: 'apple_user', nickname: '애플 사용자' },
+        },
+      });
+
+      try {
+        const { findByText } = render(<SignIn />);
+
+        fireEvent.press(await findByText('Apple로 로그인'));
+
+        await waitFor(() => {
+          expect(mockAuthStore.signIn).toHaveBeenCalledWith({
+            userId: 'apple_user',
+            nickname: '애플 사용자',
+          });
+        });
+        expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toEqual({
+          identityToken: 'apple-identity-token',
+        });
+        expect(JSON.parse(mockAxios.history.post[1]?.data ?? '{}')).toEqual({
+          identityToken: 'apple-identity-token',
+          authorizationCode: 'apple-authorization-code',
+          pushToken: 'mock-push-token',
+          deviceType: 'ios',
+          deviceId: 'installation-device-id',
+        });
+      } finally {
+        Object.defineProperty(Platform, 'OS', {
+          configurable: true,
+          value: originalPlatform,
+        });
+      }
+    });
+
+    it('신규 Apple 사용자의 credential을 임시 보관하고 가입 화면으로 이동한다', async () => {
+      const originalPlatform = Platform.OS;
+
+      Object.defineProperty(Platform, 'OS', {
+        configurable: true,
+        value: 'ios',
+      });
+      mockAppleSignIn.mockResolvedValue({
+        user: 'apple-user-id',
+        identityToken: 'apple-identity-token',
+        authorizationCode: 'apple-authorization-code',
+      });
+      mockAxios.onPost('/auth/apple/check').reply(200, {
+        data: {
+          isNewUser: true,
+          appleUserInfo: {
+            appleId: 'apple-user-id',
+            email: 'relay@privaterelay.appleid.com',
+            nickname: null,
+          },
+        },
+      });
+
+      try {
+        const { findByText } = render(<SignIn />);
+
+        fireEvent.press(await findByText('Apple로 로그인'));
+
+        await waitFor(() => {
+          expect(mockPush).toHaveBeenCalledWith({
+            pathname: '/social-sign-up',
+            params: { provider: 'apple' },
+          });
+        });
+        expect(usePendingAppleAuthStore.getState().credential).toEqual({
+          provider: 'apple',
+          identityToken: 'apple-identity-token',
+          authorizationCode: 'apple-authorization-code',
+        });
+        expect(mockAxios.history.post).toHaveLength(1);
+      } finally {
+        Object.defineProperty(Platform, 'OS', {
+          configurable: true,
+          value: originalPlatform,
+        });
+      }
+    });
+
+    it('Apple 시스템 인증 취소는 오류 토스트로 표시하지 않는다', async () => {
+      const originalPlatform = Platform.OS;
+
+      Object.defineProperty(Platform, 'OS', {
+        configurable: true,
+        value: 'ios',
+      });
+      mockAppleSignIn.mockRejectedValue(
+        Object.assign(new Error('취소됨'), { code: 'ERR_REQUEST_CANCELED' }),
+      );
+
+      try {
+        const { findByText } = render(<SignIn />);
+
+        fireEvent.press(await findByText('Apple로 로그인'));
+
+        await waitFor(() => {
+          expect(mockAppleSignIn).toHaveBeenCalledTimes(1);
+        });
+        expect(mockShowToast).not.toHaveBeenCalled();
       } finally {
         Object.defineProperty(Platform, 'OS', {
           configurable: true,
