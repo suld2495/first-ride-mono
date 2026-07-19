@@ -78,6 +78,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     resizeMode: 'contain',
     backgroundColor: '#7edcd5',
   },
+  locales: {
+    ko: './locales/ko.json',
+  },
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
@@ -85,6 +88,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: 'com.mannal.firstride',
     appleTeamId: '8C683MXTH7',
     infoPlist: {
+      CFBundleAllowMixedLocalizations: true,
+      CFBundleDevelopmentRegion: 'ko',
       ITSAppUsesNonExemptEncryption: false,
       NSUserNotificationsUsageDescription:
         '알림을 통해 메이트의 루틴 인증 요청을 받을 수 있습니다.',
