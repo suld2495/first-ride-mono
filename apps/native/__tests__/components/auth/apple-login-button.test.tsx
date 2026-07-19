@@ -1,7 +1,8 @@
 import { waitFor } from '@testing-library/react-native';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet as RNStyleSheet } from 'react-native';
 
 import { AppleLoginButton } from '@/components/auth/apple-login-button';
+import { KakaoLoginButton } from '@/components/auth/kakao-login-button';
 
 import { render } from '../../setup/test-utils';
 
@@ -45,22 +46,50 @@ describe('AppleLoginButton', () => {
     expect(queryByText('Apple로 로그인')).not.toBeOnTheScreen();
   });
 
+  it('카카오 로그인과 같은 크기와 정렬의 한국어 버튼을 표시한다', async () => {
+    Object.defineProperty(Platform, 'OS', {
+      configurable: true,
+      value: 'ios',
+    });
+    mockAppleIsAvailable.mockResolvedValue(true);
+
+    const apple = render(<AppleLoginButton onPress={jest.fn()} />);
+    const kakao = render(<KakaoLoginButton onPress={jest.fn()} />);
+
+    const appleButton = await apple.findByTestId('apple-login-button');
+    const kakaoButton = kakao.getByLabelText('카카오로 로그인');
+    const getButtonStyle = (button: typeof appleButton) =>
+      RNStyleSheet.flatten(button.props.style({ pressed: false }));
+
+    expect(apple.getByText('Apple로 로그인')).toBeOnTheScreen();
+    expect(apple.getByTestId('apple-login-logo')).toBeOnTheScreen();
+    expect(
+      apple.queryByTestId('native-apple-authentication-button'),
+    ).not.toBeOnTheScreen();
+    expect(getButtonStyle(appleButton)).toEqual(
+      expect.objectContaining({
+        height: getButtonStyle(kakaoButton).height,
+        borderRadius: getButtonStyle(kakaoButton).borderRadius,
+        shadowOpacity: getButtonStyle(kakaoButton).shadowOpacity,
+        elevation: getButtonStyle(kakaoButton).elevation,
+      }),
+    );
+  });
+
   it('로딩 중에는 버튼 입력을 차단한다', async () => {
     Object.defineProperty(Platform, 'OS', {
       configurable: true,
       value: 'ios',
     });
     mockAppleIsAvailable.mockResolvedValue(true);
-    const { findByLabelText, getByTestId } = render(
+    const { findByTestId } = render(
       <AppleLoginButton loading onPress={jest.fn()} />,
     );
-    await findByLabelText('Apple로 로그인');
-    const container = getByTestId('apple-login-button-container');
+    const button = await findByTestId('apple-login-button');
 
-    expect(container.props.accessibilityState).toEqual({
+    expect(button.props.accessibilityState).toEqual({
       disabled: true,
       busy: true,
     });
-    expect(container.props.pointerEvents).toBe('none');
   });
 });

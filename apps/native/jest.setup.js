@@ -31,6 +31,7 @@ jest.mock(
             accessibilityRole: 'button',
             onPress,
             style,
+            testID: 'native-apple-authentication-button',
           },
           React.createElement(Text, null, 'Apple로 로그인'),
         ),
