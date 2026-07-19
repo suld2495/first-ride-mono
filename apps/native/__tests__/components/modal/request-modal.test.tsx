@@ -261,10 +261,12 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(screen.getByText('요청')).toBeDisabled();
     });
 
-    it('루틴 상세 설명이 화면에 표시된다', async () => {
-      const { findByText } = render(<RequestModal />);
+    it('루틴 상세 내용 항목을 표시하지 않는다', async () => {
+      const { findByText, queryByText } = render(<RequestModal />);
 
-      expect(await findByText('테스트 루틴 1 상세')).toBeOnTheScreen();
+      await findByText('테스트 루틴 1');
+
+      expect(queryByText('테스트 루틴 1 상세')).toBeNull();
     });
 
     it('루틴 이름 라벨이 표시된다', async () => {
