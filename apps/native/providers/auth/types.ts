@@ -9,6 +9,7 @@ export type AuthProviderType =
   | 'google'
   | 'naver';
 export type SocialProviderType = Exclude<AuthProviderType, 'credentials'>;
+export type StandardSocialProviderType = Exclude<SocialProviderType, 'apple'>;
 
 export const AUTH_PROVIDER_NAMES: Record<AuthProviderType, string> = {
   credentials: '아이디/비밀번호',
@@ -26,7 +27,7 @@ export interface CredentialsPayload {
 }
 
 export interface SocialPayload {
-  provider: SocialProviderType;
+  provider: StandardSocialProviderType;
   socialId: string;
   accessToken: string;
   idToken?: string;

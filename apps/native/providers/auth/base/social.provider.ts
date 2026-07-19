@@ -8,13 +8,13 @@ import type {
   AuthResponse,
   DeviceInfo,
   SocialPayload,
-  SocialProviderType,
+  StandardSocialProviderType,
 } from '@/providers/auth/types';
 
 export abstract class SocialAuthProvider
-  implements AuthProvider<SocialProviderType, SocialPayload, void>
+  implements AuthProvider<StandardSocialProviderType, SocialPayload, void>
 {
-  abstract type: SocialProviderType;
+  abstract type: StandardSocialProviderType;
   abstract name: string;
 
   // 기본적으로 모든 플랫폼에서 사용 가능 (override 가능)

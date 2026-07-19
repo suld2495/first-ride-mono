@@ -4,8 +4,8 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 
-import AuthPage from '@/components/auth/auth-page';
 import { AppleLoginButton } from '@/components/auth/apple-login-button';
+import AuthPage from '@/components/auth/auth-page';
 import { KakaoLoginButton } from '@/components/auth/kakao-login-button';
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';

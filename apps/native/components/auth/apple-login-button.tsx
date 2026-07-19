@@ -1,11 +1,6 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
-import {
-  Platform,
-  type StyleProp,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import { Platform, type StyleProp, View, type ViewStyle } from 'react-native';
 
 import { StyleSheet } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
@@ -39,6 +34,8 @@ export function AppleLoginButton({
         if (isMounted) {
           setIsAvailable(available);
         }
+
+        return available;
       })
       .catch(() => {
         if (isMounted) {
@@ -64,9 +61,7 @@ export function AppleLoginButton({
       style={[styles.container, isDisabled ? styles.disabled : null, style]}
     >
       <AppleAuthentication.AppleAuthenticationButton
-        buttonType={
-          AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN
-        }
+        buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
         buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
         cornerRadius={baseFoundation.radii.s}
         onPress={onPress}

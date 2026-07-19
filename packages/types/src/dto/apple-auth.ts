@@ -19,10 +19,7 @@ export interface AppleUserInfo {
   nickname: string | null;
 }
 
-export type AppleCheckRequest = Pick<
-  AppleCredentialRequest,
-  'identityToken'
->;
+export type AppleCheckRequest = Pick<AppleCredentialRequest, 'identityToken'>;
 
 export interface AppleCheckResponse {
   isNewUser: boolean;

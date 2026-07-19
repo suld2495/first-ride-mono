@@ -31,9 +31,7 @@ class AuthManager {
         ? payload.accessToken
         : undefined;
     const pendingAppleCredential =
-      response.isNewUser && payload.provider === 'apple'
-        ? (payload as ApplePayload)
-        : undefined;
+      response.isNewUser && 'identityToken' in payload ? payload : undefined;
 
     return {
       ...response,

@@ -56,7 +56,7 @@ describe('SignIn 페이지', () => {
     mockedGetDeviceId.mockResolvedValue('installation-device-id');
     mockAppleSignIn.mockReset();
     mockAppleIsAvailable.mockReset();
-    mockAppleIsAvailable.mockResolvedValue(true);
+    mockAppleIsAvailable.mockImplementation(() => new Promise(() => {}));
     usePendingAppleAuthStore.getState().clearCredential();
     mockAxios = new MockAdapter(axiosInstance);
   });
@@ -235,6 +235,7 @@ describe('SignIn 페이지', () => {
         configurable: true,
         value: 'ios',
       });
+      mockAppleIsAvailable.mockResolvedValue(true);
       mockAppleSignIn.mockResolvedValue({
         user: 'apple-user-id',
         identityToken: 'apple-identity-token',
@@ -294,6 +295,7 @@ describe('SignIn 페이지', () => {
         configurable: true,
         value: 'ios',
       });
+      mockAppleIsAvailable.mockResolvedValue(true);
       mockAppleSignIn.mockResolvedValue({
         user: 'apple-user-id',
         identityToken: 'apple-identity-token',
@@ -342,6 +344,7 @@ describe('SignIn 페이지', () => {
         configurable: true,
         value: 'ios',
       });
+      mockAppleIsAvailable.mockResolvedValue(true);
       mockAppleSignIn.mockRejectedValue(
         Object.assign(new Error('취소됨'), { code: 'ERR_REQUEST_CANCELED' }),
       );

@@ -19,12 +19,12 @@ import {
 } from '@/hooks/useAuth';
 import { useAuthSignIn } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
+import { usePendingAppleAuth } from '@/hooks/usePendingAppleAuth';
 import {
   AUTH_PROVIDER_NAMES,
   getDeviceType,
   type SocialProviderType,
 } from '@/providers/auth/types';
-import { usePendingAppleAuthStore } from '@/store/pending-apple-auth.store';
 import { baseFoundation } from '@/theme/tokens';
 import { getDeviceId } from '@/utils/device-id';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
@@ -52,12 +52,10 @@ export default function SocialSignUp() {
   const signIn = useAuthSignIn();
   const socialSignUpMutation = useSocialSignUpMutation();
   const appleSignUpMutation = useAppleSignUpMutation();
-  const pendingAppleCredential = usePendingAppleAuthStore(
-    (state) => state.credential,
-  );
-  const clearPendingAppleCredential = usePendingAppleAuthStore(
-    (state) => state.clearCredential,
-  );
+  const {
+    credential: pendingAppleCredential,
+    clearCredential: clearPendingAppleCredential,
+  } = usePendingAppleAuth();
   const {
     data: jobOptions = [],
     isError: isJobOptionsError,
