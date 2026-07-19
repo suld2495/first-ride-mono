@@ -135,6 +135,7 @@ const renderWithSharedQueryClient = (ui: React.ReactElement) => {
 declare const mockPush: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockUser: {
+  characterImageUrl: null | string;
   motto: null | string;
   mottos?: string[];
   nickname: string;
@@ -453,6 +454,34 @@ describe('루틴 조회 페이지', () => {
           await findByTestId('routine-scene-background'),
         ).toBeOnTheScreen();
         expect(await findByTestId('routine-scene-character')).toBeOnTheScreen();
+      });
+
+      it('서버가 제공한 캐릭터 URL을 루틴 캐릭터 이미지로 사용한다', async () => {
+        const characterImageUrl =
+          'https://cdn.example.com/characters/warrior-intermediate.png';
+        mockAuthStore.user = {
+          ...mockUser,
+          characterImageUrl,
+        };
+
+        const { findByTestId } = render(<Index />);
+
+        expect(await findByTestId('routine-scene-character')).toHaveProp(
+          'source',
+          { uri: characterImageUrl },
+        );
+      });
+
+      it('서버 캐릭터 URL이 없으면 프론트 내부 SVG를 표시하지 않는다', async () => {
+        mockAuthStore.user = {
+          ...mockUser,
+          characterImageUrl: null,
+        };
+
+        const { findByText, queryByTestId } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+        expect(queryByTestId('routine-scene-character')).toBeNull();
       });
 
       it('계정 한마디 말풍선이 항상 표시된다', async () => {

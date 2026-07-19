@@ -470,6 +470,7 @@ jest.mock('expo-router', () => {
 global.mockUser = {
   nickname: 'testuser',
   userId: 'test123',
+  characterImageUrl: 'https://api.irura.uk/assets/characters/warrior.png',
   motto: '끝까지 간다',
   mottos: ['끝까지 간다'],
   role: 'USER',
