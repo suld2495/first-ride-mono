@@ -1,4 +1,5 @@
 import { useMyStatsQuery } from '@repo/shared/hooks/useStat';
+import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useCallback } from 'react';
@@ -8,14 +9,13 @@ import { deletePushToken } from '@/api/push-token.api';
 import Container from '@/components/layout/container';
 import Header from '@/components/layout/header';
 import {
-  getRoutineSceneCharacterAsset,
+  getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { useAuthSignOut, useAuthUser } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
-import type { ThemeName } from '@/theme/themes';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 const FALLBACK_LEVEL = 1;
@@ -38,20 +38,6 @@ type ThemeTone = 'blue' | 'green' | 'red';
 
 const getThemeTone = (themeName?: string): ThemeTone => {
   if (themeName === 'green' || themeName === 'red') {
-    return themeName;
-  }
-
-  return 'blue';
-};
-
-const getCharacterThemeName = (themeName?: string): ThemeName => {
-  if (
-    themeName === 'light' ||
-    themeName === 'dark' ||
-    themeName === 'blue' ||
-    themeName === 'green' ||
-    themeName === 'red'
-  ) {
     return themeName;
   }
 
@@ -81,6 +67,7 @@ const getThemePalette = (themeTone: ThemeTone) => {
 const MyInfo = () => {
   const signOut = useAuthSignOut();
   const user = useAuthUser();
+  const { data: currentUser } = useFetchMeQuery(user?.userId);
   const { pushToken } = useNotifications();
   const { data: stats, refetch: refetchMyStats } = useMyStatsQuery();
   const { theme } = useAppTheme();
@@ -90,7 +77,9 @@ const MyInfo = () => {
     nextLevelExp > 0 ? Math.min(currentExp / nextLevelExp, 1) : 0;
   const themeTone = getThemeTone(theme.name);
   const { themeColor, softThemeColor } = getThemePalette(themeTone);
-  const characterThemeName = getCharacterThemeName(theme.name);
+  const characterAsset = getRoutineSceneRemoteAsset(
+    currentUser?.characterImageUrl,
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -133,13 +122,12 @@ const MyInfo = () => {
             testID="settings-profile-avatar"
             style={styles.avatar}
           >
-            {renderRoutineSceneAsset(
-              getRoutineSceneCharacterAsset(characterThemeName),
-              {
-                testID: 'settings-profile-character',
-                style: styles.character,
-              },
-            )}
+            {characterAsset
+              ? renderRoutineSceneAsset(characterAsset, {
+                  testID: 'settings-profile-character',
+                  style: styles.character,
+                })
+              : null}
           </View>
           <View testID="settings-profile-text" style={styles.profileText}>
             <Typography

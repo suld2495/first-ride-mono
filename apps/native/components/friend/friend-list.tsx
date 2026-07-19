@@ -8,10 +8,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
-import {
-  getRoutineSceneCharacterAsset,
-  renderRoutineSceneAsset,
-} from '@/components/routine/routine-scene-art';
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList } from '@/components/ui/flash-list';
 import { Loading } from '@/components/ui/loading';
@@ -225,15 +221,7 @@ const FriendItem = ({
             resizeMode="contain"
             accessibilityLabel={`${nickname} 캐릭터`}
           />
-        ) : (
-          renderRoutineSceneAsset(
-            getRoutineSceneCharacterAsset(characterThemeName),
-            {
-              testID: `friend-character-fallback-${testIdSuffix}`,
-              style: characterStyle,
-            },
-          )
-        )}
+        ) : null}
         <View
           testID={`friend-level-badge-${testIdSuffix}`}
           style={[

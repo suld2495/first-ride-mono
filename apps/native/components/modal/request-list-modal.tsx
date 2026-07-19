@@ -4,6 +4,7 @@ import {
   useReceivedRoutineChangeRequestsQuery,
   useRejectRoutineChangeRequestMutation,
 } from '@repo/shared/hooks/useRoutine';
+import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineChangeRequest } from '@repo/types';
 import { useRouter } from 'expo-router';
@@ -15,7 +16,7 @@ import RoutineChangeRequestRow, {
   toRoutineChangeRequestListItem,
 } from '@/components/modal/routine-change-request-row';
 import {
-  getRoutineSceneCharacterAsset,
+  getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
 import { FlashList } from '@/components/ui/flash-list';
@@ -26,7 +27,6 @@ import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 import { useSetRequestId } from '@/hooks/useRequestSelection';
-import type { ThemeName } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
@@ -60,20 +60,6 @@ const getRequestGroupLabel = (createdAt: string) => {
     requestDate.getDate() === today.getDate();
 
   return isToday ? '오늘' : '이전 요청';
-};
-
-const getCharacterThemeName = (themeName: string): ThemeName => {
-  if (
-    themeName === 'light' ||
-    themeName === 'dark' ||
-    themeName === 'blue' ||
-    themeName === 'green' ||
-    themeName === 'red'
-  ) {
-    return themeName;
-  }
-
-  return 'blue';
 };
 
 const mixWithWhite = (hexColor: string, whiteRatio: number) => {
@@ -209,6 +195,10 @@ const RequestListModal = () => {
   const router = useRouter();
   const { theme } = useAppTheme();
   const user = useAuthUser();
+  const { data: currentUser } = useFetchMeQuery(user?.userId);
+  const characterAsset = getRoutineSceneRemoteAsset(
+    currentUser?.characterImageUrl,
+  );
   const nickname = user?.nickname ?? '';
   const { data: requests } = useReceivedRequests(nickname);
   const routineChangeQuery = useReceivedRoutineChangeRequestsQuery(nickname);
@@ -471,13 +461,12 @@ const RequestListModal = () => {
           </ThemeView>
         </ThemeView>
         <ThemeView style={styles.characterSlot} transparent>
-          {renderRoutineSceneAsset(
-            getRoutineSceneCharacterAsset(getCharacterThemeName(theme.name)),
-            {
-              testID: 'request-list-character',
-              style: styles.character,
-            },
-          )}
+          {characterAsset
+            ? renderRoutineSceneAsset(characterAsset, {
+                testID: 'request-list-character',
+                style: styles.character,
+              })
+            : null}
         </ThemeView>
         <Typography variant="body2" style={styles.introDescription}>
           도착한 요청을 확인해 주세요

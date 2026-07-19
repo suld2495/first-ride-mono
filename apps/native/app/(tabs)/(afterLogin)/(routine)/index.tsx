@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
+import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -10,7 +11,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
-  getRoutineSceneBackgroundAsset,
   getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
@@ -72,6 +72,7 @@ export default function Index() {
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
   const user = useAuthUser();
+  const { data: currentUser } = useFetchMeQuery(user?.userId);
   const themeName = useColorScheme();
 
   const {
@@ -81,8 +82,12 @@ export default function Index() {
   } = useRoutinesQuery(user?.nickname || '', date);
   const hasRoutines = routines.length > 0;
   const routineCharacterAsset = useMemo(
-    () => getRoutineSceneRemoteAsset(user?.characterImageUrl),
-    [user?.characterImageUrl],
+    () => getRoutineSceneRemoteAsset(currentUser?.characterImageUrl),
+    [currentUser?.characterImageUrl],
+  );
+  const routineBackgroundAsset = useMemo(
+    () => getRoutineSceneRemoteAsset(currentUser?.backgroundImageUrl),
+    [currentUser?.backgroundImageUrl],
   );
   const mottos = useMemo(() => {
     const normalizedMotto = normalizeMottoText(user?.motto);
@@ -158,11 +163,13 @@ export default function Index() {
       <StatusBar style="dark" />
       <View style={styles.scene} pointerEvents="none">
         <View style={styles.backgroundArt} testID="routine-background-art">
-          {renderRoutineSceneAsset(getRoutineSceneBackgroundAsset(themeName), {
-            testID: 'routine-scene-background',
-            style: styles.backgroundImage,
-            resizeMode: 'stretch',
-          })}
+          {routineBackgroundAsset
+            ? renderRoutineSceneAsset(routineBackgroundAsset, {
+                testID: 'routine-scene-background',
+                style: styles.backgroundImage,
+                resizeMode: 'stretch',
+              })
+            : null}
         </View>
       </View>
       <View style={styles.contentWrapper}>

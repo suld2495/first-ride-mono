@@ -6,19 +6,17 @@ import {
 } from 'react-native';
 
 import {
-  getRoutineSceneCharacterAsset,
   type RoutineSceneAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
 import { StyleSheet } from '@/components/ui/tamagui';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { baseFoundation } from '@/theme/tokens';
 
 const ROUTINE_CHARACTER_OFFSET_Y = baseFoundation.spacing[5];
 
 type RoutineCharacterProps = {
   accessibilityLabel?: string;
-  asset?: RoutineSceneAsset;
+  asset: RoutineSceneAsset;
   imageStyle?: StyleProp<ImageStyle>;
   onPress?: (event: GestureResponderEvent) => void;
   testID?: string;
@@ -31,14 +29,10 @@ const RoutineCharacter = ({
   onPress,
   testID = 'routine-scene-character',
 }: RoutineCharacterProps) => {
-  const themeName = useColorScheme();
-  const character = renderRoutineSceneAsset(
-    asset ?? getRoutineSceneCharacterAsset(themeName),
-    {
-      testID,
-      style: [styles.image, imageStyle],
-    },
-  );
+  const character = renderRoutineSceneAsset(asset, {
+    testID,
+    style: [styles.image, imageStyle],
+  });
 
   if (!onPress) {
     return character;

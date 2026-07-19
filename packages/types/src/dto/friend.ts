@@ -11,6 +11,7 @@ export interface FriendRequestResponse {
 }
 
 export interface FriendRoutineProfile {
+  backgroundImageUrl?: null | string;
   id: number;
   nickname: User['nickname'];
   level: number;
@@ -27,8 +28,8 @@ export interface FriendProfileResponse {
   motto: string;
   level: number;
   characterCode: string;
-  characterImageUrl: string;
-  backgroundImageUrl: string;
+  characterImageUrl: null | string;
+  backgroundImageUrl: null | string;
 }
 
 export interface FriendRoutineItem {

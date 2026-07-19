@@ -1,6 +1,7 @@
 import { User } from './user';
 
 export interface Friend {
+  backgroundImageUrl?: null | string;
   friendId: number | string;
   userId?: User['userId'];
   nickname: User['nickname'];

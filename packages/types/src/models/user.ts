@@ -8,7 +8,9 @@ export interface Auth {
 export type UserRole = 'USER' | 'ADMIN';
 
 export type User = Pick<Auth, 'userId' | 'nickname'> & {
+  backgroundImageUrl?: null | string;
   characterImageUrl?: null | string;
+  profileImage?: null | string;
   job?: string;
   jobType?: string;
   characterCode?: string;

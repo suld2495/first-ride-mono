@@ -9,6 +9,7 @@ export type AuthForm = Pick<Auth, 'userId' | 'password'> & {
 export type JoinForm = Pick<Auth, 'userId' | 'nickname' | 'password' | 'job'>;
 
 export interface JobOption {
+  backgroundImageUrl?: null | string;
   jobName: string;
   jobType: string;
   characterCode: string;

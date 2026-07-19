@@ -7,7 +7,7 @@ import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
 import ModalHeaderAction from '@/components/modal/modal-header-action';
 import {
-  getRoutineSceneCharacterAsset,
+  getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,6 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthSignIn, useAuthUser } from '@/hooks/useAuthSession';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 const MAX_MOTTO_BYTES = 80;
@@ -82,13 +81,15 @@ const limitMottoBytes = (value: string) => {
 };
 
 const Account = () => {
-  const themeName = useColorScheme();
   const user = useAuthUser();
   const signIn = useAuthSignIn();
   const { showToast } = useToast();
-  const { data: fetchedUser } = useFetchMeQuery();
+  const { data: fetchedUser } = useFetchMeQuery(user?.userId);
   const updateMotto = useUpdateMottoMutation();
   const displayUser = fetchedUser ?? user;
+  const characterAsset = getRoutineSceneRemoteAsset(
+    fetchedUser?.characterImageUrl,
+  );
   const currentMotto = displayUser?.motto ?? '';
   const [primaryMottoInput, setPrimaryMottoInput] = useState(currentMotto);
   const [savedMotto, setSavedMotto] = useState<null | string | undefined>();
@@ -181,13 +182,12 @@ const Account = () => {
               testID="account-character-container"
               style={styles.characterContainer}
             >
-              {renderRoutineSceneAsset(
-                getRoutineSceneCharacterAsset(themeName),
-                {
-                  testID: 'account-character',
-                  style: styles.character,
-                },
-              )}
+              {characterAsset
+                ? renderRoutineSceneAsset(characterAsset, {
+                    testID: 'account-character',
+                    style: styles.character,
+                  })
+                : null}
             </View>
           </View>
 

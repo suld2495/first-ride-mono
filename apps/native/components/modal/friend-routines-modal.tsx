@@ -12,8 +12,6 @@ import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
   renderRoutineSceneAsset,
-  getRoutineSceneBackgroundAsset,
-  getRoutineSceneCharacterAsset,
   getRoutineSceneRemoteAsset,
   type RoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
@@ -52,7 +50,7 @@ const FriendRoutineSceneBackground = memo(
 FriendRoutineSceneBackground.displayName = 'FriendRoutineSceneBackground';
 
 interface FriendRoutineCharacterStageProps {
-  characterAsset: RoutineSceneAsset;
+  characterAsset: RoutineSceneAsset | null;
   speechBubbleMessage: string;
 }
 
@@ -62,10 +60,12 @@ const FriendRoutineCharacterStage = memo(
     speechBubbleMessage,
   }: FriendRoutineCharacterStageProps) => (
     <View style={styles.characterStage}>
-      <RoutineCharacter
-        asset={characterAsset}
-        testID="friend-routine-scene-character"
-      />
+      {characterAsset ? (
+        <RoutineCharacter
+          asset={characterAsset}
+          testID="friend-routine-scene-character"
+        />
+      ) : null}
       <View
         testID="friend-routine-character-speech-bubble"
         style={styles.speechBubble}
@@ -171,35 +171,16 @@ const FriendRoutinesModal = () => {
     : undefined;
   const isProfileThemeApplied = useScopedColorSchemeOverride(profileThemeName);
   const appliedProfileThemeName = profileThemeName ?? 'blue';
-  const hasProfile = !!profile;
   const backgroundImageUrl = profile?.backgroundImageUrl;
   const characterImageUrl = profile?.characterImageUrl;
-  const backgroundAsset = useMemo(() => {
-    const defaultBackgroundAsset = getRoutineSceneBackgroundAsset(
-      appliedProfileThemeName,
-    );
-
-    if (!hasProfile) {
-      return defaultBackgroundAsset;
-    }
-
-    return (
-      getRoutineSceneRemoteAsset(backgroundImageUrl) ?? defaultBackgroundAsset
-    );
-  }, [appliedProfileThemeName, backgroundImageUrl, hasProfile]);
-  const characterAsset = useMemo(() => {
-    const defaultCharacterAsset = getRoutineSceneCharacterAsset(
-      appliedProfileThemeName,
-    );
-
-    if (!hasProfile) {
-      return defaultCharacterAsset;
-    }
-
-    return (
-      getRoutineSceneRemoteAsset(characterImageUrl) ?? defaultCharacterAsset
-    );
-  }, [appliedProfileThemeName, characterImageUrl, hasProfile]);
+  const backgroundAsset = useMemo(
+    () => getRoutineSceneRemoteAsset(backgroundImageUrl),
+    [backgroundImageUrl],
+  );
+  const characterAsset = useMemo(
+    () => getRoutineSceneRemoteAsset(characterImageUrl),
+    [characterImageUrl],
+  );
   const speechBubbleMessage = profile?.motto?.trim() || '안녕?';
 
   if (!friendId) {
@@ -224,7 +205,9 @@ const FriendRoutinesModal = () => {
         { backgroundColor: profileTheme.colors.brand.secondary },
       ]}
     >
-      <FriendRoutineSceneBackground backgroundAsset={backgroundAsset} />
+      {backgroundAsset ? (
+        <FriendRoutineSceneBackground backgroundAsset={backgroundAsset} />
+      ) : null}
 
       <FriendRoutineDateSection friendId={friendId}>
         <View style={styles.routineCharacterArea}>
