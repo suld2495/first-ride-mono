@@ -1,4 +1,5 @@
 import * as requestApi from '@repo/shared/api/request.api';
+import * as routineApi from '@repo/shared/api/routine.api';
 import { requestKey } from '@repo/shared/types/query-keys/request';
 import { routineKeys } from '@repo/shared/types/query-keys/routine';
 import { useQueryClient } from '@tanstack/react-query';
@@ -30,6 +31,11 @@ export const useAppActiveRefresh = (
         void queryClient.fetchQuery({
           queryKey: requestKey.receivedList(nickname),
           queryFn: requestApi.fetchReceivedRequests,
+        });
+
+        void queryClient.fetchQuery({
+          queryKey: routineKeys.receivedChangeRequests(nickname),
+          queryFn: routineApi.fetchReceivedRoutineChangeRequests,
         });
 
         void queryClient.invalidateQueries({

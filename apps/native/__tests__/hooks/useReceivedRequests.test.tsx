@@ -1,4 +1,5 @@
 import * as requestApi from '@repo/shared/api/request.api';
+import * as routineApi from '@repo/shared/api/routine.api';
 import { requestKey } from '@repo/shared/types/query-keys/request';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react-native';
@@ -32,13 +33,18 @@ describe('useReceivedRequests', () => {
     jest.clearAllMocks();
   });
 
-  it('인증 요청 목록 API 조회 성공 시 응답 길이로 앱 아이콘 배지를 갱신한다', async () => {
+  it('인증 요청과 루틴 수정 요청 개수의 합으로 알림 수와 앱 아이콘 배지를 갱신한다', async () => {
     const queryClient = createTestQueryClient();
 
     jest
       .spyOn(requestApi, 'fetchReceivedRequests')
       .mockResolvedValue([{ id: 1 }, { id: 2 }] as Awaited<
         ReturnType<typeof requestApi.fetchReceivedRequests>
+      >);
+    jest
+      .spyOn(routineApi, 'fetchReceivedRoutineChangeRequests')
+      .mockResolvedValue([{ id: 10 }, { id: 11 }, { id: 12 }] as Awaited<
+        ReturnType<typeof routineApi.fetchReceivedRoutineChangeRequests>
       >);
 
     const { result } = renderHook(() => useReceivedRequests('tester'), {
@@ -47,10 +53,14 @@ describe('useReceivedRequests', () => {
 
     await waitFor(() => {
       expect(result.current.data).toHaveLength(2);
+      expect(result.current.notificationCount).toBe(5);
     });
 
     expect(requestApi.fetchReceivedRequests).toHaveBeenCalledTimes(1);
-    expect(Notifications.setBadgeCountAsync).toHaveBeenCalledWith(2);
+    expect(routineApi.fetchReceivedRoutineChangeRequests).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(Notifications.setBadgeCountAsync).toHaveBeenCalledWith(5);
     expect(
       queryClient.getQueryData(requestKey.receivedList('tester')),
     ).toHaveLength(2);
@@ -59,6 +69,10 @@ describe('useReceivedRequests', () => {
   it('nickname이 없으면 인증 요청 목록 API와 배지 갱신을 실행하지 않는다', async () => {
     const queryClient = createTestQueryClient();
     const fetchSpy = jest.spyOn(requestApi, 'fetchReceivedRequests');
+    const fetchRoutineChangeSpy = jest.spyOn(
+      routineApi,
+      'fetchReceivedRoutineChangeRequests',
+    );
 
     const { result } = renderHook(() => useReceivedRequests(''), {
       wrapper: createWrapper(queryClient),
@@ -69,6 +83,7 @@ describe('useReceivedRequests', () => {
     });
 
     expect(fetchSpy).not.toHaveBeenCalled();
+    expect(fetchRoutineChangeSpy).not.toHaveBeenCalled();
     expect(Notifications.setBadgeCountAsync).not.toHaveBeenCalled();
   });
 });

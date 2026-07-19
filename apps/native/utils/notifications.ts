@@ -1,4 +1,5 @@
 import { fetchReceivedRequests } from '@repo/shared/api/request.api';
+import { fetchReceivedRoutineChangeRequests } from '@repo/shared/api/routine.api';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
@@ -364,12 +365,15 @@ export async function getBadgeCount(): Promise<number> {
 }
 
 /**
- * 받은 인증 요청 목록 개수로 앱 아이콘 배지를 동기화한다.
+ * 받은 인증 요청과 루틴 수정 요청 개수로 앱 아이콘 배지를 동기화한다.
  */
 export async function syncBadgeCountWithReceivedRequests(): Promise<number> {
   try {
-    const requests = await fetchReceivedRequests();
-    const nextCount = requests.length;
+    const [requests, routineChangeRequests] = await Promise.all([
+      fetchReceivedRequests(),
+      fetchReceivedRoutineChangeRequests(),
+    ]);
+    const nextCount = requests.length + routineChangeRequests.length;
     const didSetBadge = await setBadgeCount(nextCount);
 
     return didSetBadge ? nextCount : 0;

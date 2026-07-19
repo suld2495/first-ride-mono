@@ -34,7 +34,7 @@ const RoutineHeader = ({
 }: RoutineHeaderProps) => {
   const { theme } = useAppTheme();
   const user = useAuthUser();
-  const { data: requests } = useReceivedRequests(
+  const { notificationCount } = useReceivedRequests(
     showNotification ? user?.nickname || '' : '',
   );
   const currentDate = new Date(date);
@@ -113,7 +113,7 @@ const RoutineHeader = ({
             ) : null}
             {showNotification ? (
               <NotificationBell
-                count={requests.length}
+                count={notificationCount}
                 size="sm"
                 style={styles.actionButton}
                 url="/modal?type=request-list"

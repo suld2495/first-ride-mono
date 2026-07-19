@@ -54,6 +54,9 @@ describe('useAppActiveRefresh', () => {
   beforeEach(() => {
     appStateChangeHandler = undefined;
     jest.spyOn(requestApi, 'fetchReceivedRequests').mockResolvedValue([]);
+    jest
+      .spyOn(routineApi, 'fetchReceivedRoutineChangeRequests')
+      .mockResolvedValue([]);
     jest.spyOn(routineApi, 'fetchRoutines').mockResolvedValue([routine]);
     jest
       .spyOn(routineWidgetNative, 'saveRoutineWidgetSnapshot')
@@ -74,7 +77,7 @@ describe('useAppActiveRefresh', () => {
     jest.clearAllMocks();
   });
 
-  it('앱이 다시 active가 되면 인증 요청 목록과 루틴 목록을 갱신한다', async () => {
+  it('앱이 다시 active가 되면 인증 요청, 루틴 수정 요청, 루틴 목록을 갱신한다', async () => {
     const queryClient = createTestQueryClient();
     const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 
@@ -87,10 +90,16 @@ describe('useAppActiveRefresh', () => {
 
     await waitFor(() => {
       expect(requestApi.fetchReceivedRequests).toHaveBeenCalledTimes(1);
+      expect(
+        routineApi.fetchReceivedRoutineChangeRequests,
+      ).toHaveBeenCalledTimes(1);
     });
     expect(queryClient.getQueryData(requestKey.receivedList('tester'))).toEqual(
       [],
     );
+    expect(
+      queryClient.getQueryData(routineKey.receivedChangeRequests('tester')),
+    ).toEqual([]);
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: routineKey.list('tester'),
     });

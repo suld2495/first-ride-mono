@@ -1,4 +1,5 @@
 import * as requestApi from '@repo/shared/api/request.api';
+import * as routineApi from '@repo/shared/api/routine.api';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
@@ -31,18 +32,26 @@ afterEach(() => {
 });
 
 describe('badge helpers', () => {
-  it('받은 인증 요청 목록 개수로 badge count를 동기화한다', async () => {
+  it('받은 인증 요청과 루틴 수정 요청 개수의 합으로 badge count를 동기화한다', async () => {
     jest
       .spyOn(requestApi, 'fetchReceivedRequests')
       .mockResolvedValue([{ id: 1 }, { id: 2 }, { id: 3 }] as Awaited<
         ReturnType<typeof requestApi.fetchReceivedRequests>
       >);
+    jest
+      .spyOn(routineApi, 'fetchReceivedRoutineChangeRequests')
+      .mockResolvedValue([{ id: 10 }, { id: 11 }] as Awaited<
+        ReturnType<typeof routineApi.fetchReceivedRoutineChangeRequests>
+      >);
     mockNotifications.setBadgeCountAsync.mockResolvedValue(true);
 
-    await expect(syncBadgeCountWithReceivedRequests()).resolves.toBe(3);
+    await expect(syncBadgeCountWithReceivedRequests()).resolves.toBe(5);
 
     expect(requestApi.fetchReceivedRequests).toHaveBeenCalledTimes(1);
-    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(3);
+    expect(routineApi.fetchReceivedRoutineChangeRequests).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(5);
   });
 
   it('android에서도 badge count 설정을 시도한다', async () => {
