@@ -1,5 +1,6 @@
 import type { Routine } from '@repo/types';
 
+import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { appThemes } from '@/theme/themes';
 import {
   createRoutineWidgetSnapshot,
@@ -229,7 +230,7 @@ describe('routine widget snapshot', () => {
     });
   });
 
-  it('API 조회 순서대로 서로 다른 주간 현황 색상을 전달한다', () => {
+  it('루틴에 저장된 팔레트 컬러를 주간 현황 색상으로 전달한다', () => {
     const snapshot = createRoutineWidgetSnapshot(
       [
         createRoutine({
@@ -237,12 +238,14 @@ describe('routine widget snapshot', () => {
           routineName: '영어 공부',
           weeklyCount: 1,
           routineCount: 4,
+          symbolColor: '#00B8F0',
         }),
         createRoutine({
           routineId: 2,
           routineName: '운동',
           weeklyCount: 0,
           routineCount: 3,
+          symbolColor: '#FA4F9B',
         }),
       ],
       { today: new Date('2026-05-21T09:00:00+09:00') },
@@ -253,12 +256,27 @@ describe('routine widget snapshot', () => {
       '운동',
     ]);
     expect(snapshot.items[0]).toMatchObject({
-      accentColor: '#8FAFEF',
-      darkAccentColor: '#9BB8F4',
+      accentColor: '#00B8F0',
+      darkAccentColor: '#00B8F0',
     });
     expect(snapshot.items[1]).toMatchObject({
-      accentColor: '#FFD17A',
-      darkAccentColor: '#FFD98F',
+      accentColor: '#FA4F9B',
+      darkAccentColor: '#FA4F9B',
+    });
+  });
+
+  it('저장된 컬러가 없으면 기본 루틴 팔레트 컬러를 전달한다', () => {
+    const snapshot = createRoutineWidgetSnapshot([
+      createRoutine({
+        routineId: 1,
+        routineName: '명상',
+        symbolColor: undefined,
+      }),
+    ]);
+
+    expect(snapshot.items[0]).toMatchObject({
+      accentColor: DEFAULT_ROUTINE_COLOR,
+      darkAccentColor: DEFAULT_ROUTINE_COLOR,
     });
   });
 });
