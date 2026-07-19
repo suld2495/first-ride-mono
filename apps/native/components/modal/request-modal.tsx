@@ -88,9 +88,6 @@ const RequestModal = () => {
             >
               {detail?.routineName}
             </Typography>
-            <Typography variant="body2" style={styles.infoDescription}>
-              {detail?.routineDetail}
-            </Typography>
           </ThemeView>
           <ThemeView
             testID="request-summary-divider"
@@ -365,11 +362,6 @@ const styles = StyleSheet.create((theme) => ({
 
   infoValue: {
     color: theme.colors.brand.text,
-  },
-
-  infoDescription: {
-    color: theme.colors.text.muted,
-    marginTop: baseFoundation.spacing[1.5],
   },
 
   mediaStage: {
