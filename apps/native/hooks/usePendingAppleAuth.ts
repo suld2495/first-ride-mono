@@ -5,6 +5,9 @@ export function usePendingAppleAuth() {
   const clearCredential = usePendingAppleAuthStore(
     (state) => state.clearCredential,
   );
+  const consumeAuthorizationCode = usePendingAppleAuthStore(
+    (state) => state.consumeAuthorizationCode,
+  );
 
-  return { credential, clearCredential };
+  return { credential, clearCredential, consumeAuthorizationCode };
 }

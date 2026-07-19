@@ -55,6 +55,7 @@ export default function SocialSignUp() {
   const {
     credential: pendingAppleCredential,
     clearCredential: clearPendingAppleCredential,
+    consumeAuthorizationCode,
   } = usePendingAppleAuth();
   const {
     data: jobOptions = [],
@@ -117,7 +118,7 @@ export default function SocialSignUp() {
       const response = isApple
         ? await appleSignUpMutation.mutateAsync({
             identityToken: pendingAppleCredential!.identityToken,
-            authorizationCode: pendingAppleCredential!.authorizationCode,
+            authorizationCode: consumeAuthorizationCode(),
             nickname: form.nickname,
             job: form.job,
             gender: form.gender as AppleGender,
