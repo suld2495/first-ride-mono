@@ -20,6 +20,9 @@
     "typescript": "~5.8.3"
   },
   "packageManager": "pnpm@10.11.1",
+  "engines": {
+    "node": "22.x"
+  },
   "name": "first-ride-repo",
   "version": "1.0.0",
   "pnpm": {

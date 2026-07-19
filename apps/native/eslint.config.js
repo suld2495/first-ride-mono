@@ -143,6 +143,12 @@ module.exports = createNativeConfig({
       },
     },
     {
+      files: ['**/*.native.{ts,tsx}', '**/*.web.{ts,tsx}'],
+      rules: {
+        'local-rules/enforce-filename-convention': 'off',
+      },
+    },
+    {
       files: ['components/modal/quest-form-modal.tsx'],
       rules: {
         '@typescript-eslint/no-unsafe-assignment': 'off',

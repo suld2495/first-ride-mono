@@ -1,10 +1,18 @@
-import { AndroidImportance } from 'expo-notifications';
+import type { AndroidImportance } from 'expo-notifications';
 
 import type {
   NotificationCategory,
   NotificationPriority,
   PushNotificationType,
 } from '@/types/notification-types';
+
+const ANDROID_IMPORTANCE = {
+  MIN: 3,
+  LOW: 4,
+  DEFAULT: 5,
+  HIGH: 6,
+  MAX: 7,
+} as const satisfies Record<string, AndroidImportance>;
 
 /**
  * Android 알림 채널 설정
@@ -14,7 +22,7 @@ export const NOTIFICATION_CHANNELS = {
     id: 'routine-channel',
     name: '인증 요청 알림',
     description: '메이트의 루틴 인증 요청 알림을 받습니다',
-    importance: AndroidImportance.HIGH,
+    importance: ANDROID_IMPORTANCE.HIGH,
     sound: 'default',
     vibrate: true,
     enableLights: true,
@@ -35,11 +43,11 @@ export const CATEGORY_TO_CHANNEL: Record<NotificationCategory, string> = {
  */
 export const PRIORITY_MAPPING: Record<NotificationPriority, AndroidImportance> =
   {
-    min: AndroidImportance.MIN,
-    low: AndroidImportance.LOW,
-    default: AndroidImportance.DEFAULT,
-    high: AndroidImportance.HIGH,
-    max: AndroidImportance.MAX,
+    min: ANDROID_IMPORTANCE.MIN,
+    low: ANDROID_IMPORTANCE.LOW,
+    default: ANDROID_IMPORTANCE.DEFAULT,
+    high: ANDROID_IMPORTANCE.HIGH,
+    max: ANDROID_IMPORTANCE.MAX,
   };
 
 /**

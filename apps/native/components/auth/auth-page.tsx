@@ -11,6 +11,7 @@ import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { palette } from '@/theme/tokens';
 
 const AUTH_PAGE_HORIZONTAL_PADDING = 32;
+const AUTH_PAGE_MAX_WIDTH = 430;
 
 interface AuthPageProps {
   children: ReactNode;
@@ -95,6 +96,9 @@ const styles = StyleSheet.create(() => ({
 
   content: {
     flexGrow: 1,
+    width: '100%',
+    maxWidth: AUTH_PAGE_MAX_WIDTH,
+    alignSelf: 'center',
     alignItems: 'center',
     paddingHorizontal: AUTH_PAGE_HORIZONTAL_PADDING,
   },

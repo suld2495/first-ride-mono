@@ -1,29 +1,30 @@
-import {
-  fetchReceivedRequests,
-  fetchRequestDetail,
-} from '@repo/shared/api/request.api';
+import { fetchReceivedRequests } from '@repo/shared/api/request.api';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import {
   CATEGORY_TO_CHANNEL,
-  DEEP_LINK_SCREENS,
   DEFAULT_NOTIFICATION_CONFIG,
-  NOTIFICATION_CATEGORY_TO_SCREEN,
   NOTIFICATION_CHANNELS,
   PRIORITY_MAPPING,
-  PUSH_NOTIFICATION_ROUTES,
 } from '@/constants/NOTIFICATIONS';
 import type {
   NotificationContent,
-  NotificationDeepLinkData,
   NotificationOptions,
   NotificationPermissionStatus,
   NotificationTrigger,
   PushNotificationToken,
   ScheduledNotification,
 } from '@/types/notification-types';
+
+export {
+  extractDeepLinkData,
+  getCompletedRoutineRequestToastMessage,
+  getDeepLinkPath,
+  getNotificationNavigationIntent,
+  type NotificationNavigationIntent,
+} from './notification-navigation';
 
 /**
  * 알림 권한 요청
@@ -402,100 +403,4 @@ export async function syncBadgeCountFromNotification(
  */
 export async function clearBadgeCount(): Promise<boolean> {
   return setBadgeCount(0);
-}
-
-/**
- * 알림 데이터에서 딥링크 경로 추출
- *
- * 우선순위:
- * 1. data.screen이 직접 지정된 경우
- * 2. data.type으로 푸시 알림 타입별 화면 매핑
- * 3. data.category로 기본 화면 매핑
- * 4. 기본값 (루틴 화면)
- */
-export function getDeepLinkPath(
-  data: NotificationDeepLinkData | undefined,
-): string {
-  if (!data) {
-    return DEEP_LINK_SCREENS.ROUTINE;
-  }
-
-  // 1. screen이 직접 지정된 경우
-  if (data.screen && typeof data.screen === 'string') {
-    return data.screen;
-  }
-
-  // 2. type으로 푸시 알림 타입별 화면 매핑
-  if (data.type && data.type in PUSH_NOTIFICATION_ROUTES) {
-    return PUSH_NOTIFICATION_ROUTES[data.type];
-  }
-
-  // 3. category로 기본 화면 매핑
-  if (data.category && data.category in NOTIFICATION_CATEGORY_TO_SCREEN) {
-    return NOTIFICATION_CATEGORY_TO_SCREEN[data.category];
-  }
-
-  return DEEP_LINK_SCREENS.ROUTINE;
-}
-
-export type NotificationNavigationIntent =
-  | {
-      kind: 'navigate';
-      path: string;
-    }
-  | {
-      kind: 'toast';
-      message: string;
-    };
-
-export function getCompletedRoutineRequestToastMessage(): string {
-  return '이미 완료된 인증 요청입니다.';
-}
-
-/**
- * 알림 탭 시 실행할 동작을 결정한다.
- *
- * 메이트의 루틴 인증 요청은 상세 상태를 먼저 확인하고,
- * WAIT 상태인 경우에만 인증 상세 화면으로 이동한다.
- */
-export async function getNotificationNavigationIntent(
-  data: NotificationDeepLinkData | undefined,
-): Promise<NotificationNavigationIntent> {
-  const path = getDeepLinkPath(data);
-
-  if (data?.type !== 'routine-request' || !data.requestId) {
-    return {
-      kind: 'navigate',
-      path,
-    };
-  }
-
-  const detail = await fetchRequestDetail(data.requestId);
-
-  if (detail.checkStatus === 'WAIT') {
-    return {
-      kind: 'navigate',
-      path,
-    };
-  }
-
-  return {
-    kind: 'toast',
-    message: getCompletedRoutineRequestToastMessage(),
-  };
-}
-
-/**
- * 알림에서 딥링크 데이터 추출
- */
-export function extractDeepLinkData(
-  notification: Notifications.Notification,
-): NotificationDeepLinkData | undefined {
-  const { data } = notification.request.content;
-
-  if (data && typeof data === 'object') {
-    return data as NotificationDeepLinkData;
-  }
-
-  return undefined;
 }

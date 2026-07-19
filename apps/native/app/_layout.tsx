@@ -1,4 +1,3 @@
-import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
 import { useQueryClient } from '@tanstack/react-query';
@@ -44,7 +43,7 @@ import {
   getAuthStackKey,
 } from '@/utils/auth-stack-route';
 import { initializeClarity } from '@/utils/clarity';
-import { getKakaoNativeAppKey } from '@/utils/env';
+import { initializeKakao } from '@/utils/initialize-kakao';
 import {
   extractDeepLinkData,
   getNotificationNavigationIntent,
@@ -57,7 +56,6 @@ import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
 import '@/api/bootstrap.api';
 import 'react-native-url-polyfill/auto';
 
-const kakaoNativeAppKey = getKakaoNativeAppKey();
 const fontAssets: Record<string, FontSource> = {
   [fontFamilies.regular]:
     require('../assets/fonts/Pretendard-Regular.otf') as FontSource,
@@ -69,9 +67,15 @@ const fontAssets: Record<string, FontSource> = {
     require('../assets/fonts/Pretendard-Bold.otf') as FontSource,
 };
 
-if (kakaoNativeAppKey) {
-  initializeKakaoSDK(kakaoNativeAppKey);
+async function initializeKakaoSafely(): Promise<void> {
+  try {
+    await initializeKakao();
+  } catch (error: unknown) {
+    console.error('[Kakao] SDK initialization failed', error);
+  }
 }
+
+void initializeKakaoSafely();
 
 initializeClarity();
 

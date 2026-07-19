@@ -2,7 +2,7 @@ import { HttpError } from '@repo/shared/api';
 import type { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import AuthPage from '@/components/auth/auth-page';
 import { KakaoLoginButton } from '@/components/auth/kakao-login-button';
@@ -232,21 +232,25 @@ export default function SignIn() {
             }
           />
 
-          <View style={styles.divider}>
-            <Divider
-              text="또는"
-              lineColor={palette.theme.gray[10]}
-              textColor={palette.theme.softBlue[60]}
-              textStyle={styles.dividerText}
-            />
-          </View>
+          {Platform.OS !== 'web' && (
+            <>
+              <View style={styles.divider}>
+                <Divider
+                  text="또는"
+                  lineColor={palette.theme.gray[10]}
+                  textColor={palette.theme.softBlue[60]}
+                  textStyle={styles.dividerText}
+                />
+              </View>
 
-          <KakaoLoginButton
-            onPress={() => handleSocialLogin('kakao')}
-            loading={loadingProvider === 'kakao'}
-            disabled={isLoading && loadingProvider !== 'kakao'}
-            style={styles.kakaoButton}
-          />
+              <KakaoLoginButton
+                onPress={() => handleSocialLogin('kakao')}
+                loading={loadingProvider === 'kakao'}
+                disabled={isLoading && loadingProvider !== 'kakao'}
+                style={styles.kakaoButton}
+              />
+            </>
+          )}
 
           <View style={styles.footerLinks}>
             <View style={styles.accountLinks}>

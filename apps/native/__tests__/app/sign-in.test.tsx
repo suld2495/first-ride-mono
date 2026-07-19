@@ -1,7 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { StyleSheet as RNStyleSheet } from 'react-native';
+import { Platform, StyleSheet as RNStyleSheet } from 'react-native';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
 import { getDeviceId } from '@/utils/device-id';
@@ -197,6 +197,28 @@ describe('SignIn 페이지', () => {
 
       expect(mockPush).toHaveBeenCalledWith('/modal?type=policies');
       expect(mockPush).toHaveBeenCalledWith('/modal?type=privacy');
+    });
+  });
+
+  describe('플랫폼별 소셜 로그인', () => {
+    it('웹에서는 카카오 로그인 버튼을 노출하지 않는다', () => {
+      const originalPlatform = Platform.OS;
+
+      Object.defineProperty(Platform, 'OS', {
+        configurable: true,
+        value: 'web',
+      });
+
+      try {
+        const { queryByText } = render(<SignIn />);
+
+        expect(queryByText('카카오로 로그인')).not.toBeOnTheScreen();
+      } finally {
+        Object.defineProperty(Platform, 'OS', {
+          configurable: true,
+          value: originalPlatform,
+        });
+      }
     });
   });
 
