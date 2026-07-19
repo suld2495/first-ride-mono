@@ -1,4 +1,4 @@
-import { waitFor } from '@testing-library/react-native';
+import { act, waitFor } from '@testing-library/react-native';
 import { Platform, StyleSheet as RNStyleSheet } from 'react-native';
 
 import { AppleLoginButton } from '@/components/auth/apple-login-button';
@@ -46,6 +46,29 @@ describe('AppleLoginButton', () => {
     expect(queryByText('Apple로 로그인')).not.toBeOnTheScreen();
   });
 
+  it('화면을 벗어난 뒤 지원 여부 조회가 끝나도 상태를 갱신하지 않는다', async () => {
+    Object.defineProperty(Platform, 'OS', {
+      configurable: true,
+      value: 'ios',
+    });
+    let resolveAvailability: (available: boolean) => void = () => undefined;
+    mockAppleIsAvailable.mockImplementation(
+      () =>
+        new Promise<boolean>((resolve) => {
+          resolveAvailability = resolve;
+        }),
+    );
+
+    const { unmount } = render(<AppleLoginButton onPress={jest.fn()} />);
+
+    unmount();
+    await act(async () => {
+      resolveAvailability(true);
+    });
+
+    expect(mockAppleIsAvailable).toHaveBeenCalledTimes(1);
+  });
+
   it('카카오 로그인과 같은 크기와 정렬의 한국어 버튼을 표시한다', async () => {
     Object.defineProperty(Platform, 'OS', {
       configurable: true,
@@ -54,24 +77,35 @@ describe('AppleLoginButton', () => {
     mockAppleIsAvailable.mockResolvedValue(true);
 
     const apple = render(<AppleLoginButton onPress={jest.fn()} />);
-    const kakao = render(<KakaoLoginButton onPress={jest.fn()} />);
-
     const appleButton = await apple.findByTestId('apple-login-button');
-    const kakaoButton = kakao.getByLabelText('카카오로 로그인');
-    const getButtonStyle = (button: typeof appleButton) =>
-      RNStyleSheet.flatten(button.props.style({ pressed: false }));
+    const appleButtonStyle = RNStyleSheet.flatten(
+      typeof appleButton.props.style === 'function'
+        ? appleButton.props.style({ pressed: false })
+        : appleButton.props.style,
+    );
 
+    expect(appleButton).toHaveProp('accessibilityRole', 'button');
     expect(apple.getByText('Apple로 로그인')).toBeOnTheScreen();
     expect(apple.getByTestId('apple-login-logo')).toBeOnTheScreen();
     expect(
       apple.queryByTestId('native-apple-authentication-button'),
     ).not.toBeOnTheScreen();
-    expect(getButtonStyle(appleButton)).toEqual(
+    apple.unmount();
+
+    const kakao = render(<KakaoLoginButton onPress={jest.fn()} />);
+    const kakaoButton = kakao.getByLabelText('카카오로 로그인');
+    const kakaoButtonStyle = RNStyleSheet.flatten(
+      typeof kakaoButton.props.style === 'function'
+        ? kakaoButton.props.style({ pressed: false })
+        : kakaoButton.props.style,
+    );
+
+    expect(appleButtonStyle).toEqual(
       expect.objectContaining({
-        height: getButtonStyle(kakaoButton).height,
-        borderRadius: getButtonStyle(kakaoButton).borderRadius,
-        shadowOpacity: getButtonStyle(kakaoButton).shadowOpacity,
-        elevation: getButtonStyle(kakaoButton).elevation,
+        height: kakaoButtonStyle.height,
+        borderRadius: kakaoButtonStyle.borderRadius,
+        shadowOpacity: kakaoButtonStyle.shadowOpacity,
+        elevation: kakaoButtonStyle.elevation,
       }),
     );
   });
