@@ -11,6 +11,7 @@ import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
   getRoutineSceneBackgroundAsset,
+  getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
 import { IconButton } from '@/components/ui/icon-button';
@@ -79,6 +80,10 @@ export default function Index() {
     refetch,
   } = useRoutinesQuery(user?.nickname || '', date);
   const hasRoutines = routines.length > 0;
+  const routineCharacterAsset = useMemo(
+    () => getRoutineSceneRemoteAsset(user?.characterImageUrl),
+    [user?.characterImageUrl],
+  );
   const mottos = useMemo(() => {
     const normalizedMotto = normalizeMottoText(user?.motto);
 
@@ -196,7 +201,9 @@ export default function Index() {
                   testID="routine-character-area"
                 >
                   <View style={styles.characterStage}>
-                    <RoutineCharacter />
+                    {routineCharacterAsset ? (
+                      <RoutineCharacter asset={routineCharacterAsset} />
+                    ) : null}
                     <View
                       testID="routine-character-speech-bubble"
                       style={styles.speechBubble}
@@ -222,7 +229,9 @@ export default function Index() {
                   testID="routine-character-area"
                 >
                   <View style={styles.characterStage}>
-                    <RoutineCharacter />
+                    {routineCharacterAsset ? (
+                      <RoutineCharacter asset={routineCharacterAsset} />
+                    ) : null}
                     <View
                       testID="routine-character-speech-bubble"
                       style={styles.speechBubble}
