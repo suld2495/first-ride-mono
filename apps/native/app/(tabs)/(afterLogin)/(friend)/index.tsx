@@ -131,9 +131,9 @@ const styles = StyleSheet.create((theme) => ({
   },
   addButton: {
     width: baseFoundation.dimension.x99,
-    height: baseFoundation.dimension.x32,
+    height: baseFoundation.dimension.x28,
     minWidth: baseFoundation.dimension.x99,
-    minHeight: baseFoundation.dimension.x32,
+    minHeight: baseFoundation.dimension.x28,
     borderRadius: baseFoundation.radii.xs,
     paddingHorizontal: theme.foundation.spacing[3],
   },
