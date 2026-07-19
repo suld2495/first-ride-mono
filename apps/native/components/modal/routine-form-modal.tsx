@@ -544,7 +544,6 @@ const styles = StyleSheet.create((theme) => ({
   scrollContent: {
     flexGrow: 1,
     gap: theme.foundation.spacing[6],
-    paddingBottom: baseFoundation.dimension.x112,
   },
 
   date: {
