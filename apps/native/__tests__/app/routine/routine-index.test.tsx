@@ -135,6 +135,7 @@ const renderWithSharedQueryClient = (ui: React.ReactElement) => {
 declare const mockPush: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockUser: {
+  backgroundImageUrl?: null | string;
   characterImageUrl: null | string;
   motto: null | string;
   mottos?: string[];
@@ -166,6 +167,15 @@ describe('루틴 조회 페이지', () => {
   beforeEach(() => {
     resetAuthMocks();
     mockAxios = new MockAdapter(axiosInstance);
+    mockAxios.onGet('/users/me').reply(200, {
+      data: {
+        ...mockUser,
+        characterImageUrl:
+          'https://cdn.example.com/characters/warrior-intermediate.png',
+        backgroundImageUrl:
+          'https://cdn.example.com/backgrounds/warrior-background.webp',
+      },
+    });
     // 기본 API 응답 설정 (인증 테스트용)
     mockAxios.onGet(/\/routine\/list/).reply(200, { data: [] });
     // 인증 요청 목록 API 기본 응답
@@ -456,13 +466,11 @@ describe('루틴 조회 페이지', () => {
         expect(await findByTestId('routine-scene-character')).toBeOnTheScreen();
       });
 
-      it('서버가 제공한 캐릭터 URL을 루틴 캐릭터 이미지로 사용한다', async () => {
+      it('GET /users/me가 제공한 캐릭터와 배경 URL을 루틴 화면에 사용한다', async () => {
         const characterImageUrl =
           'https://cdn.example.com/characters/warrior-intermediate.png';
-        mockAuthStore.user = {
-          ...mockUser,
-          characterImageUrl,
-        };
+        const backgroundImageUrl =
+          'https://cdn.example.com/backgrounds/warrior-background.webp';
 
         const { findByTestId } = render(<Index />);
 
@@ -470,18 +478,36 @@ describe('루틴 조회 페이지', () => {
           'source',
           { uri: characterImageUrl },
         );
+        expect(await findByTestId('routine-scene-background')).toHaveProp(
+          'source',
+          { uri: backgroundImageUrl },
+        );
+        expect(
+          mockAxios.history.get.filter(
+            (request) => request.url === '/users/me',
+          ),
+        ).toHaveLength(1);
       });
 
-      it('서버 캐릭터 URL이 없으면 프론트 내부 SVG를 표시하지 않는다', async () => {
-        mockAuthStore.user = {
-          ...mockUser,
-          characterImageUrl: null,
-        };
+      it('GET /users/me의 이미지 URL이 없으면 프론트 캐릭터와 배경을 표시하지 않는다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .reply(200, { data: createMockRoutines(2) });
+        mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
+        mockAxios.onGet('/users/me').reply(200, {
+          data: {
+            ...mockUser,
+            characterImageUrl: null,
+            backgroundImageUrl: null,
+          },
+        });
 
         const { findByText, queryByTestId } = render(<Index />);
 
         await findByText('테스트 루틴 1');
         expect(queryByTestId('routine-scene-character')).toBeNull();
+        expect(queryByTestId('routine-scene-background')).toBeNull();
       });
 
       it('계정 한마디 말풍선이 항상 표시된다', async () => {

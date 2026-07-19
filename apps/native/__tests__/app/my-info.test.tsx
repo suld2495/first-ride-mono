@@ -1,4 +1,5 @@
 import { useMyStatsQuery } from '@repo/shared/hooks/useStat';
+import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import { Alert, StyleSheet } from 'react-native';
 
@@ -31,6 +32,10 @@ jest.mock('@/hooks/useAuthSession', () => ({
 
 jest.mock('@repo/shared/hooks/useStat', () => ({
   useMyStatsQuery: jest.fn(),
+}));
+
+jest.mock('@repo/shared/hooks/useUser', () => ({
+  useFetchMeQuery: jest.fn(),
 }));
 
 jest.mock('@/hooks/useReceivedRequests', () => ({
@@ -87,6 +92,17 @@ describe('MyInfo 로그아웃', () => {
         currentLevelProgress: 12,
         expForNextLevel: 42,
         availablePoints: 4,
+      },
+    });
+    (useFetchMeQuery as jest.Mock).mockReturnValue({
+      data: {
+        userId: 'test123',
+        nickname: 'testuser',
+        motto: null,
+        mottos: [],
+        role: 'USER',
+        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
+        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.webp',
       },
     });
   });
@@ -154,6 +170,9 @@ describe('MyInfo 로그아웃', () => {
       }),
     );
     expect(getByTestId('settings-profile-character')).toBeOnTheScreen();
+    expect(getByTestId('settings-profile-character')).toHaveProp('source', {
+      uri: 'https://cdn.example.com/characters/warrior.png',
+    });
     expect(
       StyleSheet.flatten(getByTestId('settings-profile-text').props.style),
     ).toEqual(

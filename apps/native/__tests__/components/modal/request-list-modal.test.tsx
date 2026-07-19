@@ -1,4 +1,5 @@
 import axiosInstance from '@repo/shared/api';
+import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import type { RoutineChangeRequest } from '@repo/types';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -30,6 +31,10 @@ jest.mock('@/components/ui/flash-list', () => {
     ),
   };
 });
+
+jest.mock('@repo/shared/hooks/useUser', () => ({
+  useFetchMeQuery: jest.fn(),
+}));
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
@@ -183,6 +188,17 @@ describe('RequestListModal (받은 요청 확인 모달)', () => {
     mockShowToast.mockClear();
     mockSetRequestId.mockClear();
     mockUseReceivedRequests.mockClear();
+    (useFetchMeQuery as jest.Mock).mockReturnValue({
+      data: {
+        userId: 'test123',
+        nickname: 'testuser',
+        motto: null,
+        mottos: [],
+        role: 'USER',
+        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
+        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.webp',
+      },
+    });
   });
 
   afterEach(() => {
@@ -235,6 +251,15 @@ describe('RequestListModal (받은 요청 확인 모달)', () => {
         expect(routineChangeTab).toHaveProp('accessibilityState', {
           selected: false,
         });
+      });
+
+      it('GET /users/me의 캐릭터 URL을 받은 요청 캐릭터로 표시한다', async () => {
+        const { findByTestId } = render(<RequestListModal />);
+
+        expect(await findByTestId('request-list-character')).toHaveProp(
+          'source',
+          { uri: 'https://cdn.example.com/characters/warrior.png' },
+        );
       });
 
       it('루틴 수정 탭을 선택하면 변경 요청 목록과 펼친 상세를 표시한다', async () => {

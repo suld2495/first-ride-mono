@@ -5,7 +5,6 @@ import {
 import { fireEvent } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
-import * as routineSceneArt from '@/components/routine/routine-scene-art';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { baseFoundation, palette } from '@/theme/tokens';
@@ -34,6 +33,8 @@ describe('Account', () => {
         motto: '끝까지 간다',
         mottos: ['끝까지 간다'],
         role: 'USER',
+        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
+        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.webp',
       },
     });
   });
@@ -57,22 +58,17 @@ describe('Account', () => {
     );
   });
 
-  it('계정 캐릭터를 현재 테마에 맞게 보여준다', () => {
-    (useColorScheme as jest.Mock).mockReturnValue('green');
-    const getCharacterAssetSpy = jest.spyOn(
-      routineSceneArt,
-      'getRoutineSceneCharacterAsset',
-    );
+  it('GET /users/me의 캐릭터 URL을 계정 캐릭터로 보여준다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
     });
 
-    render(<Account />);
+    const { getByTestId } = render(<Account />);
 
-    expect(getCharacterAssetSpy).toHaveBeenCalledWith('green');
-
-    getCharacterAssetSpy.mockRestore();
+    expect(getByTestId('account-character')).toHaveProp('source', {
+      uri: 'https://cdn.example.com/characters/warrior.png',
+    });
   });
 
   it('계정 캐릭터 컨테이너를 테마 5번 컬러의 138x138 박스로 보여준다', () => {

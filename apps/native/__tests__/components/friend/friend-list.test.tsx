@@ -267,6 +267,28 @@ describe('FriendList', () => {
     expect(queryByTestId('friend-character-speech-bubble-Fffft')).toBeNull();
   });
 
+  it('캐릭터 URL이 없는 친구에게 프론트 SVG 폴백을 표시하지 않는다', () => {
+    const friends = [
+      {
+        ...createMockFriend(0, {
+          nickname: 'NoAsset',
+        }),
+        characterImageUrl: null,
+      },
+    ];
+    const { queryByTestId } = render(
+      <FriendList
+        friends={friends}
+        isLoading={false}
+        refreshing={false}
+        onRefresh={jest.fn()}
+        onOpenFriend={jest.fn()}
+      />,
+    );
+
+    expect(queryByTestId('friend-character-fallback-NoAsset')).toBeNull();
+  });
+
   it('uses each friend character color for the character panel and level badge', () => {
     const friends = [
       createMockFriend(0, {
