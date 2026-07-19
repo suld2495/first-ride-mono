@@ -1,7 +1,4 @@
-import {
-  appleCheck,
-  appleLogin,
-} from '@repo/shared/api/apple-auth.api';
+import { appleCheck, appleLogin } from '@repo/shared/api/apple-auth.api';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Platform } from 'react-native';
 
@@ -12,9 +9,7 @@ import type {
   DeviceInfo,
 } from './types';
 
-class AppleAuthProvider
-  implements AuthProvider<'apple', ApplePayload, void>
-{
+class AppleAuthProvider implements AuthProvider<'apple', ApplePayload, void> {
   type = 'apple' as const;
   name = 'Apple';
 

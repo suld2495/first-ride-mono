@@ -281,8 +281,8 @@ describe('SocialSignUp 페이지', () => {
     expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toMatchObject({
       authorizationCode: 'apple-authorization-code',
     });
-    expect(JSON.parse(mockAxios.history.post[1]?.data ?? '{}')).not.toHaveProperty(
-      'authorizationCode',
-    );
+    expect(
+      JSON.parse(mockAxios.history.post[1]?.data ?? '{}'),
+    ).not.toHaveProperty('authorizationCode');
   });
 });

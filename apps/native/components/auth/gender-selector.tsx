@@ -92,11 +92,11 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: palette.tag.critical[700],
   },
   optionText: {
-    color: palette.theme.gray[90],
+    color: theme.colors.text.primary,
   },
   helperText: {
     marginTop: theme.foundation.spacing[2],
-    color: palette.theme.gray[70],
+    color: theme.colors.text.secondary,
   },
   errorText: {
     marginTop: theme.foundation.spacing[2],

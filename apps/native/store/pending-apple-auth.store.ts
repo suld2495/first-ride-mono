@@ -14,7 +14,7 @@ export const usePendingAppleAuthStore = create<PendingAppleAuthState>()(
     credential: null,
     setCredential: (credential) => set({ credential }),
     consumeAuthorizationCode: () => {
-      const credential = get().credential;
+      const { credential } = get();
       const authorizationCode = credential?.authorizationCode;
 
       if (credential && authorizationCode) {

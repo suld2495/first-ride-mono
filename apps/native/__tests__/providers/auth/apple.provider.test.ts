@@ -1,4 +1,5 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { Platform } from 'react-native';
 
 import { appleProvider } from '@/providers/auth/apple.provider';
 
@@ -24,6 +25,29 @@ describe('appleProvider', () => {
     expect(mockedSignInAsync).toHaveBeenCalledWith({
       requestedScopes: [AppleAuthentication.AppleAuthenticationScope.EMAIL],
     });
+  });
+
+  it('iOS에서만 사용할 수 있다', () => {
+    const originalPlatform = Platform.OS;
+
+    try {
+      Object.defineProperty(Platform, 'OS', {
+        configurable: true,
+        value: 'ios',
+      });
+      expect(appleProvider.isAvailable()).toBe(true);
+
+      Object.defineProperty(Platform, 'OS', {
+        configurable: true,
+        value: 'android',
+      });
+      expect(appleProvider.isAvailable()).toBe(false);
+    } finally {
+      Object.defineProperty(Platform, 'OS', {
+        configurable: true,
+        value: originalPlatform,
+      });
+    }
   });
 
   it('identityToken이 없으면 서버 요청 전에 실패한다', async () => {

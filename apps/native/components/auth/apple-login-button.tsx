@@ -59,6 +59,7 @@ export function AppleLoginButton({
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       pointerEvents={isDisabled ? 'none' : 'auto'}
       style={[styles.container, isDisabled ? styles.disabled : null, style]}
+      testID="apple-login-button-container"
     >
       <AppleAuthentication.AppleAuthenticationButton
         buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
