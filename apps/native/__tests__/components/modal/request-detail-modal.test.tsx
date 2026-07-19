@@ -69,6 +69,21 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
       expect(await findByText('루틴 이름')).toBeOnTheScreen();
     });
 
+    it('인증 이미지 경로가 없어도 상세 정보를 표시한다', async () => {
+      const mockDetail = {
+        ...createMockRoutineDetail(0),
+        imagePath: '',
+      };
+      mockAxios.resetHandlers();
+      mockAxios
+        .onGet(/\/routine\/confirm\/detail/)
+        .reply(200, { data: mockDetail });
+
+      const { findByText } = render(<RequestDetailModal />);
+
+      expect(await findByText('테스트 루틴 1')).toBeOnTheScreen();
+    });
+
     it('응원의 한마디 입력 항목을 표시하지 않는다', async () => {
       const { findByText, queryByLabelText, queryByPlaceholderText } = render(
         <RequestDetailModal />,
@@ -162,6 +177,9 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
         mockAxios.onGet('/routine/confirm/list').reply(200, {
           data: [{ id: 1 }, { id: 2 }],
         });
+        mockAxios
+          .onGet('/routine/change-requests/received')
+          .reply(200, { data: [] });
 
         const { findByText, getByText } = render(<RequestDetailModal />);
 
@@ -241,6 +259,9 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
         mockAxios.onGet('/routine/confirm/list').reply(200, {
           data: [{ id: 1 }],
         });
+        mockAxios
+          .onGet('/routine/change-requests/received')
+          .reply(200, { data: [] });
 
         const { findByText, getByText } = render(<RequestDetailModal />);
 
@@ -286,5 +307,4 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
       });
     });
   });
-
 });

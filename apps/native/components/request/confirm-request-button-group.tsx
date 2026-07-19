@@ -1,4 +1,3 @@
-import type { FormContextType } from '@repo/shared/components';
 import type { RequestResponseStatus } from '@repo/types';
 
 import { Button } from '@/components/ui/button';
@@ -7,28 +6,24 @@ import ThemeView from '@/components/ui/theme-view';
 import { baseFoundation } from '@/theme/tokens';
 
 interface ConfirmRequestButtonGroupProps {
-  onSubmit: (status: RequestResponseStatus, comment: string) => void;
-  useForm: () => FormContextType<{ comment: string }>;
+  onSubmit: (status: RequestResponseStatus) => void;
 }
 
 const ConfirmRequestButtonGroup = ({
   onSubmit,
-  useForm,
 }: ConfirmRequestButtonGroupProps) => {
-  const { form } = useForm();
-
   return (
     <ThemeView style={styles.buttonContainer}>
       <Button
         title="승인"
         variant="primary"
-        onPress={() => onSubmit('PASS', form.comment)}
+        onPress={() => onSubmit('PASS')}
         style={styles.button}
       />
       <Button
         title="거절"
         variant="secondary"
-        onPress={() => onSubmit('DENY', form.comment)}
+        onPress={() => onSubmit('DENY')}
         style={styles.button}
       />
     </ThemeView>
