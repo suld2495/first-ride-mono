@@ -7,7 +7,7 @@ import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
 import ModalScreen from '../../../app/modal';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
 import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
-import { palette } from '../../../theme/tokens';
+import { baseFoundation, palette } from '../../../theme/tokens';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockFriends } from '../../setup/friend/mock';
 
@@ -1618,7 +1618,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(hiddenCheckbox.props.isChecked).toBe(true);
     });
 
-    it('루틴 폼 스크롤 콘텐츠에 추가 하단 여백을 두지 않는다', async () => {
+    it('루틴 폼 스크롤 콘텐츠의 하단 여백을 항목 간격과 동일하게 둔다', async () => {
       const { findByTestId } = render(<RoutineFormModal />);
       const scrollView = await findByTestId('routine-form-scroll');
 
@@ -1629,7 +1629,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(scrollView.props.showsVerticalScrollIndicator).toBe(
         SHOW_SCROLL_INDICATOR,
       );
-      expect(scrollContentStyle.paddingBottom).toBeUndefined();
+      expect(scrollContentStyle.paddingBottom).toBe(baseFoundation.spacing[6]);
     });
 
     it('루틴 삭제 버튼을 고정 danger outline 스타일로 표시한다', async () => {
