@@ -37,6 +37,7 @@ export abstract class SocialAuthProvider
       idToken: payload.idToken,
       pushToken: deviceInfo.pushToken,
       deviceType: deviceInfo.deviceType,
+      deviceId: deviceInfo.deviceId,
     };
 
     const check = await socialLoginCheck(param);

@@ -1,14 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { HttpError } from '@repo/shared/api';
 import { login } from '@repo/shared/api/auth.api';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { setAuthorization, setRefreshToken } from '@/lib/api';
 import { useAuthStore } from '@/store/auth.store';
+
+const TOO_MANY_REQUESTS_STATUS = 429;
+const LOGIN_RATE_LIMIT_COOLDOWN_MS = 30_000;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,9 +21,27 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRateLimited, setIsRateLimited] = useState(false);
+
+  useEffect(() => {
+    if (!isRateLimited) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setIsRateLimited(false);
+    }, LOGIN_RATE_LIMIT_COOLDOWN_MS);
+
+    return () => clearTimeout(timeoutId);
+  }, [isRateLimited]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isRateLimited) {
+      return;
+    }
+
     setError('');
     setIsLoading(true);
 
@@ -37,6 +59,10 @@ export default function LoginPage() {
       signIn(response.userInfo);
       router.push('/');
     } catch (err: unknown) {
+      if (err instanceof HttpError && err.status === TOO_MANY_REQUESTS_STATUS) {
+        setIsRateLimited(true);
+      }
+
       const message =
         err instanceof Error ? err.message : '로그인에 실패했습니다';
 
@@ -79,7 +105,7 @@ export default function LoginPage() {
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 required
-                disabled={isLoading}
+                disabled={isLoading || isRateLimited}
                 placeholder="아이디를 입력하세요"
                 className="border-[#0891b2] bg-[rgba(15,23,42,0.8)] text-[#e0f2fe] placeholder:text-[#90a1b9] focus:border-[#1ddeff] focus:ring-[#1ddeff]"
               />
@@ -95,7 +121,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
+                disabled={isLoading || isRateLimited}
                 placeholder="비밀번호를 입력하세요"
                 className="border-[#0891b2] bg-[rgba(15,23,42,0.8)] text-[#e0f2fe] placeholder:text-[#90a1b9] focus:border-[#1ddeff] focus:ring-[#1ddeff]"
               />
@@ -113,7 +139,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="btn-quest w-full"
-              disabled={isLoading}
+              disabled={isLoading || isRateLimited}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">

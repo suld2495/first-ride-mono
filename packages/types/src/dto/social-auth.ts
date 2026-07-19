@@ -9,6 +9,7 @@ export interface SocialLoginRequest {
   accessToken: string;
   pushToken?: AuthForm['pushToken'];
   deviceType?: AuthForm['deviceType'];
+  deviceId?: AuthForm['deviceId'];
 }
 
 export interface SocialLoginResponse {
@@ -25,6 +26,7 @@ export interface SocialSignUpRequest {
   job: string;
   pushToken?: string;
   deviceType?: 'ios' | 'android';
+  deviceId?: string;
 }
 
 export type SocialSignUpResponse = TokenResponse;

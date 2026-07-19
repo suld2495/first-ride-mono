@@ -19,6 +19,7 @@ import {
   type SocialProviderType,
 } from '@/providers/auth/types';
 import { baseFoundation } from '@/theme/tokens';
+import { getDeviceId } from '@/utils/device-id';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 interface ProfileForm {
@@ -72,13 +73,15 @@ export default function SocialSignUp() {
     }
 
     try {
+      const deviceId = await getDeviceId();
       const response = await socialSignUpMutation.mutateAsync({
         provider: provider as SocialProviderType,
         accessToken,
         nickname: form.nickname,
         job: form.job,
-        pushToken: pushToken?.data,
+        pushToken: pushToken?.data || undefined,
         deviceType: getDeviceType(),
+        deviceId,
       });
 
       await Promise.all([

@@ -1,4 +1,4 @@
-import type { ErrorAraryData, ErrorData } from '@repo/types';
+import type { AuthErrorCode, ErrorAraryData, ErrorData } from '@repo/types';
 import type {
   AxiosError,
   AxiosResponse,
@@ -15,7 +15,23 @@ import {
   UnknownError,
 } from './AppError';
 
-export const UN_AUTHORIZATION_URL = ['/auth/login', '/auth/join'];
+export const UN_AUTHORIZATION_URL = [
+  '/auth/login',
+  '/auth/refresh',
+  '/auth/signup',
+  '/auth/kakao/check',
+  '/auth/kakao/login',
+];
+
+const SOCIAL_AUTH_URL_PATTERN = /^\/auth\/[^/?]+\/(?:check|login|signup)$/;
+
+export const isPublicAuthUrl = (url: string = ''): boolean => {
+  const [path] = url.split('?');
+
+  return (
+    UN_AUTHORIZATION_URL.includes(path) || SOCIAL_AUTH_URL_PATTERN.test(path)
+  );
+};
 
 const REQUEST_TIMEOUT_MS = 10_000;
 
@@ -129,9 +145,74 @@ const shouldSkipTokenRefresh = (
   originalRequest: InternalAxiosRequestConfig,
 ): boolean => {
   return (
-    originalRequest.url?.includes('/auth/refresh') === true ||
+    isPublicAuthUrl(originalRequest.url) ||
     originalRequest.url?.includes('/auth/logout') === true
   );
+};
+
+const getAuthErrorCode = (error: AxiosError): AuthErrorCode | undefined => {
+  const responseData = error.response?.data;
+
+  if (!responseData || typeof responseData !== 'object') {
+    return undefined;
+  }
+
+  const errorData = (responseData as { error?: unknown }).error;
+
+  if (!errorData || typeof errorData !== 'object') {
+    return undefined;
+  }
+
+  const { code } = errorData as { code?: unknown };
+
+  return typeof code === 'string' ? (code as AuthErrorCode) : undefined;
+};
+
+const clearSessionAndHandleUnauthorized = async (
+  activeTokenManager: TokenManager,
+): Promise<void> => {
+  await activeTokenManager.clearTokens();
+  await handleUnauthorized();
+};
+
+const markRequestAsRetried = (requestId: string | undefined): void => {
+  if (requestId) {
+    retriedRequestIds.add(requestId);
+  }
+};
+
+const clearRequestRetryState = (requestId: string | undefined): void => {
+  if (requestId) {
+    retriedRequestIds.delete(requestId);
+  }
+};
+
+const retryWithLatestAccessToken = async (
+  originalRequest: InternalAxiosRequestConfig,
+  activeTokenManager: TokenManager,
+  requestId: string | undefined,
+): Promise<AxiosResponse | null> => {
+  const currentAccessToken = await activeTokenManager.getAccessToken();
+  const requestAuthorization = getHeaderValue(
+    originalRequest,
+    AUTHORIZATION_HEADER,
+  );
+
+  if (
+    !currentAccessToken ||
+    requestAuthorization === `Bearer ${currentAccessToken}`
+  ) {
+    return null;
+  }
+
+  markRequestAsRetried(requestId);
+  setHeaderValue(
+    originalRequest,
+    AUTHORIZATION_HEADER,
+    `Bearer ${currentAccessToken}`,
+  );
+
+  return axiosInstance(originalRequest);
 };
 
 const refreshAccessToken = async (
@@ -207,38 +288,29 @@ axiosInstance.interceptors.response.use(
 
     const requestId = getHeaderValue(originalRequest, REQUEST_ID_HEADER);
     const activeTokenManager = tokenManager;
-    const currentAccessToken = await activeTokenManager.getAccessToken();
-    const requestAuthorization = getHeaderValue(
+    const latestTokenResponse = await retryWithLatestAccessToken(
       originalRequest,
-      AUTHORIZATION_HEADER,
+      activeTokenManager,
+      requestId,
     );
 
-    if (
-      currentAccessToken &&
-      requestAuthorization !== `Bearer ${currentAccessToken}`
-    ) {
-      if (requestId) {
-        retriedRequestIds.add(requestId);
-      }
-
-      setHeaderValue(
-        originalRequest,
-        AUTHORIZATION_HEADER,
-        `Bearer ${currentAccessToken}`,
-      );
-
-      return axiosInstance(originalRequest);
+    if (latestTokenResponse) {
+      return latestTokenResponse;
     }
 
     if (requestId && retriedRequestIds.has(requestId)) {
-      retriedRequestIds.delete(requestId);
-      await handleUnauthorized();
+      clearRequestRetryState(requestId);
+      await clearSessionAndHandleUnauthorized(activeTokenManager);
       throw error;
     }
 
-    if (requestId) {
-      retriedRequestIds.add(requestId);
+    if (getAuthErrorCode(error) !== 'TOKEN_EXPIRED') {
+      clearRequestRetryState(requestId);
+      await clearSessionAndHandleUnauthorized(activeTokenManager);
+      throw error;
     }
+
+    markRequestAsRetried(requestId);
 
     try {
       const newAccessToken = await getRefreshPromise(activeTokenManager);
@@ -251,9 +323,7 @@ axiosInstance.interceptors.response.use(
 
       return axiosInstance(originalRequest);
     } catch (refreshError) {
-      if (requestId) {
-        retriedRequestIds.delete(requestId);
-      }
+      clearRequestRetryState(requestId);
       throw refreshError;
     }
   },

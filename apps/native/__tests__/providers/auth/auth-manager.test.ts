@@ -31,7 +31,10 @@ describe('authManager', () => {
     mockedGetProvider.mockReturnValue(provider);
 
     await expect(
-      authManager.login('kakao', { deviceType: 'ios' }),
+      authManager.login('kakao', {
+        deviceType: 'ios',
+        deviceId: 'installation-device-id',
+      }),
     ).resolves.toMatchObject({
       isNewUser: false,
       accessToken: 'service-access-token',
@@ -55,7 +58,10 @@ describe('authManager', () => {
     mockedGetProvider.mockReturnValue(provider);
 
     await expect(
-      authManager.login('kakao', { deviceType: 'ios' }),
+      authManager.login('kakao', {
+        deviceType: 'ios',
+        deviceId: 'installation-device-id',
+      }),
     ).resolves.toMatchObject({
       isNewUser: true,
       socialAccessToken: 'kakao-access-token',

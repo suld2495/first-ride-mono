@@ -1,3 +1,4 @@
+import { HttpError } from '@repo/shared/api';
 import type { AuthForm as AuthFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -25,6 +26,8 @@ import { baseFoundation, palette } from '@/theme/tokens';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 
 const FORM_WIDTH = '100%';
+const TOO_MANY_REQUESTS_STATUS = 429;
+const LOGIN_RATE_LIMIT_COOLDOWN_MS = 30_000;
 
 const initial = (userId = '') => ({
   userId,
@@ -45,6 +48,7 @@ export default function SignIn() {
     initial(lastUserId ?? ''),
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isRateLimited, setIsRateLimited] = useState(false);
   const { login, loadingProvider } = useAuth();
   const { showToast } = useToast();
 
@@ -61,6 +65,18 @@ export default function SignIn() {
     });
   }, [lastUserId]);
 
+  useEffect(() => {
+    if (!isRateLimited) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setIsRateLimited(false);
+    }, LOGIN_RATE_LIMIT_COOLDOWN_MS);
+
+    return () => clearTimeout(timeoutId);
+  }, [isRateLimited]);
+
   const handleAuth = async (
     providerType: AuthProviderType,
     params?: CredentialsParams,
@@ -70,6 +86,14 @@ export default function SignIn() {
         ? login('credentials', params!)
         : login(providerType));
     } catch (error) {
+      if (
+        providerType === 'credentials' &&
+        error instanceof HttpError &&
+        error.status === TOO_MANY_REQUESTS_STATUS
+      ) {
+        setIsRateLimited(true);
+      }
+
       // 필드 에러가 있으면 throw해서 caller가 처리하도록
       const serverErrors = getFieldErrors(error);
 
@@ -140,7 +164,9 @@ export default function SignIn() {
   const isLoading = loadingProvider !== null;
   const isCredentialsIncomplete = !form.userId.trim() || !form.password.trim();
   const isLoginDisabled =
-    isCredentialsIncomplete || (isLoading && loadingProvider !== 'credentials');
+    isCredentialsIncomplete ||
+    isRateLimited ||
+    (isLoading && loadingProvider !== 'credentials');
 
   return (
     <AuthPage>

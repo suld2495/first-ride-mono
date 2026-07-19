@@ -28,6 +28,7 @@ const NEW_REFRESH_TOKEN = 'new-refresh-token';
 const THROW_ERROR_TEST_NAME = '에러를 throw한다';
 const AUTH_REFRESH_URL = '/auth/refresh';
 const AUTH_LOGOUT_URL = '/auth/logout';
+const LOGOUT_REQUEST = { refreshToken: REFRESH_TOKEN };
 
 describe('auth.api', () => {
   beforeEach(() => {
@@ -206,9 +207,12 @@ describe('auth.api', () => {
       });
 
       it('로그아웃 응답을 반환한다', async () => {
-        const result = await logout();
+        const result = await logout(LOGOUT_REQUEST);
 
         expect(result).toEqual(LOGGED_OUT_SUCCESSFULLY_MESSAGE);
+        expect(mockAxios.history.post[0]?.data).toBe(
+          JSON.stringify(LOGOUT_REQUEST),
+        );
       });
     });
 
@@ -222,7 +226,7 @@ describe('auth.api', () => {
       });
 
       it('로컬 로그아웃 메시지를 반환한다', async () => {
-        const result = await logout();
+        const result = await logout(LOGOUT_REQUEST);
 
         expect(result).toEqual(LOGGED_OUT_LOCALLY_MESSAGE);
       });
@@ -234,7 +238,7 @@ describe('auth.api', () => {
       });
 
       it('로컬 로그아웃 메시지를 반환한다', async () => {
-        const result = await logout();
+        const result = await logout(LOGOUT_REQUEST);
 
         expect(result).toEqual(LOGGED_OUT_LOCALLY_MESSAGE);
       });

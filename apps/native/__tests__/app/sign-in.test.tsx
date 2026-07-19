@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { StyleSheet as RNStyleSheet } from 'react-native';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
+import { getDeviceId } from '@/utils/device-id';
 
 import SignIn from '../../app/sign-in';
 import { palette } from '../../theme/tokens';
@@ -23,8 +24,13 @@ jest.mock('@/api/token-storage.api', () => ({
   setRefreshToken: jest.fn(),
 }));
 
+jest.mock('@/utils/device-id', () => ({
+  getDeviceId: jest.fn(),
+}));
+
 const mockedSetAuthorization = jest.mocked(setAuthorization);
 const mockedSetRefreshToken = jest.mocked(setRefreshToken);
+const mockedGetDeviceId = jest.mocked(getDeviceId);
 
 // useNotifications mock
 jest.mock('@/hooks/useNotifications', () => ({
@@ -44,6 +50,7 @@ describe('SignIn 페이지', () => {
     mockAuthStore.signIn.mockClear();
     mockedSetAuthorization.mockClear();
     mockedSetRefreshToken.mockClear();
+    mockedGetDeviceId.mockResolvedValue('installation-device-id');
     mockAxios = new MockAdapter(axiosInstance);
   });
 
@@ -248,6 +255,9 @@ describe('SignIn 페이지', () => {
         expect(mockPush).not.toHaveBeenCalledWith(
           '/(tabs)/(afterLogin)/(routine)',
         );
+        expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toEqual(
+          expect.objectContaining({ deviceId: 'installation-device-id' }),
+        );
       });
 
       it('토큰 저장을 완료한 뒤 로그인 상태로 전환한다', async () => {
@@ -343,6 +353,37 @@ describe('SignIn 페이지', () => {
             '서버 오류가 발생했습니다.',
             'error',
           );
+        });
+      });
+    });
+
+    describe('로그인 시도 제한 시', () => {
+      beforeEach(() => {
+        mockAxios.onPost('/auth/login').reply(429, {
+          error: {
+            message: '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.',
+          },
+        });
+      });
+
+      it('메시지를 표시하고 로그인 버튼을 잠시 비활성화한다', async () => {
+        const { getByPlaceholderText, getByTestId } = render(<SignIn />);
+
+        fillForm(getByPlaceholderText, {
+          userId: 'testuser',
+          password: 'wrongpassword',
+        });
+
+        fireEvent.press(getByTestId('sign-in-submit-button'));
+
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.',
+            'error',
+          );
+          expect(
+            getByTestId('sign-in-submit-button').props.accessibilityState,
+          ).toEqual(expect.objectContaining({ disabled: true }));
         });
       });
     });

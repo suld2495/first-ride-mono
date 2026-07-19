@@ -9,7 +9,6 @@ const INTERNAL_SERVER_ERROR_STATUS = 500;
  * 푸시 토큰 업데이트 (서버에)
  */
 export async function updatePushToken(
-  userId: string,
   pushToken: string,
   deviceType: 'ios' | 'android',
 ): Promise<boolean> {
@@ -19,8 +18,7 @@ export async function updatePushToken(
     await axios.put(
       `${BASE_URL}/push-tokens`,
       {
-        userId,
-        pushToken,
+        expoPushToken: pushToken,
         deviceType,
       },
       {

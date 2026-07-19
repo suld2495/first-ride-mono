@@ -3,6 +3,7 @@ import { Auth, User } from '../models';
 export type AuthForm = Pick<Auth, 'userId' | 'password'> & {
   pushToken?: string;
   deviceType?: 'ios' | 'android';
+  deviceId?: string;
 };
 
 export type JoinForm = Pick<Auth, 'userId' | 'nickname' | 'password' | 'job'>;
@@ -42,6 +43,8 @@ export type RefreshTokenRequest = {
 };
 
 export type RefreshTokenResponse = TokenResponse;
+
+export type LogoutRequest = RefreshTokenRequest;
 
 export type LogoutResponse = {
   message: string;

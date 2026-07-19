@@ -1,6 +1,7 @@
 import { logout } from '@repo/shared/api/auth.api';
 import { act, waitFor } from '@testing-library/react-native';
 
+import * as tokenStorage from '@/api/token-storage.api';
 import { clearRoutineShareTargets } from '@/share/routine-share';
 import { useAuthStore } from '@/store/auth.store';
 import { clearRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
@@ -31,6 +32,9 @@ describe('auth.store', () => {
     mockedLogout.mockResolvedValue({ message: 'ok' });
     mockedClearRoutineShareTargets.mockResolvedValue();
     mockedClearRoutineWidgetSnapshot.mockResolvedValue();
+    jest
+      .spyOn(tokenStorage, 'getRefreshToken')
+      .mockResolvedValue('current-device-refresh-token');
 
     await act(async () => {
       await useAuthStore.persist.clearStorage();
@@ -76,6 +80,9 @@ describe('auth.store', () => {
         isLoading: false,
       }),
     );
+    expect(mockedLogout).toHaveBeenCalledWith({
+      refreshToken: 'current-device-refresh-token',
+    });
   });
 
   it('저장된 마지막 아이디가 없어도 현재 로그인 사용자의 아이디를 로그아웃 후 유지한다', async () => {
@@ -104,5 +111,37 @@ describe('auth.store', () => {
         isLoading: false,
       }),
     );
+  });
+
+  it('refresh token이 없으면 서버 요청 없이 로컬 세션만 정리한다', async () => {
+    jest.spyOn(tokenStorage, 'getRefreshToken').mockResolvedValue(null);
+
+    await act(async () => {
+      useAuthStore.getState().signIn({
+        userId: 'local@example.com',
+        nickname: '로컬',
+        motto: null,
+        mottos: [],
+        role: 'USER',
+      });
+      await useAuthStore.getState().signOut();
+    });
+
+    expect(mockedLogout).not.toHaveBeenCalled();
+    expect(useAuthStore.getState().user).toBeNull();
+  });
+
+  it('이미 사용자 상태가 비어 있으면 저장된 마지막 아이디를 유지한다', async () => {
+    useAuthStore.setState({
+      user: null,
+      lastUserId: 'remembered@example.com',
+      isLoading: false,
+    });
+
+    await act(async () => {
+      await useAuthStore.getState().signOutLocally();
+    });
+
+    expect(useAuthStore.getState().lastUserId).toBe('remembered@example.com');
   });
 });

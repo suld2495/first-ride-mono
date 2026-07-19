@@ -42,6 +42,7 @@ class CredentialsAuthProvider
       password: payload.password,
       pushToken: deviceInfo.pushToken,
       deviceType: deviceInfo.deviceType,
+      deviceId: deviceInfo.deviceId,
     });
 
     return {

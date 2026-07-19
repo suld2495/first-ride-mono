@@ -1,4 +1,4 @@
-import { createHttp, UN_AUTHORIZATION_URL } from '@repo/shared/api';
+import { createHttp, isPublicAuthUrl } from '@repo/shared/api';
 import { REQUEST_TIMEOUT_MS } from '@repo/shared/api/auth.api';
 import type { User } from '@repo/types';
 import { redirect } from 'next/navigation';
@@ -34,7 +34,7 @@ export const clearTokens = (): void => {
 createHttp({
   baseURL: BASE_URL,
   request(config) {
-    if (!UN_AUTHORIZATION_URL.includes(config.url || '')) {
+    if (!isPublicAuthUrl(config.url)) {
       const token = getAuthorization();
 
       config.headers.Authorization = `Bearer ${token}`;
@@ -43,8 +43,8 @@ createHttp({
     config.timeout = REQUEST_TIMEOUT_MS;
     return config;
   },
-  onUnauthorized() {
-    useAuthStore.getState().signOut();
+  async onUnauthorized() {
+    await useAuthStore.getState().signOutLocally();
     redirect('/login');
   },
   tokenManager: {

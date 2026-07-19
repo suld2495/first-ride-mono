@@ -301,12 +301,11 @@ function AppShell({ isFontReady }: AppShellProps) {
 
   // 푸시 토큰 변경 감지 및 자동 업데이트
   useEffect(() => {
-    if (isInitialized && pushToken && user?.userId) {
-      updatePushToken(
-        user.userId,
+    if (isInitialized && pushToken?.data && user?.userId) {
+      void updatePushToken(
         pushToken.data,
         Platform.OS as 'ios' | 'android',
-      );
+      ).catch(() => undefined);
     }
   }, [pushToken, user?.userId, isInitialized]);
 

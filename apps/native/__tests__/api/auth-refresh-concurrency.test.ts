@@ -31,7 +31,7 @@ describe('인증 토큰 갱신 동시성', () => {
     const delayedRequestReachedServer = createDeferred<void>();
     const refreshResponse = createDeferred<RefreshTokenResponse>();
     const delayedUnauthorizedResponse =
-      createDeferred<[number, Record<string, never>]>();
+      createDeferred<[number, Record<string, unknown>]>();
     const onUnauthorized = jest.fn().mockResolvedValue(undefined);
     let accessToken = EXPIRED_ACCESS_TOKEN;
     let refreshToken = INITIAL_REFRESH_TOKEN;
@@ -80,7 +80,15 @@ describe('인증 토큰 갱신 동시성', () => {
           return delayedUnauthorizedResponse.promise;
         }
 
-        return [axios.HttpStatusCode.Unauthorized, {}];
+        return [
+          axios.HttpStatusCode.Unauthorized,
+          {
+            error: {
+              code: 'TOKEN_EXPIRED',
+              message: '토큰이 만료되었습니다.',
+            },
+          },
+        ];
       }
 
       return [axios.HttpStatusCode.Ok, { data: { ok: true } }];
@@ -111,7 +119,12 @@ describe('인증 토큰 갱신 동시성', () => {
 
     delayedUnauthorizedResponse.resolve([
       axios.HttpStatusCode.Unauthorized,
-      {},
+      {
+        error: {
+          code: 'TOKEN_EXPIRED',
+          message: '토큰이 만료되었습니다.',
+        },
+      },
     ]);
 
     await delayedRequest;

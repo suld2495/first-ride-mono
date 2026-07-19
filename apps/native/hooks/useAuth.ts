@@ -14,6 +14,7 @@ import {
   type AuthProviderType,
   type SocialProviderType,
 } from '@/providers/auth/types';
+import { getDeviceId } from '@/utils/device-id';
 
 import { useNotifications } from './useNotifications';
 
@@ -50,9 +51,11 @@ export function useAuth(): UseAuthReturn {
     setError(null);
 
     try {
+      const deviceId = await getDeviceId();
       const deviceInfo = {
-        pushToken: pushToken?.data,
+        pushToken: pushToken?.data || undefined,
         deviceType: getDeviceType(),
+        deviceId,
       };
 
       const result = await authManager.login(providerType, deviceInfo, params);
@@ -87,7 +90,7 @@ export function useAuth(): UseAuthReturn {
 
   const logout = async (providerType?: AuthProviderType) => {
     await authManager.logout(providerType);
-    authSignOut();
+    await authSignOut();
   };
 
   return {

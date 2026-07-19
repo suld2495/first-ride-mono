@@ -11,6 +11,7 @@ let mockAxios: MockAdapter;
 const LOGGED_OUT_SUCCESSFULLY_MESSAGE = { message: 'Logged out successfully' };
 const LOGGED_OUT_LOCALLY_MESSAGE = { message: 'Logged out locally' };
 const AUTH_LOGOUT_URL = '/auth/logout';
+const LOGOUT_REQUEST = { refreshToken: 'refresh-token' };
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -54,13 +55,13 @@ describe('useAuth', () => {
           wrapper: createWrapper(),
         });
 
-        result.current.mutate();
+        result.current.mutate(LOGOUT_REQUEST);
 
         await waitFor(() => {
           expect(result.current.isSuccess).toBe(true);
         });
 
-        expect(logoutSpy).toHaveBeenCalled();
+        expect(logoutSpy).toHaveBeenCalledWith(LOGOUT_REQUEST);
         expect(result.current.data).toEqual(LOGGED_OUT_SUCCESSFULLY_MESSAGE);
 
         logoutSpy.mockRestore();
@@ -81,7 +82,7 @@ describe('useAuth', () => {
           wrapper: createWrapper(),
         });
 
-        result.current.mutate();
+        result.current.mutate(LOGOUT_REQUEST);
 
         await waitFor(() => {
           expect(result.current.isSuccess).toBe(true);
@@ -101,7 +102,7 @@ describe('useAuth', () => {
           wrapper: createWrapper(),
         });
 
-        result.current.mutate();
+        result.current.mutate(LOGOUT_REQUEST);
 
         await waitFor(() => {
           expect(result.current.isSuccess).toBe(true);

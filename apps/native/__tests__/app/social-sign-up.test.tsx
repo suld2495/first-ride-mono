@@ -3,6 +3,7 @@ import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
+import { getDeviceId } from '@/utils/device-id';
 
 import SocialSignUp from '../../app/social-sign-up';
 import { render } from '../setup/test-utils';
@@ -18,8 +19,13 @@ jest.mock('@/api/token-storage.api', () => ({
   setRefreshToken: jest.fn(),
 }));
 
+jest.mock('@/utils/device-id', () => ({
+  getDeviceId: jest.fn(),
+}));
+
 const mockedSetAuthorization = jest.mocked(setAuthorization);
 const mockedSetRefreshToken = jest.mocked(setRefreshToken);
+const mockedGetDeviceId = jest.mocked(getDeviceId);
 
 jest.mock('@/hooks/useNotifications', () => ({
   useNotifications: () => ({
@@ -35,6 +41,7 @@ describe('SocialSignUp 페이지', () => {
     mockAuthStore.signIn.mockClear();
     mockedSetAuthorization.mockClear();
     mockedSetRefreshToken.mockClear();
+    mockedGetDeviceId.mockResolvedValue('installation-device-id');
     for (const key of Object.keys(mockSearchParams)) {
       delete mockSearchParams[key];
     }
@@ -93,6 +100,7 @@ describe('SocialSignUp 페이지', () => {
         nickname: '테스터',
         job: '개발자',
         pushToken: 'mock-push-token',
+        deviceId: 'installation-device-id',
       });
     });
     expect(mockPush).not.toHaveBeenCalledWith('/(tabs)/(afterLogin)/(routine)');

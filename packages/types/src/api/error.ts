@@ -8,9 +8,18 @@ export type FieldErrorReason = {
   rejected: string;
 };
 
+export type AuthErrorCode =
+  | 'TOKEN_REQUIRED'
+  | 'TOKEN_EXPIRED'
+  | 'TOKEN_MALFORMED'
+  | 'TOKEN_SIGNATURE_INVALID'
+  | 'TOKEN_UNSUPPORTED'
+  | 'TOKEN_INVALID';
+
 export type ServerError = {
   error: {
     message: string;
+    code?: AuthErrorCode;
     data?: FieldErrorReason[];
   };
   path: string;

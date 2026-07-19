@@ -1,4 +1,4 @@
-import { createHttp, UN_AUTHORIZATION_URL } from '@repo/shared/api';
+import { createHttp, isPublicAuthUrl } from '@repo/shared/api';
 import { ApiError } from '@repo/shared/api/AppError';
 import { REQUEST_TIMEOUT_MS } from '@repo/shared/api/auth.api';
 import type { User } from '@repo/types';
@@ -19,7 +19,7 @@ createHttp({
   baseURL: BASE_URL,
   async request(config) {
     try {
-      if (!UN_AUTHORIZATION_URL.includes(config.url || '')) {
+      if (!isPublicAuthUrl(config.url)) {
         const token = await getAuthorization();
 
         config.headers.Authorization = `Bearer ${token}`;
@@ -39,7 +39,7 @@ createHttp({
   },
   async onUnauthorized() {
     try {
-      await useAuthStore.getState().signOut();
+      await useAuthStore.getState().signOutLocally();
     } catch (error) {
       throw new ApiError(
         [],

@@ -38,6 +38,7 @@ export type AuthPayload = CredentialsPayload | SocialPayload;
 export interface DeviceInfo {
   pushToken?: string;
   deviceType: 'ios' | 'android';
+  deviceId: string;
 }
 
 export function getDeviceType(): DeviceInfo['deviceType'] {

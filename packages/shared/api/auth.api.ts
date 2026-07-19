@@ -6,6 +6,7 @@ import type {
   EmailVerificationStatusResponse,
   JoinForm,
   JobOption,
+  LogoutRequest,
   LogoutResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
@@ -133,9 +134,14 @@ export const refreshToken = async (
   }
 };
 
-export const logout = async (): Promise<LogoutResponse> => {
+export const logout = async (
+  request: LogoutRequest,
+): Promise<LogoutResponse> => {
   try {
-    const response: LogoutResponse = await http.post(`${baseURL}/logout`);
+    const response: LogoutResponse = await http.post(
+      `${baseURL}/logout`,
+      request,
+    );
 
     return response;
   } catch {

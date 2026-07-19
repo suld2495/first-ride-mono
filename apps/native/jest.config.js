@@ -7,6 +7,8 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.test.{ts,tsx}'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^@react-native-async-storage/async-storage$':
+      '@react-native-async-storage/async-storage/jest/async-storage-mock',
     '^expo-secure-store$': '<rootDir>/__tests__/mocks/expo-secure-store.js',
     '^@expo/vector-icons/Ionicons$': '<rootDir>/__tests__/mocks/ionicons.js',
     '^@expo/vector-icons$': '<rootDir>/__tests__/mocks/vector-icons.js',
