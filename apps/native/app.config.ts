@@ -18,6 +18,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    'expo-apple-authentication',
     './plugins/with-routine-share-android',
     'expo-font',
     'react-native-edge-to-edge',
@@ -80,6 +81,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
+    usesAppleSignIn: true,
     bundleIdentifier: 'com.mannal.firstride',
     appleTeamId: '8C683MXTH7',
     infoPlist: {

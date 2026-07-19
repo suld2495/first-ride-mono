@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './apple-auth';
 export * from './friend';
 export * from './quest';
 export * from './request';

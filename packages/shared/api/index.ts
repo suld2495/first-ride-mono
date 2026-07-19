@@ -400,6 +400,7 @@ export {
   requestEmailVerification,
   refreshToken,
 } from './auth.api';
+export { appleCheck, appleLogin, appleSignUp } from './apple-auth.api';
 export {
   createRequest,
   fetchReceivedRequests,

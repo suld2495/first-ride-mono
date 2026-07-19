@@ -32,7 +32,13 @@ export interface SocialPayload {
   idToken?: string;
 }
 
-export type AuthPayload = CredentialsPayload | SocialPayload;
+export interface ApplePayload {
+  provider: 'apple';
+  identityToken: string;
+  authorizationCode?: string;
+}
+
+export type AuthPayload = CredentialsPayload | SocialPayload | ApplePayload;
 
 // 디바이스 정보
 export interface DeviceInfo {

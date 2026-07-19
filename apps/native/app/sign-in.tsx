@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 
 import AuthPage from '@/components/auth/auth-page';
+import { AppleLoginButton } from '@/components/auth/apple-login-button';
 import { KakaoLoginButton } from '@/components/auth/kakao-login-button';
 import { Button } from '@/components/ui/button';
 import { Divider } from '@/components/ui/divider';
@@ -40,6 +41,12 @@ class FieldError extends Error {
     super('Field validation error');
   }
 }
+
+const isAppleRequestCanceled = (error: unknown): boolean =>
+  typeof error === 'object' &&
+  error !== null &&
+  'code' in error &&
+  error.code === 'ERR_REQUEST_CANCELED';
 
 export default function SignIn() {
   const router = useRouter();
@@ -86,6 +93,10 @@ export default function SignIn() {
         ? login('credentials', params!)
         : login(providerType));
     } catch (error) {
+      if (providerType === 'apple' && isAppleRequestCanceled(error)) {
+        return;
+      }
+
       if (
         providerType === 'credentials' &&
         error instanceof HttpError &&
@@ -249,6 +260,12 @@ export default function SignIn() {
                 disabled={isLoading && loadingProvider !== 'kakao'}
                 style={styles.kakaoButton}
               />
+              <AppleLoginButton
+                onPress={() => handleSocialLogin('apple')}
+                loading={loadingProvider === 'apple'}
+                disabled={isLoading && loadingProvider !== 'apple'}
+                style={styles.appleButton}
+              />
             </>
           )}
 
@@ -373,6 +390,11 @@ const styles = StyleSheet.create((theme) => ({
 
   kakaoButton: {
     width: FORM_WIDTH,
+  },
+
+  appleButton: {
+    width: FORM_WIDTH,
+    marginTop: theme.foundation.spacing[3],
   },
 
   footerLinks: {

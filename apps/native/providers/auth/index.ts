@@ -1,3 +1,4 @@
+import { appleProvider } from './apple.provider';
 import { credentialsProvider } from './credentials.provider';
 import { kakaoProvider } from './kakao.provider';
 import type {
@@ -29,6 +30,7 @@ export interface RuntimeAuthProvider {
 const providers: Partial<Record<AuthProviderType, RuntimeAuthProvider>> = {
   credentials: credentialsProvider as unknown as RuntimeAuthProvider,
   kakao: kakaoProvider as unknown as RuntimeAuthProvider,
+  apple: appleProvider as unknown as RuntimeAuthProvider,
 };
 
 export function getProvider(type: AuthProviderType): RuntimeAuthProvider {

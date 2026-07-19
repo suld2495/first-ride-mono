@@ -1,4 +1,4 @@
-import { fetchJobOptions, join } from '@repo/shared/api';
+import { appleSignUp, fetchJobOptions, join } from '@repo/shared/api';
 import { socialSignUp } from '@repo/shared/api/social-auth.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
@@ -14,6 +14,7 @@ import {
   type AuthProviderType,
   type SocialProviderType,
 } from '@/providers/auth/types';
+import { usePendingAppleAuthStore } from '@/store/pending-apple-auth.store';
 import { getDeviceId } from '@/utils/device-id';
 
 import { useNotifications } from './useNotifications';
@@ -22,6 +23,7 @@ const authQueryKeys = {
   join: () => ['auth', 'join'] as const,
   jobOptions: () => ['auth', 'job-options'] as const,
   socialSignUp: () => ['auth', 'social-sign-up'] as const,
+  appleSignUp: () => ['auth', 'apple-sign-up'] as const,
 };
 
 interface UseAuthReturn {
@@ -42,6 +44,12 @@ export function useAuth(): UseAuthReturn {
   const [loadingProvider, setLoadingProvider] =
     useState<AuthProviderType | null>(null);
   const [error, setError] = useState<Error | null>(null);
+  const setPendingAppleCredential = usePendingAppleAuthStore(
+    (state) => state.setCredential,
+  );
+  const clearPendingAppleCredential = usePendingAppleAuthStore(
+    (state) => state.clearCredential,
+  );
 
   const login = async (
     providerType: AuthProviderType,
@@ -49,6 +57,10 @@ export function useAuth(): UseAuthReturn {
   ) => {
     setLoadingProvider(providerType);
     setError(null);
+
+    if (providerType === 'apple') {
+      clearPendingAppleCredential();
+    }
 
     try {
       const deviceId = await getDeviceId();
@@ -62,12 +74,23 @@ export function useAuth(): UseAuthReturn {
 
       if (result.isNewUser) {
         // 신규 회원: 추가 정보 입력 화면으로
+        if (providerType === 'apple') {
+          if (!result.pendingAppleCredential) {
+            throw new Error('Apple 인증 정보를 저장하지 못했습니다.');
+          }
+
+          setPendingAppleCredential(result.pendingAppleCredential);
+        }
+
         router.push({
           pathname: '/social-sign-up',
-          params: {
-            provider: providerType,
-            accessToken: result.socialAccessToken,
-          },
+          params:
+            providerType === 'apple'
+              ? { provider: providerType }
+              : {
+                  provider: providerType,
+                  accessToken: result.socialAccessToken,
+                },
         });
       } else {
         // 기존 회원: 로그인 완료
@@ -89,6 +112,7 @@ export function useAuth(): UseAuthReturn {
   };
 
   const logout = async (providerType?: AuthProviderType) => {
+    clearPendingAppleCredential();
     await authManager.logout(providerType);
     await authSignOut();
   };
@@ -141,6 +165,22 @@ export const useSocialSignUpMutation = () => {
     onError: () => {
       queryClient.invalidateQueries({
         queryKey: authQueryKeys.socialSignUp(),
+      });
+    },
+  });
+};
+
+export const useAppleSignUpMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: appleSignUp,
+    onSuccess: () => {
+      queryClient.setQueryData(authQueryKeys.appleSignUp(), true);
+    },
+    onError: () => {
+      queryClient.invalidateQueries({
+        queryKey: authQueryKeys.appleSignUp(),
       });
     },
   });

@@ -1,10 +1,16 @@
 import { getProvider } from './provider-registry';
-import type { AuthProviderType, AuthResponse, DeviceInfo } from './types';
+import type {
+  ApplePayload,
+  AuthProviderType,
+  AuthResponse,
+  DeviceInfo,
+} from './types';
 
 // AuthManager 결과 타입 (providerType 포함)
 export interface AuthResult extends AuthResponse {
   providerType: AuthProviderType;
   socialAccessToken?: string;
+  pendingAppleCredential?: ApplePayload;
 }
 
 class AuthManager {
@@ -24,10 +30,15 @@ class AuthManager {
       response.isNewUser && 'accessToken' in payload
         ? payload.accessToken
         : undefined;
+    const pendingAppleCredential =
+      response.isNewUser && payload.provider === 'apple'
+        ? (payload as ApplePayload)
+        : undefined;
 
     return {
       ...response,
       socialAccessToken,
+      pendingAppleCredential,
       providerType,
     };
   }

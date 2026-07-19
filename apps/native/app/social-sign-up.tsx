@@ -1,8 +1,10 @@
+import type { AppleGender } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
 import AuthForm from '@/components/auth/auth-form';
+import { GenderSelector } from '@/components/auth/gender-selector';
 import JobOptionSelector from '@/components/auth/job-option-selector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +12,11 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
-import { useJobOptionsQuery, useSocialSignUpMutation } from '@/hooks/useAuth';
+import {
+  useAppleSignUpMutation,
+  useJobOptionsQuery,
+  useSocialSignUpMutation,
+} from '@/hooks/useAuth';
 import { useAuthSignIn } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
 import {
@@ -18,6 +24,7 @@ import {
   getDeviceType,
   type SocialProviderType,
 } from '@/providers/auth/types';
+import { usePendingAppleAuthStore } from '@/store/pending-apple-auth.store';
 import { baseFoundation } from '@/theme/tokens';
 import { getDeviceId } from '@/utils/device-id';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
@@ -25,11 +32,13 @@ import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
 interface ProfileForm {
   nickname: string;
   job: string;
+  gender: AppleGender | '';
 }
 
 const initial = (): ProfileForm => ({
   nickname: '',
   job: '',
+  gender: '',
 });
 
 export default function SocialSignUp() {
@@ -42,12 +51,29 @@ export default function SocialSignUp() {
   const { pushToken } = useNotifications();
   const signIn = useAuthSignIn();
   const socialSignUpMutation = useSocialSignUpMutation();
+  const appleSignUpMutation = useAppleSignUpMutation();
+  const pendingAppleCredential = usePendingAppleAuthStore(
+    (state) => state.credential,
+  );
+  const clearPendingAppleCredential = usePendingAppleAuthStore(
+    (state) => state.clearCredential,
+  );
   const {
     data: jobOptions = [],
     isError: isJobOptionsError,
     isLoading: isJobOptionsLoading,
   } = useJobOptionsQuery();
   const { showToast } = useToast();
+  const isApple = provider === 'apple';
+
+  useEffect(
+    () => () => {
+      if (isApple) {
+        clearPendingAppleCredential();
+      }
+    },
+    [clearPendingAppleCredential, isApple],
+  );
 
   const getProviderName = () => {
     if (!provider) return 'SNS';
@@ -66,28 +92,54 @@ export default function SocialSignUp() {
     if (!form.job) {
       errors.job = '직업을 선택해주세요.';
     }
+    if (isApple && !form.gender) {
+      errors.gender = '성별을 선택해주세요.';
+    }
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       return;
     }
 
+    if (isApple && !pendingAppleCredential) {
+      showToast(
+        'Apple 로그인 정보가 만료되었습니다. 다시 로그인해주세요.',
+        'error',
+      );
+      return;
+    }
+
     try {
       const deviceId = await getDeviceId();
-      const response = await socialSignUpMutation.mutateAsync({
-        provider: provider as SocialProviderType,
-        accessToken,
-        nickname: form.nickname,
-        job: form.job,
+      const deviceInfo = {
         pushToken: pushToken?.data || undefined,
         deviceType: getDeviceType(),
         deviceId,
-      });
+      };
+      const response = isApple
+        ? await appleSignUpMutation.mutateAsync({
+            identityToken: pendingAppleCredential!.identityToken,
+            authorizationCode: pendingAppleCredential!.authorizationCode,
+            nickname: form.nickname,
+            job: form.job,
+            gender: form.gender as AppleGender,
+            ...deviceInfo,
+          })
+        : await socialSignUpMutation.mutateAsync({
+            provider: provider as SocialProviderType,
+            accessToken,
+            nickname: form.nickname,
+            job: form.job,
+            ...deviceInfo,
+          });
 
       await Promise.all([
         setAuthorization(response.accessToken),
         setRefreshToken(response.refreshToken),
       ]);
+      if (isApple) {
+        clearPendingAppleCredential();
+      }
       signIn(response.userInfo);
     } catch (error) {
       const serverErrors = getFieldErrors(error);
@@ -152,10 +204,20 @@ export default function SocialSignUp() {
           }
           isLoading={isJobOptionsLoading}
         />
+        {isApple ? (
+          <GenderSelector
+            value={form.gender}
+            onSelect={(value) => handleChange('gender', value)}
+            error={!!fieldErrors.gender}
+            helperText={fieldErrors.gender}
+          />
+        ) : null}
         <Button
           onPress={handleSubmit}
           style={styles.button}
-          loading={socialSignUpMutation.isPending}
+          loading={
+            socialSignUpMutation.isPending || appleSignUpMutation.isPending
+          }
         >
           가입 완료
         </Button>
