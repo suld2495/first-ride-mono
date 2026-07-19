@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>First Ride Stats Page Concepts</title>
+    <style>
+      :root {
+        --blue-5: #e2f1ff;
+        --blue-10: #b0daff;
+        --blue-30: #7fc3ff;
+        --blue-50: #107ad6;
+        --blue-80: #2c5171;
+        --blue-90: #16334c;
+        --blue-100: #001a31;
+        --soft-blue-20: #a7cbea;
+        --soft-blue-50: #72a4cf;
+        --white: #ffffff;
+        --black: #151718;
+        --muted: #6097c6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #202224;
+        color: var(--blue-100);
+        font-family:
+          Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .board {
+        display: grid;
+        gap: 32px;
+        padding: 32px;
+      }
+
+      .header {
+        color: var(--white);
+      }
+
+      .header h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      .header p {
+        margin: 0;
+        color: #aeb8c2;
+        font-size: 16px;
+      }
+
+      .concepts {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(320px, 390px));
+        gap: 28px;
+        align-items: start;
+      }
+
+      .concept {
+        display: grid;
+        gap: 12px;
+      }
+
+      .concept-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #d9c2ff;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .diamond {
+        width: 10px;
+        height: 10px;
+        background: #d9a7ff;
+        transform: rotate(45deg);
+      }
+
+      .phone {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 390 / 844;
+        overflow: hidden;
+        border: 2px dashed #8e5bff;
+        border-radius: 2px;
+        background: var(--blue-10);
+      }
+
+      .phone-inner {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        padding: 24px 24px 0;
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: 32px 1fr 32px;
+        align-items: center;
+        margin-bottom: 20px;
+        font-weight: 800;
+      }
+
+      .topbar .title {
+        text-align: center;
+        font-size: 24px;
+      }
+
+      .icon-button {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        color: var(--black);
+        font-size: 24px;
+      }
+
+      .month-chip {
+        justify-self: center;
+        padding: 8px 18px;
+        border: 2px solid var(--blue-100);
+        border-radius: 999px;
+        background: var(--white);
+        box-shadow: 0 3px 0 var(--blue-80);
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 18px 0;
+      }
+
+      .summary-card {
+        min-height: 74px;
+        padding: 12px 10px;
+        border-radius: 14px;
+        background: var(--blue-5);
+        text-align: center;
+      }
+
+      .summary-label {
+        margin-bottom: 6px;
+        color: var(--blue-80);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .summary-value {
+        color: var(--blue-100);
+        font-size: 22px;
+        font-weight: 900;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin: 12px 0 10px;
+      }
+
+      .section-title h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .section-title span {
+        color: var(--blue-80);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+      }
+
+      .weekday {
+        color: var(--blue-80);
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .day {
+        position: relative;
+        display: grid;
+        place-items: center;
+        aspect-ratio: 1;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.62);
+        color: var(--blue-80);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .day.done {
+        background: var(--blue-100);
+        color: var(--blue-30);
+        box-shadow: inset 0 0 0 2px #0b3557;
+      }
+
+      .day.item {
+        background: var(--white);
+        color: var(--blue-50);
+        border: 3px solid var(--blue-50);
+        font-size: 22px;
+      }
+
+      .day.item small {
+        position: absolute;
+        right: 4px;
+        bottom: 3px;
+        color: var(--blue-80);
+        font-size: 10px;
+      }
+
+      .reward-strip {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+        padding: 14px;
+        border: 4px solid var(--blue-100);
+        border-radius: 16px;
+        background: var(--blue-5);
+      }
+
+      .reward {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: var(--white);
+        color: var(--blue-50);
+        font-size: 22px;
+      }
+
+      .map {
+        position: relative;
+        flex: 1;
+        min-height: 440px;
+        margin-top: 6px;
+        overflow: hidden;
+        border-radius: 18px;
+        background:
+          linear-gradient(180deg, transparent 0 58%, #cfeaff 58% 100%),
+          var(--blue-10);
+      }
+
+      .cloud,
+      .cloud::before,
+      .cloud::after {
+        position: absolute;
+        width: 70px;
+        height: 22px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.66);
+      }
+
+      .cloud::before,
+      .cloud::after {
+        content: "";
+        top: -12px;
+      }
+
+      .cloud::before {
+        left: 12px;
+        width: 26px;
+        height: 26px;
+      }
+
+      .cloud::after {
+        right: 12px;
+        width: 32px;
+        height: 32px;
+      }
+
+      .cloud.one {
+        top: 48px;
+        left: 26px;
+      }
+
+      .cloud.two {
+        top: 132px;
+        right: 28px;
+        transform: scale(0.82);
+      }
+
+      .path {
+        position: absolute;
+        left: 34px;
+        right: 34px;
+        bottom: 116px;
+        height: 170px;
+        border-bottom: 8px dotted var(--blue-50);
+        border-radius: 50%;
+        transform: rotate(-9deg);
+      }
+
+      .marker {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        border: 3px solid var(--blue-100);
+        border-radius: 50%;
+        background: var(--white);
+        color: var(--blue-50);
+        font-size: 22px;
+      }
+
+      .marker.m1 {
+        left: 30px;
+        bottom: 198px;
+      }
+
+      .marker.m2 {
+        left: 136px;
+        bottom: 236px;
+      }
+
+      .marker.m3 {
+        right: 38px;
+        bottom: 178px;
+      }
+
+      .hero {
+        position: absolute;
+        left: 122px;
+        bottom: 48px;
+        width: 108px;
+        height: 138px;
+      }
+
+      .hero-head,
+      .hero-body,
+      .hero-leg,
+      .hero-arm {
+        position: absolute;
+        background: #eef7ff;
+        border: 5px solid var(--blue-100);
+        image-rendering: pixelated;
+      }
+
+      .hero-head {
+        top: 10px;
+        left: 28px;
+        width: 58px;
+        height: 58px;
+        border-radius: 4px;
+        background: #fff6f3;
+      }
+
+      .hero-hair {
+        position: absolute;
+        top: 0;
+        left: 18px;
+        width: 76px;
+        height: 40px;
+        background: var(--blue-30);
+        border: 5px solid var(--blue-100);
+        border-radius: 8px 8px 4px 4px;
+      }
+
+      .hero-body {
+        top: 72px;
+        left: 34px;
+        width: 48px;
+        height: 40px;
+        background: var(--blue-5);
+      }
+
+      .hero-leg {
+        top: 108px;
+        width: 16px;
+        height: 28px;
+        background: #ffd1d5;
+      }
+
+      .hero-leg.left {
+        left: 38px;
+      }
+
+      .hero-leg.right {
+        left: 62px;
+      }
+
+      .hero-arm {
+        top: 78px;
+        width: 22px;
+        height: 14px;
+        background: #ffd1d5;
+      }
+
+      .hero-arm.left {
+        left: 8px;
+        transform: rotate(-28deg);
+      }
+
+      .hero-arm.right {
+        right: 2px;
+        transform: rotate(20deg);
+      }
+
+      .speech {
+        position: absolute;
+        left: 86px;
+        bottom: 190px;
+        min-width: 154px;
+        padding: 10px 14px;
+        border: 3px solid var(--blue-50);
+        border-radius: 12px;
+        background: var(--white);
+        text-align: center;
+        font-weight: 800;
+      }
+
+      .speech::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -14px;
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 14px solid var(--blue-50);
+        transform: translateX(-50%);
+      }
+
+      .quest-card {
+        position: absolute;
+        left: 24px;
+        right: 24px;
+        bottom: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: var(--blue-100);
+        color: var(--white);
+      }
+
+      .quest-card strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 15px;
+      }
+
+      .quest-card span {
+        color: var(--soft-blue-20);
+        font-size: 12px;
+      }
+
+      .clean-chart {
+        display: grid;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .metric-card {
+        padding: 18px;
+        border-radius: 18px;
+        background: var(--blue-5);
+      }
+
+      .metric-head {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        color: var(--blue-80);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .metric-number {
+        margin-bottom: 16px;
+        color: var(--blue-100);
+        font-size: 40px;
+        font-weight: 900;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: 28px 1fr 34px;
+        gap: 8px;
+        align-items: center;
+        margin: 10px 0;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .track {
+        height: 12px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(16, 122, 214, 0.14);
+      }
+
+      .bar {
+        height: 100%;
+        border-radius: inherit;
+        background: var(--blue-50);
+      }
+
+      .habit-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .habit {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 16px;
+        background: var(--white);
+      }
+
+      .habit-icon {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--blue-5);
+        color: var(--blue-50);
+        font-size: 20px;
+      }
+
+      .habit strong {
+        display: block;
+        font-size: 15px;
+      }
+
+      .habit span {
+        color: var(--blue-80);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .tabbar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        height: 64px;
+        margin: auto -24px 0;
+        background: #050607;
+      }
+
+      .tab {
+        display: grid;
+        place-items: center;
+        color: #7b8189;
+        font-size: 24px;
+      }
+
+      .tab.active {
+        background: var(--blue-50);
+        color: var(--blue-5);
+      }
+
+      @media (max-width: 1120px) {
+        .concepts {
+          grid-template-columns: minmax(320px, 390px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="board">
+      <header class="header">
+        <h1>통계페이지 한달 시안</h1>
+        <p>
+          기존 홈, 루틴 수정, 친구 목록의 파랑 픽셀 톤을 기준으로 구성한
+          비교용 디자인 보드
+        </p>
+      </header>
+
+      <section class="concepts" aria-label="통계페이지 시안">
+        <article class="concept">
+          <div class="concept-title"><span class="diamond"></span> A. 10번째 보상 아이템</div>
+          <div class="phone">
+            <div class="phone-inner">
+              <div class="topbar">
+                <div class="icon-button">‹</div>
+                <div class="title">통계</div>
+                <div class="icon-button">🔔</div>
+              </div>
+              <div class="month-chip">2026. 4</div>
+              <div class="summary">
+                <div class="summary-card">
+                  <div class="summary-label">성공</div>
+                  <div class="summary-value">24</div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">연속</div>
+                  <div class="summary-value">8</div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">보상</div>
+                  <div class="summary-value">3</div>
+                </div>
+              </div>
+              <div class="section-title">
+                <h2>월간 루틴 기록</h2>
+                <span>10회마다 아이템 획득</span>
+              </div>
+              <div class="calendar" aria-label="4월 루틴 기록 달력">
+                <div class="weekday">월</div>
+                <div class="weekday">화</div>
+                <div class="weekday">수</div>
+                <div class="weekday">목</div>
+                <div class="weekday">금</div>
+                <div class="weekday">토</div>
+                <div class="weekday">일</div>
+                <div class="day done">1</div>
+                <div class="day done">2</div>
+                <div class="day done">3</div>
+                <div class="day">4</div>
+                <div class="day done">5</div>
+                <div class="day done">6</div>
+                <div class="day">7</div>
+                <div class="day done">8</div>
+                <div class="day done">9</div>
+                <div class="day item">⚔<small>10</small></div>
+                <div class="day done">11</div>
+                <div class="day">12</div>
+                <div class="day done">13</div>
+                <div class="day done">14</div>
+                <div class="day">15</div>
+                <div class="day done">16</div>
+                <div class="day done">17</div>
+                <div class="day done">18</div>
+                <div class="day done">19</div>
+                <div class="day item">🧪<small>20</small></div>
+                <div class="day">21</div>
+                <div class="day done">22</div>
+                <div class="day done">23</div>
+                <div class="day">24</div>
+                <div class="day done">25</div>
+                <div class="day done">26</div>
+                <div class="day done">27</div>
+                <div class="day done">28</div>
+                <div class="day done">29</div>
+                <div class="day item">❤<small>30</small></div>
+              </div>
+              <div class="reward-strip" aria-label="이번 달 획득 아이템">
+                <div class="reward">⚔</div>
+                <div class="reward">🧪</div>
+                <div class="reward">❤</div>
+                <div class="reward">🐾</div>
+              </div>
+              <div class="tabbar">
+                <div class="tab">⌂</div>
+                <div class="tab active">✹</div>
+                <div class="tab">♟</div>
+                <div class="tab">⚙</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept">
+          <div class="concept-title"><span class="diamond"></span> B-1. 모험을 떠나는 통계</div>
+          <div class="phone">
+            <div class="phone-inner">
+              <div class="topbar">
+                <div class="icon-button">‹</div>
+                <div class="title">통계</div>
+                <div class="icon-button">🔔</div>
+              </div>
+              <div class="month-chip">4월 모험 지도</div>
+              <div class="summary">
+                <div class="summary-card">
+                  <div class="summary-label">완료</div>
+                  <div class="summary-value">24</div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">레벨</div>
+                  <div class="summary-value">2</div>
+                </div>
+                <div class="summary-card">
+                  <div class="summary-label">거리</div>
+                  <div class="summary-value">76%</div>
+                </div>
+              </div>
+              <div class="map">
+                <div class="cloud one"></div>
+                <div class="cloud two"></div>
+                <div class="path"></div>
+                <div class="marker m1">⚔</div>
+                <div class="marker m2">🧪</div>
+                <div class="marker m3">🐾</div>
+                <div class="speech">24번 성공!</div>
+                <div class="hero" aria-hidden="true">
+                  <div class="hero-hair"></div>
+                  <div class="hero-head"></div>
+                  <div class="hero-body"></div>
+                  <div class="hero-arm left"></div>
+                  <div class="hero-arm right"></div>
+                  <div class="hero-leg left"></div>
+                  <div class="hero-leg right"></div>
+                </div>
+                <div class="quest-card">
+                  <div>
+                    <strong>다음 보상까지 6회</strong>
+                    <span>루틴을 지키면 지도가 더 열려요</span>
+                  </div>
+                  <div>⚔</div>
+                </div>
+              </div>
+              <div class="tabbar">
+                <div class="tab">⌂</div>
+                <div class="tab active">✹</div>
+                <div class="tab">♟</div>
+                <div class="tab">⚙</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="concept">
+          <div class="concept-title"><span class="diamond"></span> B-2. 깔끔한 통계</div>
+          <div class="phone">
+            <div class="phone-inner">
+              <div class="topbar">
+                <div class="icon-button">‹</div>
+                <div class="title">통계</div>
+                <div class="icon-button">🔔</div>
+              </div>
+              <div class="month-chip">2026년 4월</div>
+              <div class="clean-chart">
+                <div class="metric-card">
+                  <div class="metric-head">
+                    <span>월간 달성률</span>
+                    <span>24 / 30</span>
+                  </div>
+                  <div class="metric-number">80%</div>
+                  <div class="bar-row">
+                    <span>1주</span>
+                    <div class="track"><div class="bar" style="width: 84%"></div></div>
+                    <span>84%</span>
+                  </div>
+                  <div class="bar-row">
+                    <span>2주</span>
+                    <div class="track"><div class="bar" style="width: 72%"></div></div>
+                    <span>72%</span>
+                  </div>
+                  <div class="bar-row">
+                    <span>3주</span>
+                    <div class="track"><div class="bar" style="width: 92%"></div></div>
+                    <span>92%</span>
+                  </div>
+                  <div class="bar-row">
+                    <span>4주</span>
+                    <div class="track"><div class="bar" style="width: 78%"></div></div>
+                    <span>78%</span>
+                  </div>
+                </div>
+                <div class="section-title">
+                  <h2>루틴별 기록</h2>
+                  <span>성공순</span>
+                </div>
+                <div class="habit-list">
+                  <div class="habit">
+                    <div class="habit-icon">💧</div>
+                    <div>
+                      <strong>물 마시기</strong>
+                      <span>30일 중 28회 성공</span>
+                    </div>
+                  </div>
+                  <div class="habit">
+                    <div class="habit-icon">🎸</div>
+                    <div>
+                      <strong>베이스 연습</strong>
+                      <span>30일 중 22회 성공</span>
+                    </div>
+                  </div>
+                  <div class="habit">
+                    <div class="habit-icon">🏃</div>
+                    <div>
+                      <strong>산책하기</strong>
+                      <span>30일 중 18회 성공</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tabbar">
+                <div class="tab">⌂</div>
+                <div class="tab active">✹</div>
+                <div class="tab">♟</div>
+                <div class="tab">⚙</div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

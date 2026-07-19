@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import type { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
@@ -66,6 +67,45 @@ const PasswordInput = ({
     setShowPassword((prev) => !prev);
   };
 
+  const icon =
+    Platform.OS === 'web' ? (
+      <Svg
+        width={baseFoundation.iconSize.m}
+        height={baseFoundation.iconSize.m}
+        viewBox="0 0 24 24"
+        fill="none"
+      >
+        <Path
+          d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
+          stroke={toggleIconColor}
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <Path
+          d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+          stroke={toggleIconColor}
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {showPassword && (
+          <Path
+            d="M4 20 20 4"
+            stroke={toggleIconColor}
+            strokeWidth={2}
+            strokeLinecap="round"
+          />
+        )}
+      </Svg>
+    ) : (
+      <Ionicons
+        name={showPassword ? 'eye-off' : 'eye'}
+        size={baseFoundation.iconSize.m}
+        color={toggleIconColor}
+      />
+    );
+
   return (
     <View style={[styles.container, width ? { width } : undefined]}>
       <Input
@@ -89,11 +129,7 @@ const PasswordInput = ({
         accessibilityRole="button"
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Ionicons
-          name={showPassword ? 'eye-off' : 'eye'}
-          size={baseFoundation.iconSize.m}
-          color={toggleIconColor}
-        />
+        {icon}
       </Pressable>
     </View>
   );
@@ -106,10 +142,12 @@ const styles = StyleSheet.create({
     position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: baseFoundation.dimension.x44,
   },
 
   input: {
     flex: 1,
+    minHeight: baseFoundation.dimension.x44,
   },
 
   iconContainer: {
