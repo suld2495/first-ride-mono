@@ -5,6 +5,8 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 const KAKAO_NATIVE_APP_KEY =
   process.env.KAKAO_NATIVE_APP_KEY || 'KAKAO_KEY_PLACEHOLDER';
 const shouldSkipAppleTargets = process.env.EXPO_SKIP_APPLE_TARGETS === '1';
+const webOutput =
+  process.env.EXPO_WEB_OUTPUT === 'single' ? 'single' : 'static';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -14,7 +16,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: 'first-ride',
   web: {
     bundler: 'metro',
-    output: 'static',
+    output: webOutput,
     favicon: './assets/favicon.png',
   },
   plugins: [
