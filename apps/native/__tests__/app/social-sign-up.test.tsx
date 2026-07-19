@@ -223,4 +223,66 @@ describe('SocialSignUp 페이지', () => {
     expect(await findByText('성별을 선택해주세요.')).toBeOnTheScreen();
     expect(mockAxios.history.post).toHaveLength(0);
   });
+
+  it('Apple signup 재시도에서는 1회성 authorizationCode를 다시 보내지 않는다', async () => {
+    mockSearchParams.provider = 'apple';
+    delete mockSearchParams.accessToken;
+    usePendingAppleAuthStore.getState().setCredential({
+      provider: 'apple',
+      identityToken: 'apple-identity-token',
+      authorizationCode: 'apple-authorization-code',
+    });
+    let requestCount = 0;
+
+    mockAxios.onPost('/auth/apple/signup').reply(() => {
+      requestCount += 1;
+
+      if (requestCount === 1) {
+        return [
+          400,
+          {
+            error: { message: '이미 사용 중인 닉네임입니다.' },
+          },
+        ];
+      }
+
+      return [
+        201,
+        {
+          data: {
+            userInfo: { userId: 'apple_user', nickname: '애플 사용자' },
+            accessToken: 'service-access-token',
+            refreshToken: 'service-refresh-token',
+          },
+        },
+      ];
+    });
+
+    const { getByPlaceholderText, getByText, findByText } = render(
+      <SocialSignUp />,
+    );
+
+    fireEvent.changeText(
+      getByPlaceholderText('닉네임을 입력해주세요.'),
+      '애플 사용자',
+    );
+    fireEvent.press(await findByText('개발자'));
+    fireEvent.press(getByText('여성'));
+    fireEvent.press(getByText('가입 완료'));
+
+    await waitFor(() => {
+      expect(mockAxios.history.post).toHaveLength(1);
+    });
+    fireEvent.press(getByText('가입 완료'));
+
+    await waitFor(() => {
+      expect(mockAxios.history.post).toHaveLength(2);
+    });
+    expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toMatchObject({
+      authorizationCode: 'apple-authorization-code',
+    });
+    expect(JSON.parse(mockAxios.history.post[1]?.data ?? '{}')).not.toHaveProperty(
+      'authorizationCode',
+    );
+  });
 });
