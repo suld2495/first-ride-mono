@@ -3,12 +3,15 @@ import {
   requestEmailVerification,
 } from '@repo/shared/api';
 import type { JoinForm as JoinFormType } from '@repo/types';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, View } from 'react-native';
 
 import AuthPage from '@/components/auth/auth-page';
-import JobOptionSelector from '@/components/auth/job-option-selector';
+import JobOptionSelector, {
+  getJobTheme,
+} from '@/components/auth/job-option-selector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PasswordInput from '@/components/ui/password-input';
@@ -249,7 +252,22 @@ export default function SignUp() {
     router.push('/sign-in');
   };
 
+  const handleBackPress = () => {
+    if (step === 'job') {
+      setStep('basic');
+      setFieldErrors({});
+      return;
+    }
+
+    router.back();
+  };
+
   const isJobStep = step === 'job';
+  const selectedJobOption = useMemo(
+    () => jobOptions.find((option) => option.jobName === form.job),
+    [form.job, jobOptions],
+  );
+  const selectedJobTheme = getJobTheme(selectedJobOption);
   const isBasicFieldsIncomplete =
     !form.userId.trim() ||
     !form.nickname.trim() ||
@@ -259,18 +277,39 @@ export default function SignUp() {
     !isJobStep && (isBasicFieldsIncomplete || isCheckingUserId);
 
   return (
-    <AuthPage contentStyle={isJobStep ? styles.jobPageContent : undefined}>
-      <AuthPage.Header title={step === 'basic' ? '회원가입' : '캐릭터 선택'} />
+    <AuthPage
+      style={
+        isJobStep ? { backgroundColor: selectedJobTheme.background } : null
+      }
+      contentStyle={isJobStep ? styles.jobPageContent : undefined}
+    >
+      <AuthPage.Header
+        title={step === 'basic' ? '회원가입' : '캐릭터 선택'}
+        style={styles.header}
+      >
+        <Pressable
+          accessibilityLabel="뒤로가기"
+          accessibilityRole="button"
+          onPress={handleBackPress}
+          style={styles.backButton}
+        >
+          <Ionicons
+            name="chevron-back"
+            size={baseFoundation.dimension.x28}
+            color={palette.theme.gray[90]}
+          />
+        </Pressable>
+      </AuthPage.Header>
 
       <AuthPage.Body>
         {step === 'basic' ? (
           <View style={styles.basicFields}>
             <View style={styles.formItem}>
-              <Typography variant="body2" style={styles.fieldLabel}>
-                아이디
+              <Typography variant="caption1" style={styles.fieldLabel}>
+                이메일
               </Typography>
               <Input
-                placeholder="아이디를 입력하세요"
+                placeholder="이메일을 입력하세요"
                 value={form.userId}
                 onChangeText={(value) => handleChange('userId', value)}
                 style={styles.input}
@@ -284,7 +323,7 @@ export default function SignUp() {
             </View>
 
             <View style={styles.formItem}>
-              <Typography variant="body2" style={styles.fieldLabel}>
+              <Typography variant="caption1" style={styles.fieldLabel}>
                 닉네임
               </Typography>
               <Input
@@ -300,7 +339,7 @@ export default function SignUp() {
             </View>
 
             <View style={styles.formItem}>
-              <Typography variant="body2" style={styles.fieldLabel}>
+              <Typography variant="caption1" style={styles.fieldLabel}>
                 비밀번호
               </Typography>
               <View style={styles.passwordInputs}>
@@ -354,7 +393,7 @@ export default function SignUp() {
         <View style={[styles.actions, isJobStep ? styles.jobActions : null]}>
           <Button
             testID="sign-up-submit-button"
-            title={step === 'basic' ? '다음' : '가입'}
+            title={step === 'basic' ? '다음' : '선택 완료'}
             onPress={step === 'basic' ? handleNext : handleJoin}
             style={[
               styles.button,
@@ -370,7 +409,7 @@ export default function SignUp() {
             backgroundColor={
               !isJobStep && isBasicFieldsIncomplete
                 ? palette.theme.gray[10]
-                : palette.theme.blue[50]
+                : palette.theme.gray[90]
             }
           />
           {step === 'basic' ? (
@@ -390,10 +429,24 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create((theme) => ({
+  header: {
+    width: '100%',
+  },
+
+  backButton: {
+    position: 'absolute',
+    left: 0,
+    top: -2,
+    width: baseFoundation.dimension.x32,
+    height: baseFoundation.dimension.x32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   basicFields: {
     width: FORM_WIDTH,
     gap: theme.foundation.spacing[5],
-    marginTop: baseFoundation.dimension.x120,
+    marginTop: theme.foundation.spacing[16],
   },
 
   jobPageContent: {
@@ -403,7 +456,7 @@ const styles = StyleSheet.create((theme) => ({
   jobFields: {
     width: '100%',
     alignItems: 'center',
-    marginTop: baseFoundation.dimension.x80,
+    marginTop: baseFoundation.dimension.x32,
   },
 
   input: {
@@ -424,7 +477,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   passwordInputs: {
-    gap: theme.foundation.spacing[1.5],
+    gap: theme.foundation.spacing[1],
   },
 
   fieldLabel: {

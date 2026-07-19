@@ -1,3 +1,4 @@
+import { fireEvent } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
 import JobOptionSelector from '@/components/auth/job-option-selector';
@@ -27,84 +28,52 @@ const options = [
 ];
 
 describe('JobOptionSelector', () => {
-  it('직업 옵션을 캐릭터 카드로 표시한다', () => {
+  it('기본값은 여자 전사 캐릭터 카드로 표시한다', () => {
+    const onSelect = jest.fn();
     const { getByLabelText, getByTestId, getByText } = render(
-      <JobOptionSelector options={options} value="" onSelect={jest.fn()} />,
+      <JobOptionSelector options={options} value="" onSelect={onSelect} />,
     );
 
+    expect(getByLabelText('여자 캐릭터 선택').props.accessibilityState).toEqual(
+      expect.objectContaining({ selected: true }),
+    );
+    expect(getByText('전사')).toBeOnTheScreen();
     expect(
-      StyleSheet.flatten(getByTestId('job-option-row').props.style),
+      getByText(
+        '전사는 목표를 정하고 꾸준히 실천하는 사람에게 어울리는 캐릭터예요. 루틴을 반복해 꾸준함이 쌓일수록 더 강한 모습으로 성장해요.',
+      ),
+    ).toBeOnTheScreen();
+    expect(
+      StyleSheet.flatten(getByTestId('job-character-card').props.style),
     ).toEqual(
       expect.objectContaining({
-        paddingHorizontal: 18,
-      }),
-    );
-    expect(
-      StyleSheet.flatten(getByLabelText('마법사 선택').props.style),
-    ).toEqual(
-      expect.objectContaining({
         backgroundColor: palette.theme.blue[5],
-        borderRadius: 12,
-        flex: 1,
-        height: 138,
+        minHeight: 430,
       }),
     );
-    expect(StyleSheet.flatten(getByLabelText('전사 선택').props.style)).toEqual(
-      expect.objectContaining({
-        backgroundColor: palette.theme.blue[5],
-        flex: 1,
-      }),
-    );
-    expect(StyleSheet.flatten(getByLabelText('궁수 선택').props.style)).toEqual(
-      expect.objectContaining({
-        backgroundColor: palette.theme.blue[5],
-        flex: 1,
-      }),
-    );
-    expect(getByText('마법사').props.fontSize).toBe('$body2');
-    expect(getByText('마법사').props.fontWeight).toBe('600');
-    expect(StyleSheet.flatten(getByText('마법사').props.style)).toEqual(
-      expect.objectContaining({
-        color: palette.theme.blue[100],
-        marginTop: 12,
-      }),
-    );
+    expect(onSelect).toHaveBeenCalledWith('검사');
   });
 
-  it('선택한 직업을 보더로 강조한다', () => {
-    const { getByLabelText, getByTestId } = render(
-      <JobOptionSelector options={options} value="검사" onSelect={jest.fn()} />,
+  it('직업을 선택하면 카드 색과 문구를 선택한 직업 테마로 바꾼다', () => {
+    const onSelect = jest.fn();
+    const { getByLabelText, getByTestId, getByText } = render(
+      <JobOptionSelector
+        options={options}
+        value="마법사"
+        onSelect={onSelect}
+      />,
     );
 
+    expect(getByText('마법사')).toBeOnTheScreen();
     expect(
-      StyleSheet.flatten(getByTestId('job-option-row').props.style),
+      StyleSheet.flatten(getByTestId('job-character-card').props.style),
     ).toEqual(
       expect.objectContaining({
-        width: '102.5%',
+        backgroundColor: palette.theme.red[5],
       }),
     );
 
-    expect(
-      StyleSheet.flatten(getByLabelText('마법사 선택').props.style),
-    ).toEqual(
-      expect.objectContaining({
-        flex: 100,
-        height: 138,
-      }),
-    );
-    expect(
-      StyleSheet.flatten(getByLabelText('마법사 선택').props.style).width,
-    ).toBeUndefined();
-    expect(StyleSheet.flatten(getByLabelText('전사 선택').props.style)).toEqual(
-      expect.objectContaining({
-        borderColor: palette.theme.blue[50],
-        borderWidth: 3,
-        flex: 148,
-        height: 205,
-      }),
-    );
-    expect(
-      StyleSheet.flatten(getByLabelText('전사 선택').props.style).width,
-    ).toBeUndefined();
+    fireEvent.press(getByLabelText('궁수 선택'));
+    expect(onSelect).toHaveBeenCalledWith('궁수');
   });
 });

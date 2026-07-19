@@ -35,7 +35,7 @@ const jobOptions = [
 ];
 
 const fillBasicFields = (getByPlaceholderText: (text: string) => any) => {
-  fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'a@b.co');
+  fireEvent.changeText(getByPlaceholderText('이메일을 입력하세요'), 'a@b.co');
   fireEvent.changeText(getByPlaceholderText('닉네임을 입력하세요'), '윤윤');
   fireEvent.changeText(
     getByPlaceholderText('비밀번호를 입력하세요'),
@@ -56,7 +56,7 @@ const goToJobStep = async (
   fireEvent.press(getByText('다음'));
 
   await findByText('캐릭터 선택');
-  await findByText('마법사');
+  await findByText('전사');
 };
 
 const getButtonStyle = (button: any) =>
@@ -126,7 +126,7 @@ describe('SignUp 페이지', () => {
     );
     expect(getButtonStyle(submitButton)).toEqual(
       expect.objectContaining({
-        backgroundColor: palette.theme.blue[50],
+        backgroundColor: palette.theme.gray[90],
       }),
     );
 
@@ -140,7 +140,7 @@ describe('SignUp 페이지', () => {
   it('비밀번호와 비밀번호 확인이 일치하지 않으면 에러를 표시한다', async () => {
     const { getByPlaceholderText, getByText, findByText } = render(<SignUp />);
 
-    fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'a@b.co');
+    fireEvent.changeText(getByPlaceholderText('이메일을 입력하세요'), 'a@b.co');
     fireEvent.changeText(
       getByPlaceholderText('닉네임을 입력하세요'),
       'newnick',
@@ -164,7 +164,7 @@ describe('SignUp 페이지', () => {
     );
 
     fillBasicFields(getByPlaceholderText);
-    fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'abc');
+    fireEvent.changeText(getByPlaceholderText('이메일을 입력하세요'), 'abc');
     fireEvent.press(getByText('다음'));
 
     expect(
@@ -180,7 +180,7 @@ describe('SignUp 페이지', () => {
 
     fillBasicFields(getByPlaceholderText);
     fireEvent.changeText(
-      getByPlaceholderText('아이디를 입력하세요'),
+      getByPlaceholderText('이메일을 입력하세요'),
       `${'a'.repeat(96)}@b.co`,
     );
     fireEvent.press(getByText('다음'));
@@ -228,14 +228,14 @@ describe('SignUp 페이지', () => {
     );
 
     fillBasicFields(getByPlaceholderText);
-    fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'abc');
+    fireEvent.changeText(getByPlaceholderText('이메일을 입력하세요'), 'abc');
     fireEvent.press(getByText('다음'));
 
     expect(
       await findByText('아이디는 이메일 형식이어야 합니다.'),
     ).toBeOnTheScreen();
 
-    fireEvent.changeText(getByPlaceholderText('아이디를 입력하세요'), 'a@b.co');
+    fireEvent.changeText(getByPlaceholderText('이메일을 입력하세요'), 'a@b.co');
 
     await waitFor(() => {
       expect(
@@ -245,15 +245,18 @@ describe('SignUp 페이지', () => {
   });
 
   it('기본 입력값을 채우고 다음을 누르면 캐릭터 선택 화면을 표시한다', async () => {
-    const { getByPlaceholderText, getByText, findByText } = render(<SignUp />);
+    const { getByLabelText, getByPlaceholderText, getByText, findByText } =
+      render(<SignUp />);
 
     await goToJobStep(getByPlaceholderText, getByText, findByText);
 
     expect(
       mockAxios.history.get.some((req) => req.url === '/auth/email/check'),
     ).toBe(true);
-    expect(await findByText('마법사')).toBeOnTheScreen();
     expect(await findByText('전사')).toBeOnTheScreen();
+    fireEvent.press(getByLabelText('마법사 선택'));
+    expect(await findByText('마법사')).toBeOnTheScreen();
+    fireEvent.press(getByLabelText('궁수 선택'));
     expect(await findByText('궁수')).toBeOnTheScreen();
   });
 
@@ -308,22 +311,13 @@ describe('SignUp 페이지', () => {
     expect(await findByText('캐릭터 선택')).toBeOnTheScreen();
   });
 
-  it('직업을 선택하지 않고 가입을 누르면 직업 에러를 표시한다', async () => {
-    const { getByPlaceholderText, getByText, findByText } = render(<SignUp />);
-
-    await goToJobStep(getByPlaceholderText, getByText, findByText);
-    fireEvent.press(getByText('가입'));
-
-    expect(await findByText('직업을 선택해주세요.')).toBeOnTheScreen();
-  });
-
   it('선택한 직업의 jobName을 인증 대기 payload의 job 필드로 저장한다', async () => {
     const { getByPlaceholderText, getByText, getByLabelText, findByText } =
       render(<SignUp />);
 
     await goToJobStep(getByPlaceholderText, getByText, findByText);
     fireEvent.press(getByLabelText('전사 선택'));
-    fireEvent.press(getByText('가입'));
+    fireEvent.press(getByText('선택 완료'));
 
     await waitFor(() => {
       expect(usePendingSignUpStore.getState().payload?.job).toBe('검사');
@@ -336,7 +330,7 @@ describe('SignUp 페이지', () => {
 
     fillBasicFields(getByPlaceholderText);
     fireEvent.changeText(
-      getByPlaceholderText('아이디를 입력하세요'),
+      getByPlaceholderText('이메일을 입력하세요'),
       '  a@b.co  ',
     );
     fireEvent.changeText(
@@ -347,7 +341,7 @@ describe('SignUp 페이지', () => {
 
     await findByText('캐릭터 선택');
     fireEvent.press(getByLabelText('마법사 선택'));
-    fireEvent.press(getByText('가입'));
+    fireEvent.press(getByText('선택 완료'));
 
     await waitFor(() => {
       expect(mockAxios.history.post[0]?.url).toBe(
@@ -387,10 +381,10 @@ describe('SignUp 페이지', () => {
 
     await goToJobStep(getByPlaceholderText, getByText, findByText);
     fireEvent.press(getByLabelText('마법사 선택'));
-    fireEvent.press(getByText('가입'));
+    fireEvent.press(getByText('선택 완료'));
 
     await waitFor(() => {
-      expect(() => getByText('가입')).toThrow();
+      expect(() => getByText('선택 완료')).toThrow();
     });
 
     resolveVerificationRequest([
@@ -421,7 +415,7 @@ describe('SignUp 페이지', () => {
 
     await goToJobStep(getByPlaceholderText, getByText, findByText);
     fireEvent.press(getByLabelText('마법사 선택'));
-    fireEvent.press(getByText('가입'));
+    fireEvent.press(getByText('선택 완료'));
 
     expect(await findByText('이미 사용 중인 이메일입니다.')).toBeOnTheScreen();
     expect(await findByText('회원가입')).toBeOnTheScreen();
@@ -444,7 +438,7 @@ describe('SignUp 페이지', () => {
 
     await goToJobStep(getByPlaceholderText, getByText, findByText);
     fireEvent.press(getByLabelText('궁수 선택'));
-    fireEvent.press(getByText('가입'));
+    fireEvent.press(getByText('선택 완료'));
 
     expect(await findByText('서버 오류가 발생했습니다.')).toBeOnTheScreen();
   });

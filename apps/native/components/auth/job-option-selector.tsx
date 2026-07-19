@@ -1,4 +1,6 @@
 import type { JobOption } from '@repo/types';
+import { useEffect, useMemo, useState } from 'react';
+import type { ImageSourcePropType } from 'react-native';
 import { Image, Pressable, View } from 'react-native';
 
 import { StyleSheet } from '@/components/ui/tamagui';
@@ -14,28 +16,131 @@ interface JobOptionSelectorProps {
   isLoading?: boolean;
 }
 
-const getJobDisplayName = (option: JobOption) => {
-  if (option.jobType.toUpperCase().includes('WARRIOR')) {
+type CharacterGender = 'female' | 'male';
+type JobRole = 'WARRIOR' | 'MAGE' | 'ARCHER';
+
+const JOB_ORDER: JobRole[] = ['WARRIOR', 'MAGE', 'ARCHER'];
+
+const CHARACTER_IMAGES: Record<JobRole, ImageSourcePropType> = {
+  WARRIOR:
+    require('../../assets/routine/character-blue.png') as ImageSourcePropType,
+  MAGE: require('../../assets/routine/character-red.png') as ImageSourcePropType,
+  ARCHER:
+    require('../../assets/routine/character-green.png') as ImageSourcePropType,
+};
+
+const JOB_THEME: Record<
+  JobRole,
+  {
+    background: string;
+    card: string;
+    accent: string;
+    accentSoft: string;
+    accentDark: string;
+  }
+> = {
+  WARRIOR: {
+    background: palette.theme.blue[10],
+    card: palette.theme.blue[5],
+    accent: palette.theme.blue[50],
+    accentSoft: palette.theme.softBlue[50],
+    accentDark: palette.theme.blue[80],
+  },
+  MAGE: {
+    background: palette.theme.red[10],
+    card: palette.theme.red[5],
+    accent: palette.theme.red[50],
+    accentSoft: palette.theme.softRed[50],
+    accentDark: palette.theme.red[80],
+  },
+  ARCHER: {
+    background: palette.theme.green[10],
+    card: palette.theme.green[5],
+    accent: palette.theme.green[50],
+    accentSoft: palette.theme.softGreen[50],
+    accentDark: palette.theme.green[80],
+  },
+};
+
+const JOB_DESCRIPTION: Record<JobRole, string> = {
+  WARRIOR:
+    '전사는 목표를 정하고 꾸준히 실천하는 사람에게 어울리는 캐릭터예요. 루틴을 반복해 꾸준함이 쌓일수록 더 강한 모습으로 성장해요.',
+  MAGE: '마법사는 꾸준한 노력이 특별한 힘을 만든다고 믿는 캐릭터예요. 루틴을 반복할수록 마력이 쌓이고, 더 강력한 마법을 펼칠 수 있는 모습으로 성장해요.',
+  ARCHER:
+    '궁수는 한 걸음씩 목표를 향해 나아가는 사람에게 어울리는 캐릭터예요. 루틴을 반복할수록 집중력과 실력이 쌓여, 더욱 정확한 한 발을 쏘는 궁수로 성장해요.',
+};
+
+export const getJobRole = (option?: JobOption): JobRole => {
+  const jobType = option?.jobType.toUpperCase() ?? '';
+  const jobName = option?.jobName ?? '';
+
+  if (
+    jobType.includes('WARRIOR') ||
+    jobName.includes('검사') ||
+    jobName.includes('전사')
+  ) {
+    return 'WARRIOR';
+  }
+
+  if (jobType.includes('MAGE') || jobName.includes('마법사')) {
+    return 'MAGE';
+  }
+
+  if (jobType.includes('ARCHER') || jobName.includes('궁수')) {
+    return 'ARCHER';
+  }
+
+  return 'WARRIOR';
+};
+
+export const getJobDisplayName = (option?: JobOption) => {
+  if (!option) {
+    return '전사';
+  }
+
+  const role = getJobRole(option);
+  const jobType = option.jobType.toUpperCase();
+  const jobName = option.jobName;
+
+  if (
+    role === 'MAGE' &&
+    (jobType.includes('MAGE') || jobName.includes('마법사'))
+  ) {
+    return '마법사';
+  }
+
+  if (
+    role === 'ARCHER' &&
+    (jobType.includes('ARCHER') || jobName.includes('궁수'))
+  ) {
+    return '궁수';
+  }
+
+  if (
+    role === 'WARRIOR' &&
+    (jobType.includes('WARRIOR') ||
+      jobName.includes('검사') ||
+      jobName.includes('전사'))
+  ) {
     return '전사';
   }
 
   return option.jobName;
 };
 
-const getVisibleOptions = (options: JobOption[], value: string) => {
-  const selectedIndex = options.findIndex((option) => option.jobName === value);
+export const getJobTheme = (option?: JobOption) =>
+  JOB_THEME[getJobRole(option)];
 
-  if (selectedIndex < 0 || options.length < 3) {
-    return options;
-  }
+const getSortedOptions = (options: JobOption[]) =>
+  [...options].sort(
+    (a, b) =>
+      JOB_ORDER.indexOf(getJobRole(a)) - JOB_ORDER.indexOf(getJobRole(b)),
+  );
 
-  const previous =
-    options[(selectedIndex - 1 + options.length) % options.length];
-  const selected = options[selectedIndex];
-  const next = options[(selectedIndex + 1) % options.length];
-
-  return [previous, selected, next];
-};
+const getCharacterImage = (
+  option: JobOption | undefined,
+  _gender: CharacterGender,
+) => CHARACTER_IMAGES[getJobRole(option)];
 
 const JobOptionSelector = ({
   options,
@@ -45,26 +150,190 @@ const JobOptionSelector = ({
   helperText,
   isLoading = false,
 }: JobOptionSelectorProps) => {
+  const [gender, setGender] = useState<CharacterGender>('female');
+  const sortedOptions = useMemo(() => getSortedOptions(options), [options]);
+  const selectedIndex = sortedOptions.findIndex(
+    (option) => option.jobName === value,
+  );
+  const activeIndex = selectedIndex >= 0 ? selectedIndex : 0;
+  const activeOption = sortedOptions[activeIndex];
+  const activeTheme = getJobTheme(activeOption);
   const statusText = isLoading
     ? '직업을 불러오는 중입니다.'
     : helperText || undefined;
-  const hasSelection = value.length > 0;
-  const visibleOptions = hasSelection
-    ? getVisibleOptions(options, value)
-    : options;
+
+  useEffect(() => {
+    if (!value && sortedOptions.length > 0) {
+      onSelect(sortedOptions[0].jobName);
+    }
+  }, [onSelect, sortedOptions, value]);
+
+  const handleMove = (direction: -1 | 1) => {
+    if (sortedOptions.length === 0) {
+      return;
+    }
+
+    const nextIndex =
+      (activeIndex + direction + sortedOptions.length) % sortedOptions.length;
+    onSelect(sortedOptions[nextIndex].jobName);
+  };
+
+  if (sortedOptions.length === 0) {
+    return (
+      <View style={styles.container}>
+        {statusText ? (
+          <Typography
+            variant="caption2"
+            color={error ? palette.tag.critical[700] : palette.theme.gray[70]}
+            style={styles.helperText}
+          >
+            {statusText}
+          </Typography>
+        ) : null}
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <View
-        testID="job-option-row"
-        style={[
-          styles.optionRow,
-          hasSelection ? styles.selectedOptionRow : styles.defaultOptionRow,
-        ]}
-      >
-        {visibleOptions.map((option) => {
-          const isSelected = option.jobName === value;
+      <View style={styles.genderSegment} accessibilityRole="tablist">
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel="여자 캐릭터 선택"
+          accessibilityState={{ selected: gender === 'female' }}
+          onPress={() => setGender('female')}
+          style={[
+            styles.genderTab,
+            gender === 'female' ? styles.genderTabSelected : null,
+          ]}
+        >
+          <Typography
+            variant="caption1"
+            weight="semibold"
+            color={
+              gender === 'female'
+                ? palette.theme.gray[90]
+                : palette.theme.gray[10]
+            }
+          >
+            여자
+          </Typography>
+        </Pressable>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel="남자 캐릭터 선택"
+          accessibilityState={{ selected: gender === 'male' }}
+          onPress={() => setGender('male')}
+          style={[
+            styles.genderTab,
+            gender === 'male' ? styles.genderTabSelected : null,
+          ]}
+        >
+          <Typography
+            variant="caption1"
+            weight="semibold"
+            color={
+              gender === 'male'
+                ? palette.theme.gray[90]
+                : palette.theme.gray[10]
+            }
+          >
+            남자
+          </Typography>
+        </Pressable>
+      </View>
+
+      <View testID="job-option-row" style={styles.stage}>
+        <Pressable
+          accessibilityLabel="이전 직업"
+          accessibilityRole="button"
+          onPress={() => handleMove(-1)}
+          style={styles.arrowButton}
+        >
+          <Typography variant="title" color={palette.theme.gray[30]}>
+            ‹
+          </Typography>
+        </Pressable>
+
+        <View
+          testID="job-character-card"
+          style={[styles.card, { backgroundColor: activeTheme.card }]}
+        >
+          <Image
+            source={getCharacterImage(activeOption, gender)}
+            resizeMode="contain"
+            style={styles.heroImage}
+          />
+
+          <Typography variant="title" weight="semibold" style={styles.jobTitle}>
+            {getJobDisplayName(activeOption)}
+          </Typography>
+          <Typography
+            variant="body2"
+            color={palette.theme.gray[15]}
+            style={styles.description}
+          >
+            {JOB_DESCRIPTION[getJobRole(activeOption)]}
+          </Typography>
+
+          <View style={styles.levelPanel}>
+            {[0, 1, 2].map((index) => {
+              const isUnlocked = index === 0;
+
+              return (
+                <View key={index} style={styles.levelItem}>
+                  <View style={styles.levelImageWrap}>
+                    <Image
+                      source={getCharacterImage(activeOption, gender)}
+                      resizeMode="contain"
+                      tintColor={
+                        isUnlocked ? undefined : activeTheme.accentDark
+                      }
+                      style={[
+                        styles.levelImage,
+                        isUnlocked ? null : styles.lockedLevelImage,
+                      ]}
+                    />
+                    {isUnlocked ? null : (
+                      <Typography
+                        variant="title"
+                        weight="semibold"
+                        color={palette.white}
+                        style={styles.questionMark}
+                      >
+                        ?
+                      </Typography>
+                    )}
+                  </View>
+                  <Typography
+                    variant="caption2"
+                    weight="semibold"
+                    color={palette.theme.gray[70]}
+                  >
+                    레벨 {index + 1}
+                  </Typography>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+
+        <Pressable
+          accessibilityLabel="다음 직업"
+          accessibilityRole="button"
+          onPress={() => handleMove(1)}
+          style={styles.arrowButton}
+        >
+          <Typography variant="title" color={palette.theme.gray[30]}>
+            ›
+          </Typography>
+        </Pressable>
+      </View>
+
+      <View style={styles.pagination}>
+        {sortedOptions.map((option, index) => {
           const displayName = getJobDisplayName(option);
+          const isSelected = index === activeIndex;
 
           return (
             <Pressable
@@ -73,30 +342,23 @@ const JobOptionSelector = ({
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
               onPress={() => onSelect(option.jobName)}
-              style={[
-                styles.option,
-                hasSelection ? styles.sideOption : styles.defaultOption,
-                isSelected ? styles.centerOption : null,
-                isSelected ? styles.optionSelected : null,
-                error ? styles.optionError : null,
-              ]}
+              style={styles.dotButton}
             >
-              <Image
-                source={{ uri: option.imageUrl }}
-                resizeMode="contain"
-                style={[styles.image, isSelected ? styles.selectedImage : null]}
+              <View
+                style={[
+                  styles.dot,
+                  {
+                    backgroundColor: isSelected
+                      ? activeTheme.accentDark
+                      : activeTheme.accentSoft,
+                  },
+                ]}
               />
-              <Typography
-                variant="body2"
-                weight="semibold"
-                style={styles.optionLabel}
-              >
-                {displayName}
-              </Typography>
             </Pressable>
           );
         })}
       </View>
+
       {statusText ? (
         <Typography
           variant="caption2"
@@ -117,61 +379,115 @@ const styles = StyleSheet.create((theme) => ({
     width: '100%',
     alignItems: 'center',
   },
-  optionRow: {
+  genderSegment: {
+    width: 160,
+    height: baseFoundation.dimension.x32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: theme.foundation.radii.s,
+    borderWidth: 3,
+    borderColor: palette.theme.gray[40],
+    backgroundColor: palette.theme.gray[40],
+    padding: 2,
+  },
+  genderTab: {
+    flex: 1,
+    height: baseFoundation.dimension.x24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: baseFoundation.dimension.x4,
+  },
+  genderTabSelected: {
+    backgroundColor: palette.white,
+  },
+  stage: {
     width: '100%',
+    marginTop: theme.foundation.spacing[5],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  arrowButton: {
+    width: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  card: {
+    width: 292,
+    maxWidth: '76%',
+    minHeight: 430,
+    alignItems: 'center',
+    paddingTop: theme.foundation.spacing[6],
+    paddingHorizontal: theme.foundation.spacing[5],
+    paddingBottom: theme.foundation.spacing[4],
+    borderRadius: theme.foundation.radii.xl,
+  },
+  heroImage: {
+    width: 112,
+    height: 112,
+  },
+  jobTitle: {
+    marginTop: theme.foundation.spacing[4],
+    color: palette.theme.gray[90],
+    textAlign: 'center',
+  },
+  description: {
+    width: '100%',
+    marginTop: theme.foundation.spacing[3],
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  levelPanel: {
+    width: '100%',
+    minHeight: 96,
+    marginTop: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: theme.foundation.spacing[3],
+    borderRadius: theme.foundation.radii.l,
+    backgroundColor: palette.white,
+    paddingHorizontal: theme.foundation.spacing[3],
+    paddingVertical: theme.foundation.spacing[3],
   },
-  selectedOptionRow: {
-    width: '102.5%',
+  levelItem: {
+    flex: 1,
+    alignItems: 'center',
   },
-  defaultOptionRow: {
-    paddingHorizontal: baseFoundation.dimension.x18,
-  },
-  option: {
+  levelImageWrap: {
+    width: 58,
+    height: 58,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: theme.foundation.spacing[3],
-    paddingVertical: theme.foundation.spacing[4],
-    borderWidth: 0,
-    borderRadius: theme.foundation.radii.s,
-    backgroundColor: palette.theme.blue[5],
-    position: 'relative',
   },
-  defaultOption: {
-    flex: 1,
-    height: 138,
+  levelImage: {
+    width: 54,
+    height: 54,
   },
-  sideOption: {
-    flex: 100,
-    height: 138,
+  lockedLevelImage: {
+    opacity: 0.95,
   },
-  centerOption: {
-    flex: 148,
-    height: 205,
+  questionMark: {
+    position: 'absolute',
   },
-  optionSelected: {
-    borderWidth: 3,
-    borderColor: palette.theme.blue[50],
+  pagination: {
+    marginTop: theme.foundation.spacing[6],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.foundation.spacing[1],
   },
-  optionError: {
-    borderColor: palette.tag.critical[700],
-    borderWidth: 2,
+  dotButton: {
+    width: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  image: {
-    width: 64,
-    height: 64,
-  },
-  selectedImage: {
-    width: 92,
-    height: 92,
-  },
-  optionLabel: {
-    marginTop: theme.foundation.spacing[3],
-    textAlign: 'center',
-    color: palette.theme.blue[100],
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   helperText: {
     marginTop: theme.foundation.spacing[3],
