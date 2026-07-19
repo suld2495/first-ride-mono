@@ -69,10 +69,17 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
       expect(await findByText('루틴 이름')).toBeOnTheScreen();
     });
 
-    it('응원의 한마디 라벨이 표시된다', async () => {
-      const { findByText } = render(<RequestDetailModal />);
+    it('응원의 한마디 입력 항목을 표시하지 않는다', async () => {
+      const { findByText, queryByLabelText, queryByPlaceholderText } = render(
+        <RequestDetailModal />,
+      );
 
-      expect(await findByText('응원의 한마디')).toBeOnTheScreen();
+      await findByText('메이트가 보낸 인증이에요');
+
+      expect(queryByLabelText('응원의 한마디')).toBeNull();
+      expect(
+        queryByPlaceholderText('응원의 한마디를 입력해주세요.'),
+      ).toBeNull();
     });
   });
 
@@ -124,6 +131,30 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
             'success',
           );
           expect(mockBack).toHaveBeenCalled();
+        });
+      });
+
+      it('승인 시 빈 코멘트를 전송한다', async () => {
+        const { findByText, getByText } = render(<RequestDetailModal />);
+
+        await findByText('테스트 루틴 1');
+
+        await act(async () => {
+          fireEvent.press(getByText('승인'));
+        });
+
+        await waitFor(() => {
+          expect(mockAxios.history.post).toHaveLength(1);
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '승인되었습니다.',
+            'success',
+          );
+        });
+
+        expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toEqual({
+          confirmId: 1,
+          checkStatus: 'PASS',
+          checkComment: '',
         });
       });
 
@@ -256,66 +287,4 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
     });
   });
 
-  describe('응원의 한마디 입력 테스트', () => {
-    beforeEach(() => {
-      const mockDetail = createMockRoutineDetail(0);
-
-      mockAxios
-        .onGet(/\/routine\/confirm\/detail/)
-        .reply(200, { data: mockDetail });
-      mockAxios.onPost('/routine/check').reply(200, { data: null });
-    });
-
-    it('응원의 한마디를 입력하고 승인할 수 있다', async () => {
-      const { findByText, getByText, getByPlaceholderText } = render(
-        <RequestDetailModal />,
-      );
-
-      await findByText('테스트 루틴 1');
-
-      const commentInput =
-        getByPlaceholderText('응원의 한마디를 입력해주세요.');
-
-      await act(async () => {
-        fireEvent.changeText(commentInput, '잘했어요!');
-      });
-
-      await act(async () => {
-        fireEvent.press(getByText('승인'));
-      });
-
-      await waitFor(() => {
-        expect(mockShowToast).toHaveBeenCalledWith(
-          '승인되었습니다.',
-          'success',
-        );
-      });
-    });
-
-    it('응원의 한마디를 입력하고 거절할 수 있다', async () => {
-      const { findByText, getByText, getByPlaceholderText } = render(
-        <RequestDetailModal />,
-      );
-
-      await findByText('테스트 루틴 1');
-
-      const commentInput =
-        getByPlaceholderText('응원의 한마디를 입력해주세요.');
-
-      await act(async () => {
-        fireEvent.changeText(commentInput, '다음에 다시 도전해봐요!');
-      });
-
-      await act(async () => {
-        fireEvent.press(getByText('거절'));
-      });
-
-      await waitFor(() => {
-        expect(mockShowToast).toHaveBeenCalledWith(
-          '거절되었습니다.',
-          'success',
-        );
-      });
-    });
-  });
 });
