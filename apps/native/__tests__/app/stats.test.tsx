@@ -62,9 +62,18 @@ describe('StatsPage', () => {
         },
       });
 
-    const { findByLabelText } = render(<StatsPage />);
+    const { findByLabelText, getByTestId } = render(<StatsPage />);
 
     expect(await findByLabelText('2026-06-04 수행 완료')).toBeOnTheScreen();
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-calendar-day-marker-2026-06-04').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ backgroundColor: '#22CC88' }),
+      ]),
+    );
     await waitFor(() => {
       expect(mockAxios.history.get).toHaveLength(1);
     });
@@ -224,6 +233,7 @@ describe('StatsPage', () => {
                 }),
                 routineName: '운동 주 2회',
                 category: '운동',
+                symbolColor: '#FA4F9B',
                 displayOrder: 1,
                 completed: false,
                 status: 'ACTIVE',
@@ -238,6 +248,7 @@ describe('StatsPage', () => {
                 }),
                 routineName: '악기연습 주 3회',
                 category: '취미',
+                symbolColor: '#00C9BD',
                 displayOrder: 2,
                 completed: true,
                 status: 'COMPLETED',
@@ -306,7 +317,7 @@ describe('StatsPage', () => {
       expect.arrayContaining([
         expect.objectContaining({ position: 'absolute' }),
         expect.objectContaining({
-          backgroundColor: palette.theme.softBlue[50],
+          backgroundColor: '#FA4F9B',
         }),
       ]),
     );
@@ -335,8 +346,8 @@ describe('StatsPage', () => {
           height: 36,
           borderRadius: 18,
           borderWidth: 1,
-          borderColor: palette.theme.softBlue[50],
         }),
+        expect.objectContaining({ borderColor: '#FA4F9B' }),
         expect.objectContaining({ opacity: 0.7 }),
       ]),
     );
@@ -349,9 +360,17 @@ describe('StatsPage', () => {
           height: 36,
           borderRadius: 18,
           borderWidth: 1,
-          borderColor: palette.theme.softBlue[50],
         }),
-        expect.objectContaining({ backgroundColor: palette.theme.blue[50] }),
+        expect.objectContaining({ borderColor: '#FA4F9B' }),
+        expect.objectContaining({ backgroundColor: '#FA4F9B' }),
+      ]),
+    );
+    expect(
+      flattenStyles(getByTestId('routine-stats-summary-dot-2-0').props.style),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ borderColor: '#00C9BD' }),
+        expect.objectContaining({ backgroundColor: '#00C9BD' }),
       ]),
     );
     expect(

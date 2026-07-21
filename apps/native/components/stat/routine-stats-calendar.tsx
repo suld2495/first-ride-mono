@@ -12,6 +12,7 @@ import { baseFoundation, palette } from '@/theme/tokens';
 
 export interface RoutineStatsCalendarProps {
   routineName: string;
+  routineColor: string;
   monthDate: Date;
   performedDates: readonly string[];
 }
@@ -67,6 +68,7 @@ const getCalendarRows = (cells: (Date | null)[]) => {
 
 const RoutineStatsCalendar = ({
   routineName,
+  routineColor,
   monthDate,
   performedDates,
 }: RoutineStatsCalendarProps) => {
@@ -164,7 +166,7 @@ const RoutineStatsCalendar = ({
                       testID={`routine-stats-calendar-day-marker-${dateKey}`}
                       style={[
                         styles.dayMarker,
-                        isPerformed && styles.dayMarkerPerformed,
+                        isPerformed && { backgroundColor: routineColor },
                       ]}
                     >
                       <Typography
@@ -230,8 +232,5 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     borderRadius: baseFoundation.dimension.x18,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  dayMarkerPerformed: {
-    backgroundColor: theme.colors.action.primary.default,
   },
 }));

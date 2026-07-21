@@ -15,6 +15,7 @@ import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation, palette } from '@/theme/tokens';
 import { normalizeRoutineDateKey } from '@/utils/routine-stats';
@@ -85,6 +86,7 @@ export default function StatsPage() {
     ({ item }) => (
       <RoutineStatsCalendar
         routineName={item.routineName}
+        routineColor={item.symbolColor ?? DEFAULT_ROUTINE_COLOR}
         monthDate={currentMonth}
         performedDates={getPerformedDates(item)}
       />

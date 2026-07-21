@@ -11,12 +11,14 @@ import {
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { baseFoundation, palette } from '@/theme/tokens';
 import { calculateMonthlyRoutineStats } from '@/utils/routine-stats';
 
 type RoutineStatsSummaryItem = {
   id: RoutineMonthlySummary['routineId'];
   routineName: string;
+  routineColor: string;
   achievedLabel: string;
   totalDotCount: number;
   completedIndexes: readonly number[];
@@ -29,6 +31,7 @@ export interface RoutineStatsSummaryProps {
 
 type DotProps = {
   completed: boolean;
+  routineColor: string;
   markerTestID?: string;
   testID?: string;
 };
@@ -46,27 +49,6 @@ type SummaryItemProps = {
 const DOTS_PER_ROW = 7;
 const TRACK_LINE_WIDTH = 1;
 
-const getRoutineTrackColors = (themeName: string) => {
-  if (themeName === 'green') {
-    return {
-      checked: palette.theme.green[50],
-      track: palette.theme.softGreen[50],
-    };
-  }
-
-  if (themeName === 'red') {
-    return {
-      checked: palette.theme.red[50],
-      track: palette.theme.softRed[50],
-    };
-  }
-
-  return {
-    checked: palette.theme.blue[50],
-    track: palette.theme.softBlue[50],
-  };
-};
-
 const PROGRESS_MARKER_IMAGE =
   require('@/assets/stat/routine-progress-marker.png') as ImageSourcePropType;
 
@@ -81,9 +63,13 @@ const getDotRows = (totalDotCount: number) => {
   return rows;
 };
 
-const Dot = ({ completed, markerTestID, testID }: DotProps) => (
+const Dot = ({ completed, routineColor, markerTestID, testID }: DotProps) => (
   <View
-    style={[styles.dot, completed ? styles.dotCompleted : styles.dotEmpty]}
+    style={[
+      styles.dot,
+      { borderColor: routineColor },
+      completed ? { backgroundColor: routineColor } : styles.dotEmpty,
+    ]}
     testID={testID}
   >
     {markerTestID ? <ProgressMarker testID={markerTestID} /> : null}
@@ -147,12 +133,19 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
                 testID={`routine-stats-summary-track-row-${item.id}-${rowIndex}`}
               >
                 <View
-                  style={styles.rowLine}
+                  style={[
+                    styles.rowLine,
+                    { backgroundColor: item.routineColor },
+                  ]}
                   testID={`routine-stats-summary-row-line-${item.id}-${rowIndex}`}
                 />
                 {!isLastRow ? (
                   <View
-                    style={[styles.rowTurnConnector, connectorSide]}
+                    style={[
+                      styles.rowTurnConnector,
+                      connectorSide,
+                      { borderColor: item.routineColor },
+                    ]}
                     testID={`routine-stats-summary-turn-connector-${item.id}-${rowIndex}`}
                   />
                 ) : null}
@@ -160,6 +153,7 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
                   <Dot
                     key={index}
                     completed={completedSet.has(index)}
+                    routineColor={item.routineColor}
                     markerTestID={
                       index === item.totalDotCount - 1
                         ? `routine-stats-summary-track-marker-${item.id}`
@@ -190,7 +184,11 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
         <ProgressMarker />
       </ThemeView>
 
-      {!isLast ? <View style={styles.divider} /> : null}
+      {!isLast ? (
+        <View
+          style={[styles.divider, { backgroundColor: item.routineColor }]}
+        />
+      ) : null}
     </ThemeView>
   );
 };
@@ -221,6 +219,7 @@ const RoutineStatsSummary = ({
           {
             id: routine.routineId,
             routineName: routine.routineName,
+            routineColor: routine.symbolColor ?? DEFAULT_ROUTINE_COLOR,
             achievedLabel: `${achievedCount}회 달성`,
             totalDotCount: totalAvailableCount,
             completedIndexes: Array.from(
@@ -253,8 +252,6 @@ const RoutineStatsSummary = ({
 export default RoutineStatsSummary;
 
 const styles = StyleSheet.create((theme) => {
-  const trackColors = getRoutineTrackColors(theme.name);
-
   return {
     container: {
       gap: theme.foundation.spacing[6],
@@ -287,14 +284,12 @@ const styles = StyleSheet.create((theme) => {
       right: baseFoundation.dimension.x18,
       top: baseFoundation.dimension.x18,
       height: TRACK_LINE_WIDTH,
-      backgroundColor: trackColors.track,
     },
     rowTurnConnector: {
       position: 'absolute',
       top: baseFoundation.dimension.x18,
       width: baseFoundation.dimension.x36,
       height: baseFoundation.dimension.x48,
-      borderColor: trackColors.track,
       borderTopWidth: TRACK_LINE_WIDTH,
       borderBottomWidth: TRACK_LINE_WIDTH,
     },
@@ -315,12 +310,8 @@ const styles = StyleSheet.create((theme) => {
       height: baseFoundation.dimension.x36,
       borderRadius: baseFoundation.dimension.x18,
       borderWidth: TRACK_LINE_WIDTH,
-      borderColor: trackColors.track,
       alignItems: 'center',
       justifyContent: 'center',
-    },
-    dotCompleted: {
-      backgroundColor: trackColors.checked,
     },
     dotEmpty: {
       backgroundColor: theme.colors.background.base,
@@ -347,7 +338,6 @@ const styles = StyleSheet.create((theme) => {
     },
     divider: {
       height: TRACK_LINE_WIDTH,
-      backgroundColor: trackColors.track,
       marginTop: theme.foundation.spacing[1],
     },
   };

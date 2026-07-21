@@ -17,6 +17,7 @@ describe('RoutineStatsCalendar', () => {
     const { getByLabelText, getByText, queryByText } = render(
       <RoutineStatsCalendar
         routineName="운동 주 3회"
+        routineColor={palette.theme.blue[50]}
         monthDate={new Date(2026, 5, 1)}
         performedDates={[
           '2026-06-04',
@@ -47,6 +48,7 @@ describe('RoutineStatsCalendar', () => {
     const { getByTestId, getByText } = render(
       <RoutineStatsCalendar
         routineName="운동 주 3회"
+        routineColor={palette.theme.blue[50]}
         monthDate={new Date(2026, 5, 1)}
         performedDates={['2026-06-04']}
       />,
@@ -70,10 +72,33 @@ describe('RoutineStatsCalendar', () => {
     );
   });
 
+  it('수행 완료 날짜를 루틴에 설정된 색상으로 렌더링한다', () => {
+    const routineColor = '#FA4F9B';
+    const { getByTestId } = render(
+      <RoutineStatsCalendar
+        routineName="운동 주 3회"
+        routineColor={routineColor}
+        monthDate={new Date(2026, 5, 1)}
+        performedDates={['2026-06-04']}
+      />,
+    );
+
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-calendar-day-marker-2026-06-04').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ backgroundColor: routineColor }),
+      ]),
+    );
+  });
+
   it('루틴 타이틀은 회색 body1 bold와 상하 여백으로 렌더링한다', () => {
     const { getByTestId, getByText } = render(
       <RoutineStatsCalendar
         routineName="운동 주 3회"
+        routineColor={palette.theme.blue[50]}
         monthDate={new Date(2026, 5, 1)}
         performedDates={['2026-06-04']}
       />,
@@ -103,6 +128,7 @@ describe('RoutineStatsCalendar', () => {
     const { getByText } = render(
       <RoutineStatsCalendar
         routineName="운동 주 3회"
+        routineColor={palette.theme.blue[50]}
         monthDate={new Date(2026, 5, 1)}
         performedDates={['2026-06-04']}
       />,
@@ -128,6 +154,7 @@ describe('RoutineStatsCalendar', () => {
     const { getByTestId, getByText } = render(
       <RoutineStatsCalendar
         routineName="운동 주 3회"
+        routineColor={palette.theme.blue[50]}
         monthDate={new Date(2026, 5, 1)}
         performedDates={['2026-06-04']}
       />,
@@ -188,6 +215,7 @@ describe('RoutineStatsCalendar', () => {
     const { getByTestId } = render(
       <RoutineStatsCalendar
         routineName="운동 주 3회"
+        routineColor={palette.theme.blue[50]}
         monthDate={new Date(2026, 5, 1)}
         performedDates={['2026-06-04']}
       />,
@@ -224,6 +252,7 @@ describe('RoutineStatsCalendar', () => {
     const { getByLabelText, queryByLabelText, rerender } = render(
       <RoutineStatsCalendar
         routineName="운동 주 3회"
+        routineColor={palette.theme.blue[50]}
         monthDate={new Date(2026, 4, 1)}
         performedDates={['2026-05-01']}
       />,
@@ -234,6 +263,7 @@ describe('RoutineStatsCalendar', () => {
     rerender(
       <RoutineStatsCalendar
         routineName="운동 주 3회"
+        routineColor={palette.theme.blue[50]}
         monthDate={new Date(2026, 5, 1)}
         performedDates={['2026-06-04']}
       />,
