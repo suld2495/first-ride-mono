@@ -137,12 +137,15 @@ describe('영웅의 전당 페이지', () => {
     const icon = within(supportButton).getByTestId(
       'hall-of-heroes-wooden-ale-icon',
     );
+    const label = within(supportButton).getByText(
+      '영웅들에게 에일 한 잔 대접하기',
+    );
 
     expect(icon).toBeOnTheScreen();
     expect(StyleSheet.flatten(iconBadge.props.style)).toEqual(
       expect.objectContaining({
-        width: baseFoundation.dimension.x40,
-        height: baseFoundation.dimension.x40,
+        width: baseFoundation.dimension.x36,
+        height: baseFoundation.dimension.x36,
         backgroundColor: palette.yellow[100],
       }),
     );
@@ -150,6 +153,11 @@ describe('영웅의 전당 페이지', () => {
       expect.objectContaining({
         width: baseFoundation.iconSize.xl,
         height: baseFoundation.iconSize.xl,
+      }),
+    );
+    expect(StyleSheet.flatten(label.props.style)).toEqual(
+      expect.objectContaining({
+        fontSize: baseFoundation.typography.size.l,
       }),
     );
   });
