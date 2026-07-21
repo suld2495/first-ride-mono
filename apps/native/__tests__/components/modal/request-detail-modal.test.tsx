@@ -63,6 +63,21 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
       expect(await findByText('2025-01-15 10:05:09')).toBeOnTheScreen();
     });
 
+    it('생성일이 없어도 상세 화면을 표시한다', async () => {
+      const mockDetail = {
+        ...createMockRoutineDetail(0),
+        createdAt: '',
+      };
+      mockAxios.resetHandlers();
+      mockAxios
+        .onGet(/\/routine\/confirm\/detail/)
+        .reply(200, { data: mockDetail });
+
+      const { findByText } = render(<RequestDetailModal />);
+
+      expect(await findByText('테스트 루틴 1')).toBeOnTheScreen();
+    });
+
     it('루틴 이름 라벨이 표시된다', async () => {
       const { findByText } = render(<RequestDetailModal />);
 
@@ -117,6 +132,26 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
       const { findByText } = render(<RequestDetailModal />);
 
       expect(await findByText('거절')).toBeOnTheScreen();
+    });
+
+    it('요청 ID가 없으면 승인 요청을 전송하지 않는다', async () => {
+      const mockDetail = {
+        ...createMockRoutineDetail(0),
+        id: 0,
+      };
+      mockAxios.resetHandlers();
+      mockAxios
+        .onGet(/\/routine\/confirm\/detail/)
+        .reply(200, { data: mockDetail });
+      mockAxios.onPost('/routine/check').reply(200, { data: null });
+
+      const { findByText, getByText } = render(<RequestDetailModal />);
+
+      await findByText('테스트 루틴 1');
+
+      fireEvent.press(getByText('승인'));
+
+      expect(mockAxios.history.post).toHaveLength(0);
     });
   });
 

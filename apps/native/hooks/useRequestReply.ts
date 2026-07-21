@@ -20,7 +20,7 @@ export const useRequestReply = ({
   const replyRequest = useReplyRequestMutation(nickname);
 
   const handleSubmit = useCallback(
-    (status: RequestResponseStatus) => {
+    (status: RequestResponseStatus, comment: string) => {
       if (!confirmId) {
         return;
       }
@@ -29,7 +29,7 @@ export const useRequestReply = ({
         {
           confirmId,
           checkStatus: status,
-          checkComment: '',
+          checkComment: comment,
         },
         {
           onSuccess: async () => {

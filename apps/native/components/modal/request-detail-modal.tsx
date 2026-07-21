@@ -1,18 +1,24 @@
 import { useFetchRequestDetailQuery } from '@repo/shared/hooks/useRequest';
 import { getFormatDateTime } from '@repo/shared/utils';
-import { useEffect, useState } from 'react';
-import { Image, ScrollView } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { Image } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as Svg from 'react-native-svg';
 
 import ConfirmRequestButtonGroup from '@/components/request/confirm-request-button-group';
+import { Input } from '@/components/ui/input';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useCreateForm } from '@/hooks/useForm';
 import { useRequestReply } from '@/hooks/useRequestReply';
 import { useRequestId } from '@/hooks/useRequestSelection';
 import { baseFoundation } from '@/theme/tokens';
+
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const { Form, FormItem, useForm } = useCreateForm<{ comment: string }>();
 
 const RequestDetailModal = () => {
   const requestId = useRequestId();
@@ -20,6 +26,7 @@ const RequestDetailModal = () => {
 
   const user = useAuthUser();
   const [ratio, setRatio] = useState(1);
+  const initialForm = useMemo(() => ({ comment: '' }), []);
   const { handleSubmit } = useRequestReply({
     confirmId: detail?.id,
     nickname: user?.nickname || '',
@@ -39,8 +46,11 @@ const RequestDetailModal = () => {
 
   return (
     <ThemeView style={styles.container}>
-      <ScrollView
+      <KeyboardAwareScrollView
         contentContainerStyle={styles.scroll}
+        enableOnAndroid={true}
+        keyboardShouldPersistTaps="handled"
+        enableResetScrollToCoords={false}
         showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       >
         <ThemeView style={styles.intro} transparent>
@@ -48,7 +58,7 @@ const RequestDetailModal = () => {
             메이트가 보낸 인증이에요
           </Typography>
           <Typography variant="body2" style={styles.introDescription}>
-            사진과 내용을 확인해 주세요.
+            사진과 내용을 확인한 뒤 응원을 남겨 주세요.
           </Typography>
         </ThemeView>
         <ThemeView style={styles.summary}>
@@ -91,8 +101,31 @@ const RequestDetailModal = () => {
           )}
           <ThemeView style={styles.separator} />
         </ThemeView>
-        <ConfirmRequestButtonGroup onSubmit={handleSubmit} />
-      </ScrollView>
+        <Form form={initialForm}>
+          <FormItem
+            name="comment"
+            label="응원의 한마디"
+            item={({ value, onChange }) => (
+              <Input
+                accessibilityLabel="응원의 한마디"
+                fullWidth
+                inputStyle={styles.textareaInput}
+                placeholder="응원의 한마디를 입력해주세요."
+                value={value}
+                onChangeText={onChange}
+                style={styles.textarea}
+                multiline
+                variant="filled"
+              />
+            )}
+          />
+
+          <ConfirmRequestButtonGroup
+            onSubmit={handleSubmit}
+            useForm={useForm}
+          />
+        </Form>
+      </KeyboardAwareScrollView>
     </ThemeView>
   );
 };
@@ -163,5 +196,18 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x1,
     marginTop: baseFoundation.spacing[5],
     backgroundColor: theme.colors.brand.card,
+  },
+
+  textarea: {
+    height: baseFoundation.dimension.x112,
+    borderWidth: baseFoundation.dimension.x0,
+    borderRadius: baseFoundation.radii.m,
+    backgroundColor: theme.colors.brand.card,
+    paddingHorizontal: baseFoundation.spacing[4],
+    paddingVertical: baseFoundation.spacing[3],
+  },
+
+  textareaInput: {
+    textAlignVertical: 'top',
   },
 }));
