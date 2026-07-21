@@ -1,5 +1,5 @@
 import axiosInstance from '@repo/shared/api';
-import { act, waitFor } from '@testing-library/react-native';
+import { act, waitFor, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { ScrollView, StyleSheet } from 'react-native';
 
@@ -88,6 +88,21 @@ describe('QuestDetailModal', () => {
     const { findByText } = render(<QuestDetailModal />);
 
     expect(await findByText('보상 받기')).toBeOnTheScreen();
+  });
+
+  it('EXP 보상은 받을 경험치를 표시한다', async () => {
+    const mockDetail = createMockQuest();
+    mockDetail.rewardType = 'EXP';
+    mockDetail.expAmount = 5;
+
+    mockAxios.onGet('/quest/1').reply(200, { data: mockDetail });
+
+    const screen = render(<QuestDetailModal />);
+
+    expect(await screen.findByText('EXP +5')).toBeOnTheScreen();
+    expect(
+      within(screen.getByTestId('quest-detail-content')).getByText('EXP +5'),
+    ).toBeOnTheScreen();
   });
 
   it('상태 배지는 한 번만 표시된다', async () => {

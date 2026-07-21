@@ -76,6 +76,8 @@ const QuestDetailModal = () => {
     maxParticipants,
     startDate,
     endDate,
+    rewardType,
+    expAmount,
     isAccepted,
     isCompleted,
     successCount,
@@ -176,6 +178,16 @@ const QuestDetailModal = () => {
                   {formatDateRange(startDate, endDate)}
                 </Typography>
               </ThemeView>
+
+              {rewardType === 'EXP' && (
+                <Typography
+                  variant="caption"
+                  weight="semibold"
+                  style={styles.expRewardText}
+                >
+                  EXP +{expAmount}
+                </Typography>
+              )}
             </ThemeView>
 
             <ThemeView
@@ -319,6 +331,11 @@ const styles = StyleSheet.create((theme) => ({
     width: '100%',
     marginBottom: 33,
     paddingHorizontal: 21,
+  },
+
+  expRewardText: {
+    color: '#FFFFFF',
+    marginTop: baseFoundation.dimension.x8,
   },
 
   acceptButton: {
