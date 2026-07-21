@@ -224,13 +224,18 @@ export default function HallOfHeroesPage() {
             backgroundColor={palette.theme.gray[90]}
             fullWidth
             leftIcon={
-              <Image
-                accessibilityIgnoresInvertColors
-                resizeMode="contain"
-                source={WOODEN_ALE_ICON_SOURCE}
-                style={styles.supportIcon}
-                testID="hall-of-heroes-wooden-ale-icon"
-              />
+              <View
+                style={styles.supportIconBadge}
+                testID="hall-of-heroes-wooden-ale-icon-badge"
+              >
+                <Image
+                  accessibilityIgnoresInvertColors
+                  resizeMode="contain"
+                  source={WOODEN_ALE_ICON_SOURCE}
+                  style={styles.supportIcon}
+                  testID="hall-of-heroes-wooden-ale-icon"
+                />
+              </View>
             }
             size="lg"
             style={styles.supportButton}
@@ -332,6 +337,14 @@ const styles = StyleSheet.create((theme) => ({
   },
   supportButton: {
     shadowColor: palette.theme.gray[90],
+  },
+  supportIconBadge: {
+    width: baseFoundation.iconSize.xl,
+    height: baseFoundation.iconSize.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: baseFoundation.dimension.x16,
+    backgroundColor: palette.yellow[100],
   },
   supportIcon: {
     width: baseFoundation.iconSize.l,
