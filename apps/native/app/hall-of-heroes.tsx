@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import type { ComponentType } from 'react';
 import { useState } from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
+import type { ImageSourcePropType } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   withTiming,
@@ -77,6 +78,8 @@ const HERO_TONES = {
 } as const;
 
 const BACKGROUND_TRANSITION_CONFIG = { duration: 300 } as const;
+const WOODEN_ALE_ICON_SOURCE =
+  require('@/assets/hall-of-heroes/ale-wooden-stein.png') as ImageSourcePropType;
 const AnimatedSafeAreaView = Animated.createAnimatedComponent(SafeAreaView);
 
 const getNextHeroIndex = (index: number, direction: -1 | 1) =>
@@ -224,7 +227,7 @@ export default function HallOfHeroesPage() {
               <Image
                 accessibilityIgnoresInvertColors
                 resizeMode="contain"
-                source={require('@/assets/hall-of-heroes/ale-wooden-stein.png')}
+                source={WOODEN_ALE_ICON_SOURCE}
                 style={styles.supportIcon}
                 testID="hall-of-heroes-wooden-ale-icon"
               />
