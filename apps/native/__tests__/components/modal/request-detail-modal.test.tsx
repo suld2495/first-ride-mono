@@ -84,17 +84,17 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
       expect(await findByText('테스트 루틴 1')).toBeOnTheScreen();
     });
 
-    it('응원의 한마디 입력 항목을 표시하지 않는다', async () => {
-      const { findByText, queryByLabelText, queryByPlaceholderText } = render(
+    it('응원의 한마디 입력 항목을 표시한다', async () => {
+      const { findByText, getByLabelText, getByPlaceholderText } = render(
         <RequestDetailModal />,
       );
 
       await findByText('메이트가 보낸 인증이에요');
 
-      expect(queryByLabelText('응원의 한마디')).toBeNull();
+      expect(getByLabelText('응원의 한마디')).toBeOnTheScreen();
       expect(
-        queryByPlaceholderText('응원의 한마디를 입력해주세요.'),
-      ).toBeNull();
+        getByPlaceholderText('응원의 한마디를 입력해주세요.'),
+      ).toBeOnTheScreen();
     });
   });
 
@@ -149,10 +149,17 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
         });
       });
 
-      it('승인 시 빈 코멘트를 전송한다', async () => {
-        const { findByText, getByText } = render(<RequestDetailModal />);
+      it('승인 시 입력한 응원의 한마디를 전송한다', async () => {
+        const { findByText, getByPlaceholderText, getByText } = render(
+          <RequestDetailModal />,
+        );
 
         await findByText('테스트 루틴 1');
+
+        fireEvent.changeText(
+          getByPlaceholderText('응원의 한마디를 입력해주세요.'),
+          '잘했어요!',
+        );
 
         await act(async () => {
           fireEvent.press(getByText('승인'));
@@ -169,7 +176,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
         expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toEqual({
           confirmId: 1,
           checkStatus: 'PASS',
-          checkComment: '',
+          checkComment: '잘했어요!',
         });
       });
 
@@ -252,6 +259,37 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
             'success',
           );
           expect(mockBack).toHaveBeenCalled();
+        });
+      });
+
+      it('거절 시 입력한 응원의 한마디를 전송한다', async () => {
+        const { findByText, getByPlaceholderText, getByText } = render(
+          <RequestDetailModal />,
+        );
+
+        await findByText('테스트 루틴 1');
+
+        fireEvent.changeText(
+          getByPlaceholderText('응원의 한마디를 입력해주세요.'),
+          '다음에 다시 도전해봐요!',
+        );
+
+        await act(async () => {
+          fireEvent.press(getByText('거절'));
+        });
+
+        await waitFor(() => {
+          expect(mockAxios.history.post).toHaveLength(1);
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '거절되었습니다.',
+            'success',
+          );
+        });
+
+        expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toEqual({
+          confirmId: 1,
+          checkStatus: 'DENY',
+          checkComment: '다음에 다시 도전해봐요!',
         });
       });
 
