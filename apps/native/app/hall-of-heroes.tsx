@@ -241,6 +241,7 @@ export default function HallOfHeroesPage() {
             style={styles.supportButton}
             testID="hall-of-heroes-support-button"
             textColor={palette.white}
+            textStyle={styles.supportButtonText}
             title="영웅들에게 에일 한 잔 대접하기"
           />
         </View>
@@ -338,12 +339,15 @@ const styles = StyleSheet.create((theme) => ({
   supportButton: {
     shadowColor: palette.theme.gray[90],
   },
+  supportButtonText: {
+    fontSize: theme.foundation.typography.size.l,
+  },
   supportIconBadge: {
-    width: baseFoundation.dimension.x40,
-    height: baseFoundation.dimension.x40,
+    width: baseFoundation.dimension.x36,
+    height: baseFoundation.dimension.x36,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: baseFoundation.dimension.x20,
+    borderRadius: baseFoundation.dimension.x18,
     backgroundColor: palette.yellow[100],
   },
   supportIcon: {
