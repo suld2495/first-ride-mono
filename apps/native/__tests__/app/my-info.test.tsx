@@ -307,8 +307,9 @@ describe('MyInfo 로그아웃', () => {
   it('설정 메뉴에서 스탯과 테마 설정을 숨기고 나머지 항목 라우트는 유지한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
-    const { getByText, queryByText } = render(<MyInfo />);
+    const { getByTestId, getByText, queryByText } = render(<MyInfo />);
 
+    expect(getByTestId('settings-scroll-view')).toBeOnTheScreen();
     expect(getByText('한마디')).toBeOnTheScreen();
     expect(queryByText('스탯')).toBeNull();
     expect(getByText('루틴 설정')).toBeOnTheScreen();
@@ -317,17 +318,20 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('이용약관')).toBeOnTheScreen();
     expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
     expect(getByText('문의')).toBeOnTheScreen();
+    expect(getByText('영웅의 전당')).toBeOnTheScreen();
     expect(getByText('로그아웃')).toBeOnTheScreen();
 
     fireEvent.press(getByText('한마디'));
     fireEvent.press(getByText('루틴 설정'));
     fireEvent.press(getByText('알림 설정'));
     fireEvent.press(getByText('문의'));
+    fireEvent.press(getByText('영웅의 전당'));
 
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
     expect(global.mockPush).toHaveBeenCalledWith('/routine-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/inquiry');
+    expect(global.mockPush).toHaveBeenCalledWith('/hall-of-heroes');
   });
 
   it('푸시 토큰 삭제가 실패해도 로그아웃을 진행한다', async () => {

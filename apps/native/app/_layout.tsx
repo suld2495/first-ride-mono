@@ -112,6 +112,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               name="notification-settings"
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="hall-of-heroes"
+              options={{ headerShown: false }}
+            />
             <Stack.Screen name="inquiry" options={{ headerShown: false }} />
           </Stack.Protected>
           <Stack.Protected guard={!user}>

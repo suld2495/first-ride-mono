@@ -3,7 +3,7 @@ import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useCallback } from 'react';
-import { Alert, Pressable, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 
 import { deletePushToken } from '@/api/push-token.api';
 import Container from '@/components/layout/container';
@@ -14,6 +14,7 @@ import {
 } from '@/components/routine/routine-scene-art';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
+import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthSignOut, useAuthUser } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
 import { baseFoundation, palette } from '@/theme/tokens';
@@ -32,6 +33,7 @@ const SETTING_ITEMS: Array<{
   { title: '이용약관', href: '/modal?type=policies' },
   { title: '개인정보 처리방침', href: '/modal?type=privacy' },
   { title: '문의', href: '/inquiry' },
+  { title: '영웅의 전당', href: '/hall-of-heroes' },
 ];
 
 type ThemeTone = 'blue' | 'green' | 'red';
@@ -115,165 +117,171 @@ const MyInfo = () => {
   return (
     <Container noPadding style={styles.container}>
       <Header title="설정" />
-      <View testID="settings-profile" style={styles.profileSection}>
-        <View style={styles.profileRow}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+        testID="settings-scroll-view"
+      >
+        <View testID="settings-profile" style={styles.profileSection}>
+          <View style={styles.profileRow}>
+            <View
+              accessibilityLabel="프로필 이미지"
+              testID="settings-profile-avatar"
+              style={styles.avatar}
+            >
+              {characterAsset
+                ? renderRoutineSceneAsset(characterAsset, {
+                    testID: 'settings-profile-character',
+                    style: styles.character,
+                  })
+                : null}
+            </View>
+            <View testID="settings-profile-text" style={styles.profileText}>
+              <Typography
+                color={palette.theme.gray[80]}
+                testID="settings-profile-name"
+                variant="body2"
+                weight="semibold"
+              >
+                {user?.nickname}
+              </Typography>
+              <Typography
+                color={softThemeColor[50]}
+                testID="settings-profile-user-id"
+                variant="caption1"
+                weight="semibold"
+              >
+                {user?.userId}
+              </Typography>
+            </View>
+          </View>
+
+          <View testID="settings-level-row" style={styles.levelRow}>
+            <View testID="settings-level-badge" style={styles.levelBadge}>
+              <Typography
+                color={themeColor[80]}
+                testID="settings-level-text"
+                variant="caption2"
+                weight="semibold"
+              >
+                Lv. {stats?.currentLevel ?? FALLBACK_LEVEL}
+              </Typography>
+            </View>
+          </View>
+
+          <View testID="settings-exp-row" style={styles.expLabelRow}>
+            <View testID="settings-exp-title-row" style={styles.expTitleRow}>
+              <Typography
+                color={themeColor[80]}
+                testID="settings-exp-label"
+                variant="body3"
+                weight="semibold"
+              >
+                경험치
+              </Typography>
+              <Typography
+                color={softThemeColor[60]}
+                testID="settings-exp-unit"
+                variant="caption2"
+                weight="semibold"
+              >
+                EXP
+              </Typography>
+            </View>
+            <View testID="settings-exp-value-row" style={styles.expValueRow}>
+              <Typography
+                color={softThemeColor[80]}
+                testID="settings-exp-current"
+                variant="caption2"
+                weight="semibold"
+              >
+                {currentExp}
+              </Typography>
+              <Typography
+                color={softThemeColor[80]}
+                variant="caption2"
+                weight="semibold"
+              >
+                /
+              </Typography>
+              <Typography
+                color={softThemeColor[80]}
+                testID="settings-exp-next"
+                variant="caption2"
+                weight="semibold"
+              >
+                {nextLevelExp}
+              </Typography>
+            </View>
+          </View>
+
           <View
-            accessibilityLabel="프로필 이미지"
-            testID="settings-profile-avatar"
-            style={styles.avatar}
+            testID="settings-progress-track"
+            style={[
+              styles.progressTrack,
+              { backgroundColor: softThemeColor[40] },
+            ]}
           >
-            {characterAsset
-              ? renderRoutineSceneAsset(characterAsset, {
-                  testID: 'settings-profile-character',
-                  style: styles.character,
-                })
-              : null}
-          </View>
-          <View testID="settings-profile-text" style={styles.profileText}>
-            <Typography
-              color={palette.theme.gray[80]}
-              testID="settings-profile-name"
-              variant="body2"
-              weight="semibold"
-            >
-              {user?.nickname}
-            </Typography>
-            <Typography
-              color={softThemeColor[50]}
-              testID="settings-profile-user-id"
-              variant="caption1"
-              weight="semibold"
-            >
-              {user?.userId}
-            </Typography>
-          </View>
-        </View>
-
-        <View testID="settings-level-row" style={styles.levelRow}>
-          <View testID="settings-level-badge" style={styles.levelBadge}>
-            <Typography
-              color={themeColor[80]}
-              testID="settings-level-text"
-              variant="caption2"
-              weight="semibold"
-            >
-              Lv. {stats?.currentLevel ?? FALLBACK_LEVEL}
-            </Typography>
-          </View>
-        </View>
-
-        <View testID="settings-exp-row" style={styles.expLabelRow}>
-          <View testID="settings-exp-title-row" style={styles.expTitleRow}>
-            <Typography
-              color={themeColor[80]}
-              testID="settings-exp-label"
-              variant="body3"
-              weight="semibold"
-            >
-              경험치
-            </Typography>
-            <Typography
-              color={softThemeColor[60]}
-              testID="settings-exp-unit"
-              variant="caption2"
-              weight="semibold"
-            >
-              EXP
-            </Typography>
-          </View>
-          <View testID="settings-exp-value-row" style={styles.expValueRow}>
-            <Typography
-              color={softThemeColor[80]}
-              testID="settings-exp-current"
-              variant="caption2"
-              weight="semibold"
-            >
-              {currentExp}
-            </Typography>
-            <Typography
-              color={softThemeColor[80]}
-              variant="caption2"
-              weight="semibold"
-            >
-              /
-            </Typography>
-            <Typography
-              color={softThemeColor[80]}
-              testID="settings-exp-next"
-              variant="caption2"
-              weight="semibold"
-            >
-              {nextLevelExp}
-            </Typography>
+            <View
+              testID="settings-progress-fill"
+              style={[
+                styles.progressFill,
+                {
+                  width: `${expProgress * 100}%`,
+                  backgroundColor: themeColor[50],
+                },
+              ]}
+            />
           </View>
         </View>
 
         <View
-          testID="settings-progress-track"
-          style={[
-            styles.progressTrack,
-            { backgroundColor: softThemeColor[40] },
-          ]}
-        >
-          <View
-            testID="settings-progress-fill"
-            style={[
-              styles.progressFill,
-              {
-                width: `${expProgress * 100}%`,
-                backgroundColor: themeColor[50],
-              },
-            ]}
-          />
-        </View>
-      </View>
+          testID="settings-divider"
+          style={[styles.divider, { backgroundColor: softThemeColor[20] }]}
+        />
 
-      <View
-        testID="settings-divider"
-        style={[styles.divider, { backgroundColor: softThemeColor[20] }]}
-      />
-
-      <View testID="settings-menu-list" style={styles.menuList}>
-        {SETTING_ITEMS.map((item) => (
+        <View testID="settings-menu-list" style={styles.menuList}>
+          {SETTING_ITEMS.map((item) => (
+            <Pressable
+              accessibilityRole="button"
+              key={item.title}
+              onPress={() => {
+                if (item.href) {
+                  router.push(item.href);
+                }
+              }}
+              testID={`settings-menu-item-${item.title}`}
+              style={styles.menuItem}
+            >
+              <View style={styles.menuItemContent}>
+                <Typography
+                  color={palette.theme.gray[60]}
+                  testID={`settings-menu-text-${item.title}`}
+                  variant="body2"
+                  weight="semibold"
+                >
+                  {item.title}
+                </Typography>
+              </View>
+            </Pressable>
+          ))}
           <Pressable
             accessibilityRole="button"
-            key={item.title}
-            onPress={() => {
-              if (item.href) {
-                router.push(item.href);
-              }
-            }}
-            testID={`settings-menu-item-${item.title}`}
+            onPress={handleLogout}
+            testID="settings-menu-item-로그아웃"
             style={styles.menuItem}
           >
-            <View style={styles.menuItemContent}>
-              <Typography
-                color={palette.theme.gray[60]}
-                testID={`settings-menu-text-${item.title}`}
-                variant="body2"
-                weight="semibold"
-              >
-                {item.title}
-              </Typography>
-            </View>
+            <Typography
+              color={palette.theme.gray[60]}
+              testID="settings-menu-text-로그아웃"
+              variant="body2"
+              weight="semibold"
+            >
+              로그아웃
+            </Typography>
           </Pressable>
-        ))}
-        <Pressable
-          accessibilityRole="button"
-          onPress={handleLogout}
-          testID="settings-menu-item-로그아웃"
-          style={styles.menuItem}
-        >
-          <Typography
-            color={palette.theme.gray[60]}
-            testID="settings-menu-text-로그아웃"
-            variant="body2"
-            weight="semibold"
-          >
-            로그아웃
-          </Typography>
-        </Pressable>
-      </View>
+        </View>
+      </ScrollView>
     </Container>
   );
 };
@@ -283,6 +291,9 @@ export default MyInfo;
 const styles = StyleSheet.create((theme) => ({
   container: {
     backgroundColor: theme.colors.background.base,
+  },
+  scrollContent: {
+    paddingBottom: theme.foundation.spacing[6],
   },
   profileSection: {
     paddingTop: theme.foundation.spacing[0],
