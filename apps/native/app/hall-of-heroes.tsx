@@ -339,15 +339,15 @@ const styles = StyleSheet.create((theme) => ({
     shadowColor: palette.theme.gray[90],
   },
   supportIconBadge: {
-    width: baseFoundation.iconSize.xl,
-    height: baseFoundation.iconSize.xl,
+    width: baseFoundation.dimension.x40,
+    height: baseFoundation.dimension.x40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: baseFoundation.dimension.x16,
+    borderRadius: baseFoundation.dimension.x20,
     backgroundColor: palette.yellow[100],
   },
   supportIcon: {
-    width: baseFoundation.iconSize.l,
-    height: baseFoundation.iconSize.l,
+    width: baseFoundation.iconSize.xl,
+    height: baseFoundation.iconSize.xl,
   },
 }));
