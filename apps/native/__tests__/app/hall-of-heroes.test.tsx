@@ -2,7 +2,7 @@ import { fireEvent, within } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
 import HallOfHeroesPage from '@/app/hall-of-heroes';
-import { palette } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 import { render } from '../setup/test-utils';
 
@@ -134,12 +134,23 @@ describe('영웅의 전당 페이지', () => {
     const iconBadge = within(supportButton).getByTestId(
       'hall-of-heroes-wooden-ale-icon-badge',
     );
+    const icon = within(supportButton).getByTestId(
+      'hall-of-heroes-wooden-ale-icon',
+    );
 
-    expect(
-      within(supportButton).getByTestId('hall-of-heroes-wooden-ale-icon'),
-    ).toBeOnTheScreen();
+    expect(icon).toBeOnTheScreen();
     expect(StyleSheet.flatten(iconBadge.props.style)).toEqual(
-      expect.objectContaining({ backgroundColor: palette.yellow[100] }),
+      expect.objectContaining({
+        width: baseFoundation.dimension.x40,
+        height: baseFoundation.dimension.x40,
+        backgroundColor: palette.yellow[100],
+      }),
+    );
+    expect(StyleSheet.flatten(icon.props.style)).toEqual(
+      expect.objectContaining({
+        width: baseFoundation.iconSize.xl,
+        height: baseFoundation.iconSize.xl,
+      }),
     );
   });
 });
