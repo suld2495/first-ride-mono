@@ -112,4 +112,28 @@ describe('영웅의 전당 페이지', () => {
       duration: BACKGROUND_TRANSITION_DURATION,
     });
   });
+
+  it('영웅들에게 에일을 대접하는 버튼을 화면 하단에 표시한다', () => {
+    const { getByRole, getByTestId } = render(<HallOfHeroesPage />);
+    const scrollView = getByTestId('hall-of-heroes-scroll-view');
+    const supportButton = getByRole('button', {
+      name: '영웅들에게 에일 한 잔 대접하기',
+    });
+
+    expect(supportButton).toBeOnTheScreen();
+    expect(
+      within(scrollView).queryByText('영웅들에게 에일 한 잔 대접하기'),
+    ).toBeNull();
+  });
+
+  it('에일 대접 버튼에 목재 스타인 아이콘을 표시한다', () => {
+    const { getByRole } = render(<HallOfHeroesPage />);
+    const supportButton = getByRole('button', {
+      name: '영웅들에게 에일 한 잔 대접하기',
+    });
+
+    expect(
+      within(supportButton).getByTestId('hall-of-heroes-wooden-ale-icon'),
+    ).toBeOnTheScreen();
+  });
 });
