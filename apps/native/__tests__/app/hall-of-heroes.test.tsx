@@ -131,9 +131,15 @@ describe('영웅의 전당 페이지', () => {
     const supportButton = getByRole('button', {
       name: '영웅들에게 에일 한 잔 대접하기',
     });
+    const iconBadge = within(supportButton).getByTestId(
+      'hall-of-heroes-wooden-ale-icon-badge',
+    );
 
     expect(
       within(supportButton).getByTestId('hall-of-heroes-wooden-ale-icon'),
     ).toBeOnTheScreen();
+    expect(StyleSheet.flatten(iconBadge.props.style)).toEqual(
+      expect.objectContaining({ backgroundColor: palette.yellow[100] }),
+    );
   });
 });
