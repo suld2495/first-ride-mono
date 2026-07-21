@@ -35,6 +35,7 @@ export interface SocialPayload {
 
 export interface ApplePayload {
   provider: 'apple';
+  nonceId: string;
   identityToken: string;
   authorizationCode?: string;
 }

@@ -1,4 +1,4 @@
-import axiosInstance from '@repo/shared/api';
+import axiosInstance, { appleNonce } from '@repo/shared/api';
 import {
   appleCheck,
   appleLogin,
@@ -17,7 +17,24 @@ describe('Apple 인증 API', () => {
     mockAxios.restore();
   });
 
-  it('check에는 identityToken만 전송한다', async () => {
+  it('Apple 로그인 전에 일회성 nonce를 발급받는다', async () => {
+    mockAxios.onPost('/auth/apple/nonce').reply(200, {
+      data: {
+        nonceId: 'apple-nonce-id',
+        nonce: 'apple-nonce',
+        expiresAt: '2026-07-19T12:05:00Z',
+      },
+    });
+
+    await expect(appleNonce()).resolves.toEqual({
+      nonceId: 'apple-nonce-id',
+      nonce: 'apple-nonce',
+      expiresAt: '2026-07-19T12:05:00Z',
+    });
+    expect(mockAxios.history.post[0]?.url).toBe('/auth/apple/nonce');
+  });
+
+  it('check에는 nonceId와 identityToken을 전송한다', async () => {
     mockAxios.onPost('/auth/apple/check').reply(200, {
       data: {
         isNewUser: true,
@@ -30,9 +47,13 @@ describe('Apple 인증 API', () => {
     });
 
     await expect(
-      appleCheck({ identityToken: 'apple-identity-token' }),
+      appleCheck({
+        nonceId: 'apple-nonce-id',
+        identityToken: 'apple-identity-token',
+      }),
     ).resolves.toMatchObject({ isNewUser: true });
     expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toEqual({
+      nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
     });
   });
@@ -47,6 +68,7 @@ describe('Apple 인증 API', () => {
     });
 
     await appleLogin({
+      nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
       pushToken: 'push-token',
@@ -55,6 +77,7 @@ describe('Apple 인증 API', () => {
     });
 
     expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toEqual({
+      nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
       pushToken: 'push-token',
@@ -73,6 +96,7 @@ describe('Apple 인증 API', () => {
     });
 
     await appleSignUp({
+      nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
       nickname: '애플 사용자',
@@ -84,6 +108,7 @@ describe('Apple 인증 API', () => {
     });
 
     expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toEqual({
+      nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
       nickname: '애플 사용자',

@@ -3,6 +3,7 @@ import type {
   AppleCheckResponse,
   AppleLoginRequest,
   AppleLoginResponse,
+  AppleNonceResponse,
   AppleSignUpRequest,
   AppleSignUpResponse,
 } from '@repo/types';
@@ -11,6 +12,14 @@ import { toAppError } from '.';
 import http from './client';
 
 const baseURL = '/auth/apple';
+
+export const appleNonce = async (): Promise<AppleNonceResponse> => {
+  try {
+    return await http.post(`${baseURL}/nonce`);
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
 
 export const appleCheck = async (
   request: AppleCheckRequest,

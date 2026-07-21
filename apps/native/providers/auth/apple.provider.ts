@@ -1,4 +1,8 @@
-import { appleCheck, appleLogin } from '@repo/shared/api/apple-auth.api';
+import {
+  appleCheck,
+  appleLogin,
+  appleNonce,
+} from '@repo/shared/api/apple-auth.api';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { Platform } from 'react-native';
 
@@ -18,7 +22,9 @@ class AppleAuthProvider implements AuthProvider<'apple', ApplePayload, void> {
   }
 
   async authenticate(): Promise<ApplePayload> {
+    const { nonceId, nonce } = await appleNonce();
     const credential = await AppleAuthentication.signInAsync({
+      nonce,
       requestedScopes: [AppleAuthentication.AppleAuthenticationScope.EMAIL],
     });
 
@@ -28,6 +34,7 @@ class AppleAuthProvider implements AuthProvider<'apple', ApplePayload, void> {
 
     return {
       provider: 'apple',
+      nonceId,
       identityToken: credential.identityToken,
       authorizationCode: credential.authorizationCode ?? undefined,
     };
@@ -37,13 +44,17 @@ class AppleAuthProvider implements AuthProvider<'apple', ApplePayload, void> {
     payload: ApplePayload,
     deviceInfo: DeviceInfo,
   ): Promise<AuthResponse> {
-    const check = await appleCheck({ identityToken: payload.identityToken });
+    const check = await appleCheck({
+      nonceId: payload.nonceId,
+      identityToken: payload.identityToken,
+    });
 
     if (check.isNewUser) {
       return { isNewUser: true };
     }
 
     const response = await appleLogin({
+      nonceId: payload.nonceId,
       identityToken: payload.identityToken,
       authorizationCode: payload.authorizationCode,
       pushToken: deviceInfo.pushToken,

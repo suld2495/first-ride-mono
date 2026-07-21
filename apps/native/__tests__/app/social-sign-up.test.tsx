@@ -152,6 +152,7 @@ describe('SocialSignUp 페이지', () => {
     delete mockSearchParams.accessToken;
     usePendingAppleAuthStore.getState().setCredential({
       provider: 'apple',
+      nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
     });
@@ -186,6 +187,7 @@ describe('SocialSignUp 페이지', () => {
 
     await waitFor(() => {
       expect(signupRequest).toEqual({
+        nonceId: 'apple-nonce-id',
         identityToken: 'apple-identity-token',
         authorizationCode: 'apple-authorization-code',
         nickname: '애플 사용자',
@@ -204,6 +206,7 @@ describe('SocialSignUp 페이지', () => {
     delete mockSearchParams.accessToken;
     usePendingAppleAuthStore.getState().setCredential({
       provider: 'apple',
+      nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
     });
@@ -229,6 +232,7 @@ describe('SocialSignUp 페이지', () => {
     delete mockSearchParams.accessToken;
     usePendingAppleAuthStore.getState().setCredential({
       provider: 'apple',
+      nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
     });

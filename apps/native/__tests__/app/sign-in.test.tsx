@@ -59,6 +59,13 @@ describe('SignIn 페이지', () => {
     mockAppleIsAvailable.mockImplementation(() => new Promise(() => {}));
     usePendingAppleAuthStore.getState().clearCredential();
     mockAxios = new MockAdapter(axiosInstance);
+    mockAxios.onPost('/auth/apple/nonce').reply(200, {
+      data: {
+        nonceId: 'apple-nonce-id',
+        nonce: 'apple-nonce',
+        expiresAt: '2026-07-19T12:05:00Z',
+      },
+    });
   });
 
   afterEach(() => {
@@ -270,10 +277,16 @@ describe('SignIn 페이지', () => {
             nickname: '애플 사용자',
           });
         });
-        expect(JSON.parse(mockAxios.history.post[0]?.data ?? '{}')).toEqual({
-          identityToken: 'apple-identity-token',
+        expect(mockAppleSignIn).toHaveBeenCalledWith({
+          nonce: 'apple-nonce',
+          requestedScopes: [1],
         });
         expect(JSON.parse(mockAxios.history.post[1]?.data ?? '{}')).toEqual({
+          nonceId: 'apple-nonce-id',
+          identityToken: 'apple-identity-token',
+        });
+        expect(JSON.parse(mockAxios.history.post[2]?.data ?? '{}')).toEqual({
+          nonceId: 'apple-nonce-id',
           identityToken: 'apple-identity-token',
           authorizationCode: 'apple-authorization-code',
           pushToken: 'mock-push-token',
@@ -325,10 +338,56 @@ describe('SignIn 페이지', () => {
         });
         expect(usePendingAppleAuthStore.getState().credential).toEqual({
           provider: 'apple',
+          nonceId: 'apple-nonce-id',
           identityToken: 'apple-identity-token',
           authorizationCode: 'apple-authorization-code',
         });
-        expect(mockAxios.history.post).toHaveLength(1);
+        expect(mockAxios.history.post).toHaveLength(2);
+      } finally {
+        Object.defineProperty(Platform, 'OS', {
+          configurable: true,
+          value: originalPlatform,
+        });
+      }
+    });
+
+    it('Apple nonce 검증 실패는 서버 메시지로 안내한다', async () => {
+      const originalPlatform = Platform.OS;
+
+      Object.defineProperty(Platform, 'OS', {
+        configurable: true,
+        value: 'ios',
+      });
+      mockAppleIsAvailable.mockResolvedValue(true);
+      mockAppleSignIn.mockResolvedValue({
+        user: 'apple-user-id',
+        identityToken: 'apple-identity-token',
+        authorizationCode: 'apple-authorization-code',
+      });
+      mockAxios.onPost('/auth/apple/check').reply(401, {
+        error: {
+          message: 'Apple 인증 정보가 유효하지 않거나 만료되었습니다.',
+          data: [
+            {
+              field: 'nonceId',
+              message: '유효하지 않은 nonce입니다.',
+              rejected: '',
+            },
+          ],
+        },
+      });
+
+      try {
+        const { findByText } = render(<SignIn />);
+
+        fireEvent.press(await findByText('Apple로 로그인'));
+
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            'Apple 인증 정보가 유효하지 않거나 만료되었습니다.',
+            'error',
+          );
+        });
       } finally {
         Object.defineProperty(Platform, 'OS', {
           configurable: true,

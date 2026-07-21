@@ -11,6 +11,7 @@ describe('인증 요청 정책', () => {
     '/auth/kakao/check',
     '/auth/kakao/login',
     '/auth/kakao/signup',
+    '/auth/apple/nonce',
     '/auth/apple/check',
     '/auth/apple/login',
     '/auth/apple/signup',

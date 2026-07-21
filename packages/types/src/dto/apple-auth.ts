@@ -2,7 +2,14 @@ import type { TokenResponse } from './auth';
 
 export type AppleGender = 'MALE' | 'FEMALE';
 
+export interface AppleNonceResponse {
+  nonceId: string;
+  nonce: string;
+  expiresAt: string;
+}
+
 export interface AppleCredentialRequest {
+  nonceId: string;
   identityToken: string;
   authorizationCode?: string;
 }
@@ -19,7 +26,10 @@ export interface AppleUserInfo {
   nickname: string | null;
 }
 
-export type AppleCheckRequest = Pick<AppleCredentialRequest, 'identityToken'>;
+export type AppleCheckRequest = Pick<
+  AppleCredentialRequest,
+  'nonceId' | 'identityToken'
+>;
 
 export interface AppleCheckResponse {
   isNewUser: boolean;

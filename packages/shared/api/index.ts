@@ -21,6 +21,7 @@ export const UN_AUTHORIZATION_URL = [
   '/auth/signup',
   '/auth/kakao/check',
   '/auth/kakao/login',
+  '/auth/apple/nonce',
 ];
 
 const SOCIAL_AUTH_URL_PATTERN = /^\/auth\/[^/?]+\/(?:check|login|signup)$/;
@@ -400,7 +401,12 @@ export {
   requestEmailVerification,
   refreshToken,
 } from './auth.api';
-export { appleCheck, appleLogin, appleSignUp } from './apple-auth.api';
+export {
+  appleCheck,
+  appleLogin,
+  appleNonce,
+  appleSignUp,
+} from './apple-auth.api';
 export {
   createRequest,
   fetchReceivedRequests,

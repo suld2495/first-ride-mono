@@ -108,7 +108,10 @@ export default function SignIn() {
       // 필드 에러가 있으면 throw해서 caller가 처리하도록
       const serverErrors = getFieldErrors(error);
 
-      if (Object.keys(serverErrors).length > 0) {
+      if (
+        providerType === 'credentials' &&
+        Object.keys(serverErrors).length > 0
+      ) {
         throw new FieldError(serverErrors);
       }
 

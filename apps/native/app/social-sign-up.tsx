@@ -117,6 +117,7 @@ export default function SocialSignUp() {
       };
       const response = isApple
         ? await appleSignUpMutation.mutateAsync({
+            nonceId: pendingAppleCredential!.nonceId,
             identityToken: pendingAppleCredential!.identityToken,
             authorizationCode: consumeAuthorizationCode(),
             nickname: form.nickname,
