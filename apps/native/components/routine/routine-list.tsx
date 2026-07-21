@@ -15,6 +15,8 @@ import {
   LayoutAnimation,
   Platform,
   Pressable,
+  RefreshControl,
+  ScrollView,
   UIManager,
   View,
 } from 'react-native';
@@ -96,6 +98,8 @@ const RoutineList = ({
   const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
   const hasPreviewLayer = canExpandList;
   const isScrollableList = isExpanded && routines.length > MAX_VISIBLE_ROUTINES;
+  const isListGestureEnabled =
+    isScrollableList || (!canExpandList && Boolean(onRefresh));
   const routineItemHeight = ROUTINE_ITEM_HEIGHT;
   const collapsedListHeight = routineItemHeight * COLLAPSED_VISIBLE_ROUTINES;
   const expandedListHeight = routineItemHeight * MAX_VISIBLE_ROUTINES;
@@ -302,7 +306,7 @@ const RoutineList = ({
               date={date}
               itemHeight={routineItemHeight}
               listHeight={listHeight}
-              scrollEnabled={isScrollableList}
+              scrollEnabled={isListGestureEnabled}
               refreshing={refreshing}
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
@@ -319,7 +323,7 @@ const RoutineList = ({
               date={date}
               itemHeight={routineItemHeight}
               listHeight={listHeight}
-              scrollEnabled={isScrollableList}
+              scrollEnabled={isListGestureEnabled}
               refreshing={refreshing}
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
@@ -354,11 +358,24 @@ const RoutineList = ({
           ) : null}
         </ThemeView>
       ) : (
-        <EmptyState
-          icon="list-outline"
-          message="등록된 루틴이 없습니다."
-          transparent
-        />
+        <ScrollView
+          style={styles.emptyListScroll}
+          contentContainerStyle={styles.emptyListContent}
+          alwaysBounceVertical={Boolean(onRefresh)}
+          scrollEnabled={Boolean(onRefresh)}
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            ) : undefined
+          }
+          testID="routine-list-scroll"
+        >
+          <EmptyState
+            icon="list-outline"
+            message="등록된 루틴이 없습니다."
+            transparent
+          />
+        </ScrollView>
       )}
       {openMenuRoutine ? (
         <>
@@ -430,6 +447,12 @@ const styles = StyleSheet.create((theme) => ({
     flexShrink: 0,
     overflow: 'hidden',
     backgroundColor: 'transparent',
+  },
+  emptyListScroll: {
+    flex: 1,
+  },
+  emptyListContent: {
+    flexGrow: 1,
   },
   contextMenuBackdrop: {
     position: 'absolute',

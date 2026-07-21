@@ -326,6 +326,7 @@ const RoutineCountList = ({
       removeClippedSubviews={true}
       refreshing={refreshing}
       onRefresh={onRefresh}
+      alwaysBounceVertical={Boolean(onRefresh)}
       onScroll={handleScroll}
       scrollEnabled={scrollEnabled}
       scrollEventThrottle={16}

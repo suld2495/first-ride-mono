@@ -203,6 +203,18 @@ describe('루틴 조회 페이지', () => {
         expect(queryByTestId('routine-scene-character')).toBeOnTheScreen();
       });
 
+      it('루틴이 없어도 드래그 새로고침을 할 수 있다', async () => {
+        const { findByText, getByTestId } = render(<Index />);
+
+        await findByText('등록된 루틴이 없습니다.');
+
+        const routineListScroll = getByTestId('routine-list-scroll');
+
+        expect(routineListScroll.props.scrollEnabled).toBe(true);
+        expect(routineListScroll.props.alwaysBounceVertical).toBe(true);
+        expect(routineListScroll.props.refreshControl).toBeTruthy();
+      });
+
       it('빈 상태 캐릭터는 하단 기준으로 고정 배치한다', async () => {
         const { findByText, getByTestId } = render(<Index />);
 
@@ -241,6 +253,22 @@ describe('루틴 조회 페이지', () => {
         mockAxios
           .onGet(/\/routine\/list/)
           .reply(200, { data: createMockRoutines(2) });
+      });
+
+      it('루틴이 4개 이하여도 드래그 새로고침을 할 수 있다', async () => {
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .reply(200, { data: createMockRoutines(4) });
+
+        const { findByText, getByTestId } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+
+        const routineListScroll = getByTestId('routine-list-scroll');
+
+        expect(routineListScroll.props.scrollEnabled).toBe(true);
+        expect(routineListScroll.props.alwaysBounceVertical).toBe(true);
+        expect(routineListScroll.props.onRefresh).toEqual(expect.any(Function));
       });
 
       it('루틴 목록이 표시된다', async () => {
