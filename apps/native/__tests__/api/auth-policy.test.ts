@@ -119,7 +119,9 @@ describe('인증 요청 정책', () => {
       },
     });
 
-    await expect(axiosInstance.get('/refresh-fails')).rejects.toBe(refreshError);
+    await expect(axiosInstance.get('/refresh-fails')).rejects.toBe(
+      refreshError,
+    );
 
     expect(refreshSpy).toHaveBeenCalledTimes(1);
     expect(clearTokens).toHaveBeenCalledTimes(1);
