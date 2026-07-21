@@ -1,4 +1,4 @@
-import type { AuthErrorCode, ErrorAraryData, ErrorData } from '@repo/types';
+import type { ErrorAraryData, ErrorData } from '@repo/types';
 import type {
   AxiosError,
   AxiosResponse,
@@ -131,7 +131,7 @@ export const createHttp = (config: HttpConfig): void => {
   }
 };
 
-// 401 에러 발생 시 로그아웃 처리 헬퍼 함수
+// refresh 실패 시 로그아웃 처리 헬퍼 함수
 const handleUnauthorized = async (): Promise<void> => {
   if (unauthorizedCallback && !isRedirecting) {
     isRedirecting = true;
@@ -149,31 +149,6 @@ const shouldSkipTokenRefresh = (
     isPublicAuthUrl(originalRequest.url) ||
     originalRequest.url?.includes('/auth/logout') === true
   );
-};
-
-const getAuthErrorCode = (error: AxiosError): AuthErrorCode | undefined => {
-  const responseData = error.response?.data;
-
-  if (!responseData || typeof responseData !== 'object') {
-    return undefined;
-  }
-
-  const errorData = (responseData as { error?: unknown }).error;
-
-  if (!errorData || typeof errorData !== 'object') {
-    return undefined;
-  }
-
-  const { code } = errorData as { code?: unknown };
-
-  return typeof code === 'string' ? (code as AuthErrorCode) : undefined;
-};
-
-const clearSessionAndHandleUnauthorized = async (
-  activeTokenManager: TokenManager,
-): Promise<void> => {
-  await activeTokenManager.clearTokens();
-  await handleUnauthorized();
 };
 
 const markRequestAsRetried = (requestId: string | undefined): void => {
@@ -283,7 +258,6 @@ axiosInstance.interceptors.response.use(
     }
 
     if (!tokenManager) {
-      await handleUnauthorized();
       throw error;
     }
 
@@ -301,13 +275,6 @@ axiosInstance.interceptors.response.use(
 
     if (requestId && retriedRequestIds.has(requestId)) {
       clearRequestRetryState(requestId);
-      await clearSessionAndHandleUnauthorized(activeTokenManager);
-      throw error;
-    }
-
-    if (getAuthErrorCode(error) !== 'TOKEN_EXPIRED') {
-      clearRequestRetryState(requestId);
-      await clearSessionAndHandleUnauthorized(activeTokenManager);
       throw error;
     }
 
