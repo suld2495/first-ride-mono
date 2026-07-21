@@ -381,8 +381,8 @@ const styles = StyleSheet.create((theme) => ({
   searchButton: {
     width: baseFoundation.dimension.x56,
     minWidth: baseFoundation.dimension.x56,
-    height: baseFoundation.dimension.x32,
-    minHeight: baseFoundation.dimension.x32,
+    height: baseFoundation.dimension.x28,
+    minHeight: baseFoundation.dimension.x28,
     borderRadius: baseFoundation.radii.xs,
     paddingHorizontal: theme.foundation.spacing[2],
   },
@@ -457,8 +457,8 @@ const styles = StyleSheet.create((theme) => ({
   addButton: {
     width: 83,
     minWidth: 83,
-    height: baseFoundation.dimension.x32,
-    minHeight: baseFoundation.dimension.x32,
+    height: baseFoundation.dimension.x28,
+    minHeight: baseFoundation.dimension.x28,
     borderRadius: baseFoundation.radii.xs,
     borderColor: theme.colors.text.gray,
     paddingHorizontal: theme.foundation.spacing[2],

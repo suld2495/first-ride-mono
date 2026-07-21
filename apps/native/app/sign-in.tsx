@@ -189,7 +189,7 @@ export default function SignIn() {
       <AuthPage.Body>
         <View style={styles.form}>
           <View style={styles.formItem}>
-            <Typography variant="body2" style={styles.fieldLabel}>
+            <Typography variant="caption1" style={styles.fieldLabel}>
               이메일
             </Typography>
             <Input
@@ -207,7 +207,7 @@ export default function SignIn() {
           </View>
 
           <View style={styles.formItem}>
-            <Typography variant="body2" style={styles.fieldLabel}>
+            <Typography variant="caption1" style={styles.fieldLabel}>
               비밀번호
             </Typography>
             <PasswordInput

@@ -14,7 +14,7 @@ import { baseFoundation } from '@/theme/tokens';
 
 /**
  * Button size types
- * - sm: 32px
+ * - sm: 28px
  * - md: 40px (기본)
  * - lg: 48px
  */
@@ -261,7 +261,7 @@ const styles = StyleSheet.create((theme) => ({
     elevation: 2,
   },
   sizeSm: {
-    height: baseFoundation.dimension.x32,
+    height: baseFoundation.dimension.x28,
     paddingHorizontal: theme.foundation.spacing[4],
     borderRadius: theme.foundation.radii.s,
   },

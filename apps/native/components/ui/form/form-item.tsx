@@ -79,12 +79,16 @@ export function createFormItem<T extends Record<string, unknown>>(
         )}
         {label && (
           <View style={styles.labelRow}>
-            <Typography variant="body2" style={styles.label}>
+            <Typography variant="caption1" style={styles.label}>
               {label}
             </Typography>
-            {required && <Typography style={styles.required}>*</Typography>}
+            {required && (
+              <Typography variant="caption1" style={styles.required}>
+                *
+              </Typography>
+            )}
             {!required && optionalLabel && (
-              <Typography variant="body2" style={styles.optional}>
+              <Typography variant="caption1" style={styles.optional}>
                 {optionalLabel}
               </Typography>
             )}
@@ -157,7 +161,7 @@ export function createFormItem<T extends Record<string, unknown>>(
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    gap: baseFoundation.spacing[2.5],
+    gap: baseFoundation.spacing[1],
   },
 
   required: {

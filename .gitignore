@@ -1,9 +1,11 @@
 .DS_Store
 node_modules
+.pnpm-store/
 .turbo
 *.log
 dist
 dist-ssr
+apps/native/dist-web-preview/
 *.local
 .env
 .cache

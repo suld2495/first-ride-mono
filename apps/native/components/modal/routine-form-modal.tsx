@@ -114,24 +114,12 @@ const RoutineFormModal = () => {
     setMateKeyword(normalizedRoutineForm.isMe ? '' : initialMateNickname);
   }, [initialMateNickname, normalizedRoutineForm.isMe]);
   const today = useMemo(() => getStartOfToday(), []);
-  const initialPendingChangeRequestId =
-    routineDetail?.hasPendingChangeRequest &&
-    typeof routineDetail.pendingChangeRequestId === 'number'
-      ? routineDetail.pendingChangeRequestId
-      : null;
 
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
-  const {
-    handleCreate,
-    handleUpdate,
-    handleCancelChangeRequest,
-    pendingChangeRequestId,
-    isPending,
-  } = useRoutineFormSubmission({
+  const { handleCreate, handleUpdate } = useRoutineFormSubmission({
     nickname: user!.nickname,
     routineId,
     originalForm: isRoutineAdd ? undefined : normalizedRoutineForm,
-    initialPendingChangeRequestId,
   });
 
   // Debounce keyword for friend search
@@ -179,20 +167,6 @@ const RoutineFormModal = () => {
       {
         text: '삭제',
         onPress: deleteRoutineById,
-      },
-    ]);
-  };
-
-  const handleConfirmCancelChangeRequest = () => {
-    Alert.alert('수정 요청 취소', '수정 요청을 취소하시겠습니까?', [
-      {
-        text: '아니요',
-        style: 'cancel',
-      },
-      {
-        text: '취소하기',
-        style: 'destructive',
-        onPress: handleCancelChangeRequest,
       },
     ]);
   };
@@ -518,13 +492,7 @@ const RoutineFormModal = () => {
           </ThemeView>
         )}
       </KeyboardAwareScrollView>
-      <FormButtonGroup
-        type={type}
-        useForm={useForm}
-        hasPendingChangeRequest={pendingChangeRequestId !== null}
-        isPending={isPending}
-        onCancelChangeRequest={handleConfirmCancelChangeRequest}
-      />
+      <FormButtonGroup type={type} useForm={useForm} />
     </Form>
   );
 };

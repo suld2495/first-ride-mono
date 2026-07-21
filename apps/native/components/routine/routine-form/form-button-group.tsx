@@ -1,109 +1,62 @@
 import type { FormContextType } from '@repo/shared/components';
 import type { RoutineForm } from '@repo/types';
 import { useEffect, useMemo } from 'react';
-import { StyleSheet as RNStyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import ModalFooter from '@/components/modal/modal-footer';
+import ModalHeaderAction from '@/components/modal/modal-header-action';
 import { Button } from '@/components/ui/button';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import ThemeView from '@/components/ui/theme-view';
-import type { ModalType } from '@/types/modal';
+import type { ModalType } from '@/hooks/useModal';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 interface FormButtonGroupProps {
   type: ModalType;
   useForm: () => FormContextType<RoutineForm>;
-  hasPendingChangeRequest: boolean;
-  isPending: boolean;
-  onCancelChangeRequest: () => void;
 }
 
-const FormButtonGroup = ({
-  type,
-  useForm,
-  hasPendingChangeRequest,
-  isPending,
-  onCancelChangeRequest,
-}: FormButtonGroupProps) => {
+const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
   const { theme } = useAppTheme();
   const { enabled: isValid, handleSubmit, validateAll } = useForm();
-  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     validateAll();
   }, [validateAll]);
 
-  const footer = useMemo(
+  const headerAction = useMemo(
     () => (
-      <ThemeView
+      <Button
+        accessibilityLabel={type === 'routine-add' ? '루틴 생성' : '루틴 저장'}
+        backgroundColor={theme.colors.text.gray}
+        disabled={!isValid}
+        onPress={() => handleSubmit()}
+        size="sm"
+        style={styles.headerButton}
+        textColor={palette.white}
+        textStyle={styles.headerButtonText}
+        variant="ghost"
         testID="routine-form-button-container"
-        transparent
-        style={[
-          styles.buttonContainer,
-          {
-            paddingBottom: Math.max(
-              insets.bottom,
-              styles.buttonContainer.paddingTop,
-            ),
-          },
-        ]}
       >
-        {type === 'routine-add' ? (
-          <Button
-            title="등록"
-            backgroundColor={theme.colors.text.gray}
-            variant="primary"
-            onPress={() => handleSubmit()}
-            style={styles.button}
-            disabled={!isValid}
-          />
-        ) : (
-          <Button
-            title={hasPendingChangeRequest ? '수정 요청 보냄' : '수정'}
-            variant="primary"
-            backgroundColor={theme.colors.text.gray}
-            onPress={
-              hasPendingChangeRequest
-                ? onCancelChangeRequest
-                : () => handleSubmit()
-            }
-            style={styles.button}
-            disabled={!hasPendingChangeRequest && !isValid}
-            loading={isPending}
-          />
-        )}
-      </ThemeView>
+        {type === 'routine-add' ? '생성' : '저장'}
+      </Button>
     ),
-    [
-      handleSubmit,
-      hasPendingChangeRequest,
-      insets.bottom,
-      isPending,
-      isValid,
-      onCancelChangeRequest,
-      theme.colors.text.gray,
-      type,
-    ],
+    [handleSubmit, isValid, theme.colors.text.gray, type],
   );
 
-  return <ModalFooter>{footer}</ModalFooter>;
+  return <ModalHeaderAction>{headerAction}</ModalHeaderAction>;
 };
 
 export default FormButtonGroup;
 
 const styles = StyleSheet.create((theme) => ({
-  buttonContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    gap: theme.foundation.spacing[3],
-    paddingHorizontal: theme.foundation.spacing[6],
-    paddingTop: theme.foundation.spacing[4],
-    borderTopWidth: RNStyleSheet.hairlineWidth,
-    borderTopColor: theme.colors.brand.bottomTab,
+  headerButton: {
+    minWidth: baseFoundation.dimension.x56,
+    height: baseFoundation.dimension.x28,
+    minHeight: baseFoundation.dimension.x28,
+    borderRadius: theme.foundation.radii.xs,
+    paddingHorizontal: theme.foundation.spacing[3],
+    paddingVertical: 0,
   },
-
-  button: {
-    flex: 1,
-    borderRadius: 8,
+  headerButtonText: {
+    fontSize: theme.foundation.typography.size.body3,
+    fontWeight: theme.foundation.typography.weight.regular,
   },
 }));

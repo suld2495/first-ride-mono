@@ -140,6 +140,8 @@ export const Input: React.FC<InputProps> = ({
   containerTestID,
   inputStyle,
   color = 'input',
+  onChange,
+  onChangeText,
   ...props
 }) => {
   const { theme } = useAppTheme();
@@ -186,6 +188,17 @@ export const Input: React.FC<InputProps> = ({
     error: styles.helperError,
     success: styles.helperSuccess,
   }[state];
+  const handleChange: NonNullable<TextInputProps['onChange']> = (event) => {
+    onChange?.(event);
+
+    const nextText =
+      event.nativeEvent?.text ??
+      (event.target as unknown as { value?: string } | null)?.value;
+
+    if (typeof nextText === 'string') {
+      onChangeText?.(nextText);
+    }
+  };
 
   return (
     <View style={fullWidth && internalStyles.fullWidth}>
@@ -208,6 +221,8 @@ export const Input: React.FC<InputProps> = ({
             inputStyle,
           ]}
           placeholderTextColor={theme.colors.field.placeholder}
+          onChange={handleChange}
+          onChangeText={onChangeText}
           {...props}
         />
       </View>

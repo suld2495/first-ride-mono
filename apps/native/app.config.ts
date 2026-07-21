@@ -4,6 +4,9 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 // 실제 빌드 시에는 eas.json의 env 또는 EAS Secrets에서 주입됨
 const KAKAO_NATIVE_APP_KEY =
   process.env.KAKAO_NATIVE_APP_KEY || 'KAKAO_KEY_PLACEHOLDER';
+const shouldSkipAppleTargets = process.env.EXPO_SKIP_APPLE_TARGETS === '1';
+const webOutput =
+  process.env.EXPO_WEB_OUTPUT === 'single' ? 'single' : 'static';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -13,7 +16,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: 'first-ride',
   web: {
     bundler: 'metro',
-    output: 'static',
+    output: webOutput,
     favicon: './assets/favicon.png',
   },
   plugins: [
@@ -22,7 +25,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     './plugins/with-routine-share-android',
     'expo-font',
     'react-native-edge-to-edge',
-    [
+    !shouldSkipAppleTargets && [
       '@bacons/apple-targets',
       {
         root: './targets',
@@ -65,7 +68,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       },
     ],
-  ],
+  ].filter(Boolean) as ExpoConfig['plugins'],
   experiments: {
     typedRoutes: true,
     tsconfigPaths: true,
