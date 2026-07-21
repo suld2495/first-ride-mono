@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import type { ComponentType } from 'react';
 import { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, ScrollView, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   withTiming,
@@ -15,6 +15,7 @@ import {
   WarriorRoutineCharacterIcon,
 } from '@/components/icons/routine-character-icons';
 import PageHeader from '@/components/layout/page-header';
+import Button from '@/components/ui/button';
 import { StyleSheet } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
@@ -118,6 +119,8 @@ export default function HallOfHeroesPage() {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+          style={styles.scrollView}
+          testID="hall-of-heroes-scroll-view"
         >
           <View style={styles.heroStage}>
             <Animated.View
@@ -210,6 +213,29 @@ export default function HallOfHeroesPage() {
             })}
           </View>
         </ScrollView>
+
+        <View style={styles.supportAction}>
+          <Button
+            accessibilityLabel="영웅들에게 에일 한 잔 대접하기"
+            accessibilityRole="button"
+            backgroundColor={palette.theme.gray[90]}
+            fullWidth
+            leftIcon={
+              <Image
+                accessibilityIgnoresInvertColors
+                resizeMode="contain"
+                source={require('@/assets/hall-of-heroes/ale-wooden-stein.png')}
+                style={styles.supportIcon}
+                testID="hall-of-heroes-wooden-ale-icon"
+              />
+            }
+            size="lg"
+            style={styles.supportButton}
+            testID="hall-of-heroes-support-button"
+            textColor={palette.white}
+            title="영웅들에게 에일 한 잔 대접하기"
+          />
+        </View>
       </View>
     </AnimatedSafeAreaView>
   );
@@ -220,6 +246,9 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
   },
   screen: {
+    flex: 1,
+  },
+  scrollView: {
     flex: 1,
   },
   scrollContent: {
@@ -290,5 +319,19 @@ const styles = StyleSheet.create((theme) => ({
     width: baseFoundation.dimension.x8,
     height: baseFoundation.dimension.x8,
     borderRadius: baseFoundation.dimension.x4,
+  },
+  supportAction: {
+    width: '100%',
+    maxWidth: 430,
+    alignSelf: 'center',
+    paddingTop: theme.foundation.spacing[3],
+    paddingHorizontal: theme.foundation.spacing[6],
+  },
+  supportButton: {
+    shadowColor: palette.theme.gray[90],
+  },
+  supportIcon: {
+    width: baseFoundation.iconSize.l,
+    height: baseFoundation.iconSize.l,
   },
 }));
