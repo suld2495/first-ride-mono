@@ -1,12 +1,16 @@
-import { ScrollView } from 'react-native';
+import { ScrollView, Switch, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
+import { useClarityAnalyticsSetting } from '@/hooks/useClarityAnalyticsSetting';
 
 const PrivacyModal = () => {
+  const { analyticsEnabled, isReady, isSaving, setAnalyticsConsent } =
+    useClarityAnalyticsSetting();
+
   return (
     <ThemeView style={styles.container}>
       <ScrollView
@@ -24,6 +28,48 @@ const PrivacyModal = () => {
             시행일 2026.07.22
           </Typography>
         </ThemeView>
+        <View style={styles.analyticsSection}>
+          <View style={styles.analyticsHeading}>
+            <Typography variant="h3" weight="bold">
+              분석 데이터는 직접 선택해 주세요
+            </Typography>
+            <Typography color="secondary" variant="body2">
+              선택하지 않으면 Microsoft Clarity가 시작되지 않습니다. 언제든 이
+              화면에서 다시 끌 수 있습니다.
+            </Typography>
+          </View>
+
+          <View style={styles.settingCard}>
+            <View style={styles.settingText}>
+              <Typography variant="body1" weight="semibold">
+                사용 데이터 분석
+              </Typography>
+              <Typography color="secondary" variant="caption1">
+                화면 이용 흐름과 오류·성능 정보를 수집해 서비스 개선에
+                사용합니다. 입력한 비밀번호와 인증 토큰은 분석 목적으로 전송하지
+                않습니다.
+              </Typography>
+            </View>
+            <Switch
+              accessibilityLabel="사용 데이터 분석"
+              accessibilityState={{
+                checked: analyticsEnabled,
+                disabled: !isReady || isSaving,
+              }}
+              disabled={!isReady || isSaving}
+              onValueChange={(enabled) => {
+                void setAnalyticsConsent(enabled);
+              }}
+              testID="privacy-policy-analytics-switch"
+              value={analyticsEnabled}
+            />
+          </View>
+
+          <Typography color="secondary" variant="caption1">
+            이 설정을 끄면 현재 분석 세션을 중지하고, 다음 앱 실행에서도
+            사용자가 다시 켤 때까지 Clarity를 초기화하지 않습니다.
+          </Typography>
+        </View>
         <Markdown
           style={{
             body: styles.body,
@@ -68,6 +114,31 @@ const styles = StyleSheet.create((theme) => ({
 
   introDescription: {
     color: theme.colors.text.muted,
+  },
+
+  analyticsSection: {
+    gap: theme.foundation.spacing[4],
+    paddingVertical: theme.foundation.spacing[5],
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.divider,
+  },
+
+  analyticsHeading: {
+    gap: theme.foundation.spacing[2],
+  },
+
+  settingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[4],
+    padding: theme.foundation.spacing[4],
+    borderRadius: theme.foundation.radii.m,
+    backgroundColor: theme.colors.background.surface,
+  },
+
+  settingText: {
+    flex: 1,
+    gap: theme.foundation.spacing[1],
   },
 
   body: {
@@ -137,7 +208,7 @@ export const PRIVACY_POLICY_MARKDOWN = `
 ## 2-4. 수집 방법
 - 회원가입·로그인 및 서비스 이용 중 사용자가 직접 입력하거나 이미지 선택·공유 기능으로 제출
 - 알림 권한 허용 후 푸시 토큰 생성, 앱 실행과 API 요청 과정에서 기기 정보 생성
-- 개인정보 설정에서 분석 수집에 동의한 이후 Clarity SDK를 통한 자동 수집
+- 개인정보 처리방침 상단에서 분석 수집에 동의한 이후 Clarity SDK를 통한 자동 수집
 
 # 3. 개인정보 이용 목적
 - 회원가입, 로그인, 계정 관리와 부정 이용 방지
@@ -175,7 +246,7 @@ export const PRIVACY_POLICY_MARKDOWN = `
 
 # 7. 이용자 권리 및 행사 방법
 - 앱 설정에서 계정 정보를 확인하고 회원 탈퇴를 요청할 수 있습니다.
-- 분석 수집은 **설정 › 개인정보 설정 › 사용 데이터 분석**에서 언제든 켜거나 끌 수 있습니다. 끄면 현재 Clarity 세션을 중지하고 다음 실행부터 SDK를 시작하지 않습니다.
+- 분석 수집은 **개인정보 처리방침 상단의 사용 데이터 분석**에서 언제든 켜거나 끌 수 있습니다. 끄면 현재 Clarity 세션을 중지하고 다음 실행부터 SDK를 시작하지 않습니다.
 - 개인정보 열람·정정·삭제·처리정지는 아래 이메일로 요청할 수 있습니다.
 
 # 8. 개인정보 자동수집 장치

@@ -23,11 +23,13 @@ describe('개인정보 처리방침', () => {
   });
 
   it('처리방침과 사용 데이터 분석 설정을 한 화면에 표시한다', async () => {
-    const { getByLabelText, getByText } = render(<PrivacyModal />);
+    const { getAllByText, getByLabelText, getByText } = render(
+      <PrivacyModal />,
+    );
 
     expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
     expect(getByText('1. 총칙')).toBeOnTheScreen();
-    expect(getByText('사용 데이터 분석')).toBeOnTheScreen();
+    expect(getAllByText('사용 데이터 분석').length).toBeGreaterThan(0);
     expect(
       await waitFor(() =>
         expect(
@@ -51,6 +53,30 @@ describe('개인정보 처리방침', () => {
       expect(setClarityAnalyticsEnabled).toHaveBeenCalledWith(true);
       expect(mockShowToast).toHaveBeenCalledWith(
         '사용 데이터 분석을 켰습니다.',
+        'success',
+      );
+    });
+  });
+
+  it('사용자가 동의를 철회하면 분석 수집 중지 설정을 저장한다', async () => {
+    (getClarityAnalyticsEnabled as jest.Mock).mockResolvedValue(true);
+    const { getByLabelText } = render(<PrivacyModal />);
+    const analyticsSwitch = await waitFor(() =>
+      getByLabelText('사용 데이터 분석'),
+    );
+
+    await waitFor(() => {
+      expect(analyticsSwitch.props.accessibilityState.checked).toBe(true);
+    });
+
+    await act(async () => {
+      fireEvent(analyticsSwitch, 'valueChange', false);
+    });
+
+    await waitFor(() => {
+      expect(setClarityAnalyticsEnabled).toHaveBeenCalledWith(false);
+      expect(mockShowToast).toHaveBeenCalledWith(
+        '사용 데이터 분석을 껐습니다.',
         'success',
       );
     });

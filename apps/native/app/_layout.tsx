@@ -111,10 +111,6 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
             <Stack.Screen
-              name="privacy-settings"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
               name="hall-of-heroes"
               options={{ headerShown: false }}
             />
