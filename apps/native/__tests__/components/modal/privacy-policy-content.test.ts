@@ -21,7 +21,7 @@ describe('개인정보 처리 안내', () => {
     expect(PRIVACY_POLICY_MARKDOWN).toContain('Apple');
     expect(PRIVACY_POLICY_MARKDOWN).toContain('Cloudtype');
     expect(PRIVACY_POLICY_MARKDOWN).toContain(
-      '설정 › 개인정보 설정 › 사용 데이터 분석',
+      '개인정보 처리방침 상단의 사용 데이터 분석',
     );
   });
 
