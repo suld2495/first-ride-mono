@@ -278,7 +278,7 @@ describe('루틴 조회 페이지', () => {
         expect(await findByText('테스트 루틴 2')).toBeOnTheScreen();
       });
 
-      it('number 타입 루틴 제목을 우측 아이콘과 무관하게 중앙 정렬한다', async () => {
+      it('number 타입 루틴 제목을 좌측 정렬한다', async () => {
         const { findByText } = render(<Index />);
 
         const routineTitle = await findByText('테스트 루틴 1');
@@ -289,12 +289,12 @@ describe('루틴 조회 페이지', () => {
 
         expect(flattenStyles(routineTitle.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ textAlign: 'center' }),
+            expect.objectContaining({ textAlign: 'left' }),
           ]),
         );
         expect(titleRowStyles).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ alignItems: 'center' }),
+            expect.objectContaining({ alignItems: 'flex-start' }),
           ]),
         );
       });
@@ -1212,7 +1212,7 @@ describe('루틴 조회 페이지', () => {
         expect(queryByTestId('routine-week-card-surface-1')).toBeNull();
       });
 
-      it('week 타입 루틴 제목을 우측 아이콘과 무관하게 중앙 정렬한다', async () => {
+      it('week 타입 루틴 제목을 좌측 정렬한다', async () => {
         const { findByText } = render(<Index />);
 
         const routineTitle = await findByText('테스트 루틴 1');
@@ -1223,12 +1223,12 @@ describe('루틴 조회 페이지', () => {
 
         expect(flattenStyles(routineTitle.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ textAlign: 'center' }),
+            expect.objectContaining({ textAlign: 'left' }),
           ]),
         );
         expect(titleRowStyles).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ alignItems: 'center' }),
+            expect.objectContaining({ alignItems: 'flex-start' }),
           ]),
         );
       });
