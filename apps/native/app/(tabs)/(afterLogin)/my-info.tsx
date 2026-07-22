@@ -343,7 +343,7 @@ const MyInfo = () => {
             style={styles.accountDeletionButton}
           >
             <Typography
-              color={palette.theme.gray[50]}
+              color={palette.theme.gray[30]}
               testID="settings-account-deletion-text"
               variant="body3"
               weight="semibold"
