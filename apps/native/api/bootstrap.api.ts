@@ -6,6 +6,7 @@ import {
 } from '@repo/shared/api/auth.api';
 import type { User } from '@repo/types';
 
+import { applyAccessToken } from '@/api/auth-request.api';
 import {
   BASE_URL,
   clearTokens,
@@ -25,7 +26,7 @@ createHttp({
       if (!isPublicAuthUrl(config.url)) {
         const token = await getAuthorization();
 
-        config.headers.Authorization = `Bearer ${token}`;
+        applyAccessToken(config, token);
       }
 
       config.timeout ??= REQUEST_TIMEOUT_MS;

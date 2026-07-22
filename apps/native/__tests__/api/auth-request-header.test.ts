@@ -24,17 +24,23 @@ describe('인증 요청 헤더', () => {
     url: string,
   ): Promise<string | null | undefined> => {
     await axiosInstance.get(url);
+    const headers = mockAxios.history.get[0]?.headers;
+    const authorization =
+      headers instanceof AxiosHeaders
+        ? headers.get('Authorization')
+        : headers?.Authorization;
 
-    return AxiosHeaders.from(mockAxios.history.get[0]?.headers).get(
-      'Authorization',
-    ) as string | null | undefined;
+    return typeof authorization === 'string' ? authorization : undefined;
   };
 
-  it.each([null, ''])('토큰이 %p이면 보호 API에도 Bearer 헤더를 보내지 않는다', async (token) => {
-    mockedGetItemAsync.mockResolvedValue(token);
+  it.each([null, '', '   '])(
+    '토큰이 %p이면 보호 API에도 Bearer 헤더를 보내지 않는다',
+    async (token) => {
+      mockedGetItemAsync.mockResolvedValue(token);
 
-    await expect(requestAuthorization('/protected')).resolves.toBeUndefined();
-  });
+      await expect(requestAuthorization('/protected')).resolves.toBeUndefined();
+    },
+  );
 
   it('토큰이 있으면 보호 API에만 Bearer 헤더를 보낸다', async () => {
     mockedGetItemAsync.mockResolvedValue('valid-access-token');
