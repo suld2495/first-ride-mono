@@ -31,7 +31,7 @@ const initialState: State = {
     mateNickname: '',
     isMe: true,
   },
-  type: 'number',
+  type: 'week',
 };
 
 export const useRoutineStore = create<State & Action>()(
