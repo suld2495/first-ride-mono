@@ -395,6 +395,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   progressSummaryText: {
     color: theme.colors.brand.routineProgressText,
+    lineHeight: baseFoundation.dimension.x14,
+    includeFontPadding: false,
   },
   checkRow: {
     flexDirection: 'row',
