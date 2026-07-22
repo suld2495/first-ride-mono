@@ -42,7 +42,7 @@ import {
   getAuthStackInitialRouteName,
   getAuthStackKey,
 } from '@/utils/auth-stack-route';
-import { initializeClarity } from '@/utils/clarity';
+import { initializeClarityWithStoredConsent } from '@/utils/clarity';
 import { initializeKakao } from '@/utils/initialize-kakao';
 import {
   extractDeepLinkData,
@@ -77,8 +77,6 @@ async function initializeKakaoSafely(): Promise<void> {
 
 void initializeKakaoSafely();
 
-initializeClarity();
-
 interface StackLayoutProps {
   isFontReady: boolean;
 }
@@ -110,6 +108,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
             />
             <Stack.Screen
               name="notification-settings"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="privacy-settings"
               options={{ headerShown: false }}
             />
             <Stack.Screen
@@ -156,6 +158,10 @@ function AppShell({ isFontReady }: AppShellProps) {
   const syncWithTamagui = useSyncAppColorScheme();
   const handledShareSessionIdRef = useRef<string | null>(null);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    void initializeClarityWithStoredConsent().catch(() => undefined);
+  }, []);
 
   /**
    * 알림 탭 시 딥링크 처리

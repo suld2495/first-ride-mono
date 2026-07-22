@@ -1,5 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 interface ClaritySdkMock {
   LogLevel: {
     None: 'None';
@@ -27,7 +25,11 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
 }));
 
-const mockedStorage = jest.mocked(AsyncStorage);
+const getMockedStorage = () =>
+  jest.requireMock('@react-native-async-storage/async-storage') as {
+    getItem: jest.Mock;
+    setItem: jest.Mock;
+  };
 
 describe('initializeClarity', () => {
   const originalClarityProjectId = process.env.EXPO_PUBLIC_CLARITY_PROJECT_ID;
@@ -122,6 +124,8 @@ describe('initializeClarity', () => {
   });
 
   it('저장된 동의가 없는 신규 설치에서는 Clarity를 초기화하지 않는다', async () => {
+    const mockedStorage = getMockedStorage();
+
     mockedStorage.getItem.mockResolvedValue(null);
     const loadSdk = jest.fn(() => createSdkMock());
     const { initializeClarityWithStoredConsent } = require('@/utils/clarity');
@@ -139,6 +143,8 @@ describe('initializeClarity', () => {
   });
 
   it('분석 수집에 동의한 사용자에게만 Clarity를 시작한다', async () => {
+    const mockedStorage = getMockedStorage();
+
     mockedStorage.getItem.mockResolvedValue('enabled');
     const claritySdk = createSdkMock();
     const { initializeClarityWithStoredConsent } = require('@/utils/clarity');
@@ -157,6 +163,8 @@ describe('initializeClarity', () => {
   });
 
   it('분석 수집을 끄면 선택을 저장하고 현재 세션 수집을 중지한다', async () => {
+    const mockedStorage = getMockedStorage();
+
     mockedStorage.getItem.mockResolvedValue('enabled');
     const claritySdk = createSdkMock();
     const {
@@ -187,6 +195,8 @@ describe('initializeClarity', () => {
   });
 
   it('저장소를 읽지 못하면 안전하게 수집하지 않는다', async () => {
+    const mockedStorage = getMockedStorage();
+
     mockedStorage.getItem.mockRejectedValue(new Error('storage unavailable'));
     const loadSdk = jest.fn(() => createSdkMock());
     const { initializeClarityWithStoredConsent } = require('@/utils/clarity');

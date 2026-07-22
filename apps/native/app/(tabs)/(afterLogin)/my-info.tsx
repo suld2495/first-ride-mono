@@ -51,6 +51,7 @@ const SETTING_ITEMS: Array<{
   { title: '한마디', href: '/modal?type=account' },
   { title: '루틴 설정', href: '/routine-settings' },
   { title: '알림 설정', href: '/notification-settings' },
+  { title: '개인정보 설정', href: '/privacy-settings' },
   { title: '이용약관', href: '/modal?type=policies' },
   { title: '개인정보 처리방침', href: '/modal?type=privacy' },
   { title: '문의', href: '/inquiry' },
