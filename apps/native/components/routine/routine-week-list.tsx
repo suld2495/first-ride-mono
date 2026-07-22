@@ -158,7 +158,17 @@ const RoutineWeekList = ({
 
           {!readOnly ? (
             <>
-              <View pointerEvents="none" style={styles.progressSummary}>
+              <View
+                pointerEvents="none"
+                style={styles.progressSummary}
+                testID={`routine-week-progress-summary-${routineId}`}
+              >
+                {weeklyCount >= routineCount ? (
+                  <RoutineCheckmarkIcon
+                    size={baseFoundation.dimension.x14}
+                    color={palette.theme.green[50]}
+                  />
+                ) : null}
                 <Typography
                   variant="caption3"
                   weight="semibold"
@@ -379,8 +389,9 @@ const styles = StyleSheet.create((theme) => ({
     top: baseFoundation.spacing[0],
     right: baseFoundation.spacing[8],
     height: baseFoundation.dimension.x44,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.spacing[1],
   },
   progressSummaryText: {
     color: theme.colors.brand.routineProgressText,
