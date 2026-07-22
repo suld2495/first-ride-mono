@@ -1,5 +1,5 @@
 appId: com.mannal.firstride
-name: 분석 데이터 수집 동의 및 중지 상태 반영
+name: 개인정보 처리방침의 분석 데이터 수집 동의 및 중지 상태 반영
 tags:
   - release
   - privacy
@@ -7,6 +7,7 @@ tags:
 # 전제: 전용 테스트 계정으로 로그인되어 있어야 한다.
 - launchApp:
     clearState: false
+    stopApp: false
 
 - extendedWaitUntil:
     visible: "My"
@@ -20,16 +21,18 @@ tags:
 
 - scrollUntilVisible:
     element:
-      id: "settings-menu-item-개인정보 설정"
+      id: "settings-menu-item-개인정보 처리방침"
     direction: DOWN
 - tapOn:
-    id: "settings-menu-item-개인정보 설정"
+    id: "settings-menu-item-개인정보 처리방침"
 
-- assertVisible: "개인정보 설정"
+- assertVisible: "개인정보 처리방침"
+- assertVisible: "어떤 정보를 수집하고 보호하는지 안내해 드려요."
+- assertVisible: "1. 총칙"
 - assertVisible: "분석 데이터는 직접 선택해 주세요"
 - extendedWaitUntil:
     visible:
-      id: "privacy-settings-analytics-switch"
+      id: "privacy-policy-analytics-switch"
       enabled: true
     timeout: 10000
 
@@ -37,32 +40,32 @@ tags:
 - runFlow:
     when:
       visible:
-        id: "privacy-settings-analytics-switch"
+        id: "privacy-policy-analytics-switch"
         checked: true
     commands:
       - tapOn:
-          id: "privacy-settings-analytics-switch"
+          id: "privacy-policy-analytics-switch"
       - assertVisible:
-          id: "privacy-settings-analytics-switch"
+          id: "privacy-policy-analytics-switch"
           checked: false
       - assertVisible: "사용 데이터 분석을 껐습니다."
 
 - assertVisible:
-    id: "privacy-settings-analytics-switch"
+    id: "privacy-policy-analytics-switch"
     checked: false
 
 # 분석 수집 동의가 UI 상태와 성공 안내에 반영된다.
 - tapOn:
-    id: "privacy-settings-analytics-switch"
+    id: "privacy-policy-analytics-switch"
 - assertVisible:
-    id: "privacy-settings-analytics-switch"
+    id: "privacy-policy-analytics-switch"
     checked: true
 - assertVisible: "사용 데이터 분석을 켰습니다."
 
 # 분석 수집 중지가 UI 상태와 성공 안내에 반영되고 개인정보 보호 기본 상태로 끝난다.
 - tapOn:
-    id: "privacy-settings-analytics-switch"
+    id: "privacy-policy-analytics-switch"
 - assertVisible:
-    id: "privacy-settings-analytics-switch"
+    id: "privacy-policy-analytics-switch"
     checked: false
 - assertVisible: "사용 데이터 분석을 껐습니다."
