@@ -151,17 +151,29 @@ const RoutineWeekList = ({
           ]}
         >
           <View style={styles.titleRow}>
-            <Typography variant="body3" style={styles.title}>
+            <Typography variant="body3" weight="semibold" style={styles.title}>
               {routineName}
             </Typography>
           </View>
 
           {!readOnly ? (
-            <RoutineContextMenuTrigger
-              routineName={routineName}
-              iconColor={theme.colors.text.secondary}
-              onToggle={() => onToggleRoutineMenu(routineId)}
-            />
+            <>
+              <View pointerEvents="none" style={styles.progressSummary}>
+                <Typography
+                  variant="caption3"
+                  weight="semibold"
+                  style={styles.progressSummaryText}
+                  testID={`routine-week-progress-${routineId}`}
+                >
+                  {weeklyCount}/{routineCount}
+                </Typography>
+              </View>
+              <RoutineContextMenuTrigger
+                routineName={routineName}
+                iconColor={theme.colors.text.secondary}
+                onToggle={() => onToggleRoutineMenu(routineId)}
+              />
+            </>
           ) : null}
 
           <View style={styles.checkRow}>
@@ -359,7 +371,19 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     alignItems: 'flex-start',
     minHeight: baseFoundation.dimension.x18,
+    paddingRight: baseFoundation.spacing[14],
     marginBottom: baseFoundation.spacing[3],
+  },
+  progressSummary: {
+    position: 'absolute',
+    top: baseFoundation.spacing[0],
+    right: baseFoundation.spacing[8],
+    height: baseFoundation.dimension.x44,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  progressSummaryText: {
+    color: theme.colors.brand.routineProgressText,
   },
   checkRow: {
     flexDirection: 'row',

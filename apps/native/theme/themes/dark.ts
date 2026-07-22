@@ -144,6 +144,7 @@ export const darkTheme: ThemeContract = {
       routineBackground: '#2f3640',
       routineMissedCheckbox: palette.theme.blue[90],
       routineUpcomingCheckboxBorder: palette.theme.softBlue[80],
+      routineProgressText: palette.theme.softBlue[50],
     },
   },
 };

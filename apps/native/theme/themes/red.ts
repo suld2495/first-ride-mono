@@ -68,6 +68,7 @@ export const redTheme: ThemeContract = {
       routineBackground: palette.theme.red[100],
       routineMissedCheckbox: palette.theme.red[90],
       routineUpcomingCheckboxBorder: palette.theme.softRed[80],
+      routineProgressText: palette.theme.softRed[50],
     },
   },
 };

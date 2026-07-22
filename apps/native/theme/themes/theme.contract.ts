@@ -138,6 +138,7 @@ export type ThemeContract = {
       routineBackground: string;
       routineMissedCheckbox: string;
       routineUpcomingCheckboxBorder: string;
+      routineProgressText: string;
     };
   };
 };
@@ -284,6 +285,7 @@ export const baseTheme: ThemeContract = {
       routineBackground: '#2f3640',
       routineMissedCheckbox: palette.theme.blue[90],
       routineUpcomingCheckboxBorder: palette.theme.softBlue[80],
+      routineProgressText: palette.theme.softBlue[50],
     },
   },
 };
