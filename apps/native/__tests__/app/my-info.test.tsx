@@ -145,8 +145,46 @@ describe('MyInfo 로그아웃', () => {
 
     expect(queryByTestId('settings-profile-user-id')).toBeNull();
     expect(queryByText('test123')).toBeNull();
-    expect(getByTestId('settings-profile-login-type-badge')).toBeOnTheScreen();
+    expect(
+      StyleSheet.flatten(
+        getByTestId('settings-profile-login-type-badge').props.style,
+      ),
+    ).toEqual(expect.objectContaining({ backgroundColor: '#FEE500' }));
+    expect(
+      StyleSheet.flatten(
+        getByTestId('settings-profile-login-type-text').props.style,
+      ),
+    ).toEqual(expect.objectContaining({ color: '#000000' }));
     expect(getByText('카카오')).toBeOnTheScreen();
+  });
+
+  it('Apple 회원 배지에 검정 배경과 흰색 텍스트를 적용한다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+    (useFetchMeQuery as jest.Mock).mockReturnValue({
+      data: {
+        userId: 'apple_12345',
+        nickname: 'testuser',
+        loginType: 'APPLE',
+        motto: null,
+        mottos: [],
+        role: 'USER',
+        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
+      },
+    });
+
+    const { getByTestId, getByText } = render(<MyInfo />);
+
+    expect(
+      StyleSheet.flatten(
+        getByTestId('settings-profile-login-type-badge').props.style,
+      ),
+    ).toEqual(expect.objectContaining({ backgroundColor: '#000000' }));
+    expect(
+      StyleSheet.flatten(
+        getByTestId('settings-profile-login-type-text').props.style,
+      ),
+    ).toEqual(expect.objectContaining({ color: '#FFFFFF' }));
+    expect(getByText('Apple')).toBeOnTheScreen();
   });
 
   it('프로필 페이지가 포커스될 때 경험치 정보를 다시 조회한다', () => {
