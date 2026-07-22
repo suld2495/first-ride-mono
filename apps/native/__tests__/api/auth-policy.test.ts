@@ -60,6 +60,10 @@ describe('인증 요청 정책', () => {
     '/auth/login',
     '/auth/refresh',
     '/auth/signup',
+    '/auth/email/check',
+    '/auth/email/verification-requests',
+    '/auth/email/verification-confirm',
+    '/auth/job-options',
     '/auth/kakao/check',
     '/auth/kakao/login',
     '/auth/kakao/signup',
@@ -71,8 +75,35 @@ describe('인증 요청 정책', () => {
     expect(isPublicAuthUrl(url)).toBe(true);
   });
 
-  it('보호된 인증 보조 API는 공개 요청으로 분류하지 않는다', () => {
-    expect(isPublicAuthUrl('/auth/job-options')).toBe(false);
+  it('공개 API의 401에서는 토큰 갱신과 로컬 세션 종료를 시도하지 않는다', async () => {
+    const mockAxios = new MockAdapter(axiosInstance);
+    const refreshSpy = jest.spyOn(authApi, 'refreshToken').mockResolvedValue({
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      userInfo,
+    });
+
+    mockAxios.onGet('/auth/email/check').reply(401, {
+      success: false,
+      error: {
+        message: '이메일을 확인할 수 없습니다.',
+        code: 'EMAIL_CHECK_UNAUTHORIZED',
+      },
+    });
+
+    await expect(
+      axiosInstance.get('/auth/email/check', {
+        params: { email: 'new-user@example.com' },
+      }),
+    ).rejects.toBeDefined();
+
+    expect(mockAxios.history.get).toHaveLength(1);
+    expect(refreshSpy).not.toHaveBeenCalled();
+    expect(clearTokens).not.toHaveBeenCalled();
+    expect(onUnauthorized).not.toHaveBeenCalled();
+
+    refreshSpy.mockRestore();
+    mockAxios.restore();
   });
 
   it('일반 API 401은 refresh 후 재시도하고 재시도가 401이면 로컬 세션을 종료한다', async () => {
