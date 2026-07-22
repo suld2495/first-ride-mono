@@ -1251,6 +1251,80 @@ describe('루틴 조회 페이지', () => {
     });
 
     describe('요일별 달성 아이콘 표시', () => {
+      it('모든 요일을 동일한 28px 투명 외곽 프레임으로 감싼다', async () => {
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 0,
+            routineCount: 5,
+            successDate: [],
+          }),
+        });
+
+        const { findByTestId } = render(<Index />);
+        const frames = await Promise.all(
+          Array.from({ length: 7 }, (_, index) =>
+            findByTestId(`routine-week-check-frame-1-${index}`),
+          ),
+        );
+
+        frames.forEach((frame) => {
+          expect(frame).toHaveStyle({
+            width: 28,
+            height: 28,
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: 'transparent',
+            backgroundColor: 'transparent',
+          });
+        });
+      });
+
+      it('오늘 달성한 요일의 외곽 프레임만 루틴 컬러로 표시한다', async () => {
+        const today = new Date();
+        const monday = new Date(getWeekMonday(today));
+        const todayIndex = getRoutineWeekIndex(today);
+        const otherCompletedIndex = todayIndex === 0 ? 1 : 0;
+        const otherCompletedDate = new Date(monday);
+
+        otherCompletedDate.setDate(
+          otherCompletedDate.getDate() + otherCompletedIndex,
+        );
+        const symbolColor = '#4CAF50';
+
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: [
+            {
+              ...createMockRoutine(0, {
+                weeklyCount: 2,
+                routineCount: 5,
+                successDate: [
+                  formatRoutineDateKey(today),
+                  formatRoutineDateKey(otherCompletedDate),
+                ],
+              }),
+              symbolColor,
+            },
+          ],
+        });
+
+        const { findByTestId } = render(<Index />);
+        const [todayFrame, otherCompletedFrame] = await Promise.all([
+          findByTestId(`routine-week-check-frame-1-${todayIndex}`),
+          findByTestId(
+            `routine-week-check-frame-1-${otherCompletedIndex}`,
+          ),
+        ]);
+
+        expect(todayFrame).toHaveStyle({
+          borderColor: symbolColor,
+          borderWidth: 1,
+        });
+        expect(otherCompletedFrame).toHaveStyle({
+          borderColor: 'transparent',
+          borderWidth: 1,
+        });
+      });
+
       it('달성한 요일에는 루틴에서 설정한 컬러를 배경으로 표시한다', async () => {
         // 현재 주의 월, 화, 수 날짜를 동적으로 생성
         const today = new Date();
