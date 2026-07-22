@@ -135,8 +135,7 @@ describe('MyInfo 로그아웃', () => {
         motto: null,
         mottos: [],
         role: 'USER',
-        characterImageUrl:
-          'https://cdn.example.com/characters/warrior.png',
+        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
       },
     });
 

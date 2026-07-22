@@ -6,6 +6,7 @@ export interface Auth {
 }
 
 export type UserRole = 'USER' | 'ADMIN';
+export type UserLoginType = 'PLAIN' | 'KAKAO' | 'APPLE' | 'GOOGLE' | 'NAVER';
 
 export type User = Pick<Auth, 'userId' | 'nickname'> & {
   backgroundImageUrl?: null | string;
@@ -17,4 +18,5 @@ export type User = Pick<Auth, 'userId' | 'nickname'> & {
   motto: null | string;
   mottos: string[];
   role: UserRole;
+  loginType?: UserLoginType;
 };

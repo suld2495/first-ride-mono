@@ -1,5 +1,6 @@
 import { useMyStatsQuery } from '@repo/shared/hooks/useStat';
 import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
+import type { UserLoginType } from '@repo/types';
 import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useCallback } from 'react';
@@ -22,6 +23,16 @@ import { baseFoundation, palette } from '@/theme/tokens';
 const FALLBACK_LEVEL = 1;
 const FALLBACK_EXP = 0;
 const FALLBACK_NEXT_LEVEL_EXP = 30;
+
+const SOCIAL_LOGIN_TYPE_LABELS: Record<
+  Exclude<UserLoginType, 'PLAIN'>,
+  string
+> = {
+  KAKAO: '카카오',
+  APPLE: 'Apple',
+  GOOGLE: 'Google',
+  NAVER: '네이버',
+};
 
 const SETTING_ITEMS: Array<{
   title: string;
@@ -82,6 +93,10 @@ const MyInfo = () => {
   const characterAsset = getRoutineSceneRemoteAsset(
     currentUser?.characterImageUrl,
   );
+  const socialLoginType =
+    currentUser?.loginType && currentUser.loginType !== 'PLAIN'
+      ? SOCIAL_LOGIN_TYPE_LABELS[currentUser.loginType]
+      : null;
 
   useFocusEffect(
     useCallback(() => {
@@ -145,14 +160,33 @@ const MyInfo = () => {
               >
                 {user?.nickname}
               </Typography>
-              <Typography
-                color={softThemeColor[50]}
-                testID="settings-profile-user-id"
-                variant="caption1"
-                weight="semibold"
-              >
-                {user?.userId}
-              </Typography>
+              {currentUser?.loginType === 'PLAIN' ? (
+                <Typography
+                  color={softThemeColor[50]}
+                  testID="settings-profile-user-id"
+                  variant="caption1"
+                  weight="semibold"
+                >
+                  {currentUser.userId}
+                </Typography>
+              ) : socialLoginType ? (
+                <View
+                  testID="settings-profile-login-type-badge"
+                  style={[
+                    styles.loginTypeBadge,
+                    { backgroundColor: softThemeColor[20] },
+                  ]}
+                >
+                  <Typography
+                    color={themeColor[80]}
+                    testID="settings-profile-login-type-text"
+                    variant="caption2"
+                    weight="semibold"
+                  >
+                    {socialLoginType}
+                  </Typography>
+                </View>
+              ) : null}
             </View>
           </View>
 
@@ -320,6 +354,14 @@ const styles = StyleSheet.create((theme) => ({
   profileText: {
     marginLeft: theme.foundation.spacing[3],
     gap: 7,
+  },
+  loginTypeBadge: {
+    alignSelf: 'flex-start',
+    height: baseFoundation.dimension.x20,
+    paddingHorizontal: theme.foundation.spacing[2],
+    borderRadius: baseFoundation.dimension.x99,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   levelRow: {
     marginTop: theme.foundation.spacing[5],
