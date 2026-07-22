@@ -20,7 +20,7 @@ describe('push token API', () => {
       .mockRejectedValue(new Error('raw axios must not be used'));
 
     mockedGetAuthorization.mockResolvedValue('access-token');
-    mockAxios.onPut('/push-tokens').reply(200);
+    mockAxios.onPut('/push-tokens').reply(200, { data: null });
 
     await updatePushToken('ExponentPushToken[test]', 'ios');
 
@@ -44,7 +44,7 @@ describe('push token API', () => {
     mockedGetAuthorization.mockResolvedValue('access-token');
     mockAxios
       .onDelete('/push-tokens/ExponentPushToken%5Btest%5D')
-      .reply(200);
+      .reply(200, { data: null });
 
     await expect(deletePushToken('ExponentPushToken[test]')).resolves.toBe(
       true,

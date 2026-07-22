@@ -57,6 +57,8 @@ describe('인증 토큰 갱신 동시성', () => {
       tokenManager: {
         getAccessToken: async () => accessToken,
         getRefreshToken: async () => refreshToken,
+        refreshTokens: async (storedRefreshToken) =>
+          authApi.refreshToken({ refreshToken: storedRefreshToken }),
         saveTokens: async (nextAccessToken, nextRefreshToken) => {
           accessToken = nextAccessToken;
           refreshToken = nextRefreshToken;

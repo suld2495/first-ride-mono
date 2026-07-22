@@ -41,6 +41,8 @@ describe('인증 요청 정책', () => {
       tokenManager: {
         getAccessToken: async () => currentAccessToken,
         getRefreshToken: async () => currentRefreshToken,
+        refreshTokens: async (refreshToken) =>
+          authApi.refreshToken({ refreshToken }),
         saveTokens,
         clearTokens,
         updateUser: jest.fn(),
@@ -73,7 +75,7 @@ describe('인증 요청 정책', () => {
     expect(isPublicAuthUrl('/auth/job-options')).toBe(false);
   });
 
-  it('일반 API 401은 refresh 후 재시도하고 재시도가 401이어도 로그아웃하지 않는다', async () => {
+  it('일반 API 401은 refresh 후 재시도하고 재시도가 401이면 로컬 세션을 종료한다', async () => {
     const mockAxios = new MockAdapter(axiosInstance);
     const refreshSpy = jest.spyOn(authApi, 'refreshToken').mockResolvedValue({
       accessToken: newAccessToken,
@@ -97,8 +99,8 @@ describe('인증 요청 정책', () => {
       refreshToken: initialRefreshToken,
     });
     expect(saveTokens).toHaveBeenCalledWith(newAccessToken, newRefreshToken);
-    expect(clearTokens).not.toHaveBeenCalled();
-    expect(onUnauthorized).not.toHaveBeenCalled();
+    expect(clearTokens).toHaveBeenCalledTimes(1);
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
 
     refreshSpy.mockRestore();
     mockAxios.restore();

@@ -3,7 +3,6 @@ import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import { fireEvent, waitFor, within } from '@testing-library/react-native';
 import { Alert, StyleSheet } from 'react-native';
 
-import { deletePushToken } from '@/api/push-token.api';
 import { useAuthSignOut } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
 import { palette } from '@/theme/tokens';
@@ -16,10 +15,6 @@ declare global {
   var mockPush: jest.Mock;
   var mockMyInfoFocusEffect: (() => void) | null;
 }
-
-jest.mock('@/api/push-token.api', () => ({
-  deletePushToken: jest.fn(),
-}));
 
 jest.mock('@/hooks/useNotifications', () => ({
   useNotifications: jest.fn(),
@@ -424,14 +419,11 @@ describe('MyInfo 로그아웃', () => {
     expect(global.mockPush).toHaveBeenCalledWith('/delete-account');
   });
 
-  it('푸시 토큰 삭제가 실패해도 로그아웃을 진행한다', async () => {
+  it('로그아웃 정리에서 사용할 푸시 토큰을 인증 스토어에 전달한다', async () => {
     const signOut = jest.fn().mockResolvedValue(undefined);
     let confirmLogout: (() => void | Promise<void>) | undefined;
 
     (useAuthSignOut as jest.Mock).mockReturnValue(signOut);
-    (deletePushToken as jest.Mock).mockRejectedValue(
-      new Error('delete failed'),
-    );
     jest
       .spyOn(Alert, 'alert')
       .mockImplementation((_title, _message, buttons) => {
@@ -447,7 +439,7 @@ describe('MyInfo 로그아웃', () => {
     await expect(confirmLogout?.()).resolves.toBeUndefined();
 
     await waitFor(() => {
-      expect(signOut).toHaveBeenCalledTimes(1);
+      expect(signOut).toHaveBeenCalledWith('expo-push-token');
       expect(global.mockReplace).not.toHaveBeenCalledWith('/sign-in');
     });
   });

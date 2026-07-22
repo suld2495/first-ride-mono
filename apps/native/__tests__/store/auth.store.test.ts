@@ -231,7 +231,9 @@ describe('auth.store', () => {
     const signOutPromise = useAuthStore.getState().signOutLocally();
 
     expect(useAuthStore.getState().user).toBeNull();
-    expect(mockedClearRoutineShareTargets).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockedClearRoutineShareTargets).toHaveBeenCalledTimes(1);
+    });
 
     finishWidgetCleanup?.();
     await expect(signOutPromise).resolves.toBeUndefined();

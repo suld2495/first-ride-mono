@@ -21,6 +21,9 @@ describe('갱신된 인증 요청의 401 처리', () => {
       tokenManager: {
         getAccessToken: async () => LATEST_ACCESS_TOKEN,
         getRefreshToken: async () => 'refresh-token',
+        refreshTokens: async () => {
+          throw new Error('refresh should not run');
+        },
         saveTokens: async () => undefined,
         clearTokens,
         updateUser: jest.fn(),
