@@ -47,7 +47,7 @@ const QueryClientBoundary = ({
 };
 
 export const QueryProvider = ({ children, userId }: QueryProviderProps) => (
-  <QueryClientBoundary key={userId ?? 'anonymous'}>
+  <QueryClientBoundary key={userId === null ? 'anonymous' : `user:${userId}`}>
     {children}
   </QueryClientBoundary>
 );

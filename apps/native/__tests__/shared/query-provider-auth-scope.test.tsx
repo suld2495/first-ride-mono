@@ -56,4 +56,28 @@ describe('QueryProvider 인증 범위', () => {
     expect(activeClient?.getQueryCache().getAll()).toHaveLength(0);
     expect(activeClient?.getMutationCache().getAll()).toHaveLength(0);
   });
+
+  it('익명 범위와 같은 문자열의 userId도 서로 다른 client를 사용한다', async () => {
+    let activeClient: QueryClient | undefined;
+    const captureClient = (queryClient: QueryClient) => {
+      activeClient = queryClient;
+    };
+
+    const view = render(
+      <QueryProvider userId={null}>
+        <ClientProbe onClient={captureClient} />
+      </QueryProvider>,
+    );
+
+    await waitFor(() => expect(activeClient).toBeDefined());
+    const anonymousClient = activeClient as QueryClient;
+
+    view.rerender(
+      <QueryProvider userId="anonymous">
+        <ClientProbe onClient={captureClient} />
+      </QueryProvider>,
+    );
+
+    await waitFor(() => expect(activeClient).not.toBe(anonymousClient));
+  });
 });
