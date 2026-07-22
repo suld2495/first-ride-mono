@@ -142,6 +142,8 @@ export const lightTheme: ThemeContract = {
       activeBottomTab: '#FFFFFF',
       routineBorder: palette.theme.blue[80],
       routineBackground: '#FFFFFF',
+      routineMissedCheckbox: palette.theme.blue[90],
+      routineUpcomingCheckboxBorder: palette.theme.softBlue[80],
     },
   },
 };

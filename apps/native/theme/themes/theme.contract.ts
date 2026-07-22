@@ -136,6 +136,8 @@ export type ThemeContract = {
       activeBottomTab: string;
       routineBorder: string;
       routineBackground: string;
+      routineMissedCheckbox: string;
+      routineUpcomingCheckboxBorder: string;
     };
   };
 };
@@ -280,6 +282,8 @@ export const baseTheme: ThemeContract = {
       activeBottomTab: '#2f3640',
       routineBorder: palette.theme.blue[80],
       routineBackground: '#2f3640',
+      routineMissedCheckbox: palette.theme.blue[90],
+      routineUpcomingCheckboxBorder: palette.theme.softBlue[80],
     },
   },
 };

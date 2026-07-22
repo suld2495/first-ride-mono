@@ -1179,20 +1179,26 @@ describe('루틴 조회 페이지', () => {
       });
 
       it('요일 텍스트를 24px 체크박스 내부에 caption2 semibold로 표시한다', async () => {
+        const todayIndex = getRoutineWeekIndex(new Date());
+        const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
+          todayIndex
+        ];
         const { findByTestId } = render(<Index />);
-        const mondayCheckBox = await findByTestId('routine-week-check-1-0');
-        const mondayText = within(mondayCheckBox).getByText('월');
+        const todayCheckBox = await findByTestId(
+          `routine-week-check-1-${todayIndex}`,
+        );
+        const todayText = within(todayCheckBox).getByText(todayLabel);
 
-        expect(mondayCheckBox).toHaveStyle({
+        expect(todayCheckBox).toHaveStyle({
           width: 24,
           height: 24,
           borderRadius: 6,
         });
-        expect(mondayText).toHaveStyle({
+        expect(todayText).toHaveStyle({
           color: palette.theme.gray[90],
           fontSize: 12,
         });
-        expect(mondayText).toHaveProp('fontWeight', '600');
+        expect(todayText).toHaveProp('fontWeight', '600');
       });
 
       it('루틴 아이템은 단일 카드에 테마 80 테두리와 테마 100 배경을 표시한다', async () => {
@@ -1294,9 +1300,7 @@ describe('루틴 조회 페이지', () => {
       });
 
       it('미래 날짜는 투명 배경과 soft 테마 80 테두리 및 텍스트로 표시한다', async () => {
-        mockSearchParams.date = afterWeek(
-          new Date(getWeekMonday(new Date())),
-        );
+        mockSearchParams.date = afterWeek(new Date(getWeekMonday(new Date())));
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
             weeklyCount: 0,

@@ -66,6 +66,8 @@ export const greenTheme: ThemeContract = {
       card: palette.theme.green[5],
       routineBorder: palette.theme.green[80],
       routineBackground: palette.theme.green[100],
+      routineMissedCheckbox: palette.theme.green[90],
+      routineUpcomingCheckboxBorder: palette.theme.softGreen[80],
     },
   },
 };

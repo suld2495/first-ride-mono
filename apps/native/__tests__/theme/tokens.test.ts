@@ -203,6 +203,8 @@ describe('theme/tokens', () => {
           activeBottomTab: '#111',
           routineBorder: '#222',
           routineBackground: '#111',
+          routineMissedCheckbox: '#333',
+          routineUpcomingCheckboxBorder: '#444',
         },
       },
     });
