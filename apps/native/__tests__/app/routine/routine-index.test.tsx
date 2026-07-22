@@ -1178,24 +1178,32 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('요일 라벨이 표시된다', async () => {
-        const { findByText } = render(<Index />);
+      it('요일 텍스트를 24px 체크박스 내부에 caption2 semibold로 표시한다', async () => {
+        const { findByTestId } = render(<Index />);
+        const mondayCheckBox = await findByTestId('routine-week-check-1-0');
+        const mondayText = within(mondayCheckBox).getByText('월');
 
-        expect(await findByText('월')).toBeOnTheScreen();
-        expect(await findByText('화')).toBeOnTheScreen();
-        expect(await findByText('수')).toBeOnTheScreen();
-        expect(await findByText('목')).toBeOnTheScreen();
-        expect(await findByText('금')).toBeOnTheScreen();
-        expect(await findByText('토')).toBeOnTheScreen();
-        expect(await findByText('일')).toBeOnTheScreen();
+        expect(mondayCheckBox).toHaveStyle({
+          width: 24,
+          height: 24,
+          borderRadius: 6,
+        });
+        expect(mondayText).toHaveStyle({
+          color: palette.theme.gray[90],
+          fontSize: 12,
+        });
+        expect(mondayText).toHaveProp('fontWeight', '600');
       });
 
-      it('루틴 아이템 배경은 gray 95로 표시된다', async () => {
-        const { findByTestId } = render(<Index />);
+      it('루틴 아이템은 단일 카드에 테마 80 테두리와 테마 100 배경을 표시한다', async () => {
+        const { findByTestId, queryByTestId } = render(<Index />);
 
-        expect(await findByTestId('routine-week-card-surface-1')).toHaveStyle({
-          backgroundColor: palette.theme.gray[95],
+        expect(await findByTestId('routine-week-card-outer-1')).toHaveStyle({
+          borderRadius: 16,
+          borderColor: palette.theme.blue[80],
+          backgroundColor: palette.theme.blue[100],
         });
+        expect(queryByTestId('routine-week-card-surface-1')).toBeNull();
       });
 
       it('week 타입 루틴 제목을 우측 아이콘과 무관하게 중앙 정렬한다', async () => {
@@ -1237,7 +1245,7 @@ describe('루틴 조회 페이지', () => {
     });
 
     describe('요일별 달성 아이콘 표시', () => {
-      it('달성한 요일에는 체크 아이콘, 미달성 요일에는 gray 80 배경만 표시된다', async () => {
+      it('달성한 요일에는 성공 배경, 미달성 요일에는 gray 80 배경을 표시한다', async () => {
         // 현재 주의 월, 화, 수 날짜를 동적으로 생성
         const today = new Date();
         const monday = new Date(getWeekMonday(today));
@@ -1265,9 +1273,7 @@ describe('루틴 조회 페이지', () => {
           }),
         });
 
-        const { findAllByTestId, findByLabelText, findByTestId } = render(
-          <Index />,
-        );
+        const { findByLabelText, findByTestId } = render(<Index />);
 
         // 달성한 요일 (월, 화, 수)
         expect(
@@ -1280,8 +1286,8 @@ describe('루틴 조회 페이지', () => {
           await findByLabelText(getSuccessLabel(wedDate, '수')),
         ).toBeOnTheScreen();
         expect(
-          (await findAllByTestId('routine-checkmark-icon')).length,
-        ).toBeGreaterThan(0);
+          within(await findByTestId('routine-week-check-1-0')).getByText('월'),
+        ).toBeOnTheScreen();
 
         // 미달성 요일 (목, 금, 토, 일)
         expect(await findByLabelText('목요일 미달성')).toBeOnTheScreen();
@@ -1365,12 +1371,14 @@ describe('루틴 조회 페이지', () => {
             `${['월', '화', '수', '목', '금', '토', '일'][todayIndex]}요일 요청 중`,
           ),
         ).toBeOnTheScreen();
+        const dayLabels = ['월', '화', '수', '목', '금', '토', '일'];
+
         expect(
-          within(completedCheck).getByTestId('routine-checkmark-icon'),
-        ).toHaveProp('color', palette.theme.gray[90]);
+          within(completedCheck).getByText(dayLabels[completedIndex]),
+        ).toHaveStyle({ color: palette.theme.gray[90] });
         expect(
-          within(pendingCheck).getByTestId('routine-checkmark-icon'),
-        ).toHaveProp('color', palette.theme.gray[90]);
+          within(pendingCheck).getByText(dayLabels[todayIndex]),
+        ).toHaveStyle({ color: palette.theme.gray[90] });
         expect(flattenStyles(completedCheck.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ backgroundColor: symbolColor }),
@@ -1401,7 +1409,7 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('과거 주의 미달성 요일을 에러 배경과 gray 90 X 아이콘으로 표시한다', async () => {
+      it('과거 주의 미달성 요일을 에러 배경과 gray 90 요일 텍스트로 표시한다', async () => {
         mockSearchParams.date = beforeWeek(new Date(getWeekMonday(new Date())));
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
@@ -1414,9 +1422,9 @@ describe('루틴 조회 페이지', () => {
         const { findByTestId } = render(<Index />);
         const missedMonday = await findByTestId('routine-week-check-1-0');
 
-        expect(
-          within(missedMonday).getByTestId('routine-missed-icon'),
-        ).toHaveProp('color', palette.theme.gray[90]);
+        expect(within(missedMonday).getByText('월')).toHaveStyle({
+          color: palette.theme.gray[90],
+        });
         expect(missedMonday).toHaveStyle({
           backgroundColor: appThemes.blue.colors.feedback.error.bg,
         });
