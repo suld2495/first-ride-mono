@@ -64,6 +64,7 @@ export const greenTheme: ThemeContract = {
       bottomTab: palette.theme.softGreen[20],
       activeBottomTab: palette.theme.green[50],
       card: palette.theme.green[5],
+      routineBorder: palette.theme.green[80],
       routineBackground: palette.theme.green[100],
     },
   },

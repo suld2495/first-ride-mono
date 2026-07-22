@@ -9,10 +9,7 @@ import {
   View,
 } from 'react-native';
 
-import {
-  RoutineCheckmarkIcon,
-  RoutineMissedIcon,
-} from '@/components/icons/routine-icons';
+import { RoutineCheckmarkIcon } from '@/components/icons/routine-icons';
 import { RoutineContextMenuTrigger } from '@/components/routine/routine-context-menu';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
@@ -137,157 +134,125 @@ const RoutineWeekList = ({
         : undefined;
 
       return (
-        <View style={[styles.cardContainer, { height: itemHeight }]}>
-          <View
-            style={[
-              styles.cardOuter,
-              { height: Math.max(itemHeight - baseFoundation.spacing[1], 0) },
-            ]}
-          >
-            <View style={styles.cardGap}>
-              <View style={styles.cardInner}>
-                <View
-                  testID={`routine-week-card-surface-${routineId}`}
-                  style={styles.cardSurface}
+        <View
+          testID={`routine-week-card-outer-${routineId}`}
+          style={[
+            styles.cardOuter,
+            {
+              height: Math.max(itemHeight - baseFoundation.spacing[1], 0),
+              marginBottom: baseFoundation.spacing[1],
+            },
+          ]}
+        >
+          <View style={styles.titleRow}>
+            <Typography variant="body3" style={styles.title}>
+              {routineName}
+            </Typography>
+          </View>
+
+          {!readOnly ? (
+            <RoutineContextMenuTrigger
+              routineName={routineName}
+              iconColor={theme.colors.text.secondary}
+              onToggle={() => onToggleRoutineMenu(routineId)}
+            />
+          ) : null}
+
+          <View style={styles.checkRow}>
+            {weeklyData[routineId].map((check, index) => {
+              const dateKey = weekDateKeys[index];
+              const isTodaySuccess = check && dateKey === todayDateKey;
+              const isPendingConfirmation =
+                !check &&
+                routine.hasPendingConfirmation &&
+                dateKey === todayDateKey;
+              const isMissedPastDay =
+                isPastWeek && !check && !isPendingConfirmation;
+              const isUnachievedDay = isUnachievedDayCheckBox(
+                check,
+                isPendingConfirmation,
+                isMissedPastDay,
+              );
+              const successCheckBoxStyle = check
+                ? {
+                    backgroundColor: symbolColor ?? DEFAULT_ROUTINE_COLOR,
+                  }
+                : null;
+              const todaySuccessCheckBoxStyle =
+                getTodaySuccessCheckBoxStyle(isTodaySuccess);
+              const unachievedCheckBoxStyle =
+                getUnachievedCheckBoxStyle(isUnachievedDay);
+              const pendingConfirmationCheckBoxStyle = isPendingConfirmation
+                ? {
+                    backgroundColor:
+                      theme.colors.brand.pendingConfirmationCheckbox,
+                  }
+                : null;
+              const missedPastDayCheckBoxStyle = getMissedPastCheckBoxStyle(
+                isMissedPastDay,
+                theme.colors.feedback.error.bg,
+              );
+              const statusLabel = check
+                ? isTodaySuccess
+                  ? '오늘 완료'
+                  : '달성'
+                : isPendingConfirmation
+                  ? '요청 중'
+                  : '미달성';
+
+              return (
+                <Pressable
+                  key={`${routineId}-status-${index}`}
+                  style={styles.dayColumn}
+                  accessibilityLabel={`${DAY_LABELS[index]}요일 ${statusLabel}`}
+                  accessibilityRole={
+                    canRequestWithCheckBox ? 'button' : 'image'
+                  }
+                  disabled={!canRequestWithCheckBox}
+                  onPress={handlePressCheckBox}
                 >
-                  <View style={styles.titleRow}>
-                    <Typography variant="body3" style={styles.title}>
-                      {routineName}
+                  <View
+                    style={[
+                      styles.checkBox,
+                      successCheckBoxStyle,
+                      todaySuccessCheckBoxStyle,
+                      unachievedCheckBoxStyle,
+                      pendingConfirmationCheckBoxStyle,
+                      missedPastDayCheckBoxStyle,
+                    ]}
+                    testID={`routine-week-check-${routineId}-${index}`}
+                  >
+                    <Typography
+                      variant="caption2"
+                      weight="semibold"
+                      style={styles.dayText}
+                    >
+                      {DAY_LABELS[index]}
                     </Typography>
                   </View>
+                </Pressable>
+              );
+            })}
+          </View>
 
-                  {!readOnly ? (
-                    <RoutineContextMenuTrigger
-                      routineName={routineName}
-                      iconColor={theme.colors.text.secondary}
-                      onToggle={() => onToggleRoutineMenu(routineId)}
-                    />
-                  ) : null}
-
-                  <View style={styles.headerRow}>
-                    {DAY_LABELS.map((day) => (
-                      <View
-                        key={`${routineId}-header-${day}`}
-                        style={styles.dayColumn}
-                      >
-                        <Typography variant="caption2" style={styles.dayLabel}>
-                          {day}
-                        </Typography>
-                      </View>
-                    ))}
-                  </View>
-
-                  <View style={styles.checkRow}>
-                    {weeklyData[routineId].map((check, index) => {
-                      const dateKey = weekDateKeys[index];
-                      const isTodaySuccess = check && dateKey === todayDateKey;
-                      const isPendingConfirmation =
-                        !check &&
-                        routine.hasPendingConfirmation &&
-                        dateKey === todayDateKey;
-                      const isMissedPastDay =
-                        isPastWeek && !check && !isPendingConfirmation;
-                      const isUnachievedDay = isUnachievedDayCheckBox(
-                        check,
-                        isPendingConfirmation,
-                        isMissedPastDay,
-                      );
-                      const successCheckBoxStyle = check
-                        ? {
-                            backgroundColor:
-                              symbolColor ?? DEFAULT_ROUTINE_COLOR,
-                          }
-                        : null;
-                      const todaySuccessCheckBoxStyle =
-                        getTodaySuccessCheckBoxStyle(isTodaySuccess);
-                      const unachievedCheckBoxStyle =
-                        getUnachievedCheckBoxStyle(isUnachievedDay);
-                      const pendingConfirmationCheckBoxStyle =
-                        isPendingConfirmation
-                          ? {
-                              backgroundColor:
-                                theme.colors.brand.pendingConfirmationCheckbox,
-                            }
-                          : null;
-                      const missedPastDayCheckBoxStyle =
-                        getMissedPastCheckBoxStyle(
-                          isMissedPastDay,
-                          theme.colors.feedback.error.bg,
-                        );
-                      const statusLabel = check
-                        ? isTodaySuccess
-                          ? '오늘 완료'
-                          : '달성'
-                        : isPendingConfirmation
-                          ? '요청 중'
-                          : '미달성';
-
-                      return (
-                        <Pressable
-                          key={`${routineId}-status-${index}`}
-                          style={styles.dayColumn}
-                          accessibilityLabel={`${DAY_LABELS[index]}요일 ${statusLabel}`}
-                          accessibilityRole={
-                            canRequestWithCheckBox ? 'button' : 'image'
-                          }
-                          disabled={!canRequestWithCheckBox}
-                          onPress={handlePressCheckBox}
-                        >
-                          <View
-                            style={[
-                              styles.checkBox,
-                              successCheckBoxStyle,
-                              todaySuccessCheckBoxStyle,
-                              unachievedCheckBoxStyle,
-                              pendingConfirmationCheckBoxStyle,
-                              missedPastDayCheckBoxStyle,
-                            ]}
-                            testID={`routine-week-check-${routineId}-${index}`}
-                          >
-                            {isMissedPastDay ? (
-                              <RoutineMissedIcon
-                                size={baseFoundation.iconSize.xs}
-                                color={theme.colors.text.gray}
-                              />
-                            ) : check || isPendingConfirmation ? (
-                              <RoutineCheckmarkIcon
-                                size={baseFoundation.iconSize.s}
-                                color={theme.colors.text.gray}
-                              />
-                            ) : null}
-                          </View>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-
-                  <View style={styles.footer}>
-                    {weeklyCount >= routineCount ? (
-                      <View
-                        style={styles.progressChip}
-                        accessibilityLabel="목표 달성 완료"
-                        accessibilityRole="image"
-                      >
-                        <>
-                          <RoutineCheckmarkIcon
-                            size={baseFoundation.dimension.x14}
-                            color={theme.colors.brand.selectedCheck}
-                          />
-                          <Typography
-                            variant="caption"
-                            style={styles.progressText}
-                          >
-                            완료
-                          </Typography>
-                        </>
-                      </View>
-                    ) : (
-                      <View />
-                    )}
-                  </View>
-                </View>
+          <View style={styles.footer}>
+            {weeklyCount >= routineCount ? (
+              <View
+                style={styles.progressChip}
+                accessibilityLabel="목표 달성 완료"
+                accessibilityRole="image"
+              >
+                <RoutineCheckmarkIcon
+                  size={baseFoundation.dimension.x14}
+                  color={theme.colors.brand.selectedCheck}
+                />
+                <Typography variant="caption" style={styles.progressText}>
+                  완료
+                </Typography>
               </View>
-            </View>
+            ) : (
+              <View />
+            )}
           </View>
         </View>
       );
@@ -302,7 +267,6 @@ const RoutineWeekList = ({
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.selectedCheck,
       theme.colors.feedback.error.bg,
-      theme.colors.text.gray,
       theme.colors.text.secondary,
       todayDateKey,
       weekDateKeys,
@@ -340,15 +304,13 @@ export default RoutineWeekList;
 
 const styles = StyleSheet.create((theme) => ({
   list: {},
-  cardContainer: {
-    justifyContent: 'center',
-  },
   cardOuter: {
-    borderRadius: baseFoundation.dimension.x18,
-    padding: baseFoundation.spacing[0],
-    backgroundColor: '#FFFFFF',
+    position: 'relative',
+    borderRadius: baseFoundation.radii.m,
+    paddingHorizontal: baseFoundation.spacing[4],
+    backgroundColor: theme.colors.brand.routineBackground,
     borderWidth: 2,
-    borderColor: theme.colors.brand.primary,
+    borderColor: theme.colors.brand.routineBorder,
     shadowColor: theme.colors.brand.primary,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
@@ -357,25 +319,6 @@ const styles = StyleSheet.create((theme) => ({
     shadowOpacity: 0.16,
     shadowRadius: 8,
     elevation: 4,
-  },
-  cardGap: {
-    flex: 1,
-    padding: baseFoundation.spacing[0.5],
-    borderRadius: baseFoundation.radii.m,
-    backgroundColor: '#FFFFFF',
-  },
-  cardInner: {
-    flex: 1,
-    borderRadius: baseFoundation.dimension.x14,
-    padding: baseFoundation.spacing[0.5],
-    backgroundColor: theme.colors.brand.secondary,
-  },
-  cardSurface: {
-    flex: 1,
-    position: 'relative',
-    borderRadius: baseFoundation.dimension.x10,
-    paddingHorizontal: baseFoundation.spacing[4],
-    backgroundColor: palette.theme.gray[95],
     justifyContent: 'center',
   },
   title: {
@@ -389,10 +332,6 @@ const styles = StyleSheet.create((theme) => ({
     minHeight: baseFoundation.dimension.x18,
     marginBottom: baseFoundation.spacing[3],
   },
-  headerRow: {
-    flexDirection: 'row',
-    marginBottom: baseFoundation.spacing[1],
-  },
   checkRow: {
     flexDirection: 'row',
     marginBottom: baseFoundation.spacing[0.5],
@@ -401,16 +340,16 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     alignItems: 'center',
   },
-  dayLabel: {
-    color: theme.colors.text.tertiary,
-  },
   checkBox: {
-    width: baseFoundation.dimension.x20,
-    height: baseFoundation.dimension.x20,
-    borderRadius: baseFoundation.dimension.x4,
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
+    borderRadius: baseFoundation.dimension.x6,
     backgroundColor: theme.colors.brand.checkbox,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  dayText: {
+    color: palette.theme.gray[90],
   },
   footer: {
     flexDirection: 'row',

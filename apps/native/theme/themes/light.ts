@@ -140,6 +140,7 @@ export const lightTheme: ThemeContract = {
       card: '#FFFFFF',
       bottomTab: '#FFFFFF',
       activeBottomTab: '#FFFFFF',
+      routineBorder: palette.theme.blue[80],
       routineBackground: '#FFFFFF',
     },
   },

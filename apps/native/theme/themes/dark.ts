@@ -140,6 +140,7 @@ export const darkTheme: ThemeContract = {
       card: '#2f3640',
       bottomTab: '#2f3640',
       activeBottomTab: '#2f3640',
+      routineBorder: palette.theme.blue[80],
       routineBackground: '#2f3640',
     },
   },

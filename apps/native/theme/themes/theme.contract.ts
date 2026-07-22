@@ -134,6 +134,7 @@ export type ThemeContract = {
       card: string;
       bottomTab: string;
       activeBottomTab: string;
+      routineBorder: string;
       routineBackground: string;
     };
   };
@@ -277,6 +278,7 @@ export const baseTheme: ThemeContract = {
       card: '#2f3640',
       bottomTab: '#2f3640',
       activeBottomTab: '#2f3640',
+      routineBorder: palette.theme.blue[80],
       routineBackground: '#2f3640',
     },
   },

@@ -201,6 +201,7 @@ describe('theme/tokens', () => {
           card: '#111',
           bottomTab: '#111',
           activeBottomTab: '#111',
+          routineBorder: '#222',
           routineBackground: '#111',
         },
       },

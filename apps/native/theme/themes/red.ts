@@ -64,6 +64,7 @@ export const redTheme: ThemeContract = {
       bottomTab: palette.theme.softRed[20],
       activeBottomTab: palette.theme.red[50],
       card: palette.theme.red[5],
+      routineBorder: palette.theme.red[80],
       routineBackground: palette.theme.red[100],
     },
   },
