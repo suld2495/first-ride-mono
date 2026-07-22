@@ -220,6 +220,7 @@ describe('theme/tokens', () => {
           routineBackground: '#111',
           routineMissedCheckbox: '#333',
           routineUpcomingCheckboxBorder: '#444',
+          routineProgressText: '#555',
         },
       },
     });
