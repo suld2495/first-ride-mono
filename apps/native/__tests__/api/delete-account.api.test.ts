@@ -1,7 +1,6 @@
+import axiosInstance from '@repo/shared/api';
 import { deleteAccount } from '@repo/shared/api/auth.api';
 import MockAdapter from 'axios-mock-adapter';
-
-import axiosInstance from '@repo/shared/api';
 
 let mockAxios: MockAdapter;
 

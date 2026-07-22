@@ -9,7 +9,6 @@ import {
   View,
 } from 'react-native';
 
-import { deletePushToken } from '@/api/push-token.api';
 import Container from '@/components/layout/container';
 import PageHeader from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,6 @@ import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthSignOutLocally, useAuthUser } from '@/hooks/useAuthSession';
-import { useNotifications } from '@/hooks/useNotifications';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 const DELETE_ACCOUNT_ERROR_MESSAGE = '회원 탈퇴에 실패했습니다.';
@@ -29,7 +27,6 @@ export default function DeleteAccountPage() {
   const { data: currentUser } = useFetchMeQuery(user?.userId);
   const deleteAccountMutation = useDeleteAccountMutation();
   const signOutLocally = useAuthSignOutLocally();
-  const { pushToken } = useNotifications();
   const { showToast } = useToast();
   const [password, setPassword] = useState('');
   const loginType = currentUser?.loginType ?? user?.loginType;
@@ -40,21 +37,12 @@ export default function DeleteAccountPage() {
     !deleteAccountMutation.isPending;
 
   const handleDeleteAccount = useCallback(async () => {
+    let response;
+
     try {
-      const response = await deleteAccountMutation.mutateAsync(
+      response = await deleteAccountMutation.mutateAsync(
         isPlainAccount ? { password } : undefined,
       );
-
-      if (pushToken?.data) {
-        try {
-          await deletePushToken(pushToken.data);
-        } catch {
-          // 탈퇴가 완료된 뒤에는 푸시 토큰 삭제 실패와 관계없이 세션을 정리한다.
-        }
-      }
-
-      showToast(response.message, 'success');
-      await signOutLocally();
     } catch (error) {
       const fallbackMessage =
         error instanceof Error && error.message
@@ -62,12 +50,23 @@ export default function DeleteAccountPage() {
           : DELETE_ACCOUNT_ERROR_MESSAGE;
 
       showToast(getApiErrorMessage(error, fallbackMessage), 'error');
+      return;
+    }
+
+    showToast(response.message, 'success');
+
+    try {
+      await signOutLocally();
+    } catch {
+      showToast(
+        '회원탈퇴는 완료되었습니다. 앱을 다시 시작해주세요.',
+        'warning',
+      );
     }
   }, [
     deleteAccountMutation,
     isPlainAccount,
     password,
-    pushToken?.data,
     showToast,
     signOutLocally,
   ]);
