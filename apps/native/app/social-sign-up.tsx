@@ -1,6 +1,6 @@
 import type { AppleGender } from '@repo/types';
-import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
 import AuthForm from '@/components/auth/auth-form';
@@ -19,12 +19,8 @@ import {
 } from '@/hooks/useAuth';
 import { useAuthSignIn } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
-import { usePendingAppleAuth } from '@/hooks/usePendingAppleAuth';
-import {
-  AUTH_PROVIDER_NAMES,
-  getDeviceType,
-  type SocialProviderType,
-} from '@/providers/auth/types';
+import { usePendingSocialAuth } from '@/hooks/usePendingAppleAuth';
+import { AUTH_PROVIDER_NAMES, getDeviceType } from '@/providers/auth/types';
 import { baseFoundation } from '@/theme/tokens';
 import { getDeviceId } from '@/utils/device-id';
 import { getApiErrorMessage, getFieldErrors } from '@/utils/error-utils';
@@ -42,41 +38,52 @@ const initial = (): ProfileForm => ({
 });
 
 export default function SocialSignUp() {
-  const { provider, accessToken } = useLocalSearchParams<{
-    provider: string;
-    accessToken: string;
-  }>();
+  const router = useRouter();
+  const completedRef = useRef(false);
   const [form, setForm] = useState<ProfileForm>(initial());
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { pushToken } = useNotifications();
   const signIn = useAuthSignIn();
   const socialSignUpMutation = useSocialSignUpMutation();
   const appleSignUpMutation = useAppleSignUpMutation();
-  const {
-    credential: pendingAppleCredential,
-    clearCredential: clearPendingAppleCredential,
-    consumeAuthorizationCode,
-  } = usePendingAppleAuth();
+  const { attempt, getValidAttempt, clearAttempt, consumeAuthorizationCode } =
+    usePendingSocialAuth();
   const {
     data: jobOptions = [],
     isError: isJobOptionsError,
     isLoading: isJobOptionsLoading,
   } = useJobOptionsQuery();
   const { showToast } = useToast();
+  const isAttemptValid = !!attempt && attempt.expiresAt > Date.now();
+  const provider = isAttemptValid ? attempt.provider : null;
   const isApple = provider === 'apple';
 
-  useEffect(
-    () => () => {
-      if (isApple) {
-        clearPendingAppleCredential();
+  useEffect(() => {
+    if (completedRef.current || isAttemptValid) {
+      return;
+    }
+
+    clearAttempt(attempt?.id);
+    router.replace('/sign-in');
+  }, [attempt?.id, clearAttempt, isAttemptValid, router]);
+
+  useEffect(() => {
+    const attemptId = attempt?.id;
+
+    if (!attemptId) {
+      return;
+    }
+
+    return () => {
+      if (!completedRef.current) {
+        clearAttempt(attemptId);
       }
-    },
-    [clearPendingAppleCredential, isApple],
-  );
+    };
+  }, [attempt?.id, clearAttempt]);
 
   const getProviderName = () => {
     if (!provider) return 'SNS';
-    return AUTH_PROVIDER_NAMES[provider as SocialProviderType] || 'SNS';
+    return AUTH_PROVIDER_NAMES[provider] || 'SNS';
   };
 
   const handleSubmit = async () => {
@@ -100,11 +107,14 @@ export default function SocialSignUp() {
       return;
     }
 
-    if (isApple && !pendingAppleCredential) {
+    const currentAttempt = getValidAttempt();
+
+    if (!currentAttempt || currentAttempt.id !== attempt?.id) {
       showToast(
-        'Apple 로그인 정보가 만료되었습니다. 다시 로그인해주세요.',
+        '소셜 로그인 정보가 만료되었습니다. 다시 로그인해주세요.',
         'error',
       );
+      router.replace('/sign-in');
       return;
     }
 
@@ -115,31 +125,32 @@ export default function SocialSignUp() {
         deviceType: getDeviceType(),
         deviceId,
       };
-      const response = isApple
-        ? await appleSignUpMutation.mutateAsync({
-            nonceId: pendingAppleCredential!.nonceId,
-            identityToken: pendingAppleCredential!.identityToken,
-            authorizationCode: consumeAuthorizationCode(),
-            nickname: form.nickname,
-            job: form.job,
-            gender: form.gender as AppleGender,
-            ...deviceInfo,
-          })
-        : await socialSignUpMutation.mutateAsync({
-            provider: provider as SocialProviderType,
-            accessToken,
-            nickname: form.nickname,
-            job: form.job,
-            ...deviceInfo,
-          });
+      const { credential } = currentAttempt;
+      const response =
+        credential.provider === 'apple'
+          ? await appleSignUpMutation.mutateAsync({
+              nonceId: credential.nonceId,
+              identityToken: credential.identityToken,
+              authorizationCode: consumeAuthorizationCode(currentAttempt.id),
+              nickname: form.nickname,
+              job: form.job,
+              gender: form.gender as AppleGender,
+              ...deviceInfo,
+            })
+          : await socialSignUpMutation.mutateAsync({
+              provider: credential.provider,
+              accessToken: credential.accessToken,
+              nickname: form.nickname,
+              job: form.job,
+              ...deviceInfo,
+            });
 
       await Promise.all([
         setAuthorization(response.accessToken),
         setRefreshToken(response.refreshToken),
       ]);
-      if (isApple) {
-        clearPendingAppleCredential();
-      }
+      completedRef.current = true;
+      clearAttempt(currentAttempt.id);
       signIn(response.userInfo);
     } catch (error) {
       const serverErrors = getFieldErrors(error);
@@ -171,6 +182,10 @@ export default function SocialSignUp() {
       });
     }
   };
+
+  if (!isAttemptValid) {
+    return null;
+  }
 
   return (
     <ThemeView style={styles.container}>

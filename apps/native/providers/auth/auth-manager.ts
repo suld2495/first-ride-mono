@@ -4,13 +4,13 @@ import type {
   AuthProviderType,
   AuthResponse,
   DeviceInfo,
+  SocialPayload,
 } from './types';
 
 // AuthManager 결과 타입 (providerType 포함)
 export interface AuthResult extends AuthResponse {
   providerType: AuthProviderType;
-  socialAccessToken?: string;
-  pendingAppleCredential?: ApplePayload;
+  pendingCredential?: SocialPayload | ApplePayload;
 }
 
 class AuthManager {
@@ -26,17 +26,14 @@ class AuthManager {
 
     // 2. Provider가 자신의 API 호출
     const response = await provider.callApi(payload, deviceInfo);
-    const socialAccessToken =
-      response.isNewUser && 'accessToken' in payload
-        ? payload.accessToken
+    const pendingCredential =
+      response.isNewUser && payload.provider !== 'credentials'
+        ? payload
         : undefined;
-    const pendingAppleCredential =
-      response.isNewUser && 'identityToken' in payload ? payload : undefined;
 
     return {
       ...response,
-      socialAccessToken,
-      pendingAppleCredential,
+      pendingCredential,
       providerType,
     };
   }

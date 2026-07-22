@@ -14,7 +14,6 @@ declare const mockAuthStore: {
 };
 declare const mockPush: jest.Mock;
 declare const mockReplace: jest.Mock;
-declare const mockSearchParams: Record<string, string | undefined>;
 
 jest.mock('@/api/token-storage.api', () => ({
   setAuthorization: jest.fn(),
@@ -45,9 +44,6 @@ describe('SocialSignUp 페이지', () => {
     mockedSetAuthorization.mockClear();
     mockedSetRefreshToken.mockClear();
     mockedGetDeviceId.mockResolvedValue('installation-device-id');
-    for (const key of Object.keys(mockSearchParams)) {
-      delete mockSearchParams[key];
-    }
     usePendingAppleAuthStore.getState().clearAttempt();
     usePendingAppleAuthStore.getState().beginAttempt({
       provider: 'kakao',
@@ -70,7 +66,6 @@ describe('SocialSignUp 페이지', () => {
 
   afterEach(() => {
     mockAxios.restore();
-    usePendingAppleAuthStore.getState().clearAttempt();
   });
 
   it('유효한 로컬 인증 시도 없이 직접 열면 로그인 화면으로 이동한다', async () => {

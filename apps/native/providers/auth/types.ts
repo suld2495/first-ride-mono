@@ -31,6 +31,7 @@ export interface SocialPayload {
   socialId: string;
   accessToken: string;
   idToken?: string;
+  expiresAt: number;
 }
 
 export interface ApplePayload {
@@ -38,6 +39,7 @@ export interface ApplePayload {
   nonceId: string;
   identityToken: string;
   authorizationCode?: string;
+  expiresAt: number;
 }
 
 export type AuthPayload = CredentialsPayload | SocialPayload | ApplePayload;

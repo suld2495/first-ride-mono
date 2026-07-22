@@ -1,5 +1,5 @@
-import axiosInstance from '@repo/shared/api';
 import { login as kakaoLogin, me as kakaoMe } from '@react-native-kakao/user';
+import axiosInstance from '@repo/shared/api';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { Platform, StyleSheet as RNStyleSheet } from 'react-native';
@@ -338,9 +338,10 @@ describe('SignIn 페이지', () => {
         await waitFor(() => {
           expect(mockPush).toHaveBeenCalledWith('/social-sign-up');
         });
-        expect(usePendingAppleAuthStore.getState().attempt).toMatchObject({
+        const pendingAttempt = usePendingAppleAuthStore.getState().attempt;
+
+        expect(pendingAttempt).toMatchObject({
           provider: 'apple',
-          expiresAt: Date.parse('2099-07-19T12:05:00Z'),
           credential: {
             provider: 'apple',
             nonceId: 'apple-nonce-id',
@@ -349,6 +350,10 @@ describe('SignIn 페이지', () => {
             expiresAt: Date.parse('2099-07-19T12:05:00Z'),
           },
         });
+        expect(pendingAttempt!.expiresAt).toBeGreaterThan(Date.now());
+        expect(pendingAttempt!.expiresAt).toBeLessThanOrEqual(
+          Date.now() + 5 * 60 * 1000,
+        );
         expect(mockAxios.history.post).toHaveLength(2);
       } finally {
         Object.defineProperty(Platform, 'OS', {

@@ -16,6 +16,7 @@ class KakaoAuthProvider extends SocialAuthProvider {
       provider: 'kakao',
       socialId: String(user.id),
       accessToken: tokenResult.accessToken,
+      expiresAt: tokenResult.accessTokenExpiresAt * 1000,
     };
   }
 

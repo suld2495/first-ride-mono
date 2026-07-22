@@ -1,13 +1,19 @@
-import { usePendingAppleAuthStore } from '@/store/pending-apple-auth.store';
+import { usePendingSocialAuthStore } from '@/store/pending-apple-auth.store';
 
-export function usePendingAppleAuth() {
-  const credential = usePendingAppleAuthStore((state) => state.credential);
-  const clearCredential = usePendingAppleAuthStore(
-    (state) => state.clearCredential,
+export function usePendingSocialAuth() {
+  const attempt = usePendingSocialAuthStore((state) => state.attempt);
+  const getValidAttempt = usePendingSocialAuthStore(
+    (state) => state.getValidAttempt,
   );
-  const consumeAuthorizationCode = usePendingAppleAuthStore(
+  const clearAttempt = usePendingSocialAuthStore((state) => state.clearAttempt);
+  const consumeAuthorizationCode = usePendingSocialAuthStore(
     (state) => state.consumeAuthorizationCode,
   );
 
-  return { credential, clearCredential, consumeAuthorizationCode };
+  return {
+    attempt,
+    getValidAttempt,
+    clearAttempt,
+    consumeAuthorizationCode,
+  };
 }

@@ -22,7 +22,7 @@ class AppleAuthProvider implements AuthProvider<'apple', ApplePayload, void> {
   }
 
   async authenticate(): Promise<ApplePayload> {
-    const { nonceId, nonce } = await appleNonce();
+    const { nonceId, nonce, expiresAt } = await appleNonce();
     const credential = await AppleAuthentication.signInAsync({
       nonce,
       requestedScopes: [AppleAuthentication.AppleAuthenticationScope.EMAIL],
@@ -37,6 +37,7 @@ class AppleAuthProvider implements AuthProvider<'apple', ApplePayload, void> {
       nonceId,
       identityToken: credential.identityToken,
       authorizationCode: credential.authorizationCode ?? undefined,
+      expiresAt: Date.parse(expiresAt),
     };
   }
 

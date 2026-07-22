@@ -40,6 +40,26 @@ describe('pending social auth store', () => {
     expect(usePendingAppleAuthStore.getState().attempt).toBeNull();
   });
 
+  it('만료 시각이 되면 화면 동작 없이도 인증 시도를 자동 삭제한다', () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(1_000);
+
+    try {
+      usePendingAppleAuthStore.getState().beginAttempt({
+        provider: 'kakao',
+        socialId: '12345',
+        accessToken: 'kakao-access-token',
+        expiresAt: 1_500,
+      });
+
+      jest.advanceTimersByTime(500);
+
+      expect(usePendingAppleAuthStore.getState().attempt).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('이전 인증 시도의 정리 요청이 새 인증 시도를 삭제하지 않는다', () => {
     const firstAttemptId = usePendingAppleAuthStore.getState().beginAttempt({
       provider: 'kakao',

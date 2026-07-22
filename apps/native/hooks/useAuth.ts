@@ -3,7 +3,7 @@ import { socialSignUp } from '@repo/shared/api/social-auth.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { setAuthorization, setRefreshToken } from '@/api/token-storage.api';
 import { useAuthSignIn, useAuthSignOut } from '@/hooks/useAuthSession';
@@ -14,7 +14,7 @@ import {
   type AuthProviderType,
   type SocialProviderType,
 } from '@/providers/auth/types';
-import { usePendingAppleAuthStore } from '@/store/pending-apple-auth.store';
+import { usePendingSocialAuthStore } from '@/store/pending-apple-auth.store';
 import { getDeviceId } from '@/utils/device-id';
 
 import { useNotifications } from './useNotifications';
@@ -44,23 +44,23 @@ export function useAuth(): UseAuthReturn {
   const [loadingProvider, setLoadingProvider] =
     useState<AuthProviderType | null>(null);
   const [error, setError] = useState<Error | null>(null);
-  const setPendingAppleCredential = usePendingAppleAuthStore(
-    (state) => state.setCredential,
+  const loginAttemptSequence = useRef(0);
+  const beginPendingAuthAttempt = usePendingSocialAuthStore(
+    (state) => state.beginAttempt,
   );
-  const clearPendingAppleCredential = usePendingAppleAuthStore(
-    (state) => state.clearCredential,
+  const clearPendingAuthAttempt = usePendingSocialAuthStore(
+    (state) => state.clearAttempt,
   );
 
   const login = async (
     providerType: AuthProviderType,
     params?: CredentialsParams,
   ) => {
+    const loginAttemptId = ++loginAttemptSequence.current;
+
     setLoadingProvider(providerType);
     setError(null);
-
-    if (providerType === 'apple') {
-      clearPendingAppleCredential();
-    }
+    clearPendingAuthAttempt();
 
     try {
       const deviceId = await getDeviceId();
@@ -72,26 +72,17 @@ export function useAuth(): UseAuthReturn {
 
       const result = await authManager.login(providerType, deviceInfo, params);
 
-      if (result.isNewUser) {
-        // 신규 회원: 추가 정보 입력 화면으로
-        if (providerType === 'apple') {
-          if (!result.pendingAppleCredential) {
-            throw new Error('Apple 인증 정보를 저장하지 못했습니다.');
-          }
+      if (loginAttemptSequence.current !== loginAttemptId) {
+        return;
+      }
 
-          setPendingAppleCredential(result.pendingAppleCredential);
+      if (result.isNewUser) {
+        if (!result.pendingCredential) {
+          throw new Error('소셜 인증 정보를 저장하지 못했습니다.');
         }
 
-        router.push({
-          pathname: '/social-sign-up',
-          params:
-            providerType === 'apple'
-              ? { provider: providerType }
-              : {
-                  provider: providerType,
-                  accessToken: result.socialAccessToken,
-                },
-        });
+        beginPendingAuthAttempt(result.pendingCredential);
+        router.push('/social-sign-up');
       } else {
         // 기존 회원: 로그인 완료
         await Promise.all([
@@ -101,18 +92,26 @@ export function useAuth(): UseAuthReturn {
         signIn(result.userInfo!);
       }
     } catch (err) {
+      if (loginAttemptSequence.current !== loginAttemptId) {
+        return;
+      }
+
+      clearPendingAuthAttempt();
       const authError =
         err instanceof Error ? err : new Error('로그인에 실패했습니다.');
 
       setError(authError);
       throw authError;
     } finally {
-      setLoadingProvider(null);
+      if (loginAttemptSequence.current === loginAttemptId) {
+        setLoadingProvider(null);
+      }
     }
   };
 
   const logout = async (providerType?: AuthProviderType) => {
-    clearPendingAppleCredential();
+    loginAttemptSequence.current += 1;
+    clearPendingAuthAttempt();
     await authManager.logout(providerType);
     await authSignOut();
   };
