@@ -292,9 +292,9 @@ describe('StatsPage', () => {
     expect(getByTestId('stats-summary-scroll')).toBeOnTheScreen();
     expect(
       getAllByTestId('routine-stats-summary-progress-marker'),
-    ).toHaveLength(4);
-    expect(getByText('2회 달성')).toBeOnTheScreen();
-    expect(getByText('1회 달성')).toBeOnTheScreen();
+    ).toHaveLength(2);
+    expect(queryByText('2회 달성')).toBeNull();
+    expect(queryByText('1회 달성')).toBeNull();
     expect(queryByText('등록된 루틴이 없습니다.')).toBeNull();
     expect(
       flattenStyles(getByTestId('routine-stats-summary-track-1').props.style),
@@ -398,33 +398,10 @@ describe('StatsPage', () => {
         }),
       ]),
     );
+    expect(queryByTestId('routine-stats-summary-achievement-1')).toBeNull();
     expect(
-      flattenStyles(
-        getByTestId('routine-stats-summary-achievement-1').props.style,
-      ),
-    ).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ height: 36, paddingHorizontal: 12 }),
-      ]),
-    );
-    expect(
-      getByTestId('routine-stats-summary-achievement-label-1').props,
-    ).toEqual(
-      expect.objectContaining({
-        fontSize: '$body1',
-        fontWeight: '700',
-      }),
-    );
-    expect(
-      flattenStyles(
-        getByTestId('routine-stats-summary-achievement-label-1').props.style,
-      ),
-    ).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ color: palette.theme.gray[700] }),
-        expect.objectContaining({ fontSize: 16 }),
-      ]),
-    );
+      queryByTestId('routine-stats-summary-achievement-label-1'),
+    ).toBeNull();
 
     fireEvent.press(getByLabelText('이전 달'));
 
