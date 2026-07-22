@@ -412,6 +412,9 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({ marginTop: 'auto' }),
     );
     expect(deletionText.props.fontSize).toBe('$body3');
+    expect(StyleSheet.flatten(deletionText.props.style)).toEqual(
+      expect.objectContaining({ color: palette.theme.gray[30] }),
+    );
 
     fireEvent.press(getByText('회원 탈퇴'));
 
