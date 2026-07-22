@@ -1,6 +1,7 @@
 import { logout } from '@repo/shared/api/auth.api';
 import { act, waitFor } from '@testing-library/react-native';
 
+import { deletePushToken } from '@/api/push-token.api';
 import * as tokenStorage from '@/api/token-storage.api';
 import { clearRoutineShareTargets } from '@/share/routine-share';
 import { useAuthStore } from '@/store/auth.store';
@@ -12,6 +13,10 @@ jest.mock('@repo/shared/api/auth.api', () => ({
   logout: jest.fn(),
 }));
 
+jest.mock('@/api/push-token.api', () => ({
+  deletePushToken: jest.fn(),
+}));
+
 jest.mock('@/share/routine-share', () => ({
   clearRoutineShareTargets: jest.fn(),
 }));
@@ -21,6 +26,7 @@ jest.mock('@/widget/routine-widget-native', () => ({
 }));
 
 const mockedLogout = jest.mocked(logout);
+const mockedDeletePushToken = jest.mocked(deletePushToken);
 const mockedClearRoutineShareTargets = jest.mocked(clearRoutineShareTargets);
 const mockedClearRoutineWidgetSnapshot = jest.mocked(
   clearRoutineWidgetSnapshot,
@@ -30,6 +36,7 @@ describe('auth.store', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     mockedLogout.mockResolvedValue({ message: 'ok' });
+    mockedDeletePushToken.mockResolvedValue(true);
     mockedClearRoutineShareTargets.mockResolvedValue();
     mockedClearRoutineWidgetSnapshot.mockResolvedValue();
     jest
@@ -143,5 +150,113 @@ describe('auth.store', () => {
     });
 
     expect(useAuthStore.getState().lastUserId).toBe('remembered@example.com');
+  });
+
+  it('SecureStore 토큰 삭제가 실패해도 사용자 상태와 나머지 로컬 데이터를 정리한다', async () => {
+    jest
+      .spyOn(tokenStorage, 'clearTokens')
+      .mockRejectedValueOnce(new Error('secure store failed'));
+    useAuthStore.getState().signIn({
+      userId: 'secure-store@example.com',
+      nickname: '보안저장소',
+      motto: null,
+      mottos: [],
+      role: 'USER',
+    });
+
+    await expect(
+      useAuthStore.getState().signOutLocally(),
+    ).resolves.toBeUndefined();
+
+    expect(useAuthStore.getState().user).toBeNull();
+    expect(mockedClearRoutineWidgetSnapshot).toHaveBeenCalledTimes(1);
+    expect(mockedClearRoutineShareTargets).toHaveBeenCalledTimes(1);
+  });
+
+  it('위젯 정리가 실패해도 사용자 상태와 공유 확장 데이터를 정리한다', async () => {
+    mockedClearRoutineWidgetSnapshot.mockRejectedValueOnce(
+      new Error('widget failed'),
+    );
+    useAuthStore.getState().signIn({
+      userId: 'widget@example.com',
+      nickname: '위젯',
+      motto: null,
+      mottos: [],
+      role: 'USER',
+    });
+
+    await expect(
+      useAuthStore.getState().signOutLocally(),
+    ).resolves.toBeUndefined();
+
+    expect(useAuthStore.getState().user).toBeNull();
+    expect(mockedClearRoutineShareTargets).toHaveBeenCalledTimes(1);
+  });
+
+  it('공유 확장 정리가 실패해도 사용자 상태를 로그아웃으로 유지한다', async () => {
+    mockedClearRoutineShareTargets.mockRejectedValueOnce(
+      new Error('share extension failed'),
+    );
+    useAuthStore.getState().signIn({
+      userId: 'share@example.com',
+      nickname: '공유',
+      motto: null,
+      mottos: [],
+      role: 'USER',
+    });
+
+    await expect(
+      useAuthStore.getState().signOutLocally(),
+    ).resolves.toBeUndefined();
+
+    expect(useAuthStore.getState().user).toBeNull();
+  });
+
+  it('로컬 정리가 끝나지 않아도 사용자 상태를 먼저 로그아웃으로 전환한다', async () => {
+    let finishWidgetCleanup: (() => void) | undefined;
+    mockedClearRoutineWidgetSnapshot.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finishWidgetCleanup = resolve;
+        }),
+    );
+    useAuthStore.getState().signIn({
+      userId: 'pending@example.com',
+      nickname: '대기',
+      motto: null,
+      mottos: [],
+      role: 'USER',
+    });
+
+    const signOutPromise = useAuthStore.getState().signOutLocally();
+
+    expect(useAuthStore.getState().user).toBeNull();
+    expect(mockedClearRoutineShareTargets).toHaveBeenCalledTimes(1);
+
+    finishWidgetCleanup?.();
+    await expect(signOutPromise).resolves.toBeUndefined();
+  });
+
+  it('서버 정리 실패를 격리하고 푸시 토큰까지 정리한 뒤 로컬 로그아웃한다', async () => {
+    mockedLogout.mockRejectedValueOnce(new Error('logout api failed'));
+    mockedDeletePushToken.mockRejectedValueOnce(
+      new Error('push token api failed'),
+    );
+    useAuthStore.getState().signIn({
+      userId: 'remote@example.com',
+      nickname: '서버정리',
+      motto: null,
+      mottos: [],
+      role: 'USER',
+    });
+
+    await expect(
+      useAuthStore.getState().signOut('ExponentPushToken[test]'),
+    ).resolves.toBeUndefined();
+
+    expect(mockedDeletePushToken).toHaveBeenCalledWith(
+      'ExponentPushToken[test]',
+    );
+    expect(useAuthStore.getState().user).toBeNull();
   });
 });
