@@ -180,6 +180,11 @@ const RoutineWeekList = ({
                 : null;
               const todaySuccessCheckBoxStyle =
                 getTodaySuccessCheckBoxStyle(isTodaySuccess);
+              const todaySuccessFrameStyle = isTodaySuccess
+                ? {
+                    borderColor: symbolColor ?? DEFAULT_ROUTINE_COLOR,
+                  }
+                : null;
               const upcomingCheckBoxStyle = getUpcomingCheckBoxStyle(
                 isUpcomingDay,
                 theme.colors.brand.routineUpcomingCheckboxBorder,
@@ -220,30 +225,35 @@ const RoutineWeekList = ({
                   onPress={handlePressCheckBox}
                 >
                   <View
-                    style={[
-                      styles.checkBox,
-                      successCheckBoxStyle,
-                      todaySuccessCheckBoxStyle,
-                      upcomingCheckBoxStyle,
-                      pendingConfirmationCheckBoxStyle,
-                      missedPastDayCheckBoxStyle,
-                    ]}
-                    testID={`routine-week-check-${routineId}-${index}`}
+                    style={[styles.checkFrame, todaySuccessFrameStyle]}
+                    testID={`routine-week-check-frame-${routineId}-${index}`}
                   >
-                    {isMissedPastDay ? (
-                      <RoutineMissedIcon
-                        size={baseFoundation.iconSize.xs}
-                        color={palette.theme.gray[90]}
-                      />
-                    ) : (
-                      <Typography
-                        variant="caption2"
-                        weight="semibold"
-                        style={[styles.dayText, futureDayTextStyle]}
-                      >
-                        {DAY_LABELS[index]}
-                      </Typography>
-                    )}
+                    <View
+                      style={[
+                        styles.checkBox,
+                        successCheckBoxStyle,
+                        todaySuccessCheckBoxStyle,
+                        upcomingCheckBoxStyle,
+                        pendingConfirmationCheckBoxStyle,
+                        missedPastDayCheckBoxStyle,
+                      ]}
+                      testID={`routine-week-check-${routineId}-${index}`}
+                    >
+                      {isMissedPastDay ? (
+                        <RoutineMissedIcon
+                          size={baseFoundation.iconSize.xs}
+                          color={palette.theme.gray[90]}
+                        />
+                      ) : (
+                        <Typography
+                          variant="caption2"
+                          weight="semibold"
+                          style={[styles.dayText, futureDayTextStyle]}
+                        >
+                          {DAY_LABELS[index]}
+                        </Typography>
+                      )}
+                    </View>
                   </View>
                 </Pressable>
               );
@@ -353,6 +363,16 @@ const styles = StyleSheet.create((theme) => ({
   },
   dayColumn: {
     flex: 1,
+    alignItems: 'center',
+  },
+  checkFrame: {
+    width: baseFoundation.dimension.x28,
+    height: baseFoundation.dimension.x28,
+    borderRadius: baseFoundation.dimension.x8,
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    borderWidth: baseFoundation.dimension.x1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   checkBox: {
