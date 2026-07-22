@@ -47,6 +47,16 @@ const getDotRows = (totalDotCount: number) => {
   return rows;
 };
 
+const getCompletedDotIndexes = (
+  totalDotCount: number,
+  completedDotCount: number,
+) =>
+  getDotRows(totalDotCount)
+    .flatMap((row, rowIndex) =>
+      rowIndex % 2 === 0 ? row : [...row].reverse(),
+    )
+    .slice(0, completedDotCount);
+
 const Dot = ({ completed, routineColor, testID }: DotProps) => (
   <View
     style={[
@@ -170,9 +180,9 @@ const RoutineStatsSummary = ({
             routineName: routine.routineName,
             routineColor: routine.symbolColor ?? DEFAULT_ROUTINE_COLOR,
             totalDotCount: totalAvailableCount,
-            completedIndexes: Array.from(
-              { length: completedDotCount },
-              (_, index) => index,
+            completedIndexes: getCompletedDotIndexes(
+              totalAvailableCount,
+              completedDotCount,
             ),
           },
         ];
