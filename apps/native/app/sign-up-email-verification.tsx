@@ -16,46 +16,61 @@ import {
   usePendingSignUpPayload,
 } from '@/hooks/usePendingSignUp';
 import { baseFoundation, palette } from '@/theme/tokens';
+import {
+  getEmailVerificationBackoffDelay,
+  getRetryAfterDelay,
+} from '@/utils/email-verification-polling';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 const EMAIL_VERIFICATION_POLL_INTERVAL_MS = 2500;
 const EMAIL_VERIFICATION_MAX_WAIT_MS = 30 * 60 * 1000;
+const EMAIL_VERIFICATION_WAITING_MESSAGE =
+  '이메일로 보낸 인증 링크를 클릭해주세요';
+const EMAIL_VERIFICATION_ERROR_MESSAGE =
+  '이메일 인증 상태를 확인하지 못했습니다. 잠시 후 다시 시도합니다.';
 
 type VerificationStatus = 'waiting' | 'verified' | 'expired' | 'error';
 
 export default function SignUpEmailVerification() {
-  const router = useRouter();
+  const { replace } = useRouter();
   const payload = usePendingSignUpPayload();
   const clearPayload = useClearPendingSignUpPayload();
   const { showToast } = useToast();
   const [status, setStatus] = useState<VerificationStatus>('waiting');
-  const [message, setMessage] = useState(
-    '이메일로 보낸 인증 링크를 클릭해주세요',
-  );
+  const [message, setMessage] = useState(EMAIL_VERIFICATION_WAITING_MESSAGE);
   const isCompletingRef = useRef(false);
   const isLeavingRef = useRef(false);
 
   useEffect(() => {
     if (!payload) {
       if (!isLeavingRef.current) {
-        router.replace('/sign-up');
+        replace('/sign-up');
       }
       return undefined;
     }
 
     let isActive = true;
-    let pollTimer: ReturnType<typeof setInterval> | null = null;
+    let pollTimer: ReturnType<typeof setTimeout> | null = null;
     let expireTimer: ReturnType<typeof setTimeout> | null = null;
+    let activeRequestController: AbortController | null = null;
+    let hasExpired = false;
+    let consecutiveFailures = 0;
 
-    const stopPolling = () => {
+    const clearPollTimer = () => {
       if (pollTimer) {
-        clearInterval(pollTimer);
+        clearTimeout(pollTimer);
         pollTimer = null;
       }
+    };
+
+    const stopPolling = () => {
+      clearPollTimer();
       if (expireTimer) {
         clearTimeout(expireTimer);
         expireTimer = null;
       }
+      activeRequestController?.abort();
+      activeRequestController = null;
     };
 
     const completeSignUp = async () => {
@@ -76,7 +91,7 @@ export default function SignUpEmailVerification() {
         isLeavingRef.current = true;
         clearPayload();
         showToast('회원가입이 완료되었습니다.', 'success');
-        router.replace('/sign-in');
+        replace('/sign-in');
       } catch (error) {
         if (!isActive) {
           return;
@@ -92,36 +107,69 @@ export default function SignUpEmailVerification() {
       }
     };
 
+    const scheduleNextPoll = (delay: number) => {
+      if (!isActive || hasExpired || isCompletingRef.current) {
+        return;
+      }
+
+      clearPollTimer();
+      pollTimer = setTimeout(() => {
+        pollTimer = null;
+        void pollVerification();
+      }, delay);
+    };
+
     const pollVerification = async () => {
+      const requestController = new AbortController();
+
+      activeRequestController = requestController;
+
       try {
-        const result = await confirmEmailVerification(payload.userId);
-
-        if (!isActive || !result.verified) {
-          return;
-        }
-
-        await completeSignUp();
-      } catch (error) {
-        if (!isActive) {
-          return;
-        }
-        setStatus('error');
-        setMessage(
-          getApiErrorMessage(
-            error,
-            '이메일 인증 상태를 확인하지 못했습니다. 잠시 후 다시 시도합니다.',
-          ),
+        const result = await confirmEmailVerification(
+          payload.userId,
+          requestController.signal,
         );
+
+        if (activeRequestController === requestController) {
+          activeRequestController = null;
+        }
+
+        if (!isActive || hasExpired || requestController.signal.aborted) {
+          return;
+        }
+
+        if (result.verified) {
+          await completeSignUp();
+          return;
+        }
+
+        consecutiveFailures = 0;
+        setStatus('waiting');
+        setMessage(EMAIL_VERIFICATION_WAITING_MESSAGE);
+        scheduleNextPoll(EMAIL_VERIFICATION_POLL_INTERVAL_MS);
+      } catch (error) {
+        if (activeRequestController === requestController) {
+          activeRequestController = null;
+        }
+
+        if (!isActive || hasExpired || requestController.signal.aborted) {
+          return;
+        }
+
+        consecutiveFailures += 1;
+        setStatus('error');
+        setMessage(getApiErrorMessage(error, EMAIL_VERIFICATION_ERROR_MESSAGE));
+
+        const retryDelay =
+          getRetryAfterDelay(error) ??
+          getEmailVerificationBackoffDelay(consecutiveFailures);
+
+        scheduleNextPoll(retryDelay);
       }
     };
 
-    void pollVerification();
-
-    pollTimer = setInterval(() => {
-      void pollVerification();
-    }, EMAIL_VERIFICATION_POLL_INTERVAL_MS);
-
     expireTimer = setTimeout(() => {
+      hasExpired = true;
       stopPolling();
       if (!isActive || isCompletingRef.current) {
         return;
@@ -130,16 +178,18 @@ export default function SignUpEmailVerification() {
       setMessage('이메일 인증 시간이 만료되었습니다.');
     }, EMAIL_VERIFICATION_MAX_WAIT_MS);
 
+    void pollVerification();
+
     return () => {
       isActive = false;
       stopPolling();
     };
-  }, [clearPayload, payload, router, showToast]);
+  }, [clearPayload, payload, replace, showToast]);
 
   const handleSignInPress = () => {
     isLeavingRef.current = true;
     clearPayload();
-    router.replace('/sign-in');
+    replace('/sign-in');
   };
 
   const isWaiting = status === 'waiting';

@@ -102,11 +102,13 @@ export const requestEmailVerification = async (
 
 export const confirmEmailVerification = async (
   email: string,
+  signal?: AbortSignal,
 ): Promise<EmailVerificationStatusResponse> => {
   try {
     return await http.post<EmailVerificationStatusResponse, { email: string }>(
       `${baseURL}/email/verification-confirm`,
       { email },
+      { signal },
     );
   } catch (error) {
     throw toAppError(error);

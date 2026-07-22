@@ -26,9 +26,12 @@ describe('이메일 인증 폴링 지연 계산', () => {
     [2, 10_000],
     [3, 20_000],
     [10, 30_000],
-  ])('실패 횟수 %i에서 중앙 jitter 지연을 %ims로 계산한다', (failures, expected) => {
-    expect(getEmailVerificationBackoffDelay(failures, 0.5)).toBe(expected);
-  });
+  ])(
+    '실패 횟수 %i에서 중앙 jitter 지연을 %ims로 계산한다',
+    (failures, expected) => {
+      expect(getEmailVerificationBackoffDelay(failures, 0.5)).toBe(expected);
+    },
+  );
 
   it('jitter를 적용하면서 최대 지연을 30초로 제한한다', () => {
     expect(getEmailVerificationBackoffDelay(1, 0)).toBe(4000);
@@ -44,9 +47,7 @@ describe('이메일 인증 폴링 지연 계산', () => {
     const now = Date.parse('2026-07-22T00:00:00.000Z');
     const retryAt = new Date(now + 15_000).toUTCString();
 
-    expect(getRetryAfterDelay(createRateLimitError(retryAt), now)).toBe(
-      15_000,
-    );
+    expect(getRetryAfterDelay(createRateLimitError(retryAt), now)).toBe(15_000);
   });
 
   it('429가 아니거나 잘못된 Retry-After는 사용하지 않는다', () => {

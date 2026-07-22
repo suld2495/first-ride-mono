@@ -259,9 +259,6 @@ describe('SignUpEmailVerification 페이지', () => {
     screen.unmount();
 
     expect(signal?.aborted).toBe(true);
-    response.resolve([
-      200,
-      { data: { email: 'a@b.co', verified: false } },
-    ]);
+    response.resolve([200, { data: { email: 'a@b.co', verified: false } }]);
   });
 });
