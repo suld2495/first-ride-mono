@@ -35,8 +35,6 @@ export default function PrivacySettingsPage() {
 
   const handleAnalyticsChange = useCallback(
     async (enabled: boolean) => {
-      const previousValue = analyticsEnabled;
-
       setIsSaving(true);
 
       try {
@@ -49,13 +47,15 @@ export default function PrivacySettingsPage() {
           'success',
         );
       } catch {
-        setAnalyticsEnabled(previousValue);
+        const storedValue = await getClarityAnalyticsEnabled();
+
+        setAnalyticsEnabled(storedValue);
         showToast('분석 수집 설정을 변경하지 못했습니다.', 'error');
       } finally {
         setIsSaving(false);
       }
     },
-    [analyticsEnabled, showToast],
+    [showToast],
   );
 
   return (

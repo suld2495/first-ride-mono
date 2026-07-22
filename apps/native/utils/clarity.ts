@@ -91,33 +91,7 @@ export async function initializeClarityWithStoredConsent(
   return initialized || wasInitialized;
 }
 
-export async function setClarityAnalyticsEnabled(
-  enabled: boolean,
-  options: InitializeClarityOptions = {},
-): Promise<void> {
-  await AsyncStorage.setItem(
-    CLARITY_ANALYTICS_PREFERENCE_KEY,
-    enabled ? ENABLED_PREFERENCE : DISABLED_PREFERENCE,
-  );
-
-  if (enabled) {
-    const wasInitialized = isClarityInitialized;
-
-    initializeClarity(options);
-
-    if (!activeClaritySdk) {
-      return;
-    }
-
-    await activeClaritySdk.consent(false, true);
-
-    if (wasInitialized) {
-      await activeClaritySdk.resume();
-    }
-
-    return;
-  }
-
+async function stopActiveClarity(): Promise<void> {
   if (!activeClaritySdk) {
     return;
   }
@@ -131,4 +105,54 @@ export async function setClarityAnalyticsEnabled(
   if (failedResult?.status === 'rejected') {
     throw failedResult.reason;
   }
+}
+
+async function rollBackClarityEnablement(): Promise<void> {
+  const storageRollback = (async () => {
+    try {
+      await AsyncStorage.setItem(
+        CLARITY_ANALYTICS_PREFERENCE_KEY,
+        DISABLED_PREFERENCE,
+      );
+    } catch {
+      await AsyncStorage.removeItem(CLARITY_ANALYTICS_PREFERENCE_KEY);
+    }
+  })();
+
+  await Promise.allSettled([storageRollback, stopActiveClarity()]);
+}
+
+export async function setClarityAnalyticsEnabled(
+  enabled: boolean,
+  options: InitializeClarityOptions = {},
+): Promise<void> {
+  await AsyncStorage.setItem(
+    CLARITY_ANALYTICS_PREFERENCE_KEY,
+    enabled ? ENABLED_PREFERENCE : DISABLED_PREFERENCE,
+  );
+
+  if (enabled) {
+    const wasInitialized = isClarityInitialized;
+
+    try {
+      initializeClarity(options);
+
+      if (!activeClaritySdk) {
+        return;
+      }
+
+      await activeClaritySdk.consent(false, true);
+
+      if (wasInitialized) {
+        await activeClaritySdk.resume();
+      }
+    } catch (error) {
+      await rollBackClarityEnablement();
+      throw error;
+    }
+
+    return;
+  }
+
+  await stopActiveClarity();
 }
