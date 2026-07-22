@@ -53,7 +53,9 @@ const getCompletedDotIndexes = (
 ) =>
   getDotRows(totalDotCount)
     .flatMap((row, rowIndex) =>
-      rowIndex % 2 === 0 ? row : [...row].reverse(),
+      rowIndex % 2 === 0
+        ? row
+        : row.map((_value, index) => row[row.length - index - 1]),
     )
     .slice(0, completedDotCount);
 

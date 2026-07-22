@@ -1,11 +1,11 @@
 import { createTokens } from 'tamagui';
 
-import { designSystem } from './design-system';
-
 import type { ResponsiveValue } from '@/theme/responsive';
 import type { ThemeContract } from '@/theme/themes';
 
-export const palette = designSystem.palette;
+import { designSystem } from './design-system';
+
+export const { palette } = designSystem;
 
 export const baseFoundation = {
   spacing: designSystem.spacing,

@@ -1,5 +1,6 @@
-import RoutineStatsSummary from '@/components/stat/routine-stats-summary';
 import type { RoutineMonthlySummary } from '@repo/types';
+
+import RoutineStatsSummary from '@/components/stat/routine-stats-summary';
 
 import { render } from '../../setup/test-utils';
 

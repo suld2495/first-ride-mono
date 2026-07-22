@@ -38,16 +38,8 @@ const createAppStyleTheme = (
   };
 };
 
-const appStyleThemes = {
-  light: createAppStyleTheme('light'),
-  dark: createAppStyleTheme('dark'),
-  blue: createAppStyleTheme('blue'),
-  green: createAppStyleTheme('green'),
-  red: createAppStyleTheme('red'),
-} as const;
-
-export type AppTheme = (typeof appStyleThemes)[keyof typeof appStyleThemes];
-export type AppThemes = typeof appStyleThemes;
+export type AppTheme = ReturnType<typeof createAppStyleTheme>;
+export type AppThemes = Record<keyof typeof appThemes, AppTheme>;
 export type AppStyleVariants<T> = Partial<Record<keyof T | string, unknown>>;
 
 type StyleFactory<T> = T | ((theme: AppTheme) => T);
