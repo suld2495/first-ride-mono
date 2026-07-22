@@ -20,6 +20,27 @@ const pendingPayload = {
   job: '마법사',
 };
 
+type VerificationResponse = [
+  number,
+  { data: { email: string; verified: boolean } },
+];
+
+const createDeferredVerificationResponse = () => {
+  let resolveResponse: (response: VerificationResponse) => void = () =>
+    undefined;
+  const promise = new Promise<VerificationResponse>((resolve) => {
+    resolveResponse = resolve;
+  });
+
+  return { promise, resolve: resolveResponse };
+};
+
+const flushAsyncWork = async () => {
+  await act(async () => {
+    await jest.advanceTimersByTimeAsync(0);
+  });
+};
+
 describe('SignUpEmailVerification 페이지', () => {
   beforeEach(() => {
     jest.useFakeTimers();
@@ -31,6 +52,7 @@ describe('SignUpEmailVerification 페이지', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     jest.useRealTimers();
     act(() => {
       usePendingSignUpStore.getState().clearPayload();
@@ -113,5 +135,133 @@ describe('SignUpEmailVerification 페이지', () => {
 
     expect(usePendingSignUpStore.getState().payload).toBeNull();
     expect(mockReplace).toHaveBeenCalledWith('/sign-in');
+  });
+
+  it('느린 인증 확인 응답을 기다리는 동안 다음 요청을 시작하지 않는다', async () => {
+    const firstResponse = createDeferredVerificationResponse();
+
+    mockAxios
+      .onPost('/auth/email/verification-confirm')
+      .reply(() => firstResponse.promise);
+
+    render(<SignUpEmailVerification />);
+    await flushAsyncWork();
+
+    expect(mockAxios.history.post).toHaveLength(1);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(10_000);
+    });
+
+    expect(mockAxios.history.post).toHaveLength(1);
+
+    firstResponse.resolve([
+      200,
+      { data: { email: 'a@b.co', verified: false } },
+    ]);
+    await flushAsyncWork();
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(2499);
+    });
+    expect(mockAxios.history.post).toHaveLength(1);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(1);
+    });
+    expect(mockAxios.history.post).toHaveLength(2);
+  });
+
+  it('연속 오류에는 지수 backoff를 적용하고 정상 응답에서 대기 상태를 복구한다', async () => {
+    jest.spyOn(Math, 'random').mockReturnValue(0.5);
+    mockAxios
+      .onPost('/auth/email/verification-confirm')
+      .replyOnce(500, { error: { message: 'temporary failure' } })
+      .onPost('/auth/email/verification-confirm')
+      .replyOnce(500, { error: { message: 'temporary failure' } })
+      .onPost('/auth/email/verification-confirm')
+      .replyOnce(200, {
+        data: { email: 'a@b.co', verified: false },
+      });
+
+    const { getByText } = render(<SignUpEmailVerification />);
+    await flushAsyncWork();
+
+    expect(mockAxios.history.post).toHaveLength(1);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(4999);
+    });
+    expect(mockAxios.history.post).toHaveLength(1);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(1);
+    });
+    expect(mockAxios.history.post).toHaveLength(2);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(9999);
+    });
+    expect(mockAxios.history.post).toHaveLength(2);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(1);
+    });
+    expect(mockAxios.history.post).toHaveLength(3);
+    expect(
+      getByText('이메일로 보낸 인증 링크를 클릭해주세요'),
+    ).toBeOnTheScreen();
+    expect(getByText('이메일 인증을 확인하고 있어요')).toBeOnTheScreen();
+  });
+
+  it('429 응답의 Retry-After 동안 추가 요청을 보내지 않는다', async () => {
+    mockAxios
+      .onPost('/auth/email/verification-confirm')
+      .replyOnce(
+        429,
+        { error: { message: 'too many requests' } },
+        { 'Retry-After': '12' },
+      )
+      .onPost('/auth/email/verification-confirm')
+      .replyOnce(200, {
+        data: { email: 'a@b.co', verified: false },
+      });
+
+    render(<SignUpEmailVerification />);
+    await flushAsyncWork();
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(11_999);
+    });
+    expect(mockAxios.history.post).toHaveLength(1);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(1);
+    });
+    expect(mockAxios.history.post).toHaveLength(2);
+  });
+
+  it('화면을 벗어나면 진행 중인 인증 확인 요청을 취소한다', async () => {
+    const response = createDeferredVerificationResponse();
+
+    mockAxios
+      .onPost('/auth/email/verification-confirm')
+      .reply(() => response.promise);
+
+    const screen = render(<SignUpEmailVerification />);
+    await flushAsyncWork();
+
+    const signal = mockAxios.history.post[0]?.signal;
+
+    expect(signal).toBeDefined();
+    expect(signal?.aborted).toBe(false);
+
+    screen.unmount();
+
+    expect(signal?.aborted).toBe(true);
+    response.resolve([
+      200,
+      { data: { email: 'a@b.co', verified: false } },
+    ]);
   });
 });
