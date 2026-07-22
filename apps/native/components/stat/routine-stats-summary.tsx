@@ -1,12 +1,6 @@
 import type { RoutineMonthlySummary } from '@repo/types';
 import React from 'react';
-import {
-  Image,
-  View,
-  type ImageSourcePropType,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { View } from 'react-native';
 
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
@@ -31,12 +25,6 @@ export interface RoutineStatsSummaryProps {
 type DotProps = {
   completed: boolean;
   routineColor: string;
-  markerTestID?: string;
-  testID?: string;
-};
-
-type ProgressMarkerProps = {
-  style?: StyleProp<ViewStyle>;
   testID?: string;
 };
 
@@ -47,9 +35,6 @@ type SummaryItemProps = {
 
 const DOTS_PER_ROW = 7;
 const TRACK_LINE_WIDTH = 1;
-
-const PROGRESS_MARKER_IMAGE =
-  require('@/assets/stat/routine-progress-marker.png') as ImageSourcePropType;
 
 const getDotRows = (totalDotCount: number) => {
   const dotIndexes = Array.from({ length: totalDotCount }, (_, index) => index);
@@ -62,7 +47,7 @@ const getDotRows = (totalDotCount: number) => {
   return rows;
 };
 
-const Dot = ({ completed, routineColor, markerTestID, testID }: DotProps) => (
+const Dot = ({ completed, routineColor, testID }: DotProps) => (
   <View
     style={[
       styles.dot,
@@ -70,21 +55,7 @@ const Dot = ({ completed, routineColor, markerTestID, testID }: DotProps) => (
       completed ? { backgroundColor: routineColor } : styles.dotEmpty,
     ]}
     testID={testID}
-  >
-    {markerTestID ? <ProgressMarker testID={markerTestID} /> : null}
-  </View>
-);
-
-const ProgressMarker = ({ style, testID }: ProgressMarkerProps) => (
-  <View style={[styles.progressMarker, style]} testID={testID}>
-    <Image
-      source={PROGRESS_MARKER_IMAGE}
-      style={styles.progressMarkerImage}
-      resizeMode="contain"
-      testID="routine-stats-summary-progress-marker"
-      accessibilityIgnoresInvertColors
-    />
-  </View>
+  />
 );
 
 const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
@@ -153,11 +124,6 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
                     key={index}
                     completed={completedSet.has(index)}
                     routineColor={item.routineColor}
-                    markerTestID={
-                      index === item.totalDotCount - 1
-                        ? `routine-stats-summary-track-marker-${item.id}`
-                        : undefined
-                    }
                     testID={`routine-stats-summary-dot-${item.id}-${index}`}
                   />
                 ))}
@@ -298,16 +264,6 @@ const styles = StyleSheet.create((theme) => {
     dotEmpty: {
       backgroundColor: theme.colors.background.base,
       opacity: 0.7,
-    },
-    progressMarker: {
-      width: baseFoundation.dimension.x28,
-      height: baseFoundation.dimension.x28,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    progressMarkerImage: {
-      width: 26,
-      height: 33,
     },
     divider: {
       height: TRACK_LINE_WIDTH,
