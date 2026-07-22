@@ -14,7 +14,7 @@ import {
 
 import EmptyState from '@/components/ui/empty-state';
 import Loading from '@/components/ui/loading';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
@@ -22,6 +22,7 @@ import { baseFoundation, palette } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 const HiddenRoutinesModal = () => {
+  const { theme } = useAppTheme();
   const user = useAuthUser();
   const nickname = user?.nickname || '';
   const { showToast } = useToast();
@@ -142,7 +143,7 @@ const HiddenRoutinesModal = () => {
                   />
                 ) : (
                   <Typography
-                    color={palette.theme.gray[90]}
+                    color={theme.colors.text.gray}
                     variant="caption2"
                     weight="semibold"
                   >
@@ -157,7 +158,7 @@ const HiddenRoutinesModal = () => {
         <EmptyState
           icon="list-outline"
           message="숨긴 루틴이 없습니다."
-          messageColor={palette.theme.gray[90]}
+          messageColor={theme.colors.text.gray}
         />
       )}
     </View>
@@ -232,7 +233,7 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x12,
     borderRadius: baseFoundation.dimension.x99,
     borderWidth: baseFoundation.dimension.x2,
-    borderColor: palette.theme.gray[90],
+    borderColor: theme.colors.text.gray,
     borderTopColor: 'transparent',
   },
 }));

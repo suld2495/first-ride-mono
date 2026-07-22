@@ -15,7 +15,7 @@ import JobOptionSelector, {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PasswordInput from '@/components/ui/password-input';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { useJobOptionsQuery } from '@/hooks/useAuth';
 import { useSetPendingSignUpPayload } from '@/hooks/usePendingSignUp';
@@ -49,6 +49,7 @@ const initial = () => ({
 // eslint-disable-next-line sonarjs/cognitive-complexity
 export default function SignUp() {
   const router = useRouter();
+  const { theme } = useAppTheme();
   const [step, setStep] = useState<SignUpStep>('basic');
   const [form, setForm] = useState<
     JoinFormType & { passwordConfirm: JoinFormType['password'] }
@@ -297,7 +298,7 @@ export default function SignUp() {
           <Ionicons
             name="chevron-back"
             size={baseFoundation.dimension.x28}
-            color={palette.theme.gray[90]}
+            color={theme.colors.text.gray}
           />
         </Pressable>
       </AuthPage.Header>
@@ -410,7 +411,7 @@ export default function SignUp() {
             backgroundColor={
               !isJobStep && isBasicFieldsIncomplete
                 ? palette.theme.gray[10]
-                : palette.theme.gray[90]
+                : theme.colors.text.gray
             }
           />
           {step === 'basic' ? (
@@ -419,7 +420,7 @@ export default function SignUp() {
               title="로그인하기"
               style={styles.link}
               textStyle={styles.loginButtonText}
-              textColor={palette.theme.gray[90]}
+              textColor={theme.colors.text.gray}
               onPress={handleSignInPress}
             />
           ) : null}
@@ -469,7 +470,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   inputText: {
-    color: palette.theme.gray[70],
+    color: theme.colors.text.input,
     fontSize: theme.foundation.typography.size.body1,
   },
 
@@ -482,7 +483,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   fieldLabel: {
-    color: palette.theme.gray[70],
+    color: theme.colors.text.label,
   },
 
   button: {

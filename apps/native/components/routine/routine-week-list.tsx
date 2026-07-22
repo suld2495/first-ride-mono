@@ -247,12 +247,12 @@ const RoutineWeekList = ({
                             {isMissedPastDay ? (
                               <RoutineMissedIcon
                                 size={baseFoundation.iconSize.xs}
-                                color={palette.theme.gray[90]}
+                                color={theme.colors.text.gray}
                               />
                             ) : check || isPendingConfirmation ? (
                               <RoutineCheckmarkIcon
                                 size={baseFoundation.iconSize.s}
-                                color={palette.theme.gray[90]}
+                                color={theme.colors.text.gray}
                               />
                             ) : null}
                           </View>
@@ -302,6 +302,7 @@ const RoutineWeekList = ({
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.selectedCheck,
       theme.colors.feedback.error.bg,
+      theme.colors.text.gray,
       theme.colors.text.secondary,
       todayDateKey,
       weekDateKeys,

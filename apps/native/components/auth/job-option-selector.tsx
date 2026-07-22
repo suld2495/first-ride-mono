@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 import { Image, Pressable, View } from 'react-native';
 
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { baseFoundation, palette } from '@/theme/tokens';
 
@@ -149,6 +149,7 @@ const JobOptionSelector = ({
   helperText,
   isLoading = false,
 }: JobOptionSelectorProps) => {
+  const { theme } = useAppTheme();
   const [gender, setGender] = useState<CharacterGender>('female');
   const sortedOptions = useMemo(() => getSortedOptions(options), [options]);
   const selectedIndex = sortedOptions.findIndex(
@@ -183,7 +184,7 @@ const JobOptionSelector = ({
         {statusText ? (
           <Typography
             variant="caption2"
-            color={error ? palette.tag.critical[700] : palette.theme.gray[70]}
+            color={error ? palette.tag.critical[700] : theme.colors.text.label}
             style={styles.helperText}
           >
             {statusText}
@@ -211,7 +212,7 @@ const JobOptionSelector = ({
             weight="semibold"
             color={
               gender === 'female'
-                ? palette.theme.gray[90]
+                ? theme.colors.text.gray
                 : palette.theme.gray[10]
             }
           >
@@ -233,7 +234,7 @@ const JobOptionSelector = ({
             weight="semibold"
             color={
               gender === 'male'
-                ? palette.theme.gray[90]
+                ? theme.colors.text.gray
                 : palette.theme.gray[10]
             }
           >
@@ -307,7 +308,7 @@ const JobOptionSelector = ({
                   <Typography
                     variant="caption2"
                     weight="semibold"
-                    color={palette.theme.gray[70]}
+                    color={theme.colors.text.label}
                   >
                     레벨 {index + 1}
                   </Typography>
@@ -361,7 +362,7 @@ const JobOptionSelector = ({
       {statusText ? (
         <Typography
           variant="caption2"
-          color={error ? palette.tag.critical[700] : palette.theme.gray[70]}
+          color={error ? palette.tag.critical[700] : theme.colors.text.label}
           style={styles.helperText}
         >
           {statusText}
@@ -428,7 +429,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   jobTitle: {
     marginTop: theme.foundation.spacing[4],
-    color: palette.theme.gray[90],
+    color: theme.colors.text.gray,
     textAlign: 'center',
   },
   description: {

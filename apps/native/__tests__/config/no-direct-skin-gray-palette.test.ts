@@ -2,7 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const APP_ROOT = path.resolve(__dirname, '../..');
-const ALLOWED_FILES = new Set([path.join(APP_ROOT, 'theme/themes/common.ts')]);
+const ALLOWED_FILES = new Set([
+  path.join(APP_ROOT, 'theme/themes/common.ts'),
+  path.join(APP_ROOT, 'theme/themes/theme.contract.ts'),
+]);
 const IGNORED_DIRS = new Set([
   'node_modules',
   '.expo',

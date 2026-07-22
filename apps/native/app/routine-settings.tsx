@@ -341,7 +341,7 @@ export default function RoutineSettingsPage() {
       style={styles.routineRow}
     >
       <Typography
-        color={palette.theme.gray[90]}
+        color={theme.colors.text.gray}
         numberOfLines={1}
         style={styles.routineName}
         variant="body2"
@@ -579,8 +579,8 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: palette.theme.softBlue[50],
   },
   statusFilterSelected: {
-    borderColor: palette.theme.gray[90],
-    backgroundColor: palette.theme.gray[90],
+    borderColor: theme.colors.text.gray,
+    backgroundColor: theme.colors.text.gray,
   },
   optionFilters: {
     flexDirection: 'row',

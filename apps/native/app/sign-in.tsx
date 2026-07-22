@@ -12,7 +12,7 @@ import { Divider } from '@/components/ui/divider';
 import { Input } from '@/components/ui/input';
 import Link from '@/components/ui/link';
 import PasswordInput from '@/components/ui/password-input';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -50,6 +50,7 @@ const isAppleRequestCanceled = (error: unknown): boolean =>
 
 export default function SignIn() {
   const router = useRouter();
+  const { theme } = useAppTheme();
   const lastUserId = useAuthLastUserId();
   const [form, setForm] = useState<AuthFormType>(() =>
     initial(lastUserId ?? ''),
@@ -280,7 +281,7 @@ export default function SignIn() {
                 title="회원가입"
                 style={styles.footerLink}
                 textStyle={styles.accountLinkText}
-                textColor={palette.theme.gray[90]}
+                textColor={theme.colors.text.gray}
                 onPress={() => setForm(initial(lastUserId ?? ''))}
               />
               <Button
@@ -288,7 +289,7 @@ export default function SignIn() {
                 title="비밀번호 재설정"
                 style={styles.footerLink}
                 textStyle={styles.accountLinkText}
-                textColor={palette.theme.gray[90]}
+                textColor={theme.colors.text.gray}
               />
             </View>
 
@@ -331,7 +332,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   fieldLabel: {
-    color: palette.theme.gray[70],
+    color: theme.colors.text.label,
   },
 
   input: {
@@ -343,7 +344,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   inputText: {
-    color: palette.theme.gray[70],
+    color: theme.colors.text.input,
     fontSize: theme.foundation.typography.size.body1,
   },
 
@@ -388,7 +389,7 @@ const styles = StyleSheet.create((theme) => ({
   accountLinkText: {
     fontSize: theme.foundation.typography.size.body2,
     fontWeight: theme.foundation.typography.weight.regular,
-    color: palette.theme.gray[90],
+    color: theme.colors.text.gray,
   },
 
   kakaoButton: {

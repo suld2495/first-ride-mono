@@ -17,7 +17,7 @@ import {
 } from '@/components/icons/routine-character-icons';
 import PageHeader from '@/components/layout/page-header';
 import Button from '@/components/ui/button';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation, palette } from '@/theme/tokens';
@@ -86,6 +86,7 @@ const getNextHeroIndex = (index: number, direction: -1 | 1) =>
   (index + direction + HEROES.length) % HEROES.length;
 
 export default function HallOfHeroesPage() {
+  const { theme } = useAppTheme();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedHero = HEROES[selectedIndex];
   const colors = HERO_TONES[selectedHero.tone];
@@ -139,7 +140,7 @@ export default function HallOfHeroesPage() {
               </View>
 
               <Typography
-                color={palette.theme.gray[90]}
+                color={theme.colors.text.gray}
                 variant="h3"
                 weight="semibold"
                 style={styles.className}
@@ -221,7 +222,7 @@ export default function HallOfHeroesPage() {
           <Button
             accessibilityLabel="영웅들에게 에일 한 잔 대접하기"
             accessibilityRole="button"
-            backgroundColor={palette.theme.gray[90]}
+            backgroundColor={theme.colors.text.gray}
             fullWidth
             leftIcon={
               <View
@@ -337,7 +338,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.foundation.spacing[6],
   },
   supportButton: {
-    shadowColor: palette.theme.gray[90],
+    shadowColor: theme.colors.text.gray,
   },
   supportButtonText: {
     fontSize: theme.foundation.typography.size.l,

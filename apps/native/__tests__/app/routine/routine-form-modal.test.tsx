@@ -2,7 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import React from 'react';
+import { type ReactElement, useContext } from 'react';
 import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
 
 import ModalScreen from '../../../app/modal';
@@ -73,12 +73,12 @@ let mockAxios: MockAdapter;
 const mockAlert = jest.spyOn(Alert, 'alert');
 
 const ModalHeaderActionOutlet = () => {
-  const context = React.useContext(ModalHeaderActionContext);
+  const context = useContext(ModalHeaderActionContext);
 
-  return <>{context?.action}</>;
+  return context?.action ?? null;
 };
 
-const render = (ui: React.ReactElement) =>
+const render = (ui: ReactElement) =>
   renderWithProviders(
     <ModalHeaderActionProvider>
       {ui}
@@ -147,11 +147,11 @@ jest.mock('@/hooks/useModal', () => ({
 jest.mock('@/components/modal/modal-header', () => {
   const React = require('react');
   const { Text, View } = require('react-native');
-  const ModalHeaderActionContext =
+  const MockModalHeaderActionContext =
     require('@/components/modal/modal-header-action-context').default;
 
   const MockModalHeader = ({ title }: { title: string }) => {
-    const context = React.useContext(ModalHeaderActionContext);
+    const context = React.useContext(MockModalHeaderActionContext);
 
     return React.createElement(
       View,
@@ -922,23 +922,19 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       );
 
       // 기존 루틴 이름이 표시되어야 함
-      const routineNameInput = await findByPlaceholderText(
-        '루틴 이름을 입력하세요.',
-      );
+      const routineNameInput =
+        await findByPlaceholderText('루틴 이름을 입력하세요.');
 
       expect(routineNameInput.props.value).toBe('기존 루틴');
 
       // 기존 루틴 설명이 표시되어야 함
-      const routineDetailInput = await findByPlaceholderText(
-        '루틴 설명을 입력해주세요.',
-      );
+      const routineDetailInput =
+        await findByPlaceholderText('루틴 설명을 입력해주세요.');
 
       expect(routineDetailInput.props.value).toBe('기존 설명');
 
       // 기존 벌금이 표시되어야 함 (천 단위 콤마 적용)
-      const penaltyInput = await findByPlaceholderText(
-        '벌금을 입력해주세요.',
-      );
+      const penaltyInput = await findByPlaceholderText('벌금을 입력해주세요.');
 
       expect(penaltyInput.props.value).toBe('5,000');
 
@@ -1083,13 +1079,10 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
   describe('필수값 유효성 검사 테스트', () => {
     it('루틴 이름을 비우면 수정 버튼이 비활성화된다', async () => {
-      const { findByPlaceholderText, getByText } = render(
-        <RoutineFormModal />,
-      );
+      const { findByPlaceholderText, getByText } = render(<RoutineFormModal />);
 
-      const routineNameInput = await findByPlaceholderText(
-        '루틴 이름을 입력하세요.',
-      );
+      const routineNameInput =
+        await findByPlaceholderText('루틴 이름을 입력하세요.');
 
       await act(async () => {
         fireEvent.changeText(routineNameInput, '');
@@ -1109,9 +1102,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       const { findByText, getByText } = render(<RoutineFormModal />);
 
-      expect(
-        await findByText('루틴 횟수를 선택해주세요.'),
-      ).toBeOnTheScreen();
+      expect(await findByText('루틴 횟수를 선택해주세요.')).toBeOnTheScreen();
 
       await waitFor(() => {
         const editButton = getByText('저장');
@@ -1121,14 +1112,11 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     });
 
     it('모든 필수값이 유효하고 값 변경 시 수정 버튼이 활성화된다', async () => {
-      const { findByPlaceholderText, getByText } = render(
-        <RoutineFormModal />,
-      );
+      const { findByPlaceholderText, getByText } = render(<RoutineFormModal />);
 
       // 입력값이 올바르게 설정되었는지 확인
-      const routineNameInput = await findByPlaceholderText(
-        '루틴 이름을 입력하세요.',
-      );
+      const routineNameInput =
+        await findByPlaceholderText('루틴 이름을 입력하세요.');
 
       expect(routineNameInput.props.value).toBe('기존 루틴');
 
@@ -1240,9 +1228,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     it('벌금 입력 시 숫자만 입력된다', async () => {
       const { findByPlaceholderText } = render(<RoutineFormModal />);
 
-      const penaltyInput = await findByPlaceholderText(
-        '벌금을 입력해주세요.',
-      );
+      const penaltyInput = await findByPlaceholderText('벌금을 입력해주세요.');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, 'abc20000');
@@ -1255,9 +1241,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     it('벌금 수정 시 천 단위 콤마가 표시된다', async () => {
       const { findByPlaceholderText } = render(<RoutineFormModal />);
 
-      const penaltyInput = await findByPlaceholderText(
-        '벌금을 입력해주세요.',
-      );
+      const penaltyInput = await findByPlaceholderText('벌금을 입력해주세요.');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, '100000');
@@ -1526,9 +1510,8 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         );
 
         // 루틴 이름 수정
-        const routineNameInput = await findByPlaceholderText(
-          '루틴 이름을 입력하세요.',
-        );
+        const routineNameInput =
+          await findByPlaceholderText('루틴 이름을 입력하세요.');
 
         await act(async () => {
           fireEvent.changeText(routineNameInput, '수정된 루틴');
@@ -1569,9 +1552,8 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         );
 
         // 루틴 이름 수정
-        const routineNameInput = await findByPlaceholderText(
-          '루틴 이름을 입력하세요.',
-        );
+        const routineNameInput =
+          await findByPlaceholderText('루틴 이름을 입력하세요.');
 
         await act(async () => {
           fireEvent.changeText(routineNameInput, '수정된 루틴');

@@ -11,9 +11,18 @@ import { baseFoundation, palette } from '@/theme/tokens';
 interface FormButtonGroupProps {
   type: ModalType;
   useForm: () => FormContextType<RoutineForm>;
+  hasPendingChangeRequest: boolean;
+  isPending: boolean;
+  onCancelChangeRequest: () => void;
 }
 
-const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
+const FormButtonGroup = ({
+  type,
+  useForm,
+  hasPendingChangeRequest,
+  isPending,
+  onCancelChangeRequest,
+}: FormButtonGroupProps) => {
   const { theme } = useAppTheme();
   const { enabled: isValid, handleSubmit, validateAll } = useForm();
 
@@ -24,10 +33,19 @@ const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
   const headerAction = useMemo(
     () => (
       <Button
-        accessibilityLabel={type === 'routine-add' ? '루틴 생성' : '루틴 저장'}
+        accessibilityLabel={
+          type === 'routine-add'
+            ? '루틴 생성'
+            : hasPendingChangeRequest
+              ? '루틴 수정 요청 취소'
+              : '루틴 저장'
+        }
         backgroundColor={theme.colors.text.gray}
-        disabled={!isValid}
-        onPress={() => handleSubmit()}
+        disabled={!hasPendingChangeRequest && !isValid}
+        loading={isPending}
+        onPress={
+          hasPendingChangeRequest ? onCancelChangeRequest : () => handleSubmit()
+        }
         size="sm"
         style={styles.headerButton}
         textColor={palette.white}
@@ -35,10 +53,22 @@ const FormButtonGroup = ({ type, useForm }: FormButtonGroupProps) => {
         variant="ghost"
         testID="routine-form-button-container"
       >
-        {type === 'routine-add' ? '생성' : '저장'}
+        {type === 'routine-add'
+          ? '생성'
+          : hasPendingChangeRequest
+            ? '수정 요청 보냄'
+            : '저장'}
       </Button>
     ),
-    [handleSubmit, isValid, theme.colors.text.gray, type],
+    [
+      handleSubmit,
+      hasPendingChangeRequest,
+      isPending,
+      isValid,
+      onCancelChangeRequest,
+      theme.colors.text.gray,
+      type,
+    ],
   );
 
   return <ModalHeaderAction>{headerAction}</ModalHeaderAction>;

@@ -8,7 +8,7 @@ import { View } from 'react-native';
 
 import AuthPage from '@/components/auth/auth-page';
 import { Button } from '@/components/ui/button';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import {
@@ -33,6 +33,7 @@ type VerificationStatus = 'waiting' | 'verified' | 'expired' | 'error';
 
 export default function SignUpEmailVerification() {
   const { replace } = useRouter();
+  const { theme } = useAppTheme();
   const payload = usePendingSignUpPayload();
   const clearPayload = useClearPendingSignUpPayload();
   const { showToast } = useToast();
@@ -227,7 +228,7 @@ export default function SignUpEmailVerification() {
             title="로그인하기"
             style={styles.link}
             textStyle={styles.loginButtonText}
-            textColor={palette.theme.gray[90]}
+            textColor={theme.colors.text.gray}
             onPress={handleSignInPress}
           />
         </View>
@@ -250,12 +251,12 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   message: {
-    color: palette.theme.gray[70],
+    color: theme.colors.text.label,
     textAlign: 'center',
   },
 
   email: {
-    color: palette.theme.gray[70],
+    color: theme.colors.text.label,
     textAlign: 'center',
   },
 

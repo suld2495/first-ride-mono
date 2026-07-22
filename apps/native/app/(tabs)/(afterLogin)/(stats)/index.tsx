@@ -12,7 +12,7 @@ import RoutineStatsSummary from '@/components/stat/routine-stats-summary';
 import EmptyState from '@/components/ui/empty-state';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import Loading from '@/components/ui/loading';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
@@ -58,6 +58,7 @@ const renderRoutineCalendarSeparator = () => (
 );
 
 export default function StatsPage() {
+  const { theme } = useAppTheme();
   const user = useAuthUser();
   const [currentMonth, setCurrentMonth] = React.useState(() =>
     getMonthStart(new Date(Date.now())),
@@ -115,7 +116,7 @@ export default function StatsPage() {
       <Typography
         variant="body2"
         weight="semibold"
-        color={palette.theme.gray[90]}
+        color={theme.colors.text.gray}
       >
         {formatMonthLabel(currentMonth)}
       </Typography>

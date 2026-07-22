@@ -84,7 +84,7 @@ const AuthPage = Object.assign(AuthPageRoot, {
 
 export default AuthPage;
 
-const styles = StyleSheet.create(() => ({
+const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     backgroundColor: palette.theme.blue[10],
@@ -108,7 +108,7 @@ const styles = StyleSheet.create(() => ({
   },
 
   title: {
-    color: palette.theme.gray[70],
+    color: theme.colors.text.label,
     textAlign: 'center',
   },
 

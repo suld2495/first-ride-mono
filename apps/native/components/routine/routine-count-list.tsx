@@ -159,6 +159,7 @@ const RoutineCountList = ({
       return (
         <View style={[styles.cardContainer, { height: itemHeight }]}>
           <View
+            testID={`routine-count-card-outer-${routineId}`}
             style={[
               styles.cardOuter,
               { height: Math.max(itemHeight - baseFoundation.spacing[1], 0) },
@@ -274,19 +275,19 @@ const RoutineCountList = ({
                         {isMissedPastGoal ? (
                           <RoutineMissedIcon
                             size={baseFoundation.iconSize.xs}
-                            color={palette.theme.gray[90]}
+                            color={theme.colors.text.gray}
                           />
                         ) : achieved || isPendingConfirmation ? (
                           <RoutineCheckmarkIcon
                             size={baseFoundation.iconSize.s}
-                            color={palette.theme.gray[90]}
+                            color={theme.colors.text.gray}
                           />
                         ) : !isGoalRange ? (
                           <Ionicons
                             testID={`routine-count-no-goal-icon-${routineId}-${countIndex}`}
                             name="remove"
                             size={baseFoundation.iconSize.s}
-                            color={palette.theme.gray[90]}
+                            color={theme.colors.text.gray}
                           />
                         ) : null}
                       </View>
@@ -308,6 +309,7 @@ const RoutineCountList = ({
       readOnly,
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.feedback.error.bg,
+      theme.colors.text.gray,
       theme.colors.text.secondary,
     ],
   );

@@ -140,11 +140,11 @@ describe('FriendRoutinesModal', () => {
     const screen = render(<FriendRoutinesModal />);
 
     expect(await screen.findByText('운동 10분 이상')).toBeOnTheScreen();
-    expect(
-      await screen.findByTestId('routine-count-card-outer-1'),
-    ).toHaveStyle({
-      borderColor: appThemes.blue.colors.brand.primary,
-    });
+    expect(await screen.findByTestId('routine-count-card-outer-1')).toHaveStyle(
+      {
+        borderColor: appThemes.blue.colors.brand.primary,
+      },
+    );
     expect(await screen.findByTestId('routine-count-check-1-1')).toHaveStyle({
       backgroundColor: DEFAULT_ROUTINE_COLOR,
     });

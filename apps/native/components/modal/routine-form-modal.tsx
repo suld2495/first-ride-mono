@@ -116,10 +116,20 @@ const RoutineFormModal = () => {
   const today = useMemo(() => getStartOfToday(), []);
 
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
-  const { handleCreate, handleUpdate } = useRoutineFormSubmission({
+  const {
+    handleCreate,
+    handleUpdate,
+    handleCancelChangeRequest,
+    pendingChangeRequestId,
+    isPending,
+  } = useRoutineFormSubmission({
     nickname: user!.nickname,
     routineId,
     originalForm: isRoutineAdd ? undefined : normalizedRoutineForm,
+    initialPendingChangeRequestId:
+      routineDetail?.hasPendingChangeRequest === true
+        ? routineDetail.pendingChangeRequestId
+        : null,
   });
 
   // Debounce keyword for friend search
@@ -445,7 +455,6 @@ const RoutineFormModal = () => {
                       <Typography
                         variant="body2"
                         weight="semibold"
-                        color={palette.theme.gray[90]}
                         style={styles.statusCheckboxLabel}
                       >
                         루틴 일시정지
@@ -471,7 +480,6 @@ const RoutineFormModal = () => {
                       <Typography
                         variant="body2"
                         weight="semibold"
-                        color={palette.theme.gray[90]}
                         style={styles.statusCheckboxLabel}
                       >
                         루틴 숨김
@@ -492,7 +500,13 @@ const RoutineFormModal = () => {
           </ThemeView>
         )}
       </KeyboardAwareScrollView>
-      <FormButtonGroup type={type} useForm={useForm} />
+      <FormButtonGroup
+        type={type}
+        useForm={useForm}
+        hasPendingChangeRequest={pendingChangeRequestId !== null}
+        isPending={isPending}
+        onCancelChangeRequest={handleCancelChangeRequest}
+      />
     </Form>
   );
 };
@@ -579,7 +593,7 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing[2],
   },
   statusCheckboxLabel: {
-    color: palette.theme.gray[90],
+    color: theme.colors.text.gray,
   },
 
   deleteButton: {
