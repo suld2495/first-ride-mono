@@ -38,6 +38,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         photosPermission: 'Allow $(PRODUCT_NAME) to access your photos',
         cameraPermission: 'Allow $(PRODUCT_NAME) to access your camera',
+        microphonePermission: false,
       },
     ],
     ['expo-web-browser', { experimentalLauncherActivity: true }],
