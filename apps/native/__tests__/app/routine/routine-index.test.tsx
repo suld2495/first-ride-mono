@@ -1268,9 +1268,7 @@ describe('루틴 조회 페이지', () => {
 
         const { findByTestId } = render(<Index />);
         const summary = await findByTestId('routine-week-progress-summary-1');
-        const checkIcon = within(summary).getByTestId(
-          'routine-checkmark-icon',
-        );
+        const checkIcon = within(summary).getByTestId('routine-checkmark-icon');
 
         expect(within(summary).getByText('5/5')).toBeOnTheScreen();
         expect(checkIcon).toHaveProp('color', palette.theme.green[50]);
