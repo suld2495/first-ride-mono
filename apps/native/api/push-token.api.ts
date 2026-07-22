@@ -1,7 +1,5 @@
 import { ApiError } from '@repo/shared/api/AppError';
-import axios from 'axios';
-
-import { BASE_URL, getAuthorization } from '@/api/token-storage.api';
+import http from '@repo/shared/api/client';
 
 const INTERNAL_SERVER_ERROR_STATUS = 500;
 
@@ -13,20 +11,13 @@ export async function updatePushToken(
   deviceType: 'ios' | 'android',
 ): Promise<boolean> {
   try {
-    const token = await getAuthorization();
-
-    await axios.put(
-      `${BASE_URL}/push-tokens`,
-      {
-        expoPushToken: pushToken,
-        deviceType,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
+    await http.put<
+      void,
+      { expoPushToken: string; deviceType: 'ios' | 'android' }
+    >('/push-tokens', {
+      expoPushToken: pushToken,
+      deviceType,
+    });
 
     return true;
   } catch (error) {
@@ -45,15 +36,8 @@ export async function updatePushToken(
  */
 export async function deletePushToken(pushToken: string): Promise<boolean> {
   try {
-    const token = await getAuthorization();
-
-    await axios.delete(
-      `${BASE_URL}/push-tokens/${encodeURIComponent(pushToken)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
+    await http.delete<void, never>(
+      `/push-tokens/${encodeURIComponent(pushToken)}`,
     );
 
     return true;

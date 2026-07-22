@@ -6,7 +6,6 @@ import type { Href } from 'expo-router';
 import { useCallback } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 
-import { deletePushToken } from '@/api/push-token.api';
 import Container from '@/components/layout/container';
 import Header from '@/components/layout/header';
 import {
@@ -131,16 +130,7 @@ const MyInfo = () => {
         text: '로그아웃',
         style: 'destructive',
         onPress: async () => {
-          try {
-            // 로그아웃 시 푸시 토큰 삭제
-            if (pushToken?.data) {
-              await deletePushToken(pushToken.data);
-            }
-          } catch {
-            // 푸시 토큰 삭제 실패 여부와 관계없이 로그아웃은 계속 진행
-          }
-
-          await signOut();
+          await signOut(pushToken?.data);
         },
       },
     ]);

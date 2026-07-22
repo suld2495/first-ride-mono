@@ -3,6 +3,7 @@ import type { User } from '@repo/types';
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
+import { deletePushToken } from '@/api/push-token.api';
 import { clearTokens, getRefreshToken } from '@/api/token-storage.api';
 import { clearRoutineShareTargets } from '@/share/routine-share';
 import { clearRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
@@ -17,11 +18,19 @@ interface State {
 
 interface Actions {
   signIn: (user: User) => void;
-  signOut: () => Promise<void>;
+  signOut: (pushToken?: string) => Promise<void>;
   signOutLocally: () => Promise<void>;
 }
 
 type AuthStore = State & Actions;
+
+type CleanupTask = () => Promise<unknown>;
+
+const settleCleanupTasks = async (tasks: CleanupTask[]): Promise<void> => {
+  await Promise.allSettled(
+    tasks.map((task) => Promise.resolve().then(() => task())),
+  );
+};
 
 export const useAuthStore = create<AuthStore>()(
   devtools(
@@ -31,28 +40,38 @@ export const useAuthStore = create<AuthStore>()(
         lastUserId: null,
         signIn: (user: User) =>
           set({ user, lastUserId: user.userId, isLoading: false }),
-        signOut: async () => {
+        signOut: async (pushToken) => {
+          const remoteCleanupTasks: CleanupTask[] = [];
+
+          if (pushToken) {
+            remoteCleanupTasks.push(() => deletePushToken(pushToken));
+          }
+
           try {
             const refreshToken = await getRefreshToken();
 
             if (refreshToken) {
-              await logout({ refreshToken });
+              remoteCleanupTasks.push(() => logout({ refreshToken }));
             }
           } catch {
-            // API 실패 시 무시
+            // 저장소 조회 실패와 관계없이 다른 정리 작업을 계속한다.
           } finally {
+            await settleCleanupTasks(remoteCleanupTasks);
             await get().signOutLocally();
           }
         },
         signOutLocally: async () => {
-          await clearTokens();
-          await clearRoutineWidgetSnapshot();
-          await clearRoutineShareTargets();
           set((state) => ({
             user: null,
             lastUserId: state.user?.userId ?? state.lastUserId,
             isLoading: false,
           }));
+
+          await settleCleanupTasks([
+            clearTokens,
+            clearRoutineWidgetSnapshot,
+            clearRoutineShareTargets,
+          ]);
         },
         isLoading: true,
       }),

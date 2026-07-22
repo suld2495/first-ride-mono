@@ -1,4 +1,8 @@
-import type { ErrorAraryData, ErrorData } from '@repo/types';
+import type {
+  ErrorAraryData,
+  ErrorData,
+  RefreshTokenResponse,
+} from '@repo/types';
 import type {
   AxiosError,
   AxiosResponse,
@@ -39,6 +43,7 @@ const REQUEST_TIMEOUT_MS = 10_000;
 interface TokenManager {
   getAccessToken: () => Promise<string | null>;
   getRefreshToken: () => Promise<string | null>;
+  refreshTokens: (refreshToken: string) => Promise<RefreshTokenResponse>;
   saveTokens: (accessToken: string, refreshToken: string) => Promise<void>;
   clearTokens: () => Promise<void>;
   updateUser: (userInfo: unknown) => void;
@@ -56,7 +61,6 @@ interface HttpConfig {
 }
 
 const UN_AUTHORIZATION_CODE = 401;
-const REDIRECT_DEBOUNCE_MS = 1000;
 const REQUEST_ID_HEADER = 'X-Request-ID';
 const AUTHORIZATION_HEADER = 'Authorization';
 const INTERNAL_SERVER_ERROR_STATUS = 500;
@@ -135,11 +139,22 @@ export const createHttp = (config: HttpConfig): void => {
 const handleUnauthorized = async (): Promise<void> => {
   if (unauthorizedCallback && !isRedirecting) {
     isRedirecting = true;
-    await unauthorizedCallback();
-    setTimeout(() => {
+
+    try {
+      await unauthorizedCallback();
+    } finally {
       isRedirecting = false;
-    }, REDIRECT_DEBOUNCE_MS);
+    }
   }
+};
+
+const clearUnauthorizedSession = async (
+  activeTokenManager: TokenManager,
+): Promise<void> => {
+  await Promise.allSettled([
+    Promise.resolve().then(() => activeTokenManager.clearTokens()),
+    Promise.resolve().then(() => handleUnauthorized()),
+  ]);
 };
 
 const shouldSkipTokenRefresh = (
@@ -200,10 +215,7 @@ const refreshAccessToken = async (
     throw new Error('Refresh token is missing.');
   }
 
-  const { refreshToken: refreshTokenFn } = await import('./auth.api');
-  const response = await refreshTokenFn({
-    refreshToken: storedRefreshToken,
-  });
+  const response = await activeTokenManager.refreshTokens(storedRefreshToken);
 
   await activeTokenManager.saveTokens(
     response.accessToken,
@@ -220,8 +232,7 @@ const runRefresh = async (
   try {
     return await refreshAccessToken(activeTokenManager);
   } catch (error) {
-    await activeTokenManager.clearTokens();
-    await handleUnauthorized();
+    await clearUnauthorizedSession(activeTokenManager);
     throw error;
   } finally {
     refreshPromise = null;
@@ -275,6 +286,7 @@ axiosInstance.interceptors.response.use(
 
     if (requestId && retriedRequestIds.has(requestId)) {
       clearRequestRetryState(requestId);
+      await clearUnauthorizedSession(activeTokenManager);
       throw error;
     }
 

@@ -1,6 +1,9 @@
 import { createHttp, isPublicAuthUrl } from '@repo/shared/api';
 import { ApiError } from '@repo/shared/api/AppError';
-import { REQUEST_TIMEOUT_MS } from '@repo/shared/api/auth.api';
+import {
+  refreshToken as requestTokenRefresh,
+  REQUEST_TIMEOUT_MS,
+} from '@repo/shared/api/auth.api';
 import type { User } from '@repo/types';
 
 import {
@@ -53,6 +56,8 @@ createHttp({
   tokenManager: {
     getAccessToken: getAuthorization,
     getRefreshToken,
+    refreshTokens: async (storedRefreshToken: string) =>
+      requestTokenRefresh({ refreshToken: storedRefreshToken }),
     saveTokens: async (accessToken: string, refreshToken: string) => {
       try {
         await Promise.all([
