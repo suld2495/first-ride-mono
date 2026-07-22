@@ -98,6 +98,7 @@ describe('MyInfo 로그아웃', () => {
       data: {
         userId: 'test123',
         nickname: 'testuser',
+        loginType: 'PLAIN',
         motto: null,
         mottos: [],
         role: 'USER',
@@ -122,6 +123,31 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('/')).toBeOnTheScreen();
     expect(getByText('42')).toBeOnTheScreen();
     expect(queryByTestId('settings-stat-point-badge')).toBeNull();
+  });
+
+  it('SNS 회원은 아이디 대신 로그인 유형 배지를 표시한다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+    (useFetchMeQuery as jest.Mock).mockReturnValue({
+      data: {
+        userId: 'kakao_12345',
+        nickname: 'testuser',
+        loginType: 'KAKAO',
+        motto: null,
+        mottos: [],
+        role: 'USER',
+        characterImageUrl:
+          'https://cdn.example.com/characters/warrior.png',
+      },
+    });
+
+    const { getByTestId, getByText, queryByTestId, queryByText } = render(
+      <MyInfo />,
+    );
+
+    expect(queryByTestId('settings-profile-user-id')).toBeNull();
+    expect(queryByText('test123')).toBeNull();
+    expect(getByTestId('settings-profile-login-type-badge')).toBeOnTheScreen();
+    expect(getByText('카카오')).toBeOnTheScreen();
   });
 
   it('프로필 페이지가 포커스될 때 경험치 정보를 다시 조회한다', () => {
