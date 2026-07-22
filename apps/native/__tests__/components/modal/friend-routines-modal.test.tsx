@@ -4,6 +4,7 @@ import { Image, StyleSheet, View } from 'react-native';
 
 import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
 import * as routineSceneArt from '@/components/routine/routine-scene-art';
+import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
 
@@ -139,8 +140,13 @@ describe('FriendRoutinesModal', () => {
     const screen = render(<FriendRoutinesModal />);
 
     expect(await screen.findByText('운동 10분 이상')).toBeOnTheScreen();
+    expect(
+      await screen.findByTestId('routine-count-card-outer-1'),
+    ).toHaveStyle({
+      borderColor: appThemes.blue.colors.brand.primary,
+    });
     expect(await screen.findByTestId('routine-count-check-1-1')).toHaveStyle({
-      backgroundColor: appThemes.blue.colors.brand.selectedCheckbox,
+      backgroundColor: DEFAULT_ROUTINE_COLOR,
     });
   });
 

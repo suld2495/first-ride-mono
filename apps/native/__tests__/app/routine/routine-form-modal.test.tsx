@@ -2,13 +2,20 @@ import axiosInstance from '@repo/shared/api';
 import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import React from 'react';
 import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
 
 import ModalScreen from '../../../app/modal';
+import ModalHeaderActionContext from '../../../components/modal/modal-header-action-context';
+import ModalHeaderActionProvider from '../../../components/modal/modal-header-action-provider';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
 import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
 import { baseFoundation, palette } from '../../../theme/tokens';
-import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
+import {
+  fireEvent,
+  render as renderWithProviders,
+  resetAuthMocks,
+} from '../../setup/auth-test-utils';
 import { createMockFriends } from '../../setup/friend/mock';
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
@@ -64,6 +71,21 @@ jest.mock('react-native-bouncy-checkbox', () => {
 // axios mock adapter
 let mockAxios: MockAdapter;
 const mockAlert = jest.spyOn(Alert, 'alert');
+
+const ModalHeaderActionOutlet = () => {
+  const context = React.useContext(ModalHeaderActionContext);
+
+  return <>{context?.action}</>;
+};
+
+const render = (ui: React.ReactElement) =>
+  renderWithProviders(
+    <ModalHeaderActionProvider>
+      {ui}
+      <ModalHeaderActionOutlet />
+    </ModalHeaderActionProvider>,
+  );
+
 const DEFAULT_UPDATE_ROUTINE_DETAIL = {
   routineId: 1,
   nickname: 'testuser',
@@ -117,16 +139,27 @@ jest.mock('@/hooks/useModal', () => ({
     return [
       type === 'routine-update' ? '루틴 수정' : '루틴 추가',
       RoutineFormModalComponent,
+      {},
     ];
   },
 }));
 
 jest.mock('@/components/modal/modal-header', () => {
   const React = require('react');
-  const { Text } = require('react-native');
+  const { Text, View } = require('react-native');
+  const ModalHeaderActionContext =
+    require('@/components/modal/modal-header-action-context').default;
 
-  const MockModalHeader = ({ title }: { title: string }) =>
-    React.createElement(Text, null, title);
+  const MockModalHeader = ({ title }: { title: string }) => {
+    const context = React.useContext(ModalHeaderActionContext);
+
+    return React.createElement(
+      View,
+      null,
+      React.createElement(Text, null, title),
+      context?.action,
+    );
+  };
 
   MockModalHeader.displayName = 'MockModalHeader';
 
@@ -295,19 +328,22 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       ).toBe(false);
     });
 
-    it('추가 버튼은 modal.tsx의 고정 footer에 표시된다', () => {
-      const { getByTestId, getByText, queryByText } = render(<ModalScreen />);
+    it('생성 버튼은 modal.tsx의 고정 header action에 표시된다', () => {
+      const { getByTestId, getByText, queryByTestId, queryByText } = render(
+        <ModalScreen />,
+      );
 
       const buttonContainerStyle = RNStyleSheet.flatten(
         getByTestId('routine-form-button-container').props.style,
       );
 
-      expect(getByTestId('modal-footer')).toBeOnTheScreen();
+      expect(queryByTestId('modal-footer')).not.toBeOnTheScreen();
       expect(queryByText('취소')).not.toBeOnTheScreen();
-      expect(getByText('추가')).toBeOnTheScreen();
+      expect(getByText('생성')).toBeOnTheScreen();
       expect(buttonContainerStyle).toMatchObject({
-        flexDirection: 'row',
-        borderTopWidth: RNStyleSheet.hairlineWidth,
+        minWidth: 56,
+        height: 28,
+        borderRadius: 8,
       });
     });
 
@@ -444,7 +480,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     it('모든 필드가 비어있을 때 추가 버튼이 비활성화되어 있다', async () => {
       const { getByText } = render(<RoutineFormModal />);
 
-      const addButton = getByText('추가');
+      const addButton = getByText('생성');
 
       expect(addButton).toBeDisabled();
     });
@@ -462,7 +498,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       await waitFor(
         () => {
-          const addButton = getByText('등록');
+          const addButton = getByText('생성');
 
           expect(addButton).toBeEnabled();
         },
@@ -489,7 +525,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       await waitFor(
         () => {
-          const addButton = getByText('등록');
+          const addButton = getByText('생성');
 
           expect(addButton).toBeEnabled();
         },
@@ -515,7 +551,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       await waitFor(
         () => {
-          const addButton = getByText('등록');
+          const addButton = getByText('생성');
 
           expect(addButton).toBeEnabled();
         },
@@ -626,12 +662,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         );
 
         await waitFor(() => {
-          const addButton = getByText('등록');
+          const addButton = getByText('생성');
 
           expect(addButton).toBeEnabled();
         });
 
-        const addButton = getByText('등록');
+        const addButton = getByText('생성');
 
         await act(async () => {
           fireEvent.press(addButton);
@@ -663,11 +699,11 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         await selectStartDate(getByText, getByLabelText);
 
         await waitFor(() => {
-          expect(getByText('등록')).toBeEnabled();
+          expect(getByText('생성')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('등록'));
+          fireEvent.press(getByText('생성'));
         });
 
         await waitFor(() => {
@@ -718,11 +754,11 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         await selectStartDate(getByText, getByLabelText);
 
         await waitFor(() => {
-          expect(getByText('등록')).toBeEnabled();
+          expect(getByText('생성')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('등록'));
+          fireEvent.press(getByText('생성'));
         });
 
         await waitFor(() => {
@@ -768,14 +804,14 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
         await waitFor(
           () => {
-            const addButton = getByText('추가');
+            const addButton = getByText('생성');
 
             expect(addButton).toBeEnabled();
           },
           { timeout: 3000 },
         );
 
-        const addButton = getByText('추가');
+        const addButton = getByText('생성');
 
         await act(async () => {
           fireEvent.press(addButton);
@@ -808,14 +844,14 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
         await waitFor(
           () => {
-            const addButton = getByText('추가');
+            const addButton = getByText('생성');
 
             expect(addButton).toBeEnabled();
           },
           { timeout: 3000 },
         );
 
-        const addButton = getByText('추가');
+        const addButton = getByText('생성');
 
         await act(async () => {
           fireEvent.press(addButton);
@@ -881,29 +917,36 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
   describe('초기 렌더링 테스트', () => {
     it('기존 루틴 데이터가 폼에 표시된다', async () => {
-      const { getByPlaceholderText, getByText } = render(<RoutineFormModal />);
+      const { findByPlaceholderText, findByText } = render(
+        <RoutineFormModal />,
+      );
 
       // 기존 루틴 이름이 표시되어야 함
-      const routineNameInput = getByPlaceholderText('루틴 이름을 입력하세요.');
+      const routineNameInput = await findByPlaceholderText(
+        '루틴 이름을 입력하세요.',
+      );
 
       expect(routineNameInput.props.value).toBe('기존 루틴');
 
       // 기존 루틴 설명이 표시되어야 함
-      const routineDetailInput =
-        getByPlaceholderText('루틴 설명을 입력해주세요.');
+      const routineDetailInput = await findByPlaceholderText(
+        '루틴 설명을 입력해주세요.',
+      );
 
       expect(routineDetailInput.props.value).toBe('기존 설명');
 
       // 기존 벌금이 표시되어야 함 (천 단위 콤마 적용)
-      const penaltyInput = getByPlaceholderText('벌금을 입력해주세요.');
+      const penaltyInput = await findByPlaceholderText(
+        '벌금을 입력해주세요.',
+      );
 
       expect(penaltyInput.props.value).toBe('5,000');
 
       // 기존 루틴 횟수가 표시되어야 함
-      expect(getByText('일주일에 3회')).toBeOnTheScreen();
+      expect(await findByText('일주일에 3회')).toBeOnTheScreen();
 
       // 시작 날짜가 표시되어야 함
-      expect(getByText('2025-01-06')).toBeOnTheScreen();
+      expect(await findByText('2025-01-06')).toBeOnTheScreen();
     });
 
     it('수정 모달은 routineId로 상세 조회한 값을 폼에 표시한다', async () => {
@@ -946,13 +989,13 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       ).toBe('상세 설명');
       expect(getByText('일주일에 5회')).toBeOnTheScreen();
       expect(getByText('2026-05-26')).toBeOnTheScreen();
-      expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(true);
+      expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(false);
     });
 
     it('수정 버튼이 화면에 표시된다', async () => {
-      const { getByText } = render(<RoutineFormModal />);
+      const { findByText } = render(<RoutineFormModal />);
 
-      const editButton = getByText('수정');
+      const editButton = await findByText('저장');
 
       expect(editButton).toBeOnTheScreen();
     });
@@ -960,7 +1003,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     it('수정 버튼 배경은 gray 90 색상으로 고정된다', async () => {
       const { findByText } = render(<RoutineFormModal />);
 
-      const editButtonText = await findByText('수정');
+      const editButtonText = await findByText('저장');
       let editButton = editButtonText.parent;
 
       while (
@@ -980,12 +1023,10 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       );
     });
 
-    it('취소 버튼이 화면에 표시된다', async () => {
-      const { getByText } = render(<RoutineFormModal />);
+    it('취소 버튼은 폼 내부에 표시되지 않는다', async () => {
+      const { queryByText } = render(<RoutineFormModal />);
 
-      const cancelButton = getByText('취소');
-
-      expect(cancelButton).toBeOnTheScreen();
+      expect(queryByText('취소')).not.toBeOnTheScreen();
     });
 
     it('메이트가 지정된 루틴은 메이트 이름만 표시한다', async () => {
@@ -1042,43 +1083,52 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
   describe('필수값 유효성 검사 테스트', () => {
     it('루틴 이름을 비우면 수정 버튼이 비활성화된다', async () => {
-      const { getByPlaceholderText, getByText } = render(<RoutineFormModal />);
+      const { findByPlaceholderText, getByText } = render(
+        <RoutineFormModal />,
+      );
 
-      const routineNameInput = getByPlaceholderText('루틴 이름을 입력하세요.');
+      const routineNameInput = await findByPlaceholderText(
+        '루틴 이름을 입력하세요.',
+      );
 
       await act(async () => {
         fireEvent.changeText(routineNameInput, '');
       });
 
       await waitFor(() => {
-        const editButton = getByText('수정');
+        const editButton = getByText('저장');
 
         expect(editButton).toBeDisabled();
       });
     });
 
     it('루틴 횟수를 비우면 수정 버튼이 비활성화된다', async () => {
-      mockRoutineStore.routineForm = {
-        ...mockRoutineStore.routineForm,
-        routineCount: '',
-      };
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({ routineCount: '' });
 
-      const { getByText } = render(<RoutineFormModal />);
+      const { findByText, getByText } = render(<RoutineFormModal />);
 
-      expect(getByText('루틴 횟수를 선택해주세요.')).toBeOnTheScreen();
+      expect(
+        await findByText('루틴 횟수를 선택해주세요.'),
+      ).toBeOnTheScreen();
 
       await waitFor(() => {
-        const editButton = getByText('수정');
+        const editButton = getByText('저장');
 
         expect(editButton).toBeDisabled();
       });
     });
 
     it('모든 필수값이 유효하고 값 변경 시 수정 버튼이 활성화된다', async () => {
-      const { getByPlaceholderText, getByText } = render(<RoutineFormModal />);
+      const { findByPlaceholderText, getByText } = render(
+        <RoutineFormModal />,
+      );
 
       // 입력값이 올바르게 설정되었는지 확인
-      const routineNameInput = getByPlaceholderText('루틴 이름을 입력하세요.');
+      const routineNameInput = await findByPlaceholderText(
+        '루틴 이름을 입력하세요.',
+      );
 
       expect(routineNameInput.props.value).toBe('기존 루틴');
 
@@ -1090,7 +1140,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       // 폼이 렌더링되고 유효성 검사가 완료될 때까지 대기
       await waitFor(
         () => {
-          const editButton = getByText('수정');
+          const editButton = getByText('저장');
 
           expect(editButton).toBeEnabled();
         },
@@ -1110,7 +1160,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       await waitFor(
         () => {
-          const editButton = getByText('수정');
+          const editButton = getByText('저장');
 
           expect(editButton).toBeEnabled();
         },
@@ -1129,7 +1179,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       await waitFor(
         () => {
-          expect(getByText('수정')).toBeEnabled();
+          expect(getByText('저장')).toBeEnabled();
         },
         { timeout: 3000 },
       );
@@ -1174,10 +1224,10 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
   describe('사용자 인풋 유효성 검사 테스트', () => {
     it('루틴 횟수는 Select에서 선택한 라벨로 변경된다', async () => {
-      const { getByText } = render(<RoutineFormModal />);
+      const { findByText, getByText } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getByText('일주일에 3회'));
+        fireEvent.press(await findByText('일주일에 3회'));
       });
 
       await act(async () => {
@@ -1188,9 +1238,11 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     });
 
     it('벌금 입력 시 숫자만 입력된다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
+      const { findByPlaceholderText } = render(<RoutineFormModal />);
 
-      const penaltyInput = getByPlaceholderText('벌금을 입력해주세요.');
+      const penaltyInput = await findByPlaceholderText(
+        '벌금을 입력해주세요.',
+      );
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, 'abc20000');
@@ -1201,9 +1253,11 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     });
 
     it('벌금 수정 시 천 단위 콤마가 표시된다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
+      const { findByPlaceholderText } = render(<RoutineFormModal />);
 
-      const penaltyInput = getByPlaceholderText('벌금을 입력해주세요.');
+      const penaltyInput = await findByPlaceholderText(
+        '벌금을 입력해주세요.',
+      );
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, '100000');
@@ -1235,12 +1289,12 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
 
         await waitFor(() => {
-          const editButton = getByText('수정');
+          const editButton = getByText('저장');
 
           expect(editButton).toBeEnabled();
         });
 
-        const editButton = getByText('수정');
+        const editButton = getByText('저장');
 
         await act(async () => {
           fireEvent.press(editButton);
@@ -1276,7 +1330,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           );
         });
 
-        const editButton = await findByText('수정');
+        const editButton = await findByText('저장');
 
         await act(async () => {
           fireEvent.press(editButton);
@@ -1300,7 +1354,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
 
         await act(async () => {
-          fireEvent.press(await findByText('수정'));
+          fireEvent.press(await findByText('저장'));
         });
 
         await waitFor(() => {
@@ -1334,7 +1388,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           );
         });
 
-        const editButton = await findByText('수정');
+        const editButton = await findByText('저장');
 
         await act(async () => {
           fireEvent.press(editButton);
@@ -1373,7 +1427,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
 
         await act(async () => {
-          fireEvent.press(await findByText('수정'));
+          fireEvent.press(await findByText('저장'));
         });
 
         await waitFor(() => {
@@ -1405,7 +1459,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         expect(await findByText('2026-07-31')).toBeOnTheScreen();
 
         await act(async () => {
-          fireEvent.press(await findByText('수정'));
+          fireEvent.press(await findByText('저장'));
         });
 
         await waitFor(() => {
@@ -1441,7 +1495,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
 
         await act(async () => {
-          fireEvent.press(await findByText('수정'));
+          fireEvent.press(await findByText('저장'));
         });
 
         await waitFor(() => {
@@ -1467,13 +1521,14 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       });
 
       it('실패 알림이 표시된다', async () => {
-        const { getByPlaceholderText, getByText } = render(
+        const { findByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
 
         // 루틴 이름 수정
-        const routineNameInput =
-          getByPlaceholderText('루틴 이름을 입력하세요.');
+        const routineNameInput = await findByPlaceholderText(
+          '루틴 이름을 입력하세요.',
+        );
 
         await act(async () => {
           fireEvent.changeText(routineNameInput, '수정된 루틴');
@@ -1481,14 +1536,14 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
         await waitFor(
           () => {
-            const editButton = getByText('수정');
+            const editButton = getByText('저장');
 
             expect(editButton).toBeEnabled();
           },
           { timeout: 3000 },
         );
 
-        const editButton = getByText('수정');
+        const editButton = getByText('저장');
 
         await act(async () => {
           fireEvent.press(editButton);
@@ -1509,13 +1564,14 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       });
 
       it('실패 알림이 표시된다', async () => {
-        const { getByPlaceholderText, getByText } = render(
+        const { findByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
 
         // 루틴 이름 수정
-        const routineNameInput =
-          getByPlaceholderText('루틴 이름을 입력하세요.');
+        const routineNameInput = await findByPlaceholderText(
+          '루틴 이름을 입력하세요.',
+        );
 
         await act(async () => {
           fireEvent.changeText(routineNameInput, '수정된 루틴');
@@ -1523,14 +1579,14 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
         await waitFor(
           () => {
-            const editButton = getByText('수정');
+            const editButton = getByText('저장');
 
             expect(editButton).toBeEnabled();
           },
           { timeout: 3000 },
         );
 
-        const editButton = getByText('수정');
+        const editButton = getByText('저장');
 
         await act(async () => {
           fireEvent.press(editButton);
@@ -1547,12 +1603,10 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
   });
 
   describe('취소 버튼 테스트', () => {
-    it('취소 버튼이 화면에 표시된다', async () => {
-      const { getByText } = render(<RoutineFormModal />);
+    it('취소 버튼은 폼 내부에 표시되지 않는다', async () => {
+      const { queryByText } = render(<RoutineFormModal />);
 
-      const cancelButton = getByText('취소');
-
-      expect(cancelButton).toBeOnTheScreen();
+      expect(queryByText('취소')).not.toBeOnTheScreen();
     });
 
     it('폼 마지막에 루틴 상태 체크박스 항목이 표시된다', async () => {
@@ -1633,13 +1687,13 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     });
 
     it('루틴 삭제 버튼을 고정 danger outline 스타일로 표시한다', async () => {
-      const { getByTestId, getByText } = render(<RoutineFormModal />);
+      const { findByTestId, findByText } = render(<RoutineFormModal />);
 
       const deleteButtonStyle = RNStyleSheet.flatten(
-        getByTestId('routine-delete-button').props.style,
+        (await findByTestId('routine-delete-button')).props.style,
       );
       const deleteButtonTextStyle = RNStyleSheet.flatten(
-        getByText('루틴 삭제').props.style,
+        (await findByText('루틴 삭제')).props.style,
       );
 
       expect(deleteButtonStyle).toEqual(
@@ -1661,10 +1715,10 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     });
 
     it('루틴 삭제 버튼 클릭 시 확인 Alert이 표시된다', async () => {
-      const { getByText } = render(<RoutineFormModal />);
+      const { findByText } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getByText('루틴 삭제'));
+        fireEvent.press(await findByText('루틴 삭제'));
       });
 
       expect(mockAlert).toHaveBeenCalledWith(
@@ -1677,16 +1731,10 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       );
     });
 
-    it('취소 버튼 클릭 시 이전 페이지(루틴 상세)로 이동한다', async () => {
-      const { getByText } = render(<RoutineFormModal />);
+    it('폼 렌더링만으로 이전 페이지 이동을 실행하지 않는다', async () => {
+      render(<RoutineFormModal />);
 
-      const cancelButton = getByText('취소');
-
-      await act(async () => {
-        fireEvent.press(cancelButton);
-      });
-
-      expect(mockBack).toHaveBeenCalled();
+      expect(mockBack).not.toHaveBeenCalled();
     });
   });
 });

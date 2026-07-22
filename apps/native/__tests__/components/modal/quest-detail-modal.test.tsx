@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import QuestDetailModal from '../../../components/modal/quest-detail-modal';
+import { appThemes } from '../../../theme/themes';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockQuest } from '../../setup/quest/mock';
 
@@ -66,6 +67,9 @@ let mockAxios: MockAdapter;
 
 describe('QuestDetailModal', () => {
   beforeEach(() => {
+    jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(new Date('2026-06-17T00:00:00.000Z').getTime());
     resetAuthMocks();
     mockAxios = new MockAdapter(axiosInstance);
     mockQuestStore.questId = 1;
@@ -74,6 +78,7 @@ describe('QuestDetailModal', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     mockAxios.restore();
   });
 
@@ -252,7 +257,7 @@ describe('QuestDetailModal', () => {
     });
     expect(statusBadgeStyle).toMatchObject({
       backgroundColor: 'transparent',
-      borderColor: '#0984e3',
+      borderColor: appThemes.blue.colors.brand.primary,
       borderRadius: 4,
       borderWidth: 1,
       height: 17,
@@ -262,7 +267,7 @@ describe('QuestDetailModal', () => {
     expect(statusText.props.fontSize).toBe('$caption2');
     expect(statusText.props.fontWeight).toBe('600');
     expect(statusTextStyle).toMatchObject({
-      color: '#0984e3',
+      color: appThemes.blue.colors.brand.primary,
     });
     expect(title.props.fontSize).toBe('$subtitle2');
     expect(title.props.fontWeight).toBe('600');
@@ -275,7 +280,7 @@ describe('QuestDetailModal', () => {
       marginTop: 36,
     });
     expect(progressTrackStyle).toMatchObject({
-      backgroundColor: '#999999',
+      backgroundColor: appThemes.blue.colors.text.muted,
       borderRadius: 999,
       height: 8,
       width: 115,
@@ -283,7 +288,7 @@ describe('QuestDetailModal', () => {
     expect(progressValue.props.fontSize).toBe('$caption2');
     expect(progressValue.props.fontWeight).toBe('600');
     expect(progressValueStyle).toMatchObject({
-      color: '#FFFFFF',
+      color: appThemes.blue.colors.brand.background,
     });
     expect(imageStyle).toMatchObject({
       borderRadius: 12,
@@ -318,7 +323,7 @@ describe('QuestDetailModal', () => {
       width: '100%',
     });
     expect(rewardButtonTextStyle).toMatchObject({
-      color: '#18191B',
+      color: appThemes.blue.colors.text.soft,
     });
   });
 
@@ -342,11 +347,11 @@ describe('QuestDetailModal', () => {
     );
 
     expect(rewardButtonStyle).toMatchObject({
-      backgroundColor: '#999999',
+      backgroundColor: appThemes.blue.colors.text.muted,
       opacity: 1,
     });
     expect(rewardButtonTextStyle).toMatchObject({
-      color: '#999999',
+      color: appThemes.blue.colors.text.soft,
     });
   });
 
@@ -365,7 +370,7 @@ describe('QuestDetailModal', () => {
     );
 
     expect(outerFrameStyle).toMatchObject({
-      borderColor: '#2D3436',
+      borderColor: appThemes.blue.colors.brand.text,
       borderRadius: 14,
       borderWidth: 2,
       backgroundColor: '#FFFFFF',
@@ -375,7 +380,7 @@ describe('QuestDetailModal', () => {
       borderColor: '#FFFFFF',
       borderRadius: 12,
       borderWidth: 3,
-      backgroundColor: '#2D3436',
+      backgroundColor: appThemes.blue.colors.brand.text,
     });
   });
 
@@ -405,6 +410,8 @@ describe('QuestDetailModal', () => {
     const mockDetail = createMockQuest(0, {
       isAccepted: true,
       isCompleted: false,
+      successCount: 1,
+      verificationTargetCount: 1,
     });
 
     mockAxios.onGet('/quest/1').reply(200, { data: mockDetail });

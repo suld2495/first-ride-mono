@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import { AutocompleteInput } from '../../../components/ui/autocomplete-input';
 import AppTamaguiProvider from '../../../components/ui/tamagui-provider';
 import { useColorSchemeStore } from '../../../store/color-scheme.store';
+import { appThemes } from '../../../theme/themes';
 import { baseFoundation, palette } from '../../../theme/tokens';
 
 describe('AutocompleteInput', () => {
@@ -28,9 +29,11 @@ describe('AutocompleteInput', () => {
     const optionStyle = StyleSheet.flatten(
       getByTestId('autocomplete-option').props.style,
     );
-    expect(optionStyle.backgroundColor).toBe('#F5F5F5');
+    expect(optionStyle.backgroundColor).toBe(
+      appThemes.blue.colors.background.input,
+    );
     expect(getByText('yunji12345')).toHaveStyle({
-      color: palette.theme.gray[70],
+      color: appThemes.blue.colors.text.input,
     });
   });
 

@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import QuestList from '@/components/quest/quest-list';
 import { FlashList } from '@/components/ui/flash-list';
+import { appThemes } from '@/theme/themes';
 
 import { createMockQuest, createMockQuests } from '../../setup/quest/mock';
 
@@ -34,7 +35,7 @@ describe('QuestList', () => {
     });
 
     expect(StyleSheet.flatten(outerFrame?.props.style)).toMatchObject({
-      borderColor: '#2D3436',
+      borderColor: appThemes.blue.colors.brand.text,
       borderRadius: 14,
       borderWidth: 2,
       backgroundColor: '#FFFFFF',
@@ -46,7 +47,7 @@ describe('QuestList', () => {
       borderColor: '#FFFFFF',
       borderRadius: 12,
       borderWidth: 3,
-      backgroundColor: '#2D3436',
+      backgroundColor: appThemes.blue.colors.brand.text,
       padding: 17,
     });
     expect(innerFrameStyle.justifyContent).toBeUndefined();
@@ -138,7 +139,7 @@ describe('QuestList', () => {
     expect(remainingText.props.fontSize).toBe('$caption3');
     expect(remainingText.props.fontWeight).toBe('600');
     expect(remainingStyle).toMatchObject({
-      color: '#666666',
+      color: appThemes.blue.colors.text.secondary,
     });
     expect(screen.getByText('테스트 퀘스트 1').props.fontSize).toBe('$body2');
     expect(screen.getByText('테스트 퀘스트 1').props.fontWeight).toBe('600');
@@ -147,7 +148,7 @@ describe('QuestList', () => {
       lineHeight: 19.5,
     });
     expect(progressTrackStyle).toMatchObject({
-      backgroundColor: '#999999',
+      backgroundColor: appThemes.blue.colors.text.muted,
       borderRadius: 999,
       height: 8,
     });
@@ -155,14 +156,14 @@ describe('QuestList', () => {
       gap: 8,
     });
     expect(progressFillStyle).toMatchObject({
-      backgroundColor: '#0984e3',
+      backgroundColor: appThemes.blue.colors.brand.primary,
       borderRadius: 999,
       width: `${(2 / 7) * 100}%`,
     });
     expect(progressValue.props.fontSize).toBe('$caption2');
     expect(progressValue.props.fontWeight).toBe('600');
     expect(progressValueStyle).toMatchObject({
-      color: '#FFFFFF',
+      color: appThemes.blue.colors.brand.background,
     });
   });
 
