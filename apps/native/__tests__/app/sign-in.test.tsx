@@ -57,13 +57,13 @@ describe('SignIn 페이지', () => {
     mockAppleSignIn.mockReset();
     mockAppleIsAvailable.mockReset();
     mockAppleIsAvailable.mockImplementation(() => new Promise(() => {}));
-    usePendingAppleAuthStore.getState().clearCredential();
+    usePendingAppleAuthStore.getState().clearAttempt();
     mockAxios = new MockAdapter(axiosInstance);
     mockAxios.onPost('/auth/apple/nonce').reply(200, {
       data: {
         nonceId: 'apple-nonce-id',
         nonce: 'apple-nonce',
-        expiresAt: '2026-07-19T12:05:00Z',
+        expiresAt: '2099-07-19T12:05:00Z',
       },
     });
   });
@@ -331,16 +331,18 @@ describe('SignIn 페이지', () => {
         fireEvent.press(await findByText('Apple로 로그인'));
 
         await waitFor(() => {
-          expect(mockPush).toHaveBeenCalledWith({
-            pathname: '/social-sign-up',
-            params: { provider: 'apple' },
-          });
+          expect(mockPush).toHaveBeenCalledWith('/social-sign-up');
         });
-        expect(usePendingAppleAuthStore.getState().credential).toEqual({
+        expect(usePendingAppleAuthStore.getState().attempt).toMatchObject({
           provider: 'apple',
-          nonceId: 'apple-nonce-id',
-          identityToken: 'apple-identity-token',
-          authorizationCode: 'apple-authorization-code',
+          expiresAt: Date.parse('2099-07-19T12:05:00Z'),
+          credential: {
+            provider: 'apple',
+            nonceId: 'apple-nonce-id',
+            identityToken: 'apple-identity-token',
+            authorizationCode: 'apple-authorization-code',
+            expiresAt: Date.parse('2099-07-19T12:05:00Z'),
+          },
         });
         expect(mockAxios.history.post).toHaveLength(2);
       } finally {

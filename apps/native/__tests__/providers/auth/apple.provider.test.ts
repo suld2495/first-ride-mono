@@ -17,7 +17,7 @@ describe('appleProvider', () => {
       data: {
         nonceId: 'apple-nonce-id',
         nonce: 'apple-nonce',
-        expiresAt: '2026-07-19T12:05:00Z',
+        expiresAt: '2099-07-19T12:05:00Z',
       },
     });
   });
@@ -38,6 +38,7 @@ describe('appleProvider', () => {
       nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
+      expiresAt: Date.parse('2099-07-19T12:05:00Z'),
     });
     expect(mockedSignInAsync).toHaveBeenCalledWith({
       nonce: 'apple-nonce',
@@ -93,6 +94,7 @@ describe('appleProvider', () => {
         nonceId: 'apple-nonce-id',
         identityToken: 'apple-identity-token',
         authorizationCode: 'apple-authorization-code',
+        expiresAt: Date.parse('2099-07-19T12:05:00Z'),
       },
       {
         pushToken: 'push-token',

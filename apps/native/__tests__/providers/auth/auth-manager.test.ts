@@ -19,6 +19,7 @@ describe('authManager', () => {
         provider: 'kakao',
         socialId: '12345',
         accessToken: 'kakao-access-token',
+        expiresAt: 2_000_000_000_000,
       }),
       callApi: jest.fn().mockResolvedValue({
         isNewUser: false,
@@ -43,12 +44,13 @@ describe('authManager', () => {
     });
   });
 
-  it('신규 SNS 회원이면 가입 요청에 사용할 SNS 토큰을 별도 필드로 반환한다', async () => {
+  it('신규 SNS 회원이면 전체 credential을 임시 인증 정보로 반환한다', async () => {
     const provider = {
       authenticate: jest.fn().mockResolvedValue({
         provider: 'kakao',
         socialId: '12345',
         accessToken: 'kakao-access-token',
+        expiresAt: 2_000_000_000_000,
       }),
       callApi: jest.fn().mockResolvedValue({
         isNewUser: true,
@@ -64,8 +66,13 @@ describe('authManager', () => {
       }),
     ).resolves.toMatchObject({
       isNewUser: true,
-      socialAccessToken: 'kakao-access-token',
       providerType: 'kakao',
+      pendingCredential: {
+        provider: 'kakao',
+        socialId: '12345',
+        accessToken: 'kakao-access-token',
+        expiresAt: 2_000_000_000_000,
+      },
     });
   });
 });

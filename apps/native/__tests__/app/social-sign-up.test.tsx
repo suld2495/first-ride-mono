@@ -13,6 +13,7 @@ declare const mockAuthStore: {
   signIn: jest.Mock;
 };
 declare const mockPush: jest.Mock;
+declare const mockReplace: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 
 jest.mock('@/api/token-storage.api', () => ({
@@ -39,6 +40,7 @@ let mockAxios: MockAdapter;
 describe('SocialSignUp 페이지', () => {
   beforeEach(() => {
     mockPush.mockClear();
+    mockReplace.mockClear();
     mockAuthStore.signIn.mockClear();
     mockedSetAuthorization.mockClear();
     mockedSetRefreshToken.mockClear();
@@ -46,9 +48,13 @@ describe('SocialSignUp 페이지', () => {
     for (const key of Object.keys(mockSearchParams)) {
       delete mockSearchParams[key];
     }
-    mockSearchParams.provider = 'kakao';
-    mockSearchParams.accessToken = 'kakao-access-token';
-    usePendingAppleAuthStore.getState().clearCredential();
+    usePendingAppleAuthStore.getState().clearAttempt();
+    usePendingAppleAuthStore.getState().beginAttempt({
+      provider: 'kakao',
+      socialId: '12345',
+      accessToken: 'kakao-access-token',
+      expiresAt: Date.now() + 60_000,
+    });
     mockAxios = new MockAdapter(axiosInstance);
     mockAxios.onGet('/auth/job-options').reply(200, {
       data: [
@@ -64,6 +70,18 @@ describe('SocialSignUp 페이지', () => {
 
   afterEach(() => {
     mockAxios.restore();
+    usePendingAppleAuthStore.getState().clearAttempt();
+  });
+
+  it('유효한 로컬 인증 시도 없이 직접 열면 로그인 화면으로 이동한다', async () => {
+    usePendingAppleAuthStore.getState().clearAttempt();
+
+    const { queryByText } = render(<SocialSignUp />);
+
+    expect(queryByText('추가 정보 입력')).not.toBeOnTheScreen();
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/sign-in');
+    });
   });
 
   it('추가 정보를 카카오 accessToken과 함께 제출한다', async () => {
@@ -148,13 +166,12 @@ describe('SocialSignUp 페이지', () => {
   });
 
   it('Apple 신규 가입에는 임시 credential과 성별을 전송한다', async () => {
-    mockSearchParams.provider = 'apple';
-    delete mockSearchParams.accessToken;
-    usePendingAppleAuthStore.getState().setCredential({
+    usePendingAppleAuthStore.getState().beginAttempt({
       provider: 'apple',
       nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
+      expiresAt: Date.now() + 60_000,
     });
     let signupRequest: unknown;
 
@@ -198,17 +215,16 @@ describe('SocialSignUp 페이지', () => {
         deviceId: 'installation-device-id',
       });
     });
-    expect(usePendingAppleAuthStore.getState().credential).toBeNull();
+    expect(usePendingAppleAuthStore.getState().attempt).toBeNull();
   });
 
   it('Apple 신규 가입은 성별을 선택하기 전 제출하지 않는다', async () => {
-    mockSearchParams.provider = 'apple';
-    delete mockSearchParams.accessToken;
-    usePendingAppleAuthStore.getState().setCredential({
+    usePendingAppleAuthStore.getState().beginAttempt({
       provider: 'apple',
       nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
+      expiresAt: Date.now() + 60_000,
     });
     mockAxios.onPost('/auth/apple/signup').reply(201, { data: {} });
 
@@ -228,13 +244,12 @@ describe('SocialSignUp 페이지', () => {
   });
 
   it('Apple signup 재시도에서는 1회성 authorizationCode를 다시 보내지 않는다', async () => {
-    mockSearchParams.provider = 'apple';
-    delete mockSearchParams.accessToken;
-    usePendingAppleAuthStore.getState().setCredential({
+    usePendingAppleAuthStore.getState().beginAttempt({
       provider: 'apple',
       nonceId: 'apple-nonce-id',
       identityToken: 'apple-identity-token',
       authorizationCode: 'apple-authorization-code',
+      expiresAt: Date.now() + 60_000,
     });
     let requestCount = 0;
 
@@ -288,5 +303,14 @@ describe('SocialSignUp 페이지', () => {
     expect(
       JSON.parse(mockAxios.history.post[1]?.data ?? '{}'),
     ).not.toHaveProperty('authorizationCode');
+  });
+
+  it('가입 화면에서 이탈하면 임시 인증 시도를 삭제한다', () => {
+    const { unmount } = render(<SocialSignUp />);
+
+    expect(usePendingAppleAuthStore.getState().attempt).not.toBeNull();
+    unmount();
+
+    expect(usePendingAppleAuthStore.getState().attempt).toBeNull();
   });
 });

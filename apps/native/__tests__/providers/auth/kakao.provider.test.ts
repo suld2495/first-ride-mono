@@ -17,9 +17,10 @@ describe('kakaoProvider', () => {
       await Promise.resolve();
       isLoginComplete = true;
 
-      return { accessToken: 'kakao-access-token' } as Awaited<
-        ReturnType<typeof login>
-      >;
+      return {
+        accessToken: 'kakao-access-token',
+        accessTokenExpiresAt: 2_000_000_000,
+      } as Awaited<ReturnType<typeof login>>;
     });
     mockedMe.mockImplementation(async () => {
       if (!isLoginComplete) {
@@ -33,6 +34,7 @@ describe('kakaoProvider', () => {
       provider: 'kakao',
       socialId: '12345',
       accessToken: 'kakao-access-token',
+      expiresAt: 2_000_000_000_000,
     });
   });
 });
