@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import type * as ClaritySdkModule from '@microsoft/react-native-clarity';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 import { getClarityProjectId } from '@/utils/env';

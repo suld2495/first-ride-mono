@@ -29,8 +29,9 @@ describe('개인정보 설정', () => {
     expect(getByText('개인정보 설정')).toBeOnTheScreen();
     expect(
       await waitFor(() =>
-        expect(getByLabelText('사용 데이터 분석').props.accessibilityState)
-          .toEqual(expect.objectContaining({ checked: false })),
+        expect(
+          getByLabelText('사용 데이터 분석').props.accessibilityState,
+        ).toEqual(expect.objectContaining({ checked: false })),
       ),
     ).toBeUndefined();
 

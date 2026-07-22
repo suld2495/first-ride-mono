@@ -21,12 +21,14 @@ export default function PrivacySettingsPage() {
   useEffect(() => {
     let isMounted = true;
 
-    void getClarityAnalyticsEnabled().then((enabled) => {
+    void (async () => {
+      const enabled = await getClarityAnalyticsEnabled();
+
       if (isMounted) {
         setAnalyticsEnabled(enabled);
         setIsReady(true);
       }
-    });
+    })();
 
     return () => {
       isMounted = false;
@@ -70,8 +72,8 @@ export default function PrivacySettingsPage() {
             분석 데이터는 직접 선택해 주세요
           </Typography>
           <Typography color="secondary" variant="body2">
-            선택하지 않으면 Microsoft Clarity가 시작되지 않습니다. 언제든
-            아래 설정을 끌 수 있습니다.
+            선택하지 않으면 Microsoft Clarity가 시작되지 않습니다. 언제든 아래
+            설정을 끌 수 있습니다.
           </Typography>
         </View>
 
@@ -81,9 +83,8 @@ export default function PrivacySettingsPage() {
               사용 데이터 분석
             </Typography>
             <Typography color="secondary" variant="caption1">
-              화면 이용 흐름과 오류·성능 정보를 수집해 서비스 개선에
-              사용합니다. 입력한 비밀번호와 인증 토큰은 분석 목적으로
-              전송하지 않습니다.
+              화면 이용 흐름과 오류·성능 정보를 수집해 서비스 개선에 사용합니다.
+              입력한 비밀번호와 인증 토큰은 분석 목적으로 전송하지 않습니다.
             </Typography>
           </View>
           <Switch
