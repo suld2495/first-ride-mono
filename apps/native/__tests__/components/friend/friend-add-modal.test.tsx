@@ -1,6 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
-import { FlatList, Pressable } from 'react-native';
+import { FlatList, Modal, Pressable } from 'react-native';
 import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view';
 
 import FriendAddModal from '../../../components/friend/friend-add-modal';
@@ -64,6 +64,20 @@ describe('친구 추가 모달', () => {
       expect(await screen.findByText('친구 추가')).toBeOnTheScreen();
       expect(screen.UNSAFE_getByType(FlatList)).toBeTruthy();
       expect(screen.UNSAFE_queryByType(KeyboardAwareFlatList)).toBeNull();
+    });
+
+    it('중앙 다이얼로그를 슬라이드 애니메이션으로 표시하지 않는다', () => {
+      const screen = render(<FriendAddModal {...defaultProps} />);
+
+      expect(screen.UNSAFE_getByType(Modal).props.animationType).toBe('none');
+    });
+
+    it('백드롭을 opacity로 페이드 인·아웃한다', () => {
+      const screen = render(<FriendAddModal {...defaultProps} />);
+      const backdrop = screen.getByTestId('friend-add-modal-backdrop');
+
+      expect(backdrop.props.entering.constructor.presetName).toBe('FadeIn');
+      expect(backdrop.props.exiting.constructor.presetName).toBe('FadeOut');
     });
   });
 

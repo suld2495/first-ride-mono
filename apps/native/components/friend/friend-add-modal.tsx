@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import type { SearchOption, User } from '@repo/types';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
   Modal,
@@ -13,6 +13,7 @@ import {
   type ImageSourcePropType,
   type ViewStyle,
 } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { Button } from '@/components/ui/button';
 import { FlashList } from '@/components/ui/flash-list';
@@ -45,6 +46,7 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   '',
 );
 const FRIEND_ADD_RESULT_ITEM_HEIGHT = 48;
+const MODAL_ANIMATION_DURATION = baseFoundation.motion.duration.normal;
 
 const getCharacterImageSource = (
   characterImageUrl: SearchResultUser['characterImageUrl'],
@@ -170,12 +172,45 @@ interface FriendAddModalProps {
 const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
   const [keyword, setKeyword] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(visible);
+  const [isContentVisible, setIsContentVisible] = useState(visible);
   const [searchOption, setSearchOption] = useState<SearchOption>({
     page: 1,
     keyword: '',
   });
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data: userList, refetch } = useFetchUserListQuery(searchOption);
+
+  const clearCloseTimer = useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    clearCloseTimer();
+
+    if (visible) {
+      setIsModalVisible(true);
+      setIsContentVisible(true);
+      return;
+    }
+
+    if (!isModalVisible) {
+      setIsContentVisible(false);
+      return;
+    }
+
+    setIsContentVisible(false);
+    closeTimerRef.current = setTimeout(() => {
+      closeTimerRef.current = null;
+      setIsModalVisible(false);
+    }, MODAL_ANIMATION_DURATION);
+  }, [clearCloseTimer, isModalVisible, visible]);
+
+  useEffect(() => clearCloseTimer, [clearCloseTimer]);
 
   const handleSearch = () => {
     setSearchOption((option) => ({
@@ -217,105 +252,120 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
 
   return (
     <Modal
-      visible={visible}
-      animationType="slide"
+      visible={isModalVisible}
+      animationType="none"
       transparent={true}
       onRequestClose={handleClose}
     >
-      <Pressable style={styles.overlay} onPress={handleClose}>
-        <Pressable
-          style={styles.modalContainer}
-          onPress={(e) => e.stopPropagation()}
-        >
-          <ThemeView style={styles.modalContent} variant="elevated">
-            <ThemeView style={styles.modalHeader} transparent>
-              <Typography
-                variant="body1"
-                weight="semibold"
-                style={styles.modalTitle}
-              >
-                친구 추가
-              </Typography>
+      <View style={styles.modalRoot}>
+        {isContentVisible && (
+          <>
+            <Animated.View
+              testID="friend-add-modal-backdrop"
+              entering={FadeIn.duration(MODAL_ANIMATION_DURATION)}
+              exiting={FadeOut.duration(MODAL_ANIMATION_DURATION)}
+              style={styles.backdrop}
+            >
               <Pressable
+                style={styles.backdropPressable}
                 onPress={handleClose}
-                hitSlop={8}
-                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
-              >
-                <Ionicons
-                  name="close-outline"
-                  size={baseFoundation.iconSize.l}
-                  color="#17181C"
-                />
-              </Pressable>
-            </ThemeView>
-
-            <ThemeView style={styles.searchRow} transparent>
-              <View style={styles.searchInputWrapper}>
-                <Input
-                  placeholder="유저이름을 입력해주세요."
-                  value={keyword}
-                  onChangeText={setKeyword}
-                  onSubmitEditing={handleSearch}
-                  returnKeyType="search"
-                  size="sm"
-                  fullWidth
-                  style={styles.searchInput}
-                  color="title"
-                  placeholderTextColor={palette.theme.gray[10]}
-                />
-              </View>
-              <Button
-                title="검색"
-                variant="ghost"
-                size="sm"
-                onPress={handleSearch}
-                backgroundColor="#17181C"
-                textColor="#FFFFFF"
-                style={styles.searchButton}
-                textStyle={styles.searchButtonText}
               />
-            </ThemeView>
+            </Animated.View>
+            <Pressable
+              style={styles.modalContainer}
+              onPress={(e) => e.stopPropagation()}
+            >
+              <ThemeView style={styles.modalContent} variant="elevated">
+                <ThemeView style={styles.modalHeader} transparent>
+                  <Typography
+                    variant="body1"
+                    weight="semibold"
+                    style={styles.modalTitle}
+                  >
+                    친구 추가
+                  </Typography>
+                  <Pressable
+                    onPress={handleClose}
+                    hitSlop={8}
+                    style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                  >
+                    <Ionicons
+                      name="close-outline"
+                      size={baseFoundation.iconSize.l}
+                      color="#17181C"
+                    />
+                  </Pressable>
+                </ThemeView>
 
-            <ThemeView style={styles.listContainer} transparent>
-              <FlashList
-                data={userList ?? []}
-                keyExtractor={(item) => item.userId.toString()}
-                renderItem={renderUserItem}
-                ListEmptyComponent={
-                  <ThemeView style={styles.emptyContainer} transparent>
-                    <Typography variant="body3" style={styles.emptyText}>
-                      유저가 존재하지 않습니다.
-                    </Typography>
-                  </ThemeView>
-                }
-                contentContainerStyle={
-                  userList?.length
-                    ? styles.listContent
-                    : styles.emptyListContent
-                }
-                keyboardShouldPersistTaps="handled"
-                refreshControl={
-                  <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={handleRefresh}
+                <ThemeView style={styles.searchRow} transparent>
+                  <View style={styles.searchInputWrapper}>
+                    <Input
+                      placeholder="유저이름을 입력해주세요."
+                      value={keyword}
+                      onChangeText={setKeyword}
+                      onSubmitEditing={handleSearch}
+                      returnKeyType="search"
+                      size="sm"
+                      fullWidth
+                      style={styles.searchInput}
+                      color="title"
+                      placeholderTextColor={palette.theme.gray[10]}
+                    />
+                  </View>
+                  <Button
+                    title="검색"
+                    variant="ghost"
+                    size="sm"
+                    onPress={handleSearch}
+                    backgroundColor="#17181C"
+                    textColor="#FFFFFF"
+                    style={styles.searchButton}
+                    textStyle={styles.searchButtonText}
                   />
-                }
-                estimatedItemSize={48}
-                getItemLayout={(_, index) => ({
-                  length: FRIEND_ADD_RESULT_ITEM_HEIGHT,
-                  offset: FRIEND_ADD_RESULT_ITEM_HEIGHT * index,
-                  index,
-                })}
-                removeClippedSubviews={false}
-                maxToRenderPerBatch={10}
-                windowSize={5}
-                showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
-                style={styles.list}
-              />
-            </ThemeView>
-          </ThemeView>
-        </Pressable>
-      </Pressable>
+                </ThemeView>
+
+                <ThemeView style={styles.listContainer} transparent>
+                  <FlashList
+                    data={userList ?? []}
+                    keyExtractor={(item) => item.userId.toString()}
+                    renderItem={renderUserItem}
+                    ListEmptyComponent={
+                      <ThemeView style={styles.emptyContainer} transparent>
+                        <Typography variant="body3" style={styles.emptyText}>
+                          유저가 존재하지 않습니다.
+                        </Typography>
+                      </ThemeView>
+                    }
+                    contentContainerStyle={
+                      userList?.length
+                        ? styles.listContent
+                        : styles.emptyListContent
+                    }
+                    keyboardShouldPersistTaps="handled"
+                    refreshControl={
+                      <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh}
+                      />
+                    }
+                    estimatedItemSize={48}
+                    getItemLayout={(_, index) => ({
+                      length: FRIEND_ADD_RESULT_ITEM_HEIGHT,
+                      offset: FRIEND_ADD_RESULT_ITEM_HEIGHT * index,
+                      index,
+                    })}
+                    removeClippedSubviews={false}
+                    maxToRenderPerBatch={10}
+                    windowSize={5}
+                    showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+                    style={styles.list}
+                  />
+                </ThemeView>
+              </ThemeView>
+            </Pressable>
+          </>
+        )}
+      </View>
     </Modal>
   );
 };
@@ -323,11 +373,21 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
 export default FriendAddModal;
 
 const styles = StyleSheet.create((theme) => ({
-  overlay: {
+  modalRoot: {
     flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+  },
+  backdropPressable: {
+    flex: 1,
   },
   modalContainer: {
     width: '86%',
