@@ -1,0 +1,68 @@
+appId: com.mannal.firstride
+name: 분석 데이터 수집 동의 및 중지 상태 반영
+tags:
+  - release
+  - privacy
+---
+# 전제: 전용 테스트 계정으로 로그인되어 있어야 한다.
+- launchApp:
+    clearState: false
+
+- extendedWaitUntil:
+    visible: "My"
+    timeout: 20000
+- tapOn: "My"
+- extendedWaitUntil:
+    visible:
+      id: "settings-scroll-view"
+    timeout: 10000
+- assertVisible: "설정"
+
+- scrollUntilVisible:
+    element:
+      id: "settings-menu-item-개인정보 설정"
+    direction: DOWN
+- tapOn:
+    id: "settings-menu-item-개인정보 설정"
+
+- assertVisible: "개인정보 설정"
+- assertVisible: "분석 데이터는 직접 선택해 주세요"
+- extendedWaitUntil:
+    visible:
+      id: "privacy-settings-analytics-switch"
+      enabled: true
+    timeout: 10000
+
+# 시작 상태가 켜짐이면 먼저 꺼서 이후 검증을 결정적으로 만든다.
+- runFlow:
+    when:
+      visible:
+        id: "privacy-settings-analytics-switch"
+        checked: true
+    commands:
+      - tapOn:
+          id: "privacy-settings-analytics-switch"
+      - assertVisible:
+          id: "privacy-settings-analytics-switch"
+          checked: false
+      - assertVisible: "사용 데이터 분석을 껐습니다."
+
+- assertVisible:
+    id: "privacy-settings-analytics-switch"
+    checked: false
+
+# 분석 수집 동의가 UI 상태와 성공 안내에 반영된다.
+- tapOn:
+    id: "privacy-settings-analytics-switch"
+- assertVisible:
+    id: "privacy-settings-analytics-switch"
+    checked: true
+- assertVisible: "사용 데이터 분석을 켰습니다."
+
+# 분석 수집 중지가 UI 상태와 성공 안내에 반영되고 개인정보 보호 기본 상태로 끝난다.
+- tapOn:
+    id: "privacy-settings-analytics-switch"
+- assertVisible:
+    id: "privacy-settings-analytics-switch"
+    checked: false
+- assertVisible: "사용 데이터 분석을 껐습니다."
