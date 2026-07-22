@@ -1231,6 +1231,31 @@ describe('루틴 조회 페이지', () => {
             expect.objectContaining({ alignItems: 'flex-start' }),
           ]),
         );
+        expect(routineTitle).toHaveProp('fontWeight', '600');
+      });
+
+      it('우측 메뉴 아이콘 왼쪽에 수행 횟수를 caption3 semibold로 표시한다', async () => {
+        const { findByTestId } = render(<Index />);
+        const progress = await findByTestId('routine-week-progress-1');
+        const progressContainerStyles = findAncestorStyleWith(
+          progress,
+          'right',
+        );
+
+        expect(progress).toHaveTextContent('3/5');
+        expect(progress).toHaveStyle({
+          color: palette.theme.softBlue[50],
+          fontSize: 11,
+        });
+        expect(progress).toHaveProp('fontWeight', '600');
+        expect(progressContainerStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              position: 'absolute',
+              right: 32,
+            }),
+          ]),
+        );
       });
 
       it('week 타입 루틴 제목 아래 라벨까지의 간격을 12px로 둔다', async () => {

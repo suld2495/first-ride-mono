@@ -78,6 +78,21 @@ describe('theme/tokens', () => {
     expect(redTheme.colors.brand.todaySuccessCheck).toBe(palette.theme.red[80]);
   });
 
+  it('루틴 수행 횟수에 테마별 soft 50 컬러를 제공한다', () => {
+    expect(lightTheme.colors.brand.routineProgressText).toBe(
+      palette.theme.softBlue[50],
+    );
+    expect(blueTheme.colors.brand.routineProgressText).toBe(
+      palette.theme.softBlue[50],
+    );
+    expect(greenTheme.colors.brand.routineProgressText).toBe(
+      palette.theme.softGreen[50],
+    );
+    expect(redTheme.colors.brand.routineProgressText).toBe(
+      palette.theme.softRed[50],
+    );
+  });
+
   it('테마별 foundation 토큰을 생성한다', () => {
     const foundation = createFoundation({
       name: 'brand',
