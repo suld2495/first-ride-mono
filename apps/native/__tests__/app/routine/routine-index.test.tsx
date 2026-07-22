@@ -1267,7 +1267,7 @@ describe('루틴 조회 페이지', () => {
           ),
         );
 
-        frames.forEach((frame) => {
+        for (const frame of frames) {
           expect(frame).toHaveStyle({
             width: 28,
             height: 28,
@@ -1276,7 +1276,7 @@ describe('루틴 조회 페이지', () => {
             borderColor: 'transparent',
             backgroundColor: 'transparent',
           });
-        });
+        }
       });
 
       it('오늘 달성한 요일의 외곽 프레임만 루틴 컬러로 표시한다', async () => {
@@ -1310,9 +1310,7 @@ describe('루틴 조회 페이지', () => {
         const { findByTestId } = render(<Index />);
         const [todayFrame, otherCompletedFrame] = await Promise.all([
           findByTestId(`routine-week-check-frame-1-${todayIndex}`),
-          findByTestId(
-            `routine-week-check-frame-1-${otherCompletedIndex}`,
-          ),
+          findByTestId(`routine-week-check-frame-1-${otherCompletedIndex}`),
         ]);
 
         expect(todayFrame).toHaveStyle({

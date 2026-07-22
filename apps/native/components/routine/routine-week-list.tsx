@@ -90,6 +90,11 @@ const getTodaySuccessCheckBoxStyle = (isTodaySuccess: boolean) =>
       }
     : null;
 
+const getTodaySuccessFrameStyle = (
+  isTodaySuccess: boolean,
+  routineColor: string,
+) => (isTodaySuccess ? { borderColor: routineColor } : null);
+
 const RoutineWeekList = ({
   routines,
   date,
@@ -180,11 +185,10 @@ const RoutineWeekList = ({
                 : null;
               const todaySuccessCheckBoxStyle =
                 getTodaySuccessCheckBoxStyle(isTodaySuccess);
-              const todaySuccessFrameStyle = isTodaySuccess
-                ? {
-                    borderColor: symbolColor ?? DEFAULT_ROUTINE_COLOR,
-                  }
-                : null;
+              const todaySuccessFrameStyle = getTodaySuccessFrameStyle(
+                isTodaySuccess,
+                symbolColor ?? DEFAULT_ROUTINE_COLOR,
+              );
               const upcomingCheckBoxStyle = getUpcomingCheckBoxStyle(
                 isUpcomingDay,
                 theme.colors.brand.routineUpcomingCheckboxBorder,
