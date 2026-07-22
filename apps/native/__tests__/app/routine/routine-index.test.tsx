@@ -1245,7 +1245,7 @@ describe('루틴 조회 페이지', () => {
     });
 
     describe('요일별 달성 아이콘 표시', () => {
-      it('달성한 요일에는 성공 배경, 미달성 요일에는 gray 80 배경을 표시한다', async () => {
+      it('달성한 요일에는 루틴에서 설정한 컬러를 배경으로 표시한다', async () => {
         // 현재 주의 월, 화, 수 날짜를 동적으로 생성
         const today = new Date();
         const monday = new Date(getWeekMonday(today));
@@ -1288,20 +1288,65 @@ describe('루틴 조회 페이지', () => {
         expect(
           within(await findByTestId('routine-week-check-1-0')).getByText('월'),
         ).toBeOnTheScreen();
-
-        // 미달성 요일 (목, 금, 토, 일)
-        expect(await findByLabelText('목요일 미달성')).toBeOnTheScreen();
-        expect(await findByLabelText('금요일 미달성')).toBeOnTheScreen();
-        expect(await findByLabelText('토요일 미달성')).toBeOnTheScreen();
-        expect(await findByLabelText('일요일 미달성')).toBeOnTheScreen();
-        const unachievedDay = await findByTestId('routine-week-check-1-3');
-
-        expect(unachievedDay).toHaveStyle({
-          backgroundColor: palette.theme.gray[80],
+        expect(await findByTestId('routine-week-check-1-0')).toHaveStyle({
+          backgroundColor: '#00D68F',
         });
-        expect(
-          within(unachievedDay).queryByTestId('routine-checkmark-icon'),
-        ).not.toBeOnTheScreen();
+      });
+
+      it('미래 날짜는 투명 배경과 soft 테마 80 테두리 및 텍스트로 표시한다', async () => {
+        mockSearchParams.date = afterWeek(
+          new Date(getWeekMonday(new Date())),
+        );
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 0,
+            routineCount: 5,
+            successDate: [],
+          }),
+        });
+
+        const { findByTestId } = render(<Index />);
+        const futureMonday = await findByTestId('routine-week-check-1-0');
+        const futureMondayText = within(futureMonday).getByText('월');
+
+        expect(futureMonday).toHaveStyle({
+          backgroundColor: 'transparent',
+          borderColor: palette.theme.softBlue[80],
+          borderWidth: 1,
+        });
+        expect(futureMondayText).toHaveStyle({
+          color: palette.theme.softBlue[80],
+        });
+      });
+
+      it('오늘 미달성은 soft 테마 80 테두리와 gray 90 텍스트로 표시한다', async () => {
+        const today = new Date();
+        const todayIndex = getRoutineWeekIndex(today);
+        const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
+          todayIndex
+        ];
+
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 0,
+            routineCount: 5,
+            successDate: [],
+          }),
+        });
+
+        const { findByTestId } = render(<Index />);
+        const todayCheckBox = await findByTestId(
+          `routine-week-check-1-${todayIndex}`,
+        );
+
+        expect(todayCheckBox).toHaveStyle({
+          backgroundColor: 'transparent',
+          borderColor: palette.theme.softBlue[80],
+          borderWidth: 1,
+        });
+        expect(within(todayCheckBox).getByText(todayLabel)).toHaveStyle({
+          color: palette.theme.gray[90],
+        });
       });
 
       it('오늘 완료한 요일을 successDate의 오늘 날짜로 구분한다', async () => {
@@ -1409,7 +1454,7 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('과거 주의 미달성 요일을 에러 배경과 gray 90 요일 텍스트로 표시한다', async () => {
+      it('지나간 미달성 날짜를 테마 90 배경과 X SVG 아이콘으로 표시한다', async () => {
         mockSearchParams.date = beforeWeek(new Date(getWeekMonday(new Date())));
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
@@ -1422,11 +1467,12 @@ describe('루틴 조회 페이지', () => {
         const { findByTestId } = render(<Index />);
         const missedMonday = await findByTestId('routine-week-check-1-0');
 
-        expect(within(missedMonday).getByText('월')).toHaveStyle({
-          color: palette.theme.gray[90],
-        });
+        expect(within(missedMonday).queryByText('월')).toBeNull();
+        expect(
+          within(missedMonday).getByTestId('routine-missed-icon'),
+        ).toHaveProp('color', palette.theme.gray[90]);
         expect(missedMonday).toHaveStyle({
-          backgroundColor: appThemes.blue.colors.feedback.error.bg,
+          backgroundColor: palette.theme.blue[90],
         });
       });
     });
