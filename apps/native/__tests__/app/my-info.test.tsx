@@ -378,6 +378,7 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('루틴 설정')).toBeOnTheScreen();
     expect(queryByText('테마 설정')).toBeNull();
     expect(getByText('알림 설정')).toBeOnTheScreen();
+    expect(getByText('개인정보 설정')).toBeOnTheScreen();
     expect(getByText('이용약관')).toBeOnTheScreen();
     expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
     expect(getByText('문의')).toBeOnTheScreen();
@@ -387,12 +388,14 @@ describe('MyInfo 로그아웃', () => {
     fireEvent.press(getByText('한마디'));
     fireEvent.press(getByText('루틴 설정'));
     fireEvent.press(getByText('알림 설정'));
+    fireEvent.press(getByText('개인정보 설정'));
     fireEvent.press(getByText('문의'));
     fireEvent.press(getByText('영웅의 전당'));
 
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
     expect(global.mockPush).toHaveBeenCalledWith('/routine-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');
+    expect(global.mockPush).toHaveBeenCalledWith('/privacy-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/inquiry');
     expect(global.mockPush).toHaveBeenCalledWith('/hall-of-heroes');
   });

@@ -1,9 +1,14 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 interface ClaritySdkMock {
   LogLevel: {
     None: 'None';
     Verbose: 'Verbose';
   };
   initialize: jest.Mock;
+  consent: jest.Mock;
+  pause: jest.Mock;
+  resume: jest.Mock;
 }
 
 const createSdkMock = (): ClaritySdkMock => ({
@@ -12,13 +17,24 @@ const createSdkMock = (): ClaritySdkMock => ({
     Verbose: 'Verbose',
   },
   initialize: jest.fn(),
+  consent: jest.fn(() => Promise.resolve(true)),
+  pause: jest.fn(() => Promise.resolve(true)),
+  resume: jest.fn(() => Promise.resolve(true)),
 });
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+}));
+
+const mockedStorage = jest.mocked(AsyncStorage);
 
 describe('initializeClarity', () => {
   const originalClarityProjectId = process.env.EXPO_PUBLIC_CLARITY_PROJECT_ID;
 
   beforeEach(() => {
     jest.resetModules();
+    jest.clearAllMocks();
     delete process.env.EXPO_PUBLIC_CLARITY_PROJECT_ID;
   });
 
@@ -102,6 +118,86 @@ describe('initializeClarity', () => {
         ...options,
       }),
     ).toBe(false);
+    expect(loadSdk).not.toHaveBeenCalled();
+  });
+
+  it('저장된 동의가 없는 신규 설치에서는 Clarity를 초기화하지 않는다', async () => {
+    mockedStorage.getItem.mockResolvedValue(null);
+    const loadSdk = jest.fn(() => createSdkMock());
+    const { initializeClarityWithStoredConsent } = require('@/utils/clarity');
+
+    await expect(
+      initializeClarityWithStoredConsent({
+        isDevelopment: false,
+        loadSdk,
+        platform: 'ios',
+        projectId: 'clarity-project-id',
+      }),
+    ).resolves.toBe(false);
+
+    expect(loadSdk).not.toHaveBeenCalled();
+  });
+
+  it('분석 수집에 동의한 사용자에게만 Clarity를 시작한다', async () => {
+    mockedStorage.getItem.mockResolvedValue('enabled');
+    const claritySdk = createSdkMock();
+    const { initializeClarityWithStoredConsent } = require('@/utils/clarity');
+
+    await expect(
+      initializeClarityWithStoredConsent({
+        isDevelopment: false,
+        loadSdk: () => claritySdk,
+        platform: 'android',
+        projectId: 'clarity-project-id',
+      }),
+    ).resolves.toBe(true);
+
+    expect(claritySdk.initialize).toHaveBeenCalledTimes(1);
+    expect(claritySdk.consent).toHaveBeenCalledWith(false, true);
+  });
+
+  it('분석 수집을 끄면 선택을 저장하고 현재 세션 수집을 중지한다', async () => {
+    mockedStorage.getItem.mockResolvedValue('enabled');
+    const claritySdk = createSdkMock();
+    const {
+      CLARITY_ANALYTICS_PREFERENCE_KEY,
+      initializeClarityWithStoredConsent,
+      setClarityAnalyticsEnabled,
+    } = require('@/utils/clarity');
+
+    await initializeClarityWithStoredConsent({
+      isDevelopment: false,
+      loadSdk: () => claritySdk,
+      platform: 'ios',
+      projectId: 'clarity-project-id',
+    });
+    await setClarityAnalyticsEnabled(false, {
+      isDevelopment: false,
+      loadSdk: () => claritySdk,
+      platform: 'ios',
+      projectId: 'clarity-project-id',
+    });
+
+    expect(mockedStorage.setItem).toHaveBeenCalledWith(
+      CLARITY_ANALYTICS_PREFERENCE_KEY,
+      'disabled',
+    );
+    expect(claritySdk.consent).toHaveBeenLastCalledWith(false, false);
+    expect(claritySdk.pause).toHaveBeenCalledTimes(1);
+  });
+
+  it('저장소를 읽지 못하면 안전하게 수집하지 않는다', async () => {
+    mockedStorage.getItem.mockRejectedValue(new Error('storage unavailable'));
+    const loadSdk = jest.fn(() => createSdkMock());
+    const { initializeClarityWithStoredConsent } = require('@/utils/clarity');
+
+    await expect(
+      initializeClarityWithStoredConsent({
+        loadSdk,
+        platform: 'ios',
+        projectId: 'clarity-project-id',
+      }),
+    ).resolves.toBe(false);
     expect(loadSdk).not.toHaveBeenCalled();
   });
 });
