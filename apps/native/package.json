@@ -94,6 +94,11 @@
   "expo": {
     "doctor": {
       "reactNativeDirectoryCheck": {
+        "exclude": [
+          "react-native-bouncy-checkbox",
+          "react-native-keyboard-aware-scroll-view",
+          "react-native-markdown-display"
+        ],
         "listUnknownPackages": false
       }
     }
