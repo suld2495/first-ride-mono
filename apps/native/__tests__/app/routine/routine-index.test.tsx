@@ -1258,6 +1258,16 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
+      it('수행 횟수 숫자의 세로 중심을 우측 메뉴 아이콘에 맞춘다', async () => {
+        const { findByTestId } = render(<Index />);
+        const progress = await findByTestId('routine-week-progress-1');
+
+        expect(progress).toHaveStyle({
+          lineHeight: 14,
+          includeFontPadding: false,
+        });
+      });
+
       it('목표를 모두 달성하면 수행 횟수 왼쪽에 초록 체크를 표시한다', async () => {
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
