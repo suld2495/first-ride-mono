@@ -210,4 +210,36 @@ describe('initializeClarity', () => {
     ).resolves.toBe(false);
     expect(loadSdk).not.toHaveBeenCalled();
   });
+
+  it('분석 수집 활성화 중 SDK 오류가 나면 저장값과 세션을 꺼짐으로 되돌린다', async () => {
+    const mockedStorage = getMockedStorage();
+    const claritySdk = createSdkMock();
+
+    claritySdk.consent.mockRejectedValueOnce(new Error('consent failed'));
+    const {
+      CLARITY_ANALYTICS_PREFERENCE_KEY,
+      setClarityAnalyticsEnabled,
+    } = require('@/utils/clarity');
+
+    await expect(
+      setClarityAnalyticsEnabled(true, {
+        isDevelopment: false,
+        loadSdk: () => claritySdk,
+        platform: 'ios',
+        projectId: 'clarity-project-id',
+      }),
+    ).rejects.toThrow('consent failed');
+
+    expect(mockedStorage.setItem).toHaveBeenNthCalledWith(
+      1,
+      CLARITY_ANALYTICS_PREFERENCE_KEY,
+      'enabled',
+    );
+    expect(mockedStorage.setItem).toHaveBeenLastCalledWith(
+      CLARITY_ANALYTICS_PREFERENCE_KEY,
+      'disabled',
+    );
+    expect(claritySdk.consent).toHaveBeenLastCalledWith(false, false);
+    expect(claritySdk.pause).toHaveBeenCalledTimes(1);
+  });
 });
