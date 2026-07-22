@@ -34,6 +34,16 @@ const SOCIAL_LOGIN_TYPE_LABELS: Record<
   NAVER: '네이버',
 };
 
+const SOCIAL_LOGIN_TYPE_COLORS: Partial<
+  Record<
+    Exclude<UserLoginType, 'PLAIN'>,
+    { backgroundColor: string; textColor: string }
+  >
+> = {
+  KAKAO: { backgroundColor: '#FEE500', textColor: '#000000' },
+  APPLE: { backgroundColor: '#000000', textColor: '#FFFFFF' },
+};
+
 const SETTING_ITEMS: Array<{
   title: string;
   href?: Href;
@@ -96,6 +106,10 @@ const MyInfo = () => {
   const socialLoginType =
     currentUser?.loginType && currentUser.loginType !== 'PLAIN'
       ? SOCIAL_LOGIN_TYPE_LABELS[currentUser.loginType]
+      : null;
+  const socialLoginTypeColors =
+    currentUser?.loginType && currentUser.loginType !== 'PLAIN'
+      ? SOCIAL_LOGIN_TYPE_COLORS[currentUser.loginType]
       : null;
 
   useFocusEffect(
@@ -174,11 +188,15 @@ const MyInfo = () => {
                   testID="settings-profile-login-type-badge"
                   style={[
                     styles.loginTypeBadge,
-                    { backgroundColor: softThemeColor[20] },
+                    {
+                      backgroundColor:
+                        socialLoginTypeColors?.backgroundColor ??
+                        softThemeColor[20],
+                    },
                   ]}
                 >
                   <Typography
-                    color={themeColor[80]}
+                    color={socialLoginTypeColors?.textColor ?? themeColor[80]}
                     testID="settings-profile-login-type-text"
                     variant="caption2"
                     weight="semibold"
