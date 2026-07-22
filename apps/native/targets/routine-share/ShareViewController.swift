@@ -1,4 +1,4 @@
-import MobileCoreServices
+import ImageIO
 import UIKit
 import UniformTypeIdentifiers
 import UserNotifications
@@ -7,6 +7,16 @@ private let appGroupIdentifier = "group.com.mannal.firstride"
 private let shareTargetsKey = "routineShareTargetsV2"
 private let pendingShareKey = "pendingRoutineShare"
 private let maximumSharedImageCount = 3
+private let maximumSharedImageBytes = 10 * 1024 * 1024
+private let maximumSharedImagePixels: Int64 = 60_000_000
+private let jpegCompressionQuality = 0.85
+private let allowedImageTypeIdentifiers: Set<String> = [
+  "public.jpeg",
+  "public.png",
+  "public.heic",
+  "public.heif",
+  "org.webmproject.webp",
+]
 
 struct RoutineShareTarget: Codable {
   let id: Int
@@ -23,6 +33,8 @@ struct RoutineShareTargetsPayload: Codable {
 
 struct RoutineShareImage: Codable {
   let uri: String
+  let width: Int
+  let height: Int
 }
 
 struct RoutineSharePayload: Codable {
@@ -156,10 +168,10 @@ final class ShareViewController: UIViewController {
 
     for provider in providers {
       group.enter()
-      provider.loadItem(forTypeIdentifier: UTType.image.identifier, options: nil) { [weak self] item, _ in
+      provider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { [weak self] url, _ in
         defer { group.leave() }
 
-        guard let self, let image = self.createShareImage(from: item) else {
+        guard let self, let url, let image = self.createShareImage(from: url) else {
           return
         }
 
@@ -174,32 +186,87 @@ final class ShareViewController: UIViewController {
     }
   }
 
-  private func createShareImage(from item: NSSecureCoding?) -> RoutineShareImage? {
-    let data: Data?
-
-    if let url = item as? URL {
-      data = try? Data(contentsOf: url)
-    } else if let imageData = item as? Data {
-      data = imageData
-    } else if let image = item as? UIImage {
-      data = image.jpegData(compressionQuality: 0.92)
-    } else {
-      data = nil
-    }
-
-    guard let data else {
+  private func createShareImage(from sourceURL: URL) -> RoutineShareImage? {
+    guard
+      let fileSize = try? sourceURL.resourceValues(forKeys: [.fileSizeKey]).fileSize,
+      fileSize > 0,
+      fileSize <= maximumSharedImageBytes
+    else {
       return nil
     }
 
-    let sessionDirectory = sharedImageDirectory()
-    let fileURL = sessionDirectory.appendingPathComponent("\(UUID().uuidString).source")
+    let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
 
-    do {
-      try data.write(to: fileURL, options: [.atomic])
-      return RoutineShareImage(uri: fileURL.absoluteString)
-    } catch {
+    guard
+      let imageSource = CGImageSourceCreateWithURL(sourceURL as CFURL, sourceOptions),
+      let imageType = CGImageSourceGetType(imageSource) as String?,
+      allowedImageTypeIdentifiers.contains(imageType),
+      let properties = CGImageSourceCopyPropertiesAtIndex(
+        imageSource,
+        0,
+        sourceOptions
+      ) as? [CFString: Any],
+      let width = (properties[kCGImagePropertyPixelWidth] as? NSNumber)?.int64Value,
+      let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.int64Value,
+      width > 0,
+      height > 0,
+      width <= maximumSharedImagePixels / height
+    else {
       return nil
     }
+
+    let thumbnailOptions = [
+      kCGImageSourceCreateThumbnailFromImageAlways: true,
+      kCGImageSourceCreateThumbnailWithTransform: true,
+      kCGImageSourceThumbnailMaxPixelSize: 4096,
+      kCGImageSourceShouldCacheImmediately: true,
+    ] as CFDictionary
+
+    guard let thumbnail = CGImageSourceCreateThumbnailAtIndex(
+      imageSource,
+      0,
+      thumbnailOptions
+    ) else {
+      return nil
+    }
+
+    let outputURL = sharedImageDirectory()
+      .appendingPathComponent("\(UUID().uuidString).jpg")
+
+    guard let destination = CGImageDestinationCreateWithURL(
+      outputURL as CFURL,
+      UTType.jpeg.identifier as CFString,
+      1,
+      nil
+    ) else {
+      return nil
+    }
+
+    let destinationOptions = [
+      kCGImageDestinationLossyCompressionQuality: jpegCompressionQuality,
+    ] as CFDictionary
+
+    CGImageDestinationAddImage(destination, thumbnail, destinationOptions)
+
+    guard CGImageDestinationFinalize(destination) else {
+      try? FileManager.default.removeItem(at: outputURL)
+      return nil
+    }
+
+    guard
+      let outputSize = try? outputURL.resourceValues(forKeys: [.fileSizeKey]).fileSize,
+      outputSize > 0,
+      outputSize <= maximumSharedImageBytes
+    else {
+      try? FileManager.default.removeItem(at: outputURL)
+      return nil
+    }
+
+    return RoutineShareImage(
+      uri: outputURL.absoluteString,
+      width: thumbnail.width,
+      height: thumbnail.height
+    )
   }
 
   private func sharedImageDirectory() -> URL {
@@ -305,6 +372,13 @@ extension ShareViewController: UITableViewDelegate {
   }
 }
 
-enum ShareError: Error {
+enum ShareError: LocalizedError {
   case noImages
+
+  var errorDescription: String? {
+    switch self {
+    case .noImages:
+      return "지원하지 않거나 너무 큰 이미지입니다."
+    }
+  }
 }

@@ -182,11 +182,17 @@ const routineShareReceiverSource = `package com.mannal.firstride
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.FileOutputStream
 import java.util.UUID
 
 class RoutineShareReceiverActivity : Activity() {
@@ -222,19 +228,19 @@ class RoutineShareReceiverActivity : Activity() {
     }
 
     imageUris.take(MAX_SHARED_IMAGE_COUNT).forEachIndexed { index, uri ->
-      contentResolver.openInputStream(uri)?.use { input ->
-        val bytes = input.readBytes()
-        val outputFile = File(sessionDirectory, "shared-$index")
-
-        outputFile.outputStream().use { output -> output.write(bytes) }
+      createValidatedImage(uri, index, sessionDirectory)?.let { image ->
         images.put(
           JSONObject()
-            .put("uri", Uri.fromFile(outputFile).toString()),
+            .put("uri", Uri.fromFile(image.file).toString())
+            .put("width", image.width)
+            .put("height", image.height),
         )
       }
     }
 
     if (images.length() == 0) {
+      sessionDirectory.deleteRecursively()
+      showInvalidImageMessage()
       finish()
       return
     }
@@ -248,6 +254,169 @@ class RoutineShareReceiverActivity : Activity() {
     RoutineShareStore.savePendingShare(this, payload.toString())
     openRequestModal(routineId, sessionId)
     finish()
+  }
+
+  private fun createValidatedImage(
+    uri: Uri,
+    index: Int,
+    sessionDirectory: File,
+  ): ValidatedSharedImage? {
+    val partialFile = File(sessionDirectory, "shared-$index.partial")
+    val outputFile = File(sessionDirectory, "shared-$index.jpg")
+    var succeeded = false
+
+    try {
+      val declaredMimeType = contentResolver.getType(uri)?.lowercase()
+
+      if (
+        declaredMimeType != null &&
+        declaredMimeType !in ALLOWED_IMAGE_MIME_TYPES
+      ) {
+        return null
+      }
+
+      val declaredLength = contentResolver
+        .openAssetFileDescriptor(uri, "r")
+        ?.use { descriptor -> descriptor.length }
+        ?: -1L
+
+      if (declaredLength == 0L || declaredLength > MAX_SHARED_IMAGE_BYTES) {
+        return null
+      }
+
+      val input = contentResolver.openInputStream(uri) ?: return null
+      var totalBytes = 0L
+
+      input.use { stream ->
+        FileOutputStream(partialFile).use { output ->
+          val buffer = ByteArray(STREAM_BUFFER_SIZE)
+
+          while (true) {
+            val readCount = stream.read(buffer)
+
+            if (readCount < 0) {
+              break
+            }
+
+            totalBytes += readCount
+
+            if (totalBytes > MAX_SHARED_IMAGE_BYTES) {
+              return null
+            }
+
+            output.write(buffer, 0, readCount)
+          }
+        }
+      }
+
+      if (totalBytes <= 0L) {
+        return null
+      }
+
+      val bounds = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+      }
+
+      BitmapFactory.decodeFile(partialFile.absolutePath, bounds)
+      val sourceWidth = bounds.outWidth.toLong()
+      val sourceHeight = bounds.outHeight.toLong()
+      val decodedMimeType = bounds.outMimeType?.lowercase()
+
+      if (
+        sourceWidth <= 0L ||
+        sourceHeight <= 0L ||
+        sourceWidth > MAX_SHARED_IMAGE_PIXELS / sourceHeight ||
+        decodedMimeType !in ALLOWED_IMAGE_MIME_TYPES
+      ) {
+        return null
+      }
+
+      val bitmap = decodeScaledBitmap(
+        partialFile,
+        sourceWidth.toInt(),
+        sourceHeight.toInt(),
+      ) ?: return null
+      val outputWidth = bitmap.width
+      val outputHeight = bitmap.height
+      val compressed = try {
+        FileOutputStream(outputFile).use { output ->
+          bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, output)
+        }
+      } finally {
+        bitmap.recycle()
+      }
+
+      if (
+        !compressed ||
+        outputFile.length() <= 0L ||
+        outputFile.length() > MAX_SHARED_IMAGE_BYTES
+      ) {
+        return null
+      }
+
+      succeeded = true
+      return ValidatedSharedImage(outputFile, outputWidth, outputHeight)
+    } catch (_: Exception) {
+      return null
+    } finally {
+      partialFile.delete()
+
+      if (!succeeded) {
+        outputFile.delete()
+      }
+    }
+  }
+
+  private fun decodeScaledBitmap(
+    file: File,
+    sourceWidth: Int,
+    sourceHeight: Int,
+  ): Bitmap? {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      val source = ImageDecoder.createSource(file)
+
+      return ImageDecoder.decodeBitmap(source) { decoder, imageInfo, _ ->
+        val width = imageInfo.size.width
+        val height = imageInfo.size.height
+        val scale = minOf(
+          1.0,
+          MAX_SHARED_IMAGE_DIMENSION.toDouble() / maxOf(width, height),
+        )
+
+        decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE)
+        decoder.setTargetSize(
+          maxOf(1, (width * scale).toInt()),
+          maxOf(1, (height * scale).toInt()),
+        )
+      }
+    }
+
+    val options = BitmapFactory.Options().apply {
+      inSampleSize = calculateInSampleSize(sourceWidth, sourceHeight)
+    }
+
+    return BitmapFactory.decodeFile(file.absolutePath, options)
+  }
+
+  private fun calculateInSampleSize(width: Int, height: Int): Int {
+    var sampleSize = 1
+
+    while (
+      width / sampleSize > MAX_SHARED_IMAGE_DIMENSION ||
+      height / sampleSize > MAX_SHARED_IMAGE_DIMENSION
+    ) {
+      sampleSize *= 2
+    }
+
+    return sampleSize
+  }
+
+  private fun showInvalidImageMessage() {
+    Toast.makeText(
+      this,
+      "지원하지 않거나 너무 큰 이미지입니다.",
+      Toast.LENGTH_LONG,
+    ).show()
   }
 
   private fun extractImageUris(intent: Intent): List<Uri> {
@@ -296,8 +465,26 @@ class RoutineShareReceiverActivity : Activity() {
     const val EXTRA_ROUTINE_ID = "com.mannal.firstride.extra.ROUTINE_ID"
     const val SHARE_TARGET_CATEGORY = "${SHARE_TARGET_CATEGORY}"
     private const val MAX_SHARED_IMAGE_COUNT = 3
+    private const val MAX_SHARED_IMAGE_BYTES = 10L * 1024 * 1024
+    private const val MAX_SHARED_IMAGE_PIXELS = 60_000_000L
+    private const val MAX_SHARED_IMAGE_DIMENSION = 4096
+    private const val STREAM_BUFFER_SIZE = 64 * 1024
+    private const val JPEG_QUALITY = 85
+    private val ALLOWED_IMAGE_MIME_TYPES = setOf(
+      "image/jpeg",
+      "image/png",
+      "image/heic",
+      "image/heif",
+      "image/webp",
+    )
   }
 }
+
+data class ValidatedSharedImage(
+  val file: File,
+  val width: Int,
+  val height: Int,
+)
 `;
 
 const shareTargetsXml = `<?xml version="1.0" encoding="utf-8"?>

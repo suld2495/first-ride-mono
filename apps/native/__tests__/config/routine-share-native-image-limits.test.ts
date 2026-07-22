@@ -33,9 +33,7 @@ describe('공유 확장 네이티브 이미지 입력 제한', () => {
       'MAX_SHARED_IMAGE_PIXELS / sourceHeight',
     );
     expect(androidPluginSource).toContain('calculateInSampleSize');
-    expect(androidPluginSource).toContain(
-      'MAX_SHARED_IMAGE_DIMENSION = 4096',
-    );
+    expect(androidPluginSource).toContain('MAX_SHARED_IMAGE_DIMENSION = 4096');
     expect(androidPluginSource).toContain('.put("width"');
     expect(androidPluginSource).toContain('.put("height"');
   });
@@ -44,13 +42,17 @@ describe('공유 확장 네이티브 이미지 입력 제한', () => {
     expect(androidPluginSource).toContain('catch (_: Exception)');
     expect(androidPluginSource).toContain('showInvalidImageMessage()');
     expect(androidPluginSource).toContain('Toast.makeText');
-    expect(androidPluginSource).toContain('sessionDirectory.deleteRecursively()');
+    expect(androidPluginSource).toContain(
+      'sessionDirectory.deleteRecursively()',
+    );
   });
 
   it('iOS는 파일 표현과 메타데이터를 사용해 전체 Data 적재를 피한다', () => {
     expect(iosShareSource).not.toContain('Data(contentsOf:');
     expect(iosShareSource).toContain('loadFileRepresentation');
-    expect(iosShareSource).toContain('maximumSharedImageBytes = 10 * 1024 * 1024');
+    expect(iosShareSource).toContain(
+      'maximumSharedImageBytes = 10 * 1024 * 1024',
+    );
     expect(iosShareSource).toContain('CGImageSourceCreateWithURL');
     expect(iosShareSource).toContain('kCGImageSourceShouldCache: false');
   });
@@ -58,10 +60,14 @@ describe('공유 확장 네이티브 이미지 입력 제한', () => {
   it('iOS는 실제 형식과 픽셀 수를 검사한 뒤 4096px 이하 JPEG로 저장한다', () => {
     expect(iosShareSource).toContain('allowedImageTypeIdentifiers');
     expect(iosShareSource).toContain('CGImageSourceGetType');
-    expect(iosShareSource).toContain('maximumSharedImagePixels = 60_000_000');
+    expect(iosShareSource).toContain(
+      'maximumSharedImagePixels: Int64 = 60_000_000',
+    );
     expect(iosShareSource).toContain('kCGImagePropertyPixelWidth');
     expect(iosShareSource).toContain('kCGImagePropertyPixelHeight');
-    expect(iosShareSource).toContain('kCGImageSourceThumbnailMaxPixelSize: 4096');
+    expect(iosShareSource).toContain(
+      'kCGImageSourceThumbnailMaxPixelSize: 4096',
+    );
     expect(iosShareSource).toContain('CGImageSourceCreateThumbnailAtIndex');
     expect(iosShareSource).toContain('CGImageDestinationCreateWithURL');
   });
