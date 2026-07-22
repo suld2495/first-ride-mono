@@ -19,7 +19,6 @@ type RoutineStatsSummaryItem = {
   id: RoutineMonthlySummary['routineId'];
   routineName: string;
   routineColor: string;
-  achievedLabel: string;
   totalDotCount: number;
   completedIndexes: readonly number[];
 };
@@ -168,22 +167,6 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
         </View>
       </ThemeView>
 
-      <ThemeView
-        transparent
-        style={styles.achievementPill}
-        testID={`routine-stats-summary-achievement-${item.id}`}
-      >
-        <Typography
-          variant="body1"
-          weight="bold"
-          color={palette.theme.gray[700]}
-          testID={`routine-stats-summary-achievement-label-${item.id}`}
-        >
-          {item.achievedLabel}
-        </Typography>
-        <ProgressMarker />
-      </ThemeView>
-
       {!isLast ? (
         <View
           style={[styles.divider, { backgroundColor: item.routineColor }]}
@@ -220,7 +203,6 @@ const RoutineStatsSummary = ({
             id: routine.routineId,
             routineName: routine.routineName,
             routineColor: routine.symbolColor ?? DEFAULT_ROUTINE_COLOR,
-            achievedLabel: `${achievedCount}회 달성`,
             totalDotCount: totalAvailableCount,
             completedIndexes: Array.from(
               { length: completedDotCount },
@@ -326,15 +308,6 @@ const styles = StyleSheet.create((theme) => {
     progressMarkerImage: {
       width: 26,
       height: 33,
-    },
-    achievementPill: {
-      height: baseFoundation.dimension.x36,
-      borderRadius: baseFoundation.dimension.x8,
-      backgroundColor: palette.white,
-      paddingHorizontal: theme.foundation.spacing[3],
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: theme.foundation.spacing[2],
     },
     divider: {
       height: TRACK_LINE_WIDTH,
