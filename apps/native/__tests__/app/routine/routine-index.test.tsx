@@ -1258,6 +1258,46 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
+      it('목표를 모두 달성하면 수행 횟수 왼쪽에 초록 체크를 표시한다', async () => {
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 5,
+            routineCount: 5,
+          }),
+        });
+
+        const { findByTestId } = render(<Index />);
+        const summary = await findByTestId('routine-week-progress-summary-1');
+        const checkIcon = within(summary).getByTestId(
+          'routine-checkmark-icon',
+        );
+
+        expect(within(summary).getByText('5/5')).toBeOnTheScreen();
+        expect(checkIcon).toHaveProp('color', palette.theme.green[50]);
+        expect(checkIcon.props.width).toBeCloseTo(9.8);
+        expect(summary).toHaveStyle({
+          flexDirection: 'row',
+          gap: 4,
+        });
+      });
+
+      it('목표 달성 전에는 수행 횟수 옆 체크를 표시하지 않는다', async () => {
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 4,
+            routineCount: 5,
+          }),
+        });
+
+        const { findByTestId } = render(<Index />);
+        const summary = await findByTestId('routine-week-progress-summary-1');
+
+        expect(within(summary).getByText('4/5')).toBeOnTheScreen();
+        expect(
+          within(summary).queryByTestId('routine-checkmark-icon'),
+        ).toBeNull();
+      });
+
       it('week 타입 루틴 제목 아래 라벨까지의 간격을 12px로 둔다', async () => {
         const { findByText } = render(<Index />);
 
