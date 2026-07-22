@@ -35,7 +35,7 @@ describe('QuestPage', () => {
     expect(queryByText('일일')).not.toBeOnTheScreen();
     expect(queryByText('주간')).not.toBeOnTheScreen();
     expect(getByText('전체')).toBeOnTheScreen();
-    expect(getByText('진행전')).toBeOnTheScreen();
+    expect(queryByText('진행전')).not.toBeOnTheScreen();
     expect(getByText('진행중')).toBeOnTheScreen();
     expect(queryByText('만료')).not.toBeOnTheScreen();
     expect(queryByText('예정')).not.toBeOnTheScreen();
@@ -71,23 +71,6 @@ describe('QuestPage', () => {
     expect(getByText('테스트 퀘스트 1')).toBeOnTheScreen();
     expect(getByText('테스트 퀘스트 2')).toBeOnTheScreen();
     expect(getByText('테스트 퀘스트 3')).toBeOnTheScreen();
-    expect(useFetchQuestsQuery).toHaveBeenCalledWith({
-      status: 'ACTIVE',
-      completed: false,
-    });
-  });
-
-  it('shows the same incomplete quest list when the upcoming status filter is selected', () => {
-    useQuestStore.setState({ statusFilter: 'UPCOMING' });
-    jest.mocked(useFetchQuestsQuery).mockReturnValue({
-      data: [createMockQuest(0), createMockQuest(1)],
-      isLoading: false,
-    } as ReturnType<typeof useFetchQuestsQuery>);
-
-    const { getByText } = render(<QuestPage />);
-
-    expect(getByText('테스트 퀘스트 1')).toBeOnTheScreen();
-    expect(getByText('테스트 퀘스트 2')).toBeOnTheScreen();
     expect(useFetchQuestsQuery).toHaveBeenCalledWith({
       status: 'ACTIVE',
       completed: false,

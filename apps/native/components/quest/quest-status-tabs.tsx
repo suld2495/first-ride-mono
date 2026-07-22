@@ -16,7 +16,6 @@ interface QuestStatusTabsProps {
 
 const TABS: { value: QuestStatusFilter; label: string }[] = [
   { value: 'ALL', label: '전체' },
-  { value: 'UPCOMING', label: '진행전' },
   { value: 'ACTIVE', label: '진행중' },
 ];
 
