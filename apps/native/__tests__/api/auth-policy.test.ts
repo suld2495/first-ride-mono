@@ -83,7 +83,7 @@ describe('인증 요청 정책', () => {
       userInfo,
     });
 
-    mockAxios.onGet('/auth/email/check').reply(401, {
+    mockAxios.onPost('/auth/email/verification-requests').reply(401, {
       success: false,
       error: {
         message: '이메일을 확인할 수 없습니다.',
@@ -92,12 +92,12 @@ describe('인증 요청 정책', () => {
     });
 
     await expect(
-      axiosInstance.get('/auth/email/check', {
-        params: { email: 'new-user@example.com' },
+      axiosInstance.post('/auth/email/verification-requests', {
+        email: 'new-user@example.com',
       }),
     ).rejects.toBeDefined();
 
-    expect(mockAxios.history.get).toHaveLength(1);
+    expect(mockAxios.history.post).toHaveLength(1);
     expect(refreshSpy).not.toHaveBeenCalled();
     expect(clearTokens).not.toHaveBeenCalled();
     expect(onUnauthorized).not.toHaveBeenCalled();
