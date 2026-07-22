@@ -1,5 +1,5 @@
 import axiosInstance from '@repo/shared/api';
-import { fireEvent, waitFor, within } from '@testing-library/react-native';
+import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { processColor } from 'react-native';
 
@@ -275,10 +275,10 @@ describe('StatsPage', () => {
 
     const {
       findByText,
-      getAllByTestId,
       getByLabelText,
       getByTestId,
       getByText,
+      queryAllByTestId,
       queryByTestId,
       queryByText,
     } = render(<StatsPage />);
@@ -291,8 +291,8 @@ describe('StatsPage', () => {
     expect(getByTestId('routine-stats-summary')).toBeOnTheScreen();
     expect(getByTestId('stats-summary-scroll')).toBeOnTheScreen();
     expect(
-      getAllByTestId('routine-stats-summary-progress-marker'),
-    ).toHaveLength(2);
+      queryAllByTestId('routine-stats-summary-progress-marker'),
+    ).toHaveLength(0);
     expect(queryByText('2회 달성')).toBeNull();
     expect(queryByText('1회 달성')).toBeNull();
     expect(queryByText('등록된 루틴이 없습니다.')).toBeNull();
@@ -373,16 +373,8 @@ describe('StatsPage', () => {
         expect.objectContaining({ backgroundColor: '#00C9BD' }),
       ]),
     );
-    expect(
-      within(getByTestId('routine-stats-summary-dot-1-8')).getByTestId(
-        'routine-stats-summary-track-marker-1',
-      ),
-    ).toBeOnTheScreen();
-    expect(
-      within(getByTestId('routine-stats-summary-dot-2-4')).getByTestId(
-        'routine-stats-summary-track-marker-2',
-      ),
-    ).toBeOnTheScreen();
+    expect(queryByTestId('routine-stats-summary-track-marker-1')).toBeNull();
+    expect(queryByTestId('routine-stats-summary-track-marker-2')).toBeNull();
     expect(queryByTestId('routine-stats-summary-dot-1-9')).toBeNull();
     expect(
       flattenStyles(getByTestId('routine-stats-summary-item-1').props.style),
