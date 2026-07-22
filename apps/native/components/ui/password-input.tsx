@@ -10,6 +10,8 @@ import { baseFoundation } from '@/theme/tokens';
 import { Input } from './input';
 
 export interface PasswordInputProps {
+  /** Accessible label passed to the native text input */
+  accessibilityLabel?: string;
   /** Current password value */
   value: string;
   /** Callback when text changes */
@@ -47,6 +49,7 @@ export interface PasswordInputProps {
  */
 
 const PasswordInput = ({
+  accessibilityLabel,
   value,
   onChangeText,
   placeholder = '비밀번호를 입력해주세요.',
@@ -109,6 +112,7 @@ const PasswordInput = ({
   return (
     <View style={[styles.container, width ? { width } : undefined]}>
       <Input
+        accessibilityLabel={accessibilityLabel}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}

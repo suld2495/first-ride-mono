@@ -50,3 +50,11 @@ export type LogoutRequest = RefreshTokenRequest;
 export type LogoutResponse = {
   message: string;
 };
+
+export type DeleteAccountRequest = {
+  password: string;
+};
+
+export type DeleteAccountResponse = {
+  message: string;
+};

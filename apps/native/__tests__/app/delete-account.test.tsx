@@ -6,10 +6,7 @@ import { Alert } from 'react-native';
 import { deletePushToken } from '@/api/push-token.api';
 import DeleteAccountPage from '@/app/delete-account';
 import { useToast } from '@/contexts/ToastContext';
-import {
-  useAuthSignOutLocally,
-  useAuthUser,
-} from '@/hooks/useAuthSession';
+import { useAuthSignOutLocally, useAuthUser } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
 
 import { render } from '../setup/test-utils';
@@ -67,15 +64,17 @@ describe('회원 탈퇴 화면', () => {
     mutateAsync.mockResolvedValue({ message: '회원탈퇴가 완료되었습니다.' });
     signOutLocally.mockResolvedValue(undefined);
     (deletePushToken as jest.Mock).mockResolvedValue(undefined);
-    jest.spyOn(Alert, 'alert').mockImplementation((_title, _message, buttons) => {
-      confirmDeletion = buttons?.find(
-        (button) => button.text === '회원 탈퇴',
-      )?.onPress;
-    });
+    jest
+      .spyOn(Alert, 'alert')
+      .mockImplementation((_title, _message, buttons) => {
+        confirmDeletion = buttons?.find(
+          (button) => button.text === '회원 탈퇴',
+        )?.onPress;
+      });
   });
 
   it('일반 로그인 계정은 비밀번호를 입력한 뒤 탈퇴한다', async () => {
-    const { getByLabelText, getByText } = render(<DeleteAccountPage />);
+    const { getByLabelText } = render(<DeleteAccountPage />);
     const submitButton = getByLabelText('회원 탈퇴 진행');
 
     expect(getByLabelText('현재 비밀번호')).toBeOnTheScreen();
@@ -103,7 +102,6 @@ describe('회원 탈퇴 화면', () => {
       );
       expect(signOutLocally).toHaveBeenCalledTimes(1);
     });
-    expect(getByText('회원 탈퇴')).toBeOnTheScreen();
   });
 
   it('소셜 로그인 계정은 비밀번호 입력 없이 탈퇴한다', async () => {

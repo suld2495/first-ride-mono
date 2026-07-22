@@ -333,6 +333,25 @@ const MyInfo = () => {
             </Typography>
           </Pressable>
         </View>
+        <View
+          testID="settings-account-deletion"
+          style={styles.accountDeletionSection}
+        >
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push('/delete-account')}
+            style={styles.accountDeletionButton}
+          >
+            <Typography
+              color={palette.theme.gray[50]}
+              testID="settings-account-deletion-text"
+              variant="body3"
+              weight="semibold"
+            >
+              회원 탈퇴
+            </Typography>
+          </Pressable>
+        </View>
       </ScrollView>
     </Container>
   );
@@ -345,6 +364,7 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.background.base,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingBottom: theme.foundation.spacing[6],
   },
   profileSection: {
@@ -434,5 +454,15 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  accountDeletionSection: {
+    marginTop: 'auto',
+    paddingTop: theme.foundation.spacing[8],
+    paddingHorizontal: theme.foundation.spacing[6],
+  },
+  accountDeletionButton: {
+    alignSelf: 'flex-start',
+    minHeight: baseFoundation.dimension.x44,
+    justifyContent: 'center',
   },
 }));

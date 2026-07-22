@@ -117,6 +117,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
             <Stack.Screen name="inquiry" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="delete-account"
+              options={{ headerShown: false }}
+            />
           </Stack.Protected>
           <Stack.Protected guard={!user}>
             <Stack.Screen name="sign-in" options={{ headerShown: false }} />

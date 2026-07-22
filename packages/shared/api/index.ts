@@ -361,6 +361,7 @@ export * from './AppError';
 export {
   checkEmailAvailability,
   confirmEmailVerification,
+  deleteAccount,
   fetchJobOptions,
   join,
   login,

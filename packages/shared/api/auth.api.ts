@@ -1,6 +1,8 @@
 import type {
   AuthForm,
   AuthResponse,
+  DeleteAccountRequest,
+  DeleteAccountResponse,
   EmailCheckResponse,
   EmailVerificationRequestResponse,
   EmailVerificationStatusResponse,
@@ -147,5 +149,18 @@ export const logout = async (
   } catch {
     // 로그아웃 API 실패 시에도 로컬 로그아웃은 진행
     return { message: 'Logged out locally' };
+  }
+};
+
+export const deleteAccount = async (
+  request?: DeleteAccountRequest,
+): Promise<DeleteAccountResponse> => {
+  try {
+    return await http.delete<DeleteAccountResponse, DeleteAccountRequest>(
+      `${baseURL}/me`,
+      request ? { data: request } : undefined,
+    );
+  } catch (error) {
+    throw toAppError(error);
   }
 };
