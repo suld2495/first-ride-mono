@@ -6,6 +6,7 @@ import { QuestTypeFilter } from '@repo/types';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/store/auth.store';
 
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
@@ -44,11 +45,12 @@ const getTypeBadgeClass = (type: string) => {
 
 export default function QuestsPage() {
   const [filter, setFilter] = useState<QuestTypeFilter>('ALL');
+  const userId = useAuthStore((state) => state.user?.userId ?? '');
   const {
     data: quests,
     isLoading,
     error,
-  } = useFetchQuestsQuery({ questType: filter });
+  } = useFetchQuestsQuery(userId, { questType: filter });
 
   const filterOptions: { value: QuestTypeFilter; label: string }[] = [
     { value: 'ALL', label: '전체' },

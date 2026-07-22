@@ -12,15 +12,17 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function QuestEditPage() {
   const params = useParams();
   const router = useRouter();
   const questId = Number(params.id);
+  const userId = useAuthStore((state) => state.user?.userId ?? '');
 
-  const { data: quest } = useFetchQuestDetailQuery(questId);
-  const updateMutation = useUpdateQuestMutation();
-  const deleteMutation = useDeleteQuestMutation();
+  const { data: quest } = useFetchQuestDetailQuery(userId, questId);
+  const updateMutation = useUpdateQuestMutation(userId);
+  const deleteMutation = useDeleteQuestMutation(userId);
 
   const [formData, setFormData] = useState({
     questName: '',

@@ -5,6 +5,7 @@ import { useFetchRewardsQuery } from '@repo/shared/hooks/useQuest';
 import { RewardTypeFilter } from '@repo/types';
 
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/store/auth.store';
 
 const getTypeBadgeClass = (type: string) => {
   switch (type) {
@@ -19,7 +20,12 @@ const getTypeBadgeClass = (type: string) => {
 
 export default function RewardsPage() {
   const [filter, setFilter] = useState<RewardTypeFilter>('ALL');
-  const { data: rewards, isLoading, error } = useFetchRewardsQuery(filter);
+  const userId = useAuthStore((state) => state.user?.userId ?? '');
+  const {
+    data: rewards,
+    isLoading,
+    error,
+  } = useFetchRewardsQuery(userId, filter);
 
   const filterOptions: {
     value: RewardTypeFilter;

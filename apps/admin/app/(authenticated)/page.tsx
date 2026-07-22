@@ -7,6 +7,7 @@ import {
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '@/store/auth.store';
 
 function getStatusLabel(status: string) {
   if (status === 'ACTIVE') return '진행중';
@@ -21,8 +22,9 @@ function getStatusBadgeClass(status: string) {
 }
 
 export default function DashboardPage() {
-  const { data: quests } = useFetchQuestsQuery();
-  const { data: rewards } = useFetchRewardsQuery('ALL');
+  const userId = useAuthStore((state) => state.user?.userId ?? '');
+  const { data: quests } = useFetchQuestsQuery(userId);
+  const { data: rewards } = useFetchRewardsQuery(userId, 'ALL');
 
   const activeQuests = quests?.filter((q) => q.status === 'ACTIVE').length ?? 0;
   const completedQuests =

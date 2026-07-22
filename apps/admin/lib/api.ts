@@ -1,5 +1,8 @@
 import { createHttp, isPublicAuthUrl } from '@repo/shared/api';
-import { REQUEST_TIMEOUT_MS } from '@repo/shared/api/auth.api';
+import {
+  refreshToken as requestTokenRefresh,
+  REQUEST_TIMEOUT_MS,
+} from '@repo/shared/api/auth.api';
 import type { User } from '@repo/types';
 import { redirect } from 'next/navigation';
 
@@ -50,6 +53,8 @@ createHttp({
   tokenManager: {
     getAccessToken: () => Promise.resolve(getAuthorization()),
     getRefreshToken: () => Promise.resolve(getRefreshToken()),
+    refreshTokens: async (storedRefreshToken: string) =>
+      requestTokenRefresh({ refreshToken: storedRefreshToken }),
     saveTokens: async (accessToken: string, refreshToken: string) => {
       setAuthorization(accessToken);
       setRefreshToken(refreshToken);
