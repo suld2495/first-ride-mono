@@ -1,4 +1,7 @@
+import type { User } from '@repo/types';
+
 export const notificationSettingsKeys = {
-  all: () => ['notification-settings'] as const,
-  detail: () => [...notificationSettingsKeys.all(), 'detail'] as const,
+  all: (userId: User['userId']) => ['notification-settings', userId] as const,
+  detail: (userId: User['userId']) =>
+    [...notificationSettingsKeys.all(userId), 'detail'] as const,
 };

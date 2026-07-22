@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 
 import { useToast } from '@/contexts/ToastContext';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 interface UseQuestActionParams {
@@ -21,8 +22,10 @@ export const useQuestAction = ({
 }: UseQuestActionParams) => {
   const router = useRouter();
   const { showToast } = useToast();
-  const acceptQuest = useAccpetQuestMutation();
-  const completeQuest = useCompleteQuestMutation();
+  const user = useAuthUser();
+  const userId = user?.userId ?? '';
+  const acceptQuest = useAccpetQuestMutation(userId);
+  const completeQuest = useCompleteQuestMutation(userId);
 
   const handleQuestAction = useCallback(() => {
     if (!questId) {

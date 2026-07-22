@@ -93,7 +93,9 @@ const MyInfo = () => {
   const user = useAuthUser();
   const { data: currentUser } = useFetchMeQuery(user?.userId);
   const { pushToken } = useNotifications();
-  const { data: stats, refetch: refetchMyStats } = useMyStatsQuery();
+  const { data: stats, refetch: refetchMyStats } = useMyStatsQuery(
+    user?.userId ?? '',
+  );
   const { theme } = useAppTheme();
   const currentExp = stats?.currentLevelProgress ?? FALLBACK_EXP;
   const nextLevelExp = stats?.expForNextLevel ?? FALLBACK_NEXT_LEVEL_EXP;

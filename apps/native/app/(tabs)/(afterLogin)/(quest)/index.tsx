@@ -26,7 +26,7 @@ export default function QuestPage() {
   const setStatusFilter = useSetQuestStatusFilter();
   const isAdmin = user?.role === 'ADMIN';
 
-  const { data: quests, isLoading } = useFetchQuestsQuery({
+  const { data: quests, isLoading } = useFetchQuestsQuery(user?.userId ?? '', {
     status: 'ACTIVE',
     completed: false,
   });

@@ -42,6 +42,8 @@ const createNotificationSettings = (enabled = true): NotificationSettings => ({
 });
 
 describe('useUpdateNotificationSettingsMutation', () => {
+  const userId = 'account-a';
+
   beforeEach(() => {
     mockAxios = new MockAdapter(axiosInstance);
   });
@@ -52,7 +54,7 @@ describe('useUpdateNotificationSettingsMutation', () => {
 
   it('서버 응답 전에 알림 설정 캐시를 낙관적으로 갱신한다', async () => {
     const queryClient = createTestQueryClient();
-    const queryKey = notificationSettingsKeys.detail();
+    const queryKey = notificationSettingsKeys.detail(userId);
     const initialSettings = createNotificationSettings(true);
     let resolvePatch: (() => void) | undefined;
 
@@ -77,7 +79,7 @@ describe('useUpdateNotificationSettingsMutation', () => {
     );
 
     const { result } = renderHook(
-      () => useUpdateNotificationSettingsMutation(),
+      () => useUpdateNotificationSettingsMutation(userId),
       {
         wrapper: createWrapper(queryClient),
       },
@@ -110,7 +112,7 @@ describe('useUpdateNotificationSettingsMutation', () => {
 
   it('알림 설정 변경 실패 시 이전 캐시로 롤백한다', async () => {
     const queryClient = createTestQueryClient();
-    const queryKey = notificationSettingsKeys.detail();
+    const queryKey = notificationSettingsKeys.detail(userId);
     const initialSettings = createNotificationSettings(true);
 
     queryClient.setQueryData(queryKey, initialSettings);
@@ -122,7 +124,7 @@ describe('useUpdateNotificationSettingsMutation', () => {
     });
 
     const { result } = renderHook(
-      () => useUpdateNotificationSettingsMutation(),
+      () => useUpdateNotificationSettingsMutation(userId),
       {
         wrapper: createWrapper(queryClient),
       },

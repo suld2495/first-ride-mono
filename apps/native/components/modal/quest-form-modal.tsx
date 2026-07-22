@@ -13,6 +13,7 @@ import { StyleSheet, type AppThemes } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useCreateForm } from '@/hooks/useForm';
 import { useQuestFormSubmission } from '@/hooks/useQuestFormSubmission';
 import { baseFoundation } from '@/theme/tokens';
@@ -88,7 +89,8 @@ const sanitizeNumericInput = (text: string): string => {
 };
 
 const QuestFormModal = () => {
-  const { data: rewards = [] } = useFetchRewardsQuery();
+  const user = useAuthUser();
+  const { data: rewards = [] } = useFetchRewardsQuery(user?.userId ?? '');
   const { handleSubmit, isPending } = useQuestFormSubmission();
 
   // 보상 옵션 생성

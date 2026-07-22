@@ -4,12 +4,14 @@ import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 
 import { useToast } from '@/contexts/ToastContext';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 export const useQuestFormSubmission = () => {
   const router = useRouter();
   const { showToast } = useToast();
-  const createQuestMutation = useCreateQuestMutation();
+  const user = useAuthUser();
+  const createQuestMutation = useCreateQuestMutation(user?.userId ?? '');
 
   const handleSubmit = useCallback(
     (data: CreateQuestForm) => {

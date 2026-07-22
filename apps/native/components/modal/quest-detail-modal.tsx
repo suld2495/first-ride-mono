@@ -6,6 +6,7 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useQuestAction } from '@/hooks/useQuestAction';
 import { useQuestId } from '@/hooks/useQuestSelection';
 import { baseFoundation } from '@/theme/tokens';
@@ -59,7 +60,11 @@ const getQuestStatusLabel = ({
 
 const QuestDetailModal = () => {
   const questId = useQuestId();
-  const { data: detail, isLoading } = useFetchQuestDetailQuery(questId || 0);
+  const user = useAuthUser();
+  const { data: detail, isLoading } = useFetchQuestDetailQuery(
+    user?.userId ?? '',
+    questId || 0,
+  );
   const { handleQuestAction, isPending } = useQuestAction({
     questId,
     isAccepted: detail?.isAccepted ?? false,

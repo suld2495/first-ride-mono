@@ -17,12 +17,16 @@ import StatPointsBar from '@/components/stat/stat-points-bar';
 import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useStatEditor } from '@/hooks/useStatEditor';
 
 const StatModal = () => {
   const [activeTab, setActiveTab] = useState<StatDesignType>('classic');
-  const { data, isLoading, refetch } = useMyStatsQuery();
-  const { mutate: distributeStats, isPending } = useDistributeStatsMutation();
+  const user = useAuthUser();
+  const userId = user?.userId ?? '';
+  const { data, isLoading, refetch } = useMyStatsQuery(userId);
+  const { mutate: distributeStats, isPending } =
+    useDistributeStatsMutation(userId);
   const {
     isEditing,
     originalStats,

@@ -315,7 +315,7 @@ function AppShell({ isFontReady }: AppShellProps) {
   }, [user]);
 
   // 출석 체크
-  useVisitCheck(!!user);
+  useVisitCheck(user?.userId ?? null);
 
   // 푸시 토큰 변경 감지 및 자동 업데이트
   useEffect(() => {
@@ -339,6 +339,7 @@ function AppShell({ isFontReady }: AppShellProps) {
 export default function RootLayout() {
   const [fontsLoaded, fontLoadError] = useFonts(fontAssets);
   const isFontReady = fontsLoaded || !!fontLoadError;
+  const user = useAuthUser();
 
   if (!isFontReady) {
     return null;
@@ -347,7 +348,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppTamaguiProvider>
-        <QueryProvider>
+        <QueryProvider userId={user?.userId ?? null}>
           <ToastProvider>
             <ThemeStyleRefreshBoundary>
               <AppShell isFontReady={isFontReady} />

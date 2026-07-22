@@ -15,6 +15,7 @@ import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
@@ -400,13 +401,16 @@ function NotificationSettingsContent({
 
 export default function NotificationSettingsPage() {
   const { showToast } = useToast();
+  const user = useAuthUser();
   const {
     data: settings,
     isError,
     isLoading,
     refetch,
-  } = useNotificationSettingsQuery();
-  const updateSettings = useUpdateNotificationSettingsMutation();
+  } = useNotificationSettingsQuery(user?.userId ?? '');
+  const updateSettings = useUpdateNotificationSettingsMutation(
+    user?.userId ?? '',
+  );
   const handleMutationError = (error: unknown) => {
     showToast(
       getApiErrorMessage(error, '알림 설정을 변경하지 못했습니다.'),

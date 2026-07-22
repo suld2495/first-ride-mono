@@ -40,6 +40,8 @@ const createMockRequest = (id: number): FriendRequestResponse => ({
 });
 
 describe('친구 요청 캐시 갱신', () => {
+  const userId = 'account-a';
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -48,13 +50,16 @@ describe('친구 요청 캐시 갱신', () => {
     const queryClient = createTestQueryClient();
     const requests = [createMockRequest(1), createMockRequest(2)];
 
-    queryClient.setQueryData(friendRequestKey.list(1), requests);
+    queryClient.setQueryData(friendRequestKey.list(userId, 1), requests);
 
     jest.spyOn(friendApi, 'acceptFriendRequest').mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useAcceptFriendRequestMutation(), {
-      wrapper: createWrapper(queryClient),
-    });
+    const { result } = renderHook(
+      () => useAcceptFriendRequestMutation(userId),
+      {
+        wrapper: createWrapper(queryClient),
+      },
+    );
 
     result.current.mutate(1);
 
@@ -64,7 +69,7 @@ describe('친구 요청 캐시 갱신', () => {
 
     expect(
       queryClient.getQueryData<FriendRequestResponse[]>(
-        friendRequestKey.list(1),
+        friendRequestKey.list(userId, 1),
       ),
     ).toEqual([requests[1]]);
   });
@@ -73,13 +78,16 @@ describe('친구 요청 캐시 갱신', () => {
     const queryClient = createTestQueryClient();
     const requests = [createMockRequest(1), createMockRequest(2)];
 
-    queryClient.setQueryData(friendRequestKey.list(1), requests);
+    queryClient.setQueryData(friendRequestKey.list(userId, 1), requests);
 
     jest.spyOn(friendApi, 'rejectFriendRequest').mockResolvedValue(undefined);
 
-    const { result } = renderHook(() => useRejectFriendRequestMutation(), {
-      wrapper: createWrapper(queryClient),
-    });
+    const { result } = renderHook(
+      () => useRejectFriendRequestMutation(userId),
+      {
+        wrapper: createWrapper(queryClient),
+      },
+    );
 
     result.current.mutate(2);
 
@@ -89,7 +97,7 @@ describe('친구 요청 캐시 갱신', () => {
 
     expect(
       queryClient.getQueryData<FriendRequestResponse[]>(
-        friendRequestKey.list(1),
+        friendRequestKey.list(userId, 1),
       ),
     ).toEqual([requests[0]]);
   });

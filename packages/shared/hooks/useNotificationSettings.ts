@@ -1,3 +1,4 @@
+import type { User } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -8,15 +9,18 @@ import {
 } from '../api/notification-settings.api';
 import { notificationSettingsKeys } from '../types/query-keys/notification-settings';
 
-export const useNotificationSettingsQuery = () =>
+export const useNotificationSettingsQuery = (userId: User['userId']) =>
   useQuery({
-    queryKey: notificationSettingsKeys.detail(),
+    queryKey: notificationSettingsKeys.detail(userId),
     queryFn: fetchNotificationSettings,
+    enabled: !!userId,
   });
 
-export const useUpdateNotificationSettingsMutation = () => {
+export const useUpdateNotificationSettingsMutation = (
+  userId: User['userId'],
+) => {
   const queryClient = useQueryClient();
-  const queryKey = notificationSettingsKeys.detail();
+  const queryKey = notificationSettingsKeys.detail(userId);
 
   const applyOptimisticSettings = (
     currentSettings: NotificationSettings | undefined,

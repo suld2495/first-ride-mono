@@ -39,7 +39,7 @@ describe('QuestPage', () => {
     expect(getByText('진행중')).toBeOnTheScreen();
     expect(queryByText('만료')).not.toBeOnTheScreen();
     expect(queryByText('예정')).not.toBeOnTheScreen();
-    expect(useFetchQuestsQuery).toHaveBeenCalledWith({
+    expect(useFetchQuestsQuery).toHaveBeenCalledWith('test123', {
       status: 'ACTIVE',
       completed: false,
     });
@@ -71,7 +71,7 @@ describe('QuestPage', () => {
     expect(getByText('테스트 퀘스트 1')).toBeOnTheScreen();
     expect(getByText('테스트 퀘스트 2')).toBeOnTheScreen();
     expect(getByText('테스트 퀘스트 3')).toBeOnTheScreen();
-    expect(useFetchQuestsQuery).toHaveBeenCalledWith({
+    expect(useFetchQuestsQuery).toHaveBeenCalledWith('test123', {
       status: 'ACTIVE',
       completed: false,
     });

@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useClearAppColorSchemeOverride } from '@/hooks/useThemePreference';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -24,10 +25,11 @@ const FriendPage = () => {
   const [page] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const user = useAuthUser();
   const clearColorSchemeOverride = useClearAppColorSchemeOverride();
 
   const { data: requests = [], refetch: refetchRequests } =
-    useFetchFriendRequestsQuery(page);
+    useFetchFriendRequestsQuery(user?.userId ?? '', page);
   const {
     data: friends,
     isLoading,

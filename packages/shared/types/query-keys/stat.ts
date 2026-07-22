@@ -1,4 +1,6 @@
+import type { User } from '@repo/types';
+
 export const statKey = {
-  all: () => ['stat'] as const,
-  me: () => [...statKey.all(), 'me'] as const,
+  all: (userId: User['userId']) => ['stat', userId] as const,
+  me: (userId: User['userId']) => [...statKey.all(userId), 'me'] as const,
 };

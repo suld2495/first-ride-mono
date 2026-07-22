@@ -1,5 +1,6 @@
 import { recordVisit } from '@repo/shared/api/quest.api';
 import { questKeys } from '@repo/shared/types/query-keys/quest';
+import type { User } from '@repo/types';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
@@ -13,19 +14,23 @@ const getMsUntilMidnight = () => {
   return midnight.getTime() - now.getTime();
 };
 
-export const useVisitCheck = (enabled: boolean) => {
+export const useVisitCheck = (userId: User['userId'] | null) => {
   const lastCallDate = useRef<string | null>(null);
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: recordVisit,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: questKeys.lists() });
+      if (userId) {
+        void queryClient.invalidateQueries({
+          queryKey: questKeys.lists(userId),
+        });
+      }
     },
     onError: () => {},
   });
 
   useEffect(() => {
-    if (!enabled) {
+    if (!userId) {
       lastCallDate.current = null;
       return;
     }
@@ -63,5 +68,5 @@ export const useVisitCheck = (enabled: boolean) => {
       subscription.remove();
       clearTimeout(midnightTimer);
     };
-  }, [enabled, mutate]);
+  }, [mutate, userId]);
 };

@@ -14,6 +14,7 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
@@ -77,9 +78,11 @@ const NotificationContent = ({
 
 const FriendRequestListModal = () => {
   const [page] = useState(1);
-  const { data: list } = useFetchFriendRequestsQuery(page);
-  const acceptFriendMutation = useAcceptFriendRequestMutation();
-  const rejectFriendRequestMutation = useRejectFriendRequestMutation();
+  const user = useAuthUser();
+  const userId = user?.userId ?? '';
+  const { data: list } = useFetchFriendRequestsQuery(userId, page);
+  const acceptFriendMutation = useAcceptFriendRequestMutation(userId);
+  const rejectFriendRequestMutation = useRejectFriendRequestMutation(userId);
   const { showToast } = useToast();
 
   const handleAccept = useCallback(

@@ -25,9 +25,9 @@ describe('사용자별 private query key', () => {
     ],
     [
       '퀘스트 목록',
-      questKeys.list('account-a', { status: 'IN_PROGRESS' }),
-      questKeys.list('account-b', { status: 'IN_PROGRESS' }),
-      ['quest', 'account-a', 'list', 'IN_PROGRESS', 'ALL', 'ALL'],
+      questKeys.list('account-a', { status: 'ACTIVE' }),
+      questKeys.list('account-b', { status: 'ACTIVE' }),
+      ['quest', 'account-a', 'list', 'ACTIVE', 'ALL', 'ALL'],
     ],
     [
       '퀘스트 상세',

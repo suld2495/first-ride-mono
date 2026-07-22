@@ -1,13 +1,17 @@
+import type { User } from '@repo/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isRetryable } from '../../api';
 import { AppError } from '../../api/AppError';
 
 interface QueryProviderProps {
   children: React.ReactNode;
+  userId: User['userId'] | null;
 }
 
-export const QueryProvider = ({ children }: QueryProviderProps) => {
+const QueryClientBoundary = ({
+  children,
+}: Pick<QueryProviderProps, 'children'>) => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -30,9 +34,20 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
       }),
   );
 
+  useEffect(
+    () => () => {
+      queryClient.clear();
+    },
+    [queryClient],
+  );
+
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 };
+
+export const QueryProvider = ({ children, userId }: QueryProviderProps) => (
+  <QueryClientBoundary key={userId ?? 'anonymous'}>
+    {children}
+  </QueryClientBoundary>
+);

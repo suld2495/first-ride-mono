@@ -31,6 +31,8 @@ const createWrapper = (queryClient: QueryClient) => {
 };
 
 describe('useStat', () => {
+  const userId = 'account-a';
+
   beforeEach(() => {
     mockAxios = new MockAdapter(axiosInstance);
   });
@@ -72,12 +74,12 @@ describe('useStat', () => {
         totalPointsUsed: 3,
       };
 
-      queryClient.setQueryData(statKey.me(), initialStats);
+      queryClient.setQueryData(statKey.me(userId), initialStats);
       mockAxios.onPost('/stats/distribute').reply(200, {
         data: updatedStats,
       });
 
-      const { result } = renderHook(() => useDistributeStatsMutation(), {
+      const { result } = renderHook(() => useDistributeStatsMutation(userId), {
         wrapper: createWrapper(queryClient),
       });
 
@@ -92,7 +94,9 @@ describe('useStat', () => {
         expect(result.current.isSuccess).toBe(true);
       });
 
-      expect(queryClient.getQueryData(statKey.me())).toEqual(updatedStats);
+      expect(queryClient.getQueryData(statKey.me(userId))).toEqual(
+        updatedStats,
+      );
     });
   });
 });

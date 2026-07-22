@@ -1,4 +1,4 @@
-import type { FriendRequestResponse, SearchOption } from '@repo/types';
+import type { FriendRequestResponse, SearchOption, User } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -84,10 +84,14 @@ export const useAddFriendMutation = () => {
   });
 };
 
-export const useFetchFriendRequestsQuery = (page: number) => {
+export const useFetchFriendRequestsQuery = (
+  userId: User['userId'],
+  page: number,
+) => {
   return useQuery({
-    queryKey: friendRequestKey.list(page),
+    queryKey: friendRequestKey.list(userId, page),
     queryFn: () => fetchFriendRequests(page),
+    enabled: !!userId,
 
     select(requests) {
       return requests.map((request) => ({
@@ -98,7 +102,7 @@ export const useFetchFriendRequestsQuery = (page: number) => {
   });
 };
 
-export const useAcceptFriendRequestMutation = () => {
+export const useAcceptFriendRequestMutation = (userId: User['userId']) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -107,12 +111,12 @@ export const useAcceptFriendRequestMutation = () => {
     onSuccess: async (_, requestId) => {
       queryClient.setQueriesData<FriendRequestResponse[]>(
         {
-          queryKey: friendRequestKey.all(),
+          queryKey: friendRequestKey.all(userId),
         },
         (requests) => removeFriendRequestFromCache(requests, requestId),
       );
       await queryClient.invalidateQueries({
-        queryKey: friendRequestKey.all(),
+        queryKey: friendRequestKey.all(userId),
       });
       await queryClient.invalidateQueries({
         queryKey: friendKey.all(),
@@ -121,7 +125,7 @@ export const useAcceptFriendRequestMutation = () => {
   });
 };
 
-export const useRejectFriendRequestMutation = () => {
+export const useRejectFriendRequestMutation = (userId: User['userId']) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -130,12 +134,12 @@ export const useRejectFriendRequestMutation = () => {
     onSuccess: async (_, requestId) => {
       queryClient.setQueriesData<FriendRequestResponse[]>(
         {
-          queryKey: friendRequestKey.all(),
+          queryKey: friendRequestKey.all(userId),
         },
         (requests) => removeFriendRequestFromCache(requests, requestId),
       );
       await queryClient.invalidateQueries({
-        queryKey: friendRequestKey.all(),
+        queryKey: friendRequestKey.all(userId),
       });
     },
   });
