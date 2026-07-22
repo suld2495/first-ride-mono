@@ -22,12 +22,14 @@ const createSdkMock = (): ClaritySdkMock => ({
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(),
+  removeItem: jest.fn(),
   setItem: jest.fn(),
 }));
 
 const getMockedStorage = () =>
   jest.requireMock('@react-native-async-storage/async-storage') as {
     getItem: jest.Mock;
+    removeItem: jest.Mock;
     setItem: jest.Mock;
   };
 
@@ -241,5 +243,96 @@ describe('initializeClarity', () => {
     );
     expect(claritySdk.consent).toHaveBeenLastCalledWith(false, false);
     expect(claritySdk.pause).toHaveBeenCalledTimes(1);
+  });
+
+  it('동의가 저장돼도 지원하지 않는 환경에서는 SDK를 시작하지 않는다', async () => {
+    const mockedStorage = getMockedStorage();
+    const loadSdk = jest.fn(() => createSdkMock());
+    const { initializeClarityWithStoredConsent } = require('@/utils/clarity');
+
+    mockedStorage.getItem.mockResolvedValue('enabled');
+
+    await expect(
+      initializeClarityWithStoredConsent({
+        loadSdk,
+        platform: 'web',
+        projectId: 'clarity-project-id',
+      }),
+    ).resolves.toBe(false);
+    expect(loadSdk).not.toHaveBeenCalled();
+  });
+
+  it('이미 시작한 Clarity는 저장된 동의를 다시 적용할 때 재개한다', async () => {
+    const mockedStorage = getMockedStorage();
+    const claritySdk = createSdkMock();
+    const options = {
+      isDevelopment: false,
+      loadSdk: () => claritySdk,
+      platform: 'ios',
+      projectId: 'clarity-project-id',
+    };
+    const { initializeClarityWithStoredConsent } = require('@/utils/clarity');
+
+    mockedStorage.getItem.mockResolvedValue('enabled');
+
+    await initializeClarityWithStoredConsent(options);
+    await expect(initializeClarityWithStoredConsent(options)).resolves.toBe(
+      true,
+    );
+    expect(claritySdk.resume).toHaveBeenCalledTimes(1);
+  });
+
+  it('Clarity가 시작되지 않은 상태에서도 수집 거부 선택을 저장한다', async () => {
+    const mockedStorage = getMockedStorage();
+    const { setClarityAnalyticsEnabled } = require('@/utils/clarity');
+
+    await expect(setClarityAnalyticsEnabled(false)).resolves.toBeUndefined();
+    expect(mockedStorage.setItem).toHaveBeenCalledWith(
+      'clarityAnalyticsCollectionPreference:v1',
+      'disabled',
+    );
+  });
+
+  it('현재 세션 중지에 실패하면 호출자에게 오류를 전달한다', async () => {
+    const mockedStorage = getMockedStorage();
+    const claritySdk = createSdkMock();
+    const {
+      initializeClarityWithStoredConsent,
+      setClarityAnalyticsEnabled,
+    } = require('@/utils/clarity');
+
+    mockedStorage.getItem.mockResolvedValue('enabled');
+    await initializeClarityWithStoredConsent({
+      loadSdk: () => claritySdk,
+      platform: 'ios',
+      projectId: 'clarity-project-id',
+    });
+    claritySdk.pause.mockRejectedValueOnce(new Error('pause failed'));
+
+    await expect(setClarityAnalyticsEnabled(false)).rejects.toThrow(
+      'pause failed',
+    );
+  });
+
+  it('활성화 롤백 값을 저장하지 못하면 동의 키를 제거한다', async () => {
+    const mockedStorage = getMockedStorage();
+    const claritySdk = createSdkMock();
+    const { setClarityAnalyticsEnabled } = require('@/utils/clarity');
+
+    mockedStorage.setItem
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('rollback storage failed'));
+    claritySdk.consent.mockRejectedValueOnce(new Error('consent failed'));
+
+    await expect(
+      setClarityAnalyticsEnabled(true, {
+        loadSdk: () => claritySdk,
+        platform: 'ios',
+        projectId: 'clarity-project-id',
+      }),
+    ).rejects.toThrow('consent failed');
+    expect(mockedStorage.removeItem).toHaveBeenCalledWith(
+      'clarityAnalyticsCollectionPreference:v1',
+    );
   });
 });
