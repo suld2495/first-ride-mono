@@ -1,6 +1,6 @@
 import { useMyStatsQuery } from '@repo/shared/hooks/useStat';
 import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
-import { fireEvent, waitFor } from '@testing-library/react-native';
+import { fireEvent, waitFor, within } from '@testing-library/react-native';
 import { Alert, StyleSheet } from 'react-native';
 
 import { deletePushToken } from '@/api/push-token.api';
@@ -395,6 +395,27 @@ describe('MyInfo 로그아웃', () => {
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/inquiry');
     expect(global.mockPush).toHaveBeenCalledWith('/hall-of-heroes');
+  });
+
+  it('회원 탈퇴를 메뉴와 분리된 화면 최하단에 한 단계 작은 글자로 표시한다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+
+    const { getByTestId, getByText, queryByText } = render(<MyInfo />);
+    const deletionSection = getByTestId('settings-account-deletion');
+    const deletionText = getByTestId('settings-account-deletion-text');
+
+    expect(queryByText('회원 탈퇴')).toBeOnTheScreen();
+    expect(
+      within(getByTestId('settings-menu-list')).queryByText('회원 탈퇴'),
+    ).toBeNull();
+    expect(StyleSheet.flatten(deletionSection.props.style)).toEqual(
+      expect.objectContaining({ marginTop: 'auto' }),
+    );
+    expect(deletionText.props.fontSize).toBe('$body3');
+
+    fireEvent.press(getByText('회원 탈퇴'));
+
+    expect(global.mockPush).toHaveBeenCalledWith('/delete-account');
   });
 
   it('푸시 토큰 삭제가 실패해도 로그아웃을 진행한다', async () => {
