@@ -1,4 +1,5 @@
 import axiosInstance from '@repo/shared/api';
+import { login as kakaoLogin, me as kakaoMe } from '@react-native-kakao/user';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { Platform, StyleSheet as RNStyleSheet } from 'react-native';
@@ -34,6 +35,8 @@ jest.mock('@/utils/device-id', () => ({
 const mockedSetAuthorization = jest.mocked(setAuthorization);
 const mockedSetRefreshToken = jest.mocked(setRefreshToken);
 const mockedGetDeviceId = jest.mocked(getDeviceId);
+const mockedKakaoLogin = jest.mocked(kakaoLogin);
+const mockedKakaoMe = jest.mocked(kakaoMe);
 
 // useNotifications mock
 jest.mock('@/hooks/useNotifications', () => ({
@@ -56,6 +59,8 @@ describe('SignIn 페이지', () => {
     mockedGetDeviceId.mockResolvedValue('installation-device-id');
     mockAppleSignIn.mockReset();
     mockAppleIsAvailable.mockReset();
+    mockedKakaoLogin.mockReset();
+    mockedKakaoMe.mockReset();
     mockAppleIsAvailable.mockImplementation(() => new Promise(() => {}));
     usePendingAppleAuthStore.getState().clearAttempt();
     mockAxios = new MockAdapter(axiosInstance);
@@ -351,6 +356,46 @@ describe('SignIn 페이지', () => {
           value: originalPlatform,
         });
       }
+    });
+
+    it('신규 카카오 사용자의 토큰은 라우터가 아닌 임시 인증 시도에만 보관한다', async () => {
+      mockedKakaoLogin.mockResolvedValue({
+        accessToken: 'kakao-access-token',
+        accessTokenExpiresAt: 2_000_000_000,
+      } as Awaited<ReturnType<typeof kakaoLogin>>);
+      mockedKakaoMe.mockResolvedValue({ id: 12345 } as Awaited<
+        ReturnType<typeof kakaoMe>
+      >);
+      mockAxios.onPost('/auth/kakao/check').reply(200, {
+        data: {
+          isNewUser: true,
+          kakaoUserInfo: { userId: '12345', nickname: '카카오 사용자' },
+        },
+      });
+
+      const { findByText } = render(<SignIn />);
+
+      fireEvent.press(await findByText('카카오로 로그인'));
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/social-sign-up');
+      });
+      expect(mockPush).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: expect.objectContaining({
+            accessToken: expect.any(String),
+          }),
+        }),
+      );
+      expect(usePendingAppleAuthStore.getState().attempt).toMatchObject({
+        provider: 'kakao',
+        credential: {
+          provider: 'kakao',
+          socialId: '12345',
+          accessToken: 'kakao-access-token',
+          expiresAt: 2_000_000_000_000,
+        },
+      });
     });
 
     it('Apple nonce 검증 실패는 서버 메시지로 안내한다', async () => {
