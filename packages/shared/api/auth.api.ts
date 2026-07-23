@@ -1,4 +1,5 @@
 import type {
+  AppleGender,
   AuthForm,
   AuthResponse,
   DeleteAccountRequest,
@@ -115,9 +116,13 @@ export const confirmEmailVerification = async (
   }
 };
 
-export const fetchJobOptions = async (): Promise<JobOption[]> => {
+export const fetchJobOptions = async (
+  gender?: AppleGender,
+): Promise<JobOption[]> => {
   try {
-    return await http.get(`${baseURL}/job-options`);
+    return await http.get<JobOption[], never>(`${baseURL}/job-options`, {
+      params: gender ? { gender } : undefined,
+    });
   } catch (error) {
     throw toAppError(error);
   }

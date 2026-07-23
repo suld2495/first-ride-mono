@@ -47,6 +47,20 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
+const renderHallOfHeroes = async () => {
+  const result = render(<HallOfHeroesPage />);
+
+  await waitFor(() => {
+    expect(result.getByTestId('hall-of-heroes-character').props.source).toEqual(
+      {
+        uri: 'https://example.com/warrior-female.png',
+      },
+    );
+  });
+
+  return result;
+};
+
 describe('영웅의 전당 페이지', () => {
   beforeEach(() => {
     mockBack.mockClear();
@@ -61,15 +75,10 @@ describe('영웅의 전당 페이지', () => {
   });
 
   it('여성 직업 옵션을 조회해 직업별 imageUrl을 캐릭터로 표시한다', async () => {
-    const { getByLabelText, getByTestId } = render(<HallOfHeroesPage />);
+    const { getByLabelText, getByTestId } = await renderHallOfHeroes();
 
-    await waitFor(() => {
-      expect(mockAxios.history.get).toHaveLength(1);
-      expect(mockAxios.history.get[0]?.params).toEqual({ gender: 'FEMALE' });
-      expect(getByTestId('hall-of-heroes-character').props.source).toEqual({
-        uri: 'https://example.com/warrior-female.png',
-      });
-    });
+    expect(mockAxios.history.get).toHaveLength(1);
+    expect(mockAxios.history.get[0]?.params).toEqual({ gender: 'FEMALE' });
 
     fireEvent.press(getByLabelText('다음 영웅'));
 
@@ -84,10 +93,9 @@ describe('영웅의 전당 페이지', () => {
     });
   });
 
-  it('시안과 같이 카드에는 캐릭터·직업명·설명만 표시하고 화살표는 카드 밖에 둔다', () => {
-    const { getByLabelText, getByTestId, getByText, queryByText } = render(
-      <HallOfHeroesPage />,
-    );
+  it('시안과 같이 카드에는 캐릭터·직업명·설명만 표시하고 화살표는 카드 밖에 둔다', async () => {
+    const { getByLabelText, getByTestId, getByText, queryByText } =
+      await renderHallOfHeroes();
     const card = getByTestId('hall-of-heroes-card');
     const description = getByText(WARRIOR_DESCRIPTION);
 
@@ -117,10 +125,9 @@ describe('영웅의 전당 페이지', () => {
     expect(mockBack).toHaveBeenCalledTimes(1);
   });
 
-  it('카드 바깥 화살표로 직업과 배경을 순서대로 전환한다', () => {
-    const { getByLabelText, getByTestId, getByText } = render(
-      <HallOfHeroesPage />,
-    );
+  it('카드 바깥 화살표로 직업과 배경을 순서대로 전환한다', async () => {
+    const { getByLabelText, getByTestId, getByText } =
+      await renderHallOfHeroes();
 
     expect(
       getByTestId('hall-of-heroes-dot-0').props.accessibilityState,
@@ -155,8 +162,8 @@ describe('영웅의 전당 페이지', () => {
     expect(getByText('전사')).toBeOnTheScreen();
   });
 
-  it('직업을 변경하면 페이지와 카드 배경색을 부드럽게 전환한다', () => {
-    const { getByLabelText } = render(<HallOfHeroesPage />);
+  it('직업을 변경하면 페이지와 카드 배경색을 부드럽게 전환한다', async () => {
+    const { getByLabelText } = await renderHallOfHeroes();
 
     mockWithTiming.mockClear();
     fireEvent.press(getByLabelText('다음 영웅'));
@@ -169,8 +176,8 @@ describe('영웅의 전당 페이지', () => {
     });
   });
 
-  it('영웅들에게 에일을 대접하는 버튼을 화면 하단에 표시한다', () => {
-    const { getByRole, getByTestId } = render(<HallOfHeroesPage />);
+  it('영웅들에게 에일을 대접하는 버튼을 화면 하단에 표시한다', async () => {
+    const { getByRole, getByTestId } = await renderHallOfHeroes();
     const scrollView = getByTestId('hall-of-heroes-scroll-view');
     const supportButton = getByRole('button', {
       name: '영웅들에게 에일 한 잔 대접하기',
@@ -182,8 +189,8 @@ describe('영웅의 전당 페이지', () => {
     ).toBeNull();
   });
 
-  it('에일 대접 버튼에 목재 스타인 아이콘을 표시한다', () => {
-    const { getByRole } = render(<HallOfHeroesPage />);
+  it('에일 대접 버튼에 목재 스타인 아이콘을 표시한다', async () => {
+    const { getByRole } = await renderHallOfHeroes();
     const supportButton = getByRole('button', {
       name: '영웅들에게 에일 한 잔 대접하기',
     });

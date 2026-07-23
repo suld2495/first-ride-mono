@@ -1,5 +1,6 @@
 import { appleSignUp, fetchJobOptions, join } from '@repo/shared/api';
 import { socialSignUp } from '@repo/shared/api/social-auth.api';
+import type { AppleGender } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import { useRouter } from 'expo-router';
@@ -21,7 +22,8 @@ import { useNotifications } from './useNotifications';
 
 const authQueryKeys = {
   join: () => ['auth', 'join'] as const,
-  jobOptions: () => ['auth', 'job-options'] as const,
+  jobOptions: (gender?: AppleGender) =>
+    ['auth', 'job-options', gender ?? 'ALL'] as const,
   socialSignUp: () => ['auth', 'social-sign-up'] as const,
   appleSignUp: () => ['auth', 'apple-sign-up'] as const,
 };
@@ -146,10 +148,10 @@ export const useJoinMutation = () => {
   });
 };
 
-export const useJobOptionsQuery = () =>
+export const useJobOptionsQuery = (gender?: AppleGender) =>
   useQuery({
-    queryKey: authQueryKeys.jobOptions(),
-    queryFn: fetchJobOptions,
+    queryKey: authQueryKeys.jobOptions(gender),
+    queryFn: () => fetchJobOptions(gender),
     staleTime: 1000 * 60 * 60 * 24,
   });
 

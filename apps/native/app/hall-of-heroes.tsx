@@ -20,14 +20,17 @@ import Button from '@/components/ui/button';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
+import { useJobOptionsQuery } from '@/hooks/useAuth';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 type HeroTone = 'blue' | 'green' | 'red';
+type HeroJobType = 'ARCHER' | 'MAGE' | 'WARRIOR';
 
 interface HallHero {
   id: string;
   className: string;
   description: string;
+  jobType: HeroJobType;
   tone: HeroTone;
   Character: ComponentType<RoutineCharacterIconProps>;
 }
@@ -38,6 +41,7 @@ const HEROES: HallHero[] = [
     className: '전사',
     description:
       '전사는 목표를 정하고 꾸준히 실천하는 사람에게 어울리는 캐릭터예요. 루틴을 반복해 꾸준함이 쌓일수록 더 강한 모습으로 성장해요.',
+    jobType: 'WARRIOR',
     tone: 'blue',
     Character: WarriorRoutineCharacterIcon,
   },
@@ -46,6 +50,7 @@ const HEROES: HallHero[] = [
     className: '마법사',
     description:
       '마법사는 꾸준한 노력이 특별한 힘을 만든다고 믿는 캐릭터예요. 루틴을 반복할수록 마력이 쌓이고, 더 강력한 마법을 펼칠 수 있는 모습으로 성장해요.',
+    jobType: 'MAGE',
     tone: 'red',
     Character: MageRoutineCharacterIcon,
   },
@@ -54,6 +59,7 @@ const HEROES: HallHero[] = [
     className: '궁수',
     description:
       '궁수는 한 걸음씩 목표를 향해 나아가는 사람에게 어울리는 캐릭터예요. 루틴을 반복할수록 집중력과 실력이 쌓여, 더욱 정확한 한 발을 쏘는 궁수로 성장해요.',
+    jobType: 'ARCHER',
     tone: 'green',
     Character: ArcherRoutineCharacterIcon,
   },
@@ -87,8 +93,12 @@ const getNextHeroIndex = (index: number, direction: -1 | 1) =>
 
 export default function HallOfHeroesPage() {
   const { theme } = useAppTheme();
+  const { data: jobOptions = [] } = useJobOptionsQuery('FEMALE');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedHero = HEROES[selectedIndex];
+  const selectedJobOption = jobOptions.find(
+    (option) => option.jobType.trim().toUpperCase() === selectedHero.jobType,
+  );
   const colors = HERO_TONES[selectedHero.tone];
   const SelectedCharacter = selectedHero.Character;
   const pageBackgroundStyle = useAnimatedStyle(
@@ -132,11 +142,21 @@ export default function HallOfHeroesPage() {
               style={[styles.heroCard, cardBackgroundStyle]}
             >
               <View style={styles.characterArea}>
-                <SelectedCharacter
-                  height={baseFoundation.dimension.x140}
-                  testID="hall-of-heroes-character"
-                  width={baseFoundation.dimension.x140}
-                />
+                {selectedJobOption?.imageUrl ? (
+                  <Image
+                    accessibilityIgnoresInvertColors
+                    resizeMode="contain"
+                    source={{ uri: selectedJobOption.imageUrl }}
+                    style={styles.characterImage}
+                    testID="hall-of-heroes-character"
+                  />
+                ) : (
+                  <SelectedCharacter
+                    height={baseFoundation.dimension.x140}
+                    testID="hall-of-heroes-character"
+                    width={baseFoundation.dimension.x140}
+                  />
+                )}
               </View>
 
               <Typography
@@ -290,6 +310,10 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x180,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  characterImage: {
+    width: baseFoundation.dimension.x140,
+    height: baseFoundation.dimension.x140,
   },
   className: {
     marginTop: theme.foundation.spacing[2],
