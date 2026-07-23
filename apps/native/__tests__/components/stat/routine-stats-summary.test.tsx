@@ -69,6 +69,47 @@ const expectDotToBeEmpty = (
 };
 
 describe('RoutineStatsSummary', () => {
+  it('마지막 줄이 홀수 번째 줄이면 오른쪽 끝 동그라미에 폭죽을 표시한다', () => {
+    const { getByTestId, queryByTestId } = render(
+      <RoutineStatsSummary
+        monthDate={new Date(2026, 6, 1)}
+        routines={[createRoutine(0)]}
+      />,
+    );
+
+    const fireworks = getByTestId('routine-stats-summary-fireworks-1-30');
+
+    expect(fireworks).toBeOnTheScreen();
+    expect(flattenStyles(fireworks.props.style)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }),
+      ]),
+    );
+    expect(queryByTestId('routine-stats-summary-fireworks-1-29')).toBeNull();
+  });
+
+  it('마지막 줄이 짝수 번째 줄이면 왼쪽 끝 동그라미에 폭죽을 표시한다', () => {
+    const { getByTestId, queryByTestId } = render(
+      <RoutineStatsSummary
+        monthDate={new Date(2026, 6, 1)}
+        routines={[{ ...createRoutine(0), endDate: '2026-07-10' }]}
+      />,
+    );
+
+    expect(
+      getByTestId('routine-stats-summary-fireworks-1-7'),
+    ).toBeOnTheScreen();
+    expect(queryByTestId('routine-stats-summary-fireworks-1-9')).toBeNull();
+  });
+
   it('홀수 번째 줄은 왼쪽부터 채운다', () => {
     const { getByTestId } = render(
       <RoutineStatsSummary

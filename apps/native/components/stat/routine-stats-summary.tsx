@@ -1,6 +1,7 @@
 import type { RoutineMonthlySummary } from '@repo/types';
 import React from 'react';
-import { View } from 'react-native';
+import type { ImageSourcePropType } from 'react-native';
+import { Image, View } from 'react-native';
 
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
@@ -24,6 +25,7 @@ export interface RoutineStatsSummaryProps {
 
 type DotProps = {
   completed: boolean;
+  fireworksTestID?: string;
   routineColor: string;
   testID?: string;
 };
@@ -35,6 +37,8 @@ type SummaryItemProps = {
 
 const DOTS_PER_ROW = 7;
 const TRACK_LINE_WIDTH = 1;
+const ROUTINE_COMPLETION_FIREWORKS =
+  require('@/assets/stat/routine-completion-fireworks.png') as ImageSourcePropType;
 
 const getDotRows = (totalDotCount: number) => {
   const dotIndexes = Array.from({ length: totalDotCount }, (_, index) => index);
@@ -59,7 +63,12 @@ const getCompletedDotIndexes = (
     )
     .slice(0, completedDotCount);
 
-const Dot = ({ completed, routineColor, testID }: DotProps) => (
+const Dot = ({
+  completed,
+  fireworksTestID,
+  routineColor,
+  testID,
+}: DotProps) => (
   <View
     style={[
       styles.dot,
@@ -67,7 +76,21 @@ const Dot = ({ completed, routineColor, testID }: DotProps) => (
       completed ? { backgroundColor: routineColor } : styles.dotEmpty,
     ]}
     testID={testID}
-  />
+  >
+    {fireworksTestID ? (
+      <View
+        pointerEvents="none"
+        style={styles.fireworksContainer}
+        testID={fireworksTestID}
+      >
+        <Image
+          resizeMode="contain"
+          source={ROUTINE_COMPLETION_FIREWORKS}
+          style={styles.fireworksIcon}
+        />
+      </View>
+    ) : null}
+  </View>
 );
 
 const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
@@ -103,6 +126,8 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
         <View style={styles.track}>
           {dotRows.map((row, rowIndex) => {
             const isLastRow = rowIndex === dotRows.length - 1;
+            const terminalDotIndex =
+              rowIndex % 2 === 0 ? row[row.length - 1] : row[0];
             const connectorSide =
               rowIndex % 2 === 0
                 ? styles.rowTurnConnectorRight
@@ -135,6 +160,11 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
                   <Dot
                     key={index}
                     completed={completedSet.has(index)}
+                    fireworksTestID={
+                      isLastRow && index === terminalDotIndex
+                        ? `routine-stats-summary-fireworks-${item.id}-${index}`
+                        : undefined
+                    }
                     routineColor={item.routineColor}
                     testID={`routine-stats-summary-dot-${item.id}-${index}`}
                   />
@@ -276,6 +306,19 @@ const styles = StyleSheet.create((theme) => {
     dotEmpty: {
       backgroundColor: theme.colors.background.base,
       opacity: 0.7,
+    },
+    fireworksContainer: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    fireworksIcon: {
+      width: baseFoundation.dimension.x28,
+      height: baseFoundation.dimension.x28,
     },
     divider: {
       height: TRACK_LINE_WIDTH,
