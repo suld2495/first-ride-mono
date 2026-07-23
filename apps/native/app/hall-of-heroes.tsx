@@ -38,7 +38,7 @@ interface HallHero {
 const HEROES: HallHero[] = [
   {
     id: 'warrior',
-    className: '전사',
+    className: 'Yj',
     description:
       '전사는 목표를 정하고 꾸준히 실천하는 사람에게 어울리는 캐릭터예요. 루틴을 반복해 꾸준함이 쌓일수록 더 강한 모습으로 성장해요.',
     jobType: 'WARRIOR',
@@ -47,7 +47,7 @@ const HEROES: HallHero[] = [
   },
   {
     id: 'mage',
-    className: '마법사',
+    className: 'Hy',
     description:
       '마법사는 꾸준한 노력이 특별한 힘을 만든다고 믿는 캐릭터예요. 루틴을 반복할수록 마력이 쌓이고, 더 강력한 마법을 펼칠 수 있는 모습으로 성장해요.',
     jobType: 'MAGE',
@@ -56,7 +56,7 @@ const HEROES: HallHero[] = [
   },
   {
     id: 'archer',
-    className: '궁수',
+    className: 'Ms',
     description:
       '궁수는 한 걸음씩 목표를 향해 나아가는 사람에게 어울리는 캐릭터예요. 루틴을 반복할수록 집중력과 실력이 쌓여, 더욱 정확한 한 발을 쏘는 궁수로 성장해요.',
     jobType: 'ARCHER',
