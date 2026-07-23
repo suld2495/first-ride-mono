@@ -12,6 +12,8 @@ declare const mockBack: jest.Mock;
 
 const WARRIOR_DESCRIPTION =
   '이루라의 모험이 흔들리지 않도록 길을 만들고 시스템을 지키는 전사입니다.\n작은 루틴이 꾸준한 성장으로 이어질 수 있도록, 아이디어를 기능으로 만들고 문제 앞에서는 가장 먼저 검을 듭니다. ⚔️';
+const ARCHER_DESCRIPTION =
+  '이루라의 모험이 올바른 방향으로 나아가도록 멀리 내다보고 길을 밝히는 궁수입니다.\n작은 루틴이 정확한 목표에 닿을 수 있도록, 사용자의 목소리에 귀 기울이고 필요한 순간에는 망설임 없이 활시위를 당깁니다. 🏹';
 const BACKGROUND_TRANSITION_DURATION = 300;
 const mockWithTiming = jest.fn((color: string, _config?: unknown) => color);
 const FEMALE_JOB_OPTIONS = [
@@ -175,6 +177,7 @@ describe('영웅의 전당 페이지', () => {
     fireEvent.press(getByLabelText('다음 영웅'));
 
     expect(getByText('Ms')).toBeOnTheScreen();
+    expect(getByText(ARCHER_DESCRIPTION)).toBeOnTheScreen();
     expect(
       getByTestId('hall-of-heroes-dot-2').props.accessibilityState,
     ).toEqual({ selected: true });
