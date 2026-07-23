@@ -1,4 +1,6 @@
-import { fireEvent, within } from '@testing-library/react-native';
+import axiosInstance from '@repo/shared/api';
+import { fireEvent, waitFor, within } from '@testing-library/react-native';
+import MockAdapter from 'axios-mock-adapter';
 import { StyleSheet } from 'react-native';
 
 import HallOfHeroesPage from '@/app/hall-of-heroes';
@@ -12,6 +14,28 @@ const WARRIOR_DESCRIPTION =
   '전사는 목표를 정하고 꾸준히 실천하는 사람에게 어울리는 캐릭터예요. 루틴을 반복해 꾸준함이 쌓일수록 더 강한 모습으로 성장해요.';
 const BACKGROUND_TRANSITION_DURATION = 300;
 const mockWithTiming = jest.fn((color: string, _config?: unknown) => color);
+const FEMALE_JOB_OPTIONS = [
+  {
+    jobName: '궁수',
+    jobType: 'ARCHER',
+    characterCode: 'ARCHER_BEGINNER',
+    imageUrl: 'https://example.com/archer-female.png',
+  },
+  {
+    jobName: '마법사',
+    jobType: 'MAGE',
+    characterCode: 'MAGE_BEGINNER',
+    imageUrl: 'https://example.com/mage-female.png',
+  },
+  {
+    jobName: '검사',
+    jobType: 'WARRIOR',
+    characterCode: 'WARRIOR_BEGINNER',
+    imageUrl: 'https://example.com/warrior-female.png',
+  },
+];
+
+let mockAxios: MockAdapter;
 
 jest.mock('react-native-reanimated', () => {
   const Reanimated = require('react-native-reanimated/mock');
@@ -26,6 +50,38 @@ jest.mock('react-native-reanimated', () => {
 describe('영웅의 전당 페이지', () => {
   beforeEach(() => {
     mockBack.mockClear();
+    mockAxios = new MockAdapter(axiosInstance);
+    mockAxios.onGet('/auth/job-options').reply(200, {
+      data: FEMALE_JOB_OPTIONS,
+    });
+  });
+
+  afterEach(() => {
+    mockAxios.restore();
+  });
+
+  it('여성 직업 옵션을 조회해 직업별 imageUrl을 캐릭터로 표시한다', async () => {
+    const { getByLabelText, getByTestId } = render(<HallOfHeroesPage />);
+
+    await waitFor(() => {
+      expect(mockAxios.history.get).toHaveLength(1);
+      expect(mockAxios.history.get[0]?.params).toEqual({ gender: 'FEMALE' });
+      expect(getByTestId('hall-of-heroes-character').props.source).toEqual({
+        uri: 'https://example.com/warrior-female.png',
+      });
+    });
+
+    fireEvent.press(getByLabelText('다음 영웅'));
+
+    expect(getByTestId('hall-of-heroes-character').props.source).toEqual({
+      uri: 'https://example.com/mage-female.png',
+    });
+
+    fireEvent.press(getByLabelText('다음 영웅'));
+
+    expect(getByTestId('hall-of-heroes-character').props.source).toEqual({
+      uri: 'https://example.com/archer-female.png',
+    });
   });
 
   it('시안과 같이 카드에는 캐릭터·직업명·설명만 표시하고 화살표는 카드 밖에 둔다', () => {
