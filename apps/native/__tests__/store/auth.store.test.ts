@@ -92,6 +92,55 @@ describe('auth.store', () => {
     });
   });
 
+  it('SNS 로그인 사용자는 로그아웃 후 아이디를 남기지 않는다', async () => {
+    useAuthStore.setState({
+      user: null,
+      lastUserId: 'previous@example.com',
+      isLoading: false,
+    });
+
+    await act(async () => {
+      useAuthStore.getState().signIn({
+        userId: 'kakao_12345',
+        nickname: '카카오',
+        motto: null,
+        mottos: [],
+        role: 'USER',
+        loginType: 'KAKAO',
+      });
+      await useAuthStore.getState().signOut();
+    });
+
+    expect(useAuthStore.getState()).toEqual(
+      expect.objectContaining({
+        user: null,
+        lastUserId: null,
+        isLoading: false,
+      }),
+    );
+  });
+
+  it('복원된 SNS 세션을 로컬 로그아웃해도 아이디를 남기지 않는다', async () => {
+    useAuthStore.setState({
+      user: {
+        userId: 'apple_12345',
+        nickname: '애플',
+        motto: null,
+        mottos: [],
+        role: 'USER',
+        loginType: 'APPLE',
+      },
+      lastUserId: 'stale@example.com',
+      isLoading: false,
+    });
+
+    await act(async () => {
+      await useAuthStore.getState().signOutLocally();
+    });
+
+    expect(useAuthStore.getState().lastUserId).toBeNull();
+  });
+
   it('저장된 마지막 아이디가 없어도 현재 로그인 사용자의 아이디를 로그아웃 후 유지한다', async () => {
     await act(async () => {
       useAuthStore.setState({
