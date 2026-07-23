@@ -100,7 +100,7 @@ describe('영웅의 전당 페이지', () => {
     const description = getByText(WARRIOR_DESCRIPTION);
 
     expect(getByText('영웅의 전당')).toBeOnTheScreen();
-    expect(getByText('전사')).toBeOnTheScreen();
+    expect(getByText('Yj')).toBeOnTheScreen();
     expect(description).toBeOnTheScreen();
     expect(getByTestId('hall-of-heroes-character')).toBeOnTheScreen();
     expect(queryByText('suld2495')).toBeNull();
@@ -135,7 +135,7 @@ describe('영웅의 전당 페이지', () => {
 
     fireEvent.press(getByLabelText('다음 영웅'));
 
-    expect(getByText('마법사')).toBeOnTheScreen();
+    expect(getByText('Hy')).toBeOnTheScreen();
     expect(
       getByTestId('hall-of-heroes-dot-1').props.accessibilityState,
     ).toEqual({ selected: true });
@@ -147,7 +147,7 @@ describe('영웅의 전당 페이지', () => {
 
     fireEvent.press(getByLabelText('다음 영웅'));
 
-    expect(getByText('궁수')).toBeOnTheScreen();
+    expect(getByText('Ms')).toBeOnTheScreen();
     expect(
       getByTestId('hall-of-heroes-dot-2').props.accessibilityState,
     ).toEqual({ selected: true });
@@ -159,7 +159,7 @@ describe('영웅의 전당 페이지', () => {
 
     fireEvent.press(getByLabelText('다음 영웅'));
 
-    expect(getByText('전사')).toBeOnTheScreen();
+    expect(getByText('Yj')).toBeOnTheScreen();
   });
 
   it('직업을 변경하면 페이지와 카드 배경색을 부드럽게 전환한다', async () => {
