@@ -26,6 +26,17 @@ type AuthStore = State & Actions;
 
 type CleanupTask = () => Promise<unknown>;
 
+const getLastUserId = (
+  user: User | null,
+  currentLastUserId: string | null,
+): string | null => {
+  if (!user) {
+    return currentLastUserId;
+  }
+
+  return user.loginType && user.loginType !== 'PLAIN' ? null : user.userId;
+};
+
 const settleCleanupTasks = async (tasks: CleanupTask[]): Promise<void> => {
   await Promise.allSettled(
     tasks.map((task) => Promise.resolve().then(() => task())),
@@ -39,7 +50,11 @@ export const useAuthStore = create<AuthStore>()(
         user: null,
         lastUserId: null,
         signIn: (user: User) =>
-          set({ user, lastUserId: user.userId, isLoading: false }),
+          set((state) => ({
+            user,
+            lastUserId: getLastUserId(user, state.lastUserId),
+            isLoading: false,
+          })),
         signOut: async (pushToken) => {
           const remoteCleanupTasks: CleanupTask[] = [];
 
@@ -63,7 +78,7 @@ export const useAuthStore = create<AuthStore>()(
         signOutLocally: async () => {
           set((state) => ({
             user: null,
-            lastUserId: state.user?.userId ?? state.lastUserId,
+            lastUserId: getLastUserId(state.user, state.lastUserId),
             isLoading: false,
           }));
 
