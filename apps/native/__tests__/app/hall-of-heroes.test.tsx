@@ -34,6 +34,26 @@ const FEMALE_JOB_OPTIONS = [
     imageUrl: 'https://example.com/warrior-female.png',
   },
 ];
+const MALE_JOB_OPTIONS = [
+  {
+    jobName: '궁수',
+    jobType: 'ARCHER',
+    characterCode: 'ARCHER_BEGINNER',
+    imageUrl: 'https://example.com/archer-male.png',
+  },
+  {
+    jobName: '마법사',
+    jobType: 'MAGE',
+    characterCode: 'MAGE_BEGINNER',
+    imageUrl: 'https://example.com/mage-male.png',
+  },
+  {
+    jobName: '검사',
+    jobType: 'WARRIOR',
+    characterCode: 'WARRIOR_BEGINNER',
+    imageUrl: 'https://example.com/warrior-male.png',
+  },
+];
 
 let mockAxios: MockAdapter;
 
@@ -51,6 +71,7 @@ const renderHallOfHeroes = async () => {
   const result = render(<HallOfHeroesPage />);
 
   await waitFor(() => {
+    expect(mockAxios.history.get).toHaveLength(2);
     expect(result.getByTestId('hall-of-heroes-character').props.source).toEqual(
       {
         uri: 'https://example.com/warrior-female.png',
@@ -65,8 +86,13 @@ describe('영웅의 전당 페이지', () => {
   beforeEach(() => {
     mockBack.mockClear();
     mockAxios = new MockAdapter(axiosInstance);
-    mockAxios.onGet('/auth/job-options').reply(200, {
-      data: FEMALE_JOB_OPTIONS,
+    mockAxios.onGet('/auth/job-options').reply((config) => {
+      const jobOptions =
+        config.params?.gender === 'MALE'
+          ? MALE_JOB_OPTIONS
+          : FEMALE_JOB_OPTIONS;
+
+      return [200, { data: jobOptions }];
     });
   });
 
@@ -74,11 +100,12 @@ describe('영웅의 전당 페이지', () => {
     mockAxios.restore();
   });
 
-  it('여성 직업 옵션을 조회해 직업별 imageUrl을 캐릭터로 표시한다', async () => {
+  it('검사·마법사는 여성, 궁수는 남성 imageUrl을 캐릭터로 표시한다', async () => {
     const { getByLabelText, getByTestId } = await renderHallOfHeroes();
 
-    expect(mockAxios.history.get).toHaveLength(1);
-    expect(mockAxios.history.get[0]?.params).toEqual({ gender: 'FEMALE' });
+    expect(mockAxios.history.get.map((request) => request.params)).toEqual(
+      expect.arrayContaining([{ gender: 'FEMALE' }, { gender: 'MALE' }]),
+    );
 
     fireEvent.press(getByLabelText('다음 영웅'));
 
@@ -89,7 +116,7 @@ describe('영웅의 전당 페이지', () => {
     fireEvent.press(getByLabelText('다음 영웅'));
 
     expect(getByTestId('hall-of-heroes-character').props.source).toEqual({
-      uri: 'https://example.com/archer-female.png',
+      uri: 'https://example.com/archer-male.png',
     });
   });
 
