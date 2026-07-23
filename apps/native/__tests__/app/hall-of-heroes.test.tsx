@@ -11,7 +11,7 @@ import { render } from '../setup/test-utils';
 declare const mockBack: jest.Mock;
 
 const WARRIOR_DESCRIPTION =
-  '전사는 목표를 정하고 꾸준히 실천하는 사람에게 어울리는 캐릭터예요. 루틴을 반복해 꾸준함이 쌓일수록 더 강한 모습으로 성장해요.';
+  '이루라의 모험이 흔들리지 않도록 길을 만들고 시스템을 지키는 전사입니다.\n작은 루틴이 꾸준한 성장으로 이어질 수 있도록, 아이디어를 기능으로 만들고 문제 앞에서는 가장 먼저 검을 듭니다. ⚔️';
 const BACKGROUND_TRANSITION_DURATION = 300;
 const mockWithTiming = jest.fn((color: string, _config?: unknown) => color);
 const FEMALE_JOB_OPTIONS = [
