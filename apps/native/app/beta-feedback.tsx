@@ -196,7 +196,7 @@ const styles = StyleSheet.create((theme) => ({
   guideSection: {
     gap: theme.foundation.spacing[3],
     borderTopWidth: baseFoundation.dimension.x1,
-    borderTopColor: palette.theme.gray[5],
+    borderTopColor: palette.theme.gray[8],
     paddingTop: theme.foundation.spacing[4],
   },
   guideList: {
