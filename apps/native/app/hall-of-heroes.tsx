@@ -20,51 +20,45 @@ import Button from '@/components/ui/button';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
-import { useJobOptionsQuery } from '@/hooks/useAuth';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 type HeroTone = 'blue' | 'green' | 'red';
-type HeroGender = 'FEMALE' | 'MALE';
-type HeroJobType = 'ARCHER' | 'MAGE' | 'WARRIOR';
 
 interface HallHero {
   id: string;
   className: string;
   description: string;
-  gender: HeroGender;
-  jobType: HeroJobType;
   tone: HeroTone;
   Character: ComponentType<RoutineCharacterIconProps>;
+  imageSource?: ImageSourcePropType;
 }
+
+const YOON_WARRIOR_IMAGE_SOURCE =
+  require('@/assets/hall-of-heroes/yoon-warrior.png') as ImageSourcePropType;
 
 const HEROES: HallHero[] = [
   {
     id: 'warrior',
-    className: 'Yj',
+    className: '윤',
     description:
       '이루라의 모험이 흔들리지 않도록 길을 만들고 시스템을 지키는 전사입니다.\n작은 루틴이 꾸준한 성장으로 이어질 수 있도록, 아이디어를 기능으로 만들고 문제 앞에서는 가장 먼저 검을 듭니다. ⚔️',
-    gender: 'FEMALE',
-    jobType: 'WARRIOR',
     tone: 'blue',
     Character: WarriorRoutineCharacterIcon,
+    imageSource: YOON_WARRIOR_IMAGE_SOURCE,
   },
   {
     id: 'mage',
-    className: 'Hy',
+    className: '혜',
     description:
       '마법사는 꾸준한 노력이 특별한 힘을 만든다고 믿는 캐릭터예요. 루틴을 반복할수록 마력이 쌓이고, 더 강력한 마법을 펼칠 수 있는 모습으로 성장해요.',
-    gender: 'FEMALE',
-    jobType: 'MAGE',
     tone: 'red',
     Character: MageRoutineCharacterIcon,
   },
   {
     id: 'archer',
-    className: 'Ms',
+    className: '문',
     description:
       '이루라의 모험이 올바른 방향으로 나아가도록 멀리 내다보고 길을 밝히는 궁수입니다.\n작은 루틴이 정확한 목표에 닿을 수 있도록, 사용자의 목소리에 귀 기울이고 필요한 순간에는 망설임 없이 활시위를 당깁니다. 🏹',
-    gender: 'MALE',
-    jobType: 'ARCHER',
     tone: 'green',
     Character: ArcherRoutineCharacterIcon,
   },
@@ -98,15 +92,8 @@ const getNextHeroIndex = (index: number, direction: -1 | 1) =>
 
 export default function HallOfHeroesPage() {
   const { theme } = useAppTheme();
-  const { data: femaleJobOptions = [] } = useJobOptionsQuery('FEMALE');
-  const { data: maleJobOptions = [] } = useJobOptionsQuery('MALE');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selectedHero = HEROES[selectedIndex];
-  const selectedGenderJobOptions =
-    selectedHero.gender === 'FEMALE' ? femaleJobOptions : maleJobOptions;
-  const selectedJobOption = selectedGenderJobOptions.find(
-    (option) => option.jobType.trim().toUpperCase() === selectedHero.jobType,
-  );
   const colors = HERO_TONES[selectedHero.tone];
   const SelectedCharacter = selectedHero.Character;
   const pageBackgroundStyle = useAnimatedStyle(
@@ -150,11 +137,11 @@ export default function HallOfHeroesPage() {
               style={[styles.heroCard, cardBackgroundStyle]}
             >
               <View style={styles.characterArea}>
-                {selectedJobOption?.imageUrl ? (
+                {selectedHero.imageSource ? (
                   <Image
                     accessibilityIgnoresInvertColors
                     resizeMode="contain"
-                    source={{ uri: selectedJobOption.imageUrl }}
+                    source={selectedHero.imageSource}
                     style={styles.characterImage}
                     testID="hall-of-heroes-character"
                   />

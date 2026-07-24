@@ -14,7 +14,7 @@ const ARCHER_DESCRIPTION =
   '이루라의 모험이 올바른 방향으로 나아가도록 멀리 내다보고 길을 밝히는 궁수입니다.\n작은 루틴이 정확한 목표에 닿을 수 있도록, 사용자의 목소리에 귀 기울이고 필요한 순간에는 망설임 없이 활시위를 당깁니다. 🏹';
 const BACKGROUND_TRANSITION_DURATION = 300;
 const mockWithTiming = jest.fn((color: string, _config?: unknown) => color);
-const mockUseJobOptionsQuery = jest.fn(() => ({ data: [] }));
+const mockUseJobOptionsQuery = jest.fn((_gender?: unknown) => ({ data: [] }));
 
 jest.mock('react-native-reanimated', () => {
   const Reanimated = require('react-native-reanimated/mock');
@@ -27,7 +27,7 @@ jest.mock('react-native-reanimated', () => {
 });
 
 jest.mock('@/hooks/useAuth', () => ({
-  useJobOptionsQuery: (...args: unknown[]) => mockUseJobOptionsQuery(...args),
+  useJobOptionsQuery: (gender?: unknown) => mockUseJobOptionsQuery(gender),
 }));
 
 const renderHallOfHeroes = () => render(<HallOfHeroesPage />);
