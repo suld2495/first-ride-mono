@@ -71,9 +71,7 @@ describe('베타 피드백 페이지', () => {
         color: palette.theme.blue[100],
       }),
     );
-    expect(
-      StyleSheet.flatten(getByText('어떤 화면에서').props.style),
-    ).toEqual(
+    expect(StyleSheet.flatten(getByText('어떤 화면에서').props.style)).toEqual(
       expect.objectContaining({
         color: palette.theme.blue[100],
       }),

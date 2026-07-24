@@ -6,7 +6,7 @@ import Container from '@/components/layout/container';
 import PageHeader from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useToast } from '@/contexts/ToastContext';
@@ -20,6 +20,7 @@ const FEEDBACK_GUIDES = [
 ] as const;
 
 export default function BetaFeedbackPage() {
+  const { theme } = useAppTheme();
   const { showToast } = useToast();
   const createFeedbackMutation = useCreateBetaFeedbackMutation();
   const [content, setContent] = useState('');
@@ -73,13 +74,17 @@ export default function BetaFeedbackPage() {
               <Typography style={styles.introTitle} variant="h3" weight="bold">
                 작은 의견도 큰 도움이 돼요
               </Typography>
-              <Typography color="secondary" variant="body2">
+              <Typography style={styles.introDescription} variant="body2">
                 불편했던 순간을 조금만 자세히 알려주세요.
               </Typography>
             </View>
 
             <View style={styles.guideSection}>
-              <Typography variant="body1" weight="semibold">
+              <Typography
+                style={styles.guideTitle}
+                variant="body1"
+                weight="semibold"
+              >
                 이렇게 적어주시면 좋아요
               </Typography>
               <View style={styles.guideList}>
@@ -88,7 +93,9 @@ export default function BetaFeedbackPage() {
                     <Typography color="link" variant="body3" weight="semibold">
                       {index + 1}.
                     </Typography>
-                    <Typography variant="body2">{guide}</Typography>
+                    <Typography style={styles.guideText} variant="body2">
+                      {guide}
+                    </Typography>
                   </View>
                 ))}
               </View>
@@ -96,7 +103,11 @@ export default function BetaFeedbackPage() {
 
             <View style={styles.fieldSection}>
               <View style={styles.fieldLabelRow}>
-                <Typography variant="body2" weight="semibold">
+                <Typography
+                  style={styles.fieldLabel}
+                  variant="body2"
+                  weight="semibold"
+                >
                   피드백 내용
                 </Typography>
                 <Typography color="link" variant="caption1" weight="semibold">
@@ -120,7 +131,7 @@ export default function BetaFeedbackPage() {
               />
               <View style={styles.fieldMeta}>
                 <Typography
-                  color={isTooLong ? 'error' : 'secondary'}
+                  color={isTooLong ? 'error' : theme.colors.text.muted}
                   variant="caption1"
                 >
                   {content.length} / {MAX_FEEDBACK_LENGTH}
@@ -128,7 +139,7 @@ export default function BetaFeedbackPage() {
               </View>
               {validationMessage ? (
                 <Typography
-                  color={isTooLong ? 'error' : 'secondary'}
+                  color={isTooLong ? 'error' : theme.colors.text.muted}
                   variant="caption1"
                 >
                   {validationMessage}
@@ -176,6 +187,9 @@ const styles = StyleSheet.create((theme) => ({
   introTitle: {
     color: theme.colors.brand.text,
   },
+  introDescription: {
+    color: theme.colors.text.muted,
+  },
   guideSection: {
     gap: theme.foundation.spacing[3],
     borderTopWidth: baseFoundation.dimension.x1,
@@ -185,10 +199,16 @@ const styles = StyleSheet.create((theme) => ({
   guideList: {
     gap: theme.foundation.spacing[3],
   },
+  guideTitle: {
+    color: theme.colors.brand.text,
+  },
   guideRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.foundation.spacing[2],
+  },
+  guideText: {
+    color: theme.colors.brand.text,
   },
   fieldSection: {
     gap: theme.foundation.spacing[2],
@@ -198,6 +218,9 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     gap: theme.foundation.spacing[2],
     paddingHorizontal: theme.foundation.spacing[1],
+  },
+  fieldLabel: {
+    color: theme.colors.brand.text,
   },
   feedbackInputContainer: {
     height: baseFoundation.dimension.x250,
