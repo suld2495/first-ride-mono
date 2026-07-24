@@ -1,6 +1,4 @@
-import axiosInstance from '@repo/shared/api';
-import { fireEvent, waitFor, within } from '@testing-library/react-native';
-import MockAdapter from 'axios-mock-adapter';
+import { fireEvent, within } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
 import HallOfHeroesPage from '@/app/hall-of-heroes';
@@ -16,48 +14,7 @@ const ARCHER_DESCRIPTION =
   '이루라의 모험이 올바른 방향으로 나아가도록 멀리 내다보고 길을 밝히는 궁수입니다.\n작은 루틴이 정확한 목표에 닿을 수 있도록, 사용자의 목소리에 귀 기울이고 필요한 순간에는 망설임 없이 활시위를 당깁니다. 🏹';
 const BACKGROUND_TRANSITION_DURATION = 300;
 const mockWithTiming = jest.fn((color: string, _config?: unknown) => color);
-const FEMALE_JOB_OPTIONS = [
-  {
-    jobName: '궁수',
-    jobType: 'ARCHER',
-    characterCode: 'ARCHER_BEGINNER',
-    imageUrl: 'https://example.com/archer-female.png',
-  },
-  {
-    jobName: '마법사',
-    jobType: 'MAGE',
-    characterCode: 'MAGE_BEGINNER',
-    imageUrl: 'https://example.com/mage-female.png',
-  },
-  {
-    jobName: '검사',
-    jobType: 'WARRIOR',
-    characterCode: 'WARRIOR_BEGINNER',
-    imageUrl: 'https://example.com/warrior-female.png',
-  },
-];
-const MALE_JOB_OPTIONS = [
-  {
-    jobName: '궁수',
-    jobType: 'ARCHER',
-    characterCode: 'ARCHER_BEGINNER',
-    imageUrl: 'https://example.com/archer-male.png',
-  },
-  {
-    jobName: '마법사',
-    jobType: 'MAGE',
-    characterCode: 'MAGE_BEGINNER',
-    imageUrl: 'https://example.com/mage-male.png',
-  },
-  {
-    jobName: '검사',
-    jobType: 'WARRIOR',
-    characterCode: 'WARRIOR_BEGINNER',
-    imageUrl: 'https://example.com/warrior-male.png',
-  },
-];
-
-let mockAxios: MockAdapter;
+const mockUseJobOptionsQuery = jest.fn(() => ({ data: [] }));
 
 jest.mock('react-native-reanimated', () => {
   const Reanimated = require('react-native-reanimated/mock');
@@ -69,57 +26,28 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 
-const renderHallOfHeroes = async () => {
-  const result = render(<HallOfHeroesPage />);
+jest.mock('@/hooks/useAuth', () => ({
+  useJobOptionsQuery: (...args: unknown[]) => mockUseJobOptionsQuery(...args),
+}));
 
-  await waitFor(() => {
-    expect(mockAxios.history.get).toHaveLength(2);
-    expect(result.getByTestId('hall-of-heroes-character').props.source).toEqual(
-      {
-        uri: 'https://example.com/warrior-female.png',
-      },
-    );
-  });
-
-  return result;
-};
+const renderHallOfHeroes = () => render(<HallOfHeroesPage />);
 
 describe('영웅의 전당 페이지', () => {
   beforeEach(() => {
     mockBack.mockClear();
-    mockAxios = new MockAdapter(axiosInstance);
-    mockAxios.onGet('/auth/job-options').reply((config) => {
-      const jobOptions =
-        config.params?.gender === 'MALE'
-          ? MALE_JOB_OPTIONS
-          : FEMALE_JOB_OPTIONS;
-
-      return [200, { data: jobOptions }];
-    });
+    mockUseJobOptionsQuery.mockClear();
   });
 
-  afterEach(() => {
-    mockAxios.restore();
-  });
+  it('API 호출 없이 윤에 로컬 여자 검사 이미지를 표시한다', () => {
+    const { getByTestId, getByText } = renderHallOfHeroes();
+    const character = getByTestId('hall-of-heroes-character');
 
-  it('검사·마법사는 여성, 궁수는 남성 imageUrl을 캐릭터로 표시한다', async () => {
-    const { getByLabelText, getByTestId } = await renderHallOfHeroes();
-
-    expect(mockAxios.history.get.map((request) => request.params)).toEqual(
-      expect.arrayContaining([{ gender: 'FEMALE' }, { gender: 'MALE' }]),
+    expect(mockUseJobOptionsQuery).not.toHaveBeenCalled();
+    expect(getByText('윤')).toBeOnTheScreen();
+    expect(character.props.source).toBeDefined();
+    expect(character.props.source).not.toEqual(
+      expect.objectContaining({ uri: expect.any(String) }),
     );
-
-    fireEvent.press(getByLabelText('다음 영웅'));
-
-    expect(getByTestId('hall-of-heroes-character').props.source).toEqual({
-      uri: 'https://example.com/mage-female.png',
-    });
-
-    fireEvent.press(getByLabelText('다음 영웅'));
-
-    expect(getByTestId('hall-of-heroes-character').props.source).toEqual({
-      uri: 'https://example.com/archer-male.png',
-    });
   });
 
   it('시안과 같이 카드에는 캐릭터·직업명·설명만 표시하고 화살표는 카드 밖에 둔다', async () => {
@@ -129,7 +57,7 @@ describe('영웅의 전당 페이지', () => {
     const description = getByText(WARRIOR_DESCRIPTION);
 
     expect(getByText('영웅의 전당')).toBeOnTheScreen();
-    expect(getByText('Yj')).toBeOnTheScreen();
+    expect(getByText('윤')).toBeOnTheScreen();
     expect(description).toBeOnTheScreen();
     expect(getByTestId('hall-of-heroes-character')).toBeOnTheScreen();
     expect(queryByText('suld2495')).toBeNull();
@@ -164,7 +92,7 @@ describe('영웅의 전당 페이지', () => {
 
     fireEvent.press(getByLabelText('다음 영웅'));
 
-    expect(getByText('Hy')).toBeOnTheScreen();
+    expect(getByText('혜')).toBeOnTheScreen();
     expect(
       getByTestId('hall-of-heroes-dot-1').props.accessibilityState,
     ).toEqual({ selected: true });
@@ -176,7 +104,7 @@ describe('영웅의 전당 페이지', () => {
 
     fireEvent.press(getByLabelText('다음 영웅'));
 
-    expect(getByText('Ms')).toBeOnTheScreen();
+    expect(getByText('문')).toBeOnTheScreen();
     expect(getByText(ARCHER_DESCRIPTION)).toBeOnTheScreen();
     expect(
       getByTestId('hall-of-heroes-dot-2').props.accessibilityState,
@@ -189,7 +117,7 @@ describe('영웅의 전당 페이지', () => {
 
     fireEvent.press(getByLabelText('다음 영웅'));
 
-    expect(getByText('Yj')).toBeOnTheScreen();
+    expect(getByText('윤')).toBeOnTheScreen();
   });
 
   it('직업을 변경하면 페이지와 카드 배경색을 부드럽게 전환한다', async () => {
