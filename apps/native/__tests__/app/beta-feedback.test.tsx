@@ -95,7 +95,7 @@ describe('베타 피드백 페이지', () => {
     );
   });
 
-  it('안내 영역 divider를 textarea와 같은 gray 색상으로 표시한다', () => {
+  it('안내 영역 divider를 중립적인 gray 색상으로 표시한다', () => {
     const { UNSAFE_getAllByType } = render(<BetaFeedbackPage />);
     const guideSection = UNSAFE_getAllByType(View).find(
       (view) => StyleSheet.flatten(view.props.style)?.borderTopWidth === 1,
@@ -103,7 +103,7 @@ describe('베타 피드백 페이지', () => {
 
     expect(StyleSheet.flatten(guideSection?.props.style)).toEqual(
       expect.objectContaining({
-        borderTopColor: palette.theme.gray[8],
+        borderTopColor: palette.theme.gray[300],
       }),
     );
   });
@@ -122,12 +122,17 @@ describe('베타 피드백 페이지', () => {
     );
   });
 
-  it('빈 입력 안내 문구 오른쪽에 시안의 안내 아이콘을 표시한다', () => {
+  it('빈 입력 안내 문구 왼쪽에 시안의 파란 안내 아이콘을 표시한다', () => {
     const { getByTestId, getByText } = render(<BetaFeedbackPage />);
     const validationRow = getByTestId('beta-feedback-validation-row');
-    const validationIcon = getByTestId('beta-feedback-validation-icon');
+    const validationIcon = getByTestId('beta-feedback-validation-icon', {
+      includeHiddenElements: true,
+    });
 
     expect(getByText('피드백 내용을 입력해주세요.')).toBeOnTheScreen();
+    expect(validationRow.props.children[0].props.testID).toBe(
+      'beta-feedback-validation-icon',
+    );
     expect(StyleSheet.flatten(validationRow.props.style)).toEqual(
       expect.objectContaining({
         flexDirection: 'row',
@@ -138,7 +143,7 @@ describe('베타 피드백 페이지', () => {
       expect.objectContaining({
         name: 'alert-circle-outline',
         size: 20,
-        color: palette.theme.blue[80],
+        color: palette.stitch.primary,
       }),
     );
   });
