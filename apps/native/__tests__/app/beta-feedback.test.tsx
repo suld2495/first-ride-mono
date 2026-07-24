@@ -1,7 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import { act, fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { palette } from '@/theme/tokens';
 
@@ -91,6 +91,31 @@ describe('베타 피드백 페이지', () => {
     ).toEqual(
       expect.objectContaining({
         color: palette.theme.blue[80],
+      }),
+    );
+  });
+
+  it('안내 영역 divider를 옅은 gray 색상으로 표시한다', () => {
+    const { UNSAFE_getAllByType } = render(<BetaFeedbackPage />);
+    const guideSection = UNSAFE_getAllByType(View).find(
+      (view) => StyleSheet.flatten(view.props.style)?.borderTopWidth === 1,
+    );
+
+    expect(StyleSheet.flatten(guideSection?.props.style)).toEqual(
+      expect.objectContaining({
+        borderTopColor: palette.theme.gray[5],
+      }),
+    );
+  });
+
+  it('textarea 테두리를 옅은 gray 색상으로 표시한다', () => {
+    const { getByTestId } = render(<BetaFeedbackPage />);
+
+    expect(
+      StyleSheet.flatten(getByTestId('beta-feedback-content-field').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        borderColor: palette.theme.gray[8],
       }),
     );
   });
