@@ -4,6 +4,8 @@
  * Edit this file when you want the app design to change.
  * The app theme files read these values through `tokens.ts`.
  */
+import nativeThemeColors from './native-theme-colors.json';
+
 export const designSystem = {
   palette: {
     white: '#FFFFFF',
@@ -28,6 +30,7 @@ export const designSystem = {
         80: '#2C5171',
         90: '#16334C',
         100: '#001A31',
+        999: nativeThemeColors.theme.blue[999],
       },
 
       softRed: {
