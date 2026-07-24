@@ -34,6 +34,7 @@ describe('theme/tokens', () => {
     expect(palette.theme.softBlue[20]).toBe('#A7CBEA');
     expect(palette.theme.softGreen[10]).toBe('#B9E9CF');
     expect(palette.theme.blue[50]).toBe('#107AD6');
+    expect(palette.theme.blue[999]).toBe('#6E9FF3');
     expect(palette.theme.gray[45]).toBe('#3F3F46');
     expect(palette.theme.gray[100]).toBe('#F5F5F5');
     expect(palette.theme.gray[300]).toBe('#D0D4DB');
