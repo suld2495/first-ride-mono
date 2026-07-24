@@ -95,7 +95,7 @@ describe('베타 피드백 페이지', () => {
     );
   });
 
-  it('안내 영역 divider를 옅은 gray 색상으로 표시한다', () => {
+  it('안내 영역 divider를 textarea와 같은 gray 색상으로 표시한다', () => {
     const { UNSAFE_getAllByType } = render(<BetaFeedbackPage />);
     const guideSection = UNSAFE_getAllByType(View).find(
       (view) => StyleSheet.flatten(view.props.style)?.borderTopWidth === 1,
@@ -103,7 +103,7 @@ describe('베타 피드백 페이지', () => {
 
     expect(StyleSheet.flatten(guideSection?.props.style)).toEqual(
       expect.objectContaining({
-        borderTopColor: palette.theme.gray[5],
+        borderTopColor: palette.theme.gray[8],
       }),
     );
   });
