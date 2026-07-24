@@ -1,11 +1,6 @@
 import { useCreateBetaFeedbackMutation } from '@repo/shared/hooks/useBetaFeedback';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 
 import Container from '@/components/layout/container';
 import PageHeader from '@/components/layout/page-header';
@@ -37,8 +32,7 @@ export default function BetaFeedbackPage() {
     : isEmpty
       ? '피드백 내용을 입력해주세요.'
       : null;
-  const canSubmit =
-    !isEmpty && !isTooLong && !createFeedbackMutation.isPending;
+  const canSubmit = !isEmpty && !isTooLong && !createFeedbackMutation.isPending;
 
   const handleSubmit = useCallback(() => {
     if (!canSubmit) {
@@ -76,11 +70,7 @@ export default function BetaFeedbackPage() {
         >
           <View style={styles.formContent}>
             <View style={styles.intro}>
-              <Typography
-                color="$brandText"
-                variant="h3"
-                weight="bold"
-              >
+              <Typography style={styles.introTitle} variant="h3" weight="bold">
                 작은 의견도 큰 도움이 돼요
               </Typography>
               <Typography color="secondary" variant="body2">
@@ -95,11 +85,7 @@ export default function BetaFeedbackPage() {
               <View style={styles.guideList}>
                 {FEEDBACK_GUIDES.map((guide, index) => (
                   <View key={guide} style={styles.guideRow}>
-                    <Typography
-                      color="$actionPrimary"
-                      variant="body3"
-                      weight="semibold"
-                    >
+                    <Typography color="link" variant="body3" weight="semibold">
                       {index + 1}.
                     </Typography>
                     <Typography variant="body2">{guide}</Typography>
@@ -187,6 +173,9 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing[2],
     paddingBottom: theme.foundation.spacing[1],
   },
+  introTitle: {
+    color: theme.colors.brand.text,
+  },
   guideSection: {
     gap: theme.foundation.spacing[3],
     borderTopWidth: baseFoundation.dimension.x1,
@@ -211,14 +200,16 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.foundation.spacing[1],
   },
   feedbackInputContainer: {
-    height: 240,
+    height: baseFoundation.dimension.x250,
     paddingHorizontal: theme.foundation.spacing[3],
     paddingVertical: theme.foundation.spacing[3],
   },
   feedbackInput: {
-    minHeight: 214,
+    minHeight: baseFoundation.dimension.x220,
     fontSize: theme.foundation.typography.size.m,
-    lineHeight: 21,
+    lineHeight:
+      theme.foundation.typography.size.m *
+      theme.foundation.typography.lineHeight.normal,
   },
   fieldMeta: {
     alignItems: 'flex-end',

@@ -71,9 +71,7 @@ describe('베타 피드백 페이지', () => {
     fireEvent.changeText(getByLabelText('피드백 내용'), tooLongContent);
 
     expect(getByText('1001 / 1000')).toBeOnTheScreen();
-    expect(
-      getByText('피드백은 1000자 이하로 입력해주세요.'),
-    ).toBeOnTheScreen();
+    expect(getByText('피드백은 1000자 이하로 입력해주세요.')).toBeOnTheScreen();
     expect(
       getByTestId('beta-feedback-submit-button').props.accessibilityState
         .disabled,
@@ -122,19 +120,21 @@ describe('베타 피드백 페이지', () => {
 
   it('제출 중에는 버튼을 비활성화해 중복 요청을 막는다', async () => {
     let resolveRequest:
-      | ((response: [
-          number,
-          {
-            success: boolean;
-            data: {
-              feedbackId: number;
-              userId: string;
-              nickname: string;
-              content: string;
-              submittedAt: string;
-            };
-          },
-        ]) => void)
+      | ((
+          response: [
+            number,
+            {
+              success: boolean;
+              data: {
+                feedbackId: number;
+                userId: string;
+                nickname: string;
+                content: string;
+                submittedAt: string;
+              };
+            },
+          ],
+        ) => void)
       | undefined;
 
     mockAxios.onPost('/beta/feedback').reply(

@@ -10,40 +10,39 @@ tags:
     stopApp: false
 
 - extendedWaitUntil:
-    visible: "My"
+    visible: 'My'
     timeout: 20000
-- tapOn: "My"
+- tapOn: 'My'
 - extendedWaitUntil:
     visible:
-      id: "settings-scroll-view"
+      id: 'settings-scroll-view'
     timeout: 10000
-- assertVisible: "설정"
+- assertVisible: '설정'
 
 - scrollUntilVisible:
     element:
-      id: "settings-menu-item-베타 피드백"
+      id: 'settings-menu-item-베타 피드백'
     direction: DOWN
 - tapOn:
-    id: "settings-menu-item-베타 피드백"
+    id: 'settings-menu-item-베타 피드백'
 
-- assertVisible: "베타 피드백"
+- assertVisible: '베타 피드백'
 - assertVisible:
-    id: "beta-feedback-content-input"
-- assertVisible: "피드백 내용을 입력해주세요."
+    id: 'beta-feedback-content-input'
+- assertVisible: '피드백 내용을 입력해주세요.'
 - assertVisible:
-    id: "beta-feedback-submit-button"
+    id: 'beta-feedback-submit-button'
     enabled: false
 
 # 실제 사용 중 발견할 수 있는 내용을 입력하면 글자 수와 제출 가능 상태가 갱신된다.
 - tapOn:
-    id: "beta-feedback-content-input"
-- inputText: "루틴 인증 화면에서 사진이 늦게 표시돼요."
+    id: 'beta-feedback-content-input'
+- inputText: '루틴 인증 화면에서 사진이 늦게 표시돼요.'
 - hideKeyboard
-- assertVisible: "23 / 1000"
-- assertNotVisible: "피드백 내용을 입력해주세요."
+- assertVisible: '23 / 1000'
+- assertNotVisible: '피드백 내용을 입력해주세요.'
 - assertVisible:
-    id: "beta-feedback-submit-button"
+    id: 'beta-feedback-submit-button'
     enabled: true
-
 # 주입 가능한 백엔드 fixture가 없어 운영 API에 실제 피드백을 남기지 않는다.
 # 제출 성공, 인증 만료, 서버 오류 응답은 이 흐름에서 검증하지 않는다.
