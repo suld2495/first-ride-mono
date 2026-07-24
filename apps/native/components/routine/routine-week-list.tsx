@@ -286,25 +286,7 @@ const RoutineWeekList = ({
             })}
           </View>
 
-          <View style={styles.footer}>
-            {weeklyCount >= routineCount ? (
-              <View
-                style={styles.progressChip}
-                accessibilityLabel="목표 달성 완료"
-                accessibilityRole="image"
-              >
-                <RoutineCheckmarkIcon
-                  size={baseFoundation.dimension.x14}
-                  color={theme.colors.brand.selectedCheck}
-                />
-                <Typography variant="caption" style={styles.progressText}>
-                  완료
-                </Typography>
-              </View>
-            ) : (
-              <View />
-            )}
-          </View>
+          <View style={styles.footer} />
         </View>
       );
     },
@@ -317,7 +299,6 @@ const RoutineWeekList = ({
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.routineMissedCheckbox,
       theme.colors.brand.routineUpcomingCheckboxBorder,
-      theme.colors.brand.selectedCheck,
       theme.colors.text.secondary,
       todayDateKey,
       weekDateKeys,
@@ -430,23 +411,6 @@ const styles = StyleSheet.create((theme) => ({
     color: palette.theme.gray[90],
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     minHeight: baseFoundation.dimension.x8,
-  },
-  progressChip: {
-    minWidth: baseFoundation.dimension.x58,
-    height: baseFoundation.dimension.x18,
-    paddingHorizontal: baseFoundation.spacing[2],
-    borderRadius: baseFoundation.dimension.x9,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: baseFoundation.spacing[1],
-  },
-  progressText: {
-    color: theme.colors.text.secondary,
   },
 }));

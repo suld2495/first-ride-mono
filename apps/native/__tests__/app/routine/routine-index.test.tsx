@@ -1289,6 +1289,21 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
+      it('목표를 모두 달성해도 요일 아래 완료 배지를 표시하지 않는다', async () => {
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 5,
+            routineCount: 5,
+          }),
+        });
+
+        const { findByTestId, queryByLabelText } = render(<Index />);
+
+        await findByTestId('routine-week-progress-summary-1');
+
+        expect(queryByLabelText('목표 달성 완료')).toBeNull();
+      });
+
       it('목표 달성 전에는 수행 횟수 옆 체크를 표시하지 않는다', async () => {
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
