@@ -122,6 +122,27 @@ describe('베타 피드백 페이지', () => {
     );
   });
 
+  it('빈 입력 안내 문구 오른쪽에 시안의 안내 아이콘을 표시한다', () => {
+    const { getByTestId, getByText } = render(<BetaFeedbackPage />);
+    const validationRow = getByTestId('beta-feedback-validation-row');
+    const validationIcon = getByTestId('beta-feedback-validation-icon');
+
+    expect(getByText('피드백 내용을 입력해주세요.')).toBeOnTheScreen();
+    expect(StyleSheet.flatten(validationRow.props.style)).toEqual(
+      expect.objectContaining({
+        flexDirection: 'row',
+        alignItems: 'center',
+      }),
+    );
+    expect(validationIcon.props).toEqual(
+      expect.objectContaining({
+        name: 'alert-circle-outline',
+        size: 20,
+        color: palette.theme.blue[80],
+      }),
+    );
+  });
+
   it('공백만 입력하면 제출하지 않는다', () => {
     const { getByLabelText, getByTestId } = render(<BetaFeedbackPage />);
 
