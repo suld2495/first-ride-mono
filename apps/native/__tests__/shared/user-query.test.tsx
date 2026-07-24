@@ -102,7 +102,13 @@ describe('useFetchMeQuery', () => {
     queryClient.setQueryData(userKey.me(currentUser.userId), currentUser);
     mockAxios
       .onPut('/users/me/motto', { motto: updatedUser.motto })
-      .reply(200, updatedUser);
+      .reply(200, {
+        success: true,
+        data: updatedUser,
+        error: null,
+        path: '/api/users/me/motto',
+        timestamp: '2026-07-24T15:38:40.765+09:00',
+      });
 
     const { result } = renderHook(() => useUpdateMottoMutation(), { wrapper });
 

@@ -1,6 +1,6 @@
 import type { SearchOption, UpdateMottoRequest, User } from '@repo/types';
 
-import axiosInstance, { toAppError } from '.';
+import { toAppError } from '.';
 import http from './client';
 
 const baseURL = '/users';
@@ -33,12 +33,10 @@ export const updateMotto = async (
   request: UpdateMottoRequest,
 ): Promise<User> => {
   try {
-    const response = await axiosInstance.put<User>(
+    return await http.put<User, UpdateMottoRequest>(
       `${baseURL}/me/motto`,
       request,
     );
-
-    return response.data;
   } catch (error) {
     throw toAppError(error);
   }

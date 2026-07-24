@@ -26,13 +26,22 @@ describe('user.api', () => {
     mockAxios.restore();
   });
 
-  it('한마디 수정 성공 시 래핑되지 않은 UserResponse를 반환한다', async () => {
+  it('한마디 수정 성공 시 래핑된 응답에서 UserResponse를 반환한다', async () => {
     mockAxios.onPut('/users/me/motto').reply((config) => {
       expect(JSON.parse(config.data ?? '{}')).toEqual({
         motto: '오늘도 전진',
       });
 
-      return [200, updatedUser];
+      return [
+        200,
+        {
+          success: true,
+          data: updatedUser,
+          error: null,
+          path: '/api/users/me/motto',
+          timestamp: '2026-07-24T15:38:40.765+09:00',
+        },
+      ];
     });
 
     await expect(updateMotto({ motto: '오늘도 전진' })).resolves.toEqual(
