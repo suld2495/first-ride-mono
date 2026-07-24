@@ -139,36 +139,40 @@ export default function BetaFeedbackPage() {
                 textAlignVertical="top"
                 value={content}
               />
-              <View style={styles.fieldMeta}>
+              <View
+                style={styles.fieldMeta}
+                testID="beta-feedback-field-meta-row"
+              >
+                {validationMessage ? (
+                  <View
+                    style={styles.validationRow}
+                    testID="beta-feedback-validation-row"
+                  >
+                    <Ionicons
+                      accessibilityElementsHidden
+                      color={validationIconColor}
+                      name="alert-circle-outline"
+                      size={theme.foundation.iconSize.m}
+                      style={styles.validationIcon}
+                      testID="beta-feedback-validation-icon"
+                    />
+                    <Typography
+                      color={validationMessageColor}
+                      style={styles.validationMessage}
+                      variant="caption1"
+                    >
+                      {validationMessage}
+                    </Typography>
+                  </View>
+                ) : null}
                 <Typography
                   color={isTooLong ? 'error' : theme.colors.text.muted}
+                  testID="beta-feedback-character-count"
                   variant="caption1"
                 >
                   {content.length} / {MAX_FEEDBACK_LENGTH}
                 </Typography>
               </View>
-              {validationMessage ? (
-                <View
-                  style={styles.validationRow}
-                  testID="beta-feedback-validation-row"
-                >
-                  <Ionicons
-                    accessibilityElementsHidden
-                    color={validationIconColor}
-                    name="alert-circle-outline"
-                    size={theme.foundation.iconSize.m}
-                    style={styles.validationIcon}
-                    testID="beta-feedback-validation-icon"
-                  />
-                  <Typography
-                    color={validationMessageColor}
-                    style={styles.validationMessage}
-                    variant="caption1"
-                  >
-                    {validationMessage}
-                  </Typography>
-                </View>
-              ) : null}
             </View>
           </View>
 
@@ -217,7 +221,7 @@ const styles = StyleSheet.create((theme) => ({
   guideSection: {
     gap: theme.foundation.spacing[3],
     borderTopWidth: baseFoundation.dimension.x1,
-    borderTopColor: palette.theme.gray[300],
+    borderTopColor: `${palette.theme.gray[90]}80`,
     paddingTop: theme.foundation.spacing[4],
   },
   guideList: {
@@ -262,15 +266,17 @@ const styles = StyleSheet.create((theme) => ({
       theme.foundation.typography.lineHeight.normal,
   },
   fieldMeta: {
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: theme.foundation.spacing[1],
   },
   validationRow: {
-    alignSelf: 'flex-start',
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.foundation.spacing[2],
-    paddingHorizontal: theme.foundation.spacing[1],
+    marginRight: theme.foundation.spacing[2],
   },
   validationMessage: {
     flexShrink: 1,

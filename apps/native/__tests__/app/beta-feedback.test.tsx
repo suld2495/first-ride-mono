@@ -95,7 +95,7 @@ describe('베타 피드백 페이지', () => {
     );
   });
 
-  it('안내 영역 divider를 중립적인 gray 색상으로 표시한다', () => {
+  it('안내 영역 divider를 비활성 생성 버튼과 같은 gray 색상으로 표시한다', () => {
     const { UNSAFE_getAllByType } = render(<BetaFeedbackPage />);
     const guideSection = UNSAFE_getAllByType(View).find(
       (view) => StyleSheet.flatten(view.props.style)?.borderTopWidth === 1,
@@ -103,7 +103,7 @@ describe('베타 피드백 페이지', () => {
 
     expect(StyleSheet.flatten(guideSection?.props.style)).toEqual(
       expect.objectContaining({
-        borderTopColor: palette.theme.gray[300],
+        borderTopColor: `${palette.theme.gray[90]}80`,
       }),
     );
   });
@@ -145,6 +145,25 @@ describe('베타 피드백 페이지', () => {
         size: 20,
         color: palette.stitch.primary,
       }),
+    );
+  });
+
+  it('빈 입력 안내와 글자 수를 같은 행의 양쪽에 표시한다', () => {
+    const { getByTestId } = render(<BetaFeedbackPage />);
+    const fieldMetaRow = getByTestId('beta-feedback-field-meta-row');
+
+    expect(StyleSheet.flatten(fieldMetaRow.props.style)).toEqual(
+      expect.objectContaining({
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }),
+    );
+    expect(fieldMetaRow.props.children[0].props.testID).toBe(
+      'beta-feedback-validation-row',
+    );
+    expect(fieldMetaRow.props.children[1].props.testID).toBe(
+      'beta-feedback-character-count',
     );
   });
 
