@@ -398,6 +398,24 @@ describe('MyInfo 로그아웃', () => {
     expect(global.mockPush).toHaveBeenCalledWith('/hall-of-heroes');
   });
 
+  it('로그아웃 아래에 베타 피드백을 빨간색으로 표시한다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+
+    const { getByTestId } = render(<MyInfo />);
+    const menuButtons = within(
+      getByTestId('settings-menu-list'),
+    ).getAllByRole('button');
+    const feedbackText = getByTestId('settings-menu-text-베타 피드백');
+
+    expect(menuButtons.slice(-2).map((button) => button.props.testID)).toEqual([
+      'settings-menu-item-로그아웃',
+      'settings-menu-item-베타 피드백',
+    ]);
+    expect(StyleSheet.flatten(feedbackText.props.style)).toEqual(
+      expect.objectContaining({ color: palette.theme.red[50] }),
+    );
+  });
+
   it('회원 탈퇴를 메뉴와 분리된 화면 최하단에 한 단계 작은 글자로 표시한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
