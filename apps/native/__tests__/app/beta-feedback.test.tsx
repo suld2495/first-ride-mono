@@ -112,7 +112,9 @@ describe('베타 피드백 페이지', () => {
     const { getByTestId } = render(<BetaFeedbackPage />);
 
     expect(
-      StyleSheet.flatten(getByTestId('beta-feedback-content-field').props.style),
+      StyleSheet.flatten(
+        getByTestId('beta-feedback-content-field').props.style,
+      ),
     ).toEqual(
       expect.objectContaining({
         borderColor: palette.theme.gray[8],

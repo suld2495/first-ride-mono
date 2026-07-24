@@ -10,7 +10,7 @@ import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useToast } from '@/contexts/ToastContext';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 const MAX_FEEDBACK_LENGTH = 1000;
 const FEEDBACK_GUIDES = [
@@ -124,7 +124,10 @@ export default function BetaFeedbackPage() {
                 onChangeText={setContent}
                 placeholder="사용하면서 불편했던 점이나 오류를 자유롭게 알려주세요."
                 returnKeyType="default"
-                style={styles.feedbackInputContainer}
+                style={[
+                  styles.feedbackInputContainer,
+                  !isTooLong && styles.feedbackInputBorder,
+                ]}
                 testID="beta-feedback-content-input"
                 textAlignVertical="top"
                 value={content}
@@ -193,7 +196,7 @@ const styles = StyleSheet.create((theme) => ({
   guideSection: {
     gap: theme.foundation.spacing[3],
     borderTopWidth: baseFoundation.dimension.x1,
-    borderTopColor: theme.colors.border.divider,
+    borderTopColor: palette.theme.gray[5],
     paddingTop: theme.foundation.spacing[4],
   },
   guideList: {
@@ -226,6 +229,9 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x250,
     paddingHorizontal: theme.foundation.spacing[3],
     paddingVertical: theme.foundation.spacing[3],
+  },
+  feedbackInputBorder: {
+    borderColor: palette.theme.gray[8],
   },
   feedbackInput: {
     minHeight: baseFoundation.dimension.x220,
