@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
 import { useQueryClient } from '@tanstack/react-query';
@@ -57,6 +58,7 @@ import '@/api/bootstrap.api';
 import 'react-native-url-polyfill/auto';
 
 const fontAssets: Record<string, FontSource> = {
+  ...Ionicons.font,
   [fontFamilies.regular]:
     require('../assets/fonts/Pretendard-Regular.otf') as FontSource,
   [fontFamilies.medium]:

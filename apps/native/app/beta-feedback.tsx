@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCreateBetaFeedbackMutation } from '@repo/shared/hooks/useBetaFeedback';
 import { useCallback, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
@@ -33,6 +34,12 @@ export default function BetaFeedbackPage() {
     : isEmpty
       ? '피드백 내용을 입력해주세요.'
       : null;
+  const validationMessageColor = isTooLong
+    ? theme.colors.feedback.error.text
+    : theme.colors.text.muted;
+  const validationIconColor = isTooLong
+    ? theme.colors.feedback.error.text
+    : theme.colors.text.link;
   const canSubmit = !isEmpty && !isTooLong && !createFeedbackMutation.isPending;
 
   const handleSubmit = useCallback(() => {
@@ -141,12 +148,26 @@ export default function BetaFeedbackPage() {
                 </Typography>
               </View>
               {validationMessage ? (
-                <Typography
-                  color={isTooLong ? 'error' : theme.colors.text.muted}
-                  variant="caption1"
+                <View
+                  style={styles.validationRow}
+                  testID="beta-feedback-validation-row"
                 >
-                  {validationMessage}
-                </Typography>
+                  <Ionicons
+                    accessibilityElementsHidden
+                    color={validationIconColor}
+                    name="alert-circle-outline"
+                    size={theme.foundation.iconSize.m}
+                    style={styles.validationIcon}
+                    testID="beta-feedback-validation-icon"
+                  />
+                  <Typography
+                    color={validationMessageColor}
+                    style={styles.validationMessage}
+                    variant="caption1"
+                  >
+                    {validationMessage}
+                  </Typography>
+                </View>
               ) : null}
             </View>
           </View>
@@ -196,7 +217,7 @@ const styles = StyleSheet.create((theme) => ({
   guideSection: {
     gap: theme.foundation.spacing[3],
     borderTopWidth: baseFoundation.dimension.x1,
-    borderTopColor: palette.theme.gray[8],
+    borderTopColor: palette.theme.gray[300],
     paddingTop: theme.foundation.spacing[4],
   },
   guideList: {
@@ -243,5 +264,18 @@ const styles = StyleSheet.create((theme) => ({
   fieldMeta: {
     alignItems: 'flex-end',
     paddingHorizontal: theme.foundation.spacing[1],
+  },
+  validationRow: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[2],
+    paddingHorizontal: theme.foundation.spacing[1],
+  },
+  validationMessage: {
+    flexShrink: 1,
+  },
+  validationIcon: {
+    flexShrink: 0,
   },
 }));
