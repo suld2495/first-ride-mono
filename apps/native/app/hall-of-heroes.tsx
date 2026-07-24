@@ -35,6 +35,8 @@ interface HallHero {
 
 const YOON_WARRIOR_IMAGE_SOURCE =
   require('@/assets/hall-of-heroes/yoon-warrior.png') as ImageSourcePropType;
+const HYE_MAGE_IMAGE_SOURCE =
+  require('@/assets/hall-of-heroes/hye-mage.png') as ImageSourcePropType;
 const MOON_ARCHER_IMAGE_SOURCE =
   require('@/assets/hall-of-heroes/moon-archer.png') as ImageSourcePropType;
 
@@ -50,11 +52,12 @@ const HEROES: HallHero[] = [
   },
   {
     id: 'mage',
-    className: '혜',
+    className: '연',
     description:
       '마법사는 꾸준한 노력이 특별한 힘을 만든다고 믿는 캐릭터예요. 루틴을 반복할수록 마력이 쌓이고, 더 강력한 마법을 펼칠 수 있는 모습으로 성장해요.',
     tone: 'red',
     Character: MageRoutineCharacterIcon,
+    imageSource: HYE_MAGE_IMAGE_SOURCE,
   },
   {
     id: 'archer',
@@ -126,7 +129,7 @@ export default function HallOfHeroesPage() {
     >
       <StatusBar style="dark" />
       <View style={styles.screen}>
-        <PageHeader title="영웅의 전당" showBackButton />
+        <PageHeader title="이루라 길드" showBackButton />
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}

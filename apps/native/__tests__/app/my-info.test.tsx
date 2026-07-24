@@ -424,7 +424,7 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('이용약관')).toBeOnTheScreen();
     expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
     expect(getByText('문의')).toBeOnTheScreen();
-    expect(getByText('영웅의 전당')).toBeOnTheScreen();
+    expect(getByText('이루라 길드')).toBeOnTheScreen();
     expect(getByText('로그아웃')).toBeOnTheScreen();
 
     fireEvent.press(getByText('한마디'));
@@ -433,7 +433,7 @@ describe('MyInfo 로그아웃', () => {
     fireEvent.press(getByText('베타 피드백'));
     fireEvent.press(getByText('개인정보 처리방침'));
     fireEvent.press(getByText('문의'));
-    fireEvent.press(getByText('영웅의 전당'));
+    fireEvent.press(getByText('이루라 길드'));
 
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
     expect(global.mockPush).toHaveBeenCalledWith('/routine-settings');

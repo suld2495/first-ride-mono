@@ -32,7 +32,7 @@ jest.mock('@/hooks/useAuth', () => ({
 
 const renderHallOfHeroes = () => render(<HallOfHeroesPage />);
 
-describe('영웅의 전당 페이지', () => {
+describe('이루라 길드 페이지', () => {
   beforeEach(() => {
     mockBack.mockClear();
     mockUseJobOptionsQuery.mockClear();
@@ -56,7 +56,7 @@ describe('영웅의 전당 페이지', () => {
     const card = getByTestId('hall-of-heroes-card');
     const description = getByText(WARRIOR_DESCRIPTION);
 
-    expect(getByText('영웅의 전당')).toBeOnTheScreen();
+    expect(getByText('이루라 길드')).toBeOnTheScreen();
     expect(getByText('윤')).toBeOnTheScreen();
     expect(description).toBeOnTheScreen();
     expect(getByTestId('hall-of-heroes-character')).toBeOnTheScreen();
@@ -92,7 +92,7 @@ describe('영웅의 전당 페이지', () => {
 
     fireEvent.press(getByLabelText('다음 영웅'));
 
-    expect(getByText('혜')).toBeOnTheScreen();
+    expect(getByText('연')).toBeOnTheScreen();
     expect(
       getByTestId('hall-of-heroes-dot-1').props.accessibilityState,
     ).toEqual({ selected: true });

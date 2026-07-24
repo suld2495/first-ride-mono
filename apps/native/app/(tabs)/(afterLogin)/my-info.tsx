@@ -53,7 +53,7 @@ const SETTING_ITEMS: Array<{
   { title: '이용약관', href: '/modal?type=policies' },
   { title: '개인정보 처리방침', href: '/modal?type=privacy' },
   { title: '문의', href: '/inquiry' },
-  { title: '영웅의 전당', href: '/hall-of-heroes' },
+  { title: '이루라 길드', href: '/hall-of-heroes' },
 ];
 
 type ThemeTone = 'blue' | 'green' | 'red';
