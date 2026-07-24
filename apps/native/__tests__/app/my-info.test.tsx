@@ -5,6 +5,7 @@ import { Alert, StyleSheet } from 'react-native';
 
 import { useAuthSignOut } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { palette } from '@/theme/tokens';
 
 import MyInfo from '../../app/(tabs)/(afterLogin)/my-info';
@@ -77,6 +78,8 @@ describe('MyInfo 로그아웃', () => {
     jest.clearAllMocks();
     global.mockPush = jest.fn();
     global.mockMyInfoFocusEffect = null;
+    useColorSchemeStore.getState().clearColorSchemeOverride();
+    useColorSchemeStore.getState().setColorScheme('blue');
     (useNotifications as jest.Mock).mockReturnValue({
       pushToken: { data: 'expo-push-token' },
     });
@@ -362,6 +365,49 @@ describe('MyInfo 로그아웃', () => {
     );
   });
 
+  it.each([
+    ['green', palette.theme.green[80], palette.theme.green[50]],
+    ['red', palette.theme.red[80], palette.theme.red[50]],
+  ] as const)(
+    '%s 테마의 색상 토큰으로 경험치 요약을 표시한다',
+    (themeName, labelColor, progressColor) => {
+      (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+      useColorSchemeStore.getState().setColorScheme(themeName);
+
+      const { getByTestId } = render(<MyInfo />);
+
+      expect(
+        StyleSheet.flatten(getByTestId('settings-level-text').props.style),
+      ).toEqual(expect.objectContaining({ color: labelColor }));
+      expect(
+        StyleSheet.flatten(getByTestId('settings-progress-fill').props.style),
+      ).toEqual(expect.objectContaining({ backgroundColor: progressColor }));
+    },
+  );
+
+  it('경험치 목표가 0이면 진행률을 0으로 표시하고 선택 정보가 없어도 렌더링한다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+    (useMyStatsQuery as jest.Mock).mockReturnValue({
+      data: {
+        currentLevel: undefined,
+        currentLevelProgress: undefined,
+        expForNextLevel: 0,
+      },
+    });
+    (useFetchMeQuery as jest.Mock).mockReturnValue({ data: undefined });
+
+    const { getByTestId, getByText, queryByTestId } = render(<MyInfo />);
+
+    expect(getByText('Lv. 1')).toBeOnTheScreen();
+    expect(getByTestId('settings-exp-current')).toHaveTextContent('0');
+    expect(getByTestId('settings-exp-next')).toHaveTextContent('0');
+    expect(
+      StyleSheet.flatten(getByTestId('settings-progress-fill').props.style),
+    ).toEqual(expect.objectContaining({ width: '0%' }));
+    expect(queryByTestId('settings-profile-character')).toBeNull();
+    expect(queryByTestId('settings-profile-user-id')).toBeNull();
+  });
+
   it('개인정보 설정을 처리방침에 통합하고 나머지 항목 라우트는 유지한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
@@ -402,9 +448,9 @@ describe('MyInfo 로그아웃', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
     const { getByTestId } = render(<MyInfo />);
-    const menuButtons = within(
-      getByTestId('settings-menu-list'),
-    ).getAllByRole('button');
+    const menuButtons = within(getByTestId('settings-menu-list')).getAllByRole(
+      'button',
+    );
     const feedbackText = getByTestId('settings-menu-text-베타 피드백');
 
     expect(menuButtons.slice(-2).map((button) => button.props.testID)).toEqual([

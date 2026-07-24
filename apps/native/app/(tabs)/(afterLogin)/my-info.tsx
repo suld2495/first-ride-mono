@@ -50,7 +50,6 @@ const SETTING_ITEMS: Array<{
   { title: '한마디', href: '/modal?type=account' },
   { title: '루틴 설정', href: '/routine-settings' },
   { title: '알림 설정', href: '/notification-settings' },
-  { title: '베타 피드백', href: '/beta-feedback' as Href },
   { title: '이용약관', href: '/modal?type=policies' },
   { title: '개인정보 처리방침', href: '/modal?type=privacy' },
   { title: '문의', href: '/inquiry' },
@@ -323,6 +322,21 @@ const MyInfo = () => {
               weight="semibold"
             >
               로그아웃
+            </Typography>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push('/beta-feedback')}
+            testID="settings-menu-item-베타 피드백"
+            style={styles.menuItem}
+          >
+            <Typography
+              color={palette.theme.red[50]}
+              testID="settings-menu-text-베타 피드백"
+              variant="body2"
+              weight="semibold"
+            >
+              베타 피드백
             </Typography>
           </Pressable>
         </View>
