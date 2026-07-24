@@ -35,6 +35,8 @@ interface HallHero {
 
 const YOON_WARRIOR_IMAGE_SOURCE =
   require('@/assets/hall-of-heroes/yoon-warrior.png') as ImageSourcePropType;
+const MOON_ARCHER_IMAGE_SOURCE =
+  require('@/assets/hall-of-heroes/moon-archer.png') as ImageSourcePropType;
 
 const HEROES: HallHero[] = [
   {
@@ -61,6 +63,7 @@ const HEROES: HallHero[] = [
       '이루라의 모험이 올바른 방향으로 나아가도록 멀리 내다보고 길을 밝히는 궁수입니다.\n작은 루틴이 정확한 목표에 닿을 수 있도록, 사용자의 목소리에 귀 기울이고 필요한 순간에는 망설임 없이 활시위를 당깁니다. 🏹',
     tone: 'green',
     Character: ArcherRoutineCharacterIcon,
+    imageSource: MOON_ARCHER_IMAGE_SOURCE,
   },
 ];
 
@@ -287,6 +290,7 @@ const styles = StyleSheet.create((theme) => ({
     maxWidth: 430,
     alignSelf: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingTop: theme.foundation.spacing[6],
     paddingBottom: theme.foundation.spacing[6],
   },
