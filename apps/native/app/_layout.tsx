@@ -111,6 +111,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="beta-feedback"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="hall-of-heroes"
               options={{ headerShown: false }}
             />
