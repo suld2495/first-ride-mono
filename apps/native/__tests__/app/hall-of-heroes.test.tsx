@@ -227,9 +227,8 @@ describe('영웅의 전당 페이지', () => {
   });
 
   it('숨긴 에일 대접 버튼의 구현과 목재 스타인 아이콘을 유지한다', async () => {
-    const { getByRole } = await renderHallOfHeroes();
-    const supportButton = getByRole('button', {
-      name: '영웅들에게 에일 한 잔 대접하기',
+    const { getByTestId } = await renderHallOfHeroes();
+    const supportButton = getByTestId('hall-of-heroes-support-button', {
       includeHiddenElements: true,
     });
     const iconBadge = within(supportButton).getByTestId(

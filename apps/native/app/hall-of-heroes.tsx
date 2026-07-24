@@ -246,7 +246,12 @@ export default function HallOfHeroesPage() {
           </View>
         </ScrollView>
 
-        <View style={styles.supportAction}>
+        <View
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={[styles.supportAction, styles.hiddenSupportAction]}
+          testID="hall-of-heroes-support-action"
+        >
           <Button
             accessibilityLabel="영웅들에게 에일 한 잔 대접하기"
             accessibilityRole="button"
@@ -368,6 +373,9 @@ const styles = StyleSheet.create((theme) => ({
     alignSelf: 'center',
     paddingTop: theme.foundation.spacing[3],
     paddingHorizontal: theme.foundation.spacing[6],
+  },
+  hiddenSupportAction: {
+    display: 'none',
   },
   supportButton: {
     shadowColor: theme.colors.text.gray,
