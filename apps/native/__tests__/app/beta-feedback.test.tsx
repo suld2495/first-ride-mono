@@ -1,6 +1,9 @@
 import axiosInstance from '@repo/shared/api';
 import { act, fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
+import { StyleSheet } from 'react-native';
+
+import { palette } from '@/theme/tokens';
 
 import BetaFeedbackPage from '../../app/beta-feedback';
 import { render } from '../setup/test-utils';
@@ -47,6 +50,51 @@ describe('베타 피드백 페이지', () => {
     fireEvent.press(getByLabelText('뒤로가기'));
 
     expect(mockBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('색상 테마 배경에서도 안내와 입력 메타 정보를 읽기 쉬운 토큰으로 표시한다', () => {
+    const { getByText } = render(<BetaFeedbackPage />);
+
+    expect(
+      StyleSheet.flatten(
+        getByText('불편했던 순간을 조금만 자세히 알려주세요.').props.style,
+      ),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.blue[80],
+      }),
+    );
+    expect(
+      StyleSheet.flatten(getByText('이렇게 적어주시면 좋아요').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.blue[100],
+      }),
+    );
+    expect(
+      StyleSheet.flatten(getByText('어떤 화면에서').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.blue[100],
+      }),
+    );
+    expect(StyleSheet.flatten(getByText('피드백 내용').props.style)).toEqual(
+      expect.objectContaining({
+        color: palette.theme.blue[100],
+      }),
+    );
+    expect(StyleSheet.flatten(getByText('0 / 1000').props.style)).toEqual(
+      expect.objectContaining({
+        color: palette.theme.blue[80],
+      }),
+    );
+    expect(
+      StyleSheet.flatten(getByText('피드백 내용을 입력해주세요.').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.blue[80],
+      }),
+    );
   });
 
   it('공백만 입력하면 제출하지 않는다', () => {
