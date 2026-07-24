@@ -206,34 +206,45 @@ describe('영웅의 전당 페이지', () => {
     });
   });
 
-  it('영웅들에게 에일을 대접하는 버튼을 화면 하단에 표시한다', async () => {
-    const { getByRole, getByTestId } = await renderHallOfHeroes();
+  it('영웅들에게 에일을 대접하는 하단 버튼을 숨긴다', async () => {
+    const { getByTestId, queryByRole } = await renderHallOfHeroes();
     const scrollView = getByTestId('hall-of-heroes-scroll-view');
-    const supportButton = getByRole('button', {
-      name: '영웅들에게 에일 한 잔 대접하기',
+    const supportAction = getByTestId('hall-of-heroes-support-action', {
+      includeHiddenElements: true,
     });
 
-    expect(supportButton).toBeOnTheScreen();
+    expect(
+      queryByRole('button', {
+        name: '영웅들에게 에일 한 잔 대접하기',
+      }),
+    ).toBeNull();
+    expect(StyleSheet.flatten(supportAction.props.style)).toEqual(
+      expect.objectContaining({ display: 'none' }),
+    );
     expect(
       within(scrollView).queryByText('영웅들에게 에일 한 잔 대접하기'),
     ).toBeNull();
   });
 
-  it('에일 대접 버튼에 목재 스타인 아이콘을 표시한다', async () => {
+  it('숨긴 에일 대접 버튼의 구현과 목재 스타인 아이콘을 유지한다', async () => {
     const { getByRole } = await renderHallOfHeroes();
     const supportButton = getByRole('button', {
       name: '영웅들에게 에일 한 잔 대접하기',
+      includeHiddenElements: true,
     });
     const iconBadge = within(supportButton).getByTestId(
       'hall-of-heroes-wooden-ale-icon-badge',
+      { includeHiddenElements: true },
     );
     const icon = within(supportButton).getByTestId(
       'hall-of-heroes-wooden-ale-icon',
+      { includeHiddenElements: true },
     );
-    const label =
-      within(supportButton).getByText('영웅들에게 에일 한 잔 대접하기');
+    const label = within(supportButton).getByText(
+      '영웅들에게 에일 한 잔 대접하기',
+      { includeHiddenElements: true },
+    );
 
-    expect(icon).toBeOnTheScreen();
     expect(StyleSheet.flatten(iconBadge.props.style)).toEqual(
       expect.objectContaining({
         width: baseFoundation.dimension.x36,
