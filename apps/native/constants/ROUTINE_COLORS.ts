@@ -3,7 +3,7 @@ export const ROUTINE_COLOR_OPTIONS = [
   { label: '하늘', value: '#00B8F0' },
   { label: '보라', value: '#9B6EF3' },
   { label: '파랑', value: '#0B83F6' },
-  { label: '차콜', value: '#34404C' },
+  { label: '회색', value: '#EDEEF0' },
   { label: '노랑', value: '#FFBE0B' },
   { label: '분홍', value: '#FA4F9B' },
   { label: '주황', value: '#FF7A0B' },
