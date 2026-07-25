@@ -23,7 +23,7 @@ export function SocialLoginButton({
 }: SocialLoginButtonProps) {
   return (
     <Button
-      size="lg"
+      size="md"
       fullWidth
       backgroundColor={backgroundColor}
       textColor={textColor}

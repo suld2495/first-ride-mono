@@ -354,7 +354,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   button: {
-    height: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x52,
     borderRadius: theme.foundation.radii.xs,
     shadowOpacity: 0,
     elevation: 0,

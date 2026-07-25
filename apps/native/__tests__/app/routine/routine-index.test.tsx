@@ -939,7 +939,9 @@ describe('루틴 조회 페이지', () => {
         const unachievedGoal = await findByTestId('routine-count-check-1-4');
 
         expect(unachievedGoal).toHaveStyle({
-          backgroundColor: palette.theme.gray[80],
+          backgroundColor: palette.theme.gray[95],
+          borderColor: palette.theme.softBlue[60],
+          borderWidth: 1,
         });
         expect(
           within(unachievedGoal).queryByTestId('routine-checkmark-icon'),
@@ -950,7 +952,7 @@ describe('루틴 조회 페이지', () => {
         expect(await findByLabelText('7회 목표 없음')).toBeOnTheScreen();
         expect(await findByTestId('routine-count-no-goal-icon-1-6')).toHaveProp(
           'color',
-          palette.theme.gray[90],
+          palette.theme.softBlue[60],
         );
       });
 
@@ -1001,10 +1003,10 @@ describe('루틴 조회 페이지', () => {
         expect(await findByLabelText('3회 요청 중')).toBeOnTheScreen();
         expect(
           within(completedCheck).getByTestId('routine-checkmark-icon'),
-        ).toHaveProp('color', palette.theme.gray[90]);
+        ).toHaveProp('color', palette.theme.gray[95]);
         expect(
           within(pendingCheck).getByTestId('routine-checkmark-icon'),
-        ).toHaveProp('color', palette.theme.gray[90]);
+        ).toHaveProp('color', palette.theme.gray[95]);
         expect(flattenStyles(completedCheck.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ backgroundColor: symbolColor }),
@@ -1015,7 +1017,7 @@ describe('루틴 조회 페이지', () => {
             expect.objectContaining({ backgroundColor: symbolColor }),
             expect.objectContaining({
               borderColor: palette.theme.gray[5],
-              borderWidth: 1,
+              borderWidth: 2,
             }),
           ]),
         );
@@ -1047,18 +1049,18 @@ describe('루틴 조회 페이지', () => {
           'routine-missed-icon',
         );
 
-        expect(missedIcon).toHaveProp('color', palette.theme.gray[90]);
+        expect(missedIcon).toHaveProp('color', palette.theme.softBlue[60]);
         expect(missedIcon).toHaveStyle({
           transform: [{ translateX: 0.4 }, { translateY: 0.4 }],
         });
         expect(missedFourth).toHaveStyle({
-          backgroundColor: appThemes.blue.colors.feedback.error.bg,
+          backgroundColor: palette.theme.gray[95],
         });
         expect(
           within(missedFifth).getByTestId('routine-missed-icon'),
-        ).toHaveProp('color', palette.theme.gray[90]);
+        ).toHaveProp('color', palette.theme.softBlue[60]);
         expect(missedFifth).toHaveStyle({
-          backgroundColor: appThemes.blue.colors.feedback.error.bg,
+          backgroundColor: palette.theme.gray[95],
         });
       });
     });
@@ -1195,7 +1197,7 @@ describe('루틴 조회 페이지', () => {
           borderRadius: 6,
         });
         expect(todayText).toHaveStyle({
-          color: palette.theme.gray[90],
+          color: palette.theme.softBlue[60],
           fontSize: 12,
         });
         expect(todayText).toHaveProp('fontWeight', '600');
@@ -1355,13 +1357,15 @@ describe('루틴 조회 페이지', () => {
           ),
         );
 
-        for (const frame of frames) {
+        for (const [index, frame] of frames.entries()) {
+          const isToday = index === getRoutineWeekIndex(new Date());
+
           expect(frame).toHaveStyle({
             width: 28,
             height: 28,
             borderRadius: 8,
-            borderWidth: 1,
-            borderColor: 'transparent',
+            borderWidth: isToday ? 2 : 1,
+            borderColor: isToday ? palette.theme.gray[5] : 'transparent',
             backgroundColor: 'transparent',
           });
         }
@@ -1402,8 +1406,8 @@ describe('루틴 조회 페이지', () => {
         ]);
 
         expect(todayFrame).toHaveStyle({
-          borderColor: symbolColor,
-          borderWidth: 1,
+          borderColor: palette.theme.gray[5],
+          borderWidth: 2,
         });
         expect(otherCompletedFrame).toHaveStyle({
           borderColor: 'transparent',
@@ -1474,12 +1478,12 @@ describe('루틴 조회 페이지', () => {
         const futureMondayText = within(futureMonday).getByText('월');
 
         expect(futureMonday).toHaveStyle({
-          backgroundColor: 'transparent',
-          borderColor: palette.theme.softBlue[80],
+          backgroundColor: palette.theme.gray[95],
+          borderColor: palette.theme.softBlue[60],
           borderWidth: 1,
         });
         expect(futureMondayText).toHaveStyle({
-          color: palette.theme.softBlue[80],
+          color: palette.theme.softBlue[60],
         });
       });
 
@@ -1504,12 +1508,12 @@ describe('루틴 조회 페이지', () => {
         );
 
         expect(todayCheckBox).toHaveStyle({
-          backgroundColor: 'transparent',
-          borderColor: palette.theme.softBlue[80],
+          backgroundColor: palette.theme.gray[95],
+          borderColor: palette.theme.softBlue[60],
           borderWidth: 1,
         });
         expect(within(todayCheckBox).getByText(todayLabel)).toHaveStyle({
-          color: palette.theme.gray[90],
+          color: palette.theme.softBlue[60],
         });
       });
 
@@ -1537,9 +1541,13 @@ describe('루틴 조회 페이지', () => {
         );
 
         expect(todayCompletedCheck).toBeOnTheScreen();
-        expect(todayCompletedCheck).toHaveStyle({
+        expect(
+          await findByTestId(
+            `routine-week-check-frame-1-${getRoutineWeekIndex(today)}`,
+          ),
+        ).toHaveStyle({
           borderColor: palette.theme.gray[5],
-          borderWidth: 1,
+          borderWidth: 2,
         });
       });
 
@@ -1584,10 +1592,10 @@ describe('루틴 조회 페이지', () => {
 
         expect(
           within(completedCheck).getByText(dayLabels[completedIndex]),
-        ).toHaveStyle({ color: palette.theme.gray[90] });
+        ).toHaveStyle({ color: palette.theme.gray[95] });
         expect(
           within(pendingCheck).getByText(dayLabels[todayIndex]),
-        ).toHaveStyle({ color: palette.theme.gray[90] });
+        ).toHaveStyle({ color: palette.theme.gray[95] });
         expect(flattenStyles(completedCheck.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ backgroundColor: symbolColor }),
@@ -1634,9 +1642,9 @@ describe('루틴 조회 페이지', () => {
         expect(within(missedMonday).queryByText('월')).toBeNull();
         expect(
           within(missedMonday).getByTestId('routine-missed-icon'),
-        ).toHaveProp('color', palette.theme.gray[90]);
+        ).toHaveProp('color', palette.theme.softBlue[60]);
         expect(missedMonday).toHaveStyle({
-          backgroundColor: palette.theme.blue[90],
+          backgroundColor: palette.theme.gray[95],
         });
       });
     });

@@ -41,6 +41,10 @@ interface RoutineCountListProps {
 const MAX_ROUTINE_COUNT = 7;
 const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
+const CHECKED_ICON_COLOR = palette.theme.gray[95];
+const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
+const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
+const TODAY_FRAME_COLOR = palette.theme.gray[5];
 
 const createRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
@@ -52,14 +56,14 @@ const createRoutineDateKey = (date: Date) => {
 
 const getMissedPastCheckBoxStyle = (
   isMissedPast: boolean,
-  errorBackgroundColor: string,
-) => (isMissedPast ? { backgroundColor: errorBackgroundColor } : null);
+): { backgroundColor: string } | null =>
+  isMissedPast ? { backgroundColor: UNCHECKED_BACKGROUND_COLOR } : null;
 
 const getTodaySuccessCheckBoxStyle = (isTodaySuccess: boolean) =>
   isTodaySuccess
     ? {
-        borderColor: palette.theme.gray[5],
-        borderWidth: baseFoundation.dimension.x1,
+        borderColor: TODAY_FRAME_COLOR,
+        borderWidth: baseFoundation.dimension.x2,
       }
     : null;
 
@@ -71,7 +75,13 @@ const isUnachievedGoalCheckBox = (
 ) => isGoalRange && !achieved && !isPendingConfirmation && !isMissedPastGoal;
 
 const getUnachievedCheckBoxStyle = (isUnachieved: boolean) =>
-  isUnachieved ? { backgroundColor: palette.theme.gray[80] } : null;
+  isUnachieved
+    ? {
+        backgroundColor: UNCHECKED_BACKGROUND_COLOR,
+        borderColor: UNCHECKED_ACCENT_COLOR,
+        borderWidth: baseFoundation.dimension.x1,
+      }
+    : null;
 
 const getRoutineCountAccessibilityLabel = ({
   countIndex,
@@ -238,10 +248,7 @@ const RoutineCountList = ({
                       }
                     : null;
                   const missedPastGoalCheckBoxStyle =
-                    getMissedPastCheckBoxStyle(
-                      isMissedPastGoal,
-                      theme.colors.feedback.error.bg,
-                    );
+                    getMissedPastCheckBoxStyle(isMissedPastGoal);
                   const label = getRoutineCountAccessibilityLabel({
                     countIndex,
                     isTodaySuccess,
@@ -275,19 +282,19 @@ const RoutineCountList = ({
                         {isMissedPastGoal ? (
                           <RoutineMissedIcon
                             size={baseFoundation.iconSize.xs}
-                            color={theme.colors.text.gray}
+                            color={UNCHECKED_ACCENT_COLOR}
                           />
                         ) : achieved || isPendingConfirmation ? (
                           <RoutineCheckmarkIcon
                             size={baseFoundation.iconSize.s}
-                            color={theme.colors.text.gray}
+                            color={CHECKED_ICON_COLOR}
                           />
                         ) : !isGoalRange ? (
                           <Ionicons
                             testID={`routine-count-no-goal-icon-${routineId}-${countIndex}`}
                             name="remove"
                             size={baseFoundation.iconSize.s}
-                            color={theme.colors.text.gray}
+                            color={UNCHECKED_ACCENT_COLOR}
                           />
                         ) : null}
                       </View>
@@ -308,8 +315,6 @@ const RoutineCountList = ({
       onToggleRoutineMenu,
       readOnly,
       theme.colors.brand.pendingConfirmationCheckbox,
-      theme.colors.feedback.error.bg,
-      theme.colors.text.gray,
       theme.colors.text.secondary,
     ],
   );
@@ -404,6 +409,8 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x20,
     borderRadius: baseFoundation.dimension.x4,
     backgroundColor: theme.colors.brand.checkbox,
+    borderColor: 'transparent',
+    borderWidth: baseFoundation.dimension.x0,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -103,8 +103,8 @@ const styles = StyleSheet.create((theme) => ({
   logo: {
     position: 'absolute',
     left: -theme.foundation.spacing[4],
-    width: baseFoundation.dimension.x52,
-    height: baseFoundation.dimension.x52,
+    width: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x44,
   },
   text: {
     fontWeight: theme.foundation.typography.weight.medium,
