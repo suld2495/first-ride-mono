@@ -1,6 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
-import { FlatList, Modal, Pressable } from 'react-native';
+import { FlatList, Keyboard, Modal, Pressable } from 'react-native';
 import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view';
 
 import FriendAddModal from '../../../components/friend/friend-add-modal';
@@ -79,6 +79,26 @@ describe('친구 추가 모달', () => {
       expect(backdrop.props.entering.constructor.presetName).toBe('FadeIn');
       expect(backdrop.props.exiting.constructor.presetName).toBe('FadeOut');
     });
+
+    it('검색 결과 리스트에 안정적인 스크롤 뷰포트를 제공한다', () => {
+      const screen = render(<FriendAddModal {...defaultProps} />);
+
+      expect(screen.getByTestId('friend-add-modal-container')).toHaveStyle({
+        height: '74%',
+        maxHeight: 560,
+      });
+      expect(screen.getByTestId('friend-add-modal-content')).toHaveStyle({
+        flex: 1,
+      });
+
+      const list = screen.UNSAFE_getByType(FlatList);
+
+      expect(list.props.scrollEnabled).toBe(true);
+      expect(list.props.keyboardDismissMode).toBe('on-drag');
+      expect(list.props.getItemLayout).toBeUndefined();
+      expect(list.props.maxToRenderPerBatch).toBeUndefined();
+      expect(list.props.windowSize).toBeUndefined();
+    });
   });
 
   describe('유저 검색 테스트', () => {
@@ -119,6 +139,40 @@ describe('친구 추가 모달', () => {
         expect((await findAllByText('user1')).length).toBeGreaterThan(0);
         expect((await findAllByText('user2')).length).toBeGreaterThan(0);
         expect((await findAllByText('user3')).length).toBeGreaterThan(0);
+      });
+
+      it('검색 실행 시 키보드를 닫아 결과 목록 공간을 확보한다', async () => {
+        const keyboardDismissSpy = jest.spyOn(Keyboard, 'dismiss');
+        const { findAllByText, getByPlaceholderText } = render(
+          <FriendAddModal {...defaultProps} />,
+        );
+        const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
+
+        fireEvent.changeText(searchInput, 'user');
+        fireEvent(searchInput, 'submitEditing');
+
+        expect((await findAllByText('user1')).length).toBeGreaterThan(0);
+        expect(keyboardDismissSpy).toHaveBeenCalledTimes(1);
+
+        keyboardDismissSpy.mockRestore();
+      });
+
+      it('화면 높이를 넘는 검색 결과를 스크롤 리스트 데이터로 유지한다', async () => {
+        mockAxios
+          .onGet(/\/users\/search/)
+          .reply(200, wrapResponse(createMockUsers(10)));
+        const screen = render(<FriendAddModal {...defaultProps} />);
+        const searchInput =
+          screen.getByPlaceholderText('유저이름을 입력해주세요.');
+
+        fireEvent.changeText(searchInput, 'user');
+        fireEvent(searchInput, 'submitEditing');
+
+        await waitFor(() => {
+          expect(screen.UNSAFE_getByType(FlatList).props.data).toHaveLength(10);
+        });
+
+        screen.unmount();
       });
 
       it('검색 응답의 characterImageUrl로 유저 캐릭터 이미지를 표시한다', async () => {
@@ -412,16 +466,13 @@ describe('친구 추가 모달', () => {
 
   describe('모달 닫기 테스트', () => {
     it('X 버튼 클릭 시 모달이 닫힌다', async () => {
-      const { findByText, UNSAFE_getAllByType } = render(
+      const { findByLabelText, findByText } = render(
         <FriendAddModal {...defaultProps} />,
       );
 
       expect(await findByText('친구 추가')).toBeOnTheScreen();
 
-      // Pressable 순서: overlay, modal container, close button
-      // close button은 세 번째 Pressable (index 2)
-      const pressables = UNSAFE_getAllByType(Pressable);
-      const closeButton = pressables[2];
+      const closeButton = await findByLabelText('친구 추가 닫기');
 
       fireEvent.press(closeButton);
 
@@ -429,15 +480,13 @@ describe('친구 추가 모달', () => {
     });
 
     it('overlay 클릭 시 모달이 닫힌다', async () => {
-      const { findByText, UNSAFE_getAllByType } = render(
+      const { findByText, getByTestId } = render(
         <FriendAddModal {...defaultProps} />,
       );
 
       expect(await findByText('친구 추가')).toBeOnTheScreen();
 
-      // overlay는 첫 번째 Pressable (index 0)
-      const pressables = UNSAFE_getAllByType(Pressable);
-      const overlay = pressables[0];
+      const overlay = getByTestId('friend-add-modal-backdrop-pressable');
 
       fireEvent.press(overlay);
 
@@ -454,11 +503,10 @@ describe('친구 추가 모달', () => {
 
     it('모달을 닫으면 입력값이 초기화된다', async () => {
       const {
+        findByLabelText,
         findByText,
         findAllByText,
         getByPlaceholderText,
-
-        UNSAFE_getAllByType,
         rerender,
       } = render(<FriendAddModal {...defaultProps} />);
 
@@ -470,10 +518,7 @@ describe('친구 추가 모달', () => {
 
       expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
-      // X 버튼 클릭으로 닫기 (close button은 index 2)
-      const pressables = UNSAFE_getAllByType(Pressable);
-
-      fireEvent.press(pressables[2]);
+      fireEvent.press(await findByLabelText('친구 추가 닫기'));
 
       // 모달 다시 열기
       rerender(<FriendAddModal {...defaultProps} visible={true} />);
