@@ -4,7 +4,6 @@ import { Image, StyleSheet, View } from 'react-native';
 
 import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
 import * as routineSceneArt from '@/components/routine/routine-scene-art';
-import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
 
@@ -146,7 +145,7 @@ describe('FriendRoutinesModal', () => {
       },
     );
     expect(await screen.findByTestId('routine-count-check-1-1')).toHaveStyle({
-      backgroundColor: DEFAULT_ROUTINE_COLOR,
+      backgroundColor: appThemes.blue.colors.brand.primary,
     });
   });
 

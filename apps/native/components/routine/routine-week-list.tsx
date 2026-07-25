@@ -35,6 +35,7 @@ interface RoutineWeekListProps {
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
   readOnly?: boolean;
+  routineColorFallback?: string;
 }
 
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
@@ -110,6 +111,7 @@ const RoutineWeekList = ({
   onToggleRoutineMenu,
   onScrollOffsetChange,
   readOnly = false,
+  routineColorFallback = DEFAULT_ROUTINE_COLOR,
 }: RoutineWeekListProps) => {
   const { theme } = useAppTheme();
   const weeklyData = useWeeklyData(routines, date);
@@ -134,6 +136,7 @@ const RoutineWeekList = ({
     ({ item: routine }) => {
       const { routineId, routineName, weeklyCount, routineCount, symbolColor } =
         routine;
+      const routineColor = symbolColor ?? routineColorFallback;
       const canRequestWithCheckBox = canRequestRoutine;
       const handlePressCheckBox = canRequestWithCheckBox
         ? () => onRequestRoutine(routine)
@@ -202,14 +205,14 @@ const RoutineWeekList = ({
                 !isPastDay && !check && !isPendingConfirmation;
               const successCheckBoxStyle = check
                 ? {
-                    backgroundColor: symbolColor ?? DEFAULT_ROUTINE_COLOR,
+                    backgroundColor: routineColor,
                   }
                 : null;
               const todaySuccessCheckBoxStyle =
                 getTodaySuccessCheckBoxStyle(isTodaySuccess);
               const todaySuccessFrameStyle = getTodaySuccessFrameStyle(
                 isTodaySuccess,
-                symbolColor ?? DEFAULT_ROUTINE_COLOR,
+                routineColor,
               );
               const upcomingCheckBoxStyle = getUpcomingCheckBoxStyle(
                 isUpcomingDay,
@@ -296,6 +299,7 @@ const RoutineWeekList = ({
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
+      routineColorFallback,
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.routineMissedCheckbox,
       theme.colors.brand.routineUpcomingCheckboxBorder,

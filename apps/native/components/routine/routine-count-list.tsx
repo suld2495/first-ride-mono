@@ -36,6 +36,7 @@ interface RoutineCountListProps {
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
   readOnly?: boolean;
+  routineColorFallback?: string;
 }
 
 const MAX_ROUTINE_COUNT = 7;
@@ -116,6 +117,7 @@ const RoutineCountList = ({
   onToggleRoutineMenu,
   onScrollOffsetChange,
   readOnly = false,
+  routineColorFallback = DEFAULT_ROUTINE_COLOR,
 }: RoutineCountListProps) => {
   const { theme } = useAppTheme();
   const getRoutineItemLayout = useCallback(
@@ -137,6 +139,7 @@ const RoutineCountList = ({
     ({ item: routine }) => {
       const { routineId, routineName, weeklyCount, routineCount, symbolColor } =
         routine;
+      const routineColor = symbolColor ?? routineColorFallback;
       const pendingConfirmationCount = routine.hasPendingConfirmation
         ? routine.pendingConfirmationCount
         : 0;
@@ -224,7 +227,7 @@ const RoutineCountList = ({
                   );
                   const achievedCheckBoxStyle = achieved
                     ? {
-                        backgroundColor: symbolColor ?? DEFAULT_ROUTINE_COLOR,
+                        backgroundColor: routineColor,
                       }
                     : null;
                   const todaySuccessCheckBoxStyle =
@@ -307,6 +310,7 @@ const RoutineCountList = ({
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
+      routineColorFallback,
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.feedback.error.bg,
       theme.colors.text.gray,
