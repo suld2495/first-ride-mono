@@ -45,7 +45,7 @@ const HEROES: HallHero[] = [
     id: 'warrior',
     className: '윤',
     description:
-      '이루라의 모험이 흔들리지 않도록 길을 만들고 시스템을 지키는 전사입니다.\n작은 루틴이 꾸준한 성장으로 이어질 수 있도록, 아이디어를 기능으로 만들고 문제 앞에서는 가장 먼저 검을 듭니다. ⚔️',
+      '나혼렙, 전독시에 미쳐있던 아이는 자라서, ‘이루라’라는 세계를 만드는 사람이 되었습니다. 직업은 서버 개발자, 주특기는 상상을 실제 서비스로 구현하는 일입니다.',
     tone: 'blue',
     Character: WarriorRoutineCharacterIcon,
     imageSource: YOON_WARRIOR_IMAGE_SOURCE,
@@ -54,7 +54,7 @@ const HEROES: HallHero[] = [
     id: 'mage',
     className: '연',
     description:
-      '마법사는 꾸준한 노력이 특별한 힘을 만든다고 믿는 캐릭터예요. 루틴을 반복할수록 마력이 쌓이고, 더 강력한 마법을 펼칠 수 있는 모습으로 성장해요.',
+      '루틴 습관을 통해 더 멋진 모습으로 성장할 캐릭터와 내가 기대되지 않나요? 이루라가 여러분의 작은 성공을 꾸준히 이어갈 수 있도록 응원할게요.',
     tone: 'red',
     Character: MageRoutineCharacterIcon,
     imageSource: HYE_MAGE_IMAGE_SOURCE,
@@ -63,7 +63,7 @@ const HEROES: HallHero[] = [
     id: 'archer',
     className: '문',
     description:
-      '이루라의 모험이 올바른 방향으로 나아가도록 멀리 내다보고 길을 밝히는 궁수입니다.\n작은 루틴이 정확한 목표에 닿을 수 있도록, 사용자의 목소리에 귀 기울이고 필요한 순간에는 망설임 없이 활시위를 당깁니다. 🏹',
+      '오늘의 작은 실천이 언젠가 여러분이 꿈꾸던 모습을 만들어갈 거예요. 이루라는 그 여정을 가장 가까운 곳에서 함께하겠습니다.',
     tone: 'green',
     Character: ArcherRoutineCharacterIcon,
     imageSource: MOON_ARCHER_IMAGE_SOURCE,
