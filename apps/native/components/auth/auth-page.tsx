@@ -1,3 +1,4 @@
+import { StatusBar } from 'expo-status-bar';
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { View } from 'react-native';
@@ -35,6 +36,7 @@ const AuthPageRoot = ({ children, style, contentStyle }: AuthPageProps) => {
 
   return (
     <ThemeView style={[styles.container, style]}>
+      <StatusBar style="dark" />
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollContent}
         enableOnAndroid={true}
