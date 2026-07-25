@@ -47,7 +47,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-secure-store',
     [
       'expo-notifications',
-      { color: '#7edcd5', defaultChannel: 'routine-channel' },
+      {
+        icon: './assets/splash.png',
+        color: '#7edcd5',
+        defaultChannel: 'routine-channel',
+      },
     ],
     [
       'expo-build-properties',

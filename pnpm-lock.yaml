@@ -394,6 +394,9 @@ importers:
       '@babel/core':
         specifier: 7.29.6
         version: 7.29.6
+      '@expo/config-plugins':
+        specifier: ~10.1.2
+        version: 10.1.2
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
@@ -11838,7 +11841,7 @@ snapshots:
       '@typescript-eslint/types': 7.18.0
       '@typescript-eslint/typescript-estree': 7.18.0(typescript@5.8.3)
       '@typescript-eslint/visitor-keys': 7.18.0
-      debug: 4.4.1
+      debug: 4.4.3
       eslint: 9.39.2(jiti@2.6.1)
     optionalDependencies:
       typescript: 5.8.3

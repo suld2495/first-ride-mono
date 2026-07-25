@@ -73,6 +73,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.23.7",
+    "@expo/config-plugins": "~10.1.2",
     "@repo/eslint-config": "workspace:*",
     "@repo/types": "workspace:*",
     "@repo/typescript-config": "workspace:*",
