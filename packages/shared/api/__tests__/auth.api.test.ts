@@ -90,15 +90,18 @@ describe('auth.api', () => {
 
   describe('join', () => {
     const joinForm = {
-      userId: 'newuser',
+      userId: 'newuser@example.com',
       password: TEST_PASSWORD,
-      nickname: 'New User',
-      job: '개발자',
+      nickname: '새회원',
+      job: '마법사',
+      gender: 'FEMALE' as const,
     };
 
     describe('성공 시', () => {
       beforeEach(() => {
-        mockAxios.onPost('/auth/signup').reply(200, { data: null });
+        mockAxios.onPost('/auth/signup').reply(201, {
+          data: { message: '회원가입이 완료되었습니다.' },
+        });
       });
 
       it('undefined를 반환한다', async () => {

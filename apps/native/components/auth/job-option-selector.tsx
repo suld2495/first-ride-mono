@@ -1,4 +1,4 @@
-import type { JobOption } from '@repo/types';
+import type { Gender, JobOption } from '@repo/types';
 import { useEffect, useMemo, useState } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 import { Image, Pressable, View } from 'react-native';
@@ -14,9 +14,10 @@ interface JobOptionSelectorProps {
   error?: boolean;
   helperText?: string;
   isLoading?: boolean;
+  gender?: Gender;
+  onGenderSelect?: (gender: Gender) => void;
 }
 
-type CharacterGender = 'female' | 'male';
 type JobRole = 'WARRIOR' | 'MAGE' | 'ARCHER';
 
 const JOB_ORDER: JobRole[] = ['WARRIOR', 'MAGE', 'ARCHER'];
@@ -136,10 +137,8 @@ const getSortedOptions = (options: JobOption[]) =>
     options.filter((option) => getJobRole(option) === role),
   );
 
-const getCharacterImage = (
-  option: JobOption | undefined,
-  _gender: CharacterGender,
-) => CHARACTER_IMAGES[getJobRole(option)];
+const getCharacterImage = (option: JobOption | undefined, _gender: Gender) =>
+  CHARACTER_IMAGES[getJobRole(option)];
 
 const JobOptionSelector = ({
   options,
@@ -148,9 +147,12 @@ const JobOptionSelector = ({
   error = false,
   helperText,
   isLoading = false,
+  gender: controlledGender,
+  onGenderSelect,
 }: JobOptionSelectorProps) => {
   const { theme } = useAppTheme();
-  const [gender, setGender] = useState<CharacterGender>('female');
+  const [internalGender, setInternalGender] = useState<Gender>('FEMALE');
+  const gender = controlledGender ?? internalGender;
   const sortedOptions = useMemo(() => getSortedOptions(options), [options]);
   const selectedIndex = sortedOptions.findIndex(
     (option) => option.jobName === value,
@@ -178,6 +180,13 @@ const JobOptionSelector = ({
     onSelect(sortedOptions[nextIndex].jobName);
   };
 
+  const handleGenderSelect = (nextGender: Gender) => {
+    if (controlledGender === undefined) {
+      setInternalGender(nextGender);
+    }
+    onGenderSelect?.(nextGender);
+  };
+
   if (sortedOptions.length === 0) {
     return (
       <View style={styles.container}>
@@ -200,18 +209,18 @@ const JobOptionSelector = ({
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel="여자 캐릭터 선택"
-          accessibilityState={{ selected: gender === 'female' }}
-          onPress={() => setGender('female')}
+          accessibilityState={{ selected: gender === 'FEMALE' }}
+          onPress={() => handleGenderSelect('FEMALE')}
           style={[
             styles.genderTab,
-            gender === 'female' ? styles.genderTabSelected : null,
+            gender === 'FEMALE' ? styles.genderTabSelected : null,
           ]}
         >
           <Typography
             variant="caption1"
             weight="semibold"
             color={
-              gender === 'female'
+              gender === 'FEMALE'
                 ? theme.colors.text.gray
                 : palette.theme.gray[10]
             }
@@ -222,18 +231,18 @@ const JobOptionSelector = ({
         <Pressable
           accessibilityRole="tab"
           accessibilityLabel="남자 캐릭터 선택"
-          accessibilityState={{ selected: gender === 'male' }}
-          onPress={() => setGender('male')}
+          accessibilityState={{ selected: gender === 'MALE' }}
+          onPress={() => handleGenderSelect('MALE')}
           style={[
             styles.genderTab,
-            gender === 'male' ? styles.genderTabSelected : null,
+            gender === 'MALE' ? styles.genderTabSelected : null,
           ]}
         >
           <Typography
             variant="caption1"
             weight="semibold"
             color={
-              gender === 'male'
+              gender === 'MALE'
                 ? theme.colors.text.gray
                 : palette.theme.gray[10]
             }

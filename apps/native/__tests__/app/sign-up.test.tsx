@@ -144,6 +144,19 @@ describe('SignUp 페이지', () => {
     });
   });
 
+  it('기본 성별 FEMALE로 직업 선택지를 조회한다', async () => {
+    render(<SignUp />);
+
+    await waitFor(() => {
+      expect(
+        mockAxios.history.get.some(
+          (req) =>
+            req.url === '/auth/job-options' && req.params?.gender === 'FEMALE',
+        ),
+      ).toBe(true);
+    });
+  });
+
   it('비밀번호와 비밀번호 확인이 일치하지 않으면 에러를 표시한다', async () => {
     const { getByPlaceholderText, getByText, findByText } = render(<SignUp />);
 
@@ -442,6 +455,48 @@ describe('SignUp 페이지', () => {
     });
   });
 
+  it('선택한 성별로 직업 선택지를 다시 조회하고 인증 대기 payload에 저장한다', async () => {
+    const { getByPlaceholderText, getByText, getByLabelText, findByText } =
+      render(<SignUp />);
+
+    await goToJobStep(getByPlaceholderText, getByText, findByText);
+    fireEvent.press(getByLabelText('남자 캐릭터 선택'));
+
+    await waitFor(() => {
+      expect(
+        mockAxios.history.get.some(
+          (req) =>
+            req.url === '/auth/job-options' && req.params?.gender === 'MALE',
+        ),
+      ).toBe(true);
+    });
+
+    fireEvent.press(getByText('선택 완료'));
+
+    await waitFor(() => {
+      expect(usePendingSignUpStore.getState().payload?.gender).toBe('MALE');
+    });
+  });
+
+  it('현재 선택된 성별을 다시 눌러도 선택한 직업을 유지한다', async () => {
+    const { getByPlaceholderText, getByText, getByLabelText, findByText } =
+      render(<SignUp />);
+
+    await goToJobStep(getByPlaceholderText, getByText, findByText);
+    fireEvent.press(getByLabelText('마법사 선택'));
+    fireEvent.press(getByLabelText('여자 캐릭터 선택'));
+    fireEvent.press(getByText('선택 완료'));
+
+    await waitFor(() => {
+      expect(usePendingSignUpStore.getState().payload).toEqual(
+        expect.objectContaining({
+          job: '마법사',
+          gender: 'FEMALE',
+        }),
+      );
+    });
+  });
+
   it('가입 버튼을 누르면 인증 메일 요청 후 이메일 인증 대기 화면으로 이동한다', async () => {
     const { getByPlaceholderText, getByText, getByLabelText, findByText } =
       render(<SignUp />);
@@ -479,6 +534,7 @@ describe('SignUp 페이지', () => {
         nickname: '새닉네임',
         password: 'password1234',
         job: '마법사',
+        gender: 'FEMALE',
       });
       expect(mockPush).toHaveBeenCalledWith('/sign-up-email-verification');
     });

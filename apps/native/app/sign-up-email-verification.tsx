@@ -20,7 +20,10 @@ import {
   getEmailVerificationBackoffDelay,
   getRetryAfterDelay,
 } from '@/utils/email-verification-polling';
-import { getApiErrorMessage } from '@/utils/error-utils';
+import {
+  getApiErrorMessage,
+  getDetailedApiErrorMessage,
+} from '@/utils/error-utils';
 
 const EMAIL_VERIFICATION_POLL_INTERVAL_MS = 2500;
 const EMAIL_VERIFICATION_MAX_WAIT_MS = 30 * 60 * 1000;
@@ -100,7 +103,7 @@ export default function SignUpEmailVerification() {
         isCompletingRef.current = false;
         setStatus('error');
         setMessage(
-          getApiErrorMessage(
+          getDetailedApiErrorMessage(
             error,
             '회원가입에 실패했습니다. 다시 시도해주세요.',
           ),

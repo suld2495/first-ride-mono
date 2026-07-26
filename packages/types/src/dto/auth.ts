@@ -6,7 +6,14 @@ export type AuthForm = Pick<Auth, 'userId' | 'password'> & {
   deviceId?: string;
 };
 
-export type JoinForm = Pick<Auth, 'userId' | 'nickname' | 'password' | 'job'>;
+export type Gender = 'MALE' | 'FEMALE';
+
+export type JoinForm = Pick<
+  Auth,
+  'userId' | 'nickname' | 'password' | 'job'
+> & {
+  gender: Gender;
+};
 
 export interface JobOption {
   backgroundImageUrl?: null | string;

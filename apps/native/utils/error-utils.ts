@@ -17,6 +17,27 @@ export const getApiErrorMessage = (
 };
 
 /**
+ * API 에러의 첫 번째 필드 상세 메시지를 우선하여 반환합니다.
+ * @param error - 발생한 에러 객체
+ * @param fallbackMessage - ApiError가 아닐 경우 표시할 기본 메시지
+ * @returns 필드 상세 메시지, API 메시지, 기본 메시지 순으로 선택한 문구
+ */
+export const getDetailedApiErrorMessage = (
+  error: unknown,
+  fallbackMessage: string,
+): string => {
+  if (error instanceof ApiError) {
+    const details = error.detail;
+
+    if (Array.isArray(details) && details[0]?.message) {
+      return details[0].message;
+    }
+  }
+
+  return getApiErrorMessage(error, fallbackMessage);
+};
+
+/**
  * API 에러 객체에서 필드별 에러 메시지를 추출합니다.
  * @param error - 발생한 에러 객체
  * @returns 필드명을 키로 하고 에러 메시지를 값으로 하는 객체

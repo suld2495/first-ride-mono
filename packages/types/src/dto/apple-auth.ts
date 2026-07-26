@@ -1,6 +1,6 @@
-import type { TokenResponse } from './auth';
+import type { Gender, TokenResponse } from './auth';
 
-export type AppleGender = 'MALE' | 'FEMALE';
+export type AppleGender = Gender;
 
 export interface AppleNonceResponse {
   nonceId: string;

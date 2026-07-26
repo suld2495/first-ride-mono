@@ -18,6 +18,7 @@ const pendingPayload = {
   nickname: '윤윤',
   password: 'password1234',
   job: '마법사',
+  gender: 'FEMALE' as const,
 };
 
 type VerificationResponse = [
@@ -87,7 +88,9 @@ describe('SignUpEmailVerification 페이지', () => {
       .replyOnce(200, {
         data: { email: 'a@b.co', verified: true },
       });
-    mockAxios.onPost('/auth/signup').reply(200, { data: null });
+    mockAxios.onPost('/auth/signup').reply(201, {
+      data: { message: '회원가입이 완료되었습니다.' },
+    });
 
     const { getByText } = render(<SignUpEmailVerification />);
 
@@ -102,12 +105,39 @@ describe('SignUpEmailVerification 페이지', () => {
     );
     expect(mockAxios.history.post[2]?.url).toBe('/auth/signup');
     expect(mockAxios.history.post[2]?.data).toContain('"userId":"a@b.co"');
+    expect(mockAxios.history.post[2]?.data).toContain('"gender":"FEMALE"');
     expect(usePendingSignUpStore.getState().payload).toBeNull();
     expect(mockShowToast).toHaveBeenCalledWith(
       '회원가입이 완료되었습니다.',
       'success',
     );
     expect(mockReplace).toHaveBeenCalledWith('/sign-in');
+  });
+
+  it('회원가입 필드 오류에서는 첫 번째 상세 메시지를 표시한다', async () => {
+    mockAxios.onPost('/auth/email/verification-confirm').reply(200, {
+      data: { email: 'a@b.co', verified: true },
+    });
+    mockAxios.onPost('/auth/signup').reply(400, {
+      success: false,
+      error: {
+        message: '잘못 입력된 값입니다.',
+        data: [
+          {
+            field: 'nickname',
+            rejected: '윤윤',
+            message: '이미 사용 중인 닉네임입니다.',
+          },
+        ],
+      },
+    });
+
+    const { getByText, queryByText } = render(<SignUpEmailVerification />);
+
+    await flushAsyncWork();
+
+    expect(getByText('이미 사용 중인 닉네임입니다.')).toBeOnTheScreen();
+    expect(queryByText('잘못 입력된 값입니다.')).not.toBeOnTheScreen();
   });
 
   it('최대 대기 시간이 지나면 폴링을 중단하고 만료 상태를 표시한다', async () => {

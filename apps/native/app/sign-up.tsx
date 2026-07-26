@@ -45,6 +45,7 @@ const initial = () => ({
   password: '',
   passwordConfirm: '',
   job: '',
+  gender: 'FEMALE' as const,
 });
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
@@ -63,13 +64,14 @@ export default function SignUp() {
     data: jobOptions = [],
     isError: isJobOptionsError,
     isLoading: isJobOptionsLoading,
-  } = useJobOptionsQuery();
+  } = useJobOptionsQuery(form.gender);
 
   const getJoinPayload = (): JoinFormType => ({
     userId: form.userId.trim(),
     nickname: form.nickname.trim(),
     password: form.password,
     job: form.job,
+    gender: form.gender,
   });
 
   const validateBasicFields = () => {
@@ -279,6 +281,26 @@ export default function SignUp() {
     }
   };
 
+  const handleGenderSelect = (gender: JoinFormType['gender']) => {
+    if (form.gender === gender) {
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      gender,
+      job: '',
+    }));
+
+    if (fieldErrors.gender || fieldErrors.job) {
+      setFieldErrors((prev) => {
+        const { gender: _, job: __, ...rest } = prev;
+
+        return rest;
+      });
+    }
+  };
+
   const handleSignInPress = () => {
     setForm(initial());
     router.push('/sign-in');
@@ -410,6 +432,8 @@ export default function SignUp() {
               options={jobOptions}
               value={form.job}
               onSelect={(value) => handleChange('job', value)}
+              gender={form.gender}
+              onGenderSelect={handleGenderSelect}
               error={!!fieldErrors.job}
               helperText={
                 fieldErrors.job ||

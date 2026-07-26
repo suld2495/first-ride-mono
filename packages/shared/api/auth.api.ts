@@ -66,9 +66,7 @@ export const login = async (form: AuthForm): Promise<AuthResponse> => {
 
 export const join = async (form: JoinForm): Promise<void> => {
   try {
-    const response: void = await http.post(`${baseURL}/signup`, form);
-
-    return response;
+    await http.post(`${baseURL}/signup`, form);
   } catch (error) {
     throw toAppError(error);
   }
