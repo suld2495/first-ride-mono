@@ -32,6 +32,7 @@ interface RoutineCountListProps {
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
   onRequestRoutine: (routine: Routine) => void;
+  onBlockPastRoutineRequest: () => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
@@ -124,6 +125,7 @@ const RoutineCountList = ({
   onRefresh,
   canRequestRoutine = false,
   onRequestRoutine,
+  onBlockPastRoutineRequest,
   openMenuRoutineId,
   onToggleRoutineMenu,
   onScrollOffsetChange,
@@ -155,9 +157,6 @@ const RoutineCountList = ({
         ? routine.pendingConfirmationCount
         : 0;
       const canRequestWithCheckBox = canRequestRoutine;
-      const handlePressCheckBox = canRequestWithCheckBox
-        ? () => onRequestRoutine(routine)
-        : undefined;
       const todayDateKey = createRoutineDateKey(new Date());
       const currentWeekStartDate = getWeekMonday(new Date());
       const isCurrentWeek = date === currentWeekStartDate;
@@ -264,6 +263,11 @@ const RoutineCountList = ({
                     isPendingConfirmation,
                     isGoalRange,
                   });
+                  const handlePressCheckBox = canRequestWithCheckBox
+                    ? isMissedPastGoal
+                      ? onBlockPastRoutineRequest
+                      : () => onRequestRoutine(routine)
+                    : undefined;
 
                   return (
                     <Pressable
@@ -323,6 +327,7 @@ const RoutineCountList = ({
       date,
       canRequestRoutine,
       itemHeight,
+      onBlockPastRoutineRequest,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,

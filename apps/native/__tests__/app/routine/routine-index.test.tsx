@@ -135,6 +135,7 @@ const renderWithSharedQueryClient = (ui: React.ReactElement) => {
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
+declare const mockShowToast: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockUser: {
   backgroundImageUrl?: null | string;
@@ -182,6 +183,7 @@ describe('루틴 조회 페이지', () => {
     mockAxios.onGet(/\/routine\/list/).reply(200, { data: [] });
     // 인증 요청 목록 API 기본 응답
     mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
+    mockShowToast.mockClear();
   });
 
   afterEach(() => {
@@ -1765,6 +1767,30 @@ describe('루틴 조회 페이지', () => {
         expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
       });
       expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
+    });
+
+    it('지난 날짜의 미달성 week 타입 체크박스를 누르면 에러 토스트로 막는다', async () => {
+      mockRoutineStore.type = 'week';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          weeklyCount: 0,
+          routineCount: 5,
+          successDate: [],
+        }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(await findByTestId('routine-week-check-1-0'));
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '지난 기간의 루틴은 인증할 수 없어요.',
+          'error',
+        );
+      });
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
+      expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
     });
   });
 

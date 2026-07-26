@@ -32,6 +32,7 @@ interface RoutineWeekListProps {
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
   onRequestRoutine: (routine: Routine) => void;
+  onBlockPastRoutineRequest: () => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
@@ -109,6 +110,7 @@ const RoutineWeekList = ({
   onRefresh,
   canRequestRoutine = false,
   onRequestRoutine,
+  onBlockPastRoutineRequest,
   openMenuRoutineId,
   onToggleRoutineMenu,
   onScrollOffsetChange,
@@ -140,9 +142,6 @@ const RoutineWeekList = ({
         routine;
       const routineColor = symbolColor ?? routineColorFallback;
       const canRequestWithCheckBox = canRequestRoutine;
-      const handlePressCheckBox = canRequestWithCheckBox
-        ? () => onRequestRoutine(routine)
-        : undefined;
 
       return (
         <View
@@ -237,6 +236,11 @@ const RoutineWeekList = ({
               const dayTextColor = isFutureDay
                 ? UPCOMING_DAY_TEXT_COLOR
                 : CHECKBOX_DAY_TEXT_COLOR;
+              const handlePressCheckBox = canRequestWithCheckBox
+                ? isMissedPastDay
+                  ? onBlockPastRoutineRequest
+                  : () => onRequestRoutine(routine)
+                : undefined;
 
               return (
                 <Pressable
@@ -292,6 +296,7 @@ const RoutineWeekList = ({
     [
       canRequestRoutine,
       itemHeight,
+      onBlockPastRoutineRequest,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,

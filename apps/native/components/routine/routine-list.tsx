@@ -174,6 +174,10 @@ const RoutineList = ({
     [handleShowRequestModal, showsRequestMenuItem],
   );
 
+  const handleBlockPastRoutineRequest = useCallback(() => {
+    showToast('지난 기간의 루틴은 인증할 수 없어요.', 'error');
+  }, [showToast]);
+
   const handleShowUpdateModal = useCallback(
     (routine: Routine) => {
       setOpenMenuRoutineId(null);
@@ -313,6 +317,7 @@ const RoutineList = ({
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
               onRequestRoutine={handlePressRoutineCheck}
+              onBlockPastRoutineRequest={handleBlockPastRoutineRequest}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
@@ -331,6 +336,7 @@ const RoutineList = ({
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
               onRequestRoutine={handlePressRoutineCheck}
+              onBlockPastRoutineRequest={handleBlockPastRoutineRequest}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
