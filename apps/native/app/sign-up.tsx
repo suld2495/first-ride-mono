@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   checkEmailAvailability,
   checkNicknameAvailability,
@@ -7,12 +6,12 @@ import {
 import type { JoinForm as JoinFormType } from '@repo/types';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
-import AuthPage from '@/components/auth/auth-page';
 import JobOptionSelector, {
   getJobTheme,
 } from '@/components/auth/job-option-selector';
+import SignUpPage from '@/components/auth/sign-up-page';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PasswordInput from '@/components/ui/password-input';
@@ -289,7 +288,6 @@ export default function SignUp() {
     setForm((prev) => ({
       ...prev,
       gender,
-      job: '',
     }));
 
     if (fieldErrors.gender || fieldErrors.job) {
@@ -331,31 +329,17 @@ export default function SignUp() {
     !isJobStep && (isBasicFieldsIncomplete || isCheckingAvailability);
 
   return (
-    <AuthPage
+    <SignUpPage
       style={
         isJobStep ? { backgroundColor: selectedJobTheme.background } : null
       }
-      contentStyle={isJobStep ? styles.jobPageContent : undefined}
     >
-      <AuthPage.Header
+      <SignUpPage.Header
         title={step === 'basic' ? '회원가입' : '캐릭터 선택'}
-        style={styles.header}
-      >
-        <Pressable
-          accessibilityLabel="뒤로가기"
-          accessibilityRole="button"
-          onPress={handleBackPress}
-          style={styles.backButton}
-        >
-          <Ionicons
-            name="chevron-back"
-            size={baseFoundation.dimension.x28}
-            color={theme.colors.text.gray}
-          />
-        </Pressable>
-      </AuthPage.Header>
+        onBackPress={handleBackPress}
+      />
 
-      <AuthPage.Body>
+      <SignUpPage.Body style={isJobStep ? styles.jobPageContent : undefined}>
         {step === 'basic' ? (
           <View style={styles.basicFields}>
             <View style={styles.formItem}>
@@ -479,26 +463,12 @@ export default function SignUp() {
             />
           ) : null}
         </View>
-      </AuthPage.Body>
-    </AuthPage>
+      </SignUpPage.Body>
+    </SignUpPage>
   );
 }
 
 const styles = StyleSheet.create((theme) => ({
-  header: {
-    width: '100%',
-  },
-
-  backButton: {
-    position: 'absolute',
-    left: 0,
-    top: -2,
-    width: baseFoundation.dimension.x32,
-    height: baseFoundation.dimension.x32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
   basicFields: {
     width: FORM_WIDTH,
     gap: theme.foundation.spacing[5],
@@ -506,7 +476,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   jobPageContent: {
-    paddingHorizontal: 0,
+    paddingHorizontal: theme.foundation.spacing[3],
   },
 
   jobFields: {

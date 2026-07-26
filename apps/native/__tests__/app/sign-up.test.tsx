@@ -4,6 +4,8 @@ import MockAdapter from 'axios-mock-adapter';
 import { StyleSheet as RNStyleSheet } from 'react-native';
 
 import SignUp from '../../app/sign-up';
+import PageHeader from '../../components/layout/page-header';
+import { useColorSchemeStore } from '../../store/color-scheme.store';
 import { usePendingSignUpStore } from '../../store/pending-sign-up.store';
 import { palette } from '../../theme/tokens';
 import { render } from '../setup/test-utils';
@@ -89,7 +91,71 @@ describe('SignUp 페이지', () => {
   });
 
   afterEach(() => {
+    useColorSchemeStore.getState().clearColorSchemeOverride();
     mockAxios.restore();
+  });
+
+  it('공통 페이지 헤더와 분리된 바디 구조로 회원가입 단계를 표시한다', async () => {
+    const screen = render(<SignUp />);
+
+    expect(screen.UNSAFE_getByType(PageHeader).props).toEqual(
+      expect.objectContaining({
+        title: '회원가입',
+        showBackButton: true,
+      }),
+    );
+    expect(screen.getByTestId('sign-up-page-body')).toBeOnTheScreen();
+
+    fillBasicFields(screen.getByPlaceholderText);
+    fireEvent.press(screen.getByText('다음'));
+
+    await screen.findByText('캐릭터 선택');
+
+    expect(screen.UNSAFE_getByType(PageHeader).props).toEqual(
+      expect.objectContaining({
+        title: '캐릭터 선택',
+        showBackButton: true,
+      }),
+    );
+    expect(screen.getByTestId('sign-up-page-body')).toBeOnTheScreen();
+  });
+
+  it('캐릭터 선택 바디의 좌우 여백을 12로 표시한다', async () => {
+    const screen = render(<SignUp />);
+
+    await goToJobStep(
+      screen.getByPlaceholderText,
+      screen.getByText,
+      screen.findByText,
+    );
+
+    expect(
+      RNStyleSheet.flatten(screen.getByTestId('sign-up-page-body').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        paddingHorizontal: 12,
+      }),
+    );
+  });
+
+  it('저장된 테마와 관계없이 기존 회원가입 배경을 유지한다', async () => {
+    useColorSchemeStore.getState().setColorSchemeOverride('light');
+
+    const screen = render(<SignUp />);
+
+    expect(
+      RNStyleSheet.flatten(screen.getByTestId('sign-up-page').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        backgroundColor: palette.theme.blue[10],
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        mockAxios.history.get.some((req) => req.url === '/auth/job-options'),
+      ).toBe(true);
+    });
   });
 
   it('기본 입력값이 비어 있으면 다음 버튼이 비활성화된다', async () => {
@@ -475,6 +541,39 @@ describe('SignUp 페이지', () => {
 
     await waitFor(() => {
       expect(usePendingSignUpStore.getState().payload?.gender).toBe('MALE');
+    });
+  });
+
+  it('성별을 변경해도 현재 선택한 직업을 유지한다', async () => {
+    const { getByPlaceholderText, getByText, getByLabelText, findByText } =
+      render(<SignUp />);
+
+    await goToJobStep(getByPlaceholderText, getByText, findByText);
+    fireEvent.press(getByLabelText('궁수 선택'));
+    fireEvent.press(getByLabelText('남자 캐릭터 선택'));
+
+    await waitFor(() => {
+      expect(
+        mockAxios.history.get.some(
+          (req) =>
+            req.url === '/auth/job-options' && req.params?.gender === 'MALE',
+        ),
+      ).toBe(true);
+    });
+
+    expect(getByLabelText('궁수 선택').props.accessibilityState).toEqual(
+      expect.objectContaining({ selected: true }),
+    );
+
+    fireEvent.press(getByText('선택 완료'));
+
+    await waitFor(() => {
+      expect(usePendingSignUpStore.getState().payload).toEqual(
+        expect.objectContaining({
+          job: '궁수',
+          gender: 'MALE',
+        }),
+      );
     });
   });
 

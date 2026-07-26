@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 import { Image, Pressable, View } from 'react-native';
 
+import JobOptionArrowIcon from '@/components/icons/job-option-arrow-icon';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { baseFoundation, palette } from '@/theme/tokens';
@@ -137,8 +138,14 @@ const getSortedOptions = (options: JobOption[]) =>
     options.filter((option) => getJobRole(option) === role),
   );
 
-const getCharacterImage = (option: JobOption | undefined, _gender: Gender) =>
+const getFallbackCharacterImage = (option?: JobOption) =>
   CHARACTER_IMAGES[getJobRole(option)];
+
+const getApiCharacterImage = (option?: JobOption): ImageSourcePropType => {
+  const imageUrl = option?.imageUrl.trim();
+
+  return imageUrl ? { uri: imageUrl } : getFallbackCharacterImage(option);
+};
 
 const JobOptionSelector = ({
   options,
@@ -259,9 +266,7 @@ const JobOptionSelector = ({
           onPress={() => handleMove(-1)}
           style={styles.arrowButton}
         >
-          <Typography variant="title" color={palette.theme.gray[30]}>
-            ‹
-          </Typography>
+          <JobOptionArrowIcon color={palette.theme.gray[30]} direction="left" />
         </Pressable>
 
         <View
@@ -269,7 +274,7 @@ const JobOptionSelector = ({
           style={[styles.card, { backgroundColor: activeTheme.card }]}
         >
           <Image
-            source={getCharacterImage(activeOption, gender)}
+            source={getApiCharacterImage(activeOption)}
             resizeMode="contain"
             style={styles.heroImage}
           />
@@ -293,14 +298,20 @@ const JobOptionSelector = ({
                 <View key={index} style={styles.levelItem}>
                   <View style={styles.levelImageWrap}>
                     <Image
-                      source={getCharacterImage(activeOption, gender)}
+                      source={
+                        isUnlocked
+                          ? getApiCharacterImage(activeOption)
+                          : getFallbackCharacterImage(activeOption)
+                      }
                       resizeMode="contain"
                       tintColor={
                         isUnlocked ? undefined : activeTheme.accentDark
                       }
                       style={[
                         styles.levelImage,
-                        isUnlocked ? null : styles.lockedLevelImage,
+                        isUnlocked
+                          ? styles.unlockedLevelImage
+                          : styles.lockedLevelImage,
                       ]}
                     />
                     {isUnlocked ? null : (
@@ -333,9 +344,10 @@ const JobOptionSelector = ({
           onPress={() => handleMove(1)}
           style={styles.arrowButton}
         >
-          <Typography variant="title" color={palette.theme.gray[30]}>
-            ›
-          </Typography>
+          <JobOptionArrowIcon
+            color={palette.theme.gray[30]}
+            direction="right"
+          />
         </Pressable>
       </View>
 
@@ -393,7 +405,7 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x32,
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: theme.foundation.radii.s,
+    borderRadius: theme.foundation.radii.xs,
     borderWidth: 3,
     borderColor: palette.theme.gray[40],
     backgroundColor: palette.theme.gray[40],
@@ -417,8 +429,8 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'space-between',
   },
   arrowButton: {
-    width: baseFoundation.dimension.x44,
-    height: baseFoundation.dimension.x44,
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -465,14 +477,18 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
   levelImageWrap: {
-    width: 58,
-    height: 58,
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
   },
   levelImage: {
     width: 54,
     height: 54,
+  },
+  unlockedLevelImage: {
+    width: 72,
+    height: 72,
   },
   lockedLevelImage: {
     opacity: 0.95,
