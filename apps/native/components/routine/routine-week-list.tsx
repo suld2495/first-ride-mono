@@ -352,7 +352,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   title: {
-    color: theme.colors.text.secondary,
+    color: palette.white,
     textAlign: 'left',
   },
   titleRow: {
