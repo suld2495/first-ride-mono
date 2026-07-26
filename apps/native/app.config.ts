@@ -1,11 +1,10 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
-import nativeThemeColors from './theme/native-theme-colors.json';
-
 // EAS CLI가 config를 파싱할 때 환경변수가 없을 수 있으므로 placeholder 사용
 // 실제 빌드 시에는 eas.json의 env 또는 EAS Secrets에서 주입됨
 const KAKAO_NATIVE_APP_KEY =
   process.env.KAKAO_NATIVE_APP_KEY || 'KAKAO_KEY_PLACEHOLDER';
+const SPLASH_BACKGROUND_COLOR = '#59ADF7';
 const shouldSkipAppleTargets = process.env.EXPO_SKIP_APPLE_TARGETS === '1';
 const webOutput =
   process.env.EXPO_WEB_OUTPUT === 'single' ? 'single' : 'static';
@@ -47,7 +46,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-secure-store',
     [
       'expo-notifications',
-      { color: '#7edcd5', defaultChannel: 'routine-channel' },
+      {
+        icon: './assets/splash.png',
+        color: '#7edcd5',
+        defaultChannel: 'routine-channel',
+      },
     ],
     [
       'expo-build-properties',
@@ -82,7 +85,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   splash: {
     image: './assets/splash.png',
     resizeMode: 'contain',
-    backgroundColor: nativeThemeColors.theme.blue[999],
+    backgroundColor: SPLASH_BACKGROUND_COLOR,
   },
   locales: {
     ko: './locales/ko.json',

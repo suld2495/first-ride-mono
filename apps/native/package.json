@@ -73,6 +73,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.23.7",
+    "@expo/config-plugins": "~10.1.2",
+    "@react-native-community/cli": "^20.2.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/types": "workspace:*",
     "@repo/typescript-config": "workspace:*",

@@ -9,9 +9,9 @@ import { render } from '../setup/test-utils';
 declare const mockBack: jest.Mock;
 
 const WARRIOR_DESCRIPTION =
-  '이루라의 모험이 흔들리지 않도록 길을 만들고 시스템을 지키는 전사입니다.\n작은 루틴이 꾸준한 성장으로 이어질 수 있도록, 아이디어를 기능으로 만들고 문제 앞에서는 가장 먼저 검을 듭니다. ⚔️';
+  '나혼렙, 전독시에 미쳐있던 아이는 자라서, ‘이루라’라는 세계를 만드는 사람이 되었습니다. 직업은 서버 개발자, 주특기는 상상을 실제 서비스로 구현하는 일입니다.';
 const ARCHER_DESCRIPTION =
-  '이루라의 모험이 올바른 방향으로 나아가도록 멀리 내다보고 길을 밝히는 궁수입니다.\n작은 루틴이 정확한 목표에 닿을 수 있도록, 사용자의 목소리에 귀 기울이고 필요한 순간에는 망설임 없이 활시위를 당깁니다. 🏹';
+  '오늘의 작은 실천이 언젠가 여러분이 꿈꾸던 모습을 만들어갈 거예요. 이루라는 그 여정을 가장 가까운 곳에서 함께하겠습니다.';
 const BACKGROUND_TRANSITION_DURATION = 300;
 const mockWithTiming = jest.fn((color: string, _config?: unknown) => color);
 const mockUseJobOptionsQuery = jest.fn((_gender?: unknown) => ({ data: [] }));

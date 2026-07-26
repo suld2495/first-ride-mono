@@ -47,6 +47,7 @@ interface RoutineListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   readOnly?: boolean;
+  routineColorFallback?: string;
 }
 
 const MAX_VISIBLE_ROUTINES = 4;
@@ -72,6 +73,7 @@ const RoutineList = ({
   refreshing = false,
   onRefresh,
   readOnly = false,
+  routineColorFallback,
 }: RoutineListProps) => {
   const setRoutineId = useSetRoutineId();
   const setRoutineForm = useSetRoutineForm();
@@ -315,6 +317,7 @@ const RoutineList = ({
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
+              routineColorFallback={routineColorFallback}
               testID="routine-list-scroll"
             />
           ) : (
@@ -332,6 +335,7 @@ const RoutineList = ({
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
+              routineColorFallback={routineColorFallback}
               testID="routine-list-scroll"
             />
           )}

@@ -82,11 +82,13 @@ FriendRoutineCharacterStage.displayName = 'FriendRoutineCharacterStage';
 interface FriendRoutineDateSectionProps {
   children: ReactNode;
   friendId: string;
+  routineColorFallback: string;
 }
 
 const FriendRoutineDateSection = ({
   children,
   friendId,
+  routineColorFallback,
 }: FriendRoutineDateSectionProps) => {
   const { date: dateParam } = useLocalSearchParams<{ date?: string }>();
   const [date, setDate] = useState(
@@ -151,6 +153,7 @@ const FriendRoutineDateSection = ({
               refreshing={isRefetching}
               onRefresh={handleRefresh}
               readOnly
+              routineColorFallback={routineColorFallback}
             />
           )}
         </View>
@@ -209,7 +212,10 @@ const FriendRoutinesModal = () => {
         <FriendRoutineSceneBackground backgroundAsset={backgroundAsset} />
       ) : null}
 
-      <FriendRoutineDateSection friendId={friendId}>
+      <FriendRoutineDateSection
+        friendId={friendId}
+        routineColorFallback={profileTheme.colors.brand.primary}
+      >
         <View style={styles.routineCharacterArea}>
           <FriendRoutineCharacterStage
             characterAsset={characterAsset}

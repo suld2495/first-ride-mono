@@ -1,3 +1,4 @@
+/* eslint-disable local-rules/no-flatlist-missing-get-item-layout, local-rules/no-flatlist-missing-perf-props -- FlashList v1은 FlatList 전용 getItemLayout, maxToRenderPerBatch, windowSize를 지원하지 않는다. */
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
@@ -5,6 +6,7 @@ import type { SearchOption, User } from '@repo/types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
+  Keyboard,
   Modal,
   Pressable,
   RefreshControl,
@@ -45,7 +47,7 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   /\/$/,
   '',
 );
-const FRIEND_ADD_RESULT_ITEM_HEIGHT = 48;
+const FRIEND_ADD_RESULT_ITEM_ESTIMATED_HEIGHT = 51;
 const MODAL_ANIMATION_DURATION = baseFoundation.motion.duration.normal;
 
 const getCharacterImageSource = (
@@ -213,6 +215,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
   useEffect(() => clearCloseTimer, [clearCloseTimer]);
 
   const handleSearch = () => {
+    Keyboard.dismiss();
     setSearchOption((option) => ({
       ...option,
       keyword,
@@ -267,15 +270,20 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
               style={styles.backdrop}
             >
               <Pressable
+                testID="friend-add-modal-backdrop-pressable"
                 style={styles.backdropPressable}
                 onPress={handleClose}
               />
             </Animated.View>
-            <Pressable
+            <View
+              testID="friend-add-modal-container"
               style={styles.modalContainer}
-              onPress={(e) => e.stopPropagation()}
             >
-              <ThemeView style={styles.modalContent} variant="elevated">
+              <ThemeView
+                testID="friend-add-modal-content"
+                style={styles.modalContent}
+                variant="elevated"
+              >
                 <ThemeView style={styles.modalHeader} transparent>
                   <Typography
                     variant="body1"
@@ -285,6 +293,8 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                     친구 추가
                   </Typography>
                   <Pressable
+                    accessibilityLabel="친구 추가 닫기"
+                    accessibilityRole="button"
                     onPress={handleClose}
                     hitSlop={8}
                     style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
@@ -341,6 +351,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                         ? styles.listContent
                         : styles.emptyListContent
                     }
+                    keyboardDismissMode="on-drag"
                     keyboardShouldPersistTaps="handled"
                     refreshControl={
                       <RefreshControl
@@ -348,21 +359,15 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                         onRefresh={handleRefresh}
                       />
                     }
-                    estimatedItemSize={48}
-                    getItemLayout={(_, index) => ({
-                      length: FRIEND_ADD_RESULT_ITEM_HEIGHT,
-                      offset: FRIEND_ADD_RESULT_ITEM_HEIGHT * index,
-                      index,
-                    })}
+                    estimatedItemSize={FRIEND_ADD_RESULT_ITEM_ESTIMATED_HEIGHT}
                     removeClippedSubviews={false}
-                    maxToRenderPerBatch={10}
-                    windowSize={5}
+                    scrollEnabled
                     showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
                     style={styles.list}
                   />
                 </ThemeView>
               </ThemeView>
-            </Pressable>
+            </View>
           </>
         )}
       </View>
@@ -392,9 +397,11 @@ const styles = StyleSheet.create((theme) => ({
   modalContainer: {
     width: '86%',
     maxWidth: 360,
-    maxHeight: '74%',
+    height: '74%',
+    maxHeight: 560,
   },
   modalContent: {
+    flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: theme.foundation.radii.s,
     paddingTop: 0,
@@ -408,8 +415,6 @@ const styles = StyleSheet.create((theme) => ({
     shadowOpacity: 0.12,
     shadowRadius: 12,
     elevation: 5,
-    minHeight: 436,
-    maxHeight: 560,
   },
   modalHeader: {
     flexDirection: 'row',
