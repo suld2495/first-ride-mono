@@ -103,9 +103,10 @@ const styles = StyleSheet.create((theme) => ({
   },
   logo: {
     position: 'absolute',
-    left: theme.foundation.spacing[2],
+    left: theme.foundation.spacing[1],
     width: baseFoundation.dimension.x20,
     height: baseFoundation.dimension.x20,
+    paddingBottom: baseFoundation.dimension.x1,
     alignItems: 'center',
     justifyContent: 'center',
   },
