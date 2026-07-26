@@ -139,7 +139,7 @@ const RequestModal = () => {
                     weight="bold"
                     style={styles.mediaTitle}
                   >
-                    이미지 업로드
+                    인증 사진
                   </Typography>
                   <Typography
                     variant="body3"
@@ -165,21 +165,7 @@ const RequestModal = () => {
                         disabled={isPending}
                         style={styles.emptyPrompt}
                         onPress={() => pickImage(setValue, form.images)}
-                      >
-                        <Ionicons
-                          testID="request-empty-image-icon"
-                          name="image-outline"
-                          size={baseFoundation.dimension.x44}
-                          color={palette.theme.softBlue[20]}
-                          style={styles.emptyPromptIcon}
-                        />
-                        <Typography
-                          variant="body3"
-                          style={styles.emptyPromptText}
-                        >
-                          사진을 추가해 주세요
-                        </Typography>
-                      </Pressable>
+                      />
                     </ThemeView>
                   )}
 
@@ -438,14 +424,6 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     gap: baseFoundation.spacing[1.5],
     borderRadius: baseFoundation.radii.xs,
-  },
-
-  emptyPromptText: {
-    color: theme.colors.text.tertiary,
-  },
-
-  emptyPromptIcon: {
-    transform: [{ translateY: baseFoundation.dimension.x2 }],
   },
 
   preview: {

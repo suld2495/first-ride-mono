@@ -181,25 +181,15 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         width: 152,
         minHeight: 88,
       });
-      expect(screen.getByTestId('request-empty-image-icon')).toHaveProp(
-        'size',
-        44,
-      );
-      expect(screen.getByTestId('request-empty-image-icon')).toHaveStyle({
-        transform: [{ translateY: 2 }],
-      });
-      expect(screen.getByText('사진을 추가해 주세요')).toHaveStyle({
-        color: '#4C769C',
-        fontSize: 14,
-      });
-      expect(screen.getByText('이미지 업로드')).toHaveStyle({
+      expect(screen.queryByTestId('request-empty-image-icon')).toBeNull();
+      expect(screen.queryByText('사진을 추가해 주세요')).toBeNull();
+      expect(screen.getByText('인증 사진')).toHaveStyle({
         fontSize: 14,
       });
       expect(screen.getByText('0/3')).toHaveStyle({
         fontSize: 14,
       });
       expect(screen.getByText('0/3')).toBeOnTheScreen();
-      expect(screen.getByText('사진을 추가해 주세요')).toBeOnTheScreen();
       const imageSlots = screen.getAllByTestId('request-image-slot');
 
       expect(imageSlots).toHaveLength(3);
