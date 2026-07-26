@@ -1,8 +1,9 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useEffect, useState } from 'react';
 import {
-  Image,
   Platform,
+  View,
   type PressableProps,
   type StyleProp,
   type ViewStyle,
@@ -12,7 +13,6 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { baseFoundation } from '@/theme/tokens';
 
-import { APPLE_SIGN_IN_LOGO_SOURCE } from './apple-sign-in-assets';
 import { SocialLoginButton } from './social-login-button';
 
 const APPLE_BLACK = '#000000';
@@ -75,12 +75,13 @@ export function AppleLoginButton({
       testID="apple-login-button"
       textColor={APPLE_WHITE}
     >
-      <Image
-        resizeMode="contain"
-        source={APPLE_SIGN_IN_LOGO_SOURCE}
-        style={styles.logo}
-        testID="apple-login-logo"
-      />
+      <View style={styles.logo} testID="apple-login-logo">
+        <Ionicons
+          name="logo-apple"
+          size={baseFoundation.iconSize.xl}
+          color={APPLE_WHITE}
+        />
+      </View>
       <Typography variant="body" style={styles.text}>
         Apple로 로그인
       </Typography>
@@ -105,6 +106,8 @@ const styles = StyleSheet.create((theme) => ({
     left: -theme.foundation.spacing[4],
     width: baseFoundation.dimension.x44,
     height: baseFoundation.dimension.x44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   text: {
     fontWeight: theme.foundation.typography.weight.medium,
