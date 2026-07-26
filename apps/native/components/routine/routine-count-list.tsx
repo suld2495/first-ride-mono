@@ -45,6 +45,7 @@ const PAD_LENGTH = 2;
 const CHECKED_ICON_COLOR = palette.theme.gray[95];
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
+const MISSED_ICON_COLOR = palette.theme.softBlue[80];
 const TODAY_FRAME_COLOR = palette.white;
 const TODAY_FRAME_BORDER_WIDTH = 1;
 const TODAY_FRAME_GAP = 1;
@@ -293,7 +294,7 @@ const RoutineCountList = ({
                           {isMissedPastGoal ? (
                             <RoutineMissedIcon
                               size={baseFoundation.iconSize.xs}
-                              color={UNCHECKED_ACCENT_COLOR}
+                              color={MISSED_ICON_COLOR}
                             />
                           ) : achieved || isPendingConfirmation ? (
                             <RoutineCheckmarkIcon

@@ -82,6 +82,7 @@ const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = 8;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_ITEM_HEIGHT = 96;
 const CHECKBOX_DAY_TEXT_COLOR = '#000306';
+const UPCOMING_DAY_TEXT_COLOR = palette.theme.softBlue[80];
 
 const createSharedQueryClient = () =>
   new QueryClient({
@@ -1060,7 +1061,7 @@ describe('루틴 조회 페이지', () => {
           'routine-missed-icon',
         );
 
-        expect(missedIcon).toHaveProp('color', palette.theme.softBlue[60]);
+        expect(missedIcon).toHaveProp('color', palette.theme.softBlue[80]);
         expect(missedIcon).toHaveStyle({
           transform: [{ translateX: 0.4 }, { translateY: 0.4 }],
         });
@@ -1069,7 +1070,7 @@ describe('루틴 조회 페이지', () => {
         });
         expect(
           within(missedFifth).getByTestId('routine-missed-icon'),
-        ).toHaveProp('color', palette.theme.softBlue[60]);
+        ).toHaveProp('color', palette.theme.softBlue[80]);
         expect(missedFifth).toHaveStyle({
           backgroundColor: palette.theme.gray[95],
         });
@@ -1474,7 +1475,7 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('미래 날짜는 gray95 배경과 soft 테마 60 테두리 및 gray95 텍스트로 표시한다', async () => {
+      it('미래 날짜는 gray95 배경과 soft 테마 60 테두리 및 softBlue80 텍스트로 표시한다', async () => {
         mockSearchParams.date = afterWeek(new Date(getWeekMonday(new Date())));
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
@@ -1494,7 +1495,7 @@ describe('루틴 조회 페이지', () => {
           borderWidth: 1,
         });
         expect(futureMondayText).toHaveStyle({
-          color: CHECKBOX_DAY_TEXT_COLOR,
+          color: UPCOMING_DAY_TEXT_COLOR,
         });
       });
 
@@ -1653,7 +1654,7 @@ describe('루틴 조회 페이지', () => {
         expect(within(missedMonday).queryByText('월')).toBeNull();
         expect(
           within(missedMonday).getByTestId('routine-missed-icon'),
-        ).toHaveProp('color', palette.theme.softBlue[60]);
+        ).toHaveProp('color', palette.theme.softBlue[80]);
         expect(missedMonday).toHaveStyle({
           backgroundColor: palette.theme.gray[95],
         });
