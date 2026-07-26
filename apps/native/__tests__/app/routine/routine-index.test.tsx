@@ -1199,8 +1199,8 @@ describe('루틴 조회 페이지', () => {
         expect(todayText).toHaveStyle({
           color: palette.theme.gray[95],
           fontSize: 12,
+          fontWeight: '600',
         });
-        expect(todayText).toHaveProp('fontWeight', '600');
       });
 
       it('루틴 아이템은 단일 카드에 테마 80 테두리와 테마 100 배경을 표시한다', async () => {

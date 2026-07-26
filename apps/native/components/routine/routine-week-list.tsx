@@ -5,6 +5,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   Pressable,
+  Text,
   View,
 } from 'react-native';
 
@@ -260,14 +261,9 @@ const RoutineWeekList = ({
                           color={UNCHECKED_ACCENT_COLOR}
                         />
                       ) : (
-                        <Typography
-                          color={CHECKBOX_DAY_TEXT_COLOR}
-                          variant="caption2"
-                          weight="semibold"
-                          style={styles.dayText}
-                        >
+                        <Text style={styles.dayText}>
                           {DAY_LABELS[index]}
-                        </Typography>
+                        </Text>
                       )}
                     </View>
                   </View>
@@ -398,6 +394,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   dayText: {
     color: CHECKBOX_DAY_TEXT_COLOR,
+    fontSize: baseFoundation.typography.size.caption2,
+    fontWeight: baseFoundation.typography.weight.semibold,
   },
   footer: {
     minHeight: baseFoundation.dimension.x8,
