@@ -103,7 +103,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   logo: {
     position: 'absolute',
-    left: baseFoundation.dimension.x2,
+    left: baseFoundation.dimension.x0,
     width: baseFoundation.dimension.x20,
     height: baseFoundation.dimension.x20,
     paddingBottom: baseFoundation.dimension.x1,
