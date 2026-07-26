@@ -365,13 +365,9 @@ const RoutineFormModal = () => {
                       }
                     }}
                   />
-                  <Typography
-                    color={palette.theme.gray[70]}
-                    variant="body3"
-                    style={styles.mateCheckLabel}
-                  >
+                  <Text style={styles.mateCheckLabel}>
                     메이트와 함께 루틴 체크
-                  </Typography>
+                  </Text>
                 </ThemeView>
                 {!value && (
                   <>
@@ -629,7 +625,12 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   mateCheckLabel: {
-    color: palette.theme.gray[70],
+    color: '#272A2D',
+    fontSize: theme.foundation.typography.size.body3,
+    fontFamily: theme.foundation.typography.fontFamily.regular,
+    lineHeight:
+      theme.foundation.typography.size.body3 *
+      theme.foundation.typography.lineHeight.normal,
   },
 
   statusSection: {
