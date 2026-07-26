@@ -14,11 +14,72 @@ import http from './client';
 
 const baseURL = '/friends';
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const getString = (value: unknown, fallback = ''): string =>
+  typeof value === 'string' ? value : fallback;
+
+const getNullableString = (value: unknown): string | null =>
+  typeof value === 'string' ? value : null;
+
+const getNumber = (value: unknown, fallback = 0): number => {
+  const numericValue =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string' && value.trim()
+        ? Number(value)
+        : Number.NaN;
+
+  return Number.isFinite(numericValue) ? numericValue : fallback;
+};
+
+const getFriendId = (value: unknown, index: number): Friend['friendId'] => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string' && value.trim()) {
+    return value;
+  }
+
+  return `unknown-${index}`;
+};
+
+const normalizeFriend = (value: unknown, index: number): Friend => {
+  const friend = isRecord(value) ? value : {};
+  const motto = getNullableString(friend.motto);
+  const mottos = Array.isArray(friend.mottos)
+    ? friend.mottos.filter(
+        (mottoValue): mottoValue is string => typeof mottoValue === 'string',
+      )
+    : motto
+      ? [motto]
+      : [];
+
+  return {
+    backgroundImageUrl: getNullableString(friend.backgroundImageUrl),
+    friendId: getFriendId(friend.friendId, index),
+    userId: getString(friend.userId),
+    nickname: getString(friend.nickname, `친구 ${index + 1}`),
+    motto,
+    mottos,
+    mateNickname: getNullableString(friend.mateNickname),
+    job: getString(friend.job),
+    profileImage: getNullableString(friend.profileImage),
+    level: Math.max(1, Math.floor(getNumber(friend.level, 1))),
+    characterCode: getString(friend.characterCode),
+    characterImageUrl: getNullableString(friend.characterImageUrl),
+    friendSince: getString(friend.friendSince),
+  };
+};
+
 const filterFriendsByKeyword = (
   friends: Friend[],
   keyword: SearchOption['keyword'],
 ): Friend[] => {
-  const normalizedKeyword = keyword.trim().toLocaleLowerCase();
+  const normalizedKeyword =
+    typeof keyword === 'string' ? keyword.trim().toLocaleLowerCase() : '';
 
   if (!normalizedKeyword) {
     return friends;
@@ -34,9 +95,12 @@ export const fetchFriends = async ({
   keyword = '',
 }: SearchOption): Promise<Friend[]> => {
   try {
-    const response: Friend[] = await http.get(baseURL);
+    const response: unknown = await http.get(baseURL);
+    const friends = Array.isArray(response)
+      ? response.map(normalizeFriend)
+      : [];
 
-    return filterFriendsByKeyword(response, keyword);
+    return filterFriendsByKeyword(friends, keyword);
   } catch (error) {
     throw toAppError(error);
   }

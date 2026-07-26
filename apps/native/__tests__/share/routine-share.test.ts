@@ -33,7 +33,7 @@ const createRoutine = (
 });
 
 describe('routine share', () => {
-  it('creates share targets for this week routines that still need certification', () => {
+  it('creates share targets for all this week routines', () => {
     const targets = createRoutineShareTargets([
       createRoutine(1, { routineName: '아침 운동' }),
       createRoutine(2, { routineName: '숨김 루틴', hidden: true }),
@@ -59,6 +59,11 @@ describe('routine share', () => {
       {
         id: 3,
         title: '정지 루틴',
+        subtitle: 'mate에게 인증',
+      },
+      {
+        id: 4,
+        title: '완료 루틴',
         subtitle: 'mate에게 인증',
       },
     ]);

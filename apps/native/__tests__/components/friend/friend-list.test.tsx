@@ -289,6 +289,34 @@ describe('FriendList', () => {
     expect(queryByTestId('friend-character-fallback-NoAsset')).toBeNull();
   });
 
+  it('친구 필드가 비정상이어도 기본 카드 UI를 렌더링한다', () => {
+    const friends = [
+      {
+        ...createMockFriend(0),
+        friendId: null,
+        userId: 1234,
+        nickname: null,
+        motto: 1234,
+        level: Number.NaN,
+        characterImageUrl: 1234,
+      } as unknown as ReturnType<typeof createMockFriend>,
+    ];
+    const { getByLabelText, getByText, queryByLabelText } = render(
+      <FriendList
+        friends={friends}
+        isLoading={false}
+        refreshing={false}
+        onRefresh={jest.fn()}
+        onOpenFriend={jest.fn()}
+      />,
+    );
+
+    expect(getByLabelText('친구 루틴 보기')).toBeOnTheScreen();
+    expect(getByText('친구')).toBeOnTheScreen();
+    expect(getByText('Lv. 1')).toBeOnTheScreen();
+    expect(queryByLabelText('친구 캐릭터')).toBeNull();
+  });
+
   it('uses each friend character color for the character panel and level badge', () => {
     const friends = [
       createMockFriend(0, {

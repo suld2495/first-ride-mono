@@ -220,6 +220,33 @@ describe('StatsPage', () => {
     expect(await findByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
   });
 
+  it('월간 루틴 응답 필드가 비정상이어도 캘린더 UI를 유지한다', async () => {
+    mockAxios.onGet('/routine/list/monthly').reply(200, {
+      data: {
+        year: 2026,
+        month: 6,
+        startDate: '2026-06-01',
+        endDate: '2026-06-30',
+        activeOnly: false,
+        routines: [
+          {
+            routineId: null,
+            routineName: null,
+            symbolColor: null,
+            routineCount: null,
+            achievedDates: null,
+          },
+        ],
+      },
+    });
+
+    const { findByText, getByTestId } = render(<StatsPage />);
+
+    expect(await findByText('이름 없는 루틴')).toBeOnTheScreen();
+    expect(getByTestId('stats-month-header')).toBeOnTheScreen();
+    expect(getByTestId('routine-stats-calendar-grid')).toBeOnTheScreen();
+  });
+
   it('전환 버튼으로 실제 루틴의 월간 통계 요약 화면을 표시한다', async () => {
     mockAxios.onGet('/routine/list/monthly').reply((config) => {
       const month = Number(config.params?.month);

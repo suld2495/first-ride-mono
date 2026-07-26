@@ -95,7 +95,7 @@ const getFriendCharacterImageSize = (itemWidth: number) => {
 const getFriendCharacterSource = (
   characterImageUrl: Friend['characterImageUrl'],
 ): ImageSourcePropType | null => {
-  if (!characterImageUrl) {
+  if (typeof characterImageUrl !== 'string' || !characterImageUrl.trim()) {
     return null;
   }
 
@@ -114,7 +114,8 @@ const getFriendCharacterThemeName = ({
   characterCode,
   job,
 }: Pick<Friend, 'characterCode' | 'job'>): FriendCharacterThemeName => {
-  const normalizedCharacter = `${characterCode} ${job}`.toUpperCase();
+  const normalizedCharacter =
+    `${characterCode ?? ''} ${job ?? ''}`.toUpperCase();
 
   if (
     normalizedCharacter.includes('MAGE') ||
@@ -162,8 +163,14 @@ const FriendItem = ({
 }: FriendItemProps) => {
   const { userId, nickname, job, level, characterCode, characterImageUrl } =
     friend;
-  const subtitle = userId?.trim() ?? '';
-  const motto = friend.motto?.trim() ?? '';
+  const displayNickname =
+    typeof nickname === 'string' && nickname.trim() ? nickname : '친구';
+  const subtitle = typeof userId === 'string' ? userId.trim() : '';
+  const motto = typeof friend.motto === 'string' ? friend.motto.trim() : '';
+  const displayLevel =
+    typeof level === 'number' && Number.isFinite(level)
+      ? Math.max(1, Math.floor(level))
+      : 1;
   const hasMotto = motto.length > 0;
   const characterImageSize = getFriendCharacterImageSize(itemWidth);
   const characterSource = getFriendCharacterSource(characterImageUrl);
@@ -171,7 +178,7 @@ const FriendItem = ({
     characterCode,
     job,
   });
-  const testIdSuffix = nickname;
+  const testIdSuffix = displayNickname;
   const characterStyle = [
     { width: characterImageSize, height: characterImageSize },
     hasMotto ? styles.characterWithMotto : null,
@@ -187,7 +194,7 @@ const FriendItem = ({
       ]}
       onPress={() => onOpen(friend)}
       accessibilityRole="button"
-      accessibilityLabel={`${nickname} 루틴 보기`}
+      accessibilityLabel={`${displayNickname} 루틴 보기`}
     >
       <ThemeView
         testID={`friend-character-panel-${testIdSuffix}`}
@@ -219,7 +226,7 @@ const FriendItem = ({
             source={characterSource}
             style={characterStyle}
             resizeMode="contain"
-            accessibilityLabel={`${nickname} 캐릭터`}
+            accessibilityLabel={`${displayNickname} 캐릭터`}
           />
         ) : null}
         <View
@@ -236,7 +243,7 @@ const FriendItem = ({
             color={getFriendLevelTextColor(characterThemeName)}
             style={styles.level}
           >
-            Lv. {level}
+            Lv. {displayLevel}
           </Typography>
         </View>
       </ThemeView>
@@ -247,7 +254,7 @@ const FriendItem = ({
         style={styles.nickname}
         numberOfLines={1}
       >
-        {nickname}
+        {displayNickname}
       </Typography>
       <Typography variant="body3" style={styles.subtitle} numberOfLines={1}>
         {subtitle}
@@ -274,6 +281,7 @@ const FriendList = ({
   const { width: screenWidth } = useWindowDimensions();
   const { itemWidth } = getFriendItemLayoutSize(screenWidth);
   const itemHeight = itemWidth + FRIEND_ITEM_TEXT_BLOCK_HEIGHT;
+  const safeFriends = Array.isArray(friends) ? friends : [];
 
   const renderFriendItem = useCallback(
     ({ index, item }: FriendRenderItemProps) => (
@@ -299,14 +307,16 @@ const FriendList = ({
     return <Loading />;
   }
 
-  if (!friends || friends.length === 0) {
+  if (safeFriends.length === 0) {
     return <EmptyState icon="people-outline" message="친구를 추가해보세요." />;
   }
 
   return (
     <FlashList
-      data={friends}
-      keyExtractor={(item) => item.nickname}
+      data={safeFriends}
+      keyExtractor={(item, index) =>
+        `${String(item.friendId ?? item.nickname ?? 'friend')}-${index}`
+      }
       renderItem={renderFriendItem}
       contentContainerStyle={styles.listContent}
       columnWrapperStyle={styles.row}

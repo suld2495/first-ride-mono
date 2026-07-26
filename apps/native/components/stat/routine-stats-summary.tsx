@@ -191,13 +191,18 @@ const RoutineStatsSummary = ({
   const summaryItems = React.useMemo<RoutineStatsSummaryItem[]>(
     () =>
       routines.flatMap((routine) => {
+        const achievedDates = Array.isArray(routine.achievedDates)
+          ? routine.achievedDates.filter(
+              (date): date is string => typeof date === 'string',
+            )
+          : [];
         const { totalAvailableCount, achievedCount } =
           calculateMonthlyRoutineStats({
             monthDate,
             startDate: routine.startDate,
             endDate: routine.endDate,
             routineCount: routine.routineCount,
-            successDates: routine.achievedDates,
+            successDates: achievedDates,
           });
 
         if (totalAvailableCount === 0) {
@@ -209,8 +214,12 @@ const RoutineStatsSummary = ({
         return [
           {
             id: routine.routineId,
-            routineName: routine.routineName,
-            routineColor: routine.symbolColor ?? DEFAULT_ROUTINE_COLOR,
+            routineName: routine.routineName || '이름 없는 루틴',
+            routineColor:
+              typeof routine.symbolColor === 'string' &&
+              routine.symbolColor.trim()
+                ? routine.symbolColor
+                : DEFAULT_ROUTINE_COLOR,
             totalDotCount: totalAvailableCount,
             completedIndexes: getCompletedDotIndexes(
               totalAvailableCount,

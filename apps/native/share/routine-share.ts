@@ -72,23 +72,17 @@ const createExtensionStorage = (): ExtensionStorageInstance | null => {
   }
 };
 
-const isUsableRoutine = (routine: Routine): boolean =>
-  routine.routineCount > 0 && routine.weeklyCount < routine.routineCount;
-
 const createTargetSubtitle = (routine: Routine): string =>
   routine.isMe ? '나에게 인증' : `${routine.mateNickname}에게 인증`;
 
 export const createRoutineShareTargets = (
   routines: Routine[],
 ): RoutineShareTarget[] =>
-  routines
-    .filter(isUsableRoutine)
-    .slice(0, MAX_SHARE_TARGET_COUNT)
-    .map((routine) => ({
-      id: routine.routineId,
-      title: routine.routineName,
-      subtitle: createTargetSubtitle(routine),
-    }));
+  routines.slice(0, MAX_SHARE_TARGET_COUNT).map((routine) => ({
+    id: routine.routineId,
+    title: routine.routineName,
+    subtitle: createTargetSubtitle(routine),
+  }));
 
 export const createRoutineShareTargetsPayload = (
   routines: Routine[],

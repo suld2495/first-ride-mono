@@ -58,7 +58,12 @@ describe('friend.api', () => {
 
     it('keyword가 있으면 nickname에 포함되는 친구만 반환한다', () => {
       return expect(fetchFriends({ page: 1, keyword: 'yun' })).resolves.toEqual(
-        [friends[0]],
+        [
+          expect.objectContaining({
+            friendId: friends[0].friendId,
+            nickname: friends[0].nickname,
+          }),
+        ],
       );
     });
 
@@ -70,9 +75,39 @@ describe('friend.api', () => {
 
     it('목록 응답의 friendId를 그대로 반환한다', async () => {
       await expect(fetchFriends({ page: 1, keyword: '' })).resolves.toEqual(
-        friends,
+        expect.arrayContaining([
+          expect.objectContaining({ friendId: friends[0].friendId }),
+          expect.objectContaining({ friendId: friends[1].friendId }),
+          expect.objectContaining({ friendId: friends[2].friendId }),
+        ]),
       );
       expect(mockAxios.history.get).toHaveLength(1);
+    });
+
+    it('목록 응답 필드가 비정상이어도 기본 친구 목록으로 정규화한다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet('/friends').reply(200, {
+        data: [
+          {
+            friendId: null,
+            nickname: null,
+            motto: 1234,
+            level: Number.NaN,
+            characterImageUrl: 1234,
+          },
+        ],
+      });
+
+      await expect(fetchFriends({ page: 1, keyword: '' })).resolves.toEqual([
+        expect.objectContaining({
+          friendId: 'unknown-0',
+          nickname: '친구 1',
+          motto: null,
+          mottos: [],
+          level: 1,
+          characterImageUrl: null,
+        }),
+      ]);
     });
   });
 

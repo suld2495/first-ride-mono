@@ -38,7 +38,13 @@ const formatMonthLabel = (date: Date) => {
 };
 
 const getPerformedDates = (routine: RoutineMonthlySummary) => {
-  return routine.achievedDates.map(normalizeRoutineDateKey);
+  if (!Array.isArray(routine.achievedDates)) {
+    return [];
+  }
+
+  return routine.achievedDates
+    .filter((date): date is string => typeof date === 'string')
+    .map(normalizeRoutineDateKey);
 };
 
 const getRoutineCalendarItemLayout = (
@@ -69,7 +75,9 @@ export default function StatsPage() {
     currentMonth.getFullYear(),
     currentMonth.getMonth() + 1,
   );
-  const routines = data?.routines ?? EMPTY_MONTHLY_ROUTINES;
+  const routines = Array.isArray(data?.routines)
+    ? data.routines
+    : EMPTY_MONTHLY_ROUTINES;
 
   const moveMonth = (offset: number) => {
     setCurrentMonth(
@@ -183,7 +191,9 @@ export default function StatsPage() {
           testID="stats-routine-list"
           data={routines}
           renderItem={renderRoutineCalendar}
-          keyExtractor={(routine) => routine.routineId.toString()}
+          keyExtractor={(routine, index) =>
+            `${String(routine.routineId ?? 'routine')}-${index}`
+          }
           ListHeaderComponent={renderMonthHeader}
           ItemSeparatorComponent={renderRoutineCalendarSeparator}
           contentContainerStyle={styles.content}
