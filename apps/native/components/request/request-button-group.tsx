@@ -57,7 +57,7 @@ const RequetButtonGroup = ({
         </ThemeView>
         <Button
           testID="request-submit-button"
-          title="요청"
+          title="인증"
           variant="primary"
           size="md"
           onPress={() => handleSubmit()}

@@ -314,6 +314,22 @@ const RequestModal = () => {
             )}
           />
 
+          {hasMateTarget && (
+            <ThemeView
+              testID="request-mate-help"
+              style={styles.mateHelp}
+              transparent
+            >
+              <Typography
+                variant="caption1"
+                weight="medium"
+                style={styles.mateHelpText}
+              >
+                메이트에게 루틴 인증 요청을 보냅니다.
+              </Typography>
+            </ThemeView>
+          )}
+
           <RequetButtonGroup useForm={useForm} loading={isPending} />
         </Form>
       </ScrollView>
@@ -497,6 +513,18 @@ const styles = StyleSheet.create((theme) => ({
 
   imageActionText: {
     fontSize: theme.foundation.typography.size.caption1,
+  },
+
+  mateHelp: {
+    minHeight: baseFoundation.dimension.x36,
+    justifyContent: 'center',
+    paddingHorizontal: baseFoundation.spacing[4],
+    borderRadius: baseFoundation.radii.xs,
+    backgroundColor: theme.colors.background.media,
+  },
+
+  mateHelpText: {
+    color: theme.colors.text.secondary,
   },
 
   actionDivider: {
