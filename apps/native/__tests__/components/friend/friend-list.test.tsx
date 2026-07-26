@@ -105,8 +105,8 @@ describe('FriendList', () => {
     expect(firstCardWidth).toBe(347);
     expect(firstCharacterStyle).toEqual(
       expect.objectContaining({
-        height: 257,
-        width: 257,
+        height: 273,
+        width: 273,
       }),
     );
   });
@@ -133,8 +133,8 @@ describe('FriendList', () => {
 
     expect(characterStyle).toEqual(
       expect.objectContaining({
-        height: 257,
-        width: 257,
+        height: 273,
+        width: 273,
       }),
     );
   });
