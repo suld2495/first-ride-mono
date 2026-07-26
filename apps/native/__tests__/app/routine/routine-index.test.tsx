@@ -994,10 +994,16 @@ describe('루틴 조회 페이지', () => {
         });
 
         const { findByLabelText, findByTestId } = render(<Index />);
-        const [completedCheck, todayCompletedCheck, pendingCheck] =
+        const [
+          completedCheck,
+          todayCompletedCheck,
+          todayCompletedFrame,
+          pendingCheck,
+        ] =
           await Promise.all([
             findByTestId('routine-count-check-1-1'),
             findByTestId('routine-count-check-1-2'),
+            findByTestId('routine-count-check-frame-1-2'),
             findByTestId('routine-count-check-1-3'),
           ]);
 
@@ -1016,6 +1022,10 @@ describe('루틴 조회 페이지', () => {
         expect(flattenStyles(todayCompletedCheck.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ backgroundColor: symbolColor }),
+          ]),
+        );
+        expect(flattenStyles(todayCompletedFrame.props.style)).toEqual(
+          expect.arrayContaining([
             expect.objectContaining({
               borderColor: palette.white,
               borderWidth: 1,

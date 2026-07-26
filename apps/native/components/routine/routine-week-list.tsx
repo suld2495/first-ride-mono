@@ -47,6 +47,11 @@ const CHECKBOX_DAY_TEXT_COLOR = '#000306';
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
 const TODAY_FRAME_COLOR = palette.white;
+const TODAY_FRAME_BORDER_WIDTH = 1;
+const TODAY_FRAME_GAP = 1;
+const CHECKBOX_SIZE = baseFoundation.dimension.x24;
+const TODAY_FRAME_SIZE =
+  CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
 
 const createWeekDateKeys = (startDate: string) => {
   const date = new Date(startDate);
@@ -92,7 +97,7 @@ const getTodayFrameStyle = (isToday: boolean) =>
   isToday
     ? {
         borderColor: TODAY_FRAME_COLOR,
-        borderWidth: baseFoundation.dimension.x1,
+        borderWidth: TODAY_FRAME_BORDER_WIDTH,
       }
     : null;
 
@@ -378,18 +383,18 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
   checkFrame: {
-    width: baseFoundation.dimension.x28,
-    height: baseFoundation.dimension.x28,
+    width: TODAY_FRAME_SIZE,
+    height: TODAY_FRAME_SIZE,
     borderRadius: baseFoundation.dimension.x8,
     backgroundColor: 'transparent',
     borderColor: 'transparent',
-    borderWidth: baseFoundation.dimension.x1,
+    borderWidth: TODAY_FRAME_BORDER_WIDTH,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkBox: {
-    width: baseFoundation.dimension.x24,
-    height: baseFoundation.dimension.x24,
+    width: CHECKBOX_SIZE,
+    height: CHECKBOX_SIZE,
     borderRadius: baseFoundation.dimension.x6,
     backgroundColor: 'transparent',
     borderColor: 'transparent',
@@ -403,6 +408,6 @@ const styles = StyleSheet.create((theme) => ({
     fontWeight: baseFoundation.typography.weight.semibold,
   },
   footer: {
-    minHeight: baseFoundation.dimension.x8,
+    minHeight: baseFoundation.dimension.x0,
   },
 }));

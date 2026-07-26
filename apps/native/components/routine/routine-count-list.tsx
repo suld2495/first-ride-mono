@@ -46,6 +46,11 @@ const CHECKED_ICON_COLOR = palette.theme.gray[95];
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
 const TODAY_FRAME_COLOR = palette.white;
+const TODAY_FRAME_BORDER_WIDTH = 1;
+const TODAY_FRAME_GAP = 1;
+const CHECKBOX_SIZE = baseFoundation.dimension.x20;
+const TODAY_FRAME_SIZE =
+  CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
 
 const createRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
@@ -60,11 +65,11 @@ const getMissedPastCheckBoxStyle = (
 ): { backgroundColor: string } | null =>
   isMissedPast ? { backgroundColor: UNCHECKED_BACKGROUND_COLOR } : null;
 
-const getTodaySuccessCheckBoxStyle = (isTodaySuccess: boolean) =>
+const getTodaySuccessFrameStyle = (isTodaySuccess: boolean) =>
   isTodaySuccess
     ? {
         borderColor: TODAY_FRAME_COLOR,
-        borderWidth: baseFoundation.dimension.x1,
+        borderWidth: TODAY_FRAME_BORDER_WIDTH,
       }
     : null;
 
@@ -240,8 +245,8 @@ const RoutineCountList = ({
                         backgroundColor: routineColor,
                       }
                     : null;
-                  const todaySuccessCheckBoxStyle =
-                    getTodaySuccessCheckBoxStyle(isTodaySuccess);
+                  const todaySuccessFrameStyle =
+                    getTodaySuccessFrameStyle(isTodaySuccess);
                   const unachievedCheckBoxStyle =
                     getUnachievedCheckBoxStyle(isUnachievedGoal);
                   const pendingConfirmationCheckBoxStyle = isPendingConfirmation
@@ -272,34 +277,38 @@ const RoutineCountList = ({
                       onPress={handlePressCheckBox}
                     >
                       <View
-                        style={[
-                          styles.checkBox,
-                          achievedCheckBoxStyle,
-                          todaySuccessCheckBoxStyle,
-                          unachievedCheckBoxStyle,
-                          pendingConfirmationCheckBoxStyle,
-                          missedPastGoalCheckBoxStyle,
-                        ]}
-                        testID={`routine-count-check-${routineId}-${countIndex}`}
+                        style={[styles.checkFrame, todaySuccessFrameStyle]}
+                        testID={`routine-count-check-frame-${routineId}-${countIndex}`}
                       >
-                        {isMissedPastGoal ? (
-                          <RoutineMissedIcon
-                            size={baseFoundation.iconSize.xs}
-                            color={UNCHECKED_ACCENT_COLOR}
-                          />
-                        ) : achieved || isPendingConfirmation ? (
-                          <RoutineCheckmarkIcon
-                            size={baseFoundation.iconSize.s}
-                            color={CHECKED_ICON_COLOR}
-                          />
-                        ) : !isGoalRange ? (
-                          <Ionicons
-                            testID={`routine-count-no-goal-icon-${routineId}-${countIndex}`}
-                            name="remove"
-                            size={baseFoundation.iconSize.s}
-                            color={UNCHECKED_ACCENT_COLOR}
-                          />
-                        ) : null}
+                        <View
+                          style={[
+                            styles.checkBox,
+                            achievedCheckBoxStyle,
+                            unachievedCheckBoxStyle,
+                            pendingConfirmationCheckBoxStyle,
+                            missedPastGoalCheckBoxStyle,
+                          ]}
+                          testID={`routine-count-check-${routineId}-${countIndex}`}
+                        >
+                          {isMissedPastGoal ? (
+                            <RoutineMissedIcon
+                              size={baseFoundation.iconSize.xs}
+                              color={UNCHECKED_ACCENT_COLOR}
+                            />
+                          ) : achieved || isPendingConfirmation ? (
+                            <RoutineCheckmarkIcon
+                              size={baseFoundation.iconSize.s}
+                              color={CHECKED_ICON_COLOR}
+                            />
+                          ) : !isGoalRange ? (
+                            <Ionicons
+                              testID={`routine-count-no-goal-icon-${routineId}-${countIndex}`}
+                              name="remove"
+                              size={baseFoundation.iconSize.s}
+                              color={UNCHECKED_ACCENT_COLOR}
+                            />
+                          ) : null}
+                        </View>
                       </View>
                     </Pressable>
                   );
@@ -408,9 +417,19 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text.tertiary,
     fontSize: baseFoundation.typography.size.caption2,
   },
+  checkFrame: {
+    width: TODAY_FRAME_SIZE,
+    height: TODAY_FRAME_SIZE,
+    borderRadius: baseFoundation.dimension.x6,
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    borderWidth: TODAY_FRAME_BORDER_WIDTH,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   checkBox: {
-    width: baseFoundation.dimension.x20,
-    height: baseFoundation.dimension.x20,
+    width: CHECKBOX_SIZE,
+    height: CHECKBOX_SIZE,
     borderRadius: baseFoundation.dimension.x4,
     backgroundColor: theme.colors.brand.checkbox,
     borderColor: 'transparent',
