@@ -52,6 +52,7 @@ describe('인증 요청 헤더', () => {
 
   it.each([
     '/auth/email/check',
+    '/auth/nickname/check',
     '/auth/email/verification-requests',
     '/auth/email/verification-confirm',
     '/auth/job-options',

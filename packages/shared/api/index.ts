@@ -24,6 +24,7 @@ export const UN_AUTHORIZATION_URL = [
   '/auth/refresh',
   '/auth/signup',
   '/auth/email/check',
+  '/auth/nickname/check',
   '/auth/email/verification-requests',
   '/auth/email/verification-confirm',
   '/auth/job-options',
@@ -376,6 +377,7 @@ export default axiosInstance;
 export * from './AppError';
 export {
   checkEmailAvailability,
+  checkNicknameAvailability,
   confirmEmailVerification,
   deleteAccount,
   fetchJobOptions,

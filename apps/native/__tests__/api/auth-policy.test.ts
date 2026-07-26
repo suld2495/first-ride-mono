@@ -61,6 +61,7 @@ describe('인증 요청 정책', () => {
     '/auth/refresh',
     '/auth/signup',
     '/auth/email/check',
+    '/auth/nickname/check',
     '/auth/email/verification-requests',
     '/auth/email/verification-confirm',
     '/auth/job-options',

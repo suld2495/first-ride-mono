@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   checkEmailAvailability,
+  checkNicknameAvailability,
   requestEmailVerification,
 } from '@repo/shared/api';
 import type { JoinForm as JoinFormType } from '@repo/types';
@@ -55,7 +56,7 @@ export default function SignUp() {
     JoinFormType & { passwordConfirm: JoinFormType['password'] }
   >(initial());
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingUserId, setIsCheckingUserId] = useState(false);
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const setPendingSignUpPayload = useSetPendingSignUpPayload();
   const {
@@ -127,7 +128,11 @@ export default function SignUp() {
     };
   };
 
-  const getUserIdCheckErrors = (error: unknown) => {
+  const getAvailabilityCheckErrors = (
+    error: unknown,
+    fallbackField: 'nickname' | 'userId',
+    fallbackMessage: string,
+  ) => {
     const normalizedServerErrors = getEmailFieldErrors(error);
 
     if (Object.keys(normalizedServerErrors).length > 0) {
@@ -135,10 +140,7 @@ export default function SignUp() {
     }
 
     return {
-      userId: getApiErrorMessage(
-        error,
-        '이메일 확인에 실패했습니다. 다시 시도해주세요.',
-      ),
+      [fallbackField]: getApiErrorMessage(error, fallbackMessage),
     };
   };
 
@@ -153,24 +155,52 @@ export default function SignUp() {
 
     const minLoading = wait(MIN_NEXT_LOADING_MS);
 
-    setIsCheckingUserId(true);
-    try {
-      const availability = await checkEmailAvailability(form.userId.trim());
+    setIsCheckingAvailability(true);
 
+    try {
+      const [emailCheckResult, nicknameCheckResult] = await Promise.allSettled([
+        checkEmailAvailability(form.userId.trim()),
+        checkNicknameAvailability(form.nickname.trim()),
+      ]);
       await minLoading;
 
-      if (!availability.available) {
-        setFieldErrors({ userId: '이미 사용 중인 아이디입니다.' });
+      const availabilityErrors: Record<string, string> = {};
+
+      if (emailCheckResult.status === 'rejected') {
+        Object.assign(
+          availabilityErrors,
+          getAvailabilityCheckErrors(
+            emailCheckResult.reason,
+            'userId',
+            '이메일 확인에 실패했습니다. 다시 시도해주세요.',
+          ),
+        );
+      } else if (!emailCheckResult.value.available) {
+        availabilityErrors.userId = '이미 사용 중인 아이디입니다.';
+      }
+
+      if (nicknameCheckResult.status === 'rejected') {
+        Object.assign(
+          availabilityErrors,
+          getAvailabilityCheckErrors(
+            nicknameCheckResult.reason,
+            'nickname',
+            '닉네임 확인에 실패했습니다. 다시 시도해주세요.',
+          ),
+        );
+      } else if (!nicknameCheckResult.value.available) {
+        availabilityErrors.nickname = '이미 사용 중인 닉네임입니다.';
+      }
+
+      if (Object.keys(availabilityErrors).length > 0) {
+        setFieldErrors(availabilityErrors);
         return;
       }
 
       setFieldErrors({});
       setStep('job');
-    } catch (error) {
-      await minLoading;
-      setFieldErrors(getUserIdCheckErrors(error));
     } finally {
-      setIsCheckingUserId(false);
+      setIsCheckingAvailability(false);
     }
   };
 
@@ -276,7 +306,7 @@ export default function SignUp() {
     !form.password.trim() ||
     !form.passwordConfirm.trim();
   const isNextDisabled =
-    !isJobStep && (isBasicFieldsIncomplete || isCheckingUserId);
+    !isJobStep && (isBasicFieldsIncomplete || isCheckingAvailability);
 
   return (
     <AuthPage
@@ -405,7 +435,7 @@ export default function SignUp() {
             ]}
             textStyle={styles.primaryButtonText}
             textColor={palette.white}
-            loading={step === 'basic' ? isCheckingUserId : isLoading}
+            loading={step === 'basic' ? isCheckingAvailability : isLoading}
             disabled={isNextDisabled}
             fullWidth
             backgroundColor={

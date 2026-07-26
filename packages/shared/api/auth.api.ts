@@ -11,6 +11,7 @@ import type {
   JobOption,
   LogoutRequest,
   LogoutResponse,
+  NicknameCheckResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
 } from '@repo/types';
@@ -81,6 +82,21 @@ export const checkEmailAvailability = async (
       `${baseURL}/email/check`,
       {
         params: { email },
+      },
+    );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const checkNicknameAvailability = async (
+  nickname: string,
+): Promise<NicknameCheckResponse> => {
+  try {
+    return await http.get<NicknameCheckResponse, Record<string, string>>(
+      `${baseURL}/nickname/check`,
+      {
+        params: { nickname },
       },
     );
   } catch (error) {

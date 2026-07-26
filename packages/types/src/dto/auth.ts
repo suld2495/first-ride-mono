@@ -21,6 +21,11 @@ export interface EmailCheckResponse {
   available: boolean;
 }
 
+export interface NicknameCheckResponse {
+  nickname: string;
+  available: boolean;
+}
+
 export interface EmailVerificationStatusResponse {
   email: string;
   verified: boolean;

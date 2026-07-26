@@ -263,8 +263,7 @@ describe('SignUp 페이지', () => {
     expect(
       mockAxios.history.get.some(
         (req) =>
-          req.url === '/auth/nickname/check' &&
-          req.params?.nickname === '윤윤',
+          req.url === '/auth/nickname/check' && req.params?.nickname === '윤윤',
       ),
     ).toBe(true);
     expect(await findByText('전사')).toBeOnTheScreen();
@@ -293,6 +292,34 @@ describe('SignUp 페이지', () => {
     expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
   });
 
+  it('이메일 중복 확인의 서버 검증 메시지를 이메일 입력란에 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(400, {
+      error: {
+        message: '잘못 입력된 값입니다.',
+        data: [
+          {
+            field: 'email',
+            rejected: 'a@b.co',
+            message: '이메일을 확인해주세요.',
+          },
+        ],
+      },
+    });
+    mockAvailableNickname();
+
+    const { getByPlaceholderText, getByText, findByText, queryByText } = render(
+      <SignUp />,
+    );
+
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.press(getByText('다음'));
+
+    expect(await findByText('이메일을 확인해주세요.')).toBeOnTheScreen();
+    expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
+  });
+
   it('다음 클릭 후 닉네임이 중복이면 기본 입력 화면에 에러를 표시한다', async () => {
     mockAxios.resetHandlers();
     mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
@@ -310,9 +337,7 @@ describe('SignUp 페이지', () => {
     fillBasicFields(getByPlaceholderText);
     fireEvent.press(getByText('다음'));
 
-    expect(
-      await findByText('이미 사용 중인 닉네임입니다.'),
-    ).toBeOnTheScreen();
+    expect(await findByText('이미 사용 중인 닉네임입니다.')).toBeOnTheScreen();
     expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
   });
 
@@ -344,6 +369,29 @@ describe('SignUp 페이지', () => {
     fireEvent.press(getByText('다음'));
 
     expect(await findByText('닉네임을 확인해주세요.')).toBeOnTheScreen();
+    expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
+  });
+
+  it('닉네임 중복 확인의 일반 서버 오류를 닉네임 입력란에 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(200, {
+      data: { email: 'a@b.co', available: true },
+    });
+    mockAxios.onGet('/auth/nickname/check').reply(500, {
+      error: {
+        message: '닉네임 확인 서버 오류',
+      },
+    });
+
+    const { getByPlaceholderText, getByText, findByText, queryByText } = render(
+      <SignUp />,
+    );
+
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.press(getByText('다음'));
+
+    expect(await findByText('닉네임 확인 서버 오류')).toBeOnTheScreen();
     expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
   });
 
