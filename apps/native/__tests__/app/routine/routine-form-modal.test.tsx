@@ -43,10 +43,12 @@ jest.mock('react-native-bouncy-checkbox', () => {
   return {
     __esModule: true,
     default: ({
+      fillColor,
       isChecked,
       onPress,
       text,
     }: {
+      fillColor?: string;
       isChecked?: boolean;
       onPress: (checked: boolean) => void;
       text?: string;
@@ -55,6 +57,7 @@ jest.mock('react-native-bouncy-checkbox', () => {
         View,
         {
           testID: 'bouncy-checkbox',
+          fillColor,
           isChecked,
           onPress: () => {
             (global as any).mockCheckboxChecked = !(global as any)
@@ -315,13 +318,14 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   };
 
   describe('필수값 입력 전 추가 버튼 비활성화 테스트', () => {
-    it('메이트와 루틴체크를 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
+    it('메이트와 함께 루틴 체크를 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
       const { getByTestId, getByText, queryByPlaceholderText } = render(
         <RoutineFormModal />,
       );
 
-      expect(getByText('메이트와 루틴체크')).toBeOnTheScreen();
+      expect(getByText('메이트와 함께 루틴 체크')).toBeOnTheScreen();
       expect(getByTestId('bouncy-checkbox').props.isChecked).toBe(false);
+      expect(getByTestId('bouncy-checkbox').props.fillColor).toBe('#000306');
       expect(queryByPlaceholderText('메이트를 지정하세요.')).not.toBeOnTheScreen();
       expect(queryByPlaceholderText('벌금을 입력하세요.')).not.toBeOnTheScreen();
     });
@@ -734,7 +738,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         });
       });
 
-      it('메이트와 루틴체크 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
+      it('메이트와 함께 루틴 체크 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
         mockAxios.onPost('/routine/mate').reply(201, {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
@@ -1044,7 +1048,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       expect(await findByText('메이트')).toBeOnTheScreen();
       expect(await findByText('메이트닉네임')).toBeOnTheScreen();
-      expect(queryByText('메이트와 루틴체크')).not.toBeOnTheScreen();
+      expect(queryByText('메이트와 함께 루틴 체크')).not.toBeOnTheScreen();
       expect(
         queryByPlaceholderText('메이트를 지정하세요.'),
       ).not.toBeOnTheScreen();
@@ -1058,7 +1062,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         await findByPlaceholderText('루틴 이름을 입력하세요.'),
       ).toBeOnTheScreen();
       expect(queryByText('메이트')).not.toBeOnTheScreen();
-      expect(queryByText('메이트와 루틴체크')).not.toBeOnTheScreen();
+      expect(queryByText('메이트와 함께 루틴 체크')).not.toBeOnTheScreen();
       expect(
         queryByPlaceholderText('메이트를 지정하세요.'),
       ).not.toBeOnTheScreen();

@@ -352,14 +352,9 @@ const RoutineFormModal = () => {
             item={({ value, setValue }) => (
               <ThemeView style={styles.mateSection} transparent>
                 <ThemeView style={styles.mateField} transparent>
-                  <Typography
-                    variant="body3"
-                    style={styles.mateCheckLabel}
-                  >
-                    메이트와 루틴체크
-                  </Typography>
                   <Checkbox
                     size="md"
+                    fillColor={palette.theme.gray[95]}
                     isChecked={!value}
                     onPress={(checked) => {
                       setValue('isMe', !checked);
@@ -370,6 +365,12 @@ const RoutineFormModal = () => {
                       }
                     }}
                   />
+                  <Typography
+                    variant="body3"
+                    style={styles.mateCheckLabel}
+                  >
+                    메이트와 함께 루틴 체크
+                  </Typography>
                 </ThemeView>
                 {!value && (
                   <>
@@ -627,7 +628,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   mateCheckLabel: {
-    color: theme.colors.text.primary,
+    color: theme.colors.field.label,
   },
 
   statusSection: {
