@@ -52,7 +52,7 @@ interface RoutineListProps {
 
 const MAX_VISIBLE_ROUTINES = 4;
 const COLLAPSED_VISIBLE_ROUTINES = 2;
-const ROUTINE_ITEM_HEIGHT = 108; // 루틴 높이 + 루틴 간 간격
+const ROUTINE_ITEM_HEIGHT = 96; // 루틴 높이 + 루틴 간 간격
 const ROUTINE_CONTEXT_MENU_TOP_OFFSET = 15;
 const ROUTINE_CONTEXT_MENU_BACKDROP_OVERFLOW = 1000;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
@@ -173,6 +173,10 @@ const RoutineList = ({
     },
     [handleShowRequestModal, showsRequestMenuItem],
   );
+
+  const handleBlockPastRoutineRequest = useCallback(() => {
+    showToast('지난 기간의 루틴은 인증할 수 없어요.', 'error');
+  }, [showToast]);
 
   const handleShowUpdateModal = useCallback(
     (routine: Routine) => {
@@ -313,6 +317,7 @@ const RoutineList = ({
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
               onRequestRoutine={handlePressRoutineCheck}
+              onBlockPastRoutineRequest={handleBlockPastRoutineRequest}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
@@ -331,6 +336,7 @@ const RoutineList = ({
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
               onRequestRoutine={handlePressRoutineCheck}
+              onBlockPastRoutineRequest={handleBlockPastRoutineRequest}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}

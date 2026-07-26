@@ -52,7 +52,7 @@ export const useModal = (
         },
       ];
     case 'request':
-      return ['인증 요청', RequestModal, { contentPaddingHorizontal: 0 }];
+      return ['루틴 인증', RequestModal, { contentPaddingHorizontal: 0 }];
     case 'request-list':
       return [
         '받은 요청',

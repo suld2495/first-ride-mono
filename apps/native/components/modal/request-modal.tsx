@@ -46,6 +46,7 @@ const RequestModal = () => {
   const routineId = useRoutineId();
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
   const sharedImages = usePendingRoutineShareImages(routineId, shareSessionId);
+  const hasMateTarget = detail?.isMe === false && !!detail?.mateNickname;
   const initialForm = useMemo<{ images: RequestImage[] }>(
     () => ({ images: sharedImages }),
     [sharedImages],
@@ -75,7 +76,10 @@ const RequestModal = () => {
         <ThemeView testID="request-summary" style={styles.summary} transparent>
           <ThemeView
             testID="request-routine-summary"
-            style={styles.routineSummary}
+            style={[
+              styles.routineSummary,
+              !hasMateTarget && styles.routineSummaryFull,
+            ]}
             transparent
           >
             <Typography variant="body2" style={styles.infoLabel}>
@@ -89,27 +93,31 @@ const RequestModal = () => {
               {detail?.routineName}
             </Typography>
           </ThemeView>
-          <ThemeView
-            testID="request-summary-divider"
-            style={styles.summaryDivider}
-            transparent
-          />
-          <ThemeView
-            testID="request-target-summary"
-            style={styles.targetSummary}
-            transparent
-          >
-            <Typography variant="body2" style={styles.infoLabel}>
-              인증 대상
-            </Typography>
-            <Typography
-              variant="body1"
-              weight="semibold"
-              style={styles.infoValue}
-            >
-              {detail?.isMe ? '나' : detail?.mateNickname}
-            </Typography>
-          </ThemeView>
+          {hasMateTarget && (
+            <>
+              <ThemeView
+                testID="request-summary-divider"
+                style={styles.summaryDivider}
+                transparent
+              />
+              <ThemeView
+                testID="request-target-summary"
+                style={styles.targetSummary}
+                transparent
+              >
+                <Typography variant="body2" style={styles.infoLabel}>
+                  인증 대상
+                </Typography>
+                <Typography
+                  variant="body1"
+                  weight="semibold"
+                  style={styles.infoValue}
+                >
+                  {detail.mateNickname}
+                </Typography>
+              </ThemeView>
+            </>
+          )}
         </ThemeView>
 
         <Form
@@ -131,7 +139,7 @@ const RequestModal = () => {
                     weight="bold"
                     style={styles.mediaTitle}
                   >
-                    이미지 업로드
+                    인증 사진
                   </Typography>
                   <Typography
                     variant="body3"
@@ -157,21 +165,7 @@ const RequestModal = () => {
                         disabled={isPending}
                         style={styles.emptyPrompt}
                         onPress={() => pickImage(setValue, form.images)}
-                      >
-                        <Ionicons
-                          testID="request-empty-image-icon"
-                          name="image-outline"
-                          size={baseFoundation.dimension.x44}
-                          color={palette.theme.softBlue[20]}
-                          style={styles.emptyPromptIcon}
-                        />
-                        <Typography
-                          variant="body3"
-                          style={styles.emptyPromptText}
-                        >
-                          사진을 추가해 주세요
-                        </Typography>
-                      </Pressable>
+                      />
                     </ThemeView>
                   )}
 
@@ -306,6 +300,22 @@ const RequestModal = () => {
             )}
           />
 
+          {hasMateTarget && (
+            <ThemeView
+              testID="request-mate-help"
+              style={styles.mateHelp}
+              transparent
+            >
+              <Typography
+                variant="caption1"
+                weight="medium"
+                style={styles.mateHelpText}
+              >
+                메이트에게 루틴 인증 요청을 보냅니다.
+              </Typography>
+            </ThemeView>
+          )}
+
           <RequetButtonGroup useForm={useForm} loading={isPending} />
         </Form>
       </ScrollView>
@@ -341,6 +351,10 @@ const styles = StyleSheet.create((theme) => ({
     flexGrow: 0,
     flexShrink: 0,
     justifyContent: 'center',
+  },
+
+  routineSummaryFull: {
+    width: '100%',
   },
 
   targetSummary: {
@@ -412,14 +426,6 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: baseFoundation.radii.xs,
   },
 
-  emptyPromptText: {
-    color: theme.colors.text.tertiary,
-  },
-
-  emptyPromptIcon: {
-    transform: [{ translateY: baseFoundation.dimension.x2 }],
-  },
-
   preview: {
     width: baseFoundation.dimension.x96,
     height: baseFoundation.dimension.x80,
@@ -485,6 +491,18 @@ const styles = StyleSheet.create((theme) => ({
 
   imageActionText: {
     fontSize: theme.foundation.typography.size.caption1,
+  },
+
+  mateHelp: {
+    minHeight: baseFoundation.dimension.x36,
+    justifyContent: 'center',
+    paddingHorizontal: baseFoundation.spacing[4],
+    borderRadius: baseFoundation.radii.xs,
+    backgroundColor: theme.colors.background.media,
+  },
+
+  mateHelpText: {
+    color: theme.colors.text.secondary,
   },
 
   actionDivider: {

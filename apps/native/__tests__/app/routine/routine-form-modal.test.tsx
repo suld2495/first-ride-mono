@@ -43,10 +43,14 @@ jest.mock('react-native-bouncy-checkbox', () => {
   return {
     __esModule: true,
     default: ({
+      fillColor,
+      disableText,
       isChecked,
       onPress,
       text,
     }: {
+      disableText?: boolean;
+      fillColor?: string;
       isChecked?: boolean;
       onPress: (checked: boolean) => void;
       text?: string;
@@ -55,6 +59,8 @@ jest.mock('react-native-bouncy-checkbox', () => {
         View,
         {
           testID: 'bouncy-checkbox',
+          disableText,
+          fillColor,
           isChecked,
           onPress: () => {
             (global as any).mockCheckboxChecked = !(global as any)
@@ -221,7 +227,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     if (data.routineDetail) {
       await act(async () => {
         fireEvent.changeText(
-          getByPlaceholderText('루틴 설명을 입력해주세요.'),
+          getByPlaceholderText('루틴 설명을 입력하세요.'),
           data.routineDetail,
         );
       });
@@ -229,14 +235,14 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     if (data.penalty) {
       await act(async () => {
         fireEvent.changeText(
-          getByPlaceholderText('벌금을 입력해주세요.'),
+          getByPlaceholderText('벌금을 입력하세요.'),
           data.penalty,
         );
       });
     }
     if (data.routineCount) {
       await act(async () => {
-        fireEvent.press(getByText('루틴 횟수를 선택해주세요.'));
+        fireEvent.press(getByText('루틴 횟수를 선택하세요.'));
       });
 
       await act(async () => {
@@ -307,7 +313,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     await fillForm(getByPlaceholderText, getByText, {
       routineName: '테스트 루틴',
       routineDetail: '테스트 설명',
-      penalty: '1000',
       routineCount: 3,
     });
 
@@ -316,16 +321,19 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   };
 
   describe('필수값 입력 전 추가 버튼 비활성화 테스트', () => {
-    it('메이트와 루틴 체크를 기본 해제하고 메이트 입력을 비활성화한다', () => {
-      const { getByPlaceholderText, getByTestId, getByText } = render(
+    it('메이트와 함께 루틴 체크를 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
+      const { getByTestId, getByText, queryByPlaceholderText } = render(
         <RoutineFormModal />,
       );
 
-      expect(getByText('메이트와 루틴 체크')).toBeOnTheScreen();
+      expect(getByText('메이트와 함께 루틴 체크')).toHaveStyle({
+        color: '#272A2D',
+      });
+      expect(getByTestId('bouncy-checkbox').props.disableText).toBe(true);
       expect(getByTestId('bouncy-checkbox').props.isChecked).toBe(false);
-      expect(
-        getByPlaceholderText('메이트를 지정해주세요.').props.editable,
-      ).toBe(false);
+      expect(getByTestId('bouncy-checkbox').props.fillColor).toBe('#000306');
+      expect(queryByPlaceholderText('메이트를 지정하세요.')).not.toBeOnTheScreen();
+      expect(queryByPlaceholderText('벌금을 입력하세요.')).not.toBeOnTheScreen();
     });
 
     it('생성 버튼은 modal.tsx의 고정 header action에 표시된다', () => {
@@ -602,7 +610,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const { getByText } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getByText('루틴 횟수를 선택해주세요.'));
+        fireEvent.press(getByText('루틴 횟수를 선택하세요.'));
       });
 
       for (let count = 1; count <= 7; count += 1) {
@@ -617,9 +625,15 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('벌금 입력 시 숫자만 입력된다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
+      const { getByPlaceholderText, getByTestId } = render(
+        <RoutineFormModal />,
+      );
 
-      const penaltyInput = getByPlaceholderText('벌금을 입력해주세요.');
+      await act(async () => {
+        fireEvent.press(getByTestId('bouncy-checkbox'));
+      });
+
+      const penaltyInput = getByPlaceholderText('벌금을 입력하세요.');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, 'abc1000');
@@ -630,9 +644,15 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('벌금 입력 시 천 단위 콤마가 표시된다', async () => {
-      const { getByPlaceholderText } = render(<RoutineFormModal />);
+      const { getByPlaceholderText, getByTestId } = render(
+        <RoutineFormModal />,
+      );
 
-      const penaltyInput = getByPlaceholderText('벌금을 입력해주세요.');
+      await act(async () => {
+        fireEvent.press(getByTestId('bouncy-checkbox'));
+      });
+
+      const penaltyInput = getByPlaceholderText('벌금을 입력하세요.');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, '10000');
@@ -724,7 +744,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         });
       });
 
-      it('메이트와 루틴 체크 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
+      it('메이트와 함께 루틴 체크 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
         mockAxios.onPost('/routine/mate').reply(201, {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
@@ -735,7 +755,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           fireEvent.press(getByTestId('bouncy-checkbox'));
         });
 
-        const mateInput = getByPlaceholderText('메이트를 지정해주세요.');
+        const mateInput = getByPlaceholderText('메이트를 지정하세요.');
 
         await waitFor(() => {
           expect(mateInput.props.editable).toBe(true);
@@ -929,14 +949,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       // 기존 루틴 설명이 표시되어야 함
       const routineDetailInput =
-        await findByPlaceholderText('루틴 설명을 입력해주세요.');
+        await findByPlaceholderText('루틴 설명을 입력하세요.');
 
       expect(routineDetailInput.props.value).toBe('기존 설명');
-
-      // 기존 벌금이 표시되어야 함 (천 단위 콤마 적용)
-      const penaltyInput = await findByPlaceholderText('벌금을 입력해주세요.');
-
-      expect(penaltyInput.props.value).toBe('5,000');
 
       // 기존 루틴 횟수가 표시되어야 함
       expect(await findByText('일주일에 3회')).toBeOnTheScreen();
@@ -981,7 +996,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         '상세 루틴',
       );
       expect(
-        getByPlaceholderText('루틴 설명을 입력해주세요.').props.value,
+        getByPlaceholderText('루틴 설명을 입력하세요.').props.value,
       ).toBe('상세 설명');
       expect(getByText('일주일에 5회')).toBeOnTheScreen();
       expect(getByText('2026-05-26')).toBeOnTheScreen();
@@ -1039,9 +1054,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       expect(await findByText('메이트')).toBeOnTheScreen();
       expect(await findByText('메이트닉네임')).toBeOnTheScreen();
-      expect(queryByText('메이트와 루틴 체크')).not.toBeOnTheScreen();
+      expect(queryByText('메이트와 함께 루틴 체크')).not.toBeOnTheScreen();
       expect(
-        queryByPlaceholderText('메이트를 지정해주세요.'),
+        queryByPlaceholderText('메이트를 지정하세요.'),
       ).not.toBeOnTheScreen();
     });
 
@@ -1053,9 +1068,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         await findByPlaceholderText('루틴 이름을 입력하세요.'),
       ).toBeOnTheScreen();
       expect(queryByText('메이트')).not.toBeOnTheScreen();
-      expect(queryByText('메이트와 루틴 체크')).not.toBeOnTheScreen();
+      expect(queryByText('메이트와 함께 루틴 체크')).not.toBeOnTheScreen();
       expect(
-        queryByPlaceholderText('메이트를 지정해주세요.'),
+        queryByPlaceholderText('메이트를 지정하세요.'),
       ).not.toBeOnTheScreen();
     });
 
@@ -1102,7 +1117,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       const { findByText, getByText } = render(<RoutineFormModal />);
 
-      expect(await findByText('루틴 횟수를 선택해주세요.')).toBeOnTheScreen();
+      expect(await findByText('루틴 횟수를 선택하세요.')).toBeOnTheScreen();
 
       await waitFor(() => {
         const editButton = getByText('저장');
@@ -1140,7 +1155,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       const { findByPlaceholderText, getByText } = render(<RoutineFormModal />);
 
       const routineDetailInput =
-        await findByPlaceholderText('루틴 설명을 입력해주세요.');
+        await findByPlaceholderText('루틴 설명을 입력하세요.');
 
       await act(async () => {
         fireEvent.changeText(routineDetailInput, '');
@@ -1187,7 +1202,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       await findByPlaceholderText('루틴 이름을 입력하세요.');
       expect(queryByText('메이트')).not.toBeOnTheScreen();
       expect(
-        queryByPlaceholderText('메이트를 지정해주세요.'),
+        queryByPlaceholderText('메이트를 지정하세요.'),
       ).not.toBeOnTheScreen();
     });
 
@@ -1205,7 +1220,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       await findByPlaceholderText('루틴 이름을 입력하세요.');
       expect(queryByText('메이트')).not.toBeOnTheScreen();
       expect(
-        queryByPlaceholderText('메이트를 지정해주세요.'),
+        queryByPlaceholderText('메이트를 지정하세요.'),
       ).not.toBeOnTheScreen();
     });
   });
@@ -1226,9 +1241,16 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     });
 
     it('벌금 입력 시 숫자만 입력된다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        mateNickname: '메이트닉네임',
+        isMe: false,
+      });
+
       const { findByPlaceholderText } = render(<RoutineFormModal />);
 
-      const penaltyInput = await findByPlaceholderText('벌금을 입력해주세요.');
+      const penaltyInput = await findByPlaceholderText('벌금을 입력하세요.');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, 'abc20000');
@@ -1239,9 +1261,16 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
     });
 
     it('벌금 수정 시 천 단위 콤마가 표시된다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        mateNickname: '메이트닉네임',
+        isMe: false,
+      });
+
       const { findByPlaceholderText } = render(<RoutineFormModal />);
 
-      const penaltyInput = await findByPlaceholderText('벌금을 입력해주세요.');
+      const penaltyInput = await findByPlaceholderText('벌금을 입력하세요.');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, '100000');

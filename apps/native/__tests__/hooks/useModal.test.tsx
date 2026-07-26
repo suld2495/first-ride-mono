@@ -46,9 +46,10 @@ describe('useModal', () => {
     expect(options.contentPaddingHorizontal).toBe(0);
   });
 
-  it('인증 요청 작성 모달은 공통 모달 좌우 패딩을 제거한다', () => {
-    const [, , options] = useModal('request');
+  it('루틴 인증 작성 모달은 공통 모달 좌우 패딩을 제거한다', () => {
+    const [title, , options] = useModal('request');
 
+    expect(title).toBe('루틴 인증');
     expect(options.contentPaddingHorizontal).toBe(0);
   });
 

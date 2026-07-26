@@ -143,7 +143,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(await findByText('카메라로 촬영')).toBeOnTheScreen();
     });
 
-    it('루틴과 인증 대상을 가로 요약 영역에 표시한다', async () => {
+    it('혼자 인증하는 루틴은 루틴 요약 영역만 표시한다', async () => {
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
@@ -152,14 +152,10 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         flexDirection: 'row',
         minHeight: 96,
       });
-      expect(screen.getByTestId('request-summary-divider')).toHaveStyle({
-        height: 36,
-      });
-      expect(screen.getByTestId('request-target-summary')).toHaveStyle({
-        flex: 1,
-      });
+      expect(screen.queryByTestId('request-summary-divider')).toBeNull();
+      expect(screen.queryByTestId('request-target-summary')).toBeNull();
       expect(screen.getByTestId('request-routine-summary')).toHaveStyle({
-        width: '50%',
+        width: '100%',
       });
     });
 
@@ -185,25 +181,15 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         width: 152,
         minHeight: 88,
       });
-      expect(screen.getByTestId('request-empty-image-icon')).toHaveProp(
-        'size',
-        44,
-      );
-      expect(screen.getByTestId('request-empty-image-icon')).toHaveStyle({
-        transform: [{ translateY: 2 }],
-      });
-      expect(screen.getByText('사진을 추가해 주세요')).toHaveStyle({
-        color: '#4C769C',
-        fontSize: 14,
-      });
-      expect(screen.getByText('이미지 업로드')).toHaveStyle({
+      expect(screen.queryByTestId('request-empty-image-icon')).toBeNull();
+      expect(screen.queryByText('사진을 추가해 주세요')).toBeNull();
+      expect(screen.getByText('인증 사진')).toHaveStyle({
         fontSize: 14,
       });
       expect(screen.getByText('0/3')).toHaveStyle({
         fontSize: 14,
       });
       expect(screen.getByText('0/3')).toBeOnTheScreen();
-      expect(screen.getByText('사진을 추가해 주세요')).toBeOnTheScreen();
       const imageSlots = screen.getAllByTestId('request-image-slot');
 
       expect(imageSlots).toHaveLength(3);
@@ -237,7 +223,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(screen.getByTestId('camera-button')).toBeOnTheScreen();
     });
 
-    it('취소와 요청 액션을 모달 고정 푸터에 표시한다', async () => {
+    it('취소와 인증 액션을 모달 고정 푸터에 표시한다', async () => {
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
@@ -257,8 +243,8 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       });
       expect(screen.getByText('취소')).toBeOnTheScreen();
       expect(screen.getByText('취소')).toHaveStyle({ fontSize: 16 });
-      expect(screen.getByText('요청')).toHaveStyle({ fontSize: 16 });
-      expect(screen.getByText('요청')).toBeDisabled();
+      expect(screen.getByText('인증')).toHaveStyle({ fontSize: 16 });
+      expect(screen.getByText('인증')).toBeDisabled();
     });
 
     it('루틴 상세 내용 항목을 표시하지 않는다', async () => {
@@ -275,10 +261,12 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(await findByText('루틴 이름')).toBeOnTheScreen();
     });
 
-    it('인증 대상 라벨이 표시된다', async () => {
-      const { findByText } = render(<RequestModal />);
+    it('혼자 인증하는 루틴은 인증 대상 라벨을 표시하지 않는다', async () => {
+      const { findByText, queryByText } = render(<RequestModal />);
 
-      expect(await findByText('인증 대상')).toBeOnTheScreen();
+      await findByText('테스트 루틴 1');
+
+      expect(queryByText('인증 대상')).not.toBeOnTheScreen();
     });
 
     it('스크롤은 가능하지만 스크롤 UI는 표시하지 않는다', async () => {
@@ -295,15 +283,22 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
   });
 
   describe('인증 대상 표시 테스트', () => {
-    it('나에게 인증하는 루틴인 경우 "나"가 표시된다', async () => {
+    it('나에게 인증하는 루틴인 경우 인증 대상을 표시하지 않는다', async () => {
       const mockRoutine = createMockRoutine(0, { isMe: true });
 
       mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
 
-      const { findByText } = render(<RequestModal />);
+      const { findByText, queryByText, queryByTestId } = render(
+        <RequestModal />,
+      );
 
       await findByText('테스트 루틴 1');
-      expect(await findByText('나')).toBeOnTheScreen();
+      expect(queryByText('인증 대상')).not.toBeOnTheScreen();
+      expect(queryByText('나')).not.toBeOnTheScreen();
+      expect(
+        queryByText('메이트에게 루틴 인증 요청을 보냅니다.'),
+      ).not.toBeOnTheScreen();
+      expect(queryByTestId('request-target-summary')).not.toBeOnTheScreen();
     });
 
     it('친구에게 인증하는 루틴인 경우 메이트 닉네임이 표시된다', async () => {
@@ -314,10 +309,23 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
 
-      const { findByText } = render(<RequestModal />);
+      const { findByText, getByTestId } = render(<RequestModal />);
 
       await findByText('테스트 루틴 1');
+      expect(await findByText('인증 대상')).toBeOnTheScreen();
       expect(await findByText('friend123')).toBeOnTheScreen();
+      expect(
+        await findByText('메이트에게 루틴 인증 요청을 보냅니다.'),
+      ).toBeOnTheScreen();
+      expect(getByTestId('request-mate-help')).toHaveStyle({
+        minHeight: 36,
+      });
+      expect(getByTestId('request-summary-divider')).toHaveStyle({
+        height: 36,
+      });
+      expect(getByTestId('request-target-summary')).toHaveStyle({
+        flex: 1,
+      });
     });
   });
 
@@ -328,18 +336,18 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
     });
 
-    it('이미지를 업로드하지 않으면 요청 버튼이 비활성화되어 있다', async () => {
+    it('이미지를 업로드하지 않으면 인증 버튼이 비활성화되어 있다', async () => {
       const { findByText, getByText } = render(<RequestModal />);
 
       // 루틴 정보가 로드될 때까지 대기
       await findByText('테스트 루틴 1');
 
-      const submitButton = getByText('요청');
+      const submitButton = getByText('인증');
 
       expect(submitButton).toBeDisabled();
     });
 
-    it('이미지를 업로드하면 요청 버튼이 활성화된다', async () => {
+    it('이미지를 업로드하면 인증 버튼이 활성화된다', async () => {
       const { findByText, getByText, getByTestId } = render(<RequestModal />);
 
       await findByText('테스트 루틴 1');
@@ -347,7 +355,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await selectImageFromGallery(getByTestId);
 
       await waitFor(() => {
-        const submitButton = getByText('요청');
+        const submitButton = getByText('인증');
 
         expect(submitButton).toBeEnabled();
       });
@@ -635,11 +643,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('요청')).toBeEnabled();
+          expect(getByText('인증')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('요청'));
+          fireEvent.press(getByText('인증'));
         });
 
         await waitFor(() => {
@@ -676,11 +684,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId, selectedImages);
 
         await waitFor(() => {
-          expect(getByText('요청')).toBeEnabled();
+          expect(getByText('인증')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('요청'));
+          fireEvent.press(getByText('인증'));
         });
 
         await waitFor(() => {
@@ -726,11 +734,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(screen.getByTestId);
 
         await waitFor(() => {
-          expect(screen.getByText('요청')).toBeEnabled();
+          expect(screen.getByText('인증')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(screen.getByText('요청'));
+          fireEvent.press(screen.getByText('인증'));
         });
 
         await waitFor(() => {
@@ -742,7 +750,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
           expect(screen.getByTestId('remove-request-image-0')).toBeDisabled();
         });
 
-        expect(screen.queryByText('요청')).not.toBeOnTheScreen();
+        expect(screen.queryByText('인증')).not.toBeOnTheScreen();
 
         await act(async () => {
           resolveRequest();
@@ -775,11 +783,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('요청')).toBeEnabled();
+          expect(getByText('인증')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('요청'));
+          fireEvent.press(getByText('인증'));
         });
 
         await waitFor(() => {
@@ -814,11 +822,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('요청')).toBeEnabled();
+          expect(getByText('인증')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('요청'));
+          fireEvent.press(getByText('인증'));
         });
 
         await waitFor(() => {
@@ -850,11 +858,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('요청')).toBeEnabled();
+          expect(getByText('인증')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('요청'));
+          fireEvent.press(getByText('인증'));
         });
 
         await waitFor(() => {
@@ -882,11 +890,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('요청')).toBeEnabled();
+          expect(getByText('인증')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('요청'));
+          fireEvent.press(getByText('인증'));
         });
 
         await waitFor(() => {
@@ -917,11 +925,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('요청')).toBeEnabled();
+          expect(getByText('인증')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('요청'));
+          fireEvent.press(getByText('인증'));
         });
 
         await waitFor(() => {
@@ -949,11 +957,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await selectImageFromGallery(getByTestId);
 
       await waitFor(() => {
-        expect(getByText('요청')).toBeEnabled();
+        expect(getByText('인증')).toBeEnabled();
       });
 
       await act(async () => {
-        fireEvent.press(getByText('요청'));
+        fireEvent.press(getByText('인증'));
       });
 
       await waitFor(() => {
@@ -977,11 +985,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await selectImageFromGallery(getByTestId);
 
       await waitFor(() => {
-        expect(getByText('요청')).toBeEnabled();
+        expect(getByText('인증')).toBeEnabled();
       });
 
       await act(async () => {
-        fireEvent.press(getByText('요청'));
+        fireEvent.press(getByText('인증'));
       });
 
       await waitFor(() => {

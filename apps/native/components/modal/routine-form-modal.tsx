@@ -322,7 +322,7 @@ const RoutineFormModal = () => {
             <Select<number>
               value={value ? Number(value) : undefined}
               items={ROUTINE_COUNT_OPTIONS}
-              placeholder="루틴 횟수를 선택해주세요."
+              placeholder="루틴 횟수를 선택하세요."
               variant="filled"
               dropdownMaxHeight={308}
               onSelect={(selectedValue) => {
@@ -340,22 +340,23 @@ const RoutineFormModal = () => {
             <Input
               variant="filled"
               value={value !== undefined ? String(value) : value}
-              placeholder="루틴 설명을 입력해주세요."
+              placeholder="루틴 설명을 입력하세요."
               onChangeText={onChange}
             />
           )}
         />
         {isRoutineAdd ? (
           <FormItem
-            name="mateNickname"
-            label="메이트"
-            item={({ value, onChange, form, setValue }) => (
-              <>
+            name="isMe"
+            showErrors={false}
+            item={({ value, setValue }) => (
+              <ThemeView style={styles.mateSection} transparent>
                 <ThemeView style={styles.mateField} transparent>
-                  <Typography variant="body">메이트와 루틴 체크</Typography>
                   <Checkbox
                     size="md"
-                    isChecked={!form.isMe}
+                    disableText
+                    fillColor={palette.theme.gray[95]}
+                    isChecked={!value}
                     onPress={(checked) => {
                       setValue('isMe', !checked);
 
@@ -365,26 +366,73 @@ const RoutineFormModal = () => {
                       }
                     }}
                   />
+                  <Typography variant="caption1" style={styles.mateCheckLabel}>
+                    메이트와 함께 루틴 체크
+                  </Typography>
                 </ThemeView>
-                <AutocompleteInput
-                  variant="filled"
-                  value={value !== undefined ? String(value) : value}
-                  placeholder="메이트를 지정해주세요."
-                  onChangeText={(text) => {
-                    onChange(text);
-                    setMateKeyword(text);
-                  }}
-                  editable={!form.isMe}
-                  items={friendAutocompleteItems}
-                  loading={isFriendListLoading}
-                  onSelectItem={(item) => {
-                    onChange(item.value);
-                    setMateKeyword('');
-                  }}
-                  showDropdown={!form.isMe && mateKeyword.length > 0}
-                  emptyMessage="친구를 찾을 수 없습니다."
-                />
-              </>
+                {!value && (
+                  <>
+                    <FormItem
+                      name="mateNickname"
+                      label="메이트"
+                      item={({ value, onChange }) => (
+                        <AutocompleteInput
+                          variant="filled"
+                          value={value !== undefined ? String(value) : value}
+                          placeholder="메이트를 지정하세요."
+                          onChangeText={(text) => {
+                            onChange(text);
+                            setMateKeyword(text);
+                          }}
+                          editable
+                          items={friendAutocompleteItems}
+                          loading={isFriendListLoading}
+                          onSelectItem={(item) => {
+                            onChange(item.value);
+                            setMateKeyword('');
+                          }}
+                          showDropdown={mateKeyword.length > 0}
+                          emptyMessage="친구를 찾을 수 없습니다."
+                        />
+                      )}
+                    />
+                    <FormItem
+                      name="penalty"
+                      label="벌금"
+                      item={({ value, onChange }) => {
+                        const formatNumber = (num: string | number) => {
+                          const numStr = String(num).replace(/[^0-9]/g, '');
+
+                          if (!numStr || numStr === '0') return '';
+                          const parsed = parseInt(numStr, 10);
+
+                          return isNaN(parsed)
+                            ? ''
+                            : parsed.toLocaleString('ko-KR');
+                        };
+
+                        const handleChange = (text: string) => {
+                          const numericValue = text.replace(/[^0-9]/g, '');
+
+                          onChange(numericValue);
+                        };
+
+                        return (
+                          <Input
+                            variant="filled"
+                            value={
+                              value !== undefined ? formatNumber(value) : value
+                            }
+                            placeholder="벌금을 입력하세요."
+                            onChangeText={handleChange}
+                            keyboardType="number-pad"
+                          />
+                        );
+                      }}
+                    />
+                  </>
+                )}
+              </ThemeView>
             )}
           />
         ) : initialMateNickname ? (
@@ -397,36 +445,38 @@ const RoutineFormModal = () => {
             )}
           />
         ) : null}
-        <FormItem
-          name="penalty"
-          label="벌금"
-          item={({ value, onChange }) => {
-            const formatNumber = (num: string | number) => {
-              const numStr = String(num).replace(/[^0-9]/g, '');
+        {!isRoutineAdd && initialMateNickname && (
+          <FormItem
+            name="penalty"
+            label="벌금"
+            item={({ value, onChange }) => {
+              const formatNumber = (num: string | number) => {
+                const numStr = String(num).replace(/[^0-9]/g, '');
 
-              if (!numStr || numStr === '0') return '';
-              const parsed = parseInt(numStr, 10);
+                if (!numStr || numStr === '0') return '';
+                const parsed = parseInt(numStr, 10);
 
-              return isNaN(parsed) ? '' : parsed.toLocaleString('ko-KR');
-            };
+                return isNaN(parsed) ? '' : parsed.toLocaleString('ko-KR');
+              };
 
-            const handleChange = (text: string) => {
-              const numericValue = text.replace(/[^0-9]/g, '');
+              const handleChange = (text: string) => {
+                const numericValue = text.replace(/[^0-9]/g, '');
 
-              onChange(numericValue);
-            };
+                onChange(numericValue);
+              };
 
-            return (
-              <Input
-                variant="filled"
-                value={value !== undefined ? formatNumber(value) : value}
-                placeholder="벌금을 입력해주세요."
-                onChangeText={handleChange}
-                keyboardType="number-pad"
-              />
-            );
-          }}
-        />
+              return (
+                <Input
+                  variant="filled"
+                  value={value !== undefined ? formatNumber(value) : value}
+                  placeholder="벌금을 입력하세요."
+                  onChangeText={handleChange}
+                  keyboardType="number-pad"
+                />
+              );
+            }}
+          />
+        )}
         {!isRoutineAdd && (
           <ThemeView
             testID="routine-status-section"
@@ -565,10 +615,18 @@ const styles = StyleSheet.create((theme) => ({
     borderColor: palette.white,
   },
 
+  mateSection: {
+    gap: theme.foundation.spacing[6],
+  },
+
   mateField: {
     flexDirection: 'row',
     gap: theme.foundation.spacing[1],
     alignItems: 'center',
+  },
+
+  mateCheckLabel: {
+    color: theme.colors.field.label,
   },
 
   statusSection: {

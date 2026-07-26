@@ -5,6 +5,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   Pressable,
+  Text,
   View,
 } from 'react-native';
 
@@ -31,6 +32,7 @@ interface RoutineWeekListProps {
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
   onRequestRoutine: (routine: Routine) => void;
+  onBlockPastRoutineRequest: () => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
@@ -42,6 +44,17 @@ const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 const DAYS_PER_WEEK = 7;
 const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
+const CHECKBOX_DAY_TEXT_COLOR = '#000306';
+const UPCOMING_DAY_TEXT_COLOR = palette.theme.softBlue[80];
+const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
+const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
+const MISSED_ICON_COLOR = palette.theme.softBlue[80];
+const TODAY_FRAME_COLOR = palette.white;
+const TODAY_FRAME_BORDER_WIDTH = 1;
+const TODAY_FRAME_GAP = 1;
+const CHECKBOX_SIZE = baseFoundation.dimension.x24;
+const TODAY_FRAME_SIZE =
+  CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
 
 const createWeekDateKeys = (startDate: string) => {
   const date = new Date(startDate);
@@ -69,32 +82,22 @@ const createRoutineDateKey = (date: Date) => {
   return `${year}${month}${day}`;
 };
 
-const getMissedPastCheckBoxStyle = (
-  isMissedPast: boolean,
-  missedBackgroundColor: string,
-) => (isMissedPast ? { backgroundColor: missedBackgroundColor } : null);
-
 const getUpcomingCheckBoxStyle = (isUpcoming: boolean, borderColor: string) =>
   isUpcoming
     ? {
-        backgroundColor: 'transparent',
+        backgroundColor: UNCHECKED_BACKGROUND_COLOR,
         borderColor,
         borderWidth: baseFoundation.dimension.x1,
       }
     : null;
 
-const getTodaySuccessCheckBoxStyle = (isTodaySuccess: boolean) =>
-  isTodaySuccess
+const getTodayFrameStyle = (isToday: boolean) =>
+  isToday
     ? {
-        borderColor: palette.theme.gray[5],
-        borderWidth: baseFoundation.dimension.x1,
+        borderColor: TODAY_FRAME_COLOR,
+        borderWidth: TODAY_FRAME_BORDER_WIDTH,
       }
     : null;
-
-const getTodaySuccessFrameStyle = (
-  isTodaySuccess: boolean,
-  routineColor: string,
-) => (isTodaySuccess ? { borderColor: routineColor } : null);
 
 const RoutineWeekList = ({
   routines,
@@ -107,6 +110,7 @@ const RoutineWeekList = ({
   onRefresh,
   canRequestRoutine = false,
   onRequestRoutine,
+  onBlockPastRoutineRequest,
   openMenuRoutineId,
   onToggleRoutineMenu,
   onScrollOffsetChange,
@@ -138,9 +142,6 @@ const RoutineWeekList = ({
         routine;
       const routineColor = symbolColor ?? routineColorFallback;
       const canRequestWithCheckBox = canRequestRoutine;
-      const handlePressCheckBox = canRequestWithCheckBox
-        ? () => onRequestRoutine(routine)
-        : undefined;
 
       return (
         <View
@@ -183,7 +184,7 @@ const RoutineWeekList = ({
               </View>
               <RoutineContextMenuTrigger
                 routineName={routineName}
-                iconColor={theme.colors.text.secondary}
+                iconColor={theme.colors.brand.routineProgressText}
                 onToggle={() => onToggleRoutineMenu(routineId)}
               />
             </>
@@ -194,6 +195,7 @@ const RoutineWeekList = ({
               const dateKey = weekDateKeys[index];
               const isPastDay = dateKey < todayDateKey;
               const isFutureDay = dateKey > todayDateKey;
+              const isToday = dateKey === todayDateKey;
               const isTodaySuccess = check && dateKey === todayDateKey;
               const isPendingConfirmation =
                 !check &&
@@ -208,15 +210,10 @@ const RoutineWeekList = ({
                     backgroundColor: routineColor,
                   }
                 : null;
-              const todaySuccessCheckBoxStyle =
-                getTodaySuccessCheckBoxStyle(isTodaySuccess);
-              const todaySuccessFrameStyle = getTodaySuccessFrameStyle(
-                isTodaySuccess,
-                routineColor,
-              );
+              const todayFrameStyle = getTodayFrameStyle(isToday);
               const upcomingCheckBoxStyle = getUpcomingCheckBoxStyle(
                 isUpcomingDay,
-                theme.colors.brand.routineUpcomingCheckboxBorder,
+                UNCHECKED_ACCENT_COLOR,
               );
               const pendingConfirmationCheckBoxStyle = isPendingConfirmation
                 ? {
@@ -224,16 +221,11 @@ const RoutineWeekList = ({
                       theme.colors.brand.pendingConfirmationCheckbox,
                   }
                 : null;
-              const missedPastDayCheckBoxStyle = getMissedPastCheckBoxStyle(
-                isMissedPastDay,
-                theme.colors.brand.routineMissedCheckbox,
-              );
-              const futureDayTextStyle =
-                isFutureDay && isUpcomingDay
-                  ? {
-                      color: theme.colors.brand.routineUpcomingCheckboxBorder,
-                    }
-                  : null;
+              const missedPastDayCheckBoxStyle = isMissedPastDay
+                ? {
+                    backgroundColor: theme.colors.brand.routineMissedCheckbox,
+                  }
+                : null;
               const statusLabel = check
                 ? isTodaySuccess
                   ? '오늘 완료'
@@ -241,6 +233,14 @@ const RoutineWeekList = ({
                 : isPendingConfirmation
                   ? '요청 중'
                   : '미달성';
+              const dayTextColor = isFutureDay
+                ? UPCOMING_DAY_TEXT_COLOR
+                : CHECKBOX_DAY_TEXT_COLOR;
+              const handlePressCheckBox = canRequestWithCheckBox
+                ? isMissedPastDay
+                  ? onBlockPastRoutineRequest
+                  : () => onRequestRoutine(routine)
+                : undefined;
 
               return (
                 <Pressable
@@ -254,14 +254,13 @@ const RoutineWeekList = ({
                   onPress={handlePressCheckBox}
                 >
                   <View
-                    style={[styles.checkFrame, todaySuccessFrameStyle]}
+                    style={[styles.checkFrame, todayFrameStyle]}
                     testID={`routine-week-check-frame-${routineId}-${index}`}
                   >
                     <View
                       style={[
                         styles.checkBox,
                         successCheckBoxStyle,
-                        todaySuccessCheckBoxStyle,
                         upcomingCheckBoxStyle,
                         pendingConfirmationCheckBoxStyle,
                         missedPastDayCheckBoxStyle,
@@ -271,16 +270,17 @@ const RoutineWeekList = ({
                       {isMissedPastDay ? (
                         <RoutineMissedIcon
                           size={baseFoundation.iconSize.xs}
-                          color={palette.theme.gray[90]}
+                          color={MISSED_ICON_COLOR}
                         />
                       ) : (
-                        <Typography
-                          variant="caption2"
-                          weight="semibold"
-                          style={[styles.dayText, futureDayTextStyle]}
+                        <Text
+                          style={[
+                            styles.dayText,
+                            { color: dayTextColor },
+                          ]}
                         >
                           {DAY_LABELS[index]}
-                        </Typography>
+                        </Text>
                       )}
                     </View>
                   </View>
@@ -296,14 +296,13 @@ const RoutineWeekList = ({
     [
       canRequestRoutine,
       itemHeight,
+      onBlockPastRoutineRequest,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
       routineColorFallback,
       theme.colors.brand.pendingConfirmationCheckbox,
-      theme.colors.brand.routineMissedCheckbox,
-      theme.colors.brand.routineUpcomingCheckboxBorder,
-      theme.colors.text.secondary,
+      theme.colors.brand.routineProgressText,
       todayDateKey,
       weekDateKeys,
       weeklyData,
@@ -358,7 +357,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   title: {
-    color: theme.colors.text.secondary,
+    color: palette.white,
     textAlign: 'left',
   },
   titleRow: {
@@ -372,7 +371,7 @@ const styles = StyleSheet.create((theme) => ({
   progressSummary: {
     position: 'absolute',
     top: baseFoundation.spacing[0],
-    right: baseFoundation.spacing[8],
+    right: baseFoundation.spacing[9],
     height: baseFoundation.dimension.x44,
     flexDirection: 'row',
     alignItems: 'center',
@@ -392,18 +391,18 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
   checkFrame: {
-    width: baseFoundation.dimension.x28,
-    height: baseFoundation.dimension.x28,
+    width: TODAY_FRAME_SIZE,
+    height: TODAY_FRAME_SIZE,
     borderRadius: baseFoundation.dimension.x8,
     backgroundColor: 'transparent',
     borderColor: 'transparent',
-    borderWidth: baseFoundation.dimension.x1,
+    borderWidth: TODAY_FRAME_BORDER_WIDTH,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkBox: {
-    width: baseFoundation.dimension.x24,
-    height: baseFoundation.dimension.x24,
+    width: CHECKBOX_SIZE,
+    height: CHECKBOX_SIZE,
     borderRadius: baseFoundation.dimension.x6,
     backgroundColor: 'transparent',
     borderColor: 'transparent',
@@ -412,9 +411,11 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
   dayText: {
-    color: palette.theme.gray[90],
+    color: CHECKBOX_DAY_TEXT_COLOR,
+    fontSize: baseFoundation.typography.size.caption2,
+    fontWeight: baseFoundation.typography.weight.semibold,
   },
   footer: {
-    minHeight: baseFoundation.dimension.x8,
+    minHeight: baseFoundation.dimension.x0,
   },
 }));

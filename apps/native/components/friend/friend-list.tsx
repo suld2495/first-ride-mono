@@ -37,6 +37,7 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   '',
 );
 const FRIEND_CHARACTER_HORIZONTAL_PADDING = 35;
+const FRIEND_CHARACTER_SIZE_INCREMENT = 20;
 const FRIEND_LIST_HORIZONTAL_PADDING = baseFoundation.spacing[5];
 const FRIEND_GRID_COLUMN_GAP = baseFoundation.spacing[4];
 const FRIEND_GRID_COLUMN_COUNT = 2;
@@ -89,7 +90,8 @@ const getFriendCharacterImageSize = (itemWidth: number) => {
     itemWidth - (fixedTopSpace - FRIEND_MOTTO_CHARACTER_OFFSET_Y) * 2,
   );
 
-  return Math.min(widthBasedImageSize, heightBasedImageSize);
+  return Math.min(widthBasedImageSize, heightBasedImageSize) +
+    FRIEND_CHARACTER_SIZE_INCREMENT;
 };
 
 const getFriendCharacterSource = (

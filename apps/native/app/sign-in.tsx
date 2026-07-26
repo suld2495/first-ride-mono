@@ -252,7 +252,7 @@ export default function SignIn() {
               <View style={styles.divider}>
                 <Divider
                   text="또는"
-                  lineColor={palette.theme.gray[10]}
+                  lineColor={palette.theme.softBlue[60]}
                   textColor={palette.theme.softBlue[60]}
                   textStyle={styles.dividerText}
                 />
@@ -354,7 +354,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   button: {
-    height: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x52,
     borderRadius: theme.foundation.radii.xs,
     shadowOpacity: 0,
     elevation: 0,
@@ -411,7 +411,7 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: theme.foundation.spacing[12],
+    gap: baseFoundation.dimension.x20,
   },
 
   policyLinks: {
