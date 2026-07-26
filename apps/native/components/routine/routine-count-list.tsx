@@ -44,6 +44,7 @@ const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 const CHECKED_ICON_COLOR = palette.theme.gray[95];
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
+const MISSED_BACKGROUND_COLOR = palette.theme.blue[90];
 const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
 const MISSED_ICON_COLOR = palette.theme.softBlue[80];
 const TODAY_FRAME_COLOR = palette.white;
@@ -64,7 +65,7 @@ const createRoutineDateKey = (date: Date) => {
 const getMissedPastCheckBoxStyle = (
   isMissedPast: boolean,
 ): { backgroundColor: string } | null =>
-  isMissedPast ? { backgroundColor: UNCHECKED_BACKGROUND_COLOR } : null;
+  isMissedPast ? { backgroundColor: MISSED_BACKGROUND_COLOR } : null;
 
 const getTodaySuccessFrameStyle = (isTodaySuccess: boolean) =>
   isTodaySuccess

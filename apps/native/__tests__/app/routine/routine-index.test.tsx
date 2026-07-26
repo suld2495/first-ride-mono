@@ -1066,13 +1066,13 @@ describe('루틴 조회 페이지', () => {
           transform: [{ translateX: 0.4 }, { translateY: 0.4 }],
         });
         expect(missedFourth).toHaveStyle({
-          backgroundColor: palette.theme.gray[95],
+          backgroundColor: palette.theme.blue[90],
         });
         expect(
           within(missedFifth).getByTestId('routine-missed-icon'),
         ).toHaveProp('color', palette.theme.softBlue[80]);
         expect(missedFifth).toHaveStyle({
-          backgroundColor: palette.theme.gray[95],
+          backgroundColor: palette.theme.blue[90],
         });
       });
     });
@@ -1656,7 +1656,7 @@ describe('루틴 조회 페이지', () => {
           within(missedMonday).getByTestId('routine-missed-icon'),
         ).toHaveProp('color', palette.theme.softBlue[80]);
         expect(missedMonday).toHaveStyle({
-          backgroundColor: palette.theme.gray[95],
+          backgroundColor: palette.theme.blue[90],
         });
       });
     });
