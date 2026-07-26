@@ -45,7 +45,7 @@ const PAD_LENGTH = 2;
 const CHECKED_ICON_COLOR = palette.theme.gray[95];
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
-const TODAY_FRAME_COLOR = palette.theme.gray[5];
+const TODAY_FRAME_COLOR = palette.white;
 
 const createRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
@@ -64,7 +64,7 @@ const getTodaySuccessCheckBoxStyle = (isTodaySuccess: boolean) =>
   isTodaySuccess
     ? {
         borderColor: TODAY_FRAME_COLOR,
-        borderWidth: baseFoundation.dimension.x2,
+        borderWidth: baseFoundation.dimension.x1,
       }
     : null;
 

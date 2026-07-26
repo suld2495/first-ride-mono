@@ -80,7 +80,7 @@ const findAncestorStyleWith = (
 
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = 8;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
-const ROUTINE_ITEM_HEIGHT = 108;
+const ROUTINE_ITEM_HEIGHT = 96;
 
 const createSharedQueryClient = () =>
   new QueryClient({
@@ -973,7 +973,7 @@ describe('루틴 조회 페이지', () => {
         expect(await findByTestId('routine-count-check-1-4')).toBeOnTheScreen();
       });
 
-      it('완료는 symbolColor, 오늘 완료는 gray 5 테두리, 요청 중은 대기 컬러로 표시한다', async () => {
+      it('완료는 symbolColor, 오늘 완료는 white 1px 테두리, 요청 중은 대기 컬러로 표시한다', async () => {
         const today = new Date();
         const symbolColor = '#FF8A3D';
         const pendingRoutine = {
@@ -1016,8 +1016,8 @@ describe('루틴 조회 페이지', () => {
           expect.arrayContaining([
             expect.objectContaining({ backgroundColor: symbolColor }),
             expect.objectContaining({
-              borderColor: palette.theme.gray[5],
-              borderWidth: 2,
+              borderColor: palette.white,
+              borderWidth: 1,
             }),
           ]),
         );
@@ -1197,7 +1197,7 @@ describe('루틴 조회 페이지', () => {
           borderRadius: 6,
         });
         expect(todayText).toHaveStyle({
-          color: palette.theme.softBlue[60],
+          color: palette.theme.gray[95],
           fontSize: 12,
         });
         expect(todayText).toHaveProp('fontWeight', '600');
@@ -1246,7 +1246,7 @@ describe('루틴 조회 페이지', () => {
 
         expect(progress).toHaveTextContent('3/5');
         expect(progress).toHaveStyle({
-          color: palette.theme.softBlue[50],
+          color: palette.theme.softBlue[60],
           fontSize: 11,
         });
         expect(progress).toHaveProp('fontWeight', '600');
@@ -1364,8 +1364,8 @@ describe('루틴 조회 페이지', () => {
             width: 28,
             height: 28,
             borderRadius: 8,
-            borderWidth: isToday ? 2 : 1,
-            borderColor: isToday ? palette.theme.gray[5] : 'transparent',
+            borderWidth: 1,
+            borderColor: isToday ? palette.white : 'transparent',
             backgroundColor: 'transparent',
           });
         }
@@ -1406,8 +1406,8 @@ describe('루틴 조회 페이지', () => {
         ]);
 
         expect(todayFrame).toHaveStyle({
-          borderColor: palette.theme.gray[5],
-          borderWidth: 2,
+          borderColor: palette.white,
+          borderWidth: 1,
         });
         expect(otherCompletedFrame).toHaveStyle({
           borderColor: 'transparent',
@@ -1483,7 +1483,7 @@ describe('루틴 조회 페이지', () => {
           borderWidth: 1,
         });
         expect(futureMondayText).toHaveStyle({
-          color: palette.theme.softBlue[60],
+          color: palette.theme.gray[95],
         });
       });
 
@@ -1513,7 +1513,7 @@ describe('루틴 조회 페이지', () => {
           borderWidth: 1,
         });
         expect(within(todayCheckBox).getByText(todayLabel)).toHaveStyle({
-          color: palette.theme.softBlue[60],
+          color: palette.theme.gray[95],
         });
       });
 
@@ -1546,8 +1546,8 @@ describe('루틴 조회 페이지', () => {
             `routine-week-check-frame-1-${getRoutineWeekIndex(today)}`,
           ),
         ).toHaveStyle({
-          borderColor: palette.theme.gray[5],
-          borderWidth: 2,
+          borderColor: palette.white,
+          borderWidth: 1,
         });
       });
 
