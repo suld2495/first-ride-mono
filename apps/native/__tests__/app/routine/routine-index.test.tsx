@@ -1463,7 +1463,7 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('미래 날짜는 투명 배경과 soft 테마 80 테두리 및 텍스트로 표시한다', async () => {
+      it('미래 날짜는 gray95 배경과 soft 테마 60 테두리 및 gray95 텍스트로 표시한다', async () => {
         mockSearchParams.date = afterWeek(new Date(getWeekMonday(new Date())));
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
@@ -1487,7 +1487,7 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('오늘 미달성은 soft 테마 80 테두리와 gray 90 텍스트로 표시한다', async () => {
+      it('오늘 미달성은 soft 테마 60 테두리와 gray95 텍스트로 표시한다', async () => {
         const today = new Date();
         const todayIndex = getRoutineWeekIndex(today);
         const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
