@@ -43,7 +43,7 @@ const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 const DAYS_PER_WEEK = 7;
 const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
-const CHECKBOX_DAY_TEXT_COLOR = palette.theme.gray[95];
+const CHECKBOX_DAY_TEXT_COLOR = '#000306';
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
 const TODAY_FRAME_COLOR = palette.white;
@@ -261,7 +261,12 @@ const RoutineWeekList = ({
                           color={UNCHECKED_ACCENT_COLOR}
                         />
                       ) : (
-                        <Text style={styles.dayText}>
+                        <Text
+                          style={[
+                            styles.dayText,
+                            { color: CHECKBOX_DAY_TEXT_COLOR },
+                          ]}
+                        >
                           {DAY_LABELS[index]}
                         </Text>
                       )}

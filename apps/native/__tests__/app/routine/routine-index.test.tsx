@@ -81,6 +81,7 @@ const findAncestorStyleWith = (
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = 8;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_ITEM_HEIGHT = 96;
+const CHECKBOX_DAY_TEXT_COLOR = '#000306';
 
 const createSharedQueryClient = () =>
   new QueryClient({
@@ -1197,7 +1198,7 @@ describe('루틴 조회 페이지', () => {
           borderRadius: 6,
         });
         expect(todayText).toHaveStyle({
-          color: palette.theme.gray[95],
+          color: CHECKBOX_DAY_TEXT_COLOR,
           fontSize: 12,
           fontWeight: '600',
         });
@@ -1483,7 +1484,7 @@ describe('루틴 조회 페이지', () => {
           borderWidth: 1,
         });
         expect(futureMondayText).toHaveStyle({
-          color: palette.theme.gray[95],
+          color: CHECKBOX_DAY_TEXT_COLOR,
         });
       });
 
@@ -1513,7 +1514,7 @@ describe('루틴 조회 페이지', () => {
           borderWidth: 1,
         });
         expect(within(todayCheckBox).getByText(todayLabel)).toHaveStyle({
-          color: palette.theme.gray[95],
+          color: CHECKBOX_DAY_TEXT_COLOR,
         });
       });
 
