@@ -78,7 +78,7 @@ export function AppleLoginButton({
       <View style={styles.logo} testID="apple-login-logo">
         <Ionicons
           name="logo-apple"
-          size={baseFoundation.iconSize.xl}
+          size={baseFoundation.dimension.x20}
           color={APPLE_WHITE}
         />
       </View>
@@ -103,9 +103,9 @@ const styles = StyleSheet.create((theme) => ({
   },
   logo: {
     position: 'absolute',
-    left: -theme.foundation.spacing[4],
-    width: baseFoundation.dimension.x44,
-    height: baseFoundation.dimension.x44,
+    left: theme.foundation.spacing[2],
+    width: baseFoundation.dimension.x20,
+    height: baseFoundation.dimension.x20,
     alignItems: 'center',
     justifyContent: 'center',
   },
