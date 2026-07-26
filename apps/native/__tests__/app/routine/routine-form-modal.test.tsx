@@ -323,7 +323,9 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         <RoutineFormModal />,
       );
 
-      expect(getByText('메이트와 함께 루틴 체크')).toBeOnTheScreen();
+      expect(getByText('메이트와 함께 루틴 체크')).toHaveStyle({
+        color: '#272A2D',
+      });
       expect(getByTestId('bouncy-checkbox').props.isChecked).toBe(false);
       expect(getByTestId('bouncy-checkbox').props.fillColor).toBe('#000306');
       expect(queryByPlaceholderText('메이트를 지정하세요.')).not.toBeOnTheScreen();

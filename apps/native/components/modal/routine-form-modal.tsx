@@ -366,6 +366,7 @@ const RoutineFormModal = () => {
                     }}
                   />
                   <Typography
+                    color={palette.theme.gray[70]}
                     variant="body3"
                     style={styles.mateCheckLabel}
                   >
@@ -628,7 +629,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   mateCheckLabel: {
-    color: theme.colors.field.label,
+    color: palette.theme.gray[70],
   },
 
   statusSection: {
