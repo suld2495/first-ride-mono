@@ -143,7 +143,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(await findByText('카메라로 촬영')).toBeOnTheScreen();
     });
 
-    it('루틴과 인증 대상을 가로 요약 영역에 표시한다', async () => {
+    it('혼자 인증하는 루틴은 루틴 요약 영역만 표시한다', async () => {
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
@@ -152,14 +152,10 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         flexDirection: 'row',
         minHeight: 96,
       });
-      expect(screen.getByTestId('request-summary-divider')).toHaveStyle({
-        height: 36,
-      });
-      expect(screen.getByTestId('request-target-summary')).toHaveStyle({
-        flex: 1,
-      });
+      expect(screen.queryByTestId('request-summary-divider')).toBeNull();
+      expect(screen.queryByTestId('request-target-summary')).toBeNull();
       expect(screen.getByTestId('request-routine-summary')).toHaveStyle({
-        width: '50%',
+        width: '100%',
       });
     });
 
@@ -275,10 +271,12 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(await findByText('루틴 이름')).toBeOnTheScreen();
     });
 
-    it('인증 대상 라벨이 표시된다', async () => {
-      const { findByText } = render(<RequestModal />);
+    it('혼자 인증하는 루틴은 인증 대상 라벨을 표시하지 않는다', async () => {
+      const { findByText, queryByText } = render(<RequestModal />);
 
-      expect(await findByText('인증 대상')).toBeOnTheScreen();
+      await findByText('테스트 루틴 1');
+
+      expect(queryByText('인증 대상')).not.toBeOnTheScreen();
     });
 
     it('스크롤은 가능하지만 스크롤 UI는 표시하지 않는다', async () => {
@@ -295,15 +293,19 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
   });
 
   describe('인증 대상 표시 테스트', () => {
-    it('나에게 인증하는 루틴인 경우 "나"가 표시된다', async () => {
+    it('나에게 인증하는 루틴인 경우 인증 대상을 표시하지 않는다', async () => {
       const mockRoutine = createMockRoutine(0, { isMe: true });
 
       mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
 
-      const { findByText } = render(<RequestModal />);
+      const { findByText, queryByText, queryByTestId } = render(
+        <RequestModal />,
+      );
 
       await findByText('테스트 루틴 1');
-      expect(await findByText('나')).toBeOnTheScreen();
+      expect(queryByText('인증 대상')).not.toBeOnTheScreen();
+      expect(queryByText('나')).not.toBeOnTheScreen();
+      expect(queryByTestId('request-target-summary')).not.toBeOnTheScreen();
     });
 
     it('친구에게 인증하는 루틴인 경우 메이트 닉네임이 표시된다', async () => {
@@ -314,10 +316,17 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
 
-      const { findByText } = render(<RequestModal />);
+      const { findByText, getByTestId } = render(<RequestModal />);
 
       await findByText('테스트 루틴 1');
+      expect(await findByText('인증 대상')).toBeOnTheScreen();
       expect(await findByText('friend123')).toBeOnTheScreen();
+      expect(getByTestId('request-summary-divider')).toHaveStyle({
+        height: 36,
+      });
+      expect(getByTestId('request-target-summary')).toHaveStyle({
+        flex: 1,
+      });
     });
   });
 

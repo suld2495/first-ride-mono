@@ -46,6 +46,7 @@ const RequestModal = () => {
   const routineId = useRoutineId();
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
   const sharedImages = usePendingRoutineShareImages(routineId, shareSessionId);
+  const hasMateTarget = detail?.isMe === false && !!detail?.mateNickname;
   const initialForm = useMemo<{ images: RequestImage[] }>(
     () => ({ images: sharedImages }),
     [sharedImages],
@@ -75,7 +76,10 @@ const RequestModal = () => {
         <ThemeView testID="request-summary" style={styles.summary} transparent>
           <ThemeView
             testID="request-routine-summary"
-            style={styles.routineSummary}
+            style={[
+              styles.routineSummary,
+              !hasMateTarget && styles.routineSummaryFull,
+            ]}
             transparent
           >
             <Typography variant="body2" style={styles.infoLabel}>
@@ -89,27 +93,31 @@ const RequestModal = () => {
               {detail?.routineName}
             </Typography>
           </ThemeView>
-          <ThemeView
-            testID="request-summary-divider"
-            style={styles.summaryDivider}
-            transparent
-          />
-          <ThemeView
-            testID="request-target-summary"
-            style={styles.targetSummary}
-            transparent
-          >
-            <Typography variant="body2" style={styles.infoLabel}>
-              인증 대상
-            </Typography>
-            <Typography
-              variant="body1"
-              weight="semibold"
-              style={styles.infoValue}
-            >
-              {detail?.isMe ? '나' : detail?.mateNickname}
-            </Typography>
-          </ThemeView>
+          {hasMateTarget && (
+            <>
+              <ThemeView
+                testID="request-summary-divider"
+                style={styles.summaryDivider}
+                transparent
+              />
+              <ThemeView
+                testID="request-target-summary"
+                style={styles.targetSummary}
+                transparent
+              >
+                <Typography variant="body2" style={styles.infoLabel}>
+                  인증 대상
+                </Typography>
+                <Typography
+                  variant="body1"
+                  weight="semibold"
+                  style={styles.infoValue}
+                >
+                  {detail.mateNickname}
+                </Typography>
+              </ThemeView>
+            </>
+          )}
         </ThemeView>
 
         <Form
@@ -341,6 +349,10 @@ const styles = StyleSheet.create((theme) => ({
     flexGrow: 0,
     flexShrink: 0,
     justifyContent: 'center',
+  },
+
+  routineSummaryFull: {
+    width: '100%',
   },
 
   targetSummary: {
