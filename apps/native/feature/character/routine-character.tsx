@@ -54,7 +54,7 @@ export default RoutineCharacter;
 
 const styles = StyleSheet.create(() => ({
   image: {
-    width: baseFoundation.dimension.x112,
+    width: baseFoundation.dimension.x120,
     height: baseFoundation.dimension.x120,
     transform: [{ translateY: ROUTINE_CHARACTER_OFFSET_Y }],
   },
