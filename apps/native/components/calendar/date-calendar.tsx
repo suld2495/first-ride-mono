@@ -7,6 +7,9 @@ import {
   View,
 } from 'react-native';
 
+import BottomSheetBody from '@/components/ui/bottom-sheet/bottom-sheet-body';
+import BottomSheetFooter from '@/components/ui/bottom-sheet/bottom-sheet-footer';
+import BottomSheetHeader from '@/components/ui/bottom-sheet/bottom-sheet-header';
 import { Button } from '@/components/ui/button';
 import {
   FlashList,
@@ -254,209 +257,216 @@ const DateCalendar = ({
     [draftMonth, monthInitialIndex],
   );
 
-  return (
-    <ThemeView
-      style={[styles.container, isInBottomSheet && styles.bottomSheetContainer]}
-      transparent
-    >
-      <ThemeView transparent style={styles.header}>
-        <Button
-          variant="ghost"
-          size="sm"
-          onPress={() =>
-            setCurrentMonth(
-              new Date(
-                currentMonth.getFullYear(),
-                currentMonth.getMonth() - 1,
-                1,
-              ),
-            )
-          }
-          leftIcon={({ color }) => (
-            <Ionicons
-              name="chevron-back"
-              size={baseFoundation.dimension.x18}
-              color={color}
-            />
-          )}
-          style={styles.monthButton}
-        />
-        <Pressable
-          onPress={openMonthPicker}
-          accessibilityLabel="년월 선택 열기"
-          style={styles.monthTitleButton}
+  const header = (
+    <ThemeView transparent style={styles.header}>
+      <Button
+        variant="ghost"
+        size="sm"
+        onPress={() =>
+          setCurrentMonth(
+            new Date(
+              currentMonth.getFullYear(),
+              currentMonth.getMonth() - 1,
+              1,
+            ),
+          )
+        }
+        leftIcon={({ color }) => (
+          <Ionicons
+            name="chevron-back"
+            size={baseFoundation.dimension.x18}
+            color={color}
+          />
+        )}
+        style={styles.monthButton}
+      />
+      <Pressable
+        onPress={openMonthPicker}
+        accessibilityLabel="년월 선택 열기"
+        style={styles.monthTitleButton}
+      >
+        <Typography
+          variant="subtitle"
+          weight="semibold"
+          style={styles.monthTitle}
         >
-          <Typography
-            variant="subtitle"
-            weight="semibold"
-            style={styles.monthTitle}
-          >
-            {formatMonthLabel(currentMonth)}
-          </Typography>
-        </Pressable>
-        <Button
-          variant="ghost"
-          size="sm"
-          onPress={() =>
-            setCurrentMonth(
-              new Date(
-                currentMonth.getFullYear(),
-                currentMonth.getMonth() + 1,
-                1,
-              ),
-            )
-          }
-          rightIcon={({ color }) => (
-            <Ionicons
-              name="chevron-forward"
-              size={baseFoundation.dimension.x18}
-              color={color}
-            />
-          )}
-          style={styles.monthButton}
-        />
+          {formatMonthLabel(currentMonth)}
+        </Typography>
+      </Pressable>
+      <Button
+        variant="ghost"
+        size="sm"
+        onPress={() =>
+          setCurrentMonth(
+            new Date(
+              currentMonth.getFullYear(),
+              currentMonth.getMonth() + 1,
+              1,
+            ),
+          )
+        }
+        rightIcon={({ color }) => (
+          <Ionicons
+            name="chevron-forward"
+            size={baseFoundation.dimension.x18}
+            color={color}
+          />
+        )}
+        style={styles.monthButton}
+      />
+    </ThemeView>
+  );
+
+  const body = isMonthPickerOpen ? (
+    <ThemeView transparent style={styles.pickerColumns}>
+      <View style={styles.pickerColumn}>
+        <View style={styles.wheelFrame}>
+          <View pointerEvents="none" style={styles.wheelHighlight} />
+          <FlashList
+            ref={yearListRef}
+            data={yearOptions}
+            keyExtractor={(item) => `${item}`}
+            showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+            snapToInterval={PICKER_ITEM_HEIGHT}
+            decelerationRate="fast"
+            getItemLayout={getPickerItemLayout}
+            initialScrollIndex={yearInitialIndex}
+            onMomentumScrollEnd={handleYearScrollEnd}
+            contentContainerStyle={styles.wheelContent}
+            estimatedItemSize={PICKER_ITEM_HEIGHT}
+            removeClippedSubviews
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            renderItem={renderYearItem}
+          />
+        </View>
+      </View>
+
+      <View style={styles.pickerColumn}>
+        <View style={styles.wheelFrame}>
+          <View pointerEvents="none" style={styles.wheelHighlight} />
+          <FlashList
+            ref={monthListRef}
+            data={MONTH_OPTIONS}
+            keyExtractor={(item) => `${item}`}
+            showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+            snapToInterval={PICKER_ITEM_HEIGHT}
+            decelerationRate="fast"
+            getItemLayout={getPickerItemLayout}
+            initialScrollIndex={monthInitialIndex}
+            onMomentumScrollEnd={handleMonthScrollEnd}
+            contentContainerStyle={styles.wheelContent}
+            estimatedItemSize={PICKER_ITEM_HEIGHT}
+            removeClippedSubviews
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            renderItem={renderMonthItem}
+          />
+        </View>
+      </View>
+    </ThemeView>
+  ) : (
+    <>
+      <ThemeView transparent style={styles.weekHeader}>
+        {WEEKDAY_LABELS.map((label) => (
+          <View key={label} style={styles.weekHeaderCell}>
+            <Typography variant="caption" color="primary">
+              {label}
+            </Typography>
+          </View>
+        ))}
       </ThemeView>
 
-      {isMonthPickerOpen ? (
-        <ThemeView transparent style={styles.pickerSection}>
-          <ThemeView transparent style={styles.pickerColumns}>
-            <View style={styles.pickerColumn}>
-              <View style={styles.wheelFrame}>
-                <View pointerEvents="none" style={styles.wheelHighlight} />
-                <FlashList
-                  ref={yearListRef}
-                  data={yearOptions}
-                  keyExtractor={(item) => `${item}`}
-                  showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
-                  snapToInterval={PICKER_ITEM_HEIGHT}
-                  decelerationRate="fast"
-                  getItemLayout={getPickerItemLayout}
-                  initialScrollIndex={yearInitialIndex}
-                  onMomentumScrollEnd={handleYearScrollEnd}
-                  contentContainerStyle={styles.wheelContent}
-                  estimatedItemSize={PICKER_ITEM_HEIGHT}
-                  removeClippedSubviews
-                  maxToRenderPerBatch={10}
-                  windowSize={5}
-                  renderItem={renderYearItem}
-                />
-              </View>
-            </View>
+      <ThemeView transparent style={styles.grid}>
+        {cells.map((date) => {
+          const inCurrentMonth = date.getMonth() === currentMonth.getMonth();
+          const dateKey = formatDateKey(date);
+          const isSelectable =
+            (!minDate || getStartOfDay(date).getTime() >= minDate.getTime()) &&
+            (isDateSelectable ? isDateSelectable(date) : true);
+          const isSelected = selectedKey === dateKey;
 
-            <View style={styles.pickerColumn}>
-              <View style={styles.wheelFrame}>
-                <View pointerEvents="none" style={styles.wheelHighlight} />
-                <FlashList
-                  ref={monthListRef}
-                  data={MONTH_OPTIONS}
-                  keyExtractor={(item) => `${item}`}
-                  showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
-                  snapToInterval={PICKER_ITEM_HEIGHT}
-                  decelerationRate="fast"
-                  getItemLayout={getPickerItemLayout}
-                  initialScrollIndex={monthInitialIndex}
-                  onMomentumScrollEnd={handleMonthScrollEnd}
-                  contentContainerStyle={styles.wheelContent}
-                  estimatedItemSize={PICKER_ITEM_HEIGHT}
-                  removeClippedSubviews
-                  maxToRenderPerBatch={10}
-                  windowSize={5}
-                  renderItem={renderMonthItem}
-                />
-              </View>
-            </View>
-          </ThemeView>
-
-          <ThemeView transparent style={styles.footer}>
-            <Button
-              title="취소"
-              variant="ghost"
-              size="sm"
-              onPress={() => setIsMonthPickerOpen(false)}
-            />
-            <Button
-              title="적용"
-              variant="primary"
-              size="sm"
-              onPress={() => {
-                setCurrentMonth(new Date(draftYear, draftMonth, 1));
-                setIsMonthPickerOpen(false);
-              }}
-            />
-          </ThemeView>
-        </ThemeView>
-      ) : (
-        <>
-          <ThemeView transparent style={styles.weekHeader}>
-            {WEEKDAY_LABELS.map((label) => (
-              <View key={label} style={styles.weekHeaderCell}>
-                <Typography variant="caption" color="primary">
-                  {label}
+          return (
+            <Pressable
+              key={dateKey}
+              accessibilityLabel={`${dateKey} ${isSelectable ? '선택 가능' : '선택 불가'}`}
+              disabled={!isSelectable}
+              onPress={() => onSelectDate(getStartOfDay(date))}
+              style={[
+                styles.dayCell,
+                !inCurrentMonth && !isSelectable && styles.dayCellOutsideMonth,
+                !isSelectable && inCurrentMonth && styles.dayCellDisabled,
+                isSelectable && styles.dayCellEnabled,
+              ]}
+            >
+              <View
+                style={[
+                  styles.dayNumber,
+                  isSelectable && styles.dayNumberEnabled,
+                  isSelected && styles.dayNumberSelected,
+                ]}
+              >
+                <Typography variant="label" weight="semibold" color="primary">
+                  {date.getDate()}
                 </Typography>
               </View>
-            ))}
-          </ThemeView>
+            </Pressable>
+          );
+        })}
+      </ThemeView>
+    </>
+  );
 
-          <ThemeView transparent style={styles.grid}>
-            {cells.map((date) => {
-              const inCurrentMonth =
-                date.getMonth() === currentMonth.getMonth();
-              const dateKey = formatDateKey(date);
-              const isSelectable =
-                (!minDate ||
-                  getStartOfDay(date).getTime() >= minDate.getTime()) &&
-                (isDateSelectable ? isDateSelectable(date) : true);
-              const isSelected = selectedKey === dateKey;
+  const footer = isMonthPickerOpen ? (
+    <>
+      <Button
+        title="취소"
+        variant="ghost"
+        size="sm"
+        onPress={() => setIsMonthPickerOpen(false)}
+      />
+      <Button
+        title="적용"
+        variant="primary"
+        size="sm"
+        onPress={() => {
+          setCurrentMonth(new Date(draftYear, draftMonth, 1));
+          setIsMonthPickerOpen(false);
+        }}
+      />
+    </>
+  ) : (
+    <>
+      <Button title="취소" variant="ghost" size="sm" onPress={onCancel} />
+      <Button
+        title="확인"
+        variant="primary"
+        size="sm"
+        onPress={onConfirm}
+        disabled={!selectedDate}
+      />
+    </>
+  );
 
-              return (
-                <Pressable
-                  key={dateKey}
-                  accessibilityLabel={`${dateKey} ${isSelectable ? '선택 가능' : '선택 불가'}`}
-                  disabled={!isSelectable}
-                  onPress={() => onSelectDate(getStartOfDay(date))}
-                  style={[
-                    styles.dayCell,
-                    !inCurrentMonth &&
-                      !isSelectable &&
-                      styles.dayCellOutsideMonth,
-                    !isSelectable && inCurrentMonth && styles.dayCellDisabled,
-                    isSelectable && styles.dayCellEnabled,
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.dayNumber,
-                      isSelectable && styles.dayNumberEnabled,
-                      isSelected && styles.dayNumberSelected,
-                    ]}
-                  >
-                    <Typography
-                      variant="label"
-                      weight="semibold"
-                      color={'primary'}
-                    >
-                      {date.getDate()}
-                    </Typography>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </ThemeView>
-        </>
-      )}
+  if (isInBottomSheet) {
+    return (
+      <>
+        <BottomSheetHeader>{header}</BottomSheetHeader>
+        <BottomSheetBody scrollEnabled={!isMonthPickerOpen}>
+          {body}
+        </BottomSheetBody>
+        <BottomSheetFooter>{footer}</BottomSheetFooter>
+      </>
+    );
+  }
 
-      {!isMonthPickerOpen && (
-        <ThemeView transparent style={styles.footer}>
-          <Button title="취소" variant="ghost" size="sm" onPress={onCancel} />
-          <Button
-            title="확인"
-            variant="primary"
-            size="sm"
-            onPress={onConfirm}
-            disabled={!selectedDate}
-          />
-        </ThemeView>
-      )}
+  return (
+    <ThemeView style={styles.container} transparent>
+      {header}
+      {body}
+      <ThemeView transparent style={styles.footer}>
+        {footer}
+      </ThemeView>
     </ThemeView>
   );
 };
@@ -479,15 +489,6 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     shadowOpacity: 0.1,
     shadowRadius: 18,
     elevation: 6,
-  },
-  bottomSheetContainer: {
-    backgroundColor: 'transparent',
-    borderRadius: 0,
-    padding: theme.foundation.spacing[0],
-    borderWidth: 0,
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
   },
   header: {
     flexDirection: 'row',
@@ -565,9 +566,6 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     shadowOpacity: 0.18,
     shadowRadius: 8,
     elevation: 2,
-  },
-  pickerSection: {
-    gap: theme.foundation.spacing[4],
   },
   pickerColumns: {
     flexDirection: 'row',

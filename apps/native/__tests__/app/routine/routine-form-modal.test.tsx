@@ -412,18 +412,20 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       expect(getByLabelText('시작일 선택 바텀 시트')).toBeOnTheScreen();
       expect(
-        getByTestId('date-picker-backdrop').props.entering.constructor
+        getByTestId('bottom-sheet-backdrop').props.entering.constructor
           .presetName,
       ).toBe('FadeIn');
       expect(
-        getByTestId('date-picker-backdrop').props.exiting.constructor
+        getByTestId('bottom-sheet-backdrop').props.exiting.constructor
           .presetName,
       ).toBe('FadeOut');
       expect(
-        getByTestId('date-picker-sheet').props.entering.constructor.presetName,
+        getByTestId('bottom-sheet-container').props.entering.constructor
+          .presetName,
       ).toBe('SlideInDown');
       expect(
-        getByTestId('date-picker-sheet').props.exiting.constructor.presetName,
+        getByTestId('bottom-sheet-container').props.exiting.constructor
+          .presetName,
       ).toBe('SlideOutDown');
       expect(
         getByLabelText(`${getFormatDate(getStartOfToday())} 선택 가능`),
