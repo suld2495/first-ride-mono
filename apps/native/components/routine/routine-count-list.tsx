@@ -44,7 +44,6 @@ const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 const CHECKED_ICON_COLOR = palette.theme.gray[95];
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
-const MISSED_BACKGROUND_COLOR = palette.theme.blue[90];
 const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
 const MISSED_ICON_COLOR = palette.theme.softBlue[80];
 const TODAY_FRAME_COLOR = palette.white;
@@ -61,11 +60,6 @@ const createRoutineDateKey = (date: Date) => {
 
   return `${year}${month}${day}`;
 };
-
-const getMissedPastCheckBoxStyle = (
-  isMissedPast: boolean,
-): { backgroundColor: string } | null =>
-  isMissedPast ? { backgroundColor: MISSED_BACKGROUND_COLOR } : null;
 
 const getTodaySuccessFrameStyle = (isTodaySuccess: boolean) =>
   isTodaySuccess
@@ -257,8 +251,12 @@ const RoutineCountList = ({
                           theme.colors.brand.pendingConfirmationCheckbox,
                       }
                     : null;
-                  const missedPastGoalCheckBoxStyle =
-                    getMissedPastCheckBoxStyle(isMissedPastGoal);
+                  const missedPastGoalCheckBoxStyle = isMissedPastGoal
+                    ? {
+                        backgroundColor:
+                          theme.colors.brand.routineMissedCheckbox,
+                      }
+                    : null;
                   const label = getRoutineCountAccessibilityLabel({
                     countIndex,
                     isTodaySuccess,
