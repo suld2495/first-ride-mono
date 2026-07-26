@@ -196,7 +196,7 @@ const RoutineCountList = ({
               {!readOnly ? (
                 <RoutineContextMenuTrigger
                   routineName={routineName}
-                  iconColor={theme.colors.text.secondary}
+                  iconColor={theme.colors.brand.routineProgressText}
                   onToggle={() => onToggleRoutineMenu(routineId)}
                 />
               ) : null}
@@ -328,7 +328,7 @@ const RoutineCountList = ({
       readOnly,
       routineColorFallback,
       theme.colors.brand.pendingConfirmationCheckbox,
-      theme.colors.text.secondary,
+      theme.colors.brand.routineProgressText,
     ],
   );
 

@@ -1258,7 +1258,7 @@ describe('루틴 조회 페이지', () => {
 
         expect(progress).toHaveTextContent('3/5');
         expect(progress).toHaveStyle({
-          color: palette.theme.softBlue[60],
+          color: palette.theme.softBlue[80],
           fontSize: 11,
         });
         expect(progress).toHaveProp('fontWeight', '600');
@@ -1266,7 +1266,7 @@ describe('루틴 조회 페이지', () => {
           expect.arrayContaining([
             expect.objectContaining({
               position: 'absolute',
-              right: 32,
+              right: 36,
             }),
           ]),
         );

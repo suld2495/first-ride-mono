@@ -185,7 +185,7 @@ const RoutineWeekList = ({
               </View>
               <RoutineContextMenuTrigger
                 routineName={routineName}
-                iconColor={theme.colors.text.secondary}
+                iconColor={theme.colors.brand.routineProgressText}
                 onToggle={() => onToggleRoutineMenu(routineId)}
               />
             </>
@@ -297,7 +297,7 @@ const RoutineWeekList = ({
       readOnly,
       routineColorFallback,
       theme.colors.brand.pendingConfirmationCheckbox,
-      theme.colors.text.secondary,
+      theme.colors.brand.routineProgressText,
       todayDateKey,
       weekDateKeys,
       weeklyData,
@@ -366,7 +366,7 @@ const styles = StyleSheet.create((theme) => ({
   progressSummary: {
     position: 'absolute',
     top: baseFoundation.spacing[0],
-    right: baseFoundation.spacing[8],
+    right: baseFoundation.spacing[9],
     height: baseFoundation.dimension.x44,
     flexDirection: 'row',
     alignItems: 'center',
