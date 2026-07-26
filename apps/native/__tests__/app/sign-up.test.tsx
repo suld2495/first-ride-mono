@@ -66,6 +66,12 @@ const getButtonStyle = (button: any) =>
       : button.props.style,
   );
 
+const mockAvailableNickname = (nickname = '윤윤') => {
+  mockAxios.onGet('/auth/nickname/check').reply(200, {
+    data: { nickname, available: true },
+  });
+};
+
 describe('SignUp 페이지', () => {
   beforeEach(() => {
     mockPush.mockClear();
@@ -76,6 +82,7 @@ describe('SignUp 페이지', () => {
     mockAxios.onGet('/auth/email/check').reply(200, {
       data: { email: 'a@b.co', available: true },
     });
+    mockAvailableNickname();
     mockAxios.onPost('/auth/email/verification-requests').reply(200, {
       data: { message: '이메일 인증 메일을 발송했습니다.' },
     });
@@ -253,6 +260,13 @@ describe('SignUp 페이지', () => {
     expect(
       mockAxios.history.get.some((req) => req.url === '/auth/email/check'),
     ).toBe(true);
+    expect(
+      mockAxios.history.get.some(
+        (req) =>
+          req.url === '/auth/nickname/check' &&
+          req.params?.nickname === '윤윤',
+      ),
+    ).toBe(true);
     expect(await findByText('전사')).toBeOnTheScreen();
     fireEvent.press(getByLabelText('마법사 선택'));
     expect(await findByText('마법사')).toBeOnTheScreen();
@@ -266,6 +280,7 @@ describe('SignUp 페이지', () => {
     mockAxios.onGet('/auth/email/check').reply(200, {
       data: { email: 'a@b.co', available: false },
     });
+    mockAvailableNickname();
 
     const { getByPlaceholderText, getByText, findByText, queryByText } = render(
       <SignUp />,
@@ -278,11 +293,66 @@ describe('SignUp 페이지', () => {
     expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
   });
 
+  it('다음 클릭 후 닉네임이 중복이면 기본 입력 화면에 에러를 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(200, {
+      data: { email: 'a@b.co', available: true },
+    });
+    mockAxios.onGet('/auth/nickname/check').reply(200, {
+      data: { nickname: '윤윤', available: false },
+    });
+
+    const { getByPlaceholderText, getByText, findByText, queryByText } = render(
+      <SignUp />,
+    );
+
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.press(getByText('다음'));
+
+    expect(
+      await findByText('이미 사용 중인 닉네임입니다.'),
+    ).toBeOnTheScreen();
+    expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
+  });
+
+  it('닉네임 중복 확인의 서버 검증 메시지를 닉네임 입력란에 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAxios.onGet('/auth/email/check').reply(200, {
+      data: { email: 'a@b.co', available: true },
+    });
+    mockAxios.onGet('/auth/nickname/check').reply(400, {
+      success: false,
+      error: {
+        message: '잘못 입력된 값입니다.',
+        data: [
+          {
+            field: 'nickname',
+            rejected: '윤윤',
+            message: '닉네임을 확인해주세요.',
+          },
+        ],
+      },
+    });
+
+    const { getByPlaceholderText, getByText, findByText, queryByText } = render(
+      <SignUp />,
+    );
+
+    fillBasicFields(getByPlaceholderText);
+    fireEvent.press(getByText('다음'));
+
+    expect(await findByText('닉네임을 확인해주세요.')).toBeOnTheScreen();
+    expect(queryByText('캐릭터 선택')).not.toBeOnTheScreen();
+  });
+
   it('아이디 중복 체크 중에는 다음 버튼 텍스트 대신 로딩 상태를 표시한다', async () => {
     let resolveEmailCheck: (value: [number, unknown]) => void = () => {};
 
     mockAxios.resetHandlers();
     mockAxios.onGet('/auth/job-options').reply(200, { data: jobOptions });
+    mockAvailableNickname();
     mockAxios.onGet('/auth/email/check').reply(
       () =>
         new Promise((resolve) => {
@@ -340,6 +410,13 @@ describe('SignUp 페이지', () => {
     fireEvent.press(getByText('다음'));
 
     await findByText('캐릭터 선택');
+    expect(
+      mockAxios.history.get.some(
+        (req) =>
+          req.url === '/auth/nickname/check' &&
+          req.params?.nickname === '새닉네임',
+      ),
+    ).toBe(true);
     fireEvent.press(getByLabelText('마법사 선택'));
     fireEvent.press(getByText('선택 완료'));
 
@@ -369,6 +446,7 @@ describe('SignUp 페이지', () => {
     mockAxios.onGet('/auth/email/check').reply(200, {
       data: { email: 'a@b.co', available: true },
     });
+    mockAvailableNickname();
     mockAxios.onPost('/auth/email/verification-requests').reply(
       () =>
         new Promise((resolve) => {
@@ -403,6 +481,7 @@ describe('SignUp 페이지', () => {
     mockAxios.onGet('/auth/email/check').reply(200, {
       data: { email: 'a@b.co', available: true },
     });
+    mockAvailableNickname();
     mockAxios.onPost('/auth/email/verification-requests').reply(400, {
       error: {
         message: '잘못 입력된 값입니다.',
@@ -427,6 +506,7 @@ describe('SignUp 페이지', () => {
     mockAxios.onGet('/auth/email/check').reply(200, {
       data: { email: 'a@b.co', available: true },
     });
+    mockAvailableNickname();
     mockAxios.onPost('/auth/email/verification-requests').reply(500, {
       error: {
         message: '서버 오류가 발생했습니다.',
