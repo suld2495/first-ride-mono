@@ -97,9 +97,10 @@ describe('FriendRoutinesModal', () => {
     });
     expect(
       await screen.findByTestId('friend-routine-scene-background'),
-    ).toHaveProp('source', {
-      uri: 'https://cdn.example.com/backgrounds/mage.png',
-    });
+    ).toHaveProp(
+      'source',
+      routineSceneArt.routineSceneBackgroundAssets.red.source,
+    );
     expect(
       await screen.findByTestId('friend-routine-character-speech-bubble'),
     ).toBeOnTheScreen();

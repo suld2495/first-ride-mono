@@ -9,6 +9,7 @@ import { Pressable, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
+import { routineSceneBackgroundAssets } from '../../../components/routine/routine-scene-art';
 import { palette } from '../../../theme/tokens';
 import {
   act,
@@ -520,6 +521,31 @@ describe('루틴 조회 페이지', () => {
         ).toHaveLength(1);
       });
 
+      it('마법사 유저는 서버 배경 URL 대신 핑크 테마 배경을 사용한다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios
+          .onGet(/\/routine\/list/)
+          .reply(200, { data: createMockRoutines(2) });
+        mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
+        mockAxios.onGet('/users/me').reply(200, {
+          data: {
+            ...mockUser,
+            job: '마법사',
+            characterCode: 'MAGE_INTERMEDIATE',
+            characterImageUrl: 'https://cdn.example.com/characters/mage.png',
+            backgroundImageUrl: 'https://cdn.example.com/backgrounds/mage.png',
+          },
+        });
+
+        const { findByTestId, findByText } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+        expect(await findByTestId('routine-scene-background')).toHaveProp(
+          'source',
+          routineSceneBackgroundAssets.red.source,
+        );
+      });
+
       it('GET /users/me의 이미지 URL이 없으면 프론트 캐릭터는 숨기고 테마 배경을 표시한다', async () => {
         mockAxios.resetHandlers();
         mockAxios
@@ -538,7 +564,9 @@ describe('루틴 조회 페이지', () => {
 
         await findByText('테스트 루틴 1');
         expect(queryByTestId('routine-scene-character')).toBeNull();
-        expect(await findByTestId('routine-scene-background')).toBeOnTheScreen();
+        expect(
+          await findByTestId('routine-scene-background'),
+        ).toBeOnTheScreen();
       });
 
       it('계정 한마디 말풍선이 항상 표시된다', async () => {

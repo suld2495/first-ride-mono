@@ -28,6 +28,7 @@ import {
   clearRoutineShareTargets,
   syncRoutineShareTargets,
 } from '@/share/routine-share';
+import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { baseFoundation } from '@/theme/tokens';
 import {
   createRoutineWidgetSnapshot,
@@ -76,6 +77,9 @@ export default function Index() {
   const user = useAuthUser();
   const { data: currentUser } = useFetchMeQuery(user?.userId);
   const themeName = useColorScheme();
+  const userThemeName = currentUser
+    ? getThemeNameFromUserJob(currentUser)
+    : themeName;
 
   const {
     data: routines = [],
@@ -89,11 +93,11 @@ export default function Index() {
   );
   const routineBackgroundAsset = useMemo(
     () =>
-      themeName === 'red'
-        ? getRoutineSceneBackgroundAsset(themeName)
+      userThemeName === 'red'
+        ? getRoutineSceneBackgroundAsset(userThemeName)
         : (getRoutineSceneRemoteAsset(currentUser?.backgroundImageUrl) ??
-          getRoutineSceneBackgroundAsset(themeName)),
-    [currentUser?.backgroundImageUrl, themeName],
+          getRoutineSceneBackgroundAsset(userThemeName)),
+    [currentUser?.backgroundImageUrl, userThemeName],
   );
   const mottos = useMemo(() => {
     const normalizedMotto = normalizeMottoText(user?.motto);
