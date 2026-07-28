@@ -393,8 +393,9 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.brand.card,
   },
   character: {
-    width: baseFoundation.dimension.x36,
-    height: baseFoundation.dimension.x36,
+    width: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x44,
+    transform: [{ translateY: -2 }],
   },
   profileText: {
     marginLeft: theme.foundation.spacing[3],
