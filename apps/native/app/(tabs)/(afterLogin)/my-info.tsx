@@ -384,9 +384,9 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
   avatar: {
-    width: baseFoundation.dimension.x48,
-    height: baseFoundation.dimension.x48,
-    borderRadius: baseFoundation.dimension.x24,
+    width: baseFoundation.dimension.x60,
+    height: baseFoundation.dimension.x60,
+    borderRadius: baseFoundation.dimension.x30,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -395,7 +395,7 @@ const styles = StyleSheet.create((theme) => ({
   character: {
     width: baseFoundation.dimension.x44,
     height: baseFoundation.dimension.x44,
-    transform: [{ translateY: -2 }],
+    transform: [{ translateY: -6 }],
   },
   profileText: {
     marginLeft: theme.foundation.spacing[3],

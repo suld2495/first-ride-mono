@@ -225,15 +225,22 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-profile-avatar').props.style),
     ).toEqual(
       expect.objectContaining({
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
       }),
     );
     expect(getByTestId('settings-profile-character')).toBeOnTheScreen();
     expect(getByTestId('settings-profile-character')).toHaveProp('source', {
       uri: 'https://cdn.example.com/characters/warrior.png',
     });
+    expect(
+      StyleSheet.flatten(getByTestId('settings-profile-character').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        transform: [{ translateY: -6 }],
+      }),
+    );
     expect(
       StyleSheet.flatten(getByTestId('settings-profile-text').props.style),
     ).toEqual(
