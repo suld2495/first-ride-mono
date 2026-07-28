@@ -94,7 +94,7 @@ describe('Account', () => {
     expect(characterContainerStyle.borderWidth).toBeUndefined();
   });
 
-  it('헤더와 캐릭터 컨테이너 사이 간격을 12로 보여준다', () => {
+  it('헤더와 캐릭터 컨테이너 사이 위쪽 패딩을 두지 않는다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
@@ -105,7 +105,7 @@ describe('Account', () => {
       getByTestId('account-content').props.style,
     );
 
-    expect(contentStyle.paddingTop).toBe(12);
+    expect(contentStyle.paddingTop).toBe(0);
   });
 
   it('캐릭터 컨테이너 아래에 테마 컬러 보더의 한마디 입력을 보여준다', () => {
@@ -189,7 +189,7 @@ describe('Account', () => {
     expect(mottoInput.props.value).toBe(`${'가'.repeat(26)}ab`);
   });
 
-  it('한마디 입력 아래에 현재 byte 수와 최대 byte 수를 표시한다', () => {
+  it('한마디 입력 아래에 한글과 영문 글자 수를 표시한다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
@@ -198,17 +198,15 @@ describe('Account', () => {
     const { getByTestId } = render(<Account />);
     const mottoInput = getByTestId('account-motto-input');
 
-    expect(getByTestId('account-motto-byte-counter').props.children).toEqual([
-      16,
-      ' / 80byte',
-    ]);
+    expect(getByTestId('account-motto-byte-counter')).toHaveTextContent(
+      '한글 5자 / 영문 0자',
+    );
 
     fireEvent.changeText(mottoInput, 'abc가');
 
-    expect(getByTestId('account-motto-byte-counter').props.children).toEqual([
-      6,
-      ' / 80byte',
-    ]);
+    expect(getByTestId('account-motto-byte-counter')).toHaveTextContent(
+      '한글 1자 / 영문 3자',
+    );
   });
 
   it('새 한마디 입력 아래 기존 목록 영역을 보여주지 않는다', () => {

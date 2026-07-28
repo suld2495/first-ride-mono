@@ -62,6 +62,21 @@ const getUtf8ByteLength = (value: string) => {
   return byteLength;
 };
 
+const getMottoCharacterCountLabel = (value: string) => {
+  let koreanCount = 0;
+  let englishCount = 0;
+
+  for (const character of value) {
+    if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(character)) {
+      koreanCount += 1;
+    } else if (/[A-Za-z]/.test(character)) {
+      englishCount += 1;
+    }
+  }
+
+  return `한글 ${koreanCount}자 / 영문 ${englishCount}자`;
+};
+
 const limitMottoBytes = (value: string) => {
   let nextValue = '';
   let byteLength = 0;
@@ -96,7 +111,8 @@ const Account = () => {
   const primaryMotto =
     savedMotto === undefined ? currentMotto : (savedMotto ?? '');
   const hasPrimaryMottoChanged = primaryMottoInput !== primaryMotto;
-  const primaryMottoByteLength = getUtf8ByteLength(primaryMottoInput);
+  const primaryMottoCharacterCountLabel =
+    getMottoCharacterCountLabel(primaryMottoInput);
 
   useEffect(() => {
     if (fetchedUser) {
@@ -216,8 +232,7 @@ const Account = () => {
               weight="semibold"
               style={styles.mottoByteCounter}
             >
-              {primaryMottoByteLength}
-              {` / ${MAX_MOTTO_BYTES}byte`}
+              {primaryMottoCharacterCountLabel}
             </Typography>
           </View>
         </View>
@@ -235,7 +250,7 @@ const styles = StyleSheet.create((theme) => ({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: theme.foundation.spacing[3],
+    paddingTop: 0,
   },
   characterWrap: {
     alignItems: 'center',
