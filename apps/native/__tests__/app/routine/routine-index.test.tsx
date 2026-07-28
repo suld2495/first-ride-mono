@@ -9,7 +9,6 @@ import { Pressable, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
-import { appThemes } from '../../../theme/themes';
 import { palette } from '../../../theme/tokens';
 import {
   act,
