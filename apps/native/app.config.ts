@@ -4,7 +4,7 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 // 실제 빌드 시에는 eas.json의 env 또는 EAS Secrets에서 주입됨
 const KAKAO_NATIVE_APP_KEY =
   process.env.KAKAO_NATIVE_APP_KEY || 'KAKAO_KEY_PLACEHOLDER';
-const SPLASH_BACKGROUND_COLOR = '#59ADF7';
+const SPLASH_BACKGROUND_COLOR = '#FFFFFF';
 const shouldSkipAppleTargets = process.env.EXPO_SKIP_APPLE_TARGETS === '1';
 const webOutput =
   process.env.EXPO_WEB_OUTPUT === 'single' ? 'single' : 'static';
