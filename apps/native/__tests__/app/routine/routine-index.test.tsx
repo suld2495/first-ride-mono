@@ -470,10 +470,10 @@ describe('루틴 조회 페이지', () => {
           expect.arrayContaining([expect.objectContaining({ gap: 4 })]),
         );
         expect(flattenPressableStyles(reorderButton.props.style)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ width: 24 })]),
+          expect.arrayContaining([expect.objectContaining({ width: 40 })]),
         );
         expect(flattenPressableStyles(notificationButton.props.style)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ width: 24 })]),
+          expect.arrayContaining([expect.objectContaining({ width: 40 })]),
         );
       });
 

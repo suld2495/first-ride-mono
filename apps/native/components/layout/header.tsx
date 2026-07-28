@@ -19,7 +19,7 @@ const Header = ({ title }: HeaderProps) => {
       right={
         <NotificationBell
           count={requests.length}
-          size="sm"
+          size="md"
           style={styles.actionButton}
           url="/modal?type=request-list"
         />
@@ -32,7 +32,7 @@ export default Header;
 
 const styles = StyleSheet.create({
   actionButton: {
-    width: baseFoundation.dimension.x24,
-    minWidth: baseFoundation.dimension.x24,
+    width: baseFoundation.dimension.x40,
+    minWidth: baseFoundation.dimension.x40,
   },
 });

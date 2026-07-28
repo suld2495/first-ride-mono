@@ -39,11 +39,11 @@ describe('FriendHeader', () => {
     jest.clearAllMocks();
   });
 
-  it('renders the notification bell at the compact header action size', () => {
+  it('renders the notification bell at the larger header action size', () => {
     render(<FriendHeader requestCount={0} />);
 
     expect(jest.mocked(NotificationBellIcon).mock.calls[0][0]).toEqual({
-      size: 16,
+      size: 20,
     });
   });
 
@@ -53,7 +53,7 @@ describe('FriendHeader', () => {
     const notificationButton = getByLabelText('친구 요청 알림');
 
     expect(flattenPressableStyles(notificationButton.props.style)).toEqual(
-      expect.arrayContaining([expect.objectContaining({ width: 24 })]),
+      expect.arrayContaining([expect.objectContaining({ width: 40 })]),
     );
   });
 });
