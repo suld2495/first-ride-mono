@@ -266,8 +266,9 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   character: {
-    width: 100,
-    height: 100,
+    width: 112,
+    height: 112,
+    transform: [{ translateY: -12 }],
   },
   mottoInputWrapper: {
     width: '100%',

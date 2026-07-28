@@ -39,7 +39,7 @@ describe('Account', () => {
     });
   });
 
-  it('계정 캐릭터를 100x100 크기로 보여준다', () => {
+  it('계정 캐릭터를 112x112 크기로 보여주고 12px 위로 올린다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
@@ -52,8 +52,9 @@ describe('Account', () => {
 
     expect(characterStyle).toEqual(
       expect.objectContaining({
-        height: 100,
-        width: 100,
+        height: 112,
+        transform: [{ translateY: -12 }],
+        width: 112,
       }),
     );
   });
