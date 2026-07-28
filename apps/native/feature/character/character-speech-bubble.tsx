@@ -33,6 +33,7 @@ type CharacterSpeechBubbleProps = ViewProps & {
   textStyle?: StyleProp<TextStyle>;
   textVariant?: TypographyVariant;
   themeName?: ThemeName;
+  trailingIcon?: ReactNode;
   wrapperTop?: number;
   singleLineWrapperTop?: number;
 };
@@ -75,6 +76,7 @@ const CharacterSpeechBubble = ({
   textStyle,
   textVariant = 'body3',
   themeName: themeNameOverride,
+  trailingIcon,
   wrapperTop,
   singleLineWrapperTop,
   testID = 'character-speech-bubble',
@@ -128,18 +130,23 @@ const CharacterSpeechBubble = ({
         style={[styles.container, containerLayoutStyle]}
         testID={`${testID}-container`}
       >
-        <Typography
-          color={theme.colors.text.gray}
-          variant={textVariant}
-          weight="semibold"
-          ellipsizeMode="tail"
-          numberOfLines={numberOfLines}
-          onTextLayout={handleTextLayout}
-          textAlign="center"
-          style={[styles.message, textStyle]}
-        >
-          {children ?? message}
-        </Typography>
+        <View style={styles.messageRow}>
+          <Typography
+            color={theme.colors.text.gray}
+            variant={textVariant}
+            weight="semibold"
+            ellipsizeMode="tail"
+            numberOfLines={numberOfLines}
+            onTextLayout={handleTextLayout}
+            textAlign="center"
+            style={[styles.message, textStyle]}
+          >
+            {children ?? message}
+          </Typography>
+          {trailingIcon ? (
+            <View style={styles.trailingIcon}>{trailingIcon}</View>
+          ) : null}
+        </View>
       </View>
       {tailPosition !== 'none' && (
         <View
@@ -171,9 +178,18 @@ const styles = StyleSheet.create(() => ({
     overflow: 'visible',
   },
   message: {
-    alignSelf: 'stretch',
+    flexShrink: 1,
     lineHeight: 16,
     textAlign: 'center',
+  },
+  messageRow: {
+    maxWidth: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  trailingIcon: {
+    marginLeft: baseFoundation.spacing[1],
   },
   tail: {
     position: 'absolute',

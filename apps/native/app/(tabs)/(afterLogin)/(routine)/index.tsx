@@ -5,9 +5,10 @@ import { getWeekMonday } from '@repo/shared/utils';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { type LayoutChangeEvent, View } from 'react-native';
+import { type LayoutChangeEvent, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import PencilIcon from '@/components/icons/pencil-icon';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
@@ -143,6 +144,10 @@ export default function Index() {
     router.push('/modal?type=routine-add');
   }, [resetRoutineForm, router]);
 
+  const handleOpenAccountMotto = useCallback(() => {
+    router.push('/modal?type=account');
+  }, [router]);
+
   useEffect(() => {
     const snapshot = user
       ? createRoutineWidgetSnapshot(routines, { themeName })
@@ -211,13 +216,26 @@ export default function Index() {
                     {routineCharacterAsset ? (
                       <RoutineCharacter asset={routineCharacterAsset} />
                     ) : null}
-                    <View
+                    <Pressable
+                      accessibilityLabel="한마디 수정"
+                      accessibilityRole="button"
+                      onPress={handleOpenAccountMotto}
                       testID="routine-character-speech-bubble"
                       style={styles.speechBubble}
-                      pointerEvents="none"
                     >
-                      <CharacterSpeechBubble message={speechBubbleMessage} />
-                    </View>
+                      <CharacterSpeechBubble
+                        message={speechBubbleMessage}
+                        trailingIcon={
+                          <PencilIcon
+                            color={styles.speechBubbleEditIcon.color}
+                            height={baseFoundation.iconSize.s}
+                            opacity={0.45}
+                            testID="routine-speech-bubble-edit-icon"
+                            width={baseFoundation.iconSize.s}
+                          />
+                        }
+                      />
+                    </Pressable>
                   </View>
                 </View>
                 <View
@@ -239,13 +257,26 @@ export default function Index() {
                     {routineCharacterAsset ? (
                       <RoutineCharacter asset={routineCharacterAsset} />
                     ) : null}
-                    <View
+                    <Pressable
+                      accessibilityLabel="한마디 수정"
+                      accessibilityRole="button"
+                      onPress={handleOpenAccountMotto}
                       testID="routine-character-speech-bubble"
                       style={styles.speechBubble}
-                      pointerEvents="none"
                     >
-                      <CharacterSpeechBubble message={speechBubbleMessage} />
-                    </View>
+                      <CharacterSpeechBubble
+                        message={speechBubbleMessage}
+                        trailingIcon={
+                          <PencilIcon
+                            color={styles.speechBubbleEditIcon.color}
+                            height={baseFoundation.iconSize.s}
+                            opacity={0.45}
+                            testID="routine-speech-bubble-edit-icon"
+                            width={baseFoundation.iconSize.s}
+                          />
+                        }
+                      />
+                    </Pressable>
                   </View>
                 </View>
                 <View style={styles.emptyStateOverlay}>
@@ -339,6 +370,9 @@ const styles = StyleSheet.create((theme) => ({
   speechBubble: {
     bottom: SPEECH_BUBBLE_BOTTOM_OFFSET,
     position: 'absolute',
+  },
+  speechBubbleEditIcon: {
+    color: theme.colors.text.gray,
   },
   fab: {
     position: 'absolute',

@@ -564,6 +564,24 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
+      it('한마디 말풍선에 편집 아이콘을 표시하고 누르면 한마디 설정으로 이동한다', async () => {
+        mockAuthStore.user = {
+          ...mockUser,
+          motto: '매일 조금씩 앞으로 간다',
+          mottos: [],
+        };
+
+        const { findByLabelText, findByTestId } = render(<Index />);
+
+        expect(
+          await findByTestId('routine-speech-bubble-edit-icon'),
+        ).toBeOnTheScreen();
+
+        fireEvent.press(await findByLabelText('한마디 수정'));
+
+        expect(mockPush).toHaveBeenCalledWith('/modal?type=account');
+      });
+
       it('단일 한마디 조회값을 캐릭터 말풍선에 표시한다', async () => {
         mockAuthStore.user = {
           ...mockUser,
