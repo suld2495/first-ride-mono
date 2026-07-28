@@ -174,7 +174,7 @@ const RoutineWeekList = ({
                   />
                 ) : null}
                 <Typography
-                  variant="caption3"
+                  variant="caption2"
                   weight="semibold"
                   style={styles.progressSummaryText}
                   testID={`routine-week-progress-${routineId}`}

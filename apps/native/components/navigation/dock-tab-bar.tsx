@@ -6,7 +6,7 @@ import { useAppTheme } from '@/components/ui/tamagui';
 
 import { DockTabItem } from './dock-tab-item';
 
-const TAB_BAR_HEIGHT = 24;
+const TAB_BAR_HEIGHT = 32;
 const TAB_BAR_HORIZONTAL_PADDING = 8;
 const TAB_BAR_BACKGROUND = '#F7F4F4';
 const TAB_BAR_BOTTOM_PADDING = 6;

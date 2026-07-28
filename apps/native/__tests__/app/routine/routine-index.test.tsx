@@ -1295,7 +1295,7 @@ describe('루틴 조회 페이지', () => {
         expect(routineTitle).toHaveProp('fontWeight', '600');
       });
 
-      it('우측 메뉴 아이콘 왼쪽에 수행 횟수를 caption3 semibold로 표시한다', async () => {
+      it('우측 메뉴 아이콘 왼쪽에 수행 횟수를 caption2 semibold로 표시한다', async () => {
         const { findByTestId } = render(<Index />);
         const progress = await findByTestId('routine-week-progress-1');
         const progressContainerStyles = findAncestorStyleWith(
@@ -1306,7 +1306,7 @@ describe('루틴 조회 페이지', () => {
         expect(progress).toHaveTextContent('3/5');
         expect(progress).toHaveStyle({
           color: palette.theme.softBlue[80],
-          fontSize: 11,
+          fontSize: 12,
         });
         expect(progress).toHaveProp('fontWeight', '600');
         expect(progressContainerStyles).toEqual(
