@@ -201,11 +201,19 @@ const MyInfo = () => {
           </View>
 
           <View testID="settings-level-row" style={styles.levelRow}>
+            <Typography
+              color={themeColor[80]}
+              testID="settings-level-label"
+              variant="body3"
+              weight="semibold"
+            >
+              레벨
+            </Typography>
             <View testID="settings-level-badge" style={styles.levelBadge}>
               <Typography
                 color={themeColor[80]}
                 testID="settings-level-text"
-                variant="caption2"
+                variant="h3"
                 weight="semibold"
               >
                 Lv. {stats?.currentLevel ?? FALLBACK_LEVEL}
@@ -223,39 +231,44 @@ const MyInfo = () => {
               >
                 경험치
               </Typography>
+            </View>
+            <View testID="settings-exp-value-row" style={styles.expValueRow}>
               <Typography
-                color={softThemeColor[60]}
+                color={softThemeColor[80]}
                 testID="settings-exp-unit"
                 variant="caption2"
                 weight="semibold"
               >
                 EXP
               </Typography>
-            </View>
-            <View testID="settings-exp-value-row" style={styles.expValueRow}>
-              <Typography
-                color={softThemeColor[80]}
-                testID="settings-exp-current"
-                variant="caption2"
-                weight="semibold"
+              <View
+                testID="settings-exp-number-row"
+                style={styles.expNumberRow}
               >
-                {currentExp}
-              </Typography>
-              <Typography
-                color={softThemeColor[80]}
-                variant="caption2"
-                weight="semibold"
-              >
-                /
-              </Typography>
-              <Typography
-                color={softThemeColor[80]}
-                testID="settings-exp-next"
-                variant="caption2"
-                weight="semibold"
-              >
-                {nextLevelExp}
-              </Typography>
+                <Typography
+                  color={softThemeColor[80]}
+                  testID="settings-exp-current"
+                  variant="caption2"
+                  weight="semibold"
+                >
+                  {currentExp}
+                </Typography>
+                <Typography
+                  color={softThemeColor[80]}
+                  variant="caption2"
+                  weight="semibold"
+                >
+                  /
+                </Typography>
+                <Typography
+                  color={softThemeColor[80]}
+                  testID="settings-exp-next"
+                  variant="caption2"
+                  weight="semibold"
+                >
+                  {nextLevelExp}
+                </Typography>
+              </View>
             </View>
           </View>
 
@@ -411,15 +424,13 @@ const styles = StyleSheet.create((theme) => ({
   },
   levelRow: {
     marginTop: theme.foundation.spacing[5],
-    alignItems: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   levelBadge: {
-    height: baseFoundation.dimension.x16,
-    paddingHorizontal: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: baseFoundation.dimension.x99,
-    backgroundColor: theme.colors.brand.primary,
   },
   expLabelRow: {
     marginTop: theme.foundation.spacing[2],
@@ -430,9 +441,13 @@ const styles = StyleSheet.create((theme) => ({
   expTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: baseFoundation.dimension.x5,
   },
   expValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.dimension.x12,
+  },
+  expNumberRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: baseFoundation.dimension.x2,
