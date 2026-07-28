@@ -406,8 +406,8 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.brand.card,
   },
   character: {
-    width: baseFoundation.dimension.x44,
-    height: baseFoundation.dimension.x44,
+    width: baseFoundation.dimension.x52,
+    height: baseFoundation.dimension.x52,
     transform: [{ translateY: -6 }],
   },
   profileText: {

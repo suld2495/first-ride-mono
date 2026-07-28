@@ -239,6 +239,8 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-profile-character').props.style),
     ).toEqual(
       expect.objectContaining({
+        width: 52,
+        height: 52,
         transform: [{ translateY: -6 }],
       }),
     );
