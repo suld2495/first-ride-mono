@@ -521,7 +521,7 @@ describe('루틴 조회 페이지', () => {
         ).toHaveLength(1);
       });
 
-      it('GET /users/me의 이미지 URL이 없으면 프론트 캐릭터와 배경을 표시하지 않는다', async () => {
+      it('GET /users/me의 이미지 URL이 없으면 프론트 캐릭터는 숨기고 테마 배경을 표시한다', async () => {
         mockAxios.resetHandlers();
         mockAxios
           .onGet(/\/routine\/list/)
@@ -535,11 +535,11 @@ describe('루틴 조회 페이지', () => {
           },
         });
 
-        const { findByText, queryByTestId } = render(<Index />);
+        const { findByText, findByTestId, queryByTestId } = render(<Index />);
 
         await findByText('테스트 루틴 1');
         expect(queryByTestId('routine-scene-character')).toBeNull();
-        expect(queryByTestId('routine-scene-background')).toBeNull();
+        expect(await findByTestId('routine-scene-background')).toBeOnTheScreen();
       });
 
       it('계정 한마디 말풍선이 항상 표시된다', async () => {

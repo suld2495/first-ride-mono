@@ -52,7 +52,7 @@ export const redTheme: ThemeContract = {
     brand: {
       ...commonTheme.colors.brand,
       primary: palette.theme.red[30],
-      secondary: palette.theme.red[20],
+      secondary: '#EFB9E2',
       background: palette.theme.red[10],
       text: palette.theme.red[100],
       icon: palette.theme.red[50],

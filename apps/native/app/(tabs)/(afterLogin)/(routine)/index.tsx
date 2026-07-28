@@ -12,6 +12,7 @@ import PencilIcon from '@/components/icons/pencil-icon';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
+  getRoutineSceneBackgroundAsset,
   getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
@@ -87,8 +88,10 @@ export default function Index() {
     [currentUser?.characterImageUrl],
   );
   const routineBackgroundAsset = useMemo(
-    () => getRoutineSceneRemoteAsset(currentUser?.backgroundImageUrl),
-    [currentUser?.backgroundImageUrl],
+    () =>
+      getRoutineSceneRemoteAsset(currentUser?.backgroundImageUrl) ??
+      getRoutineSceneBackgroundAsset(themeName),
+    [currentUser?.backgroundImageUrl, themeName],
   );
   const mottos = useMemo(() => {
     const normalizedMotto = normalizeMottoText(user?.motto);
