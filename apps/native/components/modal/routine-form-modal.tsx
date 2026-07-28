@@ -375,6 +375,7 @@ const RoutineFormModal = () => {
                     <FormItem
                       name="mateNickname"
                       label="메이트"
+                      required
                       item={({ value, onChange }) => (
                         <AutocompleteInput
                           variant="filled"
@@ -399,6 +400,7 @@ const RoutineFormModal = () => {
                     <FormItem
                       name="penalty"
                       label="벌금"
+                      optionalLabel="선택"
                       item={({ value, onChange }) => {
                         const formatNumber = (num: string | number) => {
                           const numStr = String(num).replace(/[^0-9]/g, '');
@@ -439,6 +441,7 @@ const RoutineFormModal = () => {
           <FormItem
             name="mateNickname"
             label="메이트"
+            required
             showErrors={false}
             item={({ value }) => (
               <Typography variant="body">{String(value)}</Typography>
@@ -449,6 +452,7 @@ const RoutineFormModal = () => {
           <FormItem
             name="penalty"
             label="벌금"
+            optionalLabel="선택"
             item={({ value, onChange }) => {
               const formatNumber = (num: string | number) => {
                 const numStr = String(num).replace(/[^0-9]/g, '');

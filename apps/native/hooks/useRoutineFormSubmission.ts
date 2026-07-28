@@ -46,6 +46,11 @@ const normalizePenalty = (penalty: RoutineForm['penalty'] | string): number => {
   return Number(penalty) || 0;
 };
 
+const getOptionalPenaltyPayload = (penalty: RoutineForm['penalty'] | string) =>
+  penalty === '' || typeof penalty === 'undefined'
+    ? {}
+    : { penalty: normalizePenalty(penalty) };
+
 const normalizeRoutineCreateRequest = (
   data: RoutineStatusSubmitForm,
 ): CreateRoutineRequest => {
@@ -69,7 +74,7 @@ const normalizeRoutineCreateRequest = (
     target: 'mate',
     payload: {
       ...payload,
-      penalty: normalizePenalty(data.penalty),
+      ...getOptionalPenaltyPayload(data.penalty),
       mateNickname: data.mateNickname,
     },
   };

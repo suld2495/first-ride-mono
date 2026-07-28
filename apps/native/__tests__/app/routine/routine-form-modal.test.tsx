@@ -1,6 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
-import { act, waitFor } from '@testing-library/react-native';
+import { act, waitFor, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { type ReactElement, useContext } from 'react';
 import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
@@ -334,6 +334,24 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(getByTestId('bouncy-checkbox').props.fillColor).toBe('#000306');
       expect(queryByPlaceholderText('메이트를 지정하세요.')).not.toBeOnTheScreen();
       expect(queryByPlaceholderText('벌금을 입력하세요.')).not.toBeOnTheScreen();
+    });
+
+    it('메이트 루틴 입력에서는 메이트를 필수로, 벌금을 선택항목으로 표시한다', async () => {
+      const { getByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getByTestId('bouncy-checkbox'));
+      });
+
+      const mateLabelRow = within(getByTestId('mateNickname-label-row'));
+      const penaltyLabelRow = within(getByTestId('penalty-label-row'));
+      const penaltyOptional = penaltyLabelRow.getByText('선택');
+
+      expect(mateLabelRow.getByText('메이트')).toBeOnTheScreen();
+      expect(mateLabelRow.getByText('*')).toBeOnTheScreen();
+      expect(penaltyLabelRow.getByText('벌금')).toBeOnTheScreen();
+      expect(penaltyOptional).toBeOnTheScreen();
+      expect(penaltyOptional.props.fontSize).toBe('$caption2');
     });
 
     it('생성 버튼은 modal.tsx의 고정 header action에 표시된다', () => {
@@ -800,6 +818,59 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           expect(payload).not.toHaveProperty('nickname');
           expect(payload).not.toHaveProperty('isMe');
           expect(payload).not.toHaveProperty('endDate');
+        });
+      });
+
+      it('메이트 루틴 생성 시 벌금을 비우면 penalty를 보내지 않는다', async () => {
+        mockAxios.onPost('/routine/mate').reply(201, {
+          data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
+        });
+        const { getByLabelText, getByPlaceholderText, getByTestId, getByText } =
+          render(<RoutineFormModal />);
+
+        await act(async () => {
+          fireEvent.press(getByTestId('bouncy-checkbox'));
+        });
+
+        const mateInput = getByPlaceholderText('메이트를 지정하세요.');
+
+        await waitFor(() => {
+          expect(mateInput.props.editable).toBe(true);
+        });
+
+        await act(async () => {
+          fireEvent.changeText(mateInput, 'friend1');
+        });
+
+        await fillForm(getByPlaceholderText, getByText, {
+          routineName: '벌금 없는 메이트 루틴',
+          routineDetail: '함께 달리기',
+          routineCount: 3,
+        });
+        await selectStartDate(getByText, getByLabelText);
+
+        await waitFor(() => {
+          expect(getByText('생성')).toBeEnabled();
+        });
+
+        await act(async () => {
+          fireEvent.press(getByText('생성'));
+        });
+
+        await waitFor(() => {
+          const request = mockAxios.history.post.find(
+            ({ url }) => url === '/routine/mate',
+          );
+          const payload = JSON.parse(request?.data ?? '{}');
+
+          expect(payload).toMatchObject({
+            routineName: '벌금 없는 메이트 루틴',
+            routineDetail: '함께 달리기',
+            routineCount: 3,
+            symbolColor: '#00D68F',
+            mateNickname: 'friend1',
+          });
+          expect(payload).not.toHaveProperty('penalty');
         });
       });
     });

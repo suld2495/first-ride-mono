@@ -78,7 +78,7 @@ export function createFormItem<T extends Record<string, unknown>>(
           />
         )}
         {label && (
-          <View style={styles.labelRow}>
+          <View style={styles.labelRow} testID={`${String(name)}-label-row`}>
             <Typography variant="caption1" style={styles.label}>
               {label}
             </Typography>
@@ -88,7 +88,7 @@ export function createFormItem<T extends Record<string, unknown>>(
               </Typography>
             )}
             {!required && optionalLabel && (
-              <Typography variant="caption1" style={styles.optional}>
+              <Typography variant="caption2" style={styles.optional}>
                 {optionalLabel}
               </Typography>
             )}
