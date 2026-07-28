@@ -19,6 +19,8 @@ import { useAuthSignIn, useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 const MAX_MOTTO_BYTES = 80;
+const MAX_MOTTO_KOREAN_CHARACTERS = Math.floor(MAX_MOTTO_BYTES / 3);
+const MAX_MOTTO_ENGLISH_CHARACTERS = MAX_MOTTO_BYTES;
 const getSkinLevel5Color = (themeName: string) => {
   if (themeName === 'green') {
     return palette.theme.green[5];
@@ -74,7 +76,7 @@ const getMottoCharacterCountLabel = (value: string) => {
     }
   }
 
-  return `한글 ${koreanCount}자 / 영문 ${englishCount}자`;
+  return `한글 ${koreanCount}자 (최대 ${MAX_MOTTO_KOREAN_CHARACTERS}자) / 영문 ${englishCount}자 (최대 ${MAX_MOTTO_ENGLISH_CHARACTERS}자)`;
 };
 
 const limitMottoBytes = (value: string) => {
