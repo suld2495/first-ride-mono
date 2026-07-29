@@ -7,6 +7,10 @@ import QuestPage from '../../app/(tabs)/(afterLogin)/(quest)/index';
 import { createMockQuest } from '../setup/quest/mock';
 import { render } from '../setup/test-utils';
 
+declare const mockAuthStore: {
+  user: { nickname: string; role: 'ADMIN' | 'USER'; userId: string } | null;
+};
+
 jest.mock('@repo/shared/hooks/useQuest', () => ({
   useFetchQuestsQuery: jest.fn(),
 }));
@@ -18,6 +22,11 @@ jest.mock('@/hooks/useReceivedRequests', () => ({
 describe('QuestPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAuthStore.user = {
+      nickname: 'testuser',
+      role: 'USER',
+      userId: 'test123',
+    };
     useQuestStore.setState({
       questId: null,
       statusFilter: 'ACTIVE',
@@ -56,6 +65,26 @@ describe('QuestPage', () => {
 
     expect(StyleSheet.flatten(filterListStack?.props.style)).toMatchObject({
       gap: 8,
+    });
+  });
+
+  it('uses the friend add button style for the admin quest add button', () => {
+    mockAuthStore.user = {
+      nickname: 'admin',
+      role: 'ADMIN',
+      userId: 'test123',
+    };
+
+    const { getByTestId, getByText } = render(<QuestPage />);
+
+    expect(getByText('추가')).toBeOnTheScreen();
+    expect(getByTestId('quest-add-button')).toHaveStyle({
+      width: 99,
+      height: 28,
+      minWidth: 99,
+      minHeight: 28,
+      borderRadius: 8,
+      backgroundColor: '#111827',
     });
   });
 

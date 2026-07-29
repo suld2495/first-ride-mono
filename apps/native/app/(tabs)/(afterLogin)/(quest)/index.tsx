@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
 import type { Quest } from '@repo/types';
 import { useRouter } from 'expo-router';
@@ -61,10 +62,20 @@ export default function QuestPage() {
           right={
             isAdmin ? (
               <Button
+                testID="quest-add-button"
                 title="추가"
-                variant="primary"
+                variant="ghost"
                 size="sm"
+                leftIcon={({ color }) => (
+                  <Ionicons
+                    name="add"
+                    size={baseFoundation.iconSize.m}
+                    color={color}
+                  />
+                )}
                 onPress={handleAddQuest}
+                backgroundColor="#111827"
+                textColor="#FFFFFF"
                 style={styles.addButton}
               />
             ) : undefined
@@ -86,6 +97,11 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing[2],
   },
   addButton: {
-    minWidth: baseFoundation.dimension.x60,
+    width: baseFoundation.dimension.x99,
+    height: baseFoundation.dimension.x28,
+    minWidth: baseFoundation.dimension.x99,
+    minHeight: baseFoundation.dimension.x28,
+    borderRadius: baseFoundation.radii.xs,
+    paddingHorizontal: theme.foundation.spacing[3],
   },
 }));
