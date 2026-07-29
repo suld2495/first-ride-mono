@@ -381,7 +381,7 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
   },
   speechBubbleEditIcon: {
-    color: theme.colors.text.gray,
+    color: theme.colors.text.soft,
   },
   fab: {
     position: 'absolute',
