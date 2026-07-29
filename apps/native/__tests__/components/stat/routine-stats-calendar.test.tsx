@@ -73,7 +73,7 @@ describe('RoutineStatsCalendar', () => {
   });
 
   it('수행 완료 날짜를 루틴에 설정된 색상으로 렌더링한다', () => {
-    const routineColor = '#FA4F9B';
+    const routineColor = '#F791DE';
     const { getByTestId } = render(
       <RoutineStatsCalendar
         routineName="운동 주 3회"

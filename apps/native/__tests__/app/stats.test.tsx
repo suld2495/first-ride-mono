@@ -260,7 +260,7 @@ describe('StatsPage', () => {
                 }),
                 routineName: '운동 주 2회',
                 category: '운동',
-                symbolColor: '#FA4F9B',
+                symbolColor: '#F791DE',
                 displayOrder: 1,
                 completed: false,
                 status: 'ACTIVE',
@@ -275,7 +275,7 @@ describe('StatsPage', () => {
                 }),
                 routineName: '악기연습 주 3회',
                 category: '취미',
-                symbolColor: '#00C9BD',
+                symbolColor: '#26C8A2',
                 displayOrder: 2,
                 completed: true,
                 status: 'COMPLETED',
@@ -389,7 +389,7 @@ describe('StatsPage', () => {
           borderWidth: 1,
         }),
         expect.objectContaining({ borderColor: palette.theme.softBlue[60] }),
-        expect.objectContaining({ backgroundColor: '#FA4F9B' }),
+        expect.objectContaining({ backgroundColor: '#F791DE' }),
       ]),
     );
     expect(
@@ -397,7 +397,7 @@ describe('StatsPage', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ borderColor: palette.theme.softBlue[60] }),
-        expect.objectContaining({ backgroundColor: '#00C9BD' }),
+        expect.objectContaining({ backgroundColor: '#26C8A2' }),
       ]),
     );
     expect(queryByTestId('routine-stats-summary-track-marker-1')).toBeNull();

@@ -5,7 +5,7 @@ import { palette } from '@/theme/tokens';
 
 import { render } from '../../setup/test-utils';
 
-const ROUTINE_COLOR = '#00C9BD';
+const ROUTINE_COLOR = '#26C8A2';
 
 const createRoutine = (achievedCount: number): RoutineMonthlySummary => ({
   routineId: 1,

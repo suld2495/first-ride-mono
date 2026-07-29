@@ -189,7 +189,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       isMe: true,
       startDate: '',
       endDate: '',
-      symbolColor: '#00D68F',
+      symbolColor: '#3C9FFF',
     };
     mockRoutineStore.routineId = 0;
     (global as any).mockCheckboxChecked = false;
@@ -604,7 +604,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
       expect(
         RNStyleSheet.flatten(
-          getByTestId('routine-color-option-00D68F').props.style,
+          getByTestId('routine-color-option-3C9FFF').props.style,
         ),
       ).toMatchObject({
         width: 24,
@@ -614,15 +614,15 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         borderColor: '#FFFFFF',
       });
       expect(
-        getByLabelText('컬러 초록 선택됨').props.accessibilityState,
+        getByLabelText('컬러 파랑 선택됨').props.accessibilityState,
       ).toEqual({ selected: true });
 
       await act(async () => {
-        fireEvent.press(getByLabelText('컬러 파랑 선택'));
+        fireEvent.press(getByLabelText('컬러 하늘 선택'));
       });
 
       expect(
-        getByLabelText('컬러 파랑 선택됨').props.accessibilityState,
+        getByLabelText('컬러 하늘 선택됨').props.accessibilityState,
       ).toEqual({ selected: true });
     });
 
@@ -754,7 +754,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
             routineName: '테스트 루틴',
             routineDetail: '테스트 설명',
             routineCount: 3,
-            symbolColor: '#00D68F',
+            symbolColor: '#3C9FFF',
           });
           expect(payload).not.toHaveProperty('nickname');
           expect(payload).not.toHaveProperty('isMe');
@@ -811,7 +811,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
             routineName: '메이트 루틴',
             routineDetail: '함께 달리기',
             routineCount: 3,
-            symbolColor: '#00D68F',
+            symbolColor: '#3C9FFF',
             penalty: 5000,
             mateNickname: 'friend1',
           });
@@ -867,7 +867,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
             routineName: '벌금 없는 메이트 루틴',
             routineDetail: '함께 달리기',
             routineCount: 3,
-            symbolColor: '#00D68F',
+            symbolColor: '#3C9FFF',
             mateNickname: 'friend1',
           });
           expect(payload).not.toHaveProperty('penalty');
@@ -1436,7 +1436,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         const { findByTestId, findByText } = render(<RoutineFormModal />);
 
         await act(async () => {
-          fireEvent.press(await findByTestId('routine-color-option-00B8F0'));
+          fireEvent.press(await findByTestId('routine-color-option-30C2F1'));
         });
 
         await act(async () => {
@@ -1447,7 +1447,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           const payload = JSON.parse(mockAxios.history.put[0]?.data ?? '{}');
 
           expect(payload).toEqual({
-            symbolColor: '#00B8F0',
+            symbolColor: '#30C2F1',
           });
         });
       });

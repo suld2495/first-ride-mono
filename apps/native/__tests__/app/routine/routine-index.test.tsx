@@ -1094,7 +1094,7 @@ describe('루틴 조회 페이지', () => {
         const { findByTestId } = render(<Index />);
 
         expect(await findByTestId('routine-count-check-1-1')).toHaveStyle({
-          backgroundColor: '#00D68F',
+          backgroundColor: '#3C9FFF',
         });
       });
 
@@ -1544,7 +1544,7 @@ describe('루틴 조회 페이지', () => {
           within(await findByTestId('routine-week-check-1-0')).getByText('월'),
         ).toBeOnTheScreen();
         expect(await findByTestId('routine-week-check-1-0')).toHaveStyle({
-          backgroundColor: '#00D68F',
+          backgroundColor: '#3C9FFF',
         });
       });
 
@@ -1740,7 +1740,7 @@ describe('루틴 조회 페이지', () => {
         const { findByTestId } = render(<Index />);
 
         expect(await findByTestId('routine-week-check-1-0')).toHaveStyle({
-          backgroundColor: '#00D68F',
+          backgroundColor: '#3C9FFF',
         });
       });
 
