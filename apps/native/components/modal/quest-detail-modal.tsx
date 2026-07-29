@@ -27,11 +27,7 @@ const formatDateRange = (startDate: string, endDate: string) => {
   const endMonth = end.getMonth() + 1;
   const endDay = end.getDate();
 
-  if (startMonth === endMonth) {
-    return `기간 ${startMonth}-${startDay} ~ ${endDay}`;
-  }
-
-  return `기간 ${startMonth}-${startDay} ~ ${endMonth}-${endDay}`;
+  return `기간 ${startMonth}. ${startDay} ~ ${endMonth}. ${endDay}`;
 };
 
 const getQuestStatusLabel = ({

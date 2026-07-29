@@ -153,7 +153,7 @@ describe('QuestDetailModal', () => {
     expect(await screen.findByText('진행 중')).toBeOnTheScreen();
     expect(screen.getByText('일주일 내내 어플 들어오기')).toBeOnTheScreen();
     expect(screen.getByText('2/7')).toBeOnTheScreen();
-    expect(screen.getByText('기간 6-16 ~ 18')).toBeOnTheScreen();
+    expect(screen.getByText('기간 6. 16 ~ 6. 18')).toBeOnTheScreen();
     expect(screen.getByTestId('quest-detail-progress-track')).toBeOnTheScreen();
     expect(
       screen.getByTestId('quest-detail-image-placeholder'),
@@ -231,7 +231,7 @@ describe('QuestDetailModal', () => {
     const periodBadgeStyle = StyleSheet.flatten(
       screen.getByTestId('quest-detail-period-badge').props.style,
     );
-    const periodText = screen.getByText('기간 6-16 ~ 18');
+    const periodText = screen.getByText('기간 6. 16 ~ 6. 18');
     const periodTextStyle = StyleSheet.flatten(periodText.props.style);
     const buttonWrapperStyle = StyleSheet.flatten(
       screen.getByTestId('quest-detail-reward-button-wrapper').props.style,
