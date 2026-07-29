@@ -6,7 +6,7 @@ import {
 import { getWeekMonday } from '@repo/shared/utils';
 import type { Friend } from '@repo/types';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 
 import FriendAddModal from '@/components/friend/friend-add-modal';
 import FriendHeader from '@/components/friend/friend-header';
@@ -17,7 +17,11 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
-import { useClearAppColorSchemeOverride } from '@/hooks/useThemePreference';
+import {
+  useBaseColorSchemeValue,
+  useClearAppColorSchemeOverride,
+} from '@/hooks/useThemePreference';
+import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 
 const FriendPage = () => {
@@ -26,7 +30,9 @@ const FriendPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const user = useAuthUser();
+  const baseThemeName = useBaseColorSchemeValue();
   const clearColorSchemeOverride = useClearAppColorSchemeOverride();
+  const pageBackgroundColor = appThemes[baseThemeName].colors.background.base;
 
   const { data: requests = [], refetch: refetchRequests } =
     useFetchFriendRequestsQuery(user?.userId ?? '', page);
@@ -35,6 +41,10 @@ const FriendPage = () => {
     isLoading,
     refetch: refetchFriends,
   } = useFetchFriendsQuery({ page, keyword: '' });
+
+  useLayoutEffect(() => {
+    clearColorSchemeOverride();
+  }, [clearColorSchemeOverride]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -64,10 +74,18 @@ const FriendPage = () => {
   );
 
   return (
-    <Container style={styles.container} noPadding>
+    <Container
+      style={[styles.container, { backgroundColor: pageBackgroundColor }]}
+      noPadding
+      testID="friend-page"
+    >
       <FriendHeader requestCount={requests.length} />
 
-      <ThemeView style={styles.innerContainer}>
+      <ThemeView
+        style={styles.innerContainer}
+        transparent
+        testID="friend-page-content"
+      >
         <ThemeView style={styles.summaryRow} transparent>
           <Typography variant="caption1" style={styles.totalText}>
             전체 {friends?.length ?? 0}명

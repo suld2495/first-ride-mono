@@ -1,7 +1,9 @@
 import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
 import { StyleSheet, View } from 'react-native';
 
+import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { useQuestStore } from '@/store/quest.store';
+import { appThemes } from '@/theme/themes';
 
 import QuestPage from '../../app/(tabs)/(afterLogin)/(quest)/index';
 import { createMockQuest } from '../setup/quest/mock';
@@ -22,6 +24,8 @@ jest.mock('@/hooks/useReceivedRequests', () => ({
 describe('QuestPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useColorSchemeStore.getState().clearColorSchemeOverride();
+    useColorSchemeStore.getState().setColorScheme('blue');
     mockAuthStore.user = {
       nickname: 'testuser',
       role: 'USER',
@@ -66,6 +70,18 @@ describe('QuestPage', () => {
     expect(StyleSheet.flatten(filterListStack?.props.style)).toMatchObject({
       gap: 8,
     });
+  });
+
+  it('친구 테마 override가 남아 있어도 퀘스트 목록 배경은 내 테마로 표시한다', () => {
+    useColorSchemeStore.getState().setColorScheme('blue');
+    useColorSchemeStore.getState().setColorSchemeOverride('green');
+
+    const { getByTestId } = render(<QuestPage />);
+
+    expect(getByTestId('quest-page')).toHaveStyle({
+      backgroundColor: appThemes.blue.colors.background.base,
+    });
+    expect(useColorSchemeStore.getState().colorSchemeOverride).toBeNull();
   });
 
   it('uses the friend add button style for the admin quest add button', () => {

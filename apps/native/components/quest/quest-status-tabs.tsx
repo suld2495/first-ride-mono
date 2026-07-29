@@ -28,7 +28,7 @@ const QuestStatusTabs = ({
   const statusColors = theme.colors.filter?.status ?? commonStatusFilterColors;
 
   return (
-    <ThemeView style={styles.container}>
+    <ThemeView style={styles.container} transparent>
       <ThemeView style={styles.tabs} transparent>
         {TABS.map((tab) => {
           const isSelected = selected === tab.value;

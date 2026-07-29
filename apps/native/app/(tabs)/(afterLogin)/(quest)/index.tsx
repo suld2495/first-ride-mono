@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
 import type { Quest } from '@repo/types';
 import { useRouter } from 'expo-router';
+import { useLayoutEffect } from 'react';
 import { View } from 'react-native';
 
 import Container from '@/components/layout/container';
@@ -17,6 +18,11 @@ import {
   useSetQuestId,
   useSetQuestStatusFilter,
 } from '@/hooks/useQuestSelection';
+import {
+  useBaseColorSchemeValue,
+  useClearAppColorSchemeOverride,
+} from '@/hooks/useThemePreference';
+import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 
 export default function QuestPage() {
@@ -25,7 +31,14 @@ export default function QuestPage() {
   const setQuestId = useSetQuestId();
   const statusFilter = useQuestStatusFilter();
   const setStatusFilter = useSetQuestStatusFilter();
+  const baseThemeName = useBaseColorSchemeValue();
+  const clearColorSchemeOverride = useClearAppColorSchemeOverride();
   const isAdmin = user?.role === 'ADMIN';
+  const pageBackgroundColor = appThemes[baseThemeName].colors.background.base;
+
+  useLayoutEffect(() => {
+    clearColorSchemeOverride();
+  }, [clearColorSchemeOverride]);
 
   const { data: quests, isLoading } = useFetchQuestsQuery(user?.userId ?? '', {
     status: 'ACTIVE',
@@ -34,7 +47,11 @@ export default function QuestPage() {
 
   if (isLoading) {
     return (
-      <Container style={styles.container} noPadding>
+      <Container
+        style={[styles.container, { backgroundColor: pageBackgroundColor }]}
+        noPadding
+        testID="quest-page"
+      >
         <QuestHeader />
         <View style={styles.content}>
           <Loading />
@@ -53,7 +70,11 @@ export default function QuestPage() {
   };
 
   return (
-    <Container style={styles.container} noPadding>
+    <Container
+      style={[styles.container, { backgroundColor: pageBackgroundColor }]}
+      noPadding
+      testID="quest-page"
+    >
       <QuestHeader />
       <View style={styles.content}>
         <QuestStatusTabs
