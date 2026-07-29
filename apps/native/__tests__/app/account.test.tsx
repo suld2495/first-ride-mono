@@ -190,7 +190,7 @@ describe('Account', () => {
     expect(mottoInput.props.value).toBe(`${'가'.repeat(26)}ab`);
   });
 
-  it('한마디 입력 아래에 한글과 영문 입력 수와 최대 입력 수를 표시한다', () => {
+  it('한마디 입력 아래에 현재 글자 수와 최대 한글 글자 수를 표시한다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
@@ -200,13 +200,42 @@ describe('Account', () => {
     const mottoInput = getByTestId('account-motto-input');
 
     expect(getByTestId('account-motto-byte-counter')).toHaveTextContent(
-      '한글 5자 (최대 26자) / 영문 0자 (최대 80자)',
+      '6/26자',
     );
 
     fireEvent.changeText(mottoInput, 'abc가');
 
     expect(getByTestId('account-motto-byte-counter')).toHaveTextContent(
-      '한글 1자 (최대 26자) / 영문 3자 (최대 80자)',
+      '4/26자',
+    );
+  });
+
+  it('한마디 글자 수는 테마별 soft 80 컬러로 표시한다', () => {
+    useColorSchemeStore.getState().setColorScheme('green');
+    (useUpdateMottoMutation as jest.Mock).mockReturnValue({
+      isPending: false,
+      mutate: jest.fn(),
+    });
+
+    const { getByTestId, rerender } = render(<Account />);
+
+    expect(
+      StyleSheet.flatten(getByTestId('account-motto-byte-counter').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.softGreen[80],
+      }),
+    );
+
+    useColorSchemeStore.getState().setColorScheme('red');
+    rerender(<Account />);
+
+    expect(
+      StyleSheet.flatten(getByTestId('account-motto-byte-counter').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.softRed[80],
+      }),
     );
   });
 

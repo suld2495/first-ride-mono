@@ -20,7 +20,6 @@ import { baseFoundation, palette } from '@/theme/tokens';
 
 const MAX_MOTTO_BYTES = 80;
 const MAX_MOTTO_KOREAN_CHARACTERS = Math.floor(MAX_MOTTO_BYTES / 3);
-const MAX_MOTTO_ENGLISH_CHARACTERS = MAX_MOTTO_BYTES;
 const getSkinLevel5Color = (themeName: string) => {
   if (themeName === 'green') {
     return palette.theme.green[5];
@@ -64,20 +63,8 @@ const getUtf8ByteLength = (value: string) => {
   return byteLength;
 };
 
-const getMottoCharacterCountLabel = (value: string) => {
-  let koreanCount = 0;
-  let englishCount = 0;
-
-  for (const character of value) {
-    if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(character)) {
-      koreanCount += 1;
-    } else if (/[A-Za-z]/.test(character)) {
-      englishCount += 1;
-    }
-  }
-
-  return `한글 ${koreanCount}자 (최대 ${MAX_MOTTO_KOREAN_CHARACTERS}자) / 영문 ${englishCount}자 (최대 ${MAX_MOTTO_ENGLISH_CHARACTERS}자)`;
-};
+const getMottoCharacterCountLabel = (value: string) =>
+  `${Array.from(value).length}/${MAX_MOTTO_KOREAN_CHARACTERS}자`;
 
 const limitMottoBytes = (value: string) => {
   let nextValue = '';
@@ -228,7 +215,6 @@ const Account = () => {
               value={primaryMottoInput}
             />
             <Typography
-              color={palette.theme.gray[60]}
               testID="account-motto-byte-counter"
               variant="caption2"
               weight="semibold"
@@ -277,6 +263,7 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: 16,
   },
   mottoByteCounter: {
+    color: theme.colors.brand.routineProgressText,
     marginTop: 6,
     paddingRight: 4,
     textAlign: 'right',
