@@ -10,6 +10,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
 import { routineSceneBackgroundAssets } from '../../../components/routine/routine-scene-art';
+import { useColorSchemeStore } from '../../../store/color-scheme.store';
 import { palette } from '../../../theme/tokens';
 import {
   act,
@@ -169,6 +170,8 @@ let mockAxios: MockAdapter;
 describe('루틴 조회 페이지', () => {
   beforeEach(() => {
     resetAuthMocks();
+    useColorSchemeStore.getState().clearColorSchemeOverride();
+    useColorSchemeStore.getState().setColorScheme('blue');
     mockAxios = new MockAdapter(axiosInstance);
     mockAxios.onGet('/users/me').reply(200, {
       data: {
@@ -1122,6 +1125,29 @@ describe('루틴 조회 페이지', () => {
           backgroundColor: palette.theme.blue[90],
         });
       });
+
+      it.each([
+        ['green', palette.theme.green[90], palette.theme.softGreen[80]],
+        ['red', palette.theme.red[90], palette.theme.softRed[80]],
+      ] as const)(
+        '%s 테마의 과거 미달성 회차는 같은 단계의 테마 컬러로 표시한다',
+        async (themeName, backgroundColor, iconColor) => {
+          useColorSchemeStore.getState().setColorScheme(themeName);
+          mockSearchParams.date = beforeWeek(
+            new Date(getWeekMonday(new Date())),
+          );
+
+          const { findByTestId } = render(<Index />);
+          const missedFourth = await findByTestId('routine-count-check-1-4');
+
+          expect(
+            within(missedFourth).getByTestId('routine-missed-icon'),
+          ).toHaveProp('color', iconColor);
+          expect(missedFourth).toHaveStyle({
+            backgroundColor,
+          });
+        },
+      );
     });
 
     describe('달성횟수가 목표와 같은 경우', () => {
@@ -1546,6 +1572,39 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
+      it.each([
+        ['green', palette.theme.softGreen[60], palette.theme.softGreen[80]],
+        ['red', palette.theme.softRed[60], palette.theme.softRed[80]],
+      ] as const)(
+        '%s 테마의 미래 날짜는 같은 단계의 테마 컬러로 표시한다',
+        async (themeName, borderColor, textColor) => {
+          useColorSchemeStore.getState().setColorScheme(themeName);
+          mockSearchParams.date = afterWeek(
+            new Date(getWeekMonday(new Date())),
+          );
+          mockAxios.onGet(/\/routine\/list/).reply(200, {
+            data: createMockRoutines(1, {
+              weeklyCount: 0,
+              routineCount: 5,
+              successDate: [],
+            }),
+          });
+
+          const { findByTestId } = render(<Index />);
+          const futureMonday = await findByTestId('routine-week-check-1-0');
+          const futureMondayText = within(futureMonday).getByText('월');
+
+          expect(futureMonday).toHaveStyle({
+            backgroundColor: palette.theme.gray[95],
+            borderColor,
+            borderWidth: 1,
+          });
+          expect(futureMondayText).toHaveStyle({
+            color: textColor,
+          });
+        },
+      );
+
       it('오늘 미달성은 soft 테마 60 테두리와 gray95 텍스트로 표시한다', async () => {
         const today = new Date();
         const todayIndex = getRoutineWeekIndex(today);
@@ -1706,6 +1765,36 @@ describe('루틴 조회 페이지', () => {
           backgroundColor: palette.theme.blue[90],
         });
       });
+
+      it.each([
+        ['green', palette.theme.green[90], palette.theme.softGreen[80]],
+        ['red', palette.theme.red[90], palette.theme.softRed[80]],
+      ] as const)(
+        '%s 테마의 지나간 미달성 날짜는 같은 단계의 테마 컬러로 표시한다',
+        async (themeName, backgroundColor, iconColor) => {
+          useColorSchemeStore.getState().setColorScheme(themeName);
+          mockSearchParams.date = beforeWeek(
+            new Date(getWeekMonday(new Date())),
+          );
+          mockAxios.onGet(/\/routine\/list/).reply(200, {
+            data: createMockRoutines(1, {
+              weeklyCount: 0,
+              routineCount: 5,
+              successDate: [],
+            }),
+          });
+
+          const { findByTestId } = render(<Index />);
+          const missedMonday = await findByTestId('routine-week-check-1-0');
+
+          expect(
+            within(missedMonday).getByTestId('routine-missed-icon'),
+          ).toHaveProp('color', iconColor);
+          expect(missedMonday).toHaveStyle({
+            backgroundColor,
+          });
+        },
+      );
     });
   });
 
