@@ -61,9 +61,9 @@ describe('CharacterSpeechBubble', () => {
     expect(StyleSheet.flatten(bubbleTail.props.style)).toEqual(
       expect.objectContaining({
         left: '50%',
-        bottom: 2,
-        width: 10,
-        height: 10,
+        bottom: 4,
+        width: 8,
+        height: 8,
         borderRightWidth: 2,
         borderBottomWidth: 2,
         borderColor: palette.theme.green[50],

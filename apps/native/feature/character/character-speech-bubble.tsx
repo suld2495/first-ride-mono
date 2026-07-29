@@ -43,7 +43,7 @@ const BUBBLE_MIN_WIDTH = baseFoundation.dimension.x96;
 const BUBBLE_DEFAULT_MIN_HEIGHT = baseFoundation.dimension.x32;
 const BUBBLE_DEFAULT_PADDING_HORIZONTAL = baseFoundation.spacing[4];
 const BUBBLE_DEFAULT_PADDING_VERTICAL = baseFoundation.spacing[2];
-const BUBBLE_TAIL_SIZE = baseFoundation.dimension.x10;
+const BUBBLE_TAIL_SIZE = baseFoundation.dimension.x8;
 const BUBBLE_TAIL_HALF_SIZE = BUBBLE_TAIL_SIZE / 2;
 const BUBBLE_SIDE_TAIL_OFFSET = -(BUBBLE_TAIL_HALF_SIZE + BUBBLE_BORDER_WIDTH);
 const SCREEN_HORIZONTAL_MARGIN = 17.5;
@@ -200,7 +200,7 @@ const styles = StyleSheet.create(() => ({
   },
   bottomTail: {
     left: '50%',
-    bottom: baseFoundation.dimension.x2,
+    bottom: baseFoundation.dimension.x4,
     marginLeft: -BUBBLE_TAIL_HALF_SIZE,
     width: BUBBLE_TAIL_SIZE,
     height: BUBBLE_TAIL_SIZE,
