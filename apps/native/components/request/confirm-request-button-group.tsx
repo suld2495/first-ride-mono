@@ -1,5 +1,6 @@
 import type { FormContextType } from '@repo/shared/components';
 import type { RequestResponseStatus } from '@repo/types';
+import { Alert } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { StyleSheet } from '@/components/ui/tamagui';
@@ -16,19 +17,39 @@ const ConfirmRequestButtonGroup = ({
   useForm,
 }: ConfirmRequestButtonGroupProps) => {
   const { form } = useForm();
+  const requestConfirmation = (status: RequestResponseStatus) => {
+    const isApproval = status === 'PASS';
+    const actionLabel = isApproval ? '승인' : '거절';
+
+    Alert.alert(
+      `루틴 요청 ${actionLabel}`,
+      `이 루틴 인증 요청을 ${actionLabel}하시겠습니까?`,
+      [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: actionLabel,
+          style: isApproval ? 'default' : 'destructive',
+          onPress: () => onSubmit(status, form.comment),
+        },
+      ],
+    );
+  };
 
   return (
     <ThemeView style={styles.buttonContainer}>
       <Button
         title="승인"
         variant="primary"
-        onPress={() => onSubmit('PASS', form.comment)}
+        onPress={() => requestConfirmation('PASS')}
         style={styles.button}
       />
       <Button
         title="거절"
         variant="secondary"
-        onPress={() => onSubmit('DENY', form.comment)}
+        onPress={() => requestConfirmation('DENY')}
         style={styles.button}
       />
     </ThemeView>

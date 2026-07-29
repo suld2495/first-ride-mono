@@ -2,6 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import type { RoutineChangeRequest } from '@repo/types';
 import MockAdapter from 'axios-mock-adapter';
+import { Alert, type AlertButton } from 'react-native';
 
 import RequestListModal from '../../../components/modal/request-list-modal';
 import {
@@ -53,6 +54,7 @@ jest.mock('@/store/request.store', () => ({
 
 const mockUseReceivedRequests = jest.fn();
 const RECEIVED_CHANGE_REQUESTS_URL = '/routine/change-requests/received';
+const mockAlert = jest.spyOn(Alert, 'alert');
 
 const createRoutineChangeRequest = (
   id: number,
@@ -188,6 +190,7 @@ describe('RequestListModal (받은 요청 확인 모달)', () => {
     mockShowToast.mockClear();
     mockSetRequestId.mockClear();
     mockUseReceivedRequests.mockClear();
+    mockAlert.mockClear();
     (useFetchMeQuery as jest.Mock).mockReturnValue({
       data: {
         userId: 'test123',
@@ -458,6 +461,18 @@ describe('RequestListModal (받은 요청 확인 모달)', () => {
         );
         fireEvent.press(await findByRole('button', { name: '승인' }));
 
+        expect(mockAlert).toHaveBeenCalledWith(
+          '루틴 수정 요청 승인',
+          '이 루틴 수정 요청을 승인하시겠습니까?',
+          expect.any(Array),
+        );
+        expect(mockAxios.history.post).toHaveLength(0);
+
+        const confirmButton = mockAlert.mock.calls[0][2]?.find(
+          (button: AlertButton) => button.text === '승인',
+        );
+        confirmButton?.onPress?.();
+
         await waitFor(() => {
           expect(queryAllByText('아침 운동', { exact: true })).toHaveLength(0);
         });
@@ -492,6 +507,18 @@ describe('RequestListModal (받은 요청 확인 모달)', () => {
           }),
         );
         fireEvent.press(await findByRole('button', { name: '거절' }));
+
+        expect(mockAlert).toHaveBeenCalledWith(
+          '루틴 수정 요청 거절',
+          '이 루틴 수정 요청을 거절하시겠습니까?',
+          expect.any(Array),
+        );
+        expect(mockAxios.history.post).toHaveLength(0);
+
+        const confirmButton = mockAlert.mock.calls[0][2]?.find(
+          (button: AlertButton) => button.text === '거절',
+        );
+        confirmButton?.onPress?.();
 
         await waitFor(() => {
           expect(queryAllByText('아침 운동', { exact: true })).toHaveLength(0);
@@ -551,6 +578,10 @@ describe('RequestListModal (받은 요청 확인 모달)', () => {
           }),
         );
         fireEvent.press(await findByRole('button', { name: '승인' }));
+        const confirmButton = mockAlert.mock.calls[0][2]?.find(
+          (button: AlertButton) => button.text === '승인',
+        );
+        confirmButton?.onPress?.();
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith(

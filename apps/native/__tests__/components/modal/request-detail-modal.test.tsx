@@ -2,6 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import * as Notifications from 'expo-notifications';
+import { Alert, type AlertButton } from 'react-native';
 
 import RequestDetailModal from '../../../components/modal/request-detail-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
@@ -17,6 +18,15 @@ declare const mockShowToast: jest.Mock;
 
 // axios mock adapter
 let mockAxios: MockAdapter;
+const mockAlert = jest.spyOn(Alert, 'alert');
+const pressAlertButton = (label: string) => {
+  const buttons = mockAlert.mock.calls.at(-1)?.[2];
+  const button = buttons?.find(
+    (alertButton: AlertButton) => alertButton.text === label,
+  );
+
+  button?.onPress?.();
+};
 
 describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
   beforeEach(() => {
@@ -25,6 +35,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
     mockRequestStore.requestId = 1;
     mockShowToast.mockClear();
     mockBack.mockClear();
+    mockAlert.mockClear();
   });
 
   afterEach(() => {
@@ -149,7 +160,82 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
       await findByText('테스트 루틴 1');
 
+      await act(async () => {
+        fireEvent.press(getByText('승인'));
+        pressAlertButton('승인');
+      });
+
+      expect(mockAxios.history.post).toHaveLength(0);
+    });
+
+    it('승인 확인 전에는 요청을 전송하지 않고 확인 후 승인한다', async () => {
+      mockAxios.onPost('/routine/check').reply(200, { data: null });
+      const { findByText, getByText } = render(<RequestDetailModal />);
+
+      await findByText('테스트 루틴 1');
       fireEvent.press(getByText('승인'));
+
+      expect(mockAlert).toHaveBeenCalledWith(
+        '루틴 요청 승인',
+        '이 루틴 인증 요청을 승인하시겠습니까?',
+        expect.any(Array),
+      );
+      expect(mockAxios.history.post).toHaveLength(0);
+
+      const confirmButton = mockAlert.mock.calls[0][2]?.find(
+        (button: AlertButton) => button.text === '승인',
+      );
+
+      await act(async () => {
+        confirmButton?.onPress?.();
+      });
+
+      await waitFor(() => {
+        expect(mockAxios.history.post).toHaveLength(1);
+      });
+    });
+
+    it('거절 확인 전에는 요청을 전송하지 않고 확인 후 거절한다', async () => {
+      mockAxios.onPost('/routine/check').reply(200, { data: null });
+      const { findByText, getByText } = render(<RequestDetailModal />);
+
+      await findByText('테스트 루틴 1');
+      fireEvent.press(getByText('거절'));
+
+      expect(mockAlert).toHaveBeenCalledWith(
+        '루틴 요청 거절',
+        '이 루틴 인증 요청을 거절하시겠습니까?',
+        expect.any(Array),
+      );
+      expect(mockAxios.history.post).toHaveLength(0);
+
+      const confirmButton = mockAlert.mock.calls[0][2]?.find(
+        (button: AlertButton) => button.text === '거절',
+      );
+
+      await act(async () => {
+        confirmButton?.onPress?.();
+      });
+
+      await waitFor(() => {
+        expect(mockAxios.history.post).toHaveLength(1);
+      });
+    });
+
+    it('확인창에서 취소하면 요청을 전송하지 않는다', async () => {
+      mockAxios.onPost('/routine/check').reply(200, { data: null });
+      const { findByText, getByText } = render(<RequestDetailModal />);
+
+      await findByText('테스트 루틴 1');
+      fireEvent.press(getByText('승인'));
+
+      const cancelButton = mockAlert.mock.calls[0][2]?.find(
+        (button: AlertButton) => button.text === '취소',
+      );
+
+      await act(async () => {
+        cancelButton?.onPress?.();
+      });
 
       expect(mockAxios.history.post).toHaveLength(0);
     });
@@ -173,6 +259,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
         await act(async () => {
           fireEvent.press(getByText('승인'));
+          pressAlertButton('승인');
         });
 
         await waitFor(() => {
@@ -198,6 +285,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
         await act(async () => {
           fireEvent.press(getByText('승인'));
+          pressAlertButton('승인');
         });
 
         await waitFor(() => {
@@ -229,6 +317,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
         await act(async () => {
           fireEvent.press(getByText('승인'));
+          pressAlertButton('승인');
         });
 
         await waitFor(() => {
@@ -256,6 +345,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
         await act(async () => {
           fireEvent.press(getByText('승인'));
+          pressAlertButton('승인');
         });
 
         await waitFor(() => {
@@ -286,6 +376,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
         await act(async () => {
           fireEvent.press(getByText('거절'));
+          pressAlertButton('거절');
         });
 
         await waitFor(() => {
@@ -311,6 +402,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
         await act(async () => {
           fireEvent.press(getByText('거절'));
+          pressAlertButton('거절');
         });
 
         await waitFor(() => {
@@ -342,6 +434,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
         await act(async () => {
           fireEvent.press(getByText('거절'));
+          pressAlertButton('거절');
         });
 
         await waitFor(() => {
@@ -369,6 +462,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
         await act(async () => {
           fireEvent.press(getByText('거절'));
+          pressAlertButton('거절');
         });
 
         await waitFor(() => {

@@ -10,7 +10,7 @@ import type { RoutineChangeRequest } from '@repo/types';
 import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable } from 'react-native';
+import { Alert, Pressable } from 'react-native';
 
 import RoutineChangeRequestRow, {
   toRoutineChangeRequestListItem,
@@ -314,25 +314,40 @@ const RequestListModal = () => {
 
       if (!request) return;
 
-      approveRoutineChangeRequest.mutate(
-        {
-          changeRequestId: requestId,
-          routineId: request.routineId,
-        },
-        {
-          onSuccess: () => {
-            showToast('루틴 수정 요청을 승인했습니다.', 'success');
+      Alert.alert(
+        '루틴 수정 요청 승인',
+        '이 루틴 수정 요청을 승인하시겠습니까?',
+        [
+          {
+            text: '취소',
+            style: 'cancel',
           },
-          onError: (error) => {
-            showToast(
-              getApiErrorMessage(
-                error,
-                '루틴 수정 요청 승인에 실패했습니다. 다시 시도해주세요.',
-              ),
-              'error',
-            );
+          {
+            text: '승인',
+            onPress: () => {
+              approveRoutineChangeRequest.mutate(
+                {
+                  changeRequestId: requestId,
+                  routineId: request.routineId,
+                },
+                {
+                  onSuccess: () => {
+                    showToast('루틴 수정 요청을 승인했습니다.', 'success');
+                  },
+                  onError: (error) => {
+                    showToast(
+                      getApiErrorMessage(
+                        error,
+                        '루틴 수정 요청 승인에 실패했습니다. 다시 시도해주세요.',
+                      ),
+                      'error',
+                    );
+                  },
+                },
+              );
+            },
           },
-        },
+        ],
       );
     },
     [approveRoutineChangeRequest, routineChangeRequests, showToast],
@@ -340,22 +355,38 @@ const RequestListModal = () => {
 
   const handleRejectRoutineChangeRequest = useCallback(
     (requestId: number) => {
-      rejectRoutineChangeRequest.mutate(
-        { changeRequestId: requestId },
-        {
-          onSuccess: () => {
-            showToast('루틴 수정 요청을 거절했습니다.', 'success');
+      Alert.alert(
+        '루틴 수정 요청 거절',
+        '이 루틴 수정 요청을 거절하시겠습니까?',
+        [
+          {
+            text: '취소',
+            style: 'cancel',
           },
-          onError: (error) => {
-            showToast(
-              getApiErrorMessage(
-                error,
-                '루틴 수정 요청 거절에 실패했습니다. 다시 시도해주세요.',
-              ),
-              'error',
-            );
+          {
+            text: '거절',
+            style: 'destructive',
+            onPress: () => {
+              rejectRoutineChangeRequest.mutate(
+                { changeRequestId: requestId },
+                {
+                  onSuccess: () => {
+                    showToast('루틴 수정 요청을 거절했습니다.', 'success');
+                  },
+                  onError: (error) => {
+                    showToast(
+                      getApiErrorMessage(
+                        error,
+                        '루틴 수정 요청 거절에 실패했습니다. 다시 시도해주세요.',
+                      ),
+                      'error',
+                    );
+                  },
+                },
+              );
+            },
           },
-        },
+        ],
       );
     },
     [rejectRoutineChangeRequest, showToast],
