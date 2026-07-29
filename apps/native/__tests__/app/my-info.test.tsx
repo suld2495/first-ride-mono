@@ -434,8 +434,9 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('알림 설정')).toBeOnTheScreen();
     expect(getByText('베타 피드백')).toBeOnTheScreen();
     expect(queryByText('개인정보 설정')).toBeNull();
-    expect(getByText('이용약관')).toBeOnTheScreen();
-    expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
+    expect(getByText('약관')).toBeOnTheScreen();
+    expect(queryByText('이용약관')).toBeNull();
+    expect(queryByText('개인정보 처리방침')).toBeNull();
     expect(getByText('문의')).toBeOnTheScreen();
     expect(getByText('이루라 길드')).toBeOnTheScreen();
     expect(getByText('로그아웃')).toBeOnTheScreen();
@@ -444,7 +445,7 @@ describe('MyInfo 로그아웃', () => {
     fireEvent.press(getByText('루틴 설정'));
     fireEvent.press(getByText('알림 설정'));
     fireEvent.press(getByText('베타 피드백'));
-    fireEvent.press(getByText('개인정보 처리방침'));
+    fireEvent.press(getByText('약관'));
     fireEvent.press(getByText('문의'));
     fireEvent.press(getByText('이루라 길드'));
 
@@ -452,7 +453,7 @@ describe('MyInfo 로그아웃', () => {
     expect(global.mockPush).toHaveBeenCalledWith('/routine-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/beta-feedback');
-    expect(global.mockPush).toHaveBeenCalledWith('/modal?type=privacy');
+    expect(global.mockPush).toHaveBeenCalledWith('/terms');
     expect(global.mockPush).toHaveBeenCalledWith('/inquiry');
     expect(global.mockPush).toHaveBeenCalledWith('/hall-of-heroes');
   });
