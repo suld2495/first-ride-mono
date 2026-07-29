@@ -87,6 +87,7 @@ const FriendPage = () => {
             backgroundColor="#111827"
             textColor="#FFFFFF"
             style={styles.addButton}
+            contentStyle={styles.addButtonContent}
           />
         </ThemeView>
 
@@ -129,6 +130,9 @@ const styles = StyleSheet.create((theme) => ({
     minHeight: baseFoundation.dimension.x28,
     borderRadius: baseFoundation.radii.xs,
     paddingHorizontal: theme.foundation.spacing[3],
+  },
+  addButtonContent: {
+    gap: baseFoundation.dimension.x2,
   },
   totalText: {
     color: theme.colors.text.muted,

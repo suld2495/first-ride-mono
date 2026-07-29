@@ -62,8 +62,8 @@ describe('CharacterSpeechBubble', () => {
       expect.objectContaining({
         left: '50%',
         bottom: 2,
-        width: 12,
-        height: 12,
+        width: 10,
+        height: 10,
         borderRightWidth: 2,
         borderBottomWidth: 2,
         borderColor: palette.theme.green[50],

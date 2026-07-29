@@ -77,6 +77,7 @@ export default function QuestPage() {
                 backgroundColor="#111827"
                 textColor="#FFFFFF"
                 style={styles.addButton}
+                contentStyle={styles.addButtonContent}
               />
             ) : undefined
           }
@@ -101,5 +102,8 @@ const styles = StyleSheet.create((theme) => ({
     minHeight: baseFoundation.dimension.x28,
     borderRadius: baseFoundation.radii.xs,
     paddingHorizontal: theme.foundation.spacing[3],
+  },
+  addButtonContent: {
+    gap: baseFoundation.dimension.x2,
   },
 }));
