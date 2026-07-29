@@ -157,28 +157,29 @@ const RoutineWeekList = ({
             </Typography>
           </View>
 
+          <View
+            pointerEvents="none"
+            style={styles.progressSummary}
+            testID={`routine-week-progress-summary-${routineId}`}
+          >
+            {weeklyCount >= routineCount ? (
+              <RoutineCheckmarkIcon
+                size={baseFoundation.dimension.x14}
+                color={palette.theme.green[50]}
+              />
+            ) : null}
+            <Typography
+              variant="caption2"
+              weight="semibold"
+              style={styles.progressSummaryText}
+              testID={`routine-week-progress-${routineId}`}
+            >
+              {weeklyCount}/{routineCount}
+            </Typography>
+          </View>
+
           {!readOnly ? (
             <>
-              <View
-                pointerEvents="none"
-                style={styles.progressSummary}
-                testID={`routine-week-progress-summary-${routineId}`}
-              >
-                {weeklyCount >= routineCount ? (
-                  <RoutineCheckmarkIcon
-                    size={baseFoundation.dimension.x14}
-                    color={palette.theme.green[50]}
-                  />
-                ) : null}
-                <Typography
-                  variant="caption2"
-                  weight="semibold"
-                  style={styles.progressSummaryText}
-                  testID={`routine-week-progress-${routineId}`}
-                >
-                  {weeklyCount}/{routineCount}
-                </Typography>
-              </View>
               <RoutineContextMenuTrigger
                 routineName={routineName}
                 iconColor={theme.colors.brand.routineProgressText}
