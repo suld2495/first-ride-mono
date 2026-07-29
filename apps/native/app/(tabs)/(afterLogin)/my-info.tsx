@@ -201,14 +201,6 @@ const MyInfo = () => {
           </View>
 
           <View testID="settings-level-row" style={styles.levelRow}>
-            <Typography
-              color={themeColor[80]}
-              testID="settings-level-label"
-              variant="body3"
-              weight="semibold"
-            >
-              레벨
-            </Typography>
             <View testID="settings-level-badge" style={styles.levelBadge}>
               <Typography
                 color={themeColor[80]}
@@ -222,7 +214,7 @@ const MyInfo = () => {
           </View>
 
           <View testID="settings-exp-row" style={styles.expLabelRow}>
-            <View testID="settings-exp-title-row" style={styles.expTitleRow}>
+            <View testID="settings-exp-value-row" style={styles.expValueRow}>
               <Typography
                 color={themeColor[80]}
                 testID="settings-exp-label"
@@ -231,8 +223,6 @@ const MyInfo = () => {
               >
                 경험치
               </Typography>
-            </View>
-            <View testID="settings-exp-value-row" style={styles.expValueRow}>
               <Typography
                 color={softThemeColor[80]}
                 testID="settings-exp-unit"
@@ -426,7 +416,6 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: theme.foundation.spacing[5],
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
   levelBadge: {
     alignItems: 'center',
@@ -436,16 +425,11 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: theme.foundation.spacing[2],
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  expTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   expValueRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: baseFoundation.dimension.x12,
+    gap: baseFoundation.dimension.x8,
   },
   expNumberRow: {
     flexDirection: 'row',

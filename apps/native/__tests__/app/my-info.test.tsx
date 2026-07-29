@@ -109,12 +109,14 @@ describe('MyInfo 로그아웃', () => {
   it('프로필과 경험치 요약을 설정 화면 상단에 표시한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
-    const { getByText, queryAllByText, queryByTestId } = render(<MyInfo />);
+    const { getByText, queryAllByText, queryByTestId, queryByText } = render(
+      <MyInfo />,
+    );
 
     expect(getByText('설정')).toBeOnTheScreen();
     expect(queryAllByText('testuser')).toHaveLength(1);
     expect(getByText('test123')).toBeOnTheScreen();
-    expect(getByText('레벨')).toBeOnTheScreen();
+    expect(queryByText('레벨')).toBeNull();
     expect(getByText('Lv. 3')).toBeOnTheScreen();
     expect(getByText('경험치')).toBeOnTheScreen();
     expect(getByText('EXP')).toBeOnTheScreen();
@@ -211,7 +213,7 @@ describe('MyInfo 로그아웃', () => {
   it('설정 프로필 영역에 지정된 간격과 색상 토큰을 적용한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
-    const { getByTestId, getByText } = render(<MyInfo />);
+    const { getByTestId, getByText, queryByTestId } = render(<MyInfo />);
 
     expect(
       StyleSheet.flatten(getByTestId('settings-profile').props.style),
@@ -258,7 +260,6 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({
         marginTop: 20,
         flexDirection: 'row',
-        justifyContent: 'space-between',
       }),
     );
     const levelBadgeStyle = StyleSheet.flatten(
@@ -276,18 +277,12 @@ describe('MyInfo 로그아웃', () => {
         marginTop: 8,
       }),
     );
-    expect(
-      StyleSheet.flatten(getByTestId('settings-exp-title-row').props.style),
-    ).toEqual(
-      expect.objectContaining({
-        flexDirection: 'row',
-      }),
-    );
+    expect(queryByTestId('settings-level-label')).toBeNull();
     expect(
       StyleSheet.flatten(getByTestId('settings-exp-value-row').props.style),
     ).toEqual(
       expect.objectContaining({
-        gap: 12,
+        gap: 8,
       }),
     );
     expect(
@@ -340,7 +335,6 @@ describe('MyInfo 로그아웃', () => {
 
     const name = getByTestId('settings-profile-name');
     const userId = getByTestId('settings-profile-user-id');
-    const levelLabel = getByTestId('settings-level-label');
     const level = getByTestId('settings-level-text');
     const expLabel = getByTestId('settings-exp-label');
     const expUnit = getByTestId('settings-exp-unit');
@@ -356,11 +350,6 @@ describe('MyInfo 로그아웃', () => {
     expect(userId.props.fontWeight).toBe('600');
     expect(StyleSheet.flatten(userId.props.style)).toEqual(
       expect.objectContaining({ color: palette.theme.softBlue[50] }),
-    );
-    expect(levelLabel.props.fontSize).toBe('$body3');
-    expect(levelLabel.props.fontWeight).toBe('600');
-    expect(StyleSheet.flatten(levelLabel.props.style)).toEqual(
-      expect.objectContaining({ color: palette.theme.blue[80] }),
     );
     expect(level.props.fontSize).toBe('$h3');
     expect(level.props.fontWeight).toBe('600');
