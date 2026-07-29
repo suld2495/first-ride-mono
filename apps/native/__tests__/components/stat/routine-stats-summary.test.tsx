@@ -164,7 +164,7 @@ describe('RoutineStatsSummary', () => {
       expect.arrayContaining([
         expect.objectContaining({
           backgroundColor: palette.theme.softBlue[60],
-          width: 144,
+          width: 288,
         }),
       ]),
     );

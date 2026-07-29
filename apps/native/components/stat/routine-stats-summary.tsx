@@ -33,13 +33,13 @@ type DotProps = {
 
 type SummaryItemProps = {
   item: RoutineStatsSummaryItem;
-  isLast: boolean;
 };
 
 const DOTS_PER_ROW = 7;
 const DOT_SIZE = baseFoundation.dimension.x36;
 const DOT_GAP = baseFoundation.spacing[3];
 const TRACK_LINE_WIDTH = 1;
+const ROW_LINE_WIDTH = (DOTS_PER_ROW - 1) * (DOT_SIZE + DOT_GAP);
 const ROUTINE_COMPLETION_FIREWORKS =
   require('@/assets/stat/routine-completion-fireworks.png') as ImageSourcePropType;
 
@@ -97,7 +97,7 @@ const Dot = ({
   </View>
 );
 
-const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
+const SummaryItem = ({ item }: SummaryItemProps) => {
   const { theme } = useAppTheme();
   const trackColor = theme.colors.text.soft;
   const completedSet = React.useMemo(
@@ -132,10 +132,6 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
         <View style={styles.track}>
           {dotRows.map((row, rowIndex) => {
             const isLastRow = rowIndex === dotRows.length - 1;
-            const rowLineWidth = Math.max(
-              0,
-              (row.length - 1) * (DOT_SIZE + DOT_GAP),
-            );
             const terminalDotIndex =
               rowIndex % 2 === 0 ? row[row.length - 1] : row[0];
             const connectorSide =
@@ -149,13 +145,13 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
                 style={styles.trackRow}
                 testID={`routine-stats-summary-track-row-${item.id}-${rowIndex}`}
               >
-                {rowLineWidth > 0 ? (
+                {row.length > 0 ? (
                   <View
                     style={[
                       styles.rowLine,
                       {
                         backgroundColor: trackColor,
-                        width: rowLineWidth,
+                        width: ROW_LINE_WIDTH,
                       },
                     ]}
                     testID={`routine-stats-summary-row-line-${item.id}-${rowIndex}`}
@@ -190,12 +186,6 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
           })}
         </View>
       </ThemeView>
-
-      {!isLast ? (
-        <View
-          style={[styles.divider, { backgroundColor: item.routineColor }]}
-        />
-      ) : null}
     </ThemeView>
   );
 };
@@ -253,12 +243,8 @@ const RoutineStatsSummary = ({
       style={styles.container}
       testID="routine-stats-summary"
     >
-      {summaryItems.map((item, index) => (
-        <SummaryItem
-          key={item.id}
-          item={item}
-          isLast={index === summaryItems.length - 1}
-        />
+      {summaryItems.map((item) => (
+        <SummaryItem key={item.id} item={item} />
       ))}
     </ThemeView>
   );
@@ -343,10 +329,6 @@ const styles = StyleSheet.create((theme) => {
     fireworksIcon: {
       width: baseFoundation.dimension.x28,
       height: baseFoundation.dimension.x28,
-    },
-    divider: {
-      height: TRACK_LINE_WIDTH,
-      marginTop: theme.foundation.spacing[1],
     },
   };
 });
