@@ -408,7 +408,7 @@ describe('MyInfo 로그아웃', () => {
     expect(queryByTestId('settings-profile-user-id')).toBeNull();
   });
 
-  it('개인정보 설정을 처리방침에 통합하고 나머지 항목 라우트는 유지한다', () => {
+  it('문의 항목을 숨기고 나머지 설정 항목 라우트는 유지한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
     const { getByTestId, getByText, queryByText } = render(<MyInfo />);
@@ -423,7 +423,7 @@ describe('MyInfo 로그아웃', () => {
     expect(queryByText('개인정보 설정')).toBeNull();
     expect(getByText('이용약관')).toBeOnTheScreen();
     expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
-    expect(getByText('문의')).toBeOnTheScreen();
+    expect(queryByText('문의')).toBeNull();
     expect(getByText('이루라 길드')).toBeOnTheScreen();
     expect(getByText('로그아웃')).toBeOnTheScreen();
 
@@ -432,7 +432,6 @@ describe('MyInfo 로그아웃', () => {
     fireEvent.press(getByText('알림 설정'));
     fireEvent.press(getByText('베타 피드백'));
     fireEvent.press(getByText('개인정보 처리방침'));
-    fireEvent.press(getByText('문의'));
     fireEvent.press(getByText('이루라 길드'));
 
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
@@ -440,7 +439,6 @@ describe('MyInfo 로그아웃', () => {
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/beta-feedback');
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=privacy');
-    expect(global.mockPush).toHaveBeenCalledWith('/inquiry');
     expect(global.mockPush).toHaveBeenCalledWith('/hall-of-heroes');
   });
 

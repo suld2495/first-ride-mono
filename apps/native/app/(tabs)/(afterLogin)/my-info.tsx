@@ -52,7 +52,6 @@ const SETTING_ITEMS: Array<{
   { title: '알림 설정', href: '/notification-settings' },
   { title: '이용약관', href: '/modal?type=policies' },
   { title: '개인정보 처리방침', href: '/modal?type=privacy' },
-  { title: '문의', href: '/inquiry' },
   { title: '이루라 길드', href: '/hall-of-heroes' },
 ];
 
