@@ -130,10 +130,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
     });
 
-    it('루틴 이름이 화면에 표시된다', async () => {
+    it('루틴 이름과 설명이 화면에 표시된다', async () => {
       const { findByText } = render(<RequestModal />);
 
       expect(await findByText('테스트 루틴 1')).toBeOnTheScreen();
+      expect(await findByText('테스트 루틴 1 상세')).toBeOnTheScreen();
     });
 
     it('이미지 추가 방법을 텍스트 버튼으로 표시한다', async () => {
@@ -159,7 +160,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       });
     });
 
-    it('빈 이미지 스테이지에 선택 개수와 세 개의 미리보기 자리를 표시한다', async () => {
+    it('빈 이미지 스테이지에 세 개의 미리보기 자리를 위로 당겨 표시한다', async () => {
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
@@ -172,24 +173,14 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         borderRadius: 12,
         borderWidth: 0,
       });
-      expect(screen.getByTestId('request-empty-image-area')).toHaveStyle({
-        minHeight: 120,
-        alignItems: 'center',
-        justifyContent: 'center',
-      });
-      expect(screen.getByTestId('request-empty-image-button')).toHaveStyle({
-        width: 152,
-        minHeight: 88,
-      });
+      expect(screen.queryByTestId('request-empty-image-area')).toBeNull();
+      expect(screen.queryByTestId('request-empty-image-button')).toBeNull();
       expect(screen.queryByTestId('request-empty-image-icon')).toBeNull();
       expect(screen.queryByText('사진을 추가해 주세요')).toBeNull();
       expect(screen.getByText('인증 사진')).toHaveStyle({
         fontSize: 14,
       });
-      expect(screen.getByText('0/3')).toHaveStyle({
-        fontSize: 14,
-      });
-      expect(screen.getByText('0/3')).toBeOnTheScreen();
+      expect(screen.queryByText('0/3')).toBeNull();
       const imageSlots = screen.getAllByTestId('request-image-slot');
 
       expect(imageSlots).toHaveLength(3);
@@ -247,12 +238,13 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(screen.getByText('인증')).toBeDisabled();
     });
 
-    it('루틴 상세 내용 항목을 표시하지 않는다', async () => {
-      const { findByText, queryByText } = render(<RequestModal />);
+    it('루틴 설명 라벨과 상세 내용을 표시한다', async () => {
+      const { findByText } = render(<RequestModal />);
 
       await findByText('테스트 루틴 1');
 
-      expect(queryByText('테스트 루틴 1 상세')).toBeNull();
+      expect(await findByText('루틴 설명')).toBeOnTheScreen();
+      expect(await findByText('테스트 루틴 1 상세')).toBeOnTheScreen();
     });
 
     it('루틴 이름 라벨이 표시된다', async () => {
@@ -361,15 +353,16 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       });
     });
 
-    it('이미지 한 장을 업로드하면 1/3 상태를 표시한다', async () => {
+    it('이미지 한 장을 업로드해도 선택 개수 텍스트는 표시하지 않는다', async () => {
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
       await selectImageFromGallery(screen.getByTestId);
 
       await waitFor(() => {
-        expect(screen.getByText('1/3')).toBeOnTheScreen();
+        expect(screen.queryByText('1/3')).toBeNull();
         expect(screen.getAllByTestId('request-image-slot')).toHaveLength(3);
+        expect(screen.getAllByTestId('request-image-preview')).toHaveLength(1);
       });
     });
 
@@ -396,7 +389,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         'base64',
       );
       await waitFor(() => {
-        expect(screen.getByText('1/3')).toBeOnTheScreen();
+        expect(screen.queryByText('1/3')).toBeNull();
         expect(screen.getByTestId('request-image-preview')).toHaveProp(
           'source',
           { uri: 'file:///normalized/camera-image-data.jpg' },
@@ -560,7 +553,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       await waitFor(() => {
         expect(screen.getAllByTestId('request-image-preview')).toHaveLength(1);
-        expect(screen.getByText('1/3')).toBeOnTheScreen();
+        expect(screen.queryByText('1/3')).toBeNull();
       });
     });
 
@@ -617,7 +610,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId('request-image-preview')).toBeNull();
-        expect(screen.getByText('0/3')).toBeOnTheScreen();
+        expect(screen.queryByText('0/3')).toBeNull();
         expect(mockShowToast).toHaveBeenCalledWith(
           '업로드할 수 없는 이미지는 제외했습니다.',
           'error',
