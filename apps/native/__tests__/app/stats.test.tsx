@@ -344,7 +344,8 @@ describe('StatsPage', () => {
       expect.arrayContaining([
         expect.objectContaining({ position: 'absolute' }),
         expect.objectContaining({
-          backgroundColor: '#FA4F9B',
+          backgroundColor: palette.theme.softBlue[60],
+          width: 288,
         }),
       ]),
     );
@@ -374,7 +375,7 @@ describe('StatsPage', () => {
           borderRadius: 18,
           borderWidth: 1,
         }),
-        expect.objectContaining({ borderColor: '#FA4F9B' }),
+        expect.objectContaining({ borderColor: palette.theme.softBlue[60] }),
       ]),
     );
     expect(
@@ -387,7 +388,7 @@ describe('StatsPage', () => {
           borderRadius: 18,
           borderWidth: 1,
         }),
-        expect.objectContaining({ borderColor: '#FA4F9B' }),
+        expect.objectContaining({ borderColor: palette.theme.softBlue[60] }),
         expect.objectContaining({ backgroundColor: '#FA4F9B' }),
       ]),
     );
@@ -395,7 +396,7 @@ describe('StatsPage', () => {
       flattenStyles(getByTestId('routine-stats-summary-dot-2-0').props.style),
     ).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ borderColor: '#00C9BD' }),
+        expect.objectContaining({ borderColor: palette.theme.softBlue[60] }),
         expect.objectContaining({ backgroundColor: '#00C9BD' }),
       ]),
     );

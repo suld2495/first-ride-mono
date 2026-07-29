@@ -3,7 +3,7 @@ import React from 'react';
 import type { ImageSourcePropType } from 'react-native';
 import { Image, View } from 'react-native';
 
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
@@ -27,6 +27,7 @@ type DotProps = {
   completed: boolean;
   fireworksTestID?: string;
   routineColor: string;
+  trackColor: string;
   testID?: string;
 };
 
@@ -36,6 +37,8 @@ type SummaryItemProps = {
 };
 
 const DOTS_PER_ROW = 7;
+const DOT_SIZE = baseFoundation.dimension.x36;
+const DOT_GAP = baseFoundation.spacing[3];
 const TRACK_LINE_WIDTH = 1;
 const ROUTINE_COMPLETION_FIREWORKS =
   require('@/assets/stat/routine-completion-fireworks.png') as ImageSourcePropType;
@@ -67,12 +70,13 @@ const Dot = ({
   completed,
   fireworksTestID,
   routineColor,
+  trackColor,
   testID,
 }: DotProps) => (
   <View
     style={[
       styles.dot,
-      { borderColor: routineColor },
+      { borderColor: trackColor },
       completed ? { backgroundColor: routineColor } : styles.dotEmpty,
     ]}
     testID={testID}
@@ -94,6 +98,8 @@ const Dot = ({
 );
 
 const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
+  const { theme } = useAppTheme();
+  const trackColor = theme.colors.text.soft;
   const completedSet = React.useMemo(
     () => new Set(item.completedIndexes),
     [item.completedIndexes],
@@ -126,6 +132,10 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
         <View style={styles.track}>
           {dotRows.map((row, rowIndex) => {
             const isLastRow = rowIndex === dotRows.length - 1;
+            const rowLineWidth = Math.max(
+              0,
+              (row.length - 1) * (DOT_SIZE + DOT_GAP),
+            );
             const terminalDotIndex =
               rowIndex % 2 === 0 ? row[row.length - 1] : row[0];
             const connectorSide =
@@ -139,19 +149,24 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
                 style={styles.trackRow}
                 testID={`routine-stats-summary-track-row-${item.id}-${rowIndex}`}
               >
-                <View
-                  style={[
-                    styles.rowLine,
-                    { backgroundColor: item.routineColor },
-                  ]}
-                  testID={`routine-stats-summary-row-line-${item.id}-${rowIndex}`}
-                />
+                {rowLineWidth > 0 ? (
+                  <View
+                    style={[
+                      styles.rowLine,
+                      {
+                        backgroundColor: trackColor,
+                        width: rowLineWidth,
+                      },
+                    ]}
+                    testID={`routine-stats-summary-row-line-${item.id}-${rowIndex}`}
+                  />
+                ) : null}
                 {!isLastRow ? (
                   <View
                     style={[
                       styles.rowTurnConnector,
                       connectorSide,
-                      { borderColor: item.routineColor },
+                      { borderColor: trackColor },
                     ]}
                     testID={`routine-stats-summary-turn-connector-${item.id}-${rowIndex}`}
                   />
@@ -166,6 +181,7 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
                         : undefined
                     }
                     routineColor={item.routineColor}
+                    trackColor={trackColor}
                     testID={`routine-stats-summary-dot-${item.id}-${index}`}
                   />
                 ))}
@@ -276,12 +292,11 @@ const styles = StyleSheet.create((theme) => {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      gap: theme.foundation.spacing[3],
+      gap: DOT_GAP,
     },
     rowLine: {
       position: 'absolute',
       left: baseFoundation.dimension.x18,
-      right: baseFoundation.dimension.x18,
       top: baseFoundation.dimension.x18,
       height: TRACK_LINE_WIDTH,
     },

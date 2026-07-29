@@ -1,6 +1,7 @@
 import type { RoutineMonthlySummary } from '@repo/types';
 
 import RoutineStatsSummary from '@/components/stat/routine-stats-summary';
+import { palette } from '@/theme/tokens';
 
 import { render } from '../../setup/test-utils';
 
@@ -152,6 +153,18 @@ describe('RoutineStatsSummary', () => {
         expect.objectContaining({
           justifyContent: 'flex-start',
           gap: 12,
+        }),
+      ]),
+    );
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-row-line-1-1').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          backgroundColor: palette.theme.softBlue[60],
+          width: 144,
         }),
       ]),
     );
