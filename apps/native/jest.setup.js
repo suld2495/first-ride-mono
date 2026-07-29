@@ -1,4 +1,5 @@
 import '@testing-library/jest-native/extend-expect';
+import 'react-native-gesture-handler/jestSetup';
 
 // alert 모킹
 global.alert = jest.fn();
