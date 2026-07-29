@@ -375,7 +375,6 @@ describe('StatsPage', () => {
           borderWidth: 1,
         }),
         expect.objectContaining({ borderColor: '#FA4F9B' }),
-        expect.objectContaining({ opacity: 0.7 }),
       ]),
     );
     expect(

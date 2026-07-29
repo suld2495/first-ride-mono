@@ -123,6 +123,40 @@ describe('RoutineStatsSummary', () => {
     expectDotToBeEmpty(getByTestId, 2);
   });
 
+  it('줄마다 동그라미를 왼쪽부터 같은 간격으로 배치한다', () => {
+    const { getByTestId } = render(
+      <RoutineStatsSummary
+        monthDate={new Date(2026, 6, 1)}
+        routines={[{ ...createRoutine(0), endDate: '2026-07-11' }]}
+      />,
+    );
+
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-track-row-1-0').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          justifyContent: 'flex-start',
+          gap: 12,
+        }),
+      ]),
+    );
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-track-row-1-1').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          justifyContent: 'flex-start',
+          gap: 12,
+        }),
+      ]),
+    );
+  });
+
   it('짝수 번째 줄은 오른쪽부터 채운다', () => {
     const { getByTestId } = render(
       <RoutineStatsSummary

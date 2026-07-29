@@ -275,7 +275,8 @@ const styles = StyleSheet.create((theme) => {
       minHeight: baseFoundation.dimension.x36,
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-start',
+      gap: theme.foundation.spacing[3],
     },
     rowLine: {
       position: 'absolute',
@@ -314,7 +315,6 @@ const styles = StyleSheet.create((theme) => {
     },
     dotEmpty: {
       backgroundColor: theme.colors.background.base,
-      opacity: 0.7,
     },
     fireworksContainer: {
       position: 'absolute',
