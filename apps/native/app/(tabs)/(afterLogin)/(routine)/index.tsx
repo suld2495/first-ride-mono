@@ -304,7 +304,7 @@ export default function Index() {
       <IconButton
         variant="ghost"
         icon={({ size }) => (
-          <Ionicons name="add" size={size + 8} color="#FFFFFF" />
+          <Ionicons name="add" size={size + 4} color="#FFFFFF" />
         )}
         onPress={handleOpenRoutineAddModal}
         accessibilityLabel="루틴 추가"

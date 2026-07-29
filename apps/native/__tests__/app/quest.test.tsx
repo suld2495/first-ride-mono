@@ -79,9 +79,7 @@ describe('QuestPage', () => {
 
     expect(getByText('추가')).toBeOnTheScreen();
     expect(getByTestId('quest-add-button')).toHaveStyle({
-      width: 99,
       height: 28,
-      minWidth: 99,
       minHeight: 28,
       borderRadius: 8,
       backgroundColor: '#111827',

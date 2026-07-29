@@ -79,7 +79,7 @@ const FriendPage = () => {
             leftIcon={({ color }) => (
               <Ionicons
                 name="add"
-                size={baseFoundation.iconSize.m}
+                size={baseFoundation.iconSize.m - 4}
                 color={color}
               />
             )}
@@ -125,9 +125,7 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: theme.foundation.spacing[3],
   },
   addButton: {
-    width: baseFoundation.dimension.x99,
     height: baseFoundation.dimension.x28,
-    minWidth: baseFoundation.dimension.x99,
     minHeight: baseFoundation.dimension.x28,
     borderRadius: baseFoundation.radii.xs,
     paddingHorizontal: theme.foundation.spacing[3],
