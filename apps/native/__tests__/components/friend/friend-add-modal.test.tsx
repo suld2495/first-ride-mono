@@ -98,6 +98,10 @@ describe('친구 추가 모달', () => {
       expect(list.props.getItemLayout).toBeUndefined();
       expect(list.props.maxToRenderPerBatch).toBeUndefined();
       expect(list.props.windowSize).toBeUndefined();
+      expect(screen.getByTestId('friend-add-search-button')).toHaveStyle({
+        height: 32,
+        minHeight: 32,
+      });
     });
   });
 
@@ -187,7 +191,7 @@ describe('친구 추가 모달', () => {
           ]),
         );
 
-        const { findByLabelText, getByPlaceholderText } = render(
+        const { findByLabelText, findByTestId, getByPlaceholderText } = render(
           <FriendAddModal {...defaultProps} />,
         );
 
@@ -202,7 +206,13 @@ describe('친구 추가 모달', () => {
           uri: '/assets/characters/mage_intermediate.png',
         });
         expect(characterImage).toHaveStyle({
-          margin: 6,
+          width: 48,
+          height: 48,
+          transform: [{ translateY: -4 }],
+        });
+        expect(await findByTestId('user-character-avatar-user1')).toHaveStyle({
+          width: 44,
+          height: 44,
         });
       });
 
