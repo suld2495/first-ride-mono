@@ -140,7 +140,7 @@ describe('RoutineStatsSummary', () => {
       expect.arrayContaining([
         expect.objectContaining({
           justifyContent: 'flex-start',
-          gap: 12,
+          gap: 8,
         }),
       ]),
     );
@@ -151,8 +151,10 @@ describe('RoutineStatsSummary', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          justifyContent: 'flex-start',
-          gap: 12,
+          gap: 8,
+        }),
+        expect.objectContaining({
+          justifyContent: 'flex-end',
         }),
       ]),
     );
@@ -164,7 +166,7 @@ describe('RoutineStatsSummary', () => {
       expect.arrayContaining([
         expect.objectContaining({
           backgroundColor: palette.theme.softBlue[60],
-          width: 288,
+          width: 132,
         }),
       ]),
     );
@@ -178,8 +180,8 @@ describe('RoutineStatsSummary', () => {
       />,
     );
 
-    expectDotToBeFilled(getByTestId, 13);
-    expectDotToBeEmpty(getByTestId, 12);
-    expectDotToBeEmpty(getByTestId, 7);
+    expectDotToBeFilled(getByTestId, 7);
+    expectDotToBeEmpty(getByTestId, 8);
+    expectDotToBeEmpty(getByTestId, 13);
   });
 });

@@ -37,9 +37,10 @@ type SummaryItemProps = {
 
 const DOTS_PER_ROW = 7;
 const DOT_SIZE = baseFoundation.dimension.x36;
-const DOT_GAP = baseFoundation.spacing[3];
+const DOT_GAP = baseFoundation.spacing[2];
+const ROW_GAP = baseFoundation.spacing[2];
 const TRACK_LINE_WIDTH = 1;
-const ROW_LINE_WIDTH = (DOTS_PER_ROW - 1) * (DOT_SIZE + DOT_GAP);
+const ROW_WIDTH = DOTS_PER_ROW * DOT_SIZE + (DOTS_PER_ROW - 1) * DOT_GAP;
 const ROUTINE_COMPLETION_FIREWORKS =
   require('@/assets/stat/routine-completion-fireworks.png') as ImageSourcePropType;
 
@@ -58,13 +59,10 @@ const getCompletedDotIndexes = (
   totalDotCount: number,
   completedDotCount: number,
 ) =>
-  getDotRows(totalDotCount)
-    .flatMap((row, rowIndex) =>
-      rowIndex % 2 === 0
-        ? row
-        : row.map((_value, index) => row[row.length - index - 1]),
-    )
-    .slice(0, completedDotCount);
+  Array.from(
+    { length: Math.min(totalDotCount, completedDotCount) },
+    (_, index) => index,
+  );
 
 const Dot = ({
   completed,
@@ -132,6 +130,12 @@ const SummaryItem = ({ item }: SummaryItemProps) => {
         <View style={styles.track}>
           {dotRows.map((row, rowIndex) => {
             const isLastRow = rowIndex === dotRows.length - 1;
+            const isReverseRow = rowIndex % 2 === 1;
+            const displayRow = isReverseRow ? [...row].reverse() : row;
+            const rowLineWidth = Math.max(
+              0,
+              (row.length - 1) * (DOT_SIZE + DOT_GAP),
+            );
             const terminalDotIndex =
               rowIndex % 2 === 0 ? row[row.length - 1] : row[0];
             const connectorSide =
@@ -142,16 +146,20 @@ const SummaryItem = ({ item }: SummaryItemProps) => {
             return (
               <View
                 key={`row-${rowIndex}`}
-                style={styles.trackRow}
+                style={[
+                  styles.trackRow,
+                  isReverseRow && styles.trackRowReverse,
+                ]}
                 testID={`routine-stats-summary-track-row-${item.id}-${rowIndex}`}
               >
-                {row.length > 0 ? (
+                {row.length > 1 ? (
                   <View
                     style={[
                       styles.rowLine,
+                      isReverseRow ? styles.rowLineRight : styles.rowLineLeft,
                       {
                         backgroundColor: trackColor,
-                        width: ROW_LINE_WIDTH,
+                        width: rowLineWidth,
                       },
                     ]}
                     testID={`routine-stats-summary-row-line-${item.id}-${rowIndex}`}
@@ -167,7 +175,7 @@ const SummaryItem = ({ item }: SummaryItemProps) => {
                     testID={`routine-stats-summary-turn-connector-${item.id}-${rowIndex}`}
                   />
                 ) : null}
-                {row.map((index) => (
+                {displayRow.map((index) => (
                   <Dot
                     key={index}
                     completed={completedSet.has(index)}
@@ -270,10 +278,13 @@ const styles = StyleSheet.create((theme) => {
       paddingBottom: 0,
     },
     track: {
-      gap: theme.foundation.spacing[3],
+      width: ROW_WIDTH,
+      alignSelf: 'center',
+      gap: ROW_GAP,
     },
     trackRow: {
       position: 'relative',
+      width: ROW_WIDTH,
       minHeight: baseFoundation.dimension.x36,
       flexDirection: 'row',
       alignItems: 'center',
@@ -282,15 +293,23 @@ const styles = StyleSheet.create((theme) => {
     },
     rowLine: {
       position: 'absolute',
-      left: baseFoundation.dimension.x18,
       top: baseFoundation.dimension.x18,
       height: TRACK_LINE_WIDTH,
+    },
+    rowLineLeft: {
+      left: baseFoundation.dimension.x18,
+    },
+    trackRowReverse: {
+      justifyContent: 'flex-end',
+    },
+    rowLineRight: {
+      right: baseFoundation.dimension.x18,
     },
     rowTurnConnector: {
       position: 'absolute',
       top: baseFoundation.dimension.x18,
       width: baseFoundation.dimension.x36,
-      height: baseFoundation.dimension.x48,
+      height: DOT_SIZE + ROW_GAP,
       borderTopWidth: TRACK_LINE_WIDTH,
       borderBottomWidth: TRACK_LINE_WIDTH,
     },

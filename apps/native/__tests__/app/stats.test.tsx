@@ -345,7 +345,7 @@ describe('StatsPage', () => {
         expect.objectContaining({ position: 'absolute' }),
         expect.objectContaining({
           backgroundColor: palette.theme.softBlue[60],
-          width: 288,
+          width: 264,
         }),
       ]),
     );
