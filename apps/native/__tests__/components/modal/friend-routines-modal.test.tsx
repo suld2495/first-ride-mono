@@ -251,9 +251,7 @@ describe('FriendRoutinesModal', () => {
 
     const screen = render(<FriendRoutinesModal />);
 
-    expect(
-      await screen.findByRole('button', { name: '응원 콕' }),
-    ).toHaveStyle({
+    expect(await screen.findByRole('button', { name: '응원 콕' })).toHaveStyle({
       bottom: baseFoundation.spacing[8],
       right: baseFoundation.spacing[4],
     });

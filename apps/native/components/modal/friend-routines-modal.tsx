@@ -309,9 +309,9 @@ const styles = StyleSheet.create((theme) => ({
     position: 'relative',
   },
   cheerButton: {
-    bottom: theme.foundation.spacing[4],
+    bottom: theme.foundation.spacing[8],
     position: 'absolute',
-    right: theme.foundation.spacing[0],
+    right: theme.foundation.spacing[4],
   },
   characterStage: {
     alignItems: 'center',
