@@ -313,7 +313,7 @@ const MyInfo = () => {
                   color={palette.theme.gray[60]}
                   testID={`settings-menu-text-${item.title}`}
                   variant="body2"
-                  weight="semibold"
+                  weight="regular"
                 >
                   {item.title}
                 </Typography>
@@ -330,7 +330,7 @@ const MyInfo = () => {
               color={palette.theme.gray[60]}
               testID="settings-menu-text-로그아웃"
               variant="body2"
-              weight="semibold"
+              weight="regular"
             >
               로그아웃
             </Typography>
@@ -345,7 +345,7 @@ const MyInfo = () => {
               color={palette.theme.red[50]}
               testID="settings-menu-text-베타 피드백"
               variant="body2"
-              weight="semibold"
+              weight="regular"
             >
               베타 피드백
             </Typography>
@@ -364,7 +364,7 @@ const MyInfo = () => {
               color={palette.theme.gray[30]}
               testID="settings-account-deletion-text"
               variant="body3"
-              weight="semibold"
+              weight="regular"
             >
               회원 탈퇴
             </Typography>

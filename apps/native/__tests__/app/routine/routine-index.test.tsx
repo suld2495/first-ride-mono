@@ -1050,13 +1050,12 @@ describe('루틴 조회 페이지', () => {
           todayCompletedCheck,
           todayCompletedFrame,
           pendingCheck,
-        ] =
-          await Promise.all([
-            findByTestId('routine-count-check-1-1'),
-            findByTestId('routine-count-check-1-2'),
-            findByTestId('routine-count-check-frame-1-2'),
-            findByTestId('routine-count-check-1-3'),
-          ]);
+        ] = await Promise.all([
+          findByTestId('routine-count-check-1-1'),
+          findByTestId('routine-count-check-1-2'),
+          findByTestId('routine-count-check-frame-1-2'),
+          findByTestId('routine-count-check-1-3'),
+        ]);
 
         expect(await findByLabelText('3회 요청 중')).toBeOnTheScreen();
         expect(
@@ -1265,7 +1264,7 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('요일 텍스트를 24px 체크박스 내부에 caption2 semibold로 표시한다', async () => {
+      it('요일 텍스트를 28px 체크박스 내부에 caption2 semibold로 표시한다', async () => {
         const todayIndex = getRoutineWeekIndex(new Date());
         const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
           todayIndex
@@ -1277,8 +1276,8 @@ describe('루틴 조회 페이지', () => {
         const todayText = within(todayCheckBox).getByText(todayLabel);
 
         expect(todayCheckBox).toHaveStyle({
-          width: 24,
-          height: 24,
+          width: 28,
+          height: 28,
           borderRadius: 6,
         });
         expect(todayText).toHaveStyle({
@@ -1299,7 +1298,7 @@ describe('루틴 조회 페이지', () => {
         expect(mondayColumnStyles).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              width: 28,
+              width: 32,
               alignItems: 'center',
             }),
           ]),
@@ -1318,11 +1317,13 @@ describe('루틴 조회 페이지', () => {
         const { findByTestId } = render(<Index />);
 
         expect(await findByTestId('routine-week-card-outer-1')).toHaveStyle({
-          borderRadius: 21,
+          borderRadius: 25,
           borderColor: palette.theme.gray[95],
           borderWidth: 1,
           backgroundColor: palette.white,
-          padding: 4,
+          paddingHorizontal: 4,
+          paddingTop: 8,
+          paddingBottom: 6,
         });
         expect(await findByTestId('routine-week-card-surface-1')).toHaveStyle({
           borderRadius: 16,
@@ -1459,7 +1460,7 @@ describe('루틴 조회 페이지', () => {
     });
 
     describe('요일별 달성 아이콘 표시', () => {
-      it('모든 요일을 동일한 28px 투명 외곽 프레임으로 감싼다', async () => {
+      it('모든 요일을 동일한 32px 투명 외곽 프레임으로 감싼다', async () => {
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
             weeklyCount: 0,
@@ -1479,8 +1480,8 @@ describe('루틴 조회 페이지', () => {
           const isToday = index === getRoutineWeekIndex(new Date());
 
           expect(frame).toHaveStyle({
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             borderRadius: 8,
             borderWidth: 1,
             borderColor: isToday ? palette.white : 'transparent',

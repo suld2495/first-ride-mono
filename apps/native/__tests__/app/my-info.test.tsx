@@ -398,7 +398,7 @@ describe('MyInfo 로그아웃', () => {
       }),
     );
     expect(menuText.props.fontSize).toBe('$body2');
-    expect(menuText.props.fontWeight).toBe('600');
+    expect(menuText.props.fontWeight).toBe('400');
     expect(StyleSheet.flatten(menuText.props.style)).toEqual(
       expect.objectContaining({ color: palette.theme.gray[60] }),
     );
@@ -516,6 +516,7 @@ describe('MyInfo 로그아웃', () => {
     expect(StyleSheet.flatten(feedbackText.props.style)).toEqual(
       expect.objectContaining({ color: palette.theme.red[50] }),
     );
+    expect(feedbackText.props.fontWeight).toBe('400');
   });
 
   it('회원 탈퇴를 메뉴와 분리된 화면 최하단에 한 단계 작은 글자로 표시한다', () => {
@@ -533,6 +534,7 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({ marginTop: 'auto' }),
     );
     expect(deletionText.props.fontSize).toBe('$body3');
+    expect(deletionText.props.fontWeight).toBe('400');
     expect(StyleSheet.flatten(deletionText.props.style)).toEqual(
       expect.objectContaining({ color: palette.theme.gray[30] }),
     );

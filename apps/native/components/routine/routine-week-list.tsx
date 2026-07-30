@@ -49,14 +49,18 @@ const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const TODAY_FRAME_COLOR = palette.white;
 const TODAY_FRAME_BORDER_WIDTH = 1;
 const TODAY_FRAME_GAP = 1;
-const CHECKBOX_SIZE = baseFoundation.dimension.x24;
+const CHECKBOX_SIZE = baseFoundation.dimension.x28;
 const TODAY_FRAME_SIZE =
   CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
 const ROUTINE_CARD_FRAME_GAP = baseFoundation.dimension.x4;
+const ROUTINE_CARD_FRAME_PADDING_TOP =
+  ROUTINE_CARD_FRAME_GAP + baseFoundation.dimension.x4;
+const ROUTINE_CARD_FRAME_PADDING_BOTTOM =
+  ROUTINE_CARD_FRAME_GAP + baseFoundation.dimension.x2;
 const ROUTINE_CARD_FRAME_BORDER_WIDTH = baseFoundation.dimension.x1;
 const ROUTINE_CARD_FRAME_RADIUS =
   baseFoundation.radii.m +
-  ROUTINE_CARD_FRAME_GAP +
+  ROUTINE_CARD_FRAME_PADDING_TOP +
   ROUTINE_CARD_FRAME_BORDER_WIDTH;
 
 const createWeekDateKeys = (startDate: string) => {
@@ -207,100 +211,97 @@ const RoutineWeekList = ({
 
             <View style={styles.checkRow}>
               {weeklyData[routineId].map((check, index) => {
-              const dateKey = weekDateKeys[index];
-              const isPastDay = dateKey < todayDateKey;
-              const isFutureDay = dateKey > todayDateKey;
-              const isToday = dateKey === todayDateKey;
-              const isTodaySuccess = check && dateKey === todayDateKey;
-              const isPendingConfirmation =
-                !check &&
-                routine.hasPendingConfirmation &&
-                dateKey === todayDateKey;
-              const isMissedPastDay =
-                isPastDay && !check && !isPendingConfirmation;
-              const isUpcomingDay =
-                !isPastDay && !check && !isPendingConfirmation;
-              const successCheckBoxStyle = check
-                ? {
-                    backgroundColor: routineColor,
-                  }
-                : null;
-              const todayFrameStyle = getTodayFrameStyle(isToday);
-              const upcomingCheckBoxStyle = getUpcomingCheckBoxStyle(
-                isUpcomingDay,
-                theme.colors.brand.routineUpcomingCheckboxBorder,
-              );
-              const pendingConfirmationCheckBoxStyle = isPendingConfirmation
-                ? {
-                    backgroundColor:
-                      theme.colors.brand.pendingConfirmationCheckbox,
-                  }
-                : null;
-              const missedPastDayCheckBoxStyle = isMissedPastDay
-                ? {
-                    backgroundColor: theme.colors.brand.routineMissedCheckbox,
-                  }
-                : null;
-              const statusLabel = check
-                ? isTodaySuccess
-                  ? '오늘 완료'
-                  : '달성'
-                : isPendingConfirmation
-                  ? '요청 중'
-                  : '미달성';
-              const dayTextColor = isFutureDay
-                ? theme.colors.brand.routineProgressText
-                : CHECKBOX_DAY_TEXT_COLOR;
-              const handlePressCheckBox = canRequestWithCheckBox
-                ? isMissedPastDay
-                  ? onBlockPastRoutineRequest
-                  : () => onRequestRoutine(routine)
-                : undefined;
+                const dateKey = weekDateKeys[index];
+                const isPastDay = dateKey < todayDateKey;
+                const isFutureDay = dateKey > todayDateKey;
+                const isToday = dateKey === todayDateKey;
+                const isTodaySuccess = check && dateKey === todayDateKey;
+                const isPendingConfirmation =
+                  !check &&
+                  routine.hasPendingConfirmation &&
+                  dateKey === todayDateKey;
+                const isMissedPastDay =
+                  isPastDay && !check && !isPendingConfirmation;
+                const isUpcomingDay =
+                  !isPastDay && !check && !isPendingConfirmation;
+                const successCheckBoxStyle = check
+                  ? {
+                      backgroundColor: routineColor,
+                    }
+                  : null;
+                const todayFrameStyle = getTodayFrameStyle(isToday);
+                const upcomingCheckBoxStyle = getUpcomingCheckBoxStyle(
+                  isUpcomingDay,
+                  theme.colors.brand.routineUpcomingCheckboxBorder,
+                );
+                const pendingConfirmationCheckBoxStyle = isPendingConfirmation
+                  ? {
+                      backgroundColor:
+                        theme.colors.brand.pendingConfirmationCheckbox,
+                    }
+                  : null;
+                const missedPastDayCheckBoxStyle = isMissedPastDay
+                  ? {
+                      backgroundColor: theme.colors.brand.routineMissedCheckbox,
+                    }
+                  : null;
+                const statusLabel = check
+                  ? isTodaySuccess
+                    ? '오늘 완료'
+                    : '달성'
+                  : isPendingConfirmation
+                    ? '요청 중'
+                    : '미달성';
+                const dayTextColor = isFutureDay
+                  ? theme.colors.brand.routineProgressText
+                  : CHECKBOX_DAY_TEXT_COLOR;
+                const handlePressCheckBox = canRequestWithCheckBox
+                  ? isMissedPastDay
+                    ? onBlockPastRoutineRequest
+                    : () => onRequestRoutine(routine)
+                  : undefined;
 
-              return (
-                <Pressable
-                  key={`${routineId}-status-${index}`}
-                  style={styles.dayColumn}
-                  accessibilityLabel={`${DAY_LABELS[index]}요일 ${statusLabel}`}
-                  accessibilityRole={
-                    canRequestWithCheckBox ? 'button' : 'image'
-                  }
-                  disabled={!canRequestWithCheckBox}
-                  onPress={handlePressCheckBox}
-                >
-                  <View
-                    style={[styles.checkFrame, todayFrameStyle]}
-                    testID={`routine-week-check-frame-${routineId}-${index}`}
+                return (
+                  <Pressable
+                    key={`${routineId}-status-${index}`}
+                    style={styles.dayColumn}
+                    accessibilityLabel={`${DAY_LABELS[index]}요일 ${statusLabel}`}
+                    accessibilityRole={
+                      canRequestWithCheckBox ? 'button' : 'image'
+                    }
+                    disabled={!canRequestWithCheckBox}
+                    onPress={handlePressCheckBox}
                   >
                     <View
-                      style={[
-                        styles.checkBox,
-                        successCheckBoxStyle,
-                        upcomingCheckBoxStyle,
-                        pendingConfirmationCheckBoxStyle,
-                        missedPastDayCheckBoxStyle,
-                      ]}
-                      testID={`routine-week-check-${routineId}-${index}`}
+                      style={[styles.checkFrame, todayFrameStyle]}
+                      testID={`routine-week-check-frame-${routineId}-${index}`}
                     >
-                      {isMissedPastDay ? (
-                        <RoutineMissedIcon
-                          size={baseFoundation.iconSize.xs}
-                          color={theme.colors.brand.routineProgressText}
-                        />
-                      ) : (
-                        <Text
-                          style={[
-                            styles.dayText,
-                            { color: dayTextColor },
-                          ]}
-                        >
-                          {DAY_LABELS[index]}
-                        </Text>
-                      )}
+                      <View
+                        style={[
+                          styles.checkBox,
+                          successCheckBoxStyle,
+                          upcomingCheckBoxStyle,
+                          pendingConfirmationCheckBoxStyle,
+                          missedPastDayCheckBoxStyle,
+                        ]}
+                        testID={`routine-week-check-${routineId}-${index}`}
+                      >
+                        {isMissedPastDay ? (
+                          <RoutineMissedIcon
+                            size={baseFoundation.iconSize.xs}
+                            color={theme.colors.brand.routineProgressText}
+                          />
+                        ) : (
+                          <Text
+                            style={[styles.dayText, { color: dayTextColor }]}
+                          >
+                            {DAY_LABELS[index]}
+                          </Text>
+                        )}
+                      </View>
                     </View>
-                  </View>
-                </Pressable>
-              );
+                  </Pressable>
+                );
               })}
             </View>
 
@@ -358,7 +359,9 @@ const styles = StyleSheet.create((theme) => ({
   list: {},
   cardOuter: {
     borderRadius: ROUTINE_CARD_FRAME_RADIUS,
-    padding: ROUTINE_CARD_FRAME_GAP,
+    paddingHorizontal: ROUTINE_CARD_FRAME_GAP,
+    paddingTop: ROUTINE_CARD_FRAME_PADDING_TOP,
+    paddingBottom: ROUTINE_CARD_FRAME_PADDING_BOTTOM,
     backgroundColor: palette.white,
     borderWidth: ROUTINE_CARD_FRAME_BORDER_WIDTH,
     borderColor: palette.theme.gray[95],

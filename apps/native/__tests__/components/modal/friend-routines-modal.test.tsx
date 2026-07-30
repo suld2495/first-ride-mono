@@ -148,7 +148,9 @@ describe('FriendRoutinesModal', () => {
         backgroundColor: '#FFFFFF',
         borderColor: '#000306',
         borderWidth: 1,
-        padding: 4,
+        paddingHorizontal: 4,
+        paddingTop: 8,
+        paddingBottom: 6,
       },
     );
     expect(
@@ -183,9 +185,9 @@ describe('FriendRoutinesModal', () => {
     const screen = render(<FriendRoutinesModal />);
 
     expect(await screen.findByText('운동 10분 이상')).toBeOnTheScreen();
-    expect(await screen.findByTestId('routine-week-progress-1')).toHaveTextContent(
-      '3/5',
-    );
+    expect(
+      await screen.findByTestId('routine-week-progress-1'),
+    ).toHaveTextContent('3/5');
     expect(
       StyleSheet.flatten(
         (await screen.findByTestId('routine-week-progress-summary-1')).props
