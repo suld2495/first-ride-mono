@@ -237,10 +237,10 @@ export default function Index() {
                         trailingIcon={
                           <PencilIcon
                             color={styles.speechBubbleEditIcon.color}
-                            height={baseFoundation.dimension.x12}
+                            height={baseFoundation.dimension.x14}
                             opacity={0.45}
                             testID="routine-speech-bubble-edit-icon"
-                            width={baseFoundation.dimension.x12}
+                            width={baseFoundation.dimension.x14}
                           />
                         }
                       />
@@ -278,10 +278,10 @@ export default function Index() {
                         trailingIcon={
                           <PencilIcon
                             color={styles.speechBubbleEditIcon.color}
-                            height={baseFoundation.dimension.x12}
+                            height={baseFoundation.dimension.x14}
                             opacity={0.45}
                             testID="routine-speech-bubble-edit-icon"
-                            width={baseFoundation.dimension.x12}
+                            width={baseFoundation.dimension.x14}
                           />
                         }
                       />
