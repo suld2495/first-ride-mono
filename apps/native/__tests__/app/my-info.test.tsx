@@ -228,7 +228,7 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-profile-avatar').props.style),
     ).toEqual(
       expect.objectContaining({
-        width: 72,
+        width: 60,
         height: 60,
         borderRadius: 12,
       }),
