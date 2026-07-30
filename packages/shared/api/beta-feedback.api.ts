@@ -1,5 +1,7 @@
 import http from './client';
 
+const IMAGE_UPLOAD_TIMEOUT_MS = 60_000;
+
 export interface CreateBetaFeedbackRequest {
   content: string;
   images?: BetaFeedbackImageUpload[];
@@ -42,5 +44,7 @@ export const createBetaFeedback = (
     } as unknown as Blob);
   }
 
-  return http.post<BetaFeedback, FormData>('/beta/feedback', multipartBody);
+  return http.post<BetaFeedback, FormData>('/beta/feedback', multipartBody, {
+    timeout: IMAGE_UPLOAD_TIMEOUT_MS,
+  });
 };
