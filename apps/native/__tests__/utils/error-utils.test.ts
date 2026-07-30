@@ -36,12 +36,12 @@ describe('error-utils', () => {
         createApiError({ code: 'IMAGE_UPLOAD_FAILED' }),
         '기본 메시지',
       ),
-    ).toBe('[IMAGE_UPLOAD_FAILED] 서버 오류가 발생했습니다.');
+    ).toBe('[HTTP 400 | IMAGE_UPLOAD_FAILED] 서버 오류가 발생했습니다.');
   });
 
-  it('서버 오류 코드가 없으면 메시지만 반환한다', () => {
+  it('서버 오류 코드가 없으면 HTTP 상태와 메시지를 반환한다', () => {
     expect(getApiErrorMessageWithCode(createApiError(), '기본 메시지')).toBe(
-      '서버 오류가 발생했습니다.',
+      '[HTTP 400] 서버 오류가 발생했습니다.',
     );
   });
 
@@ -51,7 +51,7 @@ describe('error-utils', () => {
         createApiError({ code: 'EMPTY_MESSAGE', message: '' }),
         '기본 메시지',
       ),
-    ).toBe('[EMPTY_MESSAGE] 기본 메시지');
+    ).toBe('[HTTP 400 | EMPTY_MESSAGE] 기본 메시지');
   });
 
   it('필드 상세 메시지와 필드별 오류를 추출한다', () => {

@@ -459,7 +459,27 @@ describe('베타 피드백 페이지', () => {
 
     await waitFor(() => {
       expect(mockShowToast).toHaveBeenCalledWith(
-        '[BETA_FEEDBACK_IMAGE_UPLOAD_FAILED] 피드백 이미지 처리 중 서버 오류가 발생했습니다.',
+        '[HTTP 500 | BETA_FEEDBACK_IMAGE_UPLOAD_FAILED] 피드백 이미지 처리 중 서버 오류가 발생했습니다.',
+        'error',
+      );
+    });
+  });
+
+  it('서버 오류 코드가 없으면 HTTP 상태와 메시지를 안내한다', async () => {
+    mockAxios.onPost('/beta/feedback').reply(500, {
+      success: false,
+      error: {
+        message: '서버 오류가 발생했습니다.',
+      },
+    });
+    const screen = render(<BetaFeedbackPage />);
+
+    fireEvent.changeText(screen.getByLabelText('피드백 내용'), CONTENT);
+    fireEvent.press(screen.getByTestId('beta-feedback-submit-button'));
+
+    await waitFor(() => {
+      expect(mockShowToast).toHaveBeenCalledWith(
+        '[HTTP 500] 서버 오류가 발생했습니다.',
         'error',
       );
     });
