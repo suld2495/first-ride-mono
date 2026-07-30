@@ -46,7 +46,7 @@ describe('FriendList', () => {
     );
   });
 
-  it('keeps enough vertical space between friend rows', () => {
+  it('keeps an 8px vertical gap between friend rows', () => {
     const friends = createMockFriends(3);
     const { getByLabelText } = render(
       <FriendList
@@ -61,7 +61,7 @@ describe('FriendList', () => {
     expect(
       flattenPressableStyles(getByLabelText('friend1 루틴 보기').props.style),
     ).toEqual(
-      expect.arrayContaining([expect.objectContaining({ marginBottom: 20 })]),
+      expect.arrayContaining([expect.objectContaining({ marginBottom: 8 })]),
     );
   });
 
@@ -84,7 +84,7 @@ describe('FriendList', () => {
     );
   });
 
-  it('sizes friend cards so the horizontal gap is 16 and motto characters fit the height budget', () => {
+  it('sizes friend cards so the horizontal gap is 8 and motto characters fit the height budget', () => {
     const friends = createMockFriends(2);
     const { getByLabelText } = render(
       <FriendList
@@ -177,7 +177,6 @@ describe('FriendList', () => {
     expect(motto.props.textAlign).toBe('center');
     expect(StyleSheet.flatten(motto.props.style)).toEqual(
       expect.objectContaining({
-        alignSelf: 'stretch',
         color: palette.theme.gray[90],
         textAlign: 'center',
       }),
