@@ -18,11 +18,12 @@ import Checkbox from '@/components/ui/checkbox';
 import DatePicker from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import {
   DEFAULT_ROUTINE_COLOR,
+  ROUTINE_LEMON_COLOR,
   ROUTINE_COLOR_OPTIONS,
 } from '@/constants/ROUTINE_COLORS';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
@@ -44,11 +45,6 @@ const ROUTINE_COUNT_OPTIONS = Array.from({ length: 7 }, (_, index) => {
   };
 });
 
-const ROUTINE_COLOR_ROWS = [
-  ROUTINE_COLOR_OPTIONS.slice(0, 5),
-  ROUTINE_COLOR_OPTIONS.slice(5),
-];
-
 const getDateFromFormValue = (date?: string) => {
   if (!date) {
     return null;
@@ -69,6 +65,7 @@ const getStartOfToday = () => {
 type RoutineStatusForm = RoutineForm & {
   paused?: boolean;
   hidden?: boolean;
+  isDailyRepeat?: boolean;
 };
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -77,10 +74,13 @@ const { Form, FormItem, useForm } = useCreateForm<RoutineStatusForm>();
 const RoutineFormModal = () => {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
   const isRoutineAdd = type === 'routine-add';
+  const { rt } = useAppTheme();
 
   const routineId = useRoutineId();
   const routineForm = useRoutineForm();
   const user = useAuthUser();
+  const today = useMemo(() => getStartOfToday(), []);
+  const todayDateValue = useMemo(() => getFormatDate(today), [today]);
   const { data: routineDetail } = useRoutineDetailQuery(
     isRoutineAdd ? 0 : routineId,
   );
@@ -92,9 +92,14 @@ const RoutineFormModal = () => {
     (!!sourceRoutineForm.mateNickname &&
       sourceRoutineForm.mateNickname === user?.nickname);
   const normalizedRoutineForm = useMemo<RoutineStatusForm>(() => {
+    const isDailyRepeat = Boolean(
+      sourceRoutineForm.startDate && !sourceRoutineForm.endDate,
+    );
     const formWithColor = {
       ...sourceRoutineForm,
       symbolColor: sourceRoutineForm.symbolColor || DEFAULT_ROUTINE_COLOR,
+      startDate: sourceRoutineForm.startDate || '',
+      isDailyRepeat,
     };
 
     return isDirectRoutine
@@ -113,7 +118,29 @@ const RoutineFormModal = () => {
   useEffect(() => {
     setMateKeyword(normalizedRoutineForm.isMe ? '' : initialMateNickname);
   }, [initialMateNickname, normalizedRoutineForm.isMe]);
-  const today = useMemo(() => getStartOfToday(), []);
+  const routineColorRows = useMemo(() => {
+    const themeColorOption = {
+      label: '테마',
+      value:
+        rt.themeName === 'red'
+          ? palette.theme.red[30]
+          : rt.themeName === 'green'
+            ? palette.theme.green[30]
+            : palette.theme.blue[30],
+    };
+    const lemonColorOption = {
+      label: '레몬',
+      value: ROUTINE_LEMON_COLOR,
+    };
+    const options = [
+      themeColorOption,
+      ...ROUTINE_COLOR_OPTIONS.slice(0, 5),
+      lemonColorOption,
+      ...ROUTINE_COLOR_OPTIONS.slice(5),
+    ];
+
+    return [options.slice(0, 6), options.slice(6)];
+  }, [rt.themeName]);
 
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
   const {
@@ -230,7 +257,7 @@ const RoutineFormModal = () => {
           label="컬러"
           item={({ value, setValue }) => (
             <View style={styles.colorGrid}>
-              {ROUTINE_COLOR_ROWS.map((row, rowIndex) => (
+              {routineColorRows.map((row, rowIndex) => (
                 <View
                   key={row[0].value}
                   testID={`routine-color-row-${rowIndex}`}
@@ -271,46 +298,101 @@ const RoutineFormModal = () => {
           tooltipIcon={<RoutinePeriodWarningIcon />}
           item={({ value, form, setValue }) => (
             <ThemeView style={styles.date}>
-              <ThemeView style={styles.dateContainer} transparent>
-                <DatePicker
-                  value={getDateFromFormValue(value)}
-                  buttonTitle={form.startDate || '시작일 선택'}
-                  variant="outlined"
-                  sheetLabel="시작일 선택"
-                  minimumDate={today}
-                  defaultDate={today}
-                  onConfirmDate={(date) => {
-                    setValue('startDate', getFormatDate(date));
+              <ThemeView style={styles.dateHeaderRow} transparent>
+                <ThemeView style={styles.dateLabelSpacer} transparent />
+                <ThemeView
+                  style={styles.dailyRepeatControl}
+                  transparent
+                  testID="routine-daily-repeat-control"
+                >
+                  <Checkbox
+                    isChecked={Boolean(form.isDailyRepeat)}
+                    onPress={(checked) => {
+                      setValue('isDailyRepeat', checked);
 
-                    const endDate = getDateFromFormValue(form.endDate) ?? date;
-
-                    if (form.endDate && endDate < date) {
-                      setValue('endDate', getFormatDate(date));
-                    }
-                  }}
-                  buttonStyle={styles.button}
-                />
+                      if (checked) {
+                        setValue('startDate', todayDateValue);
+                        setValue('endDate', '');
+                      }
+                    }}
+                  />
+                  <Typography
+                    variant="caption1"
+                    weight="semibold"
+                    style={styles.dailyRepeatLabel}
+                  >
+                    매일 반복
+                  </Typography>
+                </ThemeView>
               </ThemeView>
-              <ThemeView style={styles.dateContainer} transparent>
-                <DatePicker
-                  value={getDateFromFormValue(form.endDate)}
-                  buttonTitle={form.endDate || '종료일 선택'}
-                  variant="outlined"
-                  sheetLabel="종료일 선택"
-                  minimumDate={getDateFromFormValue(form.startDate) ?? today}
-                  defaultDate={getDateFromFormValue(form.startDate) ?? today}
-                  onConfirmDate={(date) => {
-                    setValue('endDate', getFormatDate(date));
-
-                    const startDate = getDateFromFormValue(form.startDate);
-
-                    if (startDate && startDate > date) {
+              {form.isDailyRepeat ? (
+                <ThemeView style={styles.dateContainer} transparent>
+                  <DatePicker
+                    value={getDateFromFormValue(form.startDate)}
+                    buttonTestID="routine-daily-repeat-date-button"
+                    buttonTitle="날짜 선택"
+                    variant="outlined"
+                    sheetLabel="날짜 선택"
+                    minimumDate={today}
+                    defaultDate={today}
+                    disabled
+                    onConfirmDate={(date) => {
                       setValue('startDate', getFormatDate(date));
-                    }
-                  }}
-                  buttonStyle={styles.button}
-                />
-              </ThemeView>
+                    }}
+                    buttonStyle={[styles.button, styles.disabledDateButton]}
+                  />
+                </ThemeView>
+              ) : (
+                <ThemeView style={styles.dateButtonRow} transparent>
+                  <ThemeView style={styles.dateContainer} transparent>
+                    <DatePicker
+                      value={getDateFromFormValue(value)}
+                      buttonTestID="routine-start-date-button"
+                      buttonTitle={form.startDate || '시작일 선택'}
+                      variant="outlined"
+                      sheetLabel="시작일 선택"
+                      minimumDate={today}
+                      defaultDate={today}
+                      onConfirmDate={(date) => {
+                        setValue('startDate', getFormatDate(date));
+
+                        const endDate =
+                          getDateFromFormValue(form.endDate) ?? date;
+
+                        if (form.endDate && endDate < date) {
+                          setValue('endDate', getFormatDate(date));
+                        }
+                      }}
+                      buttonStyle={styles.button}
+                    />
+                  </ThemeView>
+                  <ThemeView style={styles.dateContainer} transparent>
+                    <DatePicker
+                      value={getDateFromFormValue(form.endDate)}
+                      buttonTestID="routine-end-date-button"
+                      buttonTitle={form.endDate || '종료일 선택'}
+                      variant="outlined"
+                      sheetLabel="종료일 선택"
+                      minimumDate={
+                        getDateFromFormValue(form.startDate) ?? today
+                      }
+                      defaultDate={
+                        getDateFromFormValue(form.startDate) ?? today
+                      }
+                      onConfirmDate={(date) => {
+                        setValue('endDate', getFormatDate(date));
+
+                        const startDate = getDateFromFormValue(form.startDate);
+
+                        if (startDate && startDate > date) {
+                          setValue('startDate', getFormatDate(date));
+                        }
+                      }}
+                      buttonStyle={styles.button}
+                    />
+                  </ThemeView>
+                </ThemeView>
+              )}
             </ThemeView>
           )}
           required
@@ -584,6 +666,30 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   date: {
+    gap: theme.foundation.spacing[3],
+  },
+
+  dateHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  dateLabelSpacer: {
+    flex: 1,
+  },
+
+  dailyRepeatControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[2],
+  },
+
+  dailyRepeatLabel: {
+    color: theme.colors.field.label,
+  },
+
+  dateButtonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: theme.foundation.spacing[3],
@@ -597,6 +703,11 @@ const styles = StyleSheet.create((theme) => ({
 
   button: {
     flex: 1,
+  },
+
+  disabledDateButton: {
+    backgroundColor: palette.theme.gray[5],
+    borderColor: palette.theme.gray[10],
   },
 
   colorGrid: {

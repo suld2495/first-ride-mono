@@ -268,16 +268,23 @@ jest.mock('@/components/ui/tamagui', () => {
     React.forwardRef(({ children, ...props }, ref) =>
       React.createElement(Component, { ref, ...props }, children),
     );
-  const getMockTheme = () => {
+  const getMockThemeName = () => {
     try {
       const {
         getEffectiveColorScheme,
         useColorSchemeStore,
       } = require('@/store/color-scheme.store');
+
+      return getEffectiveColorScheme(useColorSchemeStore.getState());
+    } catch {
+      return 'blue';
+    }
+  };
+  const getMockTheme = () => {
+    try {
       const { appThemes } = require('@/theme/themes');
       const { createFoundation } = require('@/theme/tokens');
-      const themeName = getEffectiveColorScheme(useColorSchemeStore.getState());
-      const theme = appThemes[themeName] ?? appThemes.blue;
+      const theme = appThemes[getMockThemeName()] ?? appThemes.blue;
 
       return {
         ...theme,
@@ -317,6 +324,9 @@ jest.mock('@/components/ui/tamagui', () => {
     },
     useAppTheme: () => ({
       theme: getMockTheme(),
+      rt: {
+        themeName: getMockThemeName(),
+      },
     }),
     TamaguiRuntime: {},
   };
