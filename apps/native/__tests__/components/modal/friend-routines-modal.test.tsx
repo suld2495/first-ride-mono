@@ -16,6 +16,7 @@ import {
 
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockPush: jest.Mock;
+declare const mockShowToast: jest.Mock;
 
 let mockAxios: MockAdapter;
 
@@ -54,6 +55,7 @@ const createFriendRoutineResponse = () => ({
 describe('FriendRoutinesModal', () => {
   beforeEach(() => {
     resetAuthMocks();
+    mockShowToast.mockClear();
     useColorSchemeStore.getState().setColorScheme('blue');
     mockAxios = new MockAdapter(axiosInstance);
     mockSearchParams.friendId = '42';
@@ -226,5 +228,87 @@ describe('FriendRoutinesModal', () => {
     expect(await screen.findByText('오늘도 전진')).toBeOnTheScreen();
     expect(screen.queryByTestId('friend-routine-scene-character')).toBeNull();
     expect(screen.queryByTestId('friend-routine-scene-background')).toBeNull();
+  });
+
+  it('응원 콕 버튼으로 친구에게 응원을 보내고 서버 메시지를 표시한다', async () => {
+    mockAxios.onGet('/friends/42/profile').reply(
+      200,
+      wrapResponse({
+        friendId: 42,
+        nickname: '혜연',
+        job: '검사',
+        motto: '오늘도 전진',
+        level: 7,
+        characterCode: 'WARRIOR_INTERMEDIATE',
+        characterImageUrl: null,
+        backgroundImageUrl: null,
+      }),
+    );
+    mockAxios
+      .onGet('/friends/42/routines?date=2026-05-25')
+      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
+    mockAxios.onPost('/friends/42/cheer').reply(200, {
+      cheerId: 10,
+      senderId: 1,
+      senderNickname: '윤윤',
+      receiverId: 42,
+      receiverNickname: '혜연',
+      message: '윤윤님이 함께 모험을 떠나자고 합니다!',
+      createdAt: '2026-07-29 14:10',
+    });
+
+    const screen = render(<FriendRoutinesModal />);
+
+    fireEvent.press(await screen.findByRole('button', { name: '응원 콕' }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockAxios.history.post).toHaveLength(1);
+    expect(mockAxios.history.post[0].url).toBe('/friends/42/cheer');
+    expect(mockShowToast).toHaveBeenCalledWith(
+      '윤윤님이 함께 모험을 떠나자고 합니다!',
+      'success',
+    );
+  });
+
+  it('응원 콕 전송이 거절되면 서버 오류 메시지를 표시한다', async () => {
+    mockAxios.onGet('/friends/42/profile').reply(
+      200,
+      wrapResponse({
+        friendId: 42,
+        nickname: '혜연',
+        job: '검사',
+        motto: '오늘도 전진',
+        level: 7,
+        characterCode: 'WARRIOR_INTERMEDIATE',
+        characterImageUrl: null,
+        backgroundImageUrl: null,
+      }),
+    );
+    mockAxios
+      .onGet('/friends/42/routines?date=2026-05-25')
+      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
+    mockAxios.onPost('/friends/42/cheer').reply(429, {
+      success: false,
+      error: {
+        message:
+          '같은 친구에게는 1시간에 한 번만 응원 콕을 보낼 수 있습니다.',
+      },
+    });
+
+    const screen = render(<FriendRoutinesModal />);
+
+    fireEvent.press(await screen.findByRole('button', { name: '응원 콕' }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockShowToast).toHaveBeenCalledWith(
+      '같은 친구에게는 1시간에 한 번만 응원 콕을 보낼 수 있습니다.',
+      'error',
+    );
   });
 });

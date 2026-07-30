@@ -99,6 +99,7 @@ describe('notification-settings.api', () => {
         LEVEL_UP: true,
         FRIEND_REQUEST: true,
         FRIEND_ACCEPTED: true,
+        FRIEND_CHEER: true,
         QUEST_COMPLETE: true,
         QUEST_REWARD: true,
         SYSTEM: true,

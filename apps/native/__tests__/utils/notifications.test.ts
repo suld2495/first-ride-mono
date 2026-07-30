@@ -175,6 +175,13 @@ describe('getDeepLinkPath', () => {
       };
       expect(getDeepLinkPath(data)).toBe(DEEP_LINK_SCREENS.FRIEND);
     });
+
+    it('friend-cheer 타입은 친구 목록 화면으로 이동한다', () => {
+      const data: NotificationDeepLinkData = {
+        type: 'friend-cheer',
+      };
+      expect(getDeepLinkPath(data)).toBe(DEEP_LINK_SCREENS.FRIEND);
+    });
   });
 
   describe('category로 기본 화면 매핑', () => {

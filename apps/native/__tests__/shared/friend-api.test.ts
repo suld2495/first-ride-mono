@@ -1,5 +1,9 @@
 import axiosInstance from '@repo/shared/api';
-import { fetchFriendProfile, fetchFriends } from '@repo/shared/api/friend';
+import {
+  fetchFriendProfile,
+  fetchFriends,
+  sendFriendCheer,
+} from '@repo/shared/api/friend';
 import MockAdapter from 'axios-mock-adapter';
 
 let mockAxios: MockAdapter;
@@ -131,6 +135,41 @@ describe('friend.api', () => {
       await expect(fetchFriendProfile('9007199254740991')).resolves.toEqual(
         profile,
       );
+    });
+  });
+
+  describe('sendFriendCheer', () => {
+    it('friendId로 body 없이 응원 콕을 보내고 서버 응답을 반환한다', async () => {
+      const cheer = {
+        cheerId: 10,
+        senderId: 1,
+        senderNickname: '윤윤',
+        receiverId: 2,
+        receiverNickname: '맨날12',
+        message: '윤윤님이 함께 모험을 떠나자고 합니다!',
+        createdAt: '2026-07-29 14:10',
+      };
+
+      mockAxios.onPost('/friends/2/cheer').reply((config) => {
+        expect(config.data).toBeUndefined();
+        return [200, cheer];
+      });
+
+      await expect(sendFriendCheer(2)).resolves.toEqual(cheer);
+    });
+
+    it('1시간 제한 응답의 서버 메시지를 오류로 전달한다', async () => {
+      mockAxios.onPost('/friends/2/cheer').reply(429, {
+        success: false,
+        error: {
+          message:
+            '같은 친구에게는 1시간에 한 번만 응원 콕을 보낼 수 있습니다.',
+        },
+      });
+
+      await expect(sendFriendCheer(2)).rejects.toMatchObject({
+        message: '같은 친구에게는 1시간에 한 번만 응원 콕을 보낼 수 있습니다.',
+      });
     });
   });
 });

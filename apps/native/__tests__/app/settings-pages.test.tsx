@@ -501,6 +501,7 @@ describe('설정 하위 페이지', () => {
     ).toBeOnTheScreen();
     expect(await findByText('친구 알림')).toBeOnTheScreen();
     expect(await findByText('친구 요청')).toBeOnTheScreen();
+    expect(await findByText('응원 콕')).toBeOnTheScreen();
     expect(
       getByTestId('notification-settings-toggle-all').props.accessibilityState
         .checked,
@@ -551,6 +552,7 @@ describe('설정 하위 페이지', () => {
         settings: {
           FRIEND_REQUEST: false,
           FRIEND_ACCEPTED: false,
+          FRIEND_CHEER: false,
         },
       });
 
@@ -570,6 +572,7 @@ describe('설정 하위 페이지', () => {
               LEVEL_UP: true,
               FRIEND_REQUEST: false,
               FRIEND_ACCEPTED: false,
+              FRIEND_CHEER: false,
               QUEST_COMPLETE: true,
               QUEST_REWARD: true,
               SYSTEM: true,
