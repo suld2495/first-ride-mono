@@ -449,7 +449,7 @@ const RoutineFormModal = () => {
                     }}
                   />
                   <Typography variant="caption1" style={styles.mateCheckLabel}>
-                    메이트와 함께 루틴 체크
+                    메이트에게 루틴 인증 요청
                   </Typography>
                 </ThemeView>
                 {!value && (

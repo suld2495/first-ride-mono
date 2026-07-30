@@ -166,10 +166,12 @@ const styles = StyleSheet.create((theme) => ({
 
   required: {
     color: theme.colors.field.required,
+    marginLeft: 1,
   },
 
   optional: {
     color: theme.colors.field.optional,
+    marginLeft: baseFoundation.spacing[1],
   },
 
   errorText: {
@@ -179,7 +181,7 @@ const styles = StyleSheet.create((theme) => ({
   labelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: baseFoundation.spacing[1],
+    gap: 0,
     alignSelf: 'flex-start',
     zIndex: baseFoundation.zIndex.tooltip,
   },
@@ -200,6 +202,7 @@ const styles = StyleSheet.create((theme) => ({
   tooltipContainer: {
     position: 'relative',
     justifyContent: 'center',
+    marginLeft: baseFoundation.spacing[1],
   },
 
   tooltipButton: {

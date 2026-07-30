@@ -324,15 +324,17 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   };
 
   describe('필수값 입력 전 추가 버튼 비활성화 테스트', () => {
-    it('메이트와 함께 루틴 체크를 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
-      const { getAllByTestId, getByText, queryByPlaceholderText } = render(
-        <RoutineFormModal />,
-      );
+    it('메이트에게 루틴 인증 요청을 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
+      const { getAllByTestId, getByTestId, getByText, queryByPlaceholderText } =
+        render(<RoutineFormModal />);
       const mateCheckbox = getAllByTestId('bouncy-checkbox')[1];
+      const routineNameLabelRow = within(getByTestId('routineName-label-row'));
+      const routineNameRequired = routineNameLabelRow.getByText('*');
 
-      expect(getByText('메이트와 함께 루틴 체크')).toHaveStyle({
+      expect(getByText('메이트에게 루틴 인증 요청')).toHaveStyle({
         color: '#272A2D',
       });
+      expect(routineNameRequired).toHaveStyle({ marginLeft: 1 });
       expect(mateCheckbox.props.disableText).toBe(true);
       expect(mateCheckbox.props.isChecked).toBe(false);
       expect(mateCheckbox.props.fillColor).toBe('#000306');
@@ -822,7 +824,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         });
       });
 
-      it('메이트와 함께 루틴 체크 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
+      it('메이트에게 루틴 인증 요청 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
         mockAxios.onPost('/routine/mate').reply(201, {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
@@ -1198,7 +1200,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       expect(await findByText('메이트')).toBeOnTheScreen();
       expect(await findByText('메이트닉네임')).toBeOnTheScreen();
-      expect(queryByText('메이트와 함께 루틴 체크')).not.toBeOnTheScreen();
+      expect(queryByText('메이트에게 루틴 인증 요청')).not.toBeOnTheScreen();
       expect(
         queryByPlaceholderText('메이트를 지정하세요.'),
       ).not.toBeOnTheScreen();
@@ -1212,7 +1214,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         await findByPlaceholderText('루틴 이름을 입력하세요.'),
       ).toBeOnTheScreen();
       expect(queryByText('메이트')).not.toBeOnTheScreen();
-      expect(queryByText('메이트와 함께 루틴 체크')).not.toBeOnTheScreen();
+      expect(queryByText('메이트에게 루틴 인증 요청')).not.toBeOnTheScreen();
       expect(
         queryByPlaceholderText('메이트를 지정하세요.'),
       ).not.toBeOnTheScreen();
