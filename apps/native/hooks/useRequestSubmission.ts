@@ -25,8 +25,9 @@ export const MAX_REQUEST_IMAGE_COUNT = 3;
 
 export type { RequestImage } from '@/utils/request-image';
 
-type RequestImageForm = {
+export type RequestForm = {
   images: RequestImage[];
+  message: string;
 };
 
 type SetImageValue = (name: 'images', value: RequestImage[]) => void;
@@ -48,7 +49,7 @@ export const useRequestSubmission = (
   const saveRequest = useCreateRequestMutation();
 
   const handleSubmit = useCallback(
-    (submittedForm: RequestImageForm) => {
+    (submittedForm: RequestForm) => {
       if (!submittedForm.images.length || !detail) {
         return;
       }
@@ -70,6 +71,7 @@ export const useRequestSubmission = (
         formData.append('images', file as unknown as Blob);
       }
       formData.append('routineId', routineId.toString());
+      formData.append('message', submittedForm.message);
 
       saveRequest.mutate(formData, {
         onSuccess: () => {

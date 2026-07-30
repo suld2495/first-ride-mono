@@ -8,6 +8,7 @@ import { Image, Pressable, ScrollView } from 'react-native';
 
 import RequetButtonGroup from '@/components/request/request-button-group';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
@@ -16,17 +17,16 @@ import { useCreateForm } from '@/hooks/useForm';
 import { usePendingRoutineShareImages } from '@/hooks/usePendingRoutineShareImages';
 import {
   MAX_REQUEST_IMAGE_COUNT,
-  type RequestImage,
+  type RequestForm,
   useRequestSubmission,
 } from '@/hooks/useRequestSubmission';
 import { useRoutineId } from '@/hooks/useRoutineSelection';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
-const { Form, FormItem, useForm } = useCreateForm<{ images: RequestImage[] }>();
-const requestImageValidators = requestFormValidators as unknown as Validators<{
-  images: RequestImage[];
-}>;
+const { Form, FormItem, useForm } = useCreateForm<RequestForm>();
+const requestImageValidators =
+  requestFormValidators as unknown as Validators<RequestForm>;
 const requestImageSlots = Array.from(
   { length: MAX_REQUEST_IMAGE_COUNT },
   (_, index) => index,
@@ -47,8 +47,8 @@ const RequestModal = () => {
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
   const sharedImages = usePendingRoutineShareImages(routineId, shareSessionId);
   const hasMateTarget = detail?.isMe === false && !!detail?.mateNickname;
-  const initialForm = useMemo<{ images: RequestImage[] }>(
-    () => ({ images: sharedImages }),
+  const initialForm = useMemo<RequestForm>(
+    () => ({ images: sharedImages, message: '' }),
     [sharedImages],
   );
   const { handleSubmit, pickImage, takePicture, isPending } =
@@ -300,6 +300,26 @@ const RequestModal = () => {
             )}
           />
 
+          <FormItem
+            name="message"
+            label="메시지"
+            optionalLabel="(선택)"
+            item={({ value, onChange }) => (
+              <Input
+                accessibilityLabel="메시지"
+                editable={!isPending}
+                fullWidth
+                inputStyle={styles.messageInput}
+                multiline
+                onChangeText={onChange}
+                placeholder="메시지를 입력해주세요."
+                style={styles.messageField}
+                value={value}
+                variant="filled"
+              />
+            )}
+          />
+
           {hasMateTarget && (
             <ThemeView
               testID="request-mate-help"
@@ -399,6 +419,20 @@ const styles = StyleSheet.create((theme) => ({
 
   imageCount: {
     color: theme.colors.action.primary.default,
+  },
+
+  messageField: {
+    minHeight: baseFoundation.dimension.x112,
+    height: 'auto',
+    paddingHorizontal: baseFoundation.spacing[4],
+    paddingVertical: baseFoundation.spacing[3],
+    borderRadius: baseFoundation.radii.s,
+    backgroundColor: theme.colors.background.media,
+  },
+
+  messageInput: {
+    minHeight: baseFoundation.dimension.x80,
+    textAlignVertical: 'top',
   },
 
   uploadFrame: {

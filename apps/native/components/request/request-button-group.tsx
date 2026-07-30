@@ -8,11 +8,11 @@ import { Button } from '@/components/ui/button';
 import Link from '@/components/ui/link';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
-import type { RequestImage } from '@/hooks/useRequestSubmission';
+import type { RequestForm } from '@/hooks/useRequestSubmission';
 import { baseFoundation } from '@/theme/tokens';
 
 interface RequetButtonGroupProps {
-  useForm: () => FormContextType<{ images: RequestImage[] }>;
+  useForm: () => FormContextType<RequestForm>;
   loading?: boolean;
 }
 

@@ -261,6 +261,22 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(await findByText('루틴 이름')).toBeOnTheScreen();
     });
 
+    it('인증 메시지를 입력할 수 있다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      const messageInput =
+        screen.getByPlaceholderText('메시지를 입력해주세요.');
+
+      fireEvent.changeText(messageInput, '오늘도 루틴 완료!');
+
+      expect(screen.getByText('메시지')).toBeOnTheScreen();
+      expect(screen.getByText('(선택)')).toBeOnTheScreen();
+      expect(messageInput).toHaveProp('multiline', true);
+      expect(messageInput).toHaveProp('value', '오늘도 루틴 완료!');
+    });
+
     it('혼자 인증하는 루틴은 인증 대상 라벨을 표시하지 않는다', async () => {
       const { findByText, queryByText } = render(<RequestModal />);
 
@@ -707,6 +723,36 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
           expect(appendSpy).not.toHaveBeenCalledWith(
             'nickname',
             expect.anything(),
+          );
+        });
+
+        appendSpy.mockRestore();
+      });
+
+      it('입력한 메시지를 인증 요청에 포함한다', async () => {
+        const appendSpy = jest.spyOn(FormData.prototype, 'append');
+        const screen = render(<RequestModal />);
+
+        await screen.findByText('테스트 루틴 1');
+        await selectImageFromGallery(screen.getByTestId);
+
+        fireEvent.changeText(
+          screen.getByPlaceholderText('메시지를 입력해주세요.'),
+          '오늘도 루틴 완료!',
+        );
+
+        await waitFor(() => {
+          expect(screen.getByText('인증')).toBeEnabled();
+        });
+
+        await act(async () => {
+          fireEvent.press(screen.getByText('인증'));
+        });
+
+        await waitFor(() => {
+          expect(appendSpy).toHaveBeenCalledWith(
+            'message',
+            '오늘도 루틴 완료!',
           );
         });
 
