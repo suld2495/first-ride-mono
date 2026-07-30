@@ -3,4 +3,5 @@ export const fontFamilies = {
   medium: 'Pretendard-Medium',
   semibold: 'Pretendard-SemiBold',
   bold: 'Pretendard-Bold',
+  poppinsBold: 'Poppins_700Bold',
 } as const;

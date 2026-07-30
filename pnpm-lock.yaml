@@ -231,6 +231,9 @@ importers:
       '@expo-google-fonts/pixelify-sans':
         specifier: ^0.4.2
         version: 0.4.2
+      '@expo-google-fonts/poppins':
+        specifier: 0.4.1
+        version: 0.4.1
       '@expo/vector-icons':
         specifier: ^14.0.0
         version: 14.1.0(expo-font@13.3.2(expo@53.0.27(@babel/core@7.29.6)(@expo/metro-runtime@5.0.5(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react@19.0.0))(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
@@ -1446,6 +1449,9 @@ packages:
 
   '@expo-google-fonts/pixelify-sans@0.4.2':
     resolution: {integrity: sha512-qKtunvaFedCSgw4+f4Ipa/kjl2AZtDcRQuvAM/Qtt27GMXSFAfRNa0tXKSstaW4W+YxDIMOFT1WlrNN8GCLjxg==}
+
+  '@expo-google-fonts/poppins@0.4.1':
+    resolution: {integrity: sha512-LiX5oEryJqDt3UmWwr4oqf11hGMz/JEffkkNcZ3UtGwyoMFzXmBmTwcrAWrEttxypxmLNmPykDg+CY2VjKve9A==}
 
   '@expo/cli@0.24.24':
     resolution: {integrity: sha512-XybHfF2QNPJNnHoUKHcG796iEkX5126UuTAs6MSpZuvZRRQRj/sGCLX+driCOVHbDOpcCOusMuHrhxHbtTApyg==}
@@ -9437,6 +9443,8 @@ snapshots:
       levn: 0.4.1
 
   '@expo-google-fonts/pixelify-sans@0.4.2': {}
+
+  '@expo-google-fonts/poppins@0.4.1': {}
 
   '@expo/cli@0.24.24(graphql@16.11.0)':
     dependencies:

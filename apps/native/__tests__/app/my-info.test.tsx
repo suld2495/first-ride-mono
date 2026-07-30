@@ -260,6 +260,9 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({
         marginTop: 20,
         flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        gap: 12,
       }),
     );
     const levelBadgeStyle = StyleSheet.flatten(
@@ -274,7 +277,10 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-exp-row').props.style),
     ).toEqual(
       expect.objectContaining({
-        marginTop: 8,
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end',
       }),
     );
     expect(queryByTestId('settings-level-label')).toBeNull();
@@ -282,6 +288,8 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-exp-value-row').props.style),
     ).toEqual(
       expect.objectContaining({
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end',
         gap: 8,
       }),
     );
@@ -289,6 +297,7 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-exp-number-row').props.style),
     ).toEqual(
       expect.objectContaining({
+        alignItems: 'flex-end',
         gap: 2,
       }),
     );
@@ -355,9 +364,13 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({ color: palette.theme.softBlue[50] }),
     );
     expect(level.props.fontSize).toBe('$h3');
-    expect(level.props.fontWeight).toBe('600');
+    expect(level.props.fontWeight).toBe('700');
     expect(StyleSheet.flatten(level.props.style)).toEqual(
-      expect.objectContaining({ color: palette.theme.blue[80] }),
+      expect.objectContaining({
+        color: palette.theme.blue[80],
+        fontFamily: 'Poppins_700Bold',
+        textAlign: 'left',
+      }),
     );
     expect(expLabel.props.fontSize).toBe('$body3');
     expect(expLabel.props.fontWeight).toBe('600');

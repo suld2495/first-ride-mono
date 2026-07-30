@@ -1,3 +1,4 @@
+import { Poppins_700Bold } from '@expo-google-fonts/poppins';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { QueryProvider } from '@repo/shared/components';
@@ -67,6 +68,7 @@ const fontAssets: Record<string, FontSource> = {
     require('../assets/fonts/Pretendard-SemiBold.otf') as FontSource,
   [fontFamilies.bold]:
     require('../assets/fonts/Pretendard-Bold.otf') as FontSource,
+  [fontFamilies.poppinsBold]: Poppins_700Bold,
 };
 
 async function initializeKakaoSafely(): Promise<void> {

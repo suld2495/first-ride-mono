@@ -17,6 +17,7 @@ import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthSignOut, useAuthUser } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
+import { fontFamilies } from '@/theme/font-families';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 const FALLBACK_LEVEL = 1;
@@ -204,60 +205,61 @@ const MyInfo = () => {
             <View testID="settings-level-badge" style={styles.levelBadge}>
               <Typography
                 color={themeColor[80]}
+                style={styles.levelText}
                 testID="settings-level-text"
                 variant="h3"
-                weight="semibold"
+                weight="bold"
               >
                 Lv. {stats?.currentLevel ?? FALLBACK_LEVEL}
               </Typography>
             </View>
-          </View>
 
-          <View testID="settings-exp-row" style={styles.expLabelRow}>
-            <View testID="settings-exp-value-row" style={styles.expValueRow}>
-              <Typography
-                color={themeColor[80]}
-                testID="settings-exp-label"
-                variant="body3"
-                weight="semibold"
-              >
-                경험치
-              </Typography>
-              <Typography
-                color={softThemeColor[80]}
-                testID="settings-exp-unit"
-                variant="caption2"
-                weight="semibold"
-              >
-                EXP
-              </Typography>
-              <View
-                testID="settings-exp-number-row"
-                style={styles.expNumberRow}
-              >
+            <View testID="settings-exp-row" style={styles.expLabelRow}>
+              <View testID="settings-exp-value-row" style={styles.expValueRow}>
                 <Typography
-                  color={softThemeColor[80]}
-                  testID="settings-exp-current"
-                  variant="caption2"
+                  color={themeColor[80]}
+                  testID="settings-exp-label"
+                  variant="body3"
                   weight="semibold"
                 >
-                  {currentExp}
+                  경험치
                 </Typography>
                 <Typography
                   color={softThemeColor[80]}
+                  testID="settings-exp-unit"
                   variant="caption2"
                   weight="semibold"
                 >
-                  /
+                  EXP
                 </Typography>
-                <Typography
-                  color={softThemeColor[80]}
-                  testID="settings-exp-next"
-                  variant="caption2"
-                  weight="semibold"
+                <View
+                  testID="settings-exp-number-row"
+                  style={styles.expNumberRow}
                 >
-                  {nextLevelExp}
-                </Typography>
+                  <Typography
+                    color={softThemeColor[80]}
+                    testID="settings-exp-current"
+                    variant="caption2"
+                    weight="semibold"
+                  >
+                    {currentExp}
+                  </Typography>
+                  <Typography
+                    color={softThemeColor[80]}
+                    variant="caption2"
+                    weight="semibold"
+                  >
+                    /
+                  </Typography>
+                  <Typography
+                    color={softThemeColor[80]}
+                    testID="settings-exp-next"
+                    variant="caption2"
+                    weight="semibold"
+                  >
+                    {nextLevelExp}
+                  </Typography>
+                </View>
               </View>
             </View>
           </View>
@@ -418,25 +420,34 @@ const styles = StyleSheet.create((theme) => ({
   levelRow: {
     marginTop: theme.foundation.spacing[5],
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: theme.foundation.spacing[3],
   },
   levelBadge: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexShrink: 0,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
+  },
+  levelText: {
+    fontFamily: fontFamilies.poppinsBold,
+    textAlign: 'left',
   },
   expLabelRow: {
-    marginTop: theme.foundation.spacing[2],
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
   },
   expValueRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
     gap: baseFoundation.dimension.x8,
   },
   expNumberRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     gap: baseFoundation.dimension.x2,
   },
   progressTrack: {
