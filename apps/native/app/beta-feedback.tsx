@@ -323,7 +323,7 @@ export default function BetaFeedbackPage() {
                 style={styles.attachmentGuide}
                 variant="caption1"
               >
-                JPG, PNG, WEBP, HEIC · 장당 최대 10MB
+                JPG, PNG, WEBP, HEIC/HEIF · 장당 최대 10MB
               </Typography>
 
               {images.length > 0 ? (
@@ -373,6 +373,7 @@ export default function BetaFeedbackPage() {
                 onPress={() => void handlePickImages()}
                 size="md"
                 testID="beta-feedback-image-picker"
+                textColor={theme.colors.action.primary.default}
                 variant="outline"
               >
                 {images.length > 0 ? '사진 더 추가' : '사진 추가'}
@@ -425,7 +426,7 @@ const styles = StyleSheet.create((theme) => ({
   guideSection: {
     gap: theme.foundation.spacing[3],
     borderTopWidth: baseFoundation.dimension.x1,
-    borderTopColor: `${palette.theme.gray[90]}80`,
+    borderTopColor: theme.colors.border.divider,
     paddingTop: theme.foundation.spacing[4],
   },
   guideList: {

@@ -3,6 +3,7 @@ import { act, fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { StyleSheet, View } from 'react-native';
 
+import { blueTheme } from '@/theme/themes';
 import { palette } from '@/theme/tokens';
 
 import BetaFeedbackPage from '../../app/beta-feedback';
@@ -79,7 +80,9 @@ describe('베타 피드백 페이지', () => {
     expect(getByText('이미지 첨부')).toBeOnTheScreen();
     expect(getByText('선택')).toBeOnTheScreen();
     expect(getByText('0 / 3')).toBeOnTheScreen();
-    expect(getByText('JPG, PNG, WEBP, HEIC · 장당 최대 10MB')).toBeOnTheScreen();
+    expect(
+      getByText('JPG, PNG, WEBP, HEIC/HEIF · 장당 최대 10MB'),
+    ).toBeOnTheScreen();
     expect(getByLabelText('피드백 이미지 추가')).toBeEnabled();
   });
 
@@ -126,7 +129,7 @@ describe('베타 피드백 페이지', () => {
     );
   });
 
-  it('안내 영역 divider를 비활성 생성 버튼과 같은 gray 색상으로 표시한다', () => {
+  it('안내 영역 divider를 공통 테마 색상으로 표시한다', () => {
     const { UNSAFE_getAllByType } = render(<BetaFeedbackPage />);
     const guideSection = UNSAFE_getAllByType(View).find(
       (view) => StyleSheet.flatten(view.props.style)?.borderTopWidth === 1,
@@ -134,7 +137,7 @@ describe('베타 피드백 페이지', () => {
 
     expect(StyleSheet.flatten(guideSection?.props.style)).toEqual(
       expect.objectContaining({
-        borderTopColor: `${palette.theme.gray[90]}80`,
+        borderTopColor: blueTheme.colors.border.divider,
       }),
     );
   });
