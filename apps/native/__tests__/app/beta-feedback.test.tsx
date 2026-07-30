@@ -8,6 +8,21 @@ import { palette } from '@/theme/tokens';
 import BetaFeedbackPage from '../../app/beta-feedback';
 import { render } from '../setup/test-utils';
 
+const mockLaunchImageLibraryAsync = jest.fn();
+const mockRequestMediaLibraryPermissionsAsync = jest.fn();
+const mockGetInfoAsync = jest.fn();
+
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: () =>
+    mockRequestMediaLibraryPermissionsAsync(),
+  launchImageLibraryAsync: (options: unknown) =>
+    mockLaunchImageLibraryAsync(options),
+}));
+
+jest.mock('expo-file-system', () => ({
+  getInfoAsync: (...args: unknown[]) => mockGetInfoAsync(...args),
+}));
+
 declare const mockBack: jest.Mock;
 declare const mockShowToast: jest.Mock;
 
@@ -19,6 +34,12 @@ describe('베타 피드백 페이지', () => {
   beforeEach(() => {
     mockBack.mockClear();
     mockShowToast.mockClear();
+    mockLaunchImageLibraryAsync.mockReset();
+    mockRequestMediaLibraryPermissionsAsync.mockReset();
+    mockGetInfoAsync.mockReset();
+    mockRequestMediaLibraryPermissionsAsync.mockResolvedValue({
+      status: 'granted',
+    });
     mockAxios = new MockAdapter(axiosInstance);
   });
 
@@ -50,6 +71,16 @@ describe('베타 피드백 페이지', () => {
     fireEvent.press(getByLabelText('뒤로가기'));
 
     expect(mockBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('선택 항목인 이미지 첨부 영역과 최대 3장 안내를 표시한다', () => {
+    const { getByLabelText, getByText } = render(<BetaFeedbackPage />);
+
+    expect(getByText('이미지 첨부')).toBeOnTheScreen();
+    expect(getByText('선택')).toBeOnTheScreen();
+    expect(getByText('0 / 3')).toBeOnTheScreen();
+    expect(getByText('JPG, PNG, WEBP, HEIC · 장당 최대 10MB')).toBeOnTheScreen();
+    expect(getByLabelText('피드백 이미지 추가')).toBeEnabled();
   });
 
   it('색상 테마 배경에서도 안내와 입력 메타 정보를 읽기 쉬운 토큰으로 표시한다', () => {
@@ -234,6 +265,163 @@ describe('베타 피드백 페이지', () => {
     expect(mockAxios.history.post).toHaveLength(1);
     expect(input.props.value).toBe('');
     expect(getByText('0 / 1000')).toBeOnTheScreen();
+  });
+
+  it('앨범에서 여러 이미지를 선택하고 개별 삭제할 수 있다', async () => {
+    mockLaunchImageLibraryAsync.mockResolvedValue({
+      canceled: false,
+      assets: [
+        {
+          uri: 'file:///feedback-1.png',
+          fileName: 'feedback-1.png',
+          mimeType: 'image/png',
+          fileSize: 512_000,
+        },
+        {
+          uri: 'file:///feedback-2.heic',
+          fileName: 'feedback-2.heic',
+          mimeType: 'image/heic',
+          fileSize: 1_024_000,
+        },
+      ],
+    });
+    const screen = render(<BetaFeedbackPage />);
+
+    fireEvent.press(screen.getByLabelText('피드백 이미지 추가'));
+
+    await waitFor(() => {
+      expect(screen.getByText('2 / 3')).toBeOnTheScreen();
+      expect(screen.getAllByTestId('beta-feedback-image-preview')).toHaveLength(
+        2,
+      );
+    });
+    expect(mockLaunchImageLibraryAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mediaTypes: ['images'],
+        allowsMultipleSelection: true,
+        selectionLimit: 3,
+      }),
+    );
+
+    fireEvent.press(screen.getByLabelText('첨부 이미지 1 삭제'));
+
+    expect(screen.getByText('1 / 3')).toBeOnTheScreen();
+    expect(screen.getAllByTestId('beta-feedback-image-preview')).toHaveLength(
+      1,
+    );
+  });
+
+  it('선택한 이미지들을 같은 images key로 반복해 multipart 전송한다', async () => {
+    const appendSpy = jest.spyOn(FormData.prototype, 'append');
+
+    mockLaunchImageLibraryAsync.mockResolvedValue({
+      canceled: false,
+      assets: [
+        {
+          uri: 'file:///feedback-1.png',
+          fileName: 'feedback-1.png',
+          mimeType: 'image/png',
+          fileSize: 512_000,
+        },
+        {
+          uri: 'file:///feedback-2.webp',
+          fileName: 'feedback-2.webp',
+          mimeType: 'image/webp',
+          fileSize: 1_024_000,
+        },
+      ],
+    });
+    mockAxios.onPost('/beta/feedback').reply((config) => {
+      expect(config.data).toBeInstanceOf(FormData);
+
+      return [
+        201,
+        {
+          success: true,
+          data: {
+            feedbackId: 43,
+            userId: 'test123',
+            nickname: 'testuser',
+            content: CONTENT,
+            submittedAt: '2026-07-30T13:30:00+09:00',
+          },
+        },
+      ];
+    });
+    const screen = render(<BetaFeedbackPage />);
+
+    fireEvent.press(screen.getByLabelText('피드백 이미지 추가'));
+    await waitFor(() => {
+      expect(screen.getByText('2 / 3')).toBeOnTheScreen();
+    });
+    fireEvent.changeText(screen.getByLabelText('피드백 내용'), CONTENT);
+    fireEvent.press(screen.getByTestId('beta-feedback-submit-button'));
+
+    await waitFor(() => {
+      expect(mockShowToast).toHaveBeenCalledWith(
+        '피드백이 제출되었습니다.',
+        'success',
+      );
+    });
+    expect(appendSpy).toHaveBeenCalledWith('content', CONTENT);
+    expect(appendSpy).toHaveBeenCalledWith('images', {
+      uri: 'file:///feedback-1.png',
+      name: 'feedback-1.png',
+      type: 'image/png',
+    });
+    expect(appendSpy).toHaveBeenCalledWith('images', {
+      uri: 'file:///feedback-2.webp',
+      name: 'feedback-2.webp',
+      type: 'image/webp',
+    });
+    expect(screen.getByText('0 / 3')).toBeOnTheScreen();
+
+    appendSpy.mockRestore();
+  });
+
+  it('허용하지 않는 이미지 형식은 추가하지 않고 이유를 안내한다', async () => {
+    mockLaunchImageLibraryAsync.mockResolvedValue({
+      canceled: false,
+      assets: [
+        {
+          uri: 'file:///feedback.gif',
+          fileName: 'feedback.gif',
+          mimeType: 'image/gif',
+          fileSize: 512_000,
+        },
+      ],
+    });
+    const screen = render(<BetaFeedbackPage />);
+
+    fireEvent.press(screen.getByLabelText('피드백 이미지 추가'));
+
+    await waitFor(() => {
+      expect(mockShowToast).toHaveBeenCalledWith(
+        'jpg, jpeg, png, webp, heic, heif 이미지만 업로드할 수 있습니다.',
+        'error',
+      );
+    });
+    expect(screen.getByText('0 / 3')).toBeOnTheScreen();
+  });
+
+  it('서버의 이미지 검증 오류 메시지를 그대로 안내한다', async () => {
+    mockAxios.onPost('/beta/feedback').reply(400, {
+      success: false,
+      error: {
+        message: '피드백 이미지는 최대 3장까지 첨부할 수 있습니다.',
+      },
+    });
+    const screen = render(<BetaFeedbackPage />);
+
+    fireEvent.changeText(screen.getByLabelText('피드백 내용'), CONTENT);
+    fireEvent.press(screen.getByTestId('beta-feedback-submit-button'));
+
+    await waitFor(() => {
+      expect(mockShowToast).toHaveBeenCalledWith(
+        '피드백 이미지는 최대 3장까지 첨부할 수 있습니다.',
+        'error',
+      );
+    });
   });
 
   it('제출 중에는 버튼을 비활성화해 중복 요청을 막는다', async () => {

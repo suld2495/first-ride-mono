@@ -47,4 +47,62 @@ describe('beta-feedback.api', () => {
       submittedAt: '2026-07-24T09:00:00+09:00',
     });
   });
+
+  it('이미지가 있으면 content와 images를 multipart body에 담아 전송한다', async () => {
+    const appendSpy = jest.spyOn(FormData.prototype, 'append');
+    const images = [
+      {
+        uri: 'file:///feedback-1.png',
+        name: 'feedback-1.png',
+        type: 'image/png',
+        size: 512_000,
+      },
+      {
+        uri: 'file:///feedback-2.heic',
+        name: 'feedback-2.heic',
+        type: 'image/heic',
+        size: 1_024_000,
+      },
+    ];
+
+    mockAxios.onPost('/beta/feedback').reply((config) => {
+      expect(config.data).toBeInstanceOf(FormData);
+
+      return [
+        201,
+        {
+          success: true,
+          data: {
+            feedbackId: 42,
+            userId: 'test123',
+            nickname: 'testuser',
+            content: '화면이 깨지는 문제가 있어요.',
+            submittedAt: '2026-07-30T13:30:00+09:00',
+          },
+        },
+      ];
+    });
+
+    await createBetaFeedback({
+      content: '화면이 깨지는 문제가 있어요.',
+      images,
+    });
+
+    expect(appendSpy).toHaveBeenCalledWith(
+      'content',
+      '화면이 깨지는 문제가 있어요.',
+    );
+    expect(appendSpy).toHaveBeenCalledWith('images', {
+      uri: 'file:///feedback-1.png',
+      name: 'feedback-1.png',
+      type: 'image/png',
+    });
+    expect(appendSpy).toHaveBeenCalledWith('images', {
+      uri: 'file:///feedback-2.heic',
+      name: 'feedback-2.heic',
+      type: 'image/heic',
+    });
+
+    appendSpy.mockRestore();
+  });
 });
