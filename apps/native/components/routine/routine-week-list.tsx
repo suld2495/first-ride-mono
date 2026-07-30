@@ -52,6 +52,12 @@ const TODAY_FRAME_GAP = 1;
 const CHECKBOX_SIZE = baseFoundation.dimension.x24;
 const TODAY_FRAME_SIZE =
   CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
+const ROUTINE_CARD_FRAME_GAP = baseFoundation.dimension.x4;
+const ROUTINE_CARD_FRAME_BORDER_WIDTH = baseFoundation.dimension.x1;
+const ROUTINE_CARD_FRAME_RADIUS =
+  baseFoundation.radii.m +
+  ROUTINE_CARD_FRAME_GAP +
+  ROUTINE_CARD_FRAME_BORDER_WIDTH;
 
 const createWeekDateKeys = (startDate: string) => {
   const date = new Date(startDate);
@@ -151,48 +157,56 @@ const RoutineWeekList = ({
             },
           ]}
         >
-          <View style={styles.titleRow}>
-            <Typography variant="body3" weight="semibold" style={styles.title}>
-              {routineName}
-            </Typography>
-          </View>
-
           <View
-            pointerEvents="none"
-            style={[
-              styles.progressSummary,
-              readOnly ? styles.progressSummaryReadOnly : null,
-            ]}
-            testID={`routine-week-progress-summary-${routineId}`}
+            testID={`routine-week-card-surface-${routineId}`}
+            style={styles.cardSurface}
           >
-            {weeklyCount >= routineCount ? (
-              <RoutineCheckmarkIcon
-                size={baseFoundation.dimension.x14}
-                color={palette.theme.green[50]}
-              />
-            ) : null}
-            <Typography
-              variant="caption2"
-              weight="semibold"
-              style={styles.progressSummaryText}
-              testID={`routine-week-progress-${routineId}`}
+            <View style={styles.titleRow}>
+              <Typography
+                variant="body3"
+                weight="semibold"
+                style={styles.title}
+              >
+                {routineName}
+              </Typography>
+            </View>
+
+            <View
+              pointerEvents="none"
+              style={[
+                styles.progressSummary,
+                readOnly ? styles.progressSummaryReadOnly : null,
+              ]}
+              testID={`routine-week-progress-summary-${routineId}`}
             >
-              {weeklyCount}/{routineCount}
-            </Typography>
-          </View>
+              {weeklyCount >= routineCount ? (
+                <RoutineCheckmarkIcon
+                  size={baseFoundation.dimension.x14}
+                  color={palette.theme.green[50]}
+                />
+              ) : null}
+              <Typography
+                variant="caption2"
+                weight="semibold"
+                style={styles.progressSummaryText}
+                testID={`routine-week-progress-${routineId}`}
+              >
+                {weeklyCount}/{routineCount}
+              </Typography>
+            </View>
 
-          {!readOnly ? (
-            <>
-              <RoutineContextMenuTrigger
-                routineName={routineName}
-                iconColor={theme.colors.brand.routineProgressText}
-                onToggle={() => onToggleRoutineMenu(routineId)}
-              />
-            </>
-          ) : null}
+            {!readOnly ? (
+              <>
+                <RoutineContextMenuTrigger
+                  routineName={routineName}
+                  iconColor={theme.colors.brand.routineProgressText}
+                  onToggle={() => onToggleRoutineMenu(routineId)}
+                />
+              </>
+            ) : null}
 
-          <View style={styles.checkRow}>
-            {weeklyData[routineId].map((check, index) => {
+            <View style={styles.checkRow}>
+              {weeklyData[routineId].map((check, index) => {
               const dateKey = weekDateKeys[index];
               const isPastDay = dateKey < todayDateKey;
               const isFutureDay = dateKey > todayDateKey;
@@ -287,10 +301,11 @@ const RoutineWeekList = ({
                   </View>
                 </Pressable>
               );
-            })}
-          </View>
+              })}
+            </View>
 
-          <View style={styles.footer} />
+            <View style={styles.footer} />
+          </View>
         </View>
       );
     },
@@ -342,12 +357,11 @@ export default RoutineWeekList;
 const styles = StyleSheet.create((theme) => ({
   list: {},
   cardOuter: {
-    position: 'relative',
-    borderRadius: baseFoundation.radii.m,
-    paddingHorizontal: baseFoundation.spacing[4],
-    backgroundColor: theme.colors.brand.routineBackground,
-    borderWidth: 2,
-    borderColor: theme.colors.brand.routineBorder,
+    borderRadius: ROUTINE_CARD_FRAME_RADIUS,
+    padding: ROUTINE_CARD_FRAME_GAP,
+    backgroundColor: palette.white,
+    borderWidth: ROUTINE_CARD_FRAME_BORDER_WIDTH,
+    borderColor: palette.theme.gray[95],
     shadowColor: theme.colors.brand.primary,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
@@ -356,6 +370,15 @@ const styles = StyleSheet.create((theme) => ({
     shadowOpacity: 0.16,
     shadowRadius: 8,
     elevation: 4,
+  },
+  cardSurface: {
+    flex: 1,
+    position: 'relative',
+    borderRadius: baseFoundation.radii.m,
+    paddingHorizontal: baseFoundation.spacing[4],
+    backgroundColor: theme.colors.brand.routineBackground,
+    borderWidth: 2,
+    borderColor: theme.colors.brand.routineBorder,
     justifyContent: 'center',
   },
   title: {

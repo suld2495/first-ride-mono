@@ -1314,15 +1314,22 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('루틴 아이템은 단일 카드에 테마 80 테두리와 테마 100 배경을 표시한다', async () => {
-        const { findByTestId, queryByTestId } = render(<Index />);
+      it('루틴 아이템은 흰색 프레임 안에 테마 80 테두리와 테마 100 배경을 표시한다', async () => {
+        const { findByTestId } = render(<Index />);
 
         expect(await findByTestId('routine-week-card-outer-1')).toHaveStyle({
+          borderRadius: 21,
+          borderColor: palette.theme.gray[95],
+          borderWidth: 1,
+          backgroundColor: palette.white,
+          padding: 4,
+        });
+        expect(await findByTestId('routine-week-card-surface-1')).toHaveStyle({
           borderRadius: 16,
           borderColor: palette.theme.blue[80],
+          borderWidth: 2,
           backgroundColor: palette.theme.blue[100],
         });
-        expect(queryByTestId('routine-week-card-surface-1')).toBeNull();
       });
 
       it('week 타입 루틴 제목을 좌측 정렬한다', async () => {

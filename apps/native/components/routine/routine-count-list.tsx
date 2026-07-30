@@ -51,6 +51,13 @@ const TODAY_FRAME_GAP = 1;
 const CHECKBOX_SIZE = baseFoundation.dimension.x20;
 const TODAY_FRAME_SIZE =
   CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
+const ROUTINE_CARD_FRAME_GAP = baseFoundation.dimension.x4;
+const ROUTINE_CARD_FRAME_BORDER_WIDTH = baseFoundation.dimension.x1;
+const ROUTINE_COUNT_CARD_SURFACE_RADIUS = baseFoundation.dimension.x12;
+const ROUTINE_CARD_FRAME_RADIUS =
+  ROUTINE_COUNT_CARD_SURFACE_RADIUS +
+  ROUTINE_CARD_FRAME_GAP +
+  ROUTINE_CARD_FRAME_BORDER_WIDTH;
 
 const createRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
@@ -378,11 +385,11 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   cardOuter: {
-    borderRadius: baseFoundation.dimension.x14,
-    padding: baseFoundation.spacing.px,
+    borderRadius: ROUTINE_CARD_FRAME_RADIUS,
+    padding: ROUTINE_CARD_FRAME_GAP,
     backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-    borderColor: theme.colors.brand.primary,
+    borderWidth: ROUTINE_CARD_FRAME_BORDER_WIDTH,
+    borderColor: palette.theme.gray[95],
     shadowColor: theme.colors.brand.primary,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
@@ -395,7 +402,7 @@ const styles = StyleSheet.create((theme) => ({
   cardSurface: {
     flex: 1,
     position: 'relative',
-    borderRadius: baseFoundation.dimension.x12,
+    borderRadius: ROUTINE_COUNT_CARD_SURFACE_RADIUS,
     paddingHorizontal: baseFoundation.spacing[4],
     backgroundColor: palette.theme.gray[95],
     borderColor: theme.colors.brand.primary,
