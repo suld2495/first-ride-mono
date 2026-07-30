@@ -48,12 +48,14 @@ jest.mock('react-native-bouncy-checkbox', () => {
       isChecked,
       onPress,
       text,
+      textStyle,
     }: {
       disableText?: boolean;
       fillColor?: string;
       isChecked?: boolean;
       onPress: (checked: boolean) => void;
       text?: string;
+      textStyle?: object;
     }) => {
       return React.createElement(
         View,
@@ -68,7 +70,7 @@ jest.mock('react-native-bouncy-checkbox', () => {
             onPress((global as any).mockCheckboxChecked);
           },
         },
-        text ? React.createElement(Text, null, text) : null,
+        text ? React.createElement(Text, { style: textStyle }, text) : null,
       );
     },
   };
@@ -330,7 +332,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(getByText('메이트와 함께 루틴 체크')).toHaveStyle({
         color: '#272A2D',
       });
-      expect(mateCheckbox.props.disableText).toBe(true);
       expect(mateCheckbox.props.isChecked).toBe(false);
       expect(mateCheckbox.props.fillColor).toBe('#000306');
       expect(
@@ -339,6 +340,16 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(
         queryByPlaceholderText('벌금을 입력하세요.'),
       ).not.toBeOnTheScreen();
+    });
+
+    it('메이트와 함께 루틴 체크 라벨을 누르면 체크된다', async () => {
+      const { getByPlaceholderText, getByText } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getByText('메이트와 함께 루틴 체크'));
+      });
+
+      expect(getByPlaceholderText('메이트를 지정하세요.')).toBeOnTheScreen();
     });
 
     it('생성 버튼은 modal.tsx의 고정 header action에 표시된다', () => {
@@ -576,6 +587,84 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   });
 
   describe('사용자 인풋 유효성 검사 테스트', () => {
+    it('메이트 input에 포커스하면 전체 친구 목록을 바로 표시한다', async () => {
+      const { getAllByTestId, getByPlaceholderText, getByText } = render(
+        <RoutineFormModal />,
+      );
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      await waitFor(() => {
+        expect(
+          mockAxios.history.get.some(({ url }) => url === '/friends'),
+        ).toBe(true);
+      });
+
+      await act(async () => {
+        fireEvent(getByPlaceholderText('메이트를 지정하세요.'), 'focus');
+      });
+
+      expect(getByText('friend1')).toBeOnTheScreen();
+      expect(getByText('friend2')).toBeOnTheScreen();
+      expect(getByText('friend3')).toBeOnTheScreen();
+    });
+
+    it('메이트 드롭다운 외부를 누르면 친구 목록을 닫는다', async () => {
+      const {
+        getAllByTestId,
+        getByPlaceholderText,
+        getByTestId,
+        getByText,
+        queryByText,
+      } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      await waitFor(() => {
+        expect(
+          mockAxios.history.get.some(({ url }) => url === '/friends'),
+        ).toBe(true);
+      });
+
+      await act(async () => {
+        fireEvent(getByPlaceholderText('메이트를 지정하세요.'), 'focus');
+      });
+
+      expect(getByText('friend1')).toBeOnTheScreen();
+
+      await act(async () => {
+        getByTestId('routine-form-scroll').props.onTouchStart?.();
+      });
+
+      expect(queryByText('friend1')).not.toBeOnTheScreen();
+    });
+
+    it('메이트 input 입력값으로 친구 목록을 필터링한다', async () => {
+      const { getAllByTestId, getByPlaceholderText, getByText, queryByText } =
+        render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      const mateInput = getByPlaceholderText('메이트를 지정하세요.');
+
+      await act(async () => {
+        fireEvent(mateInput, 'focus');
+        fireEvent.changeText(mateInput, 'friend2');
+      });
+
+      await waitFor(() => {
+        expect(getByText('friend2')).toBeOnTheScreen();
+        expect(queryByText('friend1')).not.toBeOnTheScreen();
+        expect(queryByText('friend3')).not.toBeOnTheScreen();
+      });
+    });
+
     it('10개 컬러 중 하나를 선택한다', async () => {
       const { getAllByTestId, getByLabelText, getByTestId } = render(
         <RoutineFormModal />,
@@ -947,6 +1036,16 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(queryByText('루틴 일시정지')).not.toBeOnTheScreen();
       expect(getByText('루틴 숨김')).toBeOnTheScreen();
       expect(getAllByTestId('bouncy-checkbox')[1].props.isChecked).toBe(false);
+    });
+
+    it('루틴 숨김 라벨을 누르면 체크된다', async () => {
+      const { getAllByTestId, getByText } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getByText('루틴 숨김'));
+      });
+
+      expect(getAllByTestId('bouncy-checkbox')[1].props.isChecked).toBe(true);
     });
   });
 });
@@ -1689,16 +1788,8 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       expect(pausedLabel).toBeOnTheScreen();
       expect(hiddenLabel).toBeOnTheScreen();
-      expect(pausedLabel.props.style).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ color: palette.theme.gray[90] }),
-        ]),
-      );
-      expect(hiddenLabel.props.style).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ color: palette.theme.gray[90] }),
-        ]),
-      );
+      expect(pausedLabel).toHaveStyle({ color: palette.theme.gray[90] });
+      expect(hiddenLabel).toHaveStyle({ color: palette.theme.gray[90] });
       expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(2);
       expect(statusSectionStyle).toEqual(
         expect.objectContaining({
@@ -1728,6 +1819,32 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         await findAllByTestId('bouncy-checkbox');
 
       expect(pausedCheckbox.props.isChecked).toBe(true);
+      expect(hiddenCheckbox.props.isChecked).toBe(true);
+    });
+
+    it('루틴 일시정지 라벨을 누르면 체크된다', async () => {
+      (global as any).mockCheckboxChecked = false;
+      const { findAllByTestId, findByText } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(await findByText('루틴 일시정지'));
+      });
+
+      const [pausedCheckbox] = await findAllByTestId('bouncy-checkbox');
+
+      expect(pausedCheckbox.props.isChecked).toBe(true);
+    });
+
+    it('루틴 숨김 라벨을 누르면 체크된다', async () => {
+      (global as any).mockCheckboxChecked = false;
+      const { findAllByTestId, findByText } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(await findByText('루틴 숨김'));
+      });
+
+      const [, hiddenCheckbox] = await findAllByTestId('bouncy-checkbox');
+
       expect(hiddenCheckbox.props.isChecked).toBe(true);
     });
 

@@ -67,6 +67,8 @@ export interface CheckboxProps {
   borderRadius?: number;
   /** Optional text label */
   text?: string;
+  /** Optional text label color */
+  labelColor?: string;
   /** Hide BouncyCheckbox internal text container */
   disableText?: boolean;
   /** Fill color - uses semantic token by default */
@@ -94,6 +96,7 @@ const Checkbox = ({
   size = 'md',
   borderRadius,
   text,
+  labelColor,
   disableText,
   fillColor,
   checkedColor,
@@ -104,7 +107,7 @@ const Checkbox = ({
 }: CheckboxProps) => {
   const { theme } = useAppTheme();
   const defaultFillColor = theme.colors.action.primary.default;
-  const defaultLabelColor = theme.colors.text.gray;
+  const resolvedLabelColor = labelColor ?? theme.colors.text.gray;
   const resolvedBorderRadius = borderRadius ?? DEFAULT_BORDER_RADIUS;
   const resolvedCheckedColor = checkedColor ?? DEFAULT_CHECK_COLOR;
   const resolvedFillColor = fillColor ?? defaultFillColor;
@@ -118,7 +121,7 @@ const Checkbox = ({
     borderRadius: resolvedBorderRadius,
   };
   const textStyle = {
-    color: defaultLabelColor,
+    color: resolvedLabelColor,
     ...CHECKBOX_LABEL_STYLE_MAP[size],
     ...(strikeThroughOnChecked ? {} : { textDecorationLine: 'none' as const }),
   };

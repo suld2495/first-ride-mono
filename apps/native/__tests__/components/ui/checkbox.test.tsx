@@ -128,6 +128,22 @@ describe('Checkbox', () => {
     expect(getByTestId('bouncy-checkbox').props.text).toBe('루틴 숨김');
   });
 
+  it('labelColor prop을 라벨 색상에 적용한다', () => {
+    const { getByTestId } = render(
+      <AppTamaguiProvider>
+        <Checkbox
+          text="메이트와 함께 루틴 체크"
+          labelColor="#272A2D"
+          onPress={jest.fn()}
+        />
+      </AppTamaguiProvider>,
+    );
+
+    expect(getByTestId('bouncy-checkbox').props.textStyle.color).toBe(
+      '#272A2D',
+    );
+  });
+
   it('isChecked prop을 체크박스에 전달한다', () => {
     const { getByTestId } = render(
       <AppTamaguiProvider>

@@ -4,7 +4,7 @@ import { routineFormValidators } from '@repo/shared/service/validatorMessage';
 import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -12,13 +12,14 @@ import { RoutinePeriodWarningIcon } from '@/components/icons/routine-period-warn
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
 import {
   AutocompleteInput,
+  type AutocompleteInputHandle,
   type AutocompleteItem,
 } from '@/components/ui/autocomplete-input';
 import Checkbox from '@/components/ui/checkbox';
 import DatePicker from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import {
@@ -76,6 +77,8 @@ const { Form, FormItem, useForm } = useCreateForm<RoutineStatusForm>();
 
 const RoutineFormModal = () => {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
+  const { theme } = useAppTheme();
+  const mateAutocompleteRef = useRef<AutocompleteInputHandle>(null);
   const isRoutineAdd = type === 'routine-add';
 
   const routineId = useRoutineId();
@@ -210,6 +213,7 @@ const RoutineFormModal = () => {
         keyboardShouldPersistTaps="handled"
         enableResetScrollToCoords={false}
         showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+        onTouchStart={() => mateAutocompleteRef.current?.dismiss()}
       >
         <FormItem
           name="routineName"
@@ -354,7 +358,8 @@ const RoutineFormModal = () => {
                 <ThemeView style={styles.mateField} transparent>
                   <Checkbox
                     size="md"
-                    disableText
+                    text="메이트와 함께 루틴 체크"
+                    labelColor={theme.colors.field.label}
                     fillColor={palette.theme.gray[95]}
                     isChecked={!value}
                     onPress={(checked) => {
@@ -366,9 +371,6 @@ const RoutineFormModal = () => {
                       }
                     }}
                   />
-                  <Typography variant="caption1" style={styles.mateCheckLabel}>
-                    메이트와 함께 루틴 체크
-                  </Typography>
                 </ThemeView>
                 {!value && (
                   <>
@@ -377,6 +379,7 @@ const RoutineFormModal = () => {
                       label="메이트"
                       item={({ value, onChange }) => (
                         <AutocompleteInput
+                          ref={mateAutocompleteRef}
                           variant="filled"
                           value={value !== undefined ? String(value) : value}
                           placeholder="메이트를 지정하세요."
@@ -391,7 +394,7 @@ const RoutineFormModal = () => {
                             onChange(item.value);
                             setMateKeyword('');
                           }}
-                          showDropdown={mateKeyword.length > 0}
+                          showDropdown
                           emptyMessage="친구를 찾을 수 없습니다."
                         />
                       )}
@@ -496,19 +499,13 @@ const RoutineFormModal = () => {
                     <ThemeView style={styles.statusCheckboxControl} transparent>
                       <Checkbox
                         size="md"
-                        disableText
+                        text="루틴 일시정지"
+                        labelColor={theme.colors.text.gray}
                         isChecked={!!value}
                         onPress={(checked) => {
                           setValue('paused', checked);
                         }}
                       />
-                      <Typography
-                        variant="body2"
-                        weight="semibold"
-                        style={styles.statusCheckboxLabel}
-                      >
-                        루틴 일시정지
-                      </Typography>
                     </ThemeView>
                   )}
                 />
@@ -522,19 +519,13 @@ const RoutineFormModal = () => {
                   <ThemeView style={styles.statusCheckboxControl} transparent>
                     <Checkbox
                       size="md"
-                      disableText
+                      text="루틴 숨김"
+                      labelColor={theme.colors.text.gray}
                       isChecked={!!value}
                       onPress={(checked) => {
                         setValue('hidden', checked);
                       }}
                     />
-                    <Typography
-                      variant="body2"
-                      weight="semibold"
-                      style={styles.statusCheckboxLabel}
-                    >
-                      루틴 숨김
-                    </Typography>
                   </ThemeView>
                 )}
               />
@@ -627,10 +618,6 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
 
-  mateCheckLabel: {
-    color: theme.colors.field.label,
-  },
-
   statusSection: {
     gap: 40,
     marginTop: 16,
@@ -652,10 +639,6 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     gap: theme.foundation.spacing[2],
   },
-  statusCheckboxLabel: {
-    color: theme.colors.text.gray,
-  },
-
   deleteButton: {
     height: 44,
     borderRadius: 8,

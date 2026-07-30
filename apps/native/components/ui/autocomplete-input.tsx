@@ -1,5 +1,15 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
+  Dimensions,
+  Keyboard,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -14,6 +24,47 @@ import { baseFoundation, palette } from '@/theme/tokens';
 import { Input, type InputProps } from './input';
 import ThemeView from './theme-view';
 import { Typography } from './typography';
+
+const DROPDOWN_ITEM_HEIGHT = baseFoundation.dimension.x48;
+const DROPDOWN_EMPTY_HEIGHT = baseFoundation.dimension.x48;
+const DROPDOWN_GAP = baseFoundation.spacing[1];
+
+type DropdownPlacement = 'above' | 'below';
+
+interface ResolveDropdownLayoutParams {
+  anchorY: number;
+  anchorHeight: number;
+  dropdownHeight: number;
+  dropdownMaxHeight: number;
+  viewportBottom: number;
+}
+
+interface ResolvedDropdownLayout {
+  placement: DropdownPlacement;
+  maxHeight: number;
+}
+
+export const resolveAutocompleteDropdownLayout = ({
+  anchorY,
+  anchorHeight,
+  dropdownHeight,
+  dropdownMaxHeight,
+  viewportBottom,
+}: ResolveDropdownLayoutParams): ResolvedDropdownLayout => {
+  const spaceBelow = Math.max(
+    0,
+    viewportBottom - (anchorY + anchorHeight) - DROPDOWN_GAP,
+  );
+  const spaceAbove = Math.max(0, anchorY - DROPDOWN_GAP);
+  const placement: DropdownPlacement =
+    dropdownHeight <= spaceBelow ? 'below' : 'above';
+  const availableHeight = placement === 'below' ? spaceBelow : spaceAbove;
+
+  return {
+    placement,
+    maxHeight: Math.min(dropdownMaxHeight, availableHeight),
+  };
+};
 
 export interface AutocompleteItem {
   label: string;
@@ -63,6 +114,10 @@ export interface AutocompleteInputProps
   containerStyle?: ViewStyle;
 }
 
+export interface AutocompleteInputHandle {
+  dismiss: () => void;
+}
+
 /**
  * AutocompleteInput 컴포넌트
  *
@@ -77,163 +132,260 @@ export interface AutocompleteInputProps
  *   placeholder="검색..."
  * />
  */
-export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
-  items = [],
-  loading = false,
-  onChangeText,
-  onSelectItem,
-  showDropdown = true,
-  dropdownMaxHeight = 200,
-  emptyMessage = '검색 결과가 없습니다.',
-  containerStyle,
-  value,
-  ...inputProps
-}) => {
-  const { theme } = useAppTheme();
-  const [isFocused, setIsFocused] = useState(false);
-  const dropdownColors = useMemo(() => {
-    const isDark = theme.name === 'dark';
+export const AutocompleteInput = forwardRef<
+  AutocompleteInputHandle,
+  AutocompleteInputProps
+>(
+  (
+    {
+      items = [],
+      loading = false,
+      onChangeText,
+      onSelectItem,
+      showDropdown = true,
+      dropdownMaxHeight = 200,
+      emptyMessage = '검색 결과가 없습니다.',
+      containerStyle,
+      value,
+      ...inputProps
+    },
+    ref,
+  ) => {
+    const { theme } = useAppTheme();
+    const containerRef = useRef<View>(null);
+    const visibleViewportBottomRef = useRef<number | null>(null);
+    const [isFocused, setIsFocused] = useState(false);
+    const [dropdownPlacement, setDropdownPlacement] =
+      useState<DropdownPlacement>('below');
+    const [availableDropdownHeight, setAvailableDropdownHeight] =
+      useState(dropdownMaxHeight);
+    const dropdownColors = useMemo(() => {
+      const isDark = theme.name === 'dark';
 
-    return {
-      background: isDark
-        ? theme.colors.background.surface
-        : (theme.colors.background.input ?? theme.colors.background.surface),
-      divider: palette.theme.gray[5],
-      text: isDark
-        ? theme.colors.text.primary
-        : (theme.colors.text.input ?? theme.colors.text.primary),
-    };
-  }, [theme]);
+      return {
+        background: isDark
+          ? theme.colors.background.surface
+          : (theme.colors.background.input ?? theme.colors.background.surface),
+        divider: palette.theme.gray[5],
+        text: isDark
+          ? theme.colors.text.primary
+          : (theme.colors.text.input ?? theme.colors.text.primary),
+      };
+    }, [theme]);
 
-  const shouldShowDropdown =
-    isFocused && showDropdown && (items.length > 0 || loading);
-
-  const handleSelectItem = useCallback(
-    (item: AutocompleteItem): void => {
-      onSelectItem?.(item);
+    const shouldShowDropdown =
+      isFocused && showDropdown && (items.length > 0 || loading);
+    const dismissDropdown = useCallback(() => {
       setIsFocused(false);
-    },
-    [onSelectItem],
-  );
+      Keyboard.dismiss();
+    }, []);
+    const expectedDropdownHeight = useMemo(() => {
+      if (loading || items.length === 0) {
+        return Math.min(dropdownMaxHeight, DROPDOWN_EMPTY_HEIGHT);
+      }
 
-  const handleFocus = useCallback(
-    (e: Parameters<NonNullable<InputProps['onFocus']>>[0]): void => {
-      setIsFocused(true);
-      inputProps.onFocus?.(e);
-    },
-    [inputProps],
-  );
+      return Math.min(dropdownMaxHeight, items.length * DROPDOWN_ITEM_HEIGHT);
+    }, [dropdownMaxHeight, items.length, loading]);
 
-  const handleBlur = useCallback(
-    (e: Parameters<NonNullable<InputProps['onBlur']>>[0]): void => {
-      // Delay blur to allow item selection
-      setTimeout(() => {
+    const updateDropdownPlacement = useCallback(
+      (viewportBottom = visibleViewportBottomRef.current) => {
+        containerRef.current?.measureInWindow((_, y, __, height) => {
+          const resolvedViewportBottom =
+            viewportBottom ?? Dimensions.get('window').height;
+          const dropdownLayout = resolveAutocompleteDropdownLayout({
+            anchorY: y,
+            anchorHeight: height,
+            dropdownHeight: expectedDropdownHeight,
+            dropdownMaxHeight,
+            viewportBottom: resolvedViewportBottom,
+          });
+
+          setDropdownPlacement(dropdownLayout.placement);
+          setAvailableDropdownHeight(dropdownLayout.maxHeight);
+        });
+      },
+      [dropdownMaxHeight, expectedDropdownHeight],
+    );
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        dismiss: dismissDropdown,
+      }),
+      [dismissDropdown],
+    );
+
+    const handleSelectItem = useCallback(
+      (item: AutocompleteItem): void => {
+        onSelectItem?.(item);
         setIsFocused(false);
-      }, 200);
-      inputProps.onBlur?.(e);
-    },
-    [inputProps],
-  );
+      },
+      [onSelectItem],
+    );
 
-  const renderDropdownContent = useCallback(() => {
-    if (loading) {
-      return (
-        <View style={styles.emptyContainer}>
-          <Typography
-            variant="caption"
-            color={dropdownColors.text}
-            style={styles.emptyText}
-          >
-            검색 중...
-          </Typography>
-        </View>
+    const handleFocus = useCallback(
+      (e: Parameters<NonNullable<InputProps['onFocus']>>[0]): void => {
+        setIsFocused(true);
+        updateDropdownPlacement();
+        inputProps.onFocus?.(e);
+      },
+      [inputProps, updateDropdownPlacement],
+    );
+
+    const handleBlur = useCallback(
+      (e: Parameters<NonNullable<InputProps['onBlur']>>[0]): void => {
+        // Delay blur to allow item selection
+        setTimeout(() => {
+          setIsFocused(false);
+        }, 200);
+        inputProps.onBlur?.(e);
+      },
+      [inputProps],
+    );
+
+    useEffect(() => {
+      if (isFocused) {
+        updateDropdownPlacement();
+      }
+    }, [isFocused, updateDropdownPlacement]);
+
+    useEffect(() => {
+      const keyboardShowSubscription = Keyboard.addListener(
+        'keyboardDidShow',
+        (event) => {
+          visibleViewportBottomRef.current = event.endCoordinates.screenY;
+
+          if (isFocused) {
+            updateDropdownPlacement(event.endCoordinates.screenY);
+          }
+        },
       );
-    }
+      const keyboardHideSubscription = Keyboard.addListener(
+        'keyboardDidHide',
+        () => {
+          visibleViewportBottomRef.current = null;
 
-    if (items.length === 0) {
-      return (
-        <View style={styles.emptyContainer}>
-          <Typography
-            variant="caption"
-            color={dropdownColors.text}
-            style={styles.emptyText}
-          >
-            {emptyMessage}
-          </Typography>
-        </View>
+          if (isFocused) {
+            updateDropdownPlacement(Dimensions.get('window').height);
+          }
+        },
       );
-    }
 
-    return items.map((item, index) => {
-      const isFirstItem = index === 0;
-      const isLastItem = index === items.length - 1;
+      return () => {
+        keyboardShowSubscription.remove();
+        keyboardHideSubscription.remove();
+      };
+    }, [isFocused, updateDropdownPlacement]);
 
-      return (
-        <TouchableOpacity
-          key={item.value}
-          testID="autocomplete-option"
-          style={[
-            styles.dropdownItem,
-            {
-              backgroundColor: dropdownColors.background,
-              borderBottomWidth: isLastItem ? 0 : 1,
-              borderBottomColor: dropdownColors.divider,
-              borderTopLeftRadius: isFirstItem
-                ? baseFoundation.dimension.x8
-                : 0,
-              borderTopRightRadius: isFirstItem
-                ? baseFoundation.dimension.x8
-                : 0,
-              borderBottomLeftRadius: isLastItem
-                ? baseFoundation.dimension.x8
-                : 0,
-              borderBottomRightRadius: isLastItem
-                ? baseFoundation.dimension.x8
-                : 0,
-            },
-          ]}
-          onPress={() => handleSelectItem(item)}
-        >
-          <Typography color={dropdownColors.text}>{item.label}</Typography>
-        </TouchableOpacity>
-      );
-    });
-  }, [loading, items, emptyMessage, dropdownColors, handleSelectItem]);
+    const renderDropdownContent = useCallback(() => {
+      if (loading) {
+        return (
+          <View style={styles.emptyContainer}>
+            <Typography
+              variant="caption"
+              color={dropdownColors.text}
+              style={styles.emptyText}
+            >
+              검색 중...
+            </Typography>
+          </View>
+        );
+      }
 
-  return (
-    <View style={[styles.container, containerStyle]}>
-      <Input
-        {...inputProps}
-        value={value}
-        onChangeText={onChangeText}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-      />
+      if (items.length === 0) {
+        return (
+          <View style={styles.emptyContainer}>
+            <Typography
+              variant="caption"
+              color={dropdownColors.text}
+              style={styles.emptyText}
+            >
+              {emptyMessage}
+            </Typography>
+          </View>
+        );
+      }
 
-      {shouldShowDropdown && (
-        <ThemeView
-          testID="autocomplete-dropdown"
-          style={[
-            styles.dropdown,
-            {
-              maxHeight: dropdownMaxHeight,
-              backgroundColor: dropdownColors.background,
-              shadowColor: '#000000',
-            },
-          ]}
-        >
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            nestedScrollEnabled={true}
-            showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+      return items.map((item, index) => {
+        const isFirstItem = index === 0;
+        const isLastItem = index === items.length - 1;
+
+        return (
+          <TouchableOpacity
+            key={item.value}
+            testID="autocomplete-option"
+            style={[
+              styles.dropdownItem,
+              {
+                backgroundColor: dropdownColors.background,
+                borderBottomWidth: isLastItem ? 0 : 1,
+                borderBottomColor: dropdownColors.divider,
+                borderTopLeftRadius: isFirstItem
+                  ? baseFoundation.dimension.x8
+                  : 0,
+                borderTopRightRadius: isFirstItem
+                  ? baseFoundation.dimension.x8
+                  : 0,
+                borderBottomLeftRadius: isLastItem
+                  ? baseFoundation.dimension.x8
+                  : 0,
+                borderBottomRightRadius: isLastItem
+                  ? baseFoundation.dimension.x8
+                  : 0,
+              },
+            ]}
+            onPress={() => handleSelectItem(item)}
           >
-            {renderDropdownContent()}
-          </ScrollView>
-        </ThemeView>
-      )}
-    </View>
-  );
-};
+            <Typography color={dropdownColors.text}>{item.label}</Typography>
+          </TouchableOpacity>
+        );
+      });
+    }, [loading, items, emptyMessage, dropdownColors, handleSelectItem]);
+
+    return (
+      <View
+        ref={containerRef}
+        style={[styles.container, containerStyle]}
+        onTouchStart={(event) => event.stopPropagation()}
+      >
+        <Input
+          {...inputProps}
+          value={value}
+          onChangeText={onChangeText}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+
+        {shouldShowDropdown && (
+          <ThemeView
+            testID="autocomplete-dropdown"
+            style={[
+              styles.dropdown,
+              dropdownPlacement === 'above'
+                ? styles.dropdownAbove
+                : styles.dropdownBelow,
+              {
+                maxHeight: availableDropdownHeight,
+                backgroundColor: dropdownColors.background,
+                shadowColor: '#000000',
+              },
+            ]}
+          >
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              nestedScrollEnabled={true}
+              showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+            >
+              {renderDropdownContent()}
+            </ScrollView>
+          </ThemeView>
+        )}
+      </View>
+    );
+  },
+);
+
+AutocompleteInput.displayName = 'AutocompleteInput';
 
 export default AutocompleteInput;
 
@@ -244,10 +396,8 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     position: 'absolute',
-    top: '100%',
     left: baseFoundation.spacing[0],
     right: baseFoundation.spacing[0],
-    marginTop: baseFoundation.spacing[1],
     borderRadius: baseFoundation.dimension.x8,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
@@ -258,7 +408,16 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 1001,
   },
+  dropdownBelow: {
+    top: '100%',
+    marginTop: baseFoundation.spacing[1],
+  },
+  dropdownAbove: {
+    bottom: '100%',
+    marginBottom: baseFoundation.spacing[1],
+  },
   dropdownItem: {
+    height: DROPDOWN_ITEM_HEIGHT,
     paddingHorizontal: baseFoundation.spacing[4],
     paddingVertical: baseFoundation.spacing[3],
   },
