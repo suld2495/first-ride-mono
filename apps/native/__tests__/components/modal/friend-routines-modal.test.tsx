@@ -6,6 +6,7 @@ import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
 import * as routineSceneArt from '@/components/routine/routine-scene-art';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
+import { baseFoundation } from '@/theme/tokens';
 
 import {
   act,
@@ -228,6 +229,34 @@ describe('FriendRoutinesModal', () => {
     expect(await screen.findByText('오늘도 전진')).toBeOnTheScreen();
     expect(screen.queryByTestId('friend-routine-scene-character')).toBeNull();
     expect(screen.queryByTestId('friend-routine-scene-background')).toBeNull();
+  });
+
+  it('응원 콕 버튼을 화면 가장자리에서 충분히 떨어뜨려 표시한다', async () => {
+    mockAxios.onGet('/friends/42/profile').reply(
+      200,
+      wrapResponse({
+        friendId: 42,
+        nickname: '혜연',
+        job: '검사',
+        motto: '오늘도 전진',
+        level: 7,
+        characterCode: 'WARRIOR_INTERMEDIATE',
+        characterImageUrl: null,
+        backgroundImageUrl: null,
+      }),
+    );
+    mockAxios
+      .onGet('/friends/42/routines?date=2026-05-25')
+      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
+
+    const screen = render(<FriendRoutinesModal />);
+
+    expect(
+      await screen.findByRole('button', { name: '응원 콕' }),
+    ).toHaveStyle({
+      bottom: baseFoundation.spacing[8],
+      right: baseFoundation.spacing[4],
+    });
   });
 
   it('응원 콕 버튼으로 친구에게 응원을 보내고 서버 메시지를 표시한다', async () => {
