@@ -383,10 +383,11 @@ const styles = StyleSheet.create((theme) => ({
   },
   checkRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: baseFoundation.spacing[0.5],
   },
   dayColumn: {
-    flex: 1,
+    width: TODAY_FRAME_SIZE,
     alignItems: 'center',
   },
   checkFrame: {

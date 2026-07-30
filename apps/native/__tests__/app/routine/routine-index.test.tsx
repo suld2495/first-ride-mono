@@ -1288,6 +1288,32 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
+      it('요일 체크박스 줄은 첫 월요일과 마지막 일요일을 카드 좌우 패딩에 맞춘다', async () => {
+        const { findByTestId } = render(<Index />);
+        const mondayFrame = await findByTestId('routine-week-check-frame-1-0');
+        const mondayColumnStyles = flattenPressableStyles(
+          mondayFrame.parent?.props?.style,
+        );
+        const rowStyles = findAncestorStyleWith(mondayFrame, 'flexDirection');
+
+        expect(mondayColumnStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              width: 28,
+              alignItems: 'center',
+            }),
+          ]),
+        );
+        expect(rowStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }),
+          ]),
+        );
+      });
+
       it('루틴 아이템은 단일 카드에 테마 80 테두리와 테마 100 배경을 표시한다', async () => {
         const { findByTestId, queryByTestId } = render(<Index />);
 
