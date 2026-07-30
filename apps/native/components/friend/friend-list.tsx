@@ -36,7 +36,6 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   /\/$/,
   '',
 );
-const FRIEND_CHARACTER_BOTTOM_OFFSET = baseFoundation.dimension.x28;
 const FRIEND_CHARACTER_HORIZONTAL_PADDING = 35;
 const FRIEND_CHARACTER_SIZE_INCREMENT = 20;
 const FRIEND_LIST_HORIZONTAL_PADDING = baseFoundation.spacing[5];
@@ -183,8 +182,8 @@ const FriendItem = ({
   });
   const testIdSuffix = displayNickname;
   const characterStyle = [
-    styles.character,
     { width: characterImageSize, height: characterImageSize },
+    hasMotto ? styles.characterWithMotto : null,
   ];
 
   return (
@@ -366,10 +365,8 @@ const styles = StyleSheet.create((theme) => ({
     overflow: 'visible',
     position: 'relative',
   },
-  character: {
-    position: 'absolute',
-    bottom: FRIEND_CHARACTER_BOTTOM_OFFSET,
-    alignSelf: 'center',
+  characterWithMotto: {
+    transform: [{ translateY: FRIEND_MOTTO_CHARACTER_OFFSET_Y }],
   },
   speechBubble: {
     position: 'absolute',
