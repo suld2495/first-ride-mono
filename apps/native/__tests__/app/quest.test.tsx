@@ -64,7 +64,7 @@ describe('QuestPage', () => {
     const filterListStack = screen.UNSAFE_getAllByType(View).find((node) => {
       const style = StyleSheet.flatten(node.props.style);
 
-      return style?.paddingHorizontal === 16 && style?.gap === 8;
+      return style?.paddingHorizontal === 24 && style?.gap === 8;
     });
 
     expect(StyleSheet.flatten(filterListStack?.props.style)).toMatchObject({

@@ -115,7 +115,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   content: {
     flex: 1,
-    paddingHorizontal: theme.foundation.spacing[4],
+    paddingHorizontal: theme.foundation.spacing[6],
     gap: theme.foundation.spacing[2],
   },
   addButton: {
