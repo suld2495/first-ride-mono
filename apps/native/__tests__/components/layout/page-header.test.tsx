@@ -60,6 +60,25 @@ describe('PageHeader', () => {
     expect(headerViews).toHaveLength(1);
   });
 
+  it('places the header flush below the status area and keeps a 4px bottom gap', () => {
+    const screen = render(<PageHeader title="공통 헤더" />);
+
+    const headerView = screen
+      .UNSAFE_getAllByType(View)
+      .find(
+        (node) =>
+          StyleSheet.flatten(node.props.style)?.height ===
+          baseFoundation.dimension.x44,
+      );
+
+    expect(StyleSheet.flatten(headerView?.props.style)).toEqual(
+      expect.objectContaining({
+        marginTop: 0,
+        marginBottom: 4,
+      }),
+    );
+  });
+
   it('shows a back button only when requested and routes back', () => {
     const screen = render(<PageHeader title="기본 헤더" />);
 
