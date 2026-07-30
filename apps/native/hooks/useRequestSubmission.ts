@@ -2,9 +2,10 @@ import { ApiError } from '@repo/shared/api/AppError';
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import { routineKeys } from '@repo/shared/types/query-keys/routine';
 import { useQueryClient } from '@tanstack/react-query';
+import type { AxiosProgressEvent } from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
 import { useToast } from '@/contexts/ToastContext';
@@ -39,6 +40,21 @@ const showPermissionAlert = (title: string, message: string) => {
   ]);
 };
 
+const getUploadProgress = ({
+  loaded,
+  total,
+  progress,
+}: AxiosProgressEvent): number | null => {
+  const ratio =
+    typeof total === 'number' && total > 0 ? loaded / total : progress;
+
+  if (typeof ratio !== 'number' || !Number.isFinite(ratio)) {
+    return null;
+  }
+
+  return Math.round(Math.min(Math.max(ratio, 0), 1) * 100);
+};
+
 export const useRequestSubmission = (
   routineId: number,
   detail?: RoutineDetailInfo,
@@ -47,9 +63,15 @@ export const useRequestSubmission = (
   const router = useRouter();
   const queryClient = useQueryClient();
   const saveRequest = useCreateRequestMutation();
+  const isSubmittingRef = useRef(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleSubmit = useCallback(
     (submittedForm: RequestForm) => {
+      if (isSubmittingRef.current) {
+        return;
+      }
+
       if (!submittedForm.images.length || !detail) {
         return;
       }
@@ -73,36 +95,54 @@ export const useRequestSubmission = (
       formData.append('routineId', routineId.toString());
       formData.append('message', submittedForm.message);
 
-      saveRequest.mutate(formData, {
-        onSuccess: () => {
-          void queryClient.invalidateQueries({
-            queryKey: routineKeys.list(detail.nickname),
-          });
-          showToast(
-            detail.isMe
-              ? '인증이 완료되었습니다.'
-              : '인증 요청이 완료되었습니다.',
-            'success',
-          );
-          router.dismissTo('/(tabs)/(afterLogin)/(routine)');
+      isSubmittingRef.current = true;
+      setUploadProgress(0);
+
+      saveRequest.mutate(
+        {
+          data: formData,
+          onUploadProgress: (progressEvent) => {
+            const nextProgress = getUploadProgress(progressEvent);
+
+            if (nextProgress !== null) {
+              setUploadProgress(nextProgress);
+            }
+          },
         },
-        onError: (error) => {
-          if (error instanceof ApiError && error.status === 413) {
+        {
+          onSuccess: () => {
+            void queryClient.invalidateQueries({
+              queryKey: routineKeys.list(detail.nickname),
+            });
             showToast(
-              '이미지는 1장당 10MB 이하로 업로드할 수 있습니다.',
-              'error',
+              detail.isMe
+                ? '인증이 완료되었습니다.'
+                : '인증 요청이 완료되었습니다.',
+              'success',
             );
-            return;
-          }
+            router.dismissTo('/(tabs)/(afterLogin)/(routine)');
+          },
+          onError: (error) => {
+            if (error instanceof ApiError && error.status === 413) {
+              showToast(
+                '이미지는 1장당 10MB 이하로 업로드할 수 있습니다.',
+                'error',
+              );
+              return;
+            }
 
-          const errorMessage = getApiErrorMessage(
-            error,
-            '인증 요청에 실패했습니다. 다시 시도해주세요.',
-          );
+            const errorMessage = getApiErrorMessage(
+              error,
+              '인증 요청에 실패했습니다. 다시 시도해주세요.',
+            );
 
-          showToast(errorMessage, 'error');
+            showToast(errorMessage, 'error');
+          },
+          onSettled: () => {
+            isSubmittingRef.current = false;
+          },
         },
-      });
+      );
     },
     [detail, queryClient, routineId, router, saveRequest, showToast],
   );
@@ -235,5 +275,6 @@ export const useRequestSubmission = (
     pickImage,
     takePicture,
     isPending: saveRequest.isPending,
+    uploadProgress,
   };
 };

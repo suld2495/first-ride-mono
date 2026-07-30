@@ -799,6 +799,49 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         });
       });
 
+      it('재렌더링 전에 인증 버튼을 연속으로 눌러도 요청을 한 번만 보낸다', async () => {
+        let resolveRequest: () => void = () => {};
+
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/routine\/details/).reply(200, {
+          data: createMockRoutine(0, { isMe: true }),
+        });
+        mockAxios.onPost('/routine/confirm').reply(
+          () =>
+            new Promise((resolve) => {
+              resolveRequest = () => resolve([200, { data: null }]);
+            }),
+        );
+
+        const screen = render(<RequestModal />);
+
+        await screen.findByText('테스트 루틴 1');
+        await selectImageFromGallery(screen.getByTestId);
+
+        await waitFor(() => {
+          expect(screen.getByText('인증')).toBeEnabled();
+        });
+
+        act(() => {
+          fireEvent.press(screen.getByText('인증'));
+          fireEvent.press(screen.getByText('인증'));
+        });
+
+        await waitFor(() => {
+          expect(mockAxios.history.post).toHaveLength(1);
+        });
+
+        await act(async () => {
+          resolveRequest();
+        });
+
+        await waitFor(() => {
+          expect(mockDismissTo).toHaveBeenCalledWith(
+            '/(tabs)/(afterLogin)/(routine)',
+          );
+        });
+      });
+
       it('요청 중에는 스피너를 표시하고 취소, 요청, 이미지 업로드 버튼을 비활성화한다', async () => {
         let resolveRequest: () => void = () => {};
 
@@ -837,6 +880,80 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         });
 
         expect(screen.queryByText('인증')).not.toBeOnTheScreen();
+
+        await act(async () => {
+          resolveRequest();
+        });
+
+        await waitFor(() => {
+          expect(mockDismissTo).toHaveBeenCalledWith(
+            '/(tabs)/(afterLogin)/(routine)',
+          );
+        });
+      });
+
+      it('이미지 업로드 진행률을 요청 사진 영역 아래에 표시하고 완료 시 100%로 유지한다', async () => {
+        let resolveRequest: () => void = () => {};
+
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/routine\/details/).reply(200, {
+          data: createMockRoutine(0, { isMe: true }),
+        });
+        mockAxios.onPost('/routine/confirm').reply(
+          () =>
+            new Promise((resolve) => {
+              resolveRequest = () => resolve([200, { data: null }]);
+            }),
+        );
+
+        const screen = render(<RequestModal />);
+
+        await screen.findByText('테스트 루틴 1');
+        await selectImageFromGallery(screen.getByTestId);
+
+        expect(
+          screen.queryByTestId('request-upload-progress-track'),
+        ).not.toBeOnTheScreen();
+
+        await act(async () => {
+          fireEvent.press(screen.getByText('인증'));
+        });
+
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('request-upload-progress-track'),
+          ).toBeOnTheScreen();
+          expect(
+            screen.getByTestId('request-upload-progress-fill'),
+          ).toHaveStyle({ width: '0%' });
+        });
+
+        const requestConfig = mockAxios.history.post[0];
+
+        act(() => {
+          requestConfig?.onUploadProgress?.({
+            loaded: 1,
+            total: 4,
+            progress: 0.25,
+          } as never);
+        });
+
+        expect(screen.getByTestId('request-upload-progress-fill')).toHaveStyle({
+          width: '25%',
+        });
+
+        act(() => {
+          requestConfig?.onUploadProgress?.({
+            loaded: 4,
+            total: 4,
+            progress: 1,
+          } as never);
+        });
+
+        expect(screen.getByTestId('request-upload-progress-fill')).toHaveStyle({
+          width: '100%',
+        });
+        expect(mockDismissTo).not.toHaveBeenCalled();
 
         await act(async () => {
           resolveRequest();

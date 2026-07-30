@@ -2,7 +2,12 @@ import type { CreateRequestResponseDto } from '@repo/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import * as requestApi from '../api/request.api';
+import type { CreateRequestOptions } from '../api/request.api';
 import { requestKey } from '../types/query-keys/request';
+
+interface CreateRequestMutationVariables extends CreateRequestOptions {
+  data: FormData;
+}
 
 export const useFetchReceivedRequestsQuery = (nickname: string) => {
   return useQuery({
@@ -25,7 +30,8 @@ export const useCreateRequestMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: FormData) => requestApi.createRequest(data),
+    mutationFn: ({ data, onUploadProgress }: CreateRequestMutationVariables) =>
+      requestApi.createRequest(data, { onUploadProgress }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: requestKey.all(),

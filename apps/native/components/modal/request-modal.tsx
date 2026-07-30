@@ -51,7 +51,7 @@ const RequestModal = () => {
     () => ({ images: sharedImages, message: '' }),
     [sharedImages],
   );
-  const { handleSubmit, pickImage, takePicture, isPending } =
+  const { handleSubmit, pickImage, takePicture, isPending, uploadProgress } =
     useRequestSubmission(
       routineId,
       detail
@@ -300,6 +300,27 @@ const RequestModal = () => {
             )}
           />
 
+          {isPending && (
+            <ThemeView
+              accessibilityRole="progressbar"
+              accessibilityValue={{
+                min: 0,
+                max: 100,
+                now: uploadProgress,
+              }}
+              testID="request-upload-progress-track"
+              style={styles.uploadProgressTrack}
+            >
+              <ThemeView
+                testID="request-upload-progress-fill"
+                style={[
+                  styles.uploadProgressFill,
+                  { width: `${uploadProgress}%` },
+                ]}
+              />
+            </ThemeView>
+          )}
+
           <ThemeView
             testID="request-message-section"
             style={styles.messageSection}
@@ -394,6 +415,21 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: baseFoundation.radii.s,
     borderWidth: 0,
     backgroundColor: theme.colors.background.media,
+  },
+
+  uploadProgressTrack: {
+    width: '100%',
+    height: baseFoundation.dimension.x6,
+    marginTop: baseFoundation.spacing[2],
+    overflow: 'hidden',
+    borderRadius: baseFoundation.radii.round,
+    backgroundColor: theme.colors.brand.bottomTab,
+  },
+
+  uploadProgressFill: {
+    height: '100%',
+    borderRadius: baseFoundation.radii.round,
+    backgroundColor: theme.colors.action.primary.default,
   },
 
   mediaHeader: {

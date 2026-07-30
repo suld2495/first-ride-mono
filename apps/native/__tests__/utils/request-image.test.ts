@@ -12,6 +12,7 @@ jest.mock('expo-file-system', () => ({
 
 import {
   MAX_REQUEST_IMAGE_BYTES,
+  MAX_REQUEST_IMAGE_DIMENSION,
   normalizeRequestImages,
 } from '@/utils/request-image';
 
@@ -57,6 +58,58 @@ describe('normalizeRequestImages', () => {
       ],
       rejectedCount: 0,
     });
+  });
+
+  it('가로 이미지의 긴 변이 최대 크기를 넘으면 너비를 줄인다', async () => {
+    mockManipulateAsync.mockResolvedValue({
+      uri: 'file:///cache/resized-landscape.jpg',
+      width: MAX_REQUEST_IMAGE_DIMENSION,
+      height: 1_280,
+    });
+    mockGetInfoAsync.mockResolvedValue({
+      exists: true,
+      size: 768_000,
+    });
+
+    await normalizeRequestImages([
+      {
+        uri: 'file:///library/landscape.heic',
+        width: 4_032,
+        height: 3_024,
+      },
+    ]);
+
+    expect(mockManipulateAsync).toHaveBeenCalledWith(
+      'file:///library/landscape.heic',
+      [{ resize: { width: MAX_REQUEST_IMAGE_DIMENSION } }],
+      expect.objectContaining({ format: 'jpeg' }),
+    );
+  });
+
+  it('세로 이미지의 긴 변이 최대 크기를 넘으면 높이를 줄인다', async () => {
+    mockManipulateAsync.mockResolvedValue({
+      uri: 'file:///cache/resized-portrait.jpg',
+      width: 1_280,
+      height: MAX_REQUEST_IMAGE_DIMENSION,
+    });
+    mockGetInfoAsync.mockResolvedValue({
+      exists: true,
+      size: 768_000,
+    });
+
+    await normalizeRequestImages([
+      {
+        uri: 'file:///library/portrait.heic',
+        width: 3_024,
+        height: 4_032,
+      },
+    ]);
+
+    expect(mockManipulateAsync).toHaveBeenCalledWith(
+      'file:///library/portrait.heic',
+      [{ resize: { height: MAX_REQUEST_IMAGE_DIMENSION } }],
+      expect.objectContaining({ format: 'jpeg' }),
+    );
   });
 
   it('변환할 수 없는 이미지는 결과에서 제외한다', async () => {

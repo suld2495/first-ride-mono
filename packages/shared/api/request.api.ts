@@ -3,11 +3,16 @@ import type {
   RequestResponseForm,
   RoutineDetail,
 } from '@repo/types';
+import type { AxiosProgressEvent } from 'axios';
 
 import { toAppError } from '.';
 import http from './client';
 
 const IMAGE_UPLOAD_TIMEOUT_MS = 60_000;
+
+export interface CreateRequestOptions {
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void;
+}
 
 export const fetchReceivedRequests = async (): Promise<RequestList> => {
   try {
@@ -33,10 +38,14 @@ export const fetchRequestDetail = async (
   }
 };
 
-export const createRequest = async (data: FormData): Promise<void> => {
+export const createRequest = async (
+  data: FormData,
+  options: CreateRequestOptions = {},
+): Promise<void> => {
   try {
     const response: void = await http.post(`/routine/confirm`, data, {
       timeout: IMAGE_UPLOAD_TIMEOUT_MS,
+      onUploadProgress: options.onUploadProgress,
     });
 
     return response;

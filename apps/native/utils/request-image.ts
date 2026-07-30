@@ -3,6 +3,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 
 export const MAX_REQUEST_IMAGE_BYTES = 10 * 1024 * 1024;
 export const MAX_REQUEST_IMAGE_PIXELS = 60_000_000;
+export const MAX_REQUEST_IMAGE_DIMENSION = 1_920;
 
 const JPEG_COMPRESSION_QUALITY = 0.85;
 const JPEG_MIME_TYPE = 'image/jpeg' as const;
@@ -36,6 +37,25 @@ const exceedsPixelLimit = ({
   height > 0 &&
   width * height > MAX_REQUEST_IMAGE_PIXELS;
 
+const getResizeActions = ({
+  width,
+  height,
+}: RequestImageSource): ImageManipulator.Action[] => {
+  if (
+    typeof width !== 'number' ||
+    typeof height !== 'number' ||
+    width <= 0 ||
+    height <= 0 ||
+    Math.max(width, height) <= MAX_REQUEST_IMAGE_DIMENSION
+  ) {
+    return [];
+  }
+
+  return width >= height
+    ? [{ resize: { width: MAX_REQUEST_IMAGE_DIMENSION } }]
+    : [{ resize: { height: MAX_REQUEST_IMAGE_DIMENSION } }];
+};
+
 const normalizeRequestImage = async (
   source: RequestImageSource,
   index: number,
@@ -46,7 +66,7 @@ const normalizeRequestImage = async (
 
   const convertedImage = await ImageManipulator.manipulateAsync(
     source.uri,
-    [],
+    getResizeActions(source),
     {
       compress: JPEG_COMPRESSION_QUALITY,
       format: ImageManipulator.SaveFormat.JPEG,
