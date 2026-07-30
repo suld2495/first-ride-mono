@@ -13,8 +13,11 @@ private let weeklyStatusHeaderHeight: CGFloat = 20
 private let weeklyStatusNameColumnWidth: CGFloat = 150
 private let weeklyStatusRowHeight: CGFloat = 22
 private let weeklyStatusRowSpacing: CGFloat = 4
+private let largeWeeklyStatusRowSpacing: CGFloat = 8
+private let largeWeeklyStatusTopPadding: CGFloat = 16
 private let weeklyStatusDotSize: CGFloat = 10
-private let weeklyStatusMaximumVisibleItemCount = 4
+private let mediumWeeklyStatusMaximumVisibleItemCount = 4
+private let largeWeeklyStatusMaximumVisibleItemCount = 10
 private let weeklyStatusDayLabels = ["월", "화", "수", "목", "금", "토", "일"]
 private let shortYearOffset = 2000
 private let dailyRefreshEntryCount = 8
@@ -133,8 +136,8 @@ struct RoutineWidgetEntryView: View {
 
   var body: some View {
     Group {
-      if widgetFamily == .systemMedium {
-        RoutineWidgetWeeklyStatusView(entry: entry)
+      if widgetFamily == .systemMedium || widgetFamily == .systemLarge {
+        RoutineWidgetWeeklyStatusView(entry: entry, widgetFamily: widgetFamily)
       } else {
         smallWidgetBody
       }
@@ -204,6 +207,7 @@ struct RoutineWidgetEntryView: View {
 
 struct RoutineWidgetWeeklyStatusView: View {
   let entry: RoutineProvider.Entry
+  let widgetFamily: WidgetFamily
 
   var body: some View {
     GeometryReader { geometry in
@@ -216,9 +220,10 @@ struct RoutineWidgetWeeklyStatusView: View {
         let visibleItems = visibleItems(for: geometry.size.height)
         let layoutItemCount = weeklyStatusLayoutItemCount(for: geometry.size.height, itemCount: visibleItems.count)
         let contentHeight = weeklyStatusContentHeight(itemCount: layoutItemCount)
+        let rowSpacing = weeklyStatusRowSpacingForCurrentFamily
         let weekDateKeys = weekDateKeys(for: entry.date)
         let todayDateKey = routineDateKey(for: entry.date)
-        VStack(alignment: .leading, spacing: weeklyStatusRowSpacing) {
+        VStack(alignment: .leading, spacing: rowSpacing) {
           RoutineWidgetWeeklyStatusHeader(currentDateKey: todayDateKey, weekDateKeys: weekDateKeys)
           ForEach(Array(visibleItems.enumerated()), id: \.element.id) { index, item in
             RoutineWidgetWeeklyStatusRow(
@@ -243,25 +248,48 @@ struct RoutineWidgetWeeklyStatusView: View {
   }
 
   private func weeklyStatusVisibleItemLimit(for widgetHeight: CGFloat) -> Int {
-    min(rawVisibleItemLimit(for: widgetHeight), weeklyStatusMaximumVisibleItemCount)
+    let rawItemLimit = rawVisibleItemLimit(for: widgetHeight)
+
+    switch widgetFamily {
+    case .systemLarge:
+      return min(rawItemLimit, largeWeeklyStatusMaximumVisibleItemCount)
+    default:
+      return min(rawItemLimit, mediumWeeklyStatusMaximumVisibleItemCount)
+    }
   }
 
   private func rawVisibleItemLimit(for widgetHeight: CGFloat) -> Int {
-    let rowStride = weeklyStatusRowHeight + weeklyStatusRowSpacing
+    let rowSpacing = weeklyStatusRowSpacingForCurrentFamily
+    let verticalInset = widgetFamily == .systemLarge ? largeWeeklyStatusTopPadding : 0
+    let rowStride = weeklyStatusRowHeight + rowSpacing
 
-    return max(0, Int((widgetHeight - weeklyStatusHeaderHeight) / rowStride))
+    return max(0, Int((widgetHeight - verticalInset - weeklyStatusHeaderHeight) / rowStride))
   }
 
   private func weeklyStatusLayoutItemCount(for widgetHeight: CGFloat, itemCount: Int) -> Int {
-    max(itemCount, weeklyStatusVisibleItemLimit(for: widgetHeight))
+    switch widgetFamily {
+    case .systemLarge:
+      return itemCount
+    default:
+      return max(itemCount, weeklyStatusVisibleItemLimit(for: widgetHeight))
+    }
   }
 
   private func weeklyStatusContentHeight(itemCount: Int) -> CGFloat {
-    weeklyStatusHeaderHeight + (weeklyStatusRowHeight + weeklyStatusRowSpacing) * CGFloat(itemCount)
+    weeklyStatusHeaderHeight + (weeklyStatusRowHeight + weeklyStatusRowSpacingForCurrentFamily) * CGFloat(itemCount)
   }
 
   private func weeklyStatusTopPadding(for widgetHeight: CGFloat, contentHeight: CGFloat) -> CGFloat {
-    return max(0, (widgetHeight - contentHeight) / 2)
+    switch widgetFamily {
+    case .systemLarge:
+      return largeWeeklyStatusTopPadding
+    default:
+      return max(0, (widgetHeight - contentHeight) / 2)
+    }
+  }
+
+  private var weeklyStatusRowSpacingForCurrentFamily: CGFloat {
+    widgetFamily == .systemLarge ? largeWeeklyStatusRowSpacing : weeklyStatusRowSpacing
   }
 }
 
@@ -472,7 +500,7 @@ struct RoutineWidget: Widget {
     }
     .configurationDisplayName("이번 주 루틴")
     .description("이번 주 루틴 달성 상태를 확인합니다.")
-    .supportedFamilies([.systemSmall, .systemMedium])
+    .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     .contentMarginsDisabled()
   }
 }

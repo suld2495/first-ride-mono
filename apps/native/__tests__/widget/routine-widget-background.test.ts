@@ -59,17 +59,23 @@ describe('routine widget background', () => {
     expect(source).toContain('countLabelStyle?.darkTextColor');
   });
 
-  it('supports a medium weekly status layout without the title', () => {
+  it('supports medium and large weekly status layouts without the title', () => {
     const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
 
     expect(source).toContain(
-      '.supportedFamilies([.systemSmall, .systemMedium])',
+      '.supportedFamilies([.systemSmall, .systemMedium, .systemLarge])',
     );
     expect(source).toContain(
       '@Environment(\\.widgetFamily) private var widgetFamily',
     );
     expect(source).toContain('RoutineWidgetWeeklyStatusView');
-    expect(source).toContain('if widgetFamily == .systemMedium');
+    expect(source).toContain(
+      'if widgetFamily == .systemMedium || widgetFamily == .systemLarge',
+    );
+    expect(source).toContain(
+      'RoutineWidgetWeeklyStatusView(entry: entry, widgetFamily: widgetFamily)',
+    );
+    expect(source).toContain('let widgetFamily: WidgetFamily');
   });
 
   it('renders weekly status columns from Monday through Sunday', () => {
@@ -111,11 +117,61 @@ describe('routine widget background', () => {
   it('limits medium weekly status to four routine rows', () => {
     const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
 
-    expect(readIntConstant(source, 'weeklyStatusMaximumVisibleItemCount')).toBe(
-      4,
+    expect(
+      readIntConstant(source, 'mediumWeeklyStatusMaximumVisibleItemCount'),
+    ).toBe(4);
+    expect(source).toContain(
+      'min(rawItemLimit, mediumWeeklyStatusMaximumVisibleItemCount)',
+    );
+  });
+
+  it('uses the large widget height and limits the result to ten routine rows', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+    const largeWidgetHeight = 345;
+    const headerHeight = readNumberConstant(source, 'weeklyStatusHeaderHeight');
+    const rowHeight = readNumberConstant(source, 'weeklyStatusRowHeight');
+    const rowSpacing = readNumberConstant(
+      source,
+      'largeWeeklyStatusRowSpacing',
+    );
+    const topPadding = readNumberConstant(
+      source,
+      'largeWeeklyStatusTopPadding',
+    );
+    const visibleItemCount = Math.floor(
+      (largeWidgetHeight - topPadding - headerHeight) /
+        (rowHeight + rowSpacing),
+    );
+
+    expect(visibleItemCount).toBe(10);
+    expect(
+      readIntConstant(source, 'largeWeeklyStatusMaximumVisibleItemCount'),
+    ).toBe(10);
+    expect(source).toContain(
+      'min(rawItemLimit, largeWeeklyStatusMaximumVisibleItemCount)',
     );
     expect(source).toContain(
-      'min(rawVisibleItemLimit(for: widgetHeight), weeklyStatusMaximumVisibleItemCount)',
+      'let verticalInset = widgetFamily == .systemLarge ? largeWeeklyStatusTopPadding : 0',
+    );
+  });
+
+  it('uses more generous row spacing in the large widget', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+    const mediumRowSpacing = readNumberConstant(
+      source,
+      'weeklyStatusRowSpacing',
+    );
+    const largeRowSpacing = readNumberConstant(
+      source,
+      'largeWeeklyStatusRowSpacing',
+    );
+
+    expect(largeRowSpacing).toBeGreaterThan(mediumRowSpacing);
+    expect(source).toContain(
+      'let rowSpacing = weeklyStatusRowSpacingForCurrentFamily',
+    );
+    expect(source).toContain(
+      'VStack(alignment: .leading, spacing: rowSpacing)',
     );
   });
 
@@ -163,6 +219,18 @@ describe('routine widget background', () => {
     expect(source).toContain(
       '.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)',
     );
+  });
+
+  it('top-aligns large weekly status rows with a fixed inset', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(readNumberConstant(source, 'largeWeeklyStatusTopPadding')).toBe(16);
+    expect(source).toContain(`switch widgetFamily {
+    case .systemLarge:
+      return largeWeeklyStatusTopPadding
+    default:
+      return max(0, (widgetHeight - contentHeight) / 2)
+    }`);
   });
 
   it('uses per-routine accent colors for weekly status dots', () => {
