@@ -51,7 +51,6 @@ export class ApiError extends HttpError {
     url: string = '',
     cause: unknown,
     message: string = '',
-    readonly code?: string,
   ) {
     super(status, url, cause, message);
   }

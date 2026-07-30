@@ -19,7 +19,7 @@ export type AuthErrorCode =
 export type ServerError = {
   error: {
     message: string;
-    code?: string;
+    code?: AuthErrorCode;
     data?: FieldErrorReason[];
   };
   path: string;

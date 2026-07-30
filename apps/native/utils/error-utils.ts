@@ -17,29 +17,6 @@ export const getApiErrorMessage = (
 };
 
 /**
- * API 에러 코드와 메시지를 디버깅용 문구로 반환합니다.
- * @param error - 발생한 에러 객체
- * @param fallbackMessage - ApiError가 아닐 경우 표시할 기본 메시지
- * @returns `[HTTP 상태 | 서버 코드] 메시지` 형식의 진단 문구
- */
-export const getApiErrorMessageWithCode = (
-  error: unknown,
-  fallbackMessage: string,
-): string => {
-  if (!(error instanceof ApiError)) {
-    return fallbackMessage;
-  }
-
-  const message = error.message || fallbackMessage;
-  const diagnosticCodes = [
-    `HTTP ${error.status}`,
-    ...(error.code ? [error.code] : []),
-  ].join(' | ');
-
-  return `[${diagnosticCodes}] ${message}`;
-};
-
-/**
  * API 에러의 첫 번째 필드 상세 메시지를 우선하여 반환합니다.
  * @param error - 발생한 에러 객체
  * @param fallbackMessage - ApiError가 아닐 경우 표시할 기본 메시지
