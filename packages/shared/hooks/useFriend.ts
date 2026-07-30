@@ -63,10 +63,8 @@ export const useFriendCheerMutation = () => {
 
   return useMutation({
     mutationFn: sendFriendCheer,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: friendKey.all(),
-      });
+    onSuccess: (cheer, friendId) => {
+      queryClient.setQueryData(friendKey.cheer(friendId), cheer);
     },
   });
 };

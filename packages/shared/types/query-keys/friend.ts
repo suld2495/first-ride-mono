@@ -9,6 +9,8 @@ export const friendKey = {
     [...friendKey.detail(friendId), 'profile'] as const,
   routines: (friendId: number | string, date: string) =>
     [...friendKey.detail(friendId), 'routines', { date }] as const,
+  cheer: (friendId: number | string) =>
+    [...friendKey.detail(friendId), 'cheer'] as const,
 };
 
 export const friendRequestKey = {
