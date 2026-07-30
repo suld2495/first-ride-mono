@@ -94,11 +94,35 @@ describe('FriendRoutinesModal', () => {
 
     const screen = render(<FriendRoutinesModal />);
 
-    expect(
-      await screen.findByTestId('friend-routine-scene-character'),
-    ).toHaveProp('source', {
+    const character = await screen.findByTestId(
+      'friend-routine-scene-character',
+    );
+
+    expect(character).toHaveProp('source', {
       uri: 'https://cdn.example.com/characters/mage.png',
     });
+    const characterStage = screen
+      .UNSAFE_getAllByType(View)
+      .filter((node) => {
+        const style = StyleSheet.flatten(node.props.style);
+
+        return (
+          style?.alignItems === 'center' &&
+          style?.justifyContent === 'center' &&
+          node.findAllByProps({
+            testID: 'friend-routine-scene-character',
+          }).length > 0
+        );
+      })
+      .pop();
+
+    expect(StyleSheet.flatten(characterStage?.props.style)).toEqual(
+      expect.objectContaining({
+        alignSelf: 'center',
+        bottom: baseFoundation.dimension.x48,
+        position: 'absolute',
+      }),
+    );
     expect(
       await screen.findByTestId('friend-routine-scene-background'),
     ).toHaveProp('source', {
