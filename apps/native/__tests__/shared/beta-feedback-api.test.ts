@@ -48,25 +48,23 @@ describe('beta-feedback.api', () => {
     });
   });
 
-  it('이미지가 있으면 content와 images를 multipart body에 담아 전송한다', async () => {
-    const appendSpy = jest.spyOn(FormData.prototype, 'append');
-    const images = [
-      {
-        uri: 'file:///feedback-1.png',
-        name: 'feedback-1.png',
-        type: 'image/png',
-        size: 512_000,
-      },
-      {
-        uri: 'file:///feedback-2.heic',
-        name: 'feedback-2.heic',
-        type: 'image/heic',
-        size: 1_024_000,
-      },
-    ];
+  it('훅에서 완성한 multipart body를 그대로 전송한다', async () => {
+    const multipartBody = new FormData();
+
+    multipartBody.append('content', '화면이 깨지는 문제가 있어요.');
+    multipartBody.append('images', {
+      uri: 'file:///feedback-1.jpg',
+      name: 'feedback-1.jpg',
+      type: 'image/jpeg',
+    } as unknown as Blob);
+    multipartBody.append('images', {
+      uri: 'file:///feedback-2.jpg',
+      name: 'feedback-2.jpg',
+      type: 'image/jpeg',
+    } as unknown as Blob);
 
     mockAxios.onPost('/beta/feedback').reply((config) => {
-      expect(config.data).toBeInstanceOf(FormData);
+      expect(config.data).toBe(multipartBody);
       expect(config.timeout).toBe(60_000);
 
       return [
@@ -84,26 +82,6 @@ describe('beta-feedback.api', () => {
       ];
     });
 
-    await createBetaFeedback({
-      content: '화면이 깨지는 문제가 있어요.',
-      images,
-    });
-
-    expect(appendSpy).toHaveBeenCalledWith(
-      'content',
-      '화면이 깨지는 문제가 있어요.',
-    );
-    expect(appendSpy).toHaveBeenCalledWith('images', {
-      uri: 'file:///feedback-1.png',
-      name: 'feedback-1.png',
-      type: 'image/png',
-    });
-    expect(appendSpy).toHaveBeenCalledWith('images', {
-      uri: 'file:///feedback-2.heic',
-      name: 'feedback-2.heic',
-      type: 'image/heic',
-    });
-
-    appendSpy.mockRestore();
+    await createBetaFeedback(multipartBody);
   });
 });
