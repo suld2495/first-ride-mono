@@ -23,6 +23,7 @@ import { baseFoundation, palette } from '@/theme/tokens';
 const FALLBACK_LEVEL = 1;
 const FALLBACK_EXP = 0;
 const FALLBACK_NEXT_LEVEL_EXP = 30;
+const SETTINGS_LEVEL_TEXT_SIZE = baseFoundation.typography.size.h3 - 4;
 
 const SOCIAL_LOGIN_TYPE_LABELS: Record<
   Exclude<UserLoginType, 'PLAIN'>,
@@ -218,6 +219,7 @@ const MyInfo = () => {
               <View testID="settings-exp-value-row" style={styles.expValueRow}>
                 <Typography
                   color={themeColor[80]}
+                  style={styles.expSummaryText}
                   testID="settings-exp-label"
                   variant="body3"
                   weight="semibold"
@@ -225,7 +227,8 @@ const MyInfo = () => {
                   경험치
                 </Typography>
                 <Typography
-                  color={softThemeColor[80]}
+                  color={softThemeColor[60]}
+                  style={styles.expSummaryText}
                   testID="settings-exp-unit"
                   variant="caption2"
                   weight="semibold"
@@ -237,7 +240,8 @@ const MyInfo = () => {
                   style={styles.expNumberRow}
                 >
                   <Typography
-                    color={softThemeColor[80]}
+                    color={softThemeColor[60]}
+                    style={styles.expSummaryText}
                     testID="settings-exp-current"
                     variant="caption2"
                     weight="semibold"
@@ -245,14 +249,16 @@ const MyInfo = () => {
                     {currentExp}
                   </Typography>
                   <Typography
-                    color={softThemeColor[80]}
+                    color={softThemeColor[60]}
+                    style={styles.expSummaryText}
                     variant="caption2"
                     weight="semibold"
                   >
                     /
                   </Typography>
                   <Typography
-                    color={softThemeColor[80]}
+                    color={softThemeColor[60]}
+                    style={styles.expSummaryText}
                     testID="settings-exp-next"
                     variant="caption2"
                     weight="semibold"
@@ -431,7 +437,11 @@ const styles = StyleSheet.create((theme) => ({
   },
   levelText: {
     fontFamily: fontFamilies.poppinsBold,
+    fontSize: SETTINGS_LEVEL_TEXT_SIZE,
     textAlign: 'left',
+  },
+  expSummaryText: {
+    fontSize: SETTINGS_LEVEL_TEXT_SIZE,
   },
   expLabelRow: {
     flex: 1,
