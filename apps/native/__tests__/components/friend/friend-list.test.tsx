@@ -111,7 +111,7 @@ describe('FriendList', () => {
     );
   });
 
-  it('keeps character size independent from motto presence', () => {
+  it('keeps character size and routine-home bottom spacing independent from motto presence', () => {
     const friends = [
       createMockFriend(0, {
         motto: null,
@@ -133,7 +133,9 @@ describe('FriendList', () => {
 
     expect(characterStyle).toEqual(
       expect.objectContaining({
+        bottom: 28,
         height: 277,
+        position: 'absolute',
         width: 277,
       }),
     );
@@ -201,7 +203,8 @@ describe('FriendList', () => {
     ).toBe(undefined);
     expect(StyleSheet.flatten(character.props.style)).toEqual(
       expect.objectContaining({
-        transform: [{ translateY: 17 }],
+        bottom: 28,
+        position: 'absolute',
       }),
     );
     expect(
