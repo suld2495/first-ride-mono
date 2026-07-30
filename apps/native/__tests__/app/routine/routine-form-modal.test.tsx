@@ -347,7 +347,9 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('메이트 루틴 입력에서는 메이트를 필수로, 벌금을 선택항목으로 표시한다', async () => {
-      const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
+      const { getAllByTestId, getByTestId, getByText } = render(
+        <RoutineFormModal />,
+      );
 
       await act(async () => {
         fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
@@ -356,12 +358,17 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const mateLabelRow = within(getByTestId('mateNickname-label-row'));
       const penaltyLabelRow = within(getByTestId('penalty-label-row'));
       const penaltyOptional = penaltyLabelRow.getByText('선택');
+      const penaltyInput = getByTestId('routine-penalty-input');
+      const penaltyInputStyle = RNStyleSheet.flatten(penaltyInput.props.style);
 
       expect(mateLabelRow.getByText('메이트')).toBeOnTheScreen();
       expect(mateLabelRow.getByText('*')).toBeOnTheScreen();
       expect(penaltyLabelRow.getByText('벌금')).toBeOnTheScreen();
       expect(penaltyOptional).toBeOnTheScreen();
       expect(penaltyOptional.props.fontSize).toBe('$caption2');
+      expect(penaltyInput.props.value).toBe('0');
+      expect(penaltyInputStyle.textAlign).toBe('right');
+      expect(getByText('원')).toBeOnTheScreen();
     });
 
     it('생성 버튼은 modal.tsx의 고정 header action에 표시된다', () => {

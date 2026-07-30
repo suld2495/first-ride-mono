@@ -5,7 +5,7 @@ import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Pressable, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { RoutinePeriodWarningIcon } from '@/components/icons/routine-period-warning-icon';
@@ -60,6 +60,59 @@ const getStartOfToday = () => {
 
   today.setHours(0, 0, 0, 0);
   return today;
+};
+
+const formatPenaltyInputValue = (value: RoutineForm['penalty'] | string) => {
+  const numStr = String(value ?? '').replace(/[^0-9]/g, '');
+
+  if (!numStr || numStr === '0') return '0';
+  const parsed = parseInt(numStr, 10);
+
+  return isNaN(parsed) ? '0' : parsed.toLocaleString('ko-KR');
+};
+
+type PenaltyInputProps = {
+  value: RoutineForm['penalty'] | string;
+  onChange: (value: string) => void;
+};
+
+const PenaltyInput = ({ value, onChange }: PenaltyInputProps) => {
+  const { theme } = useAppTheme();
+  const hasValue = Boolean(String(value ?? '').replace(/[^0-9]/g, ''));
+
+  const handleChange = (text: string) => {
+    const numericValue = text.replace(/[^0-9]/g, '');
+
+    onChange(numericValue);
+  };
+
+  return (
+    <View style={styles.penaltyInputContainer}>
+      <TextInput
+        testID="routine-penalty-input"
+        style={[
+          styles.penaltyInput,
+          {
+            color: hasValue
+              ? theme.colors.field.text
+              : theme.colors.field.placeholder,
+          },
+        ]}
+        value={formatPenaltyInputValue(value)}
+        placeholder="벌금을 입력하세요."
+        placeholderTextColor={theme.colors.field.placeholder}
+        keyboardType="number-pad"
+        onChangeText={handleChange}
+      />
+      <Typography
+        variant="body2"
+        weight="semibold"
+        style={styles.penaltyUnitText}
+      >
+        원
+      </Typography>
+    </View>
+  );
 };
 
 type RoutineStatusForm = RoutineForm & {
@@ -483,36 +536,9 @@ const RoutineFormModal = () => {
                       name="penalty"
                       label="벌금"
                       optionalLabel="선택"
-                      item={({ value, onChange }) => {
-                        const formatNumber = (num: string | number) => {
-                          const numStr = String(num).replace(/[^0-9]/g, '');
-
-                          if (!numStr || numStr === '0') return '';
-                          const parsed = parseInt(numStr, 10);
-
-                          return isNaN(parsed)
-                            ? ''
-                            : parsed.toLocaleString('ko-KR');
-                        };
-
-                        const handleChange = (text: string) => {
-                          const numericValue = text.replace(/[^0-9]/g, '');
-
-                          onChange(numericValue);
-                        };
-
-                        return (
-                          <Input
-                            variant="filled"
-                            value={
-                              value !== undefined ? formatNumber(value) : value
-                            }
-                            placeholder="벌금을 입력하세요."
-                            onChangeText={handleChange}
-                            keyboardType="number-pad"
-                          />
-                        );
-                      }}
+                      item={({ value, onChange }) => (
+                        <PenaltyInput value={value} onChange={onChange} />
+                      )}
                     />
                   </>
                 )}
@@ -535,32 +561,9 @@ const RoutineFormModal = () => {
             name="penalty"
             label="벌금"
             optionalLabel="선택"
-            item={({ value, onChange }) => {
-              const formatNumber = (num: string | number) => {
-                const numStr = String(num).replace(/[^0-9]/g, '');
-
-                if (!numStr || numStr === '0') return '';
-                const parsed = parseInt(numStr, 10);
-
-                return isNaN(parsed) ? '' : parsed.toLocaleString('ko-KR');
-              };
-
-              const handleChange = (text: string) => {
-                const numericValue = text.replace(/[^0-9]/g, '');
-
-                onChange(numericValue);
-              };
-
-              return (
-                <Input
-                  variant="filled"
-                  value={value !== undefined ? formatNumber(value) : value}
-                  placeholder="벌금을 입력하세요."
-                  onChangeText={handleChange}
-                  keyboardType="number-pad"
-                />
-              );
-            }}
+            item={({ value, onChange }) => (
+              <PenaltyInput value={value} onChange={onChange} />
+            )}
           />
         )}
         {!isRoutineAdd && (
@@ -742,6 +745,29 @@ const styles = StyleSheet.create((theme) => ({
 
   mateCheckLabel: {
     color: theme.colors.field.label,
+  },
+
+  penaltyInputContainer: {
+    height: baseFoundation.dimension.x44,
+    paddingHorizontal: theme.foundation.spacing[3],
+    borderRadius: theme.foundation.radii.xs,
+    backgroundColor: theme.colors.field.background,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[1],
+  },
+
+  penaltyInput: {
+    flex: 1,
+    height: '100%',
+    padding: 0,
+    fontSize: theme.foundation.typography.size.m,
+    fontWeight: theme.foundation.typography.weight.regular,
+    textAlign: 'right',
+  },
+
+  penaltyUnitText: {
+    color: theme.colors.field.text,
   },
 
   statusSection: {
