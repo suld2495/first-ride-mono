@@ -386,9 +386,9 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
   avatar: {
-    width: baseFoundation.dimension.x60,
+    width: baseFoundation.dimension.x72,
     height: baseFoundation.dimension.x60,
-    borderRadius: baseFoundation.dimension.x30,
+    borderRadius: baseFoundation.dimension.x12,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',

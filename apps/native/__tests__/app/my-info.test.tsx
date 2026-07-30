@@ -228,9 +228,9 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-profile-avatar').props.style),
     ).toEqual(
       expect.objectContaining({
-        width: 60,
+        width: 72,
         height: 60,
-        borderRadius: 30,
+        borderRadius: 12,
       }),
     );
     expect(getByTestId('settings-profile-character')).toBeOnTheScreen();
