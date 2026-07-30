@@ -13,6 +13,7 @@ import {
   fireEvent,
   render,
   resetAuthMocks,
+  waitFor,
 } from '../../setup/auth-test-utils';
 
 declare const mockSearchParams: Record<string, string | undefined>;
@@ -257,7 +258,7 @@ describe('FriendRoutinesModal', () => {
     });
   });
 
-  it('응원 콕 버튼으로 친구에게 응원을 보내고 서버 메시지를 표시한다', async () => {
+  it('응원 콕을 보낸 뒤 루틴과 프로필을 다시 조회하지 않고 서버 메시지를 표시한다', async () => {
     mockAxios.onGet('/friends/42/profile').reply(
       200,
       wrapResponse({
@@ -288,16 +289,16 @@ describe('FriendRoutinesModal', () => {
 
     fireEvent.press(await screen.findByRole('button', { name: '응원 콕' }));
 
-    await act(async () => {
-      await Promise.resolve();
+    await waitFor(() => {
+      expect(mockShowToast).toHaveBeenCalledWith(
+        '윤윤님이 함께 모험을 떠나자고 합니다!',
+        'success',
+      );
     });
 
     expect(mockAxios.history.post).toHaveLength(1);
     expect(mockAxios.history.post[0].url).toBe('/friends/42/cheer');
-    expect(mockShowToast).toHaveBeenCalledWith(
-      '윤윤님이 함께 모험을 떠나자고 합니다!',
-      'success',
-    );
+    expect(mockAxios.history.get).toHaveLength(2);
   });
 
   it('응원 콕 전송이 거절되면 서버 오류 메시지를 표시한다', async () => {
