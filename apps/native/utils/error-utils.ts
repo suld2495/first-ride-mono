@@ -20,7 +20,7 @@ export const getApiErrorMessage = (
  * API 에러 코드와 메시지를 디버깅용 문구로 반환합니다.
  * @param error - 발생한 에러 객체
  * @param fallbackMessage - ApiError가 아닐 경우 표시할 기본 메시지
- * @returns 오류 코드가 있으면 `[코드] 메시지`, 없으면 메시지
+ * @returns `[HTTP 상태 | 서버 코드] 메시지` 형식의 진단 문구
  */
 export const getApiErrorMessageWithCode = (
   error: unknown,
@@ -31,8 +31,12 @@ export const getApiErrorMessageWithCode = (
   }
 
   const message = error.message || fallbackMessage;
+  const diagnosticCodes = [
+    `HTTP ${error.status}`,
+    ...(error.code ? [error.code] : []),
+  ].join(' | ');
 
-  return error.code ? `[${error.code}] ${message}` : message;
+  return `[${diagnosticCodes}] ${message}`;
 };
 
 /**
