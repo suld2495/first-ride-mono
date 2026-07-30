@@ -440,7 +440,7 @@ const styles = StyleSheet.create((theme) => ({
     minHeight: 430,
     alignItems: 'center',
     paddingTop: theme.foundation.spacing[6],
-    paddingHorizontal: theme.foundation.spacing[5],
+    paddingHorizontal: theme.foundation.spacing[6],
     paddingBottom: theme.foundation.spacing[4],
     borderRadius: theme.foundation.radii.xl,
   },

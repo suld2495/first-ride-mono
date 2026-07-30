@@ -136,7 +136,7 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     marginTop: baseFoundation.spacing[5],
-    paddingHorizontal: baseFoundation.spacing[5],
+    paddingHorizontal: baseFoundation.spacing[6],
   },
 
   scroll: {

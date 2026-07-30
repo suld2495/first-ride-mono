@@ -421,8 +421,8 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingLeft: theme.foundation.spacing[5],
-    paddingRight: theme.foundation.spacing[5],
+    paddingLeft: theme.foundation.spacing[6],
+    paddingRight: theme.foundation.spacing[6],
     paddingVertical: 17,
   },
   modalTitle: {
@@ -432,7 +432,7 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: baseFoundation.spacing[1.5],
-    paddingHorizontal: theme.foundation.spacing[5],
+    paddingHorizontal: theme.foundation.spacing[6],
   },
   searchInput: {
     height: baseFoundation.dimension.x32,
@@ -459,7 +459,7 @@ const styles = StyleSheet.create((theme) => ({
   listContainer: {
     flex: 1,
     minHeight: baseFoundation.dimension.x220,
-    paddingHorizontal: theme.foundation.spacing[5],
+    paddingHorizontal: theme.foundation.spacing[6],
     paddingVertical: theme.foundation.spacing[3],
   },
   list: {

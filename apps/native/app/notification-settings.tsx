@@ -502,7 +502,7 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.background.elevated,
   },
   content: {
-    paddingHorizontal: theme.foundation.spacing[5],
+    paddingHorizontal: theme.foundation.spacing[6],
     paddingTop: theme.foundation.spacing[4],
     paddingBottom: baseFoundation.dimension.x96,
     gap: theme.foundation.spacing[4],

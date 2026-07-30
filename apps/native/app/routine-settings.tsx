@@ -563,7 +563,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   filterArea: {
     paddingTop: theme.foundation.spacing[3],
-    paddingHorizontal: theme.foundation.spacing[5],
+    paddingHorizontal: theme.foundation.spacing[6],
   },
   statusFilters: {
     flexDirection: 'row',

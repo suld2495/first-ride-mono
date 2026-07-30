@@ -166,7 +166,7 @@ export default FriendRequestListModal;
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    paddingHorizontal: theme.foundation.spacing[5],
+    paddingHorizontal: theme.foundation.spacing[6],
     paddingVertical: theme.foundation.spacing[4],
   },
   emptyContainer: {

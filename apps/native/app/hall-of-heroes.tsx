@@ -308,7 +308,7 @@ const styles = StyleSheet.create((theme) => ({
     maxWidth: baseFoundation.dimension.x320,
     minHeight: 500,
     paddingTop: theme.foundation.spacing[12],
-    paddingHorizontal: theme.foundation.spacing[5],
+    paddingHorizontal: theme.foundation.spacing[6],
     paddingBottom: theme.foundation.spacing[8],
     borderRadius: theme.foundation.radii.xl,
   },

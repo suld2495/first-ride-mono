@@ -201,7 +201,7 @@ const styles = StyleSheet.create((theme) => ({
     flexGrow: 1,
     justifyContent: 'space-between',
     gap: theme.foundation.spacing[6],
-    paddingHorizontal: theme.foundation.spacing[5],
+    paddingHorizontal: theme.foundation.spacing[6],
     paddingTop: theme.foundation.spacing[4],
     paddingBottom: theme.foundation.spacing[8],
   },

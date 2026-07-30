@@ -135,7 +135,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   innerContainer: {
     flex: 1,
-    paddingHorizontal: theme.foundation.spacing[5],
+    paddingHorizontal: theme.foundation.spacing[6],
   },
   summaryRow: {
     flexDirection: 'row',
