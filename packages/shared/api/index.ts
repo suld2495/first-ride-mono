@@ -356,10 +356,10 @@ export const toAppError = (err: unknown): AppError => {
 
   if (!isErrorArary(errorData)) {
     const {
-      error: { message, data: fieldError },
+      error: { code, message, data: fieldError },
     } = errorData;
 
-    return new ApiError(fieldError ?? [], status, url, error, message);
+    return new ApiError(fieldError ?? [], status, url, error, message, code);
   }
 
   const { errors } = errorData;

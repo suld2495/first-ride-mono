@@ -26,7 +26,7 @@ import {
   type BetaFeedbackImage,
   normalizeBetaFeedbackImage,
 } from '@/utils/beta-feedback-image';
-import { getApiErrorMessage } from '@/utils/error-utils';
+import { getApiErrorMessageWithCode } from '@/utils/error-utils';
 
 const MAX_FEEDBACK_LENGTH = 1000;
 const MAX_FEEDBACK_IMAGE_COUNT = 3;
@@ -177,7 +177,7 @@ export default function BetaFeedbackPage() {
         },
         onError: (error) => {
           showToast(
-            getApiErrorMessage(
+            getApiErrorMessageWithCode(
               error,
               '피드백 제출에 실패했습니다. 잠시 후 다시 시도해주세요.',
             ),
