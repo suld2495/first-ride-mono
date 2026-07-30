@@ -12,6 +12,7 @@ import { render } from '../setup/test-utils';
 const mockLaunchImageLibraryAsync = jest.fn();
 const mockRequestMediaLibraryPermissionsAsync = jest.fn();
 const mockGetInfoAsync = jest.fn();
+const mockManipulateAsync = jest.fn();
 
 jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: () =>
@@ -22,6 +23,11 @@ jest.mock('expo-image-picker', () => ({
 
 jest.mock('expo-file-system', () => ({
   getInfoAsync: (...args: unknown[]) => mockGetInfoAsync(...args),
+}));
+
+jest.mock('expo-image-manipulator', () => ({
+  manipulateAsync: (...args: unknown[]) => mockManipulateAsync(...args),
+  SaveFormat: { JPEG: 'jpeg' },
 }));
 
 declare const mockBack: jest.Mock;
@@ -38,8 +44,20 @@ describe('베타 피드백 페이지', () => {
     mockLaunchImageLibraryAsync.mockReset();
     mockRequestMediaLibraryPermissionsAsync.mockReset();
     mockGetInfoAsync.mockReset();
+    mockManipulateAsync.mockReset();
     mockRequestMediaLibraryPermissionsAsync.mockResolvedValue({
       status: 'granted',
+    });
+    mockManipulateAsync.mockImplementation(async (uri: string) => ({
+      uri: uri
+        .replace('file:///', 'file:///normalized/')
+        .replace(/\.[^.]+$/, '.jpg'),
+      width: 1_200,
+      height: 800,
+    }));
+    mockGetInfoAsync.mockResolvedValue({
+      exists: true,
+      size: 512_000,
     });
     mockAxios = new MockAdapter(axiosInstance);
   });
@@ -74,15 +92,16 @@ describe('베타 피드백 페이지', () => {
     expect(mockBack).toHaveBeenCalledTimes(1);
   });
 
-  it('선택 항목인 이미지 첨부 영역과 최대 3장 안내를 표시한다', () => {
-    const { getByLabelText, getByText } = render(<BetaFeedbackPage />);
+  it('선택 항목인 이미지 첨부 영역과 용량 안내만 표시한다', () => {
+    const { getByLabelText, getByText, queryByText } = render(
+      <BetaFeedbackPage />,
+    );
 
     expect(getByText('이미지 첨부')).toBeOnTheScreen();
     expect(getByText('선택')).toBeOnTheScreen();
     expect(getByText('0 / 3')).toBeOnTheScreen();
-    expect(
-      getByText('JPG, PNG, WEBP, HEIC/HEIF · 장당 최대 10MB'),
-    ).toBeOnTheScreen();
+    expect(getByText('장당 최대 10MB')).toBeOnTheScreen();
+    expect(queryByText(/JPG|JPEG|PNG|WEBP|HEIC|HEIF/)).toBeNull();
     expect(getByLabelText('피드백 이미지 추가')).toBeEnabled();
   });
 
@@ -368,21 +387,24 @@ describe('베타 피드백 페이지', () => {
     });
     expect(appendSpy).toHaveBeenCalledWith('content', CONTENT);
     expect(appendSpy).toHaveBeenCalledWith('images', {
-      uri: 'file:///feedback-1.png',
-      name: 'feedback-1.png',
-      type: 'image/png',
+      uri: 'file:///normalized/feedback-1.jpg',
+      name: 'beta-feedback-1.jpg',
+      type: 'image/jpeg',
     });
     expect(appendSpy).toHaveBeenCalledWith('images', {
-      uri: 'file:///feedback-2.webp',
-      name: 'feedback-2.webp',
-      type: 'image/webp',
+      uri: 'file:///normalized/feedback-2.jpg',
+      name: 'beta-feedback-2.jpg',
+      type: 'image/jpeg',
     });
     expect(screen.getByText('0 / 3')).toBeOnTheScreen();
 
     appendSpy.mockRestore();
   });
 
-  it('허용하지 않는 이미지 형식은 추가하지 않고 이유를 안내한다', async () => {
+  it('JPEG 변환에 실패한 이미지는 추가하지 않고 안내한다', async () => {
+    mockManipulateAsync.mockRejectedValueOnce(
+      new Error('native conversion error'),
+    );
     mockLaunchImageLibraryAsync.mockResolvedValue({
       canceled: false,
       assets: [
@@ -400,7 +422,7 @@ describe('베타 피드백 페이지', () => {
 
     await waitFor(() => {
       expect(mockShowToast).toHaveBeenCalledWith(
-        'jpg, jpeg, png, webp, heic, heif 이미지만 업로드할 수 있습니다.',
+        '이미지를 변환하지 못했습니다.',
         'error',
       );
     });

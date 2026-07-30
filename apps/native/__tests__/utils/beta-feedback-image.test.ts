@@ -1,161 +1,153 @@
 const mockGetInfoAsync = jest.fn();
+const mockManipulateAsync = jest.fn();
 
 jest.mock('expo-file-system', () => ({
   getInfoAsync: (...args: unknown[]) => mockGetInfoAsync(...args),
 }));
 
+jest.mock('expo-image-manipulator', () => ({
+  manipulateAsync: (...args: unknown[]) => mockManipulateAsync(...args),
+  SaveFormat: { JPEG: 'jpeg' },
+}));
+
 import {
   MAX_BETA_FEEDBACK_IMAGE_BYTES,
+  MAX_BETA_FEEDBACK_IMAGE_PIXELS,
   normalizeBetaFeedbackImage,
 } from '@/utils/beta-feedback-image';
 
 describe('beta-feedback-image', () => {
   beforeEach(() => {
     mockGetInfoAsync.mockReset();
+    mockManipulateAsync.mockReset();
+    mockManipulateAsync.mockResolvedValue({
+      uri: 'file:///normalized/beta-feedback.jpg',
+      width: 1_200,
+      height: 800,
+    });
+    mockGetInfoAsync.mockResolvedValue({
+      exists: true,
+      size: 512_000,
+    });
   });
 
-  it.each([
-    ['capture.jpg', 'image/jpeg'],
-    ['capture.jpeg', 'image/jpg'],
-    ['capture.png', 'image/png'],
-    ['capture.webp', 'image/webp'],
-    ['capture.heic', 'image/heic'],
-    ['capture.heif', 'image/heif'],
-  ])(
-    '%s 형식의 이미지를 첨부 파일로 정규화한다',
-    async (fileName, mimeType) => {
+  it.each(['capture.png', 'capture.webp', 'capture.heic', 'capture.gif'])(
+    '%s 원본을 JPEG 첨부 파일로 변환한다',
+    async (fileName) => {
       await expect(
-        normalizeBetaFeedbackImage({
-          uri: `file:///${fileName}`,
-          fileName,
-          mimeType,
-          fileSize: 1024,
-        }),
+        normalizeBetaFeedbackImage(
+          {
+            uri: `file:///${fileName}`,
+            width: 1_200,
+            height: 800,
+          },
+          0,
+        ),
       ).resolves.toEqual({
-        uri: `file:///${fileName}`,
-        name: fileName,
-        type: mimeType,
-        size: 1024,
+        uri: 'file:///normalized/beta-feedback.jpg',
+        name: 'beta-feedback-1.jpg',
+        type: 'image/jpeg',
+        size: 512_000,
       });
 
-      expect(mockGetInfoAsync).not.toHaveBeenCalled();
+      expect(mockManipulateAsync).toHaveBeenCalledWith(
+        `file:///${fileName}`,
+        [],
+        {
+          compress: 0.85,
+          format: 'jpeg',
+        },
+      );
+      expect(mockGetInfoAsync).toHaveBeenCalledWith(
+        'file:///normalized/beta-feedback.jpg',
+      );
     },
   );
 
-  it('대문자 확장자와 Content-Type을 소문자로 정규화한다', async () => {
-    await expect(
-      normalizeBetaFeedbackImage({
-        uri: 'file:///CAPTURE.JPG',
-        fileName: 'CAPTURE.JPG',
-        mimeType: 'IMAGE/JPEG',
-        fileSize: 1024,
-      }),
-    ).resolves.toEqual({
-      uri: 'file:///CAPTURE.JPG',
-      name: 'CAPTURE.JPG',
-      type: 'image/jpeg',
-      size: 1024,
-    });
-  });
-
-  it('파일 크기 메타데이터가 없으면 로컬 파일 정보를 확인한다', async () => {
+  it('변환된 JPEG가 정확히 10MB이면 첨부할 수 있다', async () => {
     mockGetInfoAsync.mockResolvedValue({
       exists: true,
-      size: 2048,
-    });
-
-    await expect(
-      normalizeBetaFeedbackImage({
-        uri: 'file:///capture.png',
-        fileName: 'capture.png',
-        mimeType: 'image/png',
-      }),
-    ).resolves.toEqual({
-      uri: 'file:///capture.png',
-      name: 'capture.png',
-      type: 'image/png',
-      size: 2048,
-    });
-    expect(mockGetInfoAsync).toHaveBeenCalledWith('file:///capture.png');
-  });
-
-  it('파일명이 없으면 URI의 파일명과 확장자 기반 Content-Type을 사용한다', async () => {
-    await expect(
-      normalizeBetaFeedbackImage({
-        uri: 'file:///capture.webp?source=album',
-        fileSize: MAX_BETA_FEEDBACK_IMAGE_BYTES,
-      }),
-    ).resolves.toEqual({
-      uri: 'file:///capture.webp?source=album',
-      name: 'capture.webp',
-      type: 'image/webp',
       size: MAX_BETA_FEEDBACK_IMAGE_BYTES,
     });
+
+    await expect(
+      normalizeBetaFeedbackImage({ uri: 'file:///capture.png' }, 1),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        name: 'beta-feedback-2.jpg',
+        type: 'image/jpeg',
+        size: MAX_BETA_FEEDBACK_IMAGE_BYTES,
+      }),
+    );
   });
 
-  it('로컬 파일 정보를 확인할 수 없으면 첨부를 거부한다', async () => {
+  it('변환된 JPEG가 10MB를 초과하면 첨부를 거부한다', async () => {
+    mockGetInfoAsync.mockResolvedValue({
+      exists: true,
+      size: MAX_BETA_FEEDBACK_IMAGE_BYTES + 1,
+    });
+
+    await expect(
+      normalizeBetaFeedbackImage({ uri: 'file:///capture.png' }, 0),
+    ).rejects.toThrow(
+      '피드백 이미지는 1장당 최대 10MB까지 첨부할 수 있습니다.',
+    );
+  });
+
+  it('원본 이미지의 픽셀 수가 제한을 초과하면 변환하지 않는다', async () => {
+    await expect(
+      normalizeBetaFeedbackImage(
+        {
+          uri: 'file:///huge.heic',
+          width: MAX_BETA_FEEDBACK_IMAGE_PIXELS,
+          height: 2,
+        },
+        0,
+      ),
+    ).rejects.toThrow('이미지를 변환하지 못했습니다.');
+
+    expect(mockManipulateAsync).not.toHaveBeenCalled();
+  });
+
+  it('변환된 이미지의 픽셀 수가 제한을 초과하면 첨부를 거부한다', async () => {
+    mockManipulateAsync.mockResolvedValue({
+      uri: 'file:///normalized/huge.jpg',
+      width: MAX_BETA_FEEDBACK_IMAGE_PIXELS,
+      height: 2,
+    });
+
+    await expect(
+      normalizeBetaFeedbackImage({ uri: 'file:///capture.png' }, 0),
+    ).rejects.toThrow('이미지를 변환하지 못했습니다.');
+
+    expect(mockGetInfoAsync).not.toHaveBeenCalled();
+  });
+
+  it('JPEG 변환에 실패하면 사용자용 오류를 반환한다', async () => {
+    mockManipulateAsync.mockRejectedValue(new Error('native conversion error'));
+
+    await expect(
+      normalizeBetaFeedbackImage({ uri: 'file:///capture.png' }, 0),
+    ).rejects.toThrow('이미지를 변환하지 못했습니다.');
+  });
+
+  it('변환된 파일 정보를 확인할 수 없으면 첨부를 거부한다', async () => {
     mockGetInfoAsync.mockResolvedValue({
       exists: false,
     });
 
     await expect(
-      normalizeBetaFeedbackImage({
-        uri: 'file:///missing.png',
-        fileName: 'missing.png',
-        mimeType: 'image/png',
-      }),
-    ).rejects.toThrow('이미지 파일 정보를 확인할 수 없습니다.');
-  });
-
-  it('허용하지 않는 확장자를 거부한다', async () => {
-    await expect(
-      normalizeBetaFeedbackImage({
-        uri: 'file:///capture.gif',
-        fileName: 'capture.gif',
-        mimeType: 'image/gif',
-        fileSize: 1024,
-      }),
-    ).rejects.toThrow(
-      'jpg, jpeg, png, webp, heic, heif 이미지만 업로드할 수 있습니다.',
-    );
-  });
-
-  it('허용하지 않는 Content-Type을 거부한다', async () => {
-    await expect(
-      normalizeBetaFeedbackImage({
-        uri: 'file:///capture.png',
-        fileName: 'capture.png',
-        mimeType: 'application/octet-stream',
-        fileSize: 1024,
-      }),
-    ).rejects.toThrow(
-      'jpg, jpeg, png, webp, heic, heif 이미지만 업로드할 수 있습니다.',
-    );
-  });
-
-  it('10MB를 초과한 이미지를 거부한다', async () => {
-    await expect(
-      normalizeBetaFeedbackImage({
-        uri: 'file:///capture.png',
-        fileName: 'capture.png',
-        mimeType: 'image/png',
-        fileSize: MAX_BETA_FEEDBACK_IMAGE_BYTES + 1,
-      }),
+      normalizeBetaFeedbackImage({ uri: 'file:///capture.png' }, 0),
     ).rejects.toThrow(
       '피드백 이미지는 1장당 최대 10MB까지 첨부할 수 있습니다.',
     );
   });
 
   it('URI가 비어 있는 이미지를 거부한다', async () => {
-    await expect(
-      normalizeBetaFeedbackImage({
-        uri: '',
-        fileName: 'capture.png',
-        mimeType: 'image/png',
-        fileSize: 1024,
-      }),
-    ).rejects.toThrow(
-      'jpg, jpeg, png, webp, heic, heif 이미지만 업로드할 수 있습니다.',
+    await expect(normalizeBetaFeedbackImage({ uri: '' }, 0)).rejects.toThrow(
+      '이미지를 변환하지 못했습니다.',
     );
+
+    expect(mockManipulateAsync).not.toHaveBeenCalled();
   });
 });
