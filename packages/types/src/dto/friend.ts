@@ -10,6 +10,16 @@ export interface FriendRequestResponse {
   createdAt: string;
 }
 
+export interface FriendCheerResponse {
+  cheerId: number;
+  senderId: number;
+  senderNickname: User['nickname'];
+  receiverId: number;
+  receiverNickname: User['nickname'];
+  message: string;
+  createdAt: string;
+}
+
 export interface FriendRoutineProfile {
   backgroundImageUrl?: null | string;
   id: number;

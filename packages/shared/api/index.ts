@@ -411,6 +411,7 @@ export {
   updateRoutineVisibility,
 } from './routine.api';
 export { distributeStats, fetchMyStats } from './stat.api';
+export { sendFriendCheer } from './friend';
 export {
   fetchNotificationSettings,
   updateNotificationSettings,

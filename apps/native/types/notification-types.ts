@@ -79,7 +79,8 @@ export type PushNotificationType =
   | 'routine-approved' // 인증 승인
   | 'routine-rejected' // 인증 거부
   | 'friend-request' // 친구 요청
-  | 'friend-accepted'; // 친구 수락
+  | 'friend-accepted' // 친구 수락
+  | 'friend-cheer'; // 응원 콕
 
 /**
  * 알림 우선순위 (Android)

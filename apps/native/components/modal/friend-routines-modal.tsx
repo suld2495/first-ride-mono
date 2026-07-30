@@ -1,4 +1,6 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import {
+  useFriendCheerMutation,
   useFriendProfileQuery,
   useFriendRoutinesQuery,
 } from '@repo/shared/hooks/useFriend';
@@ -15,16 +17,19 @@ import {
   getRoutineSceneRemoteAsset,
   type RoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
+import { Button } from '@/components/ui/button';
 import EmptyState from '@/components/ui/empty-state';
 import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
+import { useToast } from '@/contexts/ToastContext';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
 import RoutineCharacter from '@/feature/character/routine-character';
 import { useScopedColorSchemeOverride } from '@/hooks/useScopedColorSchemeOverride';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 const SPEECH_BUBBLE_BOTTOM_OFFSET =
   baseFoundation.dimension.x100 + baseFoundation.spacing[1];
@@ -169,6 +174,8 @@ const FriendRoutinesModal = () => {
   }>();
   const { data: profile, isLoading: isProfileLoading } =
     useFriendProfileQuery(friendId);
+  const cheerMutation = useFriendCheerMutation();
+  const { showToast } = useToast();
   const profileThemeName = profile
     ? getThemeNameFromUserJob(profile)
     : undefined;
@@ -185,6 +192,23 @@ const FriendRoutinesModal = () => {
     [characterImageUrl],
   );
   const speechBubbleMessage = profile?.motto?.trim() || '안녕?';
+  const handleCheer = useCallback(() => {
+    if (!friendId) {
+      return;
+    }
+
+    cheerMutation.mutate(friendId, {
+      onSuccess: ({ message }) => {
+        showToast(message, 'success');
+      },
+      onError: (error) => {
+        showToast(
+          getApiErrorMessage(error, '응원 콕을 보내지 못했습니다.'),
+          'error',
+        );
+      },
+    });
+  }, [cheerMutation, friendId, showToast]);
 
   if (!friendId) {
     return (
@@ -221,6 +245,23 @@ const FriendRoutinesModal = () => {
             characterAsset={characterAsset}
             speechBubbleMessage={speechBubbleMessage}
           />
+          <Button
+            accessibilityLabel="응원 콕"
+            accessibilityRole="button"
+            leftIcon={({ color }) => (
+              <Ionicons
+                color={color}
+                name="heart"
+                size={baseFoundation.iconSize.s}
+              />
+            )}
+            loading={cheerMutation.isPending}
+            onPress={handleCheer}
+            size="sm"
+            style={styles.cheerButton}
+          >
+            응원 콕
+          </Button>
         </View>
       </FriendRoutineDateSection>
     </ThemeView>
@@ -265,6 +306,12 @@ const styles = StyleSheet.create((theme) => ({
     flex: 3,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  cheerButton: {
+    bottom: theme.foundation.spacing[4],
+    position: 'absolute',
+    right: theme.foundation.spacing[0],
   },
   characterStage: {
     alignItems: 'center',

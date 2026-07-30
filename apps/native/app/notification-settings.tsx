@@ -30,6 +30,7 @@ const NOTIFICATION_SUBTYPE_LABELS: Record<NotificationSubtype, string> = {
   LEVEL_UP: '레벨 업',
   FRIEND_REQUEST: '친구 요청',
   FRIEND_ACCEPTED: '친구 수락',
+  FRIEND_CHEER: '응원 콕',
   QUEST_COMPLETE: '퀘스트 완료',
   QUEST_REWARD: '퀘스트 보상',
   SYSTEM: '시스템',
@@ -63,8 +64,8 @@ const NOTIFICATION_GROUPS: NotificationGroup[] = [
   {
     id: 'friend',
     title: '친구 알림',
-    description: '친구 요청과 수락 알림',
-    subtypes: ['FRIEND_REQUEST', 'FRIEND_ACCEPTED'],
+    description: '친구 요청, 수락, 응원 알림',
+    subtypes: ['FRIEND_REQUEST', 'FRIEND_ACCEPTED', 'FRIEND_CHEER'],
   },
   {
     id: 'quest',

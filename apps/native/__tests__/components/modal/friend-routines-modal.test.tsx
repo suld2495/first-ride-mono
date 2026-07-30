@@ -293,8 +293,7 @@ describe('FriendRoutinesModal', () => {
     mockAxios.onPost('/friends/42/cheer').reply(429, {
       success: false,
       error: {
-        message:
-          '같은 친구에게는 1시간에 한 번만 응원 콕을 보낼 수 있습니다.',
+        message: '같은 친구에게는 1시간에 한 번만 응원 콕을 보낼 수 있습니다.',
       },
     });
 

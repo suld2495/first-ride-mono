@@ -10,6 +10,7 @@ import {
   fetchFriendRequests,
   fetchFriends,
   rejectFriendRequest,
+  sendFriendCheer,
 } from '../api/friend';
 import { friendKey, friendRequestKey } from '../types/query-keys/friend';
 
@@ -54,6 +55,19 @@ export const useFriendProfileQuery = (
     queryFn: friendId ? () => fetchFriendProfile(friendId) : undefined,
     enabled: !!friendId,
     refetchOnMount: 'always',
+  });
+};
+
+export const useFriendCheerMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: sendFriendCheer,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: friendKey.all(),
+      });
+    },
   });
 };
 

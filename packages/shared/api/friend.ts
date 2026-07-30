@@ -1,5 +1,6 @@
 import type {
   Friend,
+  FriendCheerResponse,
   FriendProfileResponse,
   FriendRoutinesResponse,
   FriendRequestResponse,
@@ -127,6 +128,21 @@ export const fetchFriendProfile = async (
     return await http.get(
       `${baseURL}/${encodeURIComponent(String(friendId))}/profile`,
     );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const sendFriendCheer = async (
+  friendId: Friend['friendId'],
+): Promise<FriendCheerResponse> => {
+  try {
+    const response = await axiosInstance.post<
+      FriendCheerResponse | { data: FriendCheerResponse }
+    >(`${baseURL}/${encodeURIComponent(String(friendId))}/cheer`);
+    const body = response.data;
+
+    return 'data' in body ? body.data : body;
   } catch (error) {
     throw toAppError(error);
   }

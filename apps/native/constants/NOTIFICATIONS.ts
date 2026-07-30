@@ -130,4 +130,5 @@ export const PUSH_NOTIFICATION_ROUTES: Record<PushNotificationType, string> = {
   'routine-rejected': DEEP_LINK_SCREENS.ROUTINE,
   'friend-request': '/modal?type=friend-request-list',
   'friend-accepted': DEEP_LINK_SCREENS.FRIEND,
+  'friend-cheer': DEEP_LINK_SCREENS.FRIEND,
 };
