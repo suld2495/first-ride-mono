@@ -178,6 +178,12 @@ describe('FriendRoutinesModal', () => {
     expect(await screen.findByTestId('routine-week-progress-1')).toHaveTextContent(
       '3/5',
     );
+    expect(
+      StyleSheet.flatten(
+        (await screen.findByTestId('routine-week-progress-summary-1')).props
+          .style,
+      ),
+    ).toEqual(expect.objectContaining({ right: 16 }));
     expect(screen.queryByLabelText('운동 10분 이상 메뉴 열기')).toBeNull();
   });
 

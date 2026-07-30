@@ -159,7 +159,10 @@ const RoutineWeekList = ({
 
           <View
             pointerEvents="none"
-            style={styles.progressSummary}
+            style={[
+              styles.progressSummary,
+              readOnly ? styles.progressSummaryReadOnly : null,
+            ]}
             testID={`routine-week-progress-summary-${routineId}`}
           >
             {weeklyCount >= routineCount ? (
@@ -375,6 +378,9 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: baseFoundation.spacing[1],
+  },
+  progressSummaryReadOnly: {
+    right: baseFoundation.spacing[4],
   },
   progressSummaryText: {
     color: theme.colors.brand.routineProgressText,
