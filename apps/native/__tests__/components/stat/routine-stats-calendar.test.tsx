@@ -1,4 +1,5 @@
 import RoutineStatsCalendar from '@/components/stat/routine-stats-calendar';
+import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 import { render } from '../../setup/test-utils';
@@ -13,6 +14,11 @@ const flattenStyles = (styles: unknown): object[] => {
 };
 
 describe('RoutineStatsCalendar', () => {
+  beforeEach(() => {
+    useColorSchemeStore.getState().clearColorSchemeOverride();
+    useColorSchemeStore.getState().setColorScheme('blue');
+  });
+
   it('루틴명과 수행 날짜 표시 캘린더를 렌더링한다', () => {
     const { getByLabelText, getByText, queryByText } = render(
       <RoutineStatsCalendar
@@ -124,7 +130,7 @@ describe('RoutineStatsCalendar', () => {
     ).toEqual(expect.arrayContaining([expect.objectContaining({ gap: 8 })]));
   });
 
-  it('미수행 날짜 숫자는 테마 soft 80 body1 bold로 렌더링한다', () => {
+  it('미수행 날짜 숫자는 테마 soft 80 body3 bold로 렌더링한다', () => {
     const { getByText } = render(
       <RoutineStatsCalendar
         routineName="운동 주 3회"
@@ -144,7 +150,7 @@ describe('RoutineStatsCalendar', () => {
       expect.arrayContaining([
         expect.objectContaining({ color: palette.theme.softBlue[80] }),
         expect.objectContaining({
-          fontSize: baseFoundation.typography.size.body1,
+          fontSize: baseFoundation.typography.size.body3,
         }),
       ]),
     );
@@ -168,7 +174,7 @@ describe('RoutineStatsCalendar', () => {
     );
     expect(flattenStyles(mondayLabel.props.style)).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ color: palette.theme.gray[500] }),
+        expect.objectContaining({ color: palette.theme.softBlue[60] }),
         expect.objectContaining({
           fontSize: baseFoundation.typography.size.caption2,
         }),
@@ -187,7 +193,7 @@ describe('RoutineStatsCalendar', () => {
       flattenStyles(getByTestId('routine-stats-calendar-body').props.style),
     ).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ gap: 20 }),
+        expect.objectContaining({ gap: 12 }),
         expect.objectContaining({ paddingHorizontal: 12 }),
       ]),
     );
@@ -210,6 +216,31 @@ describe('RoutineStatsCalendar', () => {
       ]),
     );
   });
+
+  it.each([
+    ['green', palette.theme.softGreen[60]],
+    ['red', palette.theme.softRed[60]],
+  ] as const)(
+    '%s 테마에서는 요일 라벨을 해당 테마의 한 단계 연한 컬러로 렌더링한다',
+    (themeName, weekdayColor) => {
+      useColorSchemeStore.getState().setColorScheme(themeName);
+
+      const { getByText } = render(
+        <RoutineStatsCalendar
+          routineName="운동 주 3회"
+          routineColor={palette.theme.blue[50]}
+          monthDate={new Date(2026, 5, 1)}
+          performedDates={['2026-06-04']}
+        />,
+      );
+
+      expect(flattenStyles(getByText('월').props.style)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ color: weekdayColor }),
+        ]),
+      );
+    },
+  );
 
   it('숫자 날짜 행도 요일처럼 양끝 기준 균등 배치한다', () => {
     const { getByTestId } = render(
