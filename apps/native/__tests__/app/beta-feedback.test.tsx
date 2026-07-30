@@ -429,21 +429,37 @@ describe('베타 피드백 페이지', () => {
     expect(screen.getByText('0 / 3')).toBeOnTheScreen();
   });
 
-  it('서버의 이미지 검증 오류 메시지를 그대로 안내한다', async () => {
-    mockAxios.onPost('/beta/feedback').reply(400, {
+  it('이미지 제출 실패 시 서버의 오류 코드와 메시지를 함께 안내한다', async () => {
+    mockLaunchImageLibraryAsync.mockResolvedValue({
+      canceled: false,
+      assets: [
+        {
+          uri: 'file:///feedback.png',
+          fileName: 'feedback.png',
+          mimeType: 'image/png',
+          fileSize: 512_000,
+        },
+      ],
+    });
+    mockAxios.onPost('/beta/feedback').reply(500, {
       success: false,
       error: {
-        message: '피드백 이미지는 최대 3장까지 첨부할 수 있습니다.',
+        code: 'BETA_FEEDBACK_IMAGE_UPLOAD_FAILED',
+        message: '피드백 이미지 처리 중 서버 오류가 발생했습니다.',
       },
     });
     const screen = render(<BetaFeedbackPage />);
 
+    fireEvent.press(screen.getByLabelText('피드백 이미지 추가'));
+    await waitFor(() => {
+      expect(screen.getByText('1 / 3')).toBeOnTheScreen();
+    });
     fireEvent.changeText(screen.getByLabelText('피드백 내용'), CONTENT);
     fireEvent.press(screen.getByTestId('beta-feedback-submit-button'));
 
     await waitFor(() => {
       expect(mockShowToast).toHaveBeenCalledWith(
-        '피드백 이미지는 최대 3장까지 첨부할 수 있습니다.',
+        '[BETA_FEEDBACK_IMAGE_UPLOAD_FAILED] 피드백 이미지 처리 중 서버 오류가 발생했습니다.',
         'error',
       );
     });
