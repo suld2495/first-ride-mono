@@ -477,17 +477,17 @@ const RoutineFormModal = () => {
             }}
           />
         )}
-        {!isRoutineAdd && (
+        <ThemeView
+          testID="routine-status-section"
+          style={styles.statusSection}
+          transparent
+        >
           <ThemeView
-            testID="routine-status-section"
-            style={styles.statusSection}
+            testID="routine-status-options"
+            style={styles.statusOptions}
             transparent
           >
-            <ThemeView
-              testID="routine-status-options"
-              style={styles.statusOptions}
-              transparent
-            >
+            {!isRoutineAdd && (
               <ThemeView style={styles.statusOption} transparent>
                 <FormItem
                   name="paused"
@@ -513,32 +513,34 @@ const RoutineFormModal = () => {
                   )}
                 />
               </ThemeView>
-              <ThemeView style={styles.statusOption} transparent>
-                <FormItem
-                  name="hidden"
-                  showErrors={false}
-                  item={({ value, setValue }) => (
-                    <ThemeView style={styles.statusCheckboxControl} transparent>
-                      <Checkbox
-                        size="md"
-                        disableText
-                        isChecked={!!value}
-                        onPress={(checked) => {
-                          setValue('hidden', checked);
-                        }}
-                      />
-                      <Typography
-                        variant="body2"
-                        weight="semibold"
-                        style={styles.statusCheckboxLabel}
-                      >
-                        루틴 숨김
-                      </Typography>
-                    </ThemeView>
-                  )}
-                />
-              </ThemeView>
+            )}
+            <ThemeView style={styles.statusOption} transparent>
+              <FormItem
+                name="hidden"
+                showErrors={false}
+                item={({ value, setValue }) => (
+                  <ThemeView style={styles.statusCheckboxControl} transparent>
+                    <Checkbox
+                      size="md"
+                      disableText
+                      isChecked={!!value}
+                      onPress={(checked) => {
+                        setValue('hidden', checked);
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      weight="semibold"
+                      style={styles.statusCheckboxLabel}
+                    >
+                      루틴 숨김
+                    </Typography>
+                  </ThemeView>
+                )}
+              />
             </ThemeView>
+          </ThemeView>
+          {!isRoutineAdd && (
             <Pressable
               accessibilityRole="button"
               testID="routine-delete-button"
@@ -547,8 +549,8 @@ const RoutineFormModal = () => {
             >
               <Text style={styles.deleteButtonText}>루틴 삭제</Text>
             </Pressable>
-          </ThemeView>
-        )}
+          )}
+        </ThemeView>
       </KeyboardAwareScrollView>
       <FormButtonGroup
         type={type}

@@ -3,12 +3,13 @@ import { Routine, RoutineForm } from '../models/routine';
 type CreateRoutinePayload = Pick<
   RoutineForm,
   'routineName' | 'startDate' | 'routineCount'
-> & {
-  endDate?: RoutineForm['endDate'] | null;
-  routineDetail?: RoutineForm['routineDetail'];
-  category?: string;
-  symbolColor?: RoutineForm['symbolColor'];
-};
+> &
+  Pick<Routine, 'hidden'> & {
+    endDate?: RoutineForm['endDate'] | null;
+    routineDetail?: RoutineForm['routineDetail'];
+    category?: string;
+    symbolColor?: RoutineForm['symbolColor'];
+  };
 
 export type CreateMyRoutineRequest = {
   target: 'me';

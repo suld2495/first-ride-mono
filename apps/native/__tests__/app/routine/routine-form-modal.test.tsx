@@ -333,8 +333,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(mateCheckbox.props.disableText).toBe(true);
       expect(mateCheckbox.props.isChecked).toBe(false);
       expect(mateCheckbox.props.fillColor).toBe('#000306');
-      expect(queryByPlaceholderText('메이트를 지정하세요.')).not.toBeOnTheScreen();
-      expect(queryByPlaceholderText('벌금을 입력하세요.')).not.toBeOnTheScreen();
+      expect(
+        queryByPlaceholderText('메이트를 지정하세요.'),
+      ).not.toBeOnTheScreen();
+      expect(
+        queryByPlaceholderText('벌금을 입력하세요.'),
+      ).not.toBeOnTheScreen();
     });
 
     it('생성 버튼은 modal.tsx의 고정 header action에 표시된다', () => {
@@ -1039,9 +1043,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(getByPlaceholderText('루틴 이름을 입력하세요.').props.value).toBe(
         '상세 루틴',
       );
-      expect(
-        getByPlaceholderText('루틴 설명을 입력하세요.').props.value,
-      ).toBe('상세 설명');
+      expect(getByPlaceholderText('루틴 설명을 입력하세요.').props.value).toBe(
+        '상세 설명',
+      );
       expect(getByText('일주일에 5회')).toBeOnTheScreen();
       expect(getByText('2026-05-26')).toBeOnTheScreen();
       expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(false);

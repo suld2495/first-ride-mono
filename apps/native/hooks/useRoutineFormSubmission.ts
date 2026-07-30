@@ -55,6 +55,7 @@ const normalizeRoutineCreateRequest = (
     routineDetail: data.routineDetail,
     routineCount: data.routineCount,
     symbolColor: data.symbolColor,
+    hidden: data.hidden ?? false,
     ...(data.endDate ? { endDate: data.endDate } : {}),
   };
 
