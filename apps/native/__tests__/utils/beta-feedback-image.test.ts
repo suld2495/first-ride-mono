@@ -21,23 +21,26 @@ describe('beta-feedback-image', () => {
     ['capture.webp', 'image/webp'],
     ['capture.heic', 'image/heic'],
     ['capture.heif', 'image/heif'],
-  ])('%s 형식의 이미지를 첨부 파일로 정규화한다', async (fileName, mimeType) => {
-    await expect(
-      normalizeBetaFeedbackImage({
+  ])(
+    '%s 형식의 이미지를 첨부 파일로 정규화한다',
+    async (fileName, mimeType) => {
+      await expect(
+        normalizeBetaFeedbackImage({
+          uri: `file:///${fileName}`,
+          fileName,
+          mimeType,
+          fileSize: 1024,
+        }),
+      ).resolves.toEqual({
         uri: `file:///${fileName}`,
-        fileName,
-        mimeType,
-        fileSize: 1024,
-      }),
-    ).resolves.toEqual({
-      uri: `file:///${fileName}`,
-      name: fileName,
-      type: mimeType,
-      size: 1024,
-    });
+        name: fileName,
+        type: mimeType,
+        size: 1024,
+      });
 
-    expect(mockGetInfoAsync).not.toHaveBeenCalled();
-  });
+      expect(mockGetInfoAsync).not.toHaveBeenCalled();
+    },
+  );
 
   it('대문자 확장자와 Content-Type을 소문자로 정규화한다', async () => {
     await expect(
@@ -76,6 +79,34 @@ describe('beta-feedback-image', () => {
     expect(mockGetInfoAsync).toHaveBeenCalledWith('file:///capture.png');
   });
 
+  it('파일명이 없으면 URI의 파일명과 확장자 기반 Content-Type을 사용한다', async () => {
+    await expect(
+      normalizeBetaFeedbackImage({
+        uri: 'file:///capture.webp?source=album',
+        fileSize: MAX_BETA_FEEDBACK_IMAGE_BYTES,
+      }),
+    ).resolves.toEqual({
+      uri: 'file:///capture.webp?source=album',
+      name: 'capture.webp',
+      type: 'image/webp',
+      size: MAX_BETA_FEEDBACK_IMAGE_BYTES,
+    });
+  });
+
+  it('로컬 파일 정보를 확인할 수 없으면 첨부를 거부한다', async () => {
+    mockGetInfoAsync.mockResolvedValue({
+      exists: false,
+    });
+
+    await expect(
+      normalizeBetaFeedbackImage({
+        uri: 'file:///missing.png',
+        fileName: 'missing.png',
+        mimeType: 'image/png',
+      }),
+    ).rejects.toThrow('이미지 파일 정보를 확인할 수 없습니다.');
+  });
+
   it('허용하지 않는 확장자를 거부한다', async () => {
     await expect(
       normalizeBetaFeedbackImage({
@@ -112,6 +143,19 @@ describe('beta-feedback-image', () => {
       }),
     ).rejects.toThrow(
       '피드백 이미지는 1장당 최대 10MB까지 첨부할 수 있습니다.',
+    );
+  });
+
+  it('URI가 비어 있는 이미지를 거부한다', async () => {
+    await expect(
+      normalizeBetaFeedbackImage({
+        uri: '',
+        fileName: 'capture.png',
+        mimeType: 'image/png',
+        fileSize: 1024,
+      }),
+    ).rejects.toThrow(
+      'jpg, jpeg, png, webp, heic, heif 이미지만 업로드할 수 있습니다.',
     );
   });
 });
