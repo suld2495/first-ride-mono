@@ -159,6 +159,7 @@ const MyInfo = () => {
             <View testID="settings-profile-text" style={styles.profileText}>
               <Typography
                 color={palette.theme.gray[80]}
+                style={styles.profileName}
                 testID="settings-profile-name"
                 variant="body2"
                 weight="semibold"
@@ -395,9 +396,12 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.brand.card,
   },
   character: {
-    width: baseFoundation.dimension.x52,
-    height: baseFoundation.dimension.x52,
+    width: baseFoundation.dimension.x56,
+    height: baseFoundation.dimension.x56,
     transform: [{ translateY: -6 }],
+  },
+  profileName: {
+    fontSize: baseFoundation.typography.size.body2 + 2,
   },
   profileText: {
     marginLeft: theme.foundation.spacing[3],

@@ -241,8 +241,8 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-profile-character').props.style),
     ).toEqual(
       expect.objectContaining({
-        width: 52,
-        height: 52,
+        width: 56,
+        height: 56,
         transform: [{ translateY: -6 }],
       }),
     );
@@ -344,7 +344,10 @@ describe('MyInfo 로그아웃', () => {
     expect(name.props.fontSize).toBe('$body2');
     expect(name.props.fontWeight).toBe('600');
     expect(StyleSheet.flatten(name.props.style)).toEqual(
-      expect.objectContaining({ color: palette.theme.gray[80] }),
+      expect.objectContaining({
+        color: palette.theme.gray[80],
+        fontSize: 17,
+      }),
     );
     expect(userId.props.fontSize).toBe('$caption1');
     expect(userId.props.fontWeight).toBe('600');
