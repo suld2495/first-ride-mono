@@ -54,9 +54,7 @@ const normalizePickedImages = async (
   images: BetaFeedbackImage[];
   validationError: string | null;
 }> => {
-  const existingUris = new Set(
-    currentImages.map(({ sourceUri }) => sourceUri),
-  );
+  const existingUris = new Set(currentImages.map(({ sourceUri }) => sourceUri));
   const normalizedImages: BetaFeedbackImage[] = [];
   let validationError: string | null = null;
 
