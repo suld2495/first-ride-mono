@@ -84,7 +84,7 @@ describe('FriendList', () => {
     );
   });
 
-  it('sizes friend cards so the horizontal gap is 8 and motto characters fit the height budget', () => {
+  it('sizes friend cards so the horizontal gap is 16 and motto characters fit the height budget', () => {
     const friends = createMockFriends(2);
     const { getByLabelText } = render(
       <FriendList
@@ -102,11 +102,11 @@ describe('FriendList', () => {
       getByLabelText('friend1 캐릭터').props.style,
     );
 
-    expect(firstCardWidth).toBe(347);
+    expect(firstCardWidth).toBe(343);
     expect(firstCharacterStyle).toEqual(
       expect.objectContaining({
-        height: 281,
-        width: 281,
+        height: 277,
+        width: 277,
       }),
     );
   });
@@ -133,8 +133,8 @@ describe('FriendList', () => {
 
     expect(characterStyle).toEqual(
       expect.objectContaining({
-        height: 281,
-        width: 281,
+        height: 277,
+        width: 277,
       }),
     );
   });
@@ -189,7 +189,7 @@ describe('FriendList', () => {
     );
     expect(StyleSheet.flatten(speechBubbleContainer.props.style)).toEqual(
       expect.objectContaining({
-        maxWidth: 331,
+        maxWidth: 327,
         minWidth: 80,
         paddingBottom: 5,
         paddingTop: 5,
