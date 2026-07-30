@@ -315,8 +315,10 @@ const styles = StyleSheet.create((theme) => ({
   },
   characterStage: {
     alignItems: 'center',
+    alignSelf: 'center',
+    bottom: baseFoundation.dimension.x48,
     justifyContent: 'center',
-    position: 'relative',
+    position: 'absolute',
   },
   speechBubble: {
     bottom: SPEECH_BUBBLE_BOTTOM_OFFSET,
