@@ -67,6 +67,7 @@ describe('beta-feedback.api', () => {
 
     mockAxios.onPost('/beta/feedback').reply((config) => {
       expect(config.data).toBeInstanceOf(FormData);
+      expect(config.timeout).toBe(60_000);
 
       return [
         201,
