@@ -54,16 +54,21 @@ const normalizePickedImages = async (
   images: BetaFeedbackImage[];
   validationError: string | null;
 }> => {
-  const existingUris = new Set(currentImages.map(({ uri }) => uri));
+  const existingUris = new Set(
+    currentImages.map(({ sourceUri }) => sourceUri),
+  );
   const normalizedImages: BetaFeedbackImage[] = [];
   let validationError: string | null = null;
 
-  for (const asset of assets) {
+  for (const [index, asset] of assets.entries()) {
     try {
-      const image = await normalizeBetaFeedbackImage(asset);
+      const image = await normalizeBetaFeedbackImage(
+        asset,
+        currentImages.length + index,
+      );
 
-      if (!existingUris.has(image.uri)) {
-        existingUris.add(image.uri);
+      if (!existingUris.has(image.sourceUri)) {
+        existingUris.add(image.sourceUri);
         normalizedImages.push(image);
       }
     } catch (error) {
@@ -323,7 +328,7 @@ export default function BetaFeedbackPage() {
                 style={styles.attachmentGuide}
                 variant="caption1"
               >
-                JPG, PNG, WEBP, HEIC/HEIF · 장당 최대 10MB
+                장당 최대 10MB
               </Typography>
 
               {images.length > 0 ? (

@@ -45,6 +45,7 @@ describe('beta-feedback-image', () => {
         ),
       ).resolves.toEqual({
         uri: 'file:///normalized/beta-feedback.jpg',
+        sourceUri: `file:///${fileName}`,
         name: 'beta-feedback-1.jpg',
         type: 'image/jpeg',
         size: 512_000,
