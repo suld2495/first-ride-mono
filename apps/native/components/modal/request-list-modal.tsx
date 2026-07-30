@@ -35,6 +35,7 @@ interface RequestListItem {
   routineName: string;
   nickname: string;
   createdAt: string;
+  message: string | null;
 }
 
 type RequestListEntry =
@@ -430,6 +431,16 @@ const RequestListModal = () => {
             >
               {request.routineName}
             </Typography>
+            {request.message ? (
+              <Typography
+                numberOfLines={1}
+                testID={`request-message-${request.id}`}
+                variant="body3"
+                style={styles.requestMessage}
+              >
+                {request.message}
+              </Typography>
+            ) : null}
             <ThemeView style={styles.itemMeta} transparent>
               <Typography variant="caption1" style={styles.itemMetaText}>
                 {request.nickname}
@@ -750,6 +761,11 @@ const styles = StyleSheet.create((theme) => ({
 
   itemTitle: {
     color: theme.colors.brand.text,
+  },
+
+  requestMessage: {
+    marginTop: baseFoundation.spacing[1],
+    color: theme.colors.text.soft,
   },
 
   itemMeta: {

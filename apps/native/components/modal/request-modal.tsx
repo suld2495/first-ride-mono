@@ -300,41 +300,32 @@ const RequestModal = () => {
             )}
           />
 
-          <FormItem
-            name="message"
-            label="메시지"
-            optionalLabel="(선택)"
-            item={({ value, onChange }) => (
-              <Input
-                accessibilityLabel="메시지"
-                editable={!isPending}
-                fullWidth
-                inputStyle={styles.messageInput}
-                multiline
-                onChangeText={onChange}
-                placeholder="메시지를 입력해주세요."
-                style={styles.messageField}
-                value={value}
-                variant="filled"
-              />
-            )}
-          />
-
-          {hasMateTarget && (
-            <ThemeView
-              testID="request-mate-help"
-              style={styles.mateHelp}
-              transparent
-            >
-              <Typography
-                variant="caption1"
-                weight="medium"
-                style={styles.mateHelpText}
-              >
-                메이트에게 루틴 인증 요청을 보냅니다.
-              </Typography>
-            </ThemeView>
-          )}
+          <ThemeView
+            testID="request-message-section"
+            style={styles.messageSection}
+            transparent
+          >
+            <FormItem
+              name="message"
+              label="메시지"
+              optionalLabel="(선택)"
+              item={({ value, onChange }) => (
+                <Input
+                  accessibilityLabel="메시지"
+                  editable={!isPending}
+                  fullWidth
+                  inputStyle={styles.messageInput}
+                  maxLength={100}
+                  multiline
+                  onChangeText={onChange}
+                  placeholder="메이트에게 남길 한 줄 메시지"
+                  style={styles.messageField}
+                  value={value}
+                  variant="filled"
+                />
+              )}
+            />
+          </ThemeView>
 
           <RequetButtonGroup useForm={useForm} loading={isPending} />
         </Form>
@@ -435,6 +426,10 @@ const styles = StyleSheet.create((theme) => ({
     textAlignVertical: 'top',
   },
 
+  messageSection: {
+    marginTop: baseFoundation.spacing[4],
+  },
+
   uploadFrame: {
     margin: baseFoundation.spacing[4],
     padding: baseFoundation.spacing[2.5],
@@ -525,18 +520,6 @@ const styles = StyleSheet.create((theme) => ({
 
   imageActionText: {
     fontSize: theme.foundation.typography.size.caption1,
-  },
-
-  mateHelp: {
-    minHeight: baseFoundation.dimension.x36,
-    justifyContent: 'center',
-    paddingHorizontal: baseFoundation.spacing[4],
-    borderRadius: baseFoundation.radii.xs,
-    backgroundColor: theme.colors.background.media,
-  },
-
-  mateHelpText: {
-    color: theme.colors.text.secondary,
   },
 
   actionDivider: {

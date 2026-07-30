@@ -120,6 +120,14 @@ export interface NotificationDeepLinkData {
   routineId?: number;
   /** 관련 요청 ID */
   requestId?: number;
+  /** 루틴 인증 요청 ID */
+  confirmId?: number;
+  /** 루틴 이름 */
+  routineName?: string;
+  /** 인증 요청자 닉네임 */
+  requesterNickname?: string;
+  /** 인증 요청 메시지 */
+  message?: string;
   /** 추가 액션 */
   action?: string;
   /** 기타 데이터 */

@@ -602,6 +602,33 @@ describe('RequestListModal (받은 요청 확인 모달)', () => {
         expect(nicknameElements.length).toBeGreaterThan(0);
       });
 
+      it('메시지가 있는 인증 요청은 목록에 메시지를 표시한다', async () => {
+        mockUseReceivedRequests.mockReturnValue({
+          data: createMockRequestList(1, {
+            message: '오늘은 30분 뛰었어!',
+            routineName: '아침 운동',
+          }),
+        });
+
+        const { findByText } = render(<RequestListModal />);
+
+        expect(await findByText('오늘은 30분 뛰었어!')).toBeOnTheScreen();
+      });
+
+      it('메시지가 없는 인증 요청은 메시지 영역을 표시하지 않는다', async () => {
+        mockUseReceivedRequests.mockReturnValue({
+          data: createMockRequestList(1, {
+            message: null,
+            routineName: '아침 운동',
+          }),
+        });
+
+        const { findByText, queryByTestId } = render(<RequestListModal />);
+
+        await findByText('아침 운동');
+        expect(queryByTestId('request-message-1')).toBeNull();
+      });
+
       it('요청 날짜가 표시된다', async () => {
         const mockRequests = createMockRequestList(1, {
           routineName: '아침 운동',

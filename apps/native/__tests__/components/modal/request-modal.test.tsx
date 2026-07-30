@@ -261,20 +261,28 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(await findByText('루틴 이름')).toBeOnTheScreen();
     });
 
-    it('인증 메시지를 입력할 수 있다', async () => {
+    it('인증 메시지를 textarea에 입력할 수 있다', async () => {
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
 
       const messageInput =
-        screen.getByPlaceholderText('메시지를 입력해주세요.');
+        screen.getByPlaceholderText('메이트에게 남길 한 줄 메시지');
 
       fireEvent.changeText(messageInput, '오늘도 루틴 완료!');
 
       expect(screen.getByText('메시지')).toBeOnTheScreen();
       expect(screen.getByText('(선택)')).toBeOnTheScreen();
+      expect(messageInput).toHaveProp('maxLength', 100);
       expect(messageInput).toHaveProp('multiline', true);
+      expect(messageInput).toHaveStyle({
+        minHeight: 80,
+        textAlignVertical: 'top',
+      });
       expect(messageInput).toHaveProp('value', '오늘도 루틴 완료!');
+      expect(screen.getByTestId('request-message-section')).toHaveStyle({
+        marginTop: 16,
+      });
     });
 
     it('혼자 인증하는 루틴은 인증 대상 라벨을 표시하지 않는다', async () => {
@@ -325,17 +333,17 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
 
-      const { findByText, getByTestId } = render(<RequestModal />);
+      const { findByText, getByTestId, queryByTestId, queryByText } = render(
+        <RequestModal />,
+      );
 
       await findByText('테스트 루틴 1');
       expect(await findByText('인증 대상')).toBeOnTheScreen();
       expect(await findByText('friend123')).toBeOnTheScreen();
       expect(
-        await findByText('메이트에게 루틴 인증 요청을 보냅니다.'),
-      ).toBeOnTheScreen();
-      expect(getByTestId('request-mate-help')).toHaveStyle({
-        minHeight: 36,
-      });
+        queryByText('메이트에게 루틴 인증 요청을 보냅니다.'),
+      ).not.toBeOnTheScreen();
+      expect(queryByTestId('request-mate-help')).toBeNull();
       expect(getByTestId('request-summary-divider')).toHaveStyle({
         height: 36,
       });
@@ -737,7 +745,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(screen.getByTestId);
 
         fireEvent.changeText(
-          screen.getByPlaceholderText('메시지를 입력해주세요.'),
+          screen.getByPlaceholderText('메이트에게 남길 한 줄 메시지'),
           '오늘도 루틴 완료!',
         );
 
@@ -757,6 +765,38 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         });
 
         appendSpy.mockRestore();
+      });
+
+      it('100자 초과 서버 에러 메시지를 표시한다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/routine\/details/).reply(200, {
+          data: createMockRoutine(0, { isMe: true }),
+        });
+        mockAxios.onPost('/routine/confirm').reply(400, {
+          success: false,
+          error: {
+            message: '인증 메시지는 100자 이하로 입력해주세요.',
+          },
+        });
+        const screen = render(<RequestModal />);
+
+        await screen.findByText('테스트 루틴 1');
+        await selectImageFromGallery(screen.getByTestId);
+        fireEvent.changeText(
+          screen.getByPlaceholderText('메이트에게 남길 한 줄 메시지'),
+          '메시지',
+        );
+
+        await act(async () => {
+          fireEvent.press(screen.getByText('인증'));
+        });
+
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '인증 메시지는 100자 이하로 입력해주세요.',
+            'error',
+          );
+        });
       });
 
       it('요청 중에는 스피너를 표시하고 취소, 요청, 이미지 업로드 버튼을 비활성화한다', async () => {

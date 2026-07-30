@@ -122,6 +122,34 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
         getByPlaceholderText('응원의 한마디를 입력해주세요.'),
       ).toBeOnTheScreen();
     });
+
+    it('인증 요청 메시지가 있으면 상세 화면에 표시한다', async () => {
+      const mockDetail = createMockRoutineDetail(0, {
+        message: '오늘은 30분 뛰었어!',
+      });
+      mockAxios.resetHandlers();
+      mockAxios
+        .onGet(/\/routine\/confirm\/detail/)
+        .reply(200, { data: mockDetail });
+
+      const { findByText } = render(<RequestDetailModal />);
+
+      expect(await findByText('메이트의 한마디')).toBeOnTheScreen();
+      expect(await findByText('오늘은 30분 뛰었어!')).toBeOnTheScreen();
+    });
+
+    it('인증 요청 메시지가 없으면 기존 상세 화면만 표시한다', async () => {
+      const mockDetail = createMockRoutineDetail(0, { message: null });
+      mockAxios.resetHandlers();
+      mockAxios
+        .onGet(/\/routine\/confirm\/detail/)
+        .reply(200, { data: mockDetail });
+
+      const { findByText, queryByTestId } = render(<RequestDetailModal />);
+
+      await findByText('테스트 루틴 1');
+      expect(queryByTestId('request-detail-message')).toBeNull();
+    });
   });
 
   describe('승인/거절 버튼 테스트', () => {

@@ -69,6 +69,7 @@ export interface CreateMockRoutineDetailOptions {
   imagePath?: string;
   createdAt?: string;
   checkStatus?: RoutineDetail['checkStatus'];
+  message?: string | null;
 }
 
 export const createMockRoutineDetail = (
@@ -83,4 +84,5 @@ export const createMockRoutineDetail = (
   imagePath: options.imagePath ?? 'https://example.com/image.jpg',
   createdAt: options.createdAt ?? new Date().toISOString(),
   checkStatus: options.checkStatus ?? 'WAIT',
+  message: options.message ?? null,
 });

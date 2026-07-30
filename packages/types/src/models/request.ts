@@ -9,6 +9,7 @@ export type Request = {
   checkStatus: RequestStatus;
   checkComment: string;
   createdAt: string;
+  message: string | null;
 };
 
 export interface RequestResponseForm {
@@ -16,5 +17,5 @@ export interface RequestResponseForm {
   checkComment: string;
 }
 
-export type RequestList = (Pick<Request, 'id' | 'createdAt'> &
+export type RequestList = (Pick<Request, 'id' | 'createdAt' | 'message'> &
   Pick<Routine, 'routineName' | 'nickname' | 'mateNickname'>)[];

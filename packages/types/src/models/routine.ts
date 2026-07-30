@@ -65,4 +65,5 @@ export interface RoutineDetail {
   imagePath: Request['image'];
   createdAt: Request['createdAt'];
   checkStatus: Request['checkStatus'];
+  message: Request['message'];
 }

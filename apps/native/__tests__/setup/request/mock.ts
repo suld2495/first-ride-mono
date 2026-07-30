@@ -9,6 +9,7 @@ export interface CreateMockRequestOptions {
   checkStatus?: Request['checkStatus'];
   checkComment?: string;
   createdAt?: string;
+  message?: string | null;
 }
 
 export const createMockRequest = (
@@ -20,6 +21,7 @@ export const createMockRequest = (
   checkStatus: options.checkStatus ?? 'WAIT',
   checkComment: options.checkComment ?? '',
   createdAt: options.createdAt ?? new Date().toISOString(),
+  message: options.message ?? null,
 });
 
 export const createMockRequests = (
@@ -39,6 +41,7 @@ export interface CreateMockRequestListItemOptions {
   nickname?: string;
   mateNickname?: string;
   createdAt?: string;
+  message?: string | null;
 }
 
 export const createMockRequestListItem = (
@@ -50,6 +53,7 @@ export const createMockRequestListItem = (
   nickname: options.nickname ?? 'testuser',
   mateNickname: options.mateNickname ?? 'mate',
   createdAt: options.createdAt ?? new Date().toISOString(),
+  message: options.message ?? null,
 });
 
 export const createMockRequestList = (

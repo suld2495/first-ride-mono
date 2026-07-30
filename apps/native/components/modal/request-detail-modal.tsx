@@ -87,6 +87,20 @@ const RequestDetailModal = () => {
             </Typography>
           </ThemeView>
         </ThemeView>
+        {detail?.message ? (
+          <ThemeView testID="request-detail-message" style={styles.messageCard}>
+            <Typography
+              variant="body2"
+              weight="semibold"
+              style={styles.messageLabel}
+            >
+              메이트의 한마디
+            </Typography>
+            <Typography variant="body1" style={styles.messageText}>
+              {detail.message}
+            </Typography>
+          </ThemeView>
+        ) : null}
         <ThemeView transparent>
           {detail?.imagePath?.endsWith('svg') ? (
             <Svg.SvgUri
@@ -185,6 +199,22 @@ const styles = StyleSheet.create((theme) => ({
 
   routineDescription: {
     color: theme.colors.text.muted,
+  },
+
+  messageCard: {
+    gap: baseFoundation.spacing[2],
+    paddingHorizontal: baseFoundation.spacing[4],
+    paddingVertical: baseFoundation.spacing[4],
+    borderRadius: baseFoundation.radii.m,
+    backgroundColor: theme.colors.brand.card,
+  },
+
+  messageLabel: {
+    color: theme.colors.text.muted,
+  },
+
+  messageText: {
+    color: theme.colors.brand.text,
   },
 
   image: {
