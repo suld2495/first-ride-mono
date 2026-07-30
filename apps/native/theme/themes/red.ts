@@ -52,7 +52,7 @@ export const redTheme: ThemeContract = {
     brand: {
       ...commonTheme.colors.brand,
       primary: palette.theme.red[30],
-      secondary: palette.theme.red[20],
+      secondary: '#F9C8EB',
       background: palette.theme.red[10],
       text: palette.theme.red[100],
       icon: palette.theme.red[50],
@@ -67,7 +67,7 @@ export const redTheme: ThemeContract = {
       routineBorder: palette.theme.red[80],
       routineBackground: palette.theme.red[100],
       routineMissedCheckbox: palette.theme.red[90],
-      routineUpcomingCheckboxBorder: palette.theme.softRed[80],
+      routineUpcomingCheckboxBorder: palette.theme.softRed[60],
       routineProgressText: palette.theme.softRed[80],
     },
   },

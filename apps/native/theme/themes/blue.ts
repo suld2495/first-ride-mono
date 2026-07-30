@@ -67,7 +67,7 @@ export const blueTheme: ThemeContract = {
       routineBorder: palette.theme.blue[80],
       routineBackground: palette.theme.blue[100],
       routineMissedCheckbox: palette.theme.blue[90],
-      routineUpcomingCheckboxBorder: palette.theme.softBlue[80],
+      routineUpcomingCheckboxBorder: palette.theme.softBlue[60],
       routineProgressText: palette.theme.softBlue[80],
     },
   },

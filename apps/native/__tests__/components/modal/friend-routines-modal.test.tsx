@@ -19,6 +19,9 @@ import {
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockPush: jest.Mock;
 declare const mockShowToast: jest.Mock;
+declare const mockRoutineStore: {
+  type: 'number' | 'week';
+};
 
 let mockAxios: MockAdapter;
 
@@ -125,9 +128,10 @@ describe('FriendRoutinesModal', () => {
     );
     expect(
       await screen.findByTestId('friend-routine-scene-background'),
-    ).toHaveProp('source', {
-      uri: 'https://cdn.example.com/backgrounds/mage.png',
-    });
+    ).toHaveProp(
+      'source',
+      routineSceneArt.routineSceneBackgroundAssets.red.source,
+    );
     expect(
       await screen.findByTestId('friend-routine-character-speech-bubble'),
     ).toBeOnTheScreen();
@@ -175,6 +179,34 @@ describe('FriendRoutinesModal', () => {
     expect(await screen.findByTestId('routine-count-check-1-1')).toHaveStyle({
       backgroundColor: appThemes.blue.colors.brand.primary,
     });
+  });
+
+  it('친구 홈의 주간 루틴 카드에도 수행 횟수를 표시하고 메뉴는 숨긴다', async () => {
+    mockRoutineStore.type = 'week';
+    mockAxios.onGet('/friends/42/profile').reply(
+      200,
+      wrapResponse({
+        friendId: 42,
+        nickname: '혜연',
+        job: '검사',
+        motto: '오늘도 전진',
+        level: 7,
+        characterCode: 'WARRIOR_INTERMEDIATE',
+        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
+        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.png',
+      }),
+    );
+    mockAxios
+      .onGet('/friends/42/routines?date=2026-05-25')
+      .reply(200, wrapResponse(createFriendRoutineResponse()));
+
+    const screen = render(<FriendRoutinesModal />);
+
+    expect(await screen.findByText('운동 10분 이상')).toBeOnTheScreen();
+    expect(await screen.findByTestId('routine-week-progress-1')).toHaveTextContent(
+      '3/5',
+    );
+    expect(screen.queryByLabelText('운동 10분 이상 메뉴 열기')).toBeNull();
   });
 
   it('날짜를 이동해도 라우터 push 없이 루틴 영역만 갱신한다', async () => {

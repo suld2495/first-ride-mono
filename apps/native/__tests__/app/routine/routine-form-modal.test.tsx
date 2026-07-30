@@ -1,6 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
-import { act, waitFor } from '@testing-library/react-native';
+import { act, waitFor, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { type ReactElement, useContext } from 'react';
 import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
@@ -191,7 +191,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       isMe: true,
       startDate: '',
       endDate: '',
-      symbolColor: '#00D68F',
+      symbolColor: '#3C9FFF',
     };
     mockRoutineStore.routineId = 0;
     (global as any).mockCheckboxChecked = false;
@@ -350,6 +350,24 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       expect(getByPlaceholderText('메이트를 지정하세요.')).toBeOnTheScreen();
+    });
+
+    it('메이트 루틴 입력에서는 메이트를 필수로, 벌금을 선택항목으로 표시한다', async () => {
+      const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      const mateLabelRow = within(getByTestId('mateNickname-label-row'));
+      const penaltyLabelRow = within(getByTestId('penalty-label-row'));
+      const penaltyOptional = penaltyLabelRow.getByText('선택');
+
+      expect(mateLabelRow.getByText('메이트')).toBeOnTheScreen();
+      expect(mateLabelRow.getByText('*')).toBeOnTheScreen();
+      expect(penaltyLabelRow.getByText('벌금')).toBeOnTheScreen();
+      expect(penaltyOptional).toBeOnTheScreen();
+      expect(penaltyOptional.props.fontSize).toBe('$caption2');
     });
 
     it('생성 버튼은 modal.tsx의 고정 header action에 표시된다', () => {
@@ -680,7 +698,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
       expect(
         RNStyleSheet.flatten(
-          getByTestId('routine-color-option-00D68F').props.style,
+          getByTestId('routine-color-option-3C9FFF').props.style,
         ),
       ).toMatchObject({
         width: 24,
@@ -690,15 +708,15 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         borderColor: '#FFFFFF',
       });
       expect(
-        getByLabelText('컬러 초록 선택됨').props.accessibilityState,
+        getByLabelText('컬러 파랑 선택됨').props.accessibilityState,
       ).toEqual({ selected: true });
 
       await act(async () => {
-        fireEvent.press(getByLabelText('컬러 파랑 선택'));
+        fireEvent.press(getByLabelText('컬러 하늘 선택'));
       });
 
       expect(
-        getByLabelText('컬러 파랑 선택됨').props.accessibilityState,
+        getByLabelText('컬러 하늘 선택됨').props.accessibilityState,
       ).toEqual({ selected: true });
     });
 
@@ -830,7 +848,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
             routineName: '테스트 루틴',
             routineDetail: '테스트 설명',
             routineCount: 3,
-            symbolColor: '#00D68F',
+            symbolColor: '#3C9FFF',
             hidden: false,
           });
           expect(payload).not.toHaveProperty('nickname');
@@ -925,13 +943,70 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
             routineName: '메이트 루틴',
             routineDetail: '함께 달리기',
             routineCount: 3,
-            symbolColor: '#00D68F',
+            symbolColor: '#3C9FFF',
             penalty: 5000,
             mateNickname: 'friend1',
           });
           expect(payload).not.toHaveProperty('nickname');
           expect(payload).not.toHaveProperty('isMe');
           expect(payload).not.toHaveProperty('endDate');
+        });
+      });
+
+      it('메이트 루틴 생성 시 벌금을 비우면 penalty를 보내지 않는다', async () => {
+        mockAxios.onPost('/routine/mate').reply(201, {
+          data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
+        });
+        const {
+          getAllByTestId,
+          getByLabelText,
+          getByPlaceholderText,
+          getByText,
+        } = render(<RoutineFormModal />);
+
+        await act(async () => {
+          fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        });
+
+        const mateInput = getByPlaceholderText('메이트를 지정하세요.');
+
+        await waitFor(() => {
+          expect(mateInput.props.editable).toBe(true);
+        });
+
+        await act(async () => {
+          fireEvent.changeText(mateInput, 'friend1');
+        });
+
+        await fillForm(getByPlaceholderText, getByText, {
+          routineName: '벌금 없는 메이트 루틴',
+          routineDetail: '함께 달리기',
+          routineCount: 3,
+        });
+        await selectStartDate(getByText, getByLabelText);
+
+        await waitFor(() => {
+          expect(getByText('생성')).toBeEnabled();
+        });
+
+        await act(async () => {
+          fireEvent.press(getByText('생성'));
+        });
+
+        await waitFor(() => {
+          const request = mockAxios.history.post.find(
+            ({ url }) => url === '/routine/mate',
+          );
+          const payload = JSON.parse(request?.data ?? '{}');
+
+          expect(payload).toMatchObject({
+            routineName: '벌금 없는 메이트 루틴',
+            routineDetail: '함께 달리기',
+            routineCount: 3,
+            symbolColor: '#3C9FFF',
+            mateNickname: 'friend1',
+          });
+          expect(payload).not.toHaveProperty('penalty');
         });
       });
     });
@@ -1510,7 +1585,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         const { findByTestId, findByText } = render(<RoutineFormModal />);
 
         await act(async () => {
-          fireEvent.press(await findByTestId('routine-color-option-00B8F0'));
+          fireEvent.press(await findByTestId('routine-color-option-30C2F1'));
         });
 
         await act(async () => {
@@ -1521,7 +1596,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           const payload = JSON.parse(mockAxios.history.put[0]?.data ?? '{}');
 
           expect(payload).toEqual({
-            symbolColor: '#00B8F0',
+            symbolColor: '#30C2F1',
           });
         });
       });

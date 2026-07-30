@@ -5,12 +5,14 @@ import { getWeekMonday } from '@repo/shared/utils';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { type LayoutChangeEvent, View } from 'react-native';
+import { type LayoutChangeEvent, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import PencilIcon from '@/components/icons/pencil-icon';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
+  getRoutineSceneBackgroundAsset,
   getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
@@ -26,6 +28,7 @@ import {
   clearRoutineShareTargets,
   syncRoutineShareTargets,
 } from '@/share/routine-share';
+import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { baseFoundation } from '@/theme/tokens';
 import {
   createRoutineWidgetSnapshot,
@@ -74,6 +77,9 @@ export default function Index() {
   const user = useAuthUser();
   const { data: currentUser } = useFetchMeQuery(user?.userId);
   const themeName = useColorScheme();
+  const userThemeName = currentUser
+    ? getThemeNameFromUserJob(currentUser)
+    : themeName;
 
   const {
     data: routines = [],
@@ -86,8 +92,12 @@ export default function Index() {
     [currentUser?.characterImageUrl],
   );
   const routineBackgroundAsset = useMemo(
-    () => getRoutineSceneRemoteAsset(currentUser?.backgroundImageUrl),
-    [currentUser?.backgroundImageUrl],
+    () =>
+      userThemeName === 'red'
+        ? getRoutineSceneBackgroundAsset(userThemeName)
+        : (getRoutineSceneRemoteAsset(currentUser?.backgroundImageUrl) ??
+          getRoutineSceneBackgroundAsset(userThemeName)),
+    [currentUser?.backgroundImageUrl, userThemeName],
   );
   const mottos = useMemo(() => {
     const normalizedMotto = normalizeMottoText(user?.motto);
@@ -142,6 +152,10 @@ export default function Index() {
     resetRoutineForm();
     router.push('/modal?type=routine-add');
   }, [resetRoutineForm, router]);
+
+  const handleOpenAccountMotto = useCallback(() => {
+    router.push('/modal?type=account');
+  }, [router]);
 
   useEffect(() => {
     const snapshot = user
@@ -211,13 +225,26 @@ export default function Index() {
                     {routineCharacterAsset ? (
                       <RoutineCharacter asset={routineCharacterAsset} />
                     ) : null}
-                    <View
+                    <Pressable
+                      accessibilityLabel="한마디 수정"
+                      accessibilityRole="button"
+                      onPress={handleOpenAccountMotto}
                       testID="routine-character-speech-bubble"
                       style={styles.speechBubble}
-                      pointerEvents="none"
                     >
-                      <CharacterSpeechBubble message={speechBubbleMessage} />
-                    </View>
+                      <CharacterSpeechBubble
+                        message={speechBubbleMessage}
+                        trailingIcon={
+                          <PencilIcon
+                            color={styles.speechBubbleEditIcon.color}
+                            height={baseFoundation.iconSize.s}
+                            opacity={0.45}
+                            testID="routine-speech-bubble-edit-icon"
+                            width={baseFoundation.iconSize.s}
+                          />
+                        }
+                      />
+                    </Pressable>
                   </View>
                 </View>
                 <View
@@ -239,13 +266,26 @@ export default function Index() {
                     {routineCharacterAsset ? (
                       <RoutineCharacter asset={routineCharacterAsset} />
                     ) : null}
-                    <View
+                    <Pressable
+                      accessibilityLabel="한마디 수정"
+                      accessibilityRole="button"
+                      onPress={handleOpenAccountMotto}
                       testID="routine-character-speech-bubble"
                       style={styles.speechBubble}
-                      pointerEvents="none"
                     >
-                      <CharacterSpeechBubble message={speechBubbleMessage} />
-                    </View>
+                      <CharacterSpeechBubble
+                        message={speechBubbleMessage}
+                        trailingIcon={
+                          <PencilIcon
+                            color={styles.speechBubbleEditIcon.color}
+                            height={baseFoundation.iconSize.s}
+                            opacity={0.45}
+                            testID="routine-speech-bubble-edit-icon"
+                            width={baseFoundation.iconSize.s}
+                          />
+                        }
+                      />
+                    </Pressable>
                   </View>
                 </View>
                 <View style={styles.emptyStateOverlay}>
@@ -264,7 +304,7 @@ export default function Index() {
       <IconButton
         variant="ghost"
         icon={({ size }) => (
-          <Ionicons name="add" size={size + 8} color="#FFFFFF" />
+          <Ionicons name="add" size={size + 4} color="#FFFFFF" />
         )}
         onPress={handleOpenRoutineAddModal}
         accessibilityLabel="루틴 추가"
@@ -339,6 +379,9 @@ const styles = StyleSheet.create((theme) => ({
   speechBubble: {
     bottom: SPEECH_BUBBLE_BOTTOM_OFFSET,
     position: 'absolute',
+  },
+  speechBubbleEditIcon: {
+    color: theme.colors.text.soft,
   },
   fab: {
     position: 'absolute',

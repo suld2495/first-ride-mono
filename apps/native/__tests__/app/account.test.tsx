@@ -39,7 +39,7 @@ describe('Account', () => {
     });
   });
 
-  it('계정 캐릭터를 100x100 크기로 보여준다', () => {
+  it('계정 캐릭터를 112x112 크기로 보여주고 12px 위로 올린다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
@@ -52,8 +52,9 @@ describe('Account', () => {
 
     expect(characterStyle).toEqual(
       expect.objectContaining({
-        height: 100,
-        width: 100,
+        height: 112,
+        transform: [{ translateY: -12 }],
+        width: 112,
       }),
     );
   });
@@ -94,7 +95,7 @@ describe('Account', () => {
     expect(characterContainerStyle.borderWidth).toBeUndefined();
   });
 
-  it('헤더와 캐릭터 컨테이너 사이 간격을 12로 보여준다', () => {
+  it('헤더와 캐릭터 컨테이너 사이 위쪽 패딩을 두지 않는다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
@@ -105,7 +106,7 @@ describe('Account', () => {
       getByTestId('account-content').props.style,
     );
 
-    expect(contentStyle.paddingTop).toBe(12);
+    expect(contentStyle.paddingTop).toBe(0);
   });
 
   it('캐릭터 컨테이너 아래에 테마 컬러 보더의 한마디 입력을 보여준다', () => {
@@ -189,7 +190,7 @@ describe('Account', () => {
     expect(mottoInput.props.value).toBe(`${'가'.repeat(26)}ab`);
   });
 
-  it('한마디 입력 아래에 현재 byte 수와 최대 byte 수를 표시한다', () => {
+  it('한마디 입력 아래에 현재 글자 수와 최대 한글 글자 수를 표시한다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
@@ -198,17 +199,44 @@ describe('Account', () => {
     const { getByTestId } = render(<Account />);
     const mottoInput = getByTestId('account-motto-input');
 
-    expect(getByTestId('account-motto-byte-counter').props.children).toEqual([
-      16,
-      ' / 80byte',
-    ]);
+    expect(getByTestId('account-motto-byte-counter')).toHaveTextContent(
+      '6/26자',
+    );
 
     fireEvent.changeText(mottoInput, 'abc가');
 
-    expect(getByTestId('account-motto-byte-counter').props.children).toEqual([
-      6,
-      ' / 80byte',
-    ]);
+    expect(getByTestId('account-motto-byte-counter')).toHaveTextContent(
+      '4/26자',
+    );
+  });
+
+  it('한마디 글자 수는 테마별 soft 80 컬러로 표시한다', () => {
+    useColorSchemeStore.getState().setColorScheme('green');
+    (useUpdateMottoMutation as jest.Mock).mockReturnValue({
+      isPending: false,
+      mutate: jest.fn(),
+    });
+
+    const { getByTestId, rerender } = render(<Account />);
+
+    expect(
+      StyleSheet.flatten(getByTestId('account-motto-byte-counter').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.softGreen[80],
+      }),
+    );
+
+    useColorSchemeStore.getState().setColorScheme('red');
+    rerender(<Account />);
+
+    expect(
+      StyleSheet.flatten(getByTestId('account-motto-byte-counter').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.softRed[80],
+      }),
+    );
   });
 
   it('새 한마디 입력 아래 기존 목록 영역을 보여주지 않는다', () => {

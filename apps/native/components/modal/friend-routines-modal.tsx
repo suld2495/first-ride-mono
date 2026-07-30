@@ -13,8 +13,9 @@ import { type LayoutChangeEvent, View } from 'react-native';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
-  renderRoutineSceneAsset,
+  getRoutineSceneBackgroundAsset,
   getRoutineSceneRemoteAsset,
+  renderRoutineSceneAsset,
   type RoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
 import { Button } from '@/components/ui/button';
@@ -184,8 +185,11 @@ const FriendRoutinesModal = () => {
   const backgroundImageUrl = profile?.backgroundImageUrl;
   const characterImageUrl = profile?.characterImageUrl;
   const backgroundAsset = useMemo(
-    () => getRoutineSceneRemoteAsset(backgroundImageUrl),
-    [backgroundImageUrl],
+    () =>
+      appliedProfileThemeName === 'red'
+        ? getRoutineSceneBackgroundAsset(appliedProfileThemeName)
+        : getRoutineSceneRemoteAsset(backgroundImageUrl),
+    [appliedProfileThemeName, backgroundImageUrl],
   );
   const characterAsset = useMemo(
     () => getRoutineSceneRemoteAsset(characterImageUrl),

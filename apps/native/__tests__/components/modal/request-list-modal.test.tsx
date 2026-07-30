@@ -342,7 +342,7 @@ describe('RequestListModal (받은 요청 확인 모달)', () => {
               field: 'symbolColor',
               label: '루틴 컬러',
               before: '#111111',
-              after: '#00D68F',
+              after: '#3C9FFF',
             },
           ],
         });
@@ -366,10 +366,10 @@ describe('RequestListModal (받은 요청 확인 모달)', () => {
           backgroundColor: '#111111',
         });
         expect(await findByTestId('routine-change-after-color')).toHaveStyle({
-          backgroundColor: '#00D68F',
+          backgroundColor: '#3C9FFF',
         });
         expect(queryByText('#111111')).toBeNull();
-        expect(queryByText('#00D68F')).toBeNull();
+        expect(queryByText('#3C9FFF')).toBeNull();
       });
 
       it('표시할 수 없는 색상 값은 텍스트로 유지한다', async () => {

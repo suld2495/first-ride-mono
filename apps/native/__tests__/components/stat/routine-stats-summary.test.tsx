@@ -1,10 +1,11 @@
 import type { RoutineMonthlySummary } from '@repo/types';
 
 import RoutineStatsSummary from '@/components/stat/routine-stats-summary';
+import { palette } from '@/theme/tokens';
 
 import { render } from '../../setup/test-utils';
 
-const ROUTINE_COLOR = '#00C9BD';
+const ROUTINE_COLOR = '#26C8A2';
 
 const createRoutine = (achievedCount: number): RoutineMonthlySummary => ({
   routineId: 1,
@@ -123,6 +124,54 @@ describe('RoutineStatsSummary', () => {
     expectDotToBeEmpty(getByTestId, 2);
   });
 
+  it('줄마다 동그라미를 왼쪽부터 같은 간격으로 배치한다', () => {
+    const { getByTestId } = render(
+      <RoutineStatsSummary
+        monthDate={new Date(2026, 6, 1)}
+        routines={[{ ...createRoutine(0), endDate: '2026-07-11' }]}
+      />,
+    );
+
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-track-row-1-0').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          justifyContent: 'flex-start',
+          gap: 8,
+        }),
+      ]),
+    );
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-track-row-1-1').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          gap: 8,
+        }),
+        expect.objectContaining({
+          justifyContent: 'flex-end',
+        }),
+      ]),
+    );
+    expect(
+      flattenStyles(
+        getByTestId('routine-stats-summary-row-line-1-1').props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          backgroundColor: palette.theme.softBlue[60],
+          width: 132,
+        }),
+      ]),
+    );
+  });
+
   it('짝수 번째 줄은 오른쪽부터 채운다', () => {
     const { getByTestId } = render(
       <RoutineStatsSummary
@@ -131,8 +180,8 @@ describe('RoutineStatsSummary', () => {
       />,
     );
 
-    expectDotToBeFilled(getByTestId, 13);
-    expectDotToBeEmpty(getByTestId, 12);
-    expectDotToBeEmpty(getByTestId, 7);
+    expectDotToBeFilled(getByTestId, 7);
+    expectDotToBeEmpty(getByTestId, 8);
+    expectDotToBeEmpty(getByTestId, 13);
   });
 });

@@ -1,6 +1,8 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
 import type { Quest } from '@repo/types';
 import { useRouter } from 'expo-router';
+import { useLayoutEffect } from 'react';
 import { View } from 'react-native';
 
 import Container from '@/components/layout/container';
@@ -16,6 +18,11 @@ import {
   useSetQuestId,
   useSetQuestStatusFilter,
 } from '@/hooks/useQuestSelection';
+import {
+  useBaseColorSchemeValue,
+  useClearAppColorSchemeOverride,
+} from '@/hooks/useThemePreference';
+import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 
 export default function QuestPage() {
@@ -24,7 +31,14 @@ export default function QuestPage() {
   const setQuestId = useSetQuestId();
   const statusFilter = useQuestStatusFilter();
   const setStatusFilter = useSetQuestStatusFilter();
+  const baseThemeName = useBaseColorSchemeValue();
+  const clearColorSchemeOverride = useClearAppColorSchemeOverride();
   const isAdmin = user?.role === 'ADMIN';
+  const pageBackgroundColor = appThemes[baseThemeName].colors.background.base;
+
+  useLayoutEffect(() => {
+    clearColorSchemeOverride();
+  }, [clearColorSchemeOverride]);
 
   const { data: quests, isLoading } = useFetchQuestsQuery(user?.userId ?? '', {
     status: 'ACTIVE',
@@ -33,7 +47,11 @@ export default function QuestPage() {
 
   if (isLoading) {
     return (
-      <Container style={styles.container} noPadding>
+      <Container
+        style={[styles.container, { backgroundColor: pageBackgroundColor }]}
+        noPadding
+        testID="quest-page"
+      >
         <QuestHeader />
         <View style={styles.content}>
           <Loading />
@@ -52,7 +70,11 @@ export default function QuestPage() {
   };
 
   return (
-    <Container style={styles.container} noPadding>
+    <Container
+      style={[styles.container, { backgroundColor: pageBackgroundColor }]}
+      noPadding
+      testID="quest-page"
+    >
       <QuestHeader />
       <View style={styles.content}>
         <QuestStatusTabs
@@ -61,11 +83,22 @@ export default function QuestPage() {
           right={
             isAdmin ? (
               <Button
+                testID="quest-add-button"
                 title="추가"
-                variant="primary"
+                variant="ghost"
                 size="sm"
+                leftIcon={({ color }) => (
+                  <Ionicons
+                    name="add"
+                    size={baseFoundation.iconSize.m - 4}
+                    color={color}
+                  />
+                )}
                 onPress={handleAddQuest}
+                backgroundColor="#111827"
+                textColor="#FFFFFF"
                 style={styles.addButton}
+                contentStyle={styles.addButtonContent}
               />
             ) : undefined
           }
@@ -86,6 +119,12 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing[2],
   },
   addButton: {
-    minWidth: baseFoundation.dimension.x60,
+    height: baseFoundation.dimension.x28,
+    minHeight: baseFoundation.dimension.x28,
+    borderRadius: baseFoundation.radii.xs,
+    paddingHorizontal: theme.foundation.spacing[3],
+  },
+  addButtonContent: {
+    gap: baseFoundation.dimension.x2,
   },
 }));

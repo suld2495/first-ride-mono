@@ -238,14 +238,14 @@ describe('routine widget snapshot', () => {
           routineName: '영어 공부',
           weeklyCount: 1,
           routineCount: 4,
-          symbolColor: '#00B8F0',
+          symbolColor: '#30C2F1',
         }),
         createRoutine({
           routineId: 2,
           routineName: '운동',
           weeklyCount: 0,
           routineCount: 3,
-          symbolColor: '#FA4F9B',
+          symbolColor: '#F791DE',
         }),
       ],
       { today: new Date('2026-05-21T09:00:00+09:00') },
@@ -256,12 +256,12 @@ describe('routine widget snapshot', () => {
       '운동',
     ]);
     expect(snapshot.items[0]).toMatchObject({
-      accentColor: '#00B8F0',
-      darkAccentColor: '#00B8F0',
+      accentColor: '#30C2F1',
+      darkAccentColor: '#30C2F1',
     });
     expect(snapshot.items[1]).toMatchObject({
-      accentColor: '#FA4F9B',
-      darkAccentColor: '#FA4F9B',
+      accentColor: '#F791DE',
+      darkAccentColor: '#F791DE',
     });
   });
 

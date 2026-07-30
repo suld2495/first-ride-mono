@@ -38,14 +38,14 @@ describe('QuestHeader', () => {
     mockUseReceivedRequests.mockReturnValue({ data: [] });
   });
 
-  it('renders only the quest title and compact notification bell in the header', () => {
+  it('renders only the quest title and larger notification bell in the header', () => {
     const { getByLabelText, getByText, queryByText } = render(<QuestHeader />);
 
     expect(getByText('퀘스트 목록')).toBeOnTheScreen();
     expect(getByLabelText('인증 요청 알림')).toBeOnTheScreen();
     expect(queryByText('추가')).not.toBeOnTheScreen();
     expect(jest.mocked(NotificationBellIcon).mock.calls[0][0]).toEqual({
-      size: 16,
+      size: 20,
     });
   });
 

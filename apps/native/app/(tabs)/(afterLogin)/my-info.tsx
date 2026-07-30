@@ -50,8 +50,7 @@ const SETTING_ITEMS: Array<{
   { title: '한마디', href: '/modal?type=account' },
   { title: '루틴 설정', href: '/routine-settings' },
   { title: '알림 설정', href: '/notification-settings' },
-  { title: '이용약관', href: '/modal?type=policies' },
-  { title: '개인정보 처리방침', href: '/modal?type=privacy' },
+  { title: '약관', href: '/terms' },
   { title: '이루라 길드', href: '/hall-of-heroes' },
 ];
 
@@ -204,7 +203,7 @@ const MyInfo = () => {
               <Typography
                 color={themeColor[80]}
                 testID="settings-level-text"
-                variant="caption2"
+                variant="h3"
                 weight="semibold"
               >
                 Lv. {stats?.currentLevel ?? FALLBACK_LEVEL}
@@ -213,7 +212,7 @@ const MyInfo = () => {
           </View>
 
           <View testID="settings-exp-row" style={styles.expLabelRow}>
-            <View testID="settings-exp-title-row" style={styles.expTitleRow}>
+            <View testID="settings-exp-value-row" style={styles.expValueRow}>
               <Typography
                 color={themeColor[80]}
                 testID="settings-exp-label"
@@ -223,38 +222,41 @@ const MyInfo = () => {
                 경험치
               </Typography>
               <Typography
-                color={softThemeColor[60]}
+                color={softThemeColor[80]}
                 testID="settings-exp-unit"
                 variant="caption2"
                 weight="semibold"
               >
                 EXP
               </Typography>
-            </View>
-            <View testID="settings-exp-value-row" style={styles.expValueRow}>
-              <Typography
-                color={softThemeColor[80]}
-                testID="settings-exp-current"
-                variant="caption2"
-                weight="semibold"
+              <View
+                testID="settings-exp-number-row"
+                style={styles.expNumberRow}
               >
-                {currentExp}
-              </Typography>
-              <Typography
-                color={softThemeColor[80]}
-                variant="caption2"
-                weight="semibold"
-              >
-                /
-              </Typography>
-              <Typography
-                color={softThemeColor[80]}
-                testID="settings-exp-next"
-                variant="caption2"
-                weight="semibold"
-              >
-                {nextLevelExp}
-              </Typography>
+                <Typography
+                  color={softThemeColor[80]}
+                  testID="settings-exp-current"
+                  variant="caption2"
+                  weight="semibold"
+                >
+                  {currentExp}
+                </Typography>
+                <Typography
+                  color={softThemeColor[80]}
+                  variant="caption2"
+                  weight="semibold"
+                >
+                  /
+                </Typography>
+                <Typography
+                  color={softThemeColor[80]}
+                  testID="settings-exp-next"
+                  variant="caption2"
+                  weight="semibold"
+                >
+                  {nextLevelExp}
+                </Typography>
+              </View>
             </View>
           </View>
 
@@ -383,17 +385,18 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
   },
   avatar: {
-    width: baseFoundation.dimension.x48,
-    height: baseFoundation.dimension.x48,
-    borderRadius: baseFoundation.dimension.x24,
+    width: baseFoundation.dimension.x60,
+    height: baseFoundation.dimension.x60,
+    borderRadius: baseFoundation.dimension.x30,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     backgroundColor: theme.colors.brand.card,
   },
   character: {
-    width: baseFoundation.dimension.x36,
-    height: baseFoundation.dimension.x36,
+    width: baseFoundation.dimension.x52,
+    height: baseFoundation.dimension.x52,
+    transform: [{ translateY: -6 }],
   },
   profileText: {
     marginLeft: theme.foundation.spacing[3],
@@ -409,28 +412,24 @@ const styles = StyleSheet.create((theme) => ({
   },
   levelRow: {
     marginTop: theme.foundation.spacing[5],
-    alignItems: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   levelBadge: {
-    height: baseFoundation.dimension.x16,
-    paddingHorizontal: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: baseFoundation.dimension.x99,
-    backgroundColor: theme.colors.brand.primary,
   },
   expLabelRow: {
     marginTop: theme.foundation.spacing[2],
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  expTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: baseFoundation.dimension.x5,
   },
   expValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.dimension.x8,
+  },
+  expNumberRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: baseFoundation.dimension.x2,

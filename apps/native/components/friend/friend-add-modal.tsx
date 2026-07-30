@@ -47,7 +47,7 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   /\/$/,
   '',
 );
-const FRIEND_ADD_RESULT_ITEM_ESTIMATED_HEIGHT = 51;
+const FRIEND_ADD_RESULT_ITEM_ESTIMATED_HEIGHT = 59;
 const MODAL_ANIMATION_DURATION = baseFoundation.motion.duration.normal;
 
 const getCharacterImageSource = (
@@ -323,6 +323,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                     />
                   </View>
                   <Button
+                    testID="friend-add-search-button"
                     title="검색"
                     variant="ghost"
                     size="sm"
@@ -446,8 +447,8 @@ const styles = StyleSheet.create((theme) => ({
   searchButton: {
     width: baseFoundation.dimension.x56,
     minWidth: baseFoundation.dimension.x56,
-    height: baseFoundation.dimension.x28,
-    minHeight: baseFoundation.dimension.x28,
+    height: baseFoundation.dimension.x32,
+    minHeight: baseFoundation.dimension.x32,
     borderRadius: baseFoundation.radii.xs,
     paddingHorizontal: theme.foundation.spacing[2],
   },
@@ -487,8 +488,8 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing[2],
   },
   avatar: {
-    width: baseFoundation.dimension.x36,
-    height: baseFoundation.dimension.x36,
+    width: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x44,
     borderRadius: baseFoundation.radii.round,
     overflow: 'hidden',
   },
@@ -502,9 +503,9 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: palette.theme.softRed[10],
   },
   avatarImage: {
-    width: baseFoundation.dimension.x24,
-    height: baseFoundation.dimension.x24,
-    margin: baseFoundation.dimension.x6,
+    width: baseFoundation.dimension.x48,
+    height: baseFoundation.dimension.x48,
+    transform: [{ translateY: -4 }],
   },
   userTextGroup: {
     flex: 1,

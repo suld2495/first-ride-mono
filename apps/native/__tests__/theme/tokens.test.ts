@@ -79,18 +79,18 @@ describe('theme/tokens', () => {
     expect(redTheme.colors.brand.todaySuccessCheck).toBe(palette.theme.red[80]);
   });
 
-  it('루틴 수행 횟수에 테마별 soft 50 컬러를 제공한다', () => {
+  it('루틴 수행 횟수에 테마별 soft 80 컬러를 제공한다', () => {
     expect(lightTheme.colors.brand.routineProgressText).toBe(
-      palette.theme.softBlue[50],
+      palette.theme.softBlue[80],
     );
     expect(blueTheme.colors.brand.routineProgressText).toBe(
-      palette.theme.softBlue[50],
+      palette.theme.softBlue[80],
     );
     expect(greenTheme.colors.brand.routineProgressText).toBe(
-      palette.theme.softGreen[50],
+      palette.theme.softGreen[80],
     );
     expect(redTheme.colors.brand.routineProgressText).toBe(
-      palette.theme.softRed[50],
+      palette.theme.softRed[80],
     );
   });
 

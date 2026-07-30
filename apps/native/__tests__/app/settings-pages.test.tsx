@@ -6,6 +6,7 @@ import { processColor, StyleSheet } from 'react-native';
 import InquiryPage from '../../app/inquiry';
 import NotificationSettingsPage from '../../app/notification-settings';
 import RoutineSettingsPage from '../../app/routine-settings';
+import TermsPage from '../../app/terms';
 import { useColorSchemeStore } from '../../store/color-scheme.store';
 import { appThemes } from '../../theme/themes';
 import { palette } from '../../theme/tokens';
@@ -56,6 +57,7 @@ describe('설정 하위 페이지', () => {
     ['전체 루틴 목록', <RoutineSettingsPage />],
     ['알림 설정', <NotificationSettingsPage />],
     ['문의', <InquiryPage />],
+    ['약관', <TermsPage />],
   ])('%s 페이지는 상단 타이틀과 뒤로가기를 표시한다', async (title, page) => {
     const { getByLabelText, getByTestId, getByText } = render(page);
 
@@ -78,6 +80,19 @@ describe('설정 하위 페이지', () => {
     fireEvent.press(getByLabelText('뒤로가기'));
 
     expect(mockBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('약관 페이지에서 이용약관과 개인정보 처리방침 목록으로 이동한다', () => {
+    const { getByText } = render(<TermsPage />);
+
+    expect(getByText('이용약관')).toBeOnTheScreen();
+    expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
+
+    fireEvent.press(getByText('이용약관'));
+    fireEvent.press(getByText('개인정보 처리방침'));
+
+    expect(mockPush).toHaveBeenCalledWith('/modal?type=policies');
+    expect(mockPush).toHaveBeenCalledWith('/modal?type=privacy');
   });
 
   it('전체 루틴 목록 페이지는 필터와 루틴 목록을 즉시 표시한다', async () => {

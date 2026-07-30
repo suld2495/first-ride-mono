@@ -45,10 +45,7 @@ const DAYS_PER_WEEK = 7;
 const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 const CHECKBOX_DAY_TEXT_COLOR = '#000306';
-const UPCOMING_DAY_TEXT_COLOR = palette.theme.softBlue[80];
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
-const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
-const MISSED_ICON_COLOR = palette.theme.softBlue[80];
 const TODAY_FRAME_COLOR = palette.white;
 const TODAY_FRAME_BORDER_WIDTH = 1;
 const TODAY_FRAME_GAP = 1;
@@ -160,28 +157,29 @@ const RoutineWeekList = ({
             </Typography>
           </View>
 
+          <View
+            pointerEvents="none"
+            style={styles.progressSummary}
+            testID={`routine-week-progress-summary-${routineId}`}
+          >
+            {weeklyCount >= routineCount ? (
+              <RoutineCheckmarkIcon
+                size={baseFoundation.dimension.x14}
+                color={palette.theme.green[50]}
+              />
+            ) : null}
+            <Typography
+              variant="caption2"
+              weight="semibold"
+              style={styles.progressSummaryText}
+              testID={`routine-week-progress-${routineId}`}
+            >
+              {weeklyCount}/{routineCount}
+            </Typography>
+          </View>
+
           {!readOnly ? (
             <>
-              <View
-                pointerEvents="none"
-                style={styles.progressSummary}
-                testID={`routine-week-progress-summary-${routineId}`}
-              >
-                {weeklyCount >= routineCount ? (
-                  <RoutineCheckmarkIcon
-                    size={baseFoundation.dimension.x14}
-                    color={palette.theme.green[50]}
-                  />
-                ) : null}
-                <Typography
-                  variant="caption3"
-                  weight="semibold"
-                  style={styles.progressSummaryText}
-                  testID={`routine-week-progress-${routineId}`}
-                >
-                  {weeklyCount}/{routineCount}
-                </Typography>
-              </View>
               <RoutineContextMenuTrigger
                 routineName={routineName}
                 iconColor={theme.colors.brand.routineProgressText}
@@ -213,7 +211,7 @@ const RoutineWeekList = ({
               const todayFrameStyle = getTodayFrameStyle(isToday);
               const upcomingCheckBoxStyle = getUpcomingCheckBoxStyle(
                 isUpcomingDay,
-                UNCHECKED_ACCENT_COLOR,
+                theme.colors.brand.routineUpcomingCheckboxBorder,
               );
               const pendingConfirmationCheckBoxStyle = isPendingConfirmation
                 ? {
@@ -234,7 +232,7 @@ const RoutineWeekList = ({
                   ? '요청 중'
                   : '미달성';
               const dayTextColor = isFutureDay
-                ? UPCOMING_DAY_TEXT_COLOR
+                ? theme.colors.brand.routineProgressText
                 : CHECKBOX_DAY_TEXT_COLOR;
               const handlePressCheckBox = canRequestWithCheckBox
                 ? isMissedPastDay
@@ -270,7 +268,7 @@ const RoutineWeekList = ({
                       {isMissedPastDay ? (
                         <RoutineMissedIcon
                           size={baseFoundation.iconSize.xs}
-                          color={MISSED_ICON_COLOR}
+                          color={theme.colors.brand.routineProgressText}
                         />
                       ) : (
                         <Text
@@ -302,6 +300,7 @@ const RoutineWeekList = ({
       readOnly,
       routineColorFallback,
       theme.colors.brand.pendingConfirmationCheckbox,
+      theme.colors.brand.routineUpcomingCheckboxBorder,
       theme.colors.brand.routineProgressText,
       todayDateKey,
       weekDateKeys,

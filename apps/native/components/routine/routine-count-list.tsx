@@ -45,8 +45,6 @@ const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 const CHECKED_ICON_COLOR = palette.theme.gray[95];
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
-const UNCHECKED_ACCENT_COLOR = palette.theme.softBlue[60];
-const MISSED_ICON_COLOR = palette.theme.softBlue[80];
 const TODAY_FRAME_COLOR = palette.white;
 const TODAY_FRAME_BORDER_WIDTH = 1;
 const TODAY_FRAME_GAP = 1;
@@ -77,11 +75,14 @@ const isUnachievedGoalCheckBox = (
   isMissedPastGoal: boolean,
 ) => isGoalRange && !achieved && !isPendingConfirmation && !isMissedPastGoal;
 
-const getUnachievedCheckBoxStyle = (isUnachieved: boolean) =>
+const getUnachievedCheckBoxStyle = (
+  isUnachieved: boolean,
+  borderColor: string,
+) =>
   isUnachieved
     ? {
         backgroundColor: UNCHECKED_BACKGROUND_COLOR,
-        borderColor: UNCHECKED_ACCENT_COLOR,
+        borderColor,
         borderWidth: baseFoundation.dimension.x1,
       }
     : null;
@@ -243,7 +244,10 @@ const RoutineCountList = ({
                   const todaySuccessFrameStyle =
                     getTodaySuccessFrameStyle(isTodaySuccess);
                   const unachievedCheckBoxStyle =
-                    getUnachievedCheckBoxStyle(isUnachievedGoal);
+                    getUnachievedCheckBoxStyle(
+                      isUnachievedGoal,
+                      theme.colors.brand.routineUpcomingCheckboxBorder,
+                    );
                   const pendingConfirmationCheckBoxStyle = isPendingConfirmation
                     ? {
                         backgroundColor:
@@ -297,7 +301,7 @@ const RoutineCountList = ({
                           {isMissedPastGoal ? (
                             <RoutineMissedIcon
                               size={baseFoundation.iconSize.xs}
-                              color={MISSED_ICON_COLOR}
+                              color={theme.colors.brand.routineProgressText}
                             />
                           ) : achieved || isPendingConfirmation ? (
                             <RoutineCheckmarkIcon
@@ -309,7 +313,9 @@ const RoutineCountList = ({
                               testID={`routine-count-no-goal-icon-${routineId}-${countIndex}`}
                               name="remove"
                               size={baseFoundation.iconSize.s}
-                              color={UNCHECKED_ACCENT_COLOR}
+                              color={
+                                theme.colors.brand.routineUpcomingCheckboxBorder
+                              }
                             />
                           ) : null}
                         </View>
@@ -334,6 +340,7 @@ const RoutineCountList = ({
       routineColorFallback,
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.routineProgressText,
+      theme.colors.brand.routineUpcomingCheckboxBorder,
     ],
   );
 

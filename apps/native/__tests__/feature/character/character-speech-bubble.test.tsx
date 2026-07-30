@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import CharacterSpeechBubble, {
   getCharacterSpeechBubbleMaxWidth,
@@ -61,9 +61,9 @@ describe('CharacterSpeechBubble', () => {
     expect(StyleSheet.flatten(bubbleTail.props.style)).toEqual(
       expect.objectContaining({
         left: '50%',
-        bottom: 2,
-        width: 12,
-        height: 12,
+        bottom: 4,
+        width: 8,
+        height: 8,
         borderRightWidth: 2,
         borderBottomWidth: 2,
         borderColor: palette.theme.green[50],
@@ -83,5 +83,16 @@ describe('CharacterSpeechBubble', () => {
         color: palette.theme.gray[90],
       }),
     );
+  });
+
+  it('텍스트 오른쪽 끝에 보조 아이콘을 표시할 수 있다', () => {
+    const { getByTestId } = render(
+      <CharacterSpeechBubble
+        message="한마디"
+        trailingIcon={<Text testID="speech-bubble-trailing-icon">편집</Text>}
+      />,
+    );
+
+    expect(getByTestId('speech-bubble-trailing-icon')).toBeOnTheScreen();
   });
 });

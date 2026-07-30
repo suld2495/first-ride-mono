@@ -19,6 +19,7 @@ import { useAuthSignIn, useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 const MAX_MOTTO_BYTES = 80;
+const MAX_MOTTO_KOREAN_CHARACTERS = Math.floor(MAX_MOTTO_BYTES / 3);
 const getSkinLevel5Color = (themeName: string) => {
   if (themeName === 'green') {
     return palette.theme.green[5];
@@ -62,6 +63,9 @@ const getUtf8ByteLength = (value: string) => {
   return byteLength;
 };
 
+const getMottoCharacterCountLabel = (value: string) =>
+  `${Array.from(value).length}/${MAX_MOTTO_KOREAN_CHARACTERS}자`;
+
 const limitMottoBytes = (value: string) => {
   let nextValue = '';
   let byteLength = 0;
@@ -96,7 +100,8 @@ const Account = () => {
   const primaryMotto =
     savedMotto === undefined ? currentMotto : (savedMotto ?? '');
   const hasPrimaryMottoChanged = primaryMottoInput !== primaryMotto;
-  const primaryMottoByteLength = getUtf8ByteLength(primaryMottoInput);
+  const primaryMottoCharacterCountLabel =
+    getMottoCharacterCountLabel(primaryMottoInput);
 
   useEffect(() => {
     if (fetchedUser) {
@@ -210,14 +215,12 @@ const Account = () => {
               value={primaryMottoInput}
             />
             <Typography
-              color={palette.theme.gray[60]}
               testID="account-motto-byte-counter"
               variant="caption2"
               weight="semibold"
               style={styles.mottoByteCounter}
             >
-              {primaryMottoByteLength}
-              {` / ${MAX_MOTTO_BYTES}byte`}
+              {primaryMottoCharacterCountLabel}
             </Typography>
           </View>
         </View>
@@ -235,7 +238,7 @@ const styles = StyleSheet.create((theme) => ({
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: theme.foundation.spacing[3],
+    paddingTop: 0,
   },
   characterWrap: {
     alignItems: 'center',
@@ -251,14 +254,16 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   character: {
-    width: 100,
-    height: 100,
+    width: 112,
+    height: 112,
+    transform: [{ translateY: -12 }],
   },
   mottoInputWrapper: {
     width: '100%',
     marginTop: 16,
   },
   mottoByteCounter: {
+    color: theme.colors.brand.routineProgressText,
     marginTop: 6,
     paddingRight: 4,
     textAlign: 'right',

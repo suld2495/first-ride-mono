@@ -109,11 +109,14 @@ describe('MyInfo 로그아웃', () => {
   it('프로필과 경험치 요약을 설정 화면 상단에 표시한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
-    const { getByText, queryAllByText, queryByTestId } = render(<MyInfo />);
+    const { getByText, queryAllByText, queryByTestId, queryByText } = render(
+      <MyInfo />,
+    );
 
     expect(getByText('설정')).toBeOnTheScreen();
     expect(queryAllByText('testuser')).toHaveLength(1);
     expect(getByText('test123')).toBeOnTheScreen();
+    expect(queryByText('레벨')).toBeNull();
     expect(getByText('Lv. 3')).toBeOnTheScreen();
     expect(getByText('경험치')).toBeOnTheScreen();
     expect(getByText('EXP')).toBeOnTheScreen();
@@ -210,7 +213,7 @@ describe('MyInfo 로그아웃', () => {
   it('설정 프로필 영역에 지정된 간격과 색상 토큰을 적용한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
 
-    const { getByTestId, getByText } = render(<MyInfo />);
+    const { getByTestId, getByText, queryByTestId } = render(<MyInfo />);
 
     expect(
       StyleSheet.flatten(getByTestId('settings-profile').props.style),
@@ -225,15 +228,24 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-profile-avatar').props.style),
     ).toEqual(
       expect.objectContaining({
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
       }),
     );
     expect(getByTestId('settings-profile-character')).toBeOnTheScreen();
     expect(getByTestId('settings-profile-character')).toHaveProp('source', {
       uri: 'https://cdn.example.com/characters/warrior.png',
     });
+    expect(
+      StyleSheet.flatten(getByTestId('settings-profile-character').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        width: 52,
+        height: 52,
+        transform: [{ translateY: -6 }],
+      }),
+    );
     expect(
       StyleSheet.flatten(getByTestId('settings-profile-text').props.style),
     ).toEqual(
@@ -247,17 +259,17 @@ describe('MyInfo 로그아웃', () => {
     ).toEqual(
       expect.objectContaining({
         marginTop: 20,
+        flexDirection: 'row',
       }),
     );
-    expect(
-      StyleSheet.flatten(getByTestId('settings-level-badge').props.style),
-    ).toEqual(
-      expect.objectContaining({
-        height: 16,
-        paddingHorizontal: 6,
-        borderRadius: 99,
-      }),
+    const levelBadgeStyle = StyleSheet.flatten(
+      getByTestId('settings-level-badge').props.style,
     );
+
+    expect(levelBadgeStyle.height).toBeUndefined();
+    expect(levelBadgeStyle.paddingHorizontal).toBeUndefined();
+    expect(levelBadgeStyle.borderRadius).toBeUndefined();
+    expect(levelBadgeStyle.backgroundColor).toBeUndefined();
     expect(
       StyleSheet.flatten(getByTestId('settings-exp-row').props.style),
     ).toEqual(
@@ -265,15 +277,16 @@ describe('MyInfo 로그아웃', () => {
         marginTop: 8,
       }),
     );
+    expect(queryByTestId('settings-level-label')).toBeNull();
     expect(
-      StyleSheet.flatten(getByTestId('settings-exp-title-row').props.style),
+      StyleSheet.flatten(getByTestId('settings-exp-value-row').props.style),
     ).toEqual(
       expect.objectContaining({
-        gap: 5,
+        gap: 8,
       }),
     );
     expect(
-      StyleSheet.flatten(getByTestId('settings-exp-value-row').props.style),
+      StyleSheet.flatten(getByTestId('settings-exp-number-row').props.style),
     ).toEqual(
       expect.objectContaining({
         gap: 2,
@@ -338,7 +351,7 @@ describe('MyInfo 로그아웃', () => {
     expect(StyleSheet.flatten(userId.props.style)).toEqual(
       expect.objectContaining({ color: palette.theme.softBlue[50] }),
     );
-    expect(level.props.fontSize).toBe('$caption2');
+    expect(level.props.fontSize).toBe('$h3');
     expect(level.props.fontWeight).toBe('600');
     expect(StyleSheet.flatten(level.props.style)).toEqual(
       expect.objectContaining({ color: palette.theme.blue[80] }),
@@ -351,7 +364,7 @@ describe('MyInfo 로그아웃', () => {
     expect(expUnit.props.fontSize).toBe('$caption2');
     expect(expUnit.props.fontWeight).toBe('600');
     expect(StyleSheet.flatten(expUnit.props.style)).toEqual(
-      expect.objectContaining({ color: palette.theme.softBlue[60] }),
+      expect.objectContaining({ color: palette.theme.softBlue[80] }),
     );
     expect(expCurrent.props.fontSize).toBe('$caption2');
     expect(expCurrent.props.fontWeight).toBe('600');
@@ -421,8 +434,9 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('알림 설정')).toBeOnTheScreen();
     expect(getByText('베타 피드백')).toBeOnTheScreen();
     expect(queryByText('개인정보 설정')).toBeNull();
-    expect(getByText('이용약관')).toBeOnTheScreen();
-    expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
+    expect(getByText('약관')).toBeOnTheScreen();
+    expect(queryByText('이용약관')).toBeNull();
+    expect(queryByText('개인정보 처리방침')).toBeNull();
     expect(queryByText('문의')).toBeNull();
     expect(getByText('이루라 길드')).toBeOnTheScreen();
     expect(getByText('로그아웃')).toBeOnTheScreen();
@@ -431,14 +445,14 @@ describe('MyInfo 로그아웃', () => {
     fireEvent.press(getByText('루틴 설정'));
     fireEvent.press(getByText('알림 설정'));
     fireEvent.press(getByText('베타 피드백'));
-    fireEvent.press(getByText('개인정보 처리방침'));
+    fireEvent.press(getByText('약관'));
     fireEvent.press(getByText('이루라 길드'));
 
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
     expect(global.mockPush).toHaveBeenCalledWith('/routine-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/beta-feedback');
-    expect(global.mockPush).toHaveBeenCalledWith('/modal?type=privacy');
+    expect(global.mockPush).toHaveBeenCalledWith('/terms');
     expect(global.mockPush).toHaveBeenCalledWith('/hall-of-heroes');
   });
 

@@ -31,11 +31,6 @@ const requestImageSlots = Array.from(
   { length: MAX_REQUEST_IMAGE_COUNT },
   (_, index) => index,
 );
-const REQUEST_EMPTY_PROMPT_AREA_MIN_HEIGHT = baseFoundation.dimension.x120;
-const REQUEST_EMPTY_PROMPT_WIDTH =
-  baseFoundation.dimension.x140 + baseFoundation.dimension.x12;
-const REQUEST_EMPTY_PROMPT_MIN_HEIGHT =
-  baseFoundation.dimension.x80 + baseFoundation.dimension.x8;
 const REQUEST_IMAGE_ACTION_HEIGHT = baseFoundation.dimension.x60;
 
 const RequestModal = () => {
@@ -81,17 +76,31 @@ const RequestModal = () => {
               !hasMateTarget && styles.routineSummaryFull,
             ]}
             transparent
-          >
-            <Typography variant="body2" style={styles.infoLabel}>
-              루틴 이름
-            </Typography>
-            <Typography
-              variant="body1"
-              weight="semibold"
-              style={styles.infoValue}
             >
-              {detail?.routineName}
-            </Typography>
+            <ThemeView style={styles.infoGroup} transparent>
+              <Typography variant="body2" style={styles.infoLabel}>
+                루틴 이름
+              </Typography>
+              <Typography
+                variant="body1"
+                weight="semibold"
+                style={styles.infoValue}
+              >
+                {detail?.routineName}
+              </Typography>
+            </ThemeView>
+            <ThemeView style={styles.infoGroup} transparent>
+              <Typography variant="body2" style={styles.infoLabel}>
+                루틴 설명
+              </Typography>
+              <Typography
+                variant="body1"
+                weight="semibold"
+                style={styles.infoValue}
+              >
+                {detail?.routineDetail}
+              </Typography>
+            </ThemeView>
           </ThemeView>
           {hasMateTarget && (
             <>
@@ -141,34 +150,9 @@ const RequestModal = () => {
                   >
                     인증 사진
                   </Typography>
-                  <Typography
-                    variant="body3"
-                    weight="semibold"
-                    style={styles.imageCount}
-                  >
-                    {form.images.length}/{MAX_REQUEST_IMAGE_COUNT}
-                  </Typography>
                 </ThemeView>
 
                 <ThemeView style={styles.uploadFrame} transparent>
-                  {form.images.length < MAX_REQUEST_IMAGE_COUNT && (
-                    <ThemeView
-                      testID="request-empty-image-area"
-                      style={styles.emptyPromptArea}
-                      transparent
-                    >
-                      <Pressable
-                        testID="request-empty-image-button"
-                        accessibilityLabel="사진 추가"
-                        accessibilityHint="앨범에서 사진을 선택합니다"
-                        accessibilityRole="button"
-                        disabled={isPending}
-                        style={styles.emptyPrompt}
-                        onPress={() => pickImage(setValue, form.images)}
-                      />
-                    </ThemeView>
-                  )}
-
                   <ThemeView style={styles.previewList} transparent>
                     {requestImageSlots.map((index) => {
                       const image = form.images[index];
@@ -383,6 +367,7 @@ const styles = StyleSheet.create((theme) => ({
     flexGrow: 0,
     flexShrink: 0,
     justifyContent: 'center',
+    gap: baseFoundation.spacing[3],
   },
 
   routineSummaryFull: {
@@ -395,6 +380,10 @@ const styles = StyleSheet.create((theme) => ({
     paddingLeft: baseFoundation.spacing[5],
   },
 
+  infoGroup: {
+    gap: baseFoundation.spacing[1.5],
+  },
+
   summaryDivider: {
     width: StyleSheet.hairlineWidth,
     height: baseFoundation.dimension.x36,
@@ -403,7 +392,6 @@ const styles = StyleSheet.create((theme) => ({
 
   infoLabel: {
     color: theme.colors.text.muted,
-    marginBottom: baseFoundation.spacing[1.5],
   },
 
   infoValue: {
@@ -467,28 +455,9 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   uploadFrame: {
-    margin: baseFoundation.spacing[4],
-    padding: baseFoundation.spacing[2.5],
-    gap: baseFoundation.spacing[3],
-    borderWidth: baseFoundation.dimension.x1,
-    borderStyle: 'dashed',
-    borderColor: palette.theme.gray[300],
-    borderRadius: baseFoundation.radii.s,
-  },
-
-  emptyPromptArea: {
-    minHeight: REQUEST_EMPTY_PROMPT_AREA_MIN_HEIGHT,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  emptyPrompt: {
-    width: REQUEST_EMPTY_PROMPT_WIDTH,
-    minHeight: REQUEST_EMPTY_PROMPT_MIN_HEIGHT,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: baseFoundation.spacing[1.5],
-    borderRadius: baseFoundation.radii.xs,
+    marginHorizontal: baseFoundation.spacing[4],
+    marginTop: baseFoundation.spacing[2],
+    marginBottom: baseFoundation.spacing[4],
   },
 
   preview: {

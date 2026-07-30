@@ -95,7 +95,7 @@ const RoutineHeader = ({
           <View style={styles.actions} testID="routine-header-actions">
             {onPressReorder ? (
               <IconButton
-                size="sm"
+                size="md"
                 variant="ghost"
                 icon={({ size }) => (
                   <Ionicons
@@ -114,7 +114,7 @@ const RoutineHeader = ({
             {showNotification ? (
               <NotificationBell
                 count={notificationCount}
-                size="sm"
+                size="md"
                 style={styles.actionButton}
                 url="/modal?type=request-list"
               />
@@ -155,7 +155,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   actionButton: {
-    width: baseFoundation.dimension.x24,
-    minWidth: baseFoundation.dimension.x24,
+    width: baseFoundation.dimension.x40,
+    minWidth: baseFoundation.dimension.x40,
   },
 }));

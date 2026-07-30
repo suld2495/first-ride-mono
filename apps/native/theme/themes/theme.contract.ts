@@ -284,7 +284,7 @@ export const baseTheme: ThemeContract = {
       routineBorder: palette.theme.blue[80],
       routineBackground: '#2f3640',
       routineMissedCheckbox: palette.theme.blue[90],
-      routineUpcomingCheckboxBorder: palette.theme.softBlue[80],
+      routineUpcomingCheckboxBorder: palette.theme.softBlue[60],
       routineProgressText: palette.theme.softBlue[60],
     },
   },

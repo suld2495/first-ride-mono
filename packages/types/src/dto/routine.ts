@@ -18,7 +18,9 @@ export type CreateMyRoutineRequest = {
 
 export type CreateMateRoutineRequest = {
   target: 'mate';
-  payload: CreateRoutinePayload & Pick<RoutineForm, 'penalty' | 'mateNickname'>;
+  payload: CreateRoutinePayload &
+    Pick<RoutineForm, 'mateNickname'> &
+    Partial<Pick<RoutineForm, 'penalty'>>;
 };
 
 export type CreateRoutineRequest =

@@ -3,7 +3,7 @@ import React from 'react';
 import type { ImageSourcePropType } from 'react-native';
 import { Image, View } from 'react-native';
 
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
@@ -27,16 +27,20 @@ type DotProps = {
   completed: boolean;
   fireworksTestID?: string;
   routineColor: string;
+  trackColor: string;
   testID?: string;
 };
 
 type SummaryItemProps = {
   item: RoutineStatsSummaryItem;
-  isLast: boolean;
 };
 
 const DOTS_PER_ROW = 7;
+const DOT_SIZE = baseFoundation.dimension.x36;
+const DOT_GAP = baseFoundation.spacing[2];
+const ROW_GAP = baseFoundation.spacing[2];
 const TRACK_LINE_WIDTH = 1;
+const ROW_WIDTH = DOTS_PER_ROW * DOT_SIZE + (DOTS_PER_ROW - 1) * DOT_GAP;
 const ROUTINE_COMPLETION_FIREWORKS =
   require('@/assets/stat/routine-completion-fireworks.png') as ImageSourcePropType;
 
@@ -55,24 +59,22 @@ const getCompletedDotIndexes = (
   totalDotCount: number,
   completedDotCount: number,
 ) =>
-  getDotRows(totalDotCount)
-    .flatMap((row, rowIndex) =>
-      rowIndex % 2 === 0
-        ? row
-        : row.map((_value, index) => row[row.length - index - 1]),
-    )
-    .slice(0, completedDotCount);
+  Array.from(
+    { length: Math.min(totalDotCount, completedDotCount) },
+    (_, index) => index,
+  );
 
 const Dot = ({
   completed,
   fireworksTestID,
   routineColor,
+  trackColor,
   testID,
 }: DotProps) => (
   <View
     style={[
       styles.dot,
-      { borderColor: routineColor },
+      { borderColor: trackColor },
       completed ? { backgroundColor: routineColor } : styles.dotEmpty,
     ]}
     testID={testID}
@@ -93,7 +95,9 @@ const Dot = ({
   </View>
 );
 
-const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
+const SummaryItem = ({ item }: SummaryItemProps) => {
+  const { theme } = useAppTheme();
+  const trackColor = theme.colors.text.soft;
   const completedSet = React.useMemo(
     () => new Set(item.completedIndexes),
     [item.completedIndexes],
@@ -126,6 +130,12 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
         <View style={styles.track}>
           {dotRows.map((row, rowIndex) => {
             const isLastRow = rowIndex === dotRows.length - 1;
+            const isReverseRow = rowIndex % 2 === 1;
+            const displayRow = isReverseRow ? [...row].reverse() : row;
+            const rowLineWidth = Math.max(
+              0,
+              (row.length - 1) * (DOT_SIZE + DOT_GAP),
+            );
             const terminalDotIndex =
               rowIndex % 2 === 0 ? row[row.length - 1] : row[0];
             const connectorSide =
@@ -136,27 +146,36 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
             return (
               <View
                 key={`row-${rowIndex}`}
-                style={styles.trackRow}
+                style={[
+                  styles.trackRow,
+                  isReverseRow && styles.trackRowReverse,
+                ]}
                 testID={`routine-stats-summary-track-row-${item.id}-${rowIndex}`}
               >
-                <View
-                  style={[
-                    styles.rowLine,
-                    { backgroundColor: item.routineColor },
-                  ]}
-                  testID={`routine-stats-summary-row-line-${item.id}-${rowIndex}`}
-                />
+                {row.length > 1 ? (
+                  <View
+                    style={[
+                      styles.rowLine,
+                      isReverseRow ? styles.rowLineRight : styles.rowLineLeft,
+                      {
+                        backgroundColor: trackColor,
+                        width: rowLineWidth,
+                      },
+                    ]}
+                    testID={`routine-stats-summary-row-line-${item.id}-${rowIndex}`}
+                  />
+                ) : null}
                 {!isLastRow ? (
                   <View
                     style={[
                       styles.rowTurnConnector,
                       connectorSide,
-                      { borderColor: item.routineColor },
+                      { borderColor: trackColor },
                     ]}
                     testID={`routine-stats-summary-turn-connector-${item.id}-${rowIndex}`}
                   />
                 ) : null}
-                {row.map((index) => (
+                {displayRow.map((index) => (
                   <Dot
                     key={index}
                     completed={completedSet.has(index)}
@@ -166,6 +185,7 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
                         : undefined
                     }
                     routineColor={item.routineColor}
+                    trackColor={trackColor}
                     testID={`routine-stats-summary-dot-${item.id}-${index}`}
                   />
                 ))}
@@ -174,12 +194,6 @@ const SummaryItem = ({ item, isLast }: SummaryItemProps) => {
           })}
         </View>
       </ThemeView>
-
-      {!isLast ? (
-        <View
-          style={[styles.divider, { backgroundColor: item.routineColor }]}
-        />
-      ) : null}
     </ThemeView>
   );
 };
@@ -237,12 +251,8 @@ const RoutineStatsSummary = ({
       style={styles.container}
       testID="routine-stats-summary"
     >
-      {summaryItems.map((item, index) => (
-        <SummaryItem
-          key={item.id}
-          item={item}
-          isLast={index === summaryItems.length - 1}
-        />
+      {summaryItems.map((item) => (
+        <SummaryItem key={item.id} item={item} />
       ))}
     </ThemeView>
   );
@@ -268,27 +278,38 @@ const styles = StyleSheet.create((theme) => {
       paddingBottom: 0,
     },
     track: {
-      gap: theme.foundation.spacing[3],
+      width: ROW_WIDTH,
+      alignSelf: 'center',
+      gap: ROW_GAP,
     },
     trackRow: {
       position: 'relative',
+      width: ROW_WIDTH,
       minHeight: baseFoundation.dimension.x36,
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-start',
+      gap: DOT_GAP,
     },
     rowLine: {
       position: 'absolute',
-      left: baseFoundation.dimension.x18,
-      right: baseFoundation.dimension.x18,
       top: baseFoundation.dimension.x18,
       height: TRACK_LINE_WIDTH,
+    },
+    rowLineLeft: {
+      left: baseFoundation.dimension.x18,
+    },
+    trackRowReverse: {
+      justifyContent: 'flex-end',
+    },
+    rowLineRight: {
+      right: baseFoundation.dimension.x18,
     },
     rowTurnConnector: {
       position: 'absolute',
       top: baseFoundation.dimension.x18,
       width: baseFoundation.dimension.x36,
-      height: baseFoundation.dimension.x48,
+      height: DOT_SIZE + ROW_GAP,
       borderTopWidth: TRACK_LINE_WIDTH,
       borderBottomWidth: TRACK_LINE_WIDTH,
     },
@@ -314,7 +335,6 @@ const styles = StyleSheet.create((theme) => {
     },
     dotEmpty: {
       backgroundColor: theme.colors.background.base,
-      opacity: 0.7,
     },
     fireworksContainer: {
       position: 'absolute',
@@ -328,10 +348,6 @@ const styles = StyleSheet.create((theme) => {
     fireworksIcon: {
       width: baseFoundation.dimension.x28,
       height: baseFoundation.dimension.x28,
-    },
-    divider: {
-      height: TRACK_LINE_WIDTH,
-      marginTop: theme.foundation.spacing[1],
     },
   };
 });

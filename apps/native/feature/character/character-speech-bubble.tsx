@@ -33,6 +33,7 @@ type CharacterSpeechBubbleProps = ViewProps & {
   textStyle?: StyleProp<TextStyle>;
   textVariant?: TypographyVariant;
   themeName?: ThemeName;
+  trailingIcon?: ReactNode;
   wrapperTop?: number;
   singleLineWrapperTop?: number;
 };
@@ -42,6 +43,9 @@ const BUBBLE_MIN_WIDTH = baseFoundation.dimension.x96;
 const BUBBLE_DEFAULT_MIN_HEIGHT = baseFoundation.dimension.x32;
 const BUBBLE_DEFAULT_PADDING_HORIZONTAL = baseFoundation.spacing[4];
 const BUBBLE_DEFAULT_PADDING_VERTICAL = baseFoundation.spacing[2];
+const BUBBLE_TAIL_SIZE = baseFoundation.dimension.x8;
+const BUBBLE_TAIL_HALF_SIZE = BUBBLE_TAIL_SIZE / 2;
+const BUBBLE_SIDE_TAIL_OFFSET = -(BUBBLE_TAIL_HALF_SIZE + BUBBLE_BORDER_WIDTH);
 const SCREEN_HORIZONTAL_MARGIN = 17.5;
 
 const speechBubbleBorderColors = {
@@ -75,6 +79,7 @@ const CharacterSpeechBubble = ({
   textStyle,
   textVariant = 'body3',
   themeName: themeNameOverride,
+  trailingIcon,
   wrapperTop,
   singleLineWrapperTop,
   testID = 'character-speech-bubble',
@@ -128,18 +133,23 @@ const CharacterSpeechBubble = ({
         style={[styles.container, containerLayoutStyle]}
         testID={`${testID}-container`}
       >
-        <Typography
-          color={theme.colors.text.gray}
-          variant={textVariant}
-          weight="semibold"
-          ellipsizeMode="tail"
-          numberOfLines={numberOfLines}
-          onTextLayout={handleTextLayout}
-          textAlign="center"
-          style={[styles.message, textStyle]}
-        >
-          {children ?? message}
-        </Typography>
+        <View style={styles.messageRow}>
+          <Typography
+            color={theme.colors.text.gray}
+            variant={textVariant}
+            weight="semibold"
+            ellipsizeMode="tail"
+            numberOfLines={numberOfLines}
+            onTextLayout={handleTextLayout}
+            textAlign="center"
+            style={[styles.message, textStyle]}
+          >
+            {children ?? message}
+          </Typography>
+          {trailingIcon ? (
+            <View style={styles.trailingIcon}>{trailingIcon}</View>
+          ) : null}
+        </View>
       </View>
       {tailPosition !== 'none' && (
         <View
@@ -171,9 +181,18 @@ const styles = StyleSheet.create(() => ({
     overflow: 'visible',
   },
   message: {
-    alignSelf: 'stretch',
+    flexShrink: 1,
     lineHeight: 16,
     textAlign: 'center',
+  },
+  messageRow: {
+    maxWidth: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  trailingIcon: {
+    marginLeft: baseFoundation.spacing[1],
   },
   tail: {
     position: 'absolute',
@@ -181,32 +200,32 @@ const styles = StyleSheet.create(() => ({
   },
   bottomTail: {
     left: '50%',
-    bottom: baseFoundation.dimension.x2,
-    marginLeft: -6,
-    width: baseFoundation.dimension.x12,
-    height: baseFoundation.dimension.x12,
+    bottom: baseFoundation.dimension.x4,
+    marginLeft: -BUBBLE_TAIL_HALF_SIZE,
+    width: BUBBLE_TAIL_SIZE,
+    height: BUBBLE_TAIL_SIZE,
     borderRightWidth: BUBBLE_BORDER_WIDTH,
     borderBottomWidth: BUBBLE_BORDER_WIDTH,
     backgroundColor: palette.white,
     transform: [{ rotate: '45deg' }],
   },
   leftTail: {
-    left: -7,
+    left: BUBBLE_SIDE_TAIL_OFFSET,
     top: '50%',
-    marginTop: -6,
-    width: baseFoundation.dimension.x12,
-    height: baseFoundation.dimension.x12,
+    marginTop: -BUBBLE_TAIL_HALF_SIZE,
+    width: BUBBLE_TAIL_SIZE,
+    height: BUBBLE_TAIL_SIZE,
     borderRightWidth: BUBBLE_BORDER_WIDTH,
     borderBottomWidth: BUBBLE_BORDER_WIDTH,
     backgroundColor: palette.white,
     transform: [{ rotate: '45deg' }],
   },
   rightTail: {
-    right: -7,
+    right: BUBBLE_SIDE_TAIL_OFFSET,
     top: '50%',
-    marginTop: -6,
-    width: baseFoundation.dimension.x12,
-    height: baseFoundation.dimension.x12,
+    marginTop: -BUBBLE_TAIL_HALF_SIZE,
+    width: BUBBLE_TAIL_SIZE,
+    height: BUBBLE_TAIL_SIZE,
     borderRightWidth: BUBBLE_BORDER_WIDTH,
     borderBottomWidth: BUBBLE_BORDER_WIDTH,
     backgroundColor: palette.white,

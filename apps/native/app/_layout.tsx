@@ -89,10 +89,7 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
 
   return (
     <>
-      <StatusBar
-        key={`root-status-bar-${colorScheme}`}
-        style={colorScheme === 'light' ? 'dark' : 'light'}
-      />
+      <StatusBar style="dark" />
       <SplashScreenController isReady={isFontReady} />
       <NavThemeProvider value={NAV_THEME[colorScheme]}>
         <Stack
