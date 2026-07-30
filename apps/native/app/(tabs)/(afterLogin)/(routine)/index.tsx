@@ -237,10 +237,10 @@ export default function Index() {
                         trailingIcon={
                           <PencilIcon
                             color={styles.speechBubbleEditIcon.color}
-                            height={baseFoundation.iconSize.s}
+                            height={baseFoundation.dimension.x12}
                             opacity={0.45}
                             testID="routine-speech-bubble-edit-icon"
-                            width={baseFoundation.iconSize.s}
+                            width={baseFoundation.dimension.x12}
                           />
                         }
                       />
@@ -278,10 +278,10 @@ export default function Index() {
                         trailingIcon={
                           <PencilIcon
                             color={styles.speechBubbleEditIcon.color}
-                            height={baseFoundation.iconSize.s}
+                            height={baseFoundation.dimension.x12}
                             opacity={0.45}
                             testID="routine-speech-bubble-edit-icon"
-                            width={baseFoundation.iconSize.s}
+                            width={baseFoundation.dimension.x12}
                           />
                         }
                       />
@@ -345,7 +345,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   content: {
     flex: 1,
-    paddingHorizontal: theme.foundation.spacing[4],
+    paddingHorizontal: theme.foundation.spacing[6],
     position: 'relative',
   },
   loadingContainer: {
@@ -359,16 +359,16 @@ const styles = StyleSheet.create((theme) => ({
   },
   routineCharacterArea: {
     position: 'absolute',
-    right: theme.foundation.spacing[4],
-    left: theme.foundation.spacing[4],
+    right: theme.foundation.spacing[6],
+    left: theme.foundation.spacing[6],
     alignItems: 'center',
     zIndex: 1,
   },
   emptyStateOverlay: {
     position: 'absolute',
     top: baseFoundation.spacing[0],
-    right: theme.foundation.spacing[4],
-    left: theme.foundation.spacing[4],
+    right: theme.foundation.spacing[6],
+    left: theme.foundation.spacing[6],
     height: '48%',
   },
   characterStage: {
@@ -385,7 +385,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   fab: {
     position: 'absolute',
-    right: theme.foundation.spacing[4],
+    right: theme.foundation.spacing[6],
     bottom: theme.foundation.spacing[5],
     width: baseFoundation.dimension.x60,
     height: baseFoundation.dimension.x60,
