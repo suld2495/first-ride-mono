@@ -322,16 +322,17 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
   describe('필수값 입력 전 추가 버튼 비활성화 테스트', () => {
     it('메이트와 함께 루틴 체크를 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
-      const { getByTestId, getByText, queryByPlaceholderText } = render(
+      const { getAllByTestId, getByText, queryByPlaceholderText } = render(
         <RoutineFormModal />,
       );
+      const mateCheckbox = getAllByTestId('bouncy-checkbox')[0];
 
       expect(getByText('메이트와 함께 루틴 체크')).toHaveStyle({
         color: '#272A2D',
       });
-      expect(getByTestId('bouncy-checkbox').props.disableText).toBe(true);
-      expect(getByTestId('bouncy-checkbox').props.isChecked).toBe(false);
-      expect(getByTestId('bouncy-checkbox').props.fillColor).toBe('#000306');
+      expect(mateCheckbox.props.disableText).toBe(true);
+      expect(mateCheckbox.props.isChecked).toBe(false);
+      expect(mateCheckbox.props.fillColor).toBe('#000306');
       expect(queryByPlaceholderText('메이트를 지정하세요.')).not.toBeOnTheScreen();
       expect(queryByPlaceholderText('벌금을 입력하세요.')).not.toBeOnTheScreen();
     });
@@ -627,12 +628,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('벌금 입력 시 숫자만 입력된다', async () => {
-      const { getByPlaceholderText, getByTestId } = render(
+      const { getAllByTestId, getByPlaceholderText } = render(
         <RoutineFormModal />,
       );
 
       await act(async () => {
-        fireEvent.press(getByTestId('bouncy-checkbox'));
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
       });
 
       const penaltyInput = getByPlaceholderText('벌금을 입력하세요.');
@@ -646,12 +647,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('벌금 입력 시 천 단위 콤마가 표시된다', async () => {
-      const { getByPlaceholderText, getByTestId } = render(
+      const { getAllByTestId, getByPlaceholderText } = render(
         <RoutineFormModal />,
       );
 
       await act(async () => {
-        fireEvent.press(getByTestId('bouncy-checkbox'));
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
       });
 
       const penaltyInput = getByPlaceholderText('벌금을 입력하세요.');
@@ -737,6 +738,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
             routineDetail: '테스트 설명',
             routineCount: 3,
             symbolColor: '#00D68F',
+            hidden: false,
           });
           expect(payload).not.toHaveProperty('nickname');
           expect(payload).not.toHaveProperty('isMe');
@@ -746,15 +748,52 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         });
       });
 
+      it('숨김 체크 시 생성 요청에 hidden true를 보낸다', async () => {
+        const {
+          getAllByTestId,
+          getByLabelText,
+          getByPlaceholderText,
+          getByText,
+        } = render(<RoutineFormModal />);
+
+        await act(async () => {
+          fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
+        });
+
+        await fillAllRequiredFields(
+          getByPlaceholderText,
+          getByText,
+          getByLabelText,
+        );
+
+        await waitFor(() => {
+          expect(getByText('생성')).toBeEnabled();
+        });
+
+        await act(async () => {
+          fireEvent.press(getByText('생성'));
+        });
+
+        await waitFor(() => {
+          const payload = JSON.parse(mockAxios.history.post[0]?.data ?? '{}');
+
+          expect(payload.hidden).toBe(true);
+        });
+      });
+
       it('메이트와 함께 루틴 체크 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
         mockAxios.onPost('/routine/mate').reply(201, {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
-        const { getByLabelText, getByPlaceholderText, getByTestId, getByText } =
-          render(<RoutineFormModal />);
+        const {
+          getAllByTestId,
+          getByLabelText,
+          getByPlaceholderText,
+          getByText,
+        } = render(<RoutineFormModal />);
 
         await act(async () => {
-          fireEvent.press(getByTestId('bouncy-checkbox'));
+          fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
         });
 
         const mateInput = getByPlaceholderText('메이트를 지정하세요.');
@@ -896,11 +935,14 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(queryByText('취소')).not.toBeOnTheScreen();
     });
 
-    it('루틴 상태 체크박스 항목은 표시되지 않는다', async () => {
-      const { queryByText } = render(<RoutineFormModal />);
+    it('루틴 숨김 체크박스를 기본 해제 상태로 표시한다', async () => {
+      const { getAllByTestId, getByText, queryByText } = render(
+        <RoutineFormModal />,
+      );
 
       expect(queryByText('루틴 일시정지')).not.toBeOnTheScreen();
-      expect(queryByText('루틴 숨김')).not.toBeOnTheScreen();
+      expect(getByText('루틴 숨김')).toBeOnTheScreen();
+      expect(getAllByTestId('bouncy-checkbox')[1].props.isChecked).toBe(false);
     });
   });
 });
