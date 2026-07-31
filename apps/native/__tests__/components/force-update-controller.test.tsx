@@ -8,7 +8,10 @@ import {
 import RNExitApp from 'react-native-exit-app';
 
 import { render, waitFor } from '@/__tests__/setup/test-utils';
-import { fetchLatestAppStoreVersion } from '@/api/app-store-version.api';
+import {
+  TESTFLIGHT_UPDATE_URL,
+  fetchRequiredAppVersion,
+} from '@/api/app-version.api';
 import ForceUpdateController from '@/components/force-update-controller';
 
 jest.mock('expo-application', () => ({
@@ -27,13 +30,12 @@ jest.mock(
   { virtual: true },
 );
 
-jest.mock('@/api/app-store-version.api', () => ({
-  fetchLatestAppStoreVersion: jest.fn(),
+jest.mock('@/api/app-version.api', () => ({
+  TESTFLIGHT_UPDATE_URL: 'https://testflight.apple.com/join/qasZjjWJ',
+  fetchRequiredAppVersion: jest.fn(),
 }));
 
-const mockedFetchLatestAppStoreVersion = jest.mocked(
-  fetchLatestAppStoreVersion,
-);
+const mockedFetchRequiredAppVersion = jest.mocked(fetchRequiredAppVersion);
 const mockedExitApp = jest.mocked(RNExitApp.exitApp);
 
 describe('ForceUpdateController', () => {
@@ -43,7 +45,7 @@ describe('ForceUpdateController', () => {
 
   beforeEach(() => {
     jest.replaceProperty(Platform, 'OS', 'ios');
-    mockedFetchLatestAppStoreVersion.mockReset();
+    mockedFetchRequiredAppVersion.mockReset();
     mockedExitApp.mockReset();
     alertSpy.mockReset();
     openUrlSpy.mockReset();
@@ -58,9 +60,9 @@ describe('ForceUpdateController', () => {
   });
 
   it('shows a required update confirm when the installed version is lower', async () => {
-    mockedFetchLatestAppStoreVersion.mockResolvedValue({
-      version: '1.1.0',
-      storeUrl: 'https://apps.apple.com/kr/app/id6747031303',
+    mockedFetchRequiredAppVersion.mockResolvedValue({
+      minimumVersion: '1.1.0',
+      updateUrl: TESTFLIGHT_UPDATE_URL,
     });
 
     render(<ForceUpdateController />);
@@ -76,11 +78,9 @@ describe('ForceUpdateController', () => {
   });
 
   it('opens the App Store from the update button', async () => {
-    const storeUrl = 'https://apps.apple.com/kr/app/id6747031303';
-
-    mockedFetchLatestAppStoreVersion.mockResolvedValue({
-      version: '1.1.0',
-      storeUrl,
+    mockedFetchRequiredAppVersion.mockResolvedValue({
+      minimumVersion: '1.1.0',
+      updateUrl: TESTFLIGHT_UPDATE_URL,
     });
 
     render(<ForceUpdateController />);
@@ -93,13 +93,13 @@ describe('ForceUpdateController', () => {
 
     updateButton?.onPress?.();
 
-    expect(openUrlSpy).toHaveBeenCalledWith(storeUrl);
+    expect(openUrlSpy).toHaveBeenCalledWith(TESTFLIGHT_UPDATE_URL);
   });
 
   it('exits the app from the cancel button', async () => {
-    mockedFetchLatestAppStoreVersion.mockResolvedValue({
-      version: '1.1.0',
-      storeUrl: 'https://apps.apple.com/kr/app/id6747031303',
+    mockedFetchRequiredAppVersion.mockResolvedValue({
+      minimumVersion: '1.1.0',
+      updateUrl: TESTFLIGHT_UPDATE_URL,
     });
 
     render(<ForceUpdateController />);
@@ -119,29 +119,29 @@ describe('ForceUpdateController', () => {
   ])(
     'does not interrupt the user when %s',
     async (_caseName, currentVersion, latestVersion) => {
-      mockedFetchLatestAppStoreVersion.mockResolvedValue({
-        version: latestVersion,
-        storeUrl: 'https://apps.apple.com/kr/app/id6747031303',
+      mockedFetchRequiredAppVersion.mockResolvedValue({
+        minimumVersion: latestVersion,
+        updateUrl: TESTFLIGHT_UPDATE_URL,
       });
 
       render(<ForceUpdateController installedVersion={currentVersion} />);
 
       await waitFor(() =>
-        expect(mockedFetchLatestAppStoreVersion).toHaveBeenCalledTimes(1),
+        expect(mockedFetchRequiredAppVersion).toHaveBeenCalledTimes(1),
       );
       expect(alertSpy).not.toHaveBeenCalled();
     },
   );
 
   it('fails open when the store lookup is unavailable', async () => {
-    mockedFetchLatestAppStoreVersion.mockRejectedValue(
+    mockedFetchRequiredAppVersion.mockRejectedValue(
       new Error('network unavailable'),
     );
 
     render(<ForceUpdateController />);
 
     await waitFor(() =>
-      expect(mockedFetchLatestAppStoreVersion).toHaveBeenCalledTimes(1),
+      expect(mockedFetchRequiredAppVersion).toHaveBeenCalledTimes(1),
     );
     expect(alertSpy).not.toHaveBeenCalled();
   });
@@ -155,9 +155,9 @@ describe('ForceUpdateController', () => {
         return { remove: jest.fn() };
       });
 
-    mockedFetchLatestAppStoreVersion.mockResolvedValue({
-      version: '1.1.0',
-      storeUrl: 'https://apps.apple.com/kr/app/id6747031303',
+    mockedFetchRequiredAppVersion.mockResolvedValue({
+      minimumVersion: '1.1.0',
+      updateUrl: TESTFLIGHT_UPDATE_URL,
     });
 
     render(<ForceUpdateController />);
@@ -166,7 +166,7 @@ describe('ForceUpdateController', () => {
     appStateHandler?.('active');
 
     await waitFor(() =>
-      expect(mockedFetchLatestAppStoreVersion).toHaveBeenCalledTimes(2),
+      expect(mockedFetchRequiredAppVersion).toHaveBeenCalledTimes(2),
     );
 
     appStateSpy.mockRestore();
@@ -178,7 +178,7 @@ describe('ForceUpdateController', () => {
     render(<ForceUpdateController />);
 
     await waitFor(() =>
-      expect(mockedFetchLatestAppStoreVersion).not.toHaveBeenCalled(),
+      expect(mockedFetchRequiredAppVersion).not.toHaveBeenCalled(),
     );
     expect(alertSpy).not.toHaveBeenCalled();
   });
