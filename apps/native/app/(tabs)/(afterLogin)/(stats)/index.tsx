@@ -173,7 +173,7 @@ export default function StatsPage() {
       {isSummaryMode ? (
         <ScrollView
           testID="stats-summary-scroll"
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, styles.scrollContent]}
           showsVerticalScrollIndicator={false}
         >
           {renderMonthHeader()}
@@ -188,7 +188,7 @@ export default function StatsPage() {
           )}
         </ScrollView>
       ) : isLoading ? (
-        <ThemeView transparent style={styles.content}>
+        <ThemeView transparent style={[styles.content, styles.screenContent]}>
           {renderMonthHeader()}
           <ThemeView transparent style={styles.stateContainer}>
             <Loading />
@@ -212,7 +212,7 @@ export default function StatsPage() {
           windowSize={5}
         />
       ) : (
-        <ThemeView transparent style={styles.content}>
+        <ThemeView transparent style={[styles.content, styles.screenContent]}>
           {renderMonthHeader()}
           <EmptyState transparent message="등록된 루틴이 없습니다." />
         </ThemeView>
@@ -226,6 +226,12 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.foundation.spacing[6],
     paddingTop: 0,
     paddingBottom: theme.foundation.spacing[10],
+  },
+  screenContent: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   monthHeader: {
     alignSelf: 'center',
