@@ -13,6 +13,9 @@ jest.mock('@/hooks/useReceivedRequests', () => ({
 }));
 
 describe('Header 컴포넌트', () => {
+  const pageHeaderHeight =
+    baseFoundation.dimension.x44 - baseFoundation.dimension.x6;
+
   beforeEach(() => {
     resetAuthMocks();
     mockUseReceivedRequests.mockClear();
@@ -81,8 +84,7 @@ describe('Header 컴포넌트', () => {
       .UNSAFE_getAllByType(View)
       .filter(
         (node) =>
-          StyleSheet.flatten(node.props.style)?.height ===
-          baseFoundation.dimension.x44,
+          StyleSheet.flatten(node.props.style)?.height === pageHeaderHeight,
       );
 
     expect(commonHeaderViews).toHaveLength(1);
