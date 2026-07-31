@@ -1,14 +1,12 @@
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { routineFormValidators } from '@repo/shared/service/validatorMessage';
-import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { RoutinePeriodWarningIcon } from '@/components/icons/routine-period-warning-icon';
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
 import { getRoutineSceneRemoteAsset } from '@/components/routine/routine-scene-art';
 import {
@@ -17,7 +15,7 @@ import {
   type AutocompleteItem,
 } from '@/components/ui/autocomplete-input';
 import Checkbox from '@/components/ui/checkbox';
-import DatePicker from '@/components/ui/date-picker';
+import DatePickerButton from '@/components/ui/date-picker-button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
@@ -33,7 +31,13 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
 import { useRoutineDelete } from '@/hooks/useRoutineDelete';
 import { useRoutineFormSubmission } from '@/hooks/useRoutineFormSubmission';
-import { useRoutineForm, useRoutineId } from '@/hooks/useRoutineSelection';
+import {
+  useBeginRoutineDateSelection,
+  useClearRoutineDateSelection,
+  useRoutineDateSelection,
+  useRoutineForm,
+  useRoutineId,
+} from '@/hooks/useRoutineSelection';
 import { baseFoundation, palette } from '@/theme/tokens';
 import type { ModalType } from '@/types/modal';
 
@@ -77,23 +81,6 @@ const formatPenalty = (value: string | number | undefined) => {
   return penaltyValue ? Number(penaltyValue).toLocaleString('ko-KR') : '0';
 };
 
-const getDateFromFormValue = (date?: string) => {
-  if (!date) {
-    return null;
-  }
-
-  const [year, month, day] = date.split('-').map(Number);
-
-  return new Date(year, month - 1, day);
-};
-
-const getStartOfToday = () => {
-  const today = new Date();
-
-  today.setHours(0, 0, 0, 0);
-  return today;
-};
-
 type RoutineStatusForm = RoutineForm & {
   paused?: boolean;
   hidden?: boolean;
@@ -101,6 +88,56 @@ type RoutineStatusForm = RoutineForm & {
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RoutineStatusForm>();
+
+const RoutineDateFormItem = () => {
+  const router = useRouter();
+  const { setValue } = useForm();
+  const routineDateSelection = useRoutineDateSelection();
+  const beginRoutineDateSelection = useBeginRoutineDateSelection();
+  const clearRoutineDateSelection = useClearRoutineDateSelection();
+  const confirmedStartDate = routineDateSelection?.confirmedStartDate;
+  const confirmedEndDate = routineDateSelection?.confirmedEndDate;
+
+  useEffect(() => {
+    if (!confirmedStartDate) {
+      return;
+    }
+
+    setValue('startDate', confirmedStartDate);
+    setValue('endDate', confirmedEndDate ?? '');
+    clearRoutineDateSelection();
+  }, [
+    clearRoutineDateSelection,
+    confirmedEndDate,
+    confirmedStartDate,
+    setValue,
+  ]);
+
+  return (
+    <FormItem
+      name="startDate"
+      label="루틴 기간"
+      item={({ value, form }) => (
+        <ThemeView style={styles.dateContainer} transparent>
+          <DatePickerButton
+            buttonTitle={
+              value
+                ? `${value}${form.endDate ? ` ~ ${form.endDate}` : ''}`
+                : '날짜 선택'
+            }
+            variant="outlined"
+            onPress={() => {
+              beginRoutineDateSelection(value || null, form.endDate || null);
+              router.push('/routine-date-select');
+            }}
+            buttonStyle={styles.button}
+          />
+        </ThemeView>
+      )}
+      required
+    />
+  );
+};
 
 const RoutineFormModal = () => {
   const { type } = useLocalSearchParams<{ type: ModalType }>();
@@ -143,8 +180,6 @@ const RoutineFormModal = () => {
   useEffect(() => {
     setMateKeyword(normalizedRoutineForm.isMe ? '' : initialMateNickname);
   }, [initialMateNickname, normalizedRoutineForm.isMe]);
-  const today = useMemo(() => getStartOfToday(), []);
-
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
   const {
     handleCreate,
@@ -302,57 +337,7 @@ const RoutineFormModal = () => {
           )}
           required
         />
-        <FormItem
-          name="startDate"
-          label="루틴 기간"
-          tooltipText="시작일부터 종료일까지 루틴을 진행할 기간을 선택해주세요."
-          tooltipIcon={<RoutinePeriodWarningIcon />}
-          item={({ value, form, setValue }) => (
-            <ThemeView style={styles.date}>
-              <ThemeView style={styles.dateContainer} transparent>
-                <DatePicker
-                  value={getDateFromFormValue(value)}
-                  buttonTitle={form.startDate || '시작일 선택'}
-                  variant="outlined"
-                  sheetLabel="시작일 선택"
-                  minimumDate={today}
-                  defaultDate={today}
-                  onConfirmDate={(date) => {
-                    setValue('startDate', getFormatDate(date));
-
-                    const endDate = getDateFromFormValue(form.endDate) ?? date;
-
-                    if (form.endDate && endDate < date) {
-                      setValue('endDate', getFormatDate(date));
-                    }
-                  }}
-                  buttonStyle={styles.button}
-                />
-              </ThemeView>
-              <ThemeView style={styles.dateContainer} transparent>
-                <DatePicker
-                  value={getDateFromFormValue(form.endDate)}
-                  buttonTitle={form.endDate || '종료일 선택'}
-                  variant="outlined"
-                  sheetLabel="종료일 선택"
-                  minimumDate={getDateFromFormValue(form.startDate) ?? today}
-                  defaultDate={getDateFromFormValue(form.startDate) ?? today}
-                  onConfirmDate={(date) => {
-                    setValue('endDate', getFormatDate(date));
-
-                    const startDate = getDateFromFormValue(form.startDate);
-
-                    if (startDate && startDate > date) {
-                      setValue('startDate', getFormatDate(date));
-                    }
-                  }}
-                  buttonStyle={styles.button}
-                />
-              </ThemeView>
-            </ThemeView>
-          )}
-          required
-        />
+        <RoutineDateFormItem />
         <FormItem
           name="routineCount"
           label="루틴 횟수"
@@ -584,12 +569,6 @@ const styles = StyleSheet.create((theme) => ({
     flexGrow: 1,
     gap: theme.foundation.spacing[6],
     paddingBottom: theme.foundation.spacing[6],
-  },
-
-  date: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: theme.foundation.spacing[3],
   },
 
   dateContainer: {

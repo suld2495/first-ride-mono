@@ -20,11 +20,12 @@ import { StyleSheet, type AppThemes } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 interface DateCalendarProps {
   minimumDate?: Date;
   selectedDate: Date | null;
+  selectedEndDate?: Date | null;
   onSelectDate: (date: Date) => void;
   onConfirm: () => void;
   onCancel: () => void;
@@ -36,7 +37,7 @@ const WEEKDAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 const PICKER_ITEM_HEIGHT = 44;
 
 const formatMonthLabel = (date: Date) => {
-  return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+  return `${date.getFullYear()}. ${date.getMonth() + 1}월`;
 };
 
 const formatDateKey = (date: Date) => {
@@ -61,11 +62,17 @@ const getMonthStart = (date: Date) => {
 const getMonthCells = (month: Date) => {
   const start = getMonthStart(month);
   const startWeekday = (start.getDay() + 6) % 7;
+  const daysInMonth = new Date(
+    start.getFullYear(),
+    start.getMonth() + 1,
+    0,
+  ).getDate();
+  const cellCount = Math.ceil((startWeekday + daysInMonth) / 7) * 7;
   const firstCell = new Date(start);
 
   firstCell.setDate(start.getDate() - startWeekday);
 
-  return Array.from({ length: 42 }, (_, index) => {
+  return Array.from({ length: cellCount }, (_, index) => {
     const cellDate = new Date(firstCell);
 
     cellDate.setDate(firstCell.getDate() + index);
@@ -118,6 +125,7 @@ const getPickerItemLayout = (_: number[] | null, index: number) => ({
 const DateCalendar = ({
   minimumDate,
   selectedDate,
+  selectedEndDate = null,
   onSelectDate,
   onConfirm,
   onCancel,
@@ -134,6 +142,11 @@ const DateCalendar = ({
   const [draftMonth, setDraftMonth] = React.useState(currentMonth.getMonth());
   const minDate = minimumDate ? getStartOfDay(minimumDate) : null;
   const selectedKey = selectedDate ? formatDateKey(selectedDate) : null;
+  const selectedEndKey = selectedEndDate
+    ? formatDateKey(selectedEndDate)
+    : null;
+  const rangeStartTime = selectedDate?.getTime() ?? null;
+  const rangeEndTime = selectedEndDate?.getTime() ?? null;
   const cells = getMonthCells(currentMonth);
   const yearOptions = getYearOptions(currentMonth);
 
@@ -285,11 +298,7 @@ const DateCalendar = ({
         accessibilityLabel="년월 선택 열기"
         style={styles.monthTitleButton}
       >
-        <Typography
-          variant="subtitle"
-          weight="semibold"
-          style={styles.monthTitle}
-        >
+        <Typography variant="body2" weight="semibold" style={styles.monthTitle}>
           {formatMonthLabel(currentMonth)}
         </Typography>
       </Pressable>
@@ -366,11 +375,15 @@ const DateCalendar = ({
       </View>
     </ThemeView>
   ) : (
-    <>
+    <ThemeView transparent style={styles.dateArea}>
       <ThemeView transparent style={styles.weekHeader}>
         {WEEKDAY_LABELS.map((label) => (
           <View key={label} style={styles.weekHeaderCell}>
-            <Typography variant="caption" color="primary">
+            <Typography
+              variant="body3"
+              weight="regular"
+              color={palette.theme.gray[10]}
+            >
               {label}
             </Typography>
           </View>
@@ -384,7 +397,21 @@ const DateCalendar = ({
           const isSelectable =
             (!minDate || getStartOfDay(date).getTime() >= minDate.getTime()) &&
             (isDateSelectable ? isDateSelectable(date) : true);
-          const isSelected = selectedKey === dateKey;
+          const dateTime = getStartOfDay(date).getTime();
+          const isSelected =
+            selectedKey === dateKey || selectedEndKey === dateKey;
+          const isInRange =
+            rangeStartTime !== null &&
+            rangeEndTime !== null &&
+            dateTime >= rangeStartTime &&
+            dateTime <= rangeEndTime;
+          const isRangeStart = dateTime === rangeStartTime;
+          const isRangeEnd = dateTime === rangeEndTime;
+          const dateTextColor = isSelected
+            ? palette.white
+            : !isSelectable || !inCurrentMonth
+              ? palette.theme.gray[10]
+              : palette.theme.gray[90];
 
           return (
             <Pressable
@@ -399,6 +426,16 @@ const DateCalendar = ({
                 isSelectable && styles.dayCellEnabled,
               ]}
             >
+              {isInRange && (
+                <View
+                  pointerEvents="none"
+                  style={[
+                    styles.dayCellRangeBackground,
+                    isRangeStart && styles.dayCellRangeStart,
+                    isRangeEnd && styles.dayCellRangeEnd,
+                  ]}
+                />
+              )}
               <View
                 style={[
                   styles.dayNumber,
@@ -406,7 +443,11 @@ const DateCalendar = ({
                   isSelected && styles.dayNumberSelected,
                 ]}
               >
-                <Typography variant="label" weight="semibold" color="primary">
+                <Typography
+                  variant="body3"
+                  weight="regular"
+                  color={dateTextColor}
+                >
                   {date.getDate()}
                 </Typography>
               </View>
@@ -414,7 +455,7 @@ const DateCalendar = ({
           );
         })}
       </ThemeView>
-    </>
+    </ThemeView>
   );
 
   const footer = isMonthPickerOpen ? (
@@ -435,6 +476,19 @@ const DateCalendar = ({
         }}
       />
     </>
+  ) : !isInBottomSheet ? (
+    <Button
+      title="선택완료"
+      variant="primary"
+      size="md"
+      fullWidth
+      backgroundColor={palette.theme.gray[90]}
+      textColor={palette.white}
+      textStyle={styles.confirmButtonText}
+      style={styles.confirmButton}
+      onPress={onConfirm}
+      disabled={!selectedDate}
+    />
   ) : (
     <>
       <Button title="취소" variant="ghost" size="sm" onPress={onCancel} />
@@ -462,8 +516,10 @@ const DateCalendar = ({
 
   return (
     <ThemeView style={styles.container} transparent>
-      {header}
-      {body}
+      <ThemeView style={styles.calendarSurface}>
+        {header}
+        {body}
+      </ThemeView>
       <ThemeView transparent style={styles.footer}>
         {footer}
       </ThemeView>
@@ -475,20 +531,13 @@ export default DateCalendar;
 
 const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   container: {
-    backgroundColor: theme.colors.background.surface,
-    borderRadius: theme.foundation.radii.xl,
-    padding: theme.foundation.spacing[4],
-    gap: theme.foundation.spacing[4],
-    borderWidth: 1,
-    borderColor: theme.colors.border.default,
-    shadowColor: theme.colors.border.strong,
-    shadowOffset: {
-      width: baseFoundation.dimension.x0,
-      height: baseFoundation.dimension.x8,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 18,
-    elevation: 6,
+    gap: baseFoundation.dimension.x36,
+  },
+  calendarSurface: {
+    padding: theme.foundation.spacing[3],
+    gap: theme.foundation.spacing[1],
+    borderRadius: theme.foundation.radii.s,
+    backgroundColor: palette.white,
   },
   header: {
     flexDirection: 'row',
@@ -496,76 +545,96 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     justifyContent: 'space-between',
   },
   monthButton: {
-    minWidth: baseFoundation.dimension.x40,
-    height: baseFoundation.dimension.x40,
+    width: baseFoundation.dimension.x36,
+    minWidth: baseFoundation.dimension.x36,
+    height: baseFoundation.dimension.x36,
+    minHeight: baseFoundation.dimension.x36,
     paddingHorizontal: baseFoundation.spacing[0],
-    borderRadius: theme.foundation.radii.round,
+    borderRadius: baseFoundation.dimension.x6,
     backgroundColor: 'transparent',
-    borderWidth: 0,
+    borderWidth: 1,
+    borderColor: palette.theme.gray[8],
     elevation: 0,
     shadowOpacity: 0,
   },
   monthTitle: {
-    fontWeight: theme.foundation.typography.weight.bold,
+    color: palette.theme.gray[90],
   },
   monthTitleButton: {
     paddingHorizontal: theme.foundation.spacing[4],
     paddingVertical: theme.foundation.spacing[1],
     borderRadius: theme.foundation.radii.round,
   },
+  dateArea: {
+    gap: theme.foundation.spacing[2],
+  },
   weekHeader: {
     flexDirection: 'row',
-    paddingTop: theme.foundation.spacing[1],
-    paddingBottom: theme.foundation.spacing[2],
-    paddingHorizontal: theme.foundation.spacing[1],
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.action.primary.default,
+    height: baseFoundation.dimension.x32,
   },
   weekHeaderCell: {
     flex: 1,
+    height: baseFoundation.dimension.x32,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    rowGap: theme.foundation.spacing[1],
-    columnGap: theme.foundation.spacing[1],
+    rowGap: theme.foundation.spacing[2],
   },
   dayCell: {
-    width: '13.2%',
-    aspectRatio: 1,
+    width: `${100 / 7}%`,
+    height: baseFoundation.dimension.x32,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dayCellOutsideMonth: {
-    opacity: 0.16,
+    opacity: 1,
   },
   dayCellDisabled: {
-    opacity: 0.28,
+    opacity: 1,
   },
   dayCellEnabled: {
     backgroundColor: 'transparent',
   },
+  dayCellRangeBackground: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: theme.colors.brand.card,
+  },
+  dayCellRangeStart: {
+    left: '50%',
+  },
+  dayCellRangeEnd: {
+    right: '50%',
+  },
   dayNumber: {
-    width: baseFoundation.dimension.x36,
-    height: baseFoundation.dimension.x36,
-    borderRadius: baseFoundation.dimension.x18,
+    width: baseFoundation.dimension.x32,
+    height: baseFoundation.dimension.x32,
+    borderRadius: baseFoundation.dimension.x16,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 1,
   },
   dayNumberEnabled: {
     backgroundColor: 'transparent',
   },
   dayNumberSelected: {
+    borderRadius: baseFoundation.dimension.x6,
     backgroundColor: theme.colors.action.primary.default,
-    shadowColor: theme.colors.action.primary.default,
-    shadowOffset: {
-      width: baseFoundation.dimension.x0,
-      height: baseFoundation.dimension.x3,
-    },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 2,
+  },
+  confirmButton: {
+    height: baseFoundation.dimension.x44,
+    minHeight: baseFoundation.dimension.x44,
+  },
+  confirmButtonText: {
+    color: palette.white,
+    fontSize: theme.foundation.typography.size.body2,
+    fontWeight: theme.foundation.typography.weight.regular,
   },
   pickerColumns: {
     flexDirection: 'row',

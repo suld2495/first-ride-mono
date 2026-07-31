@@ -24,3 +24,15 @@ export const useRoutineForm = () =>
 
 export const useSetRoutineForm = () =>
   useRoutineStore((state) => state.setRoutineForm);
+
+export const useRoutineDateSelection = () =>
+  useRoutineStore((state) => state.routineDateSelection);
+
+export const useBeginRoutineDateSelection = () =>
+  useRoutineStore((state) => state.beginRoutineDateSelection);
+
+export const useConfirmRoutineDateSelection = () =>
+  useRoutineStore((state) => state.confirmRoutineDateSelection);
+
+export const useClearRoutineDateSelection = () =>
+  useRoutineStore((state) => state.clearRoutineDateSelection);

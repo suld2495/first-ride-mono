@@ -106,6 +106,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="routine-date-select"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="notification-settings"
               options={{ headerShown: false }}
             />
