@@ -432,7 +432,6 @@ export const Input = React.forwardRef<TextInput, InputProps>(
                 ]}
                 value={displayValue}
                 editable={false}
-                secureTextEntry={props.secureTextEntry}
                 caretHidden
                 pointerEvents="none"
                 accessible={false}

@@ -9,8 +9,6 @@ import { baseFoundation } from '@/theme/tokens';
 
 import { Input } from './input';
 
-const removeWhitespace = (text: string) => text.replace(/\s/g, '');
-
 export interface PasswordInputProps {
   /** Accessible label passed to the native text input */
   accessibilityLabel?: string;
@@ -18,7 +16,7 @@ export interface PasswordInputProps {
   value: string;
   /** Callback when text changes */
   onChangeText: (text: string) => void;
-  /** Hide whitespace before it reaches the visible input layer */
+  /** Prevent whitespace from reaching the native text input value */
   disallowWhitespace?: boolean;
   /** Placeholder text */
   placeholder?: string;
@@ -120,7 +118,7 @@ const PasswordInput = ({
         accessibilityLabel={accessibilityLabel}
         value={value}
         onChangeText={onChangeText}
-        displayFormatter={disallowWhitespace ? removeWhitespace : undefined}
+        disallowWhitespace={disallowWhitespace}
         placeholder={placeholder}
         autoFocus={autoFocus}
         secureTextEntry={!showPassword}
