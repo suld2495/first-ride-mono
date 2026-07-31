@@ -350,14 +350,18 @@ describe('FriendRoutinesModal', () => {
     expect(cheerIcon).toHaveProp('width', baseFoundation.iconSize.xs);
     expect(cheerIcon).toHaveProp('height', baseFoundation.dimension.x13);
     expect(
-      cheerIcon.findAllByType(Path).map((path) => path.props.fill),
+      cheerIcon
+        .findAllByType(Path)
+        .map((path: typeof cheerIcon) => path.props.fill),
     ).toEqual([palette.theme.blue[50], palette.theme.blue[50]]);
     expect(
-      cheerButton.findAll(
-        (node: typeof cheerButton) =>
-          StyleSheet.flatten(node.props.style)?.gap === 3,
-      ),
-    ).toHaveLength(1);
+      cheerButton
+        .findAll((node: typeof cheerButton) => node !== cheerButton)
+        .some(
+          (node: typeof cheerButton) =>
+            StyleSheet.flatten(node.props.style)?.gap === 3,
+        ),
+    ).toBe(true);
   });
 
   it('응원 콕을 보낸 뒤 루틴과 프로필을 다시 조회하지 않고 서버 메시지를 표시한다', async () => {

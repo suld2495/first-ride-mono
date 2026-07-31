@@ -1,4 +1,3 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   useFriendCheerMutation,
   useFriendProfileQuery,
@@ -10,6 +9,8 @@ import type { ReactNode } from 'react';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
 
+import FriendCheerIcon from '@/components/icons/friend-cheer-icon';
+import ModalHeaderAction from '@/components/modal/modal-header-action';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
@@ -29,7 +30,7 @@ import RoutineCharacter from '@/feature/character/routine-character';
 import { useScopedColorSchemeOverride } from '@/hooks/useScopedColorSchemeOverride';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes } from '@/theme/themes';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 const SPEECH_BUBBLE_BOTTOM_OFFSET =
@@ -88,14 +89,12 @@ FriendRoutineCharacterStage.displayName = 'FriendRoutineCharacterStage';
 interface FriendRoutineDateSectionProps {
   children: ReactNode;
   friendId: string;
-  headerRight: ReactNode;
   routineColorFallback: string;
 }
 
 const FriendRoutineDateSection = ({
   children,
   friendId,
-  headerRight,
   routineColorFallback,
 }: FriendRoutineDateSectionProps) => {
   const { date: dateParam } = useLocalSearchParams<{ date?: string }>();
@@ -131,7 +130,6 @@ const FriendRoutineDateSection = ({
       <RoutineHeader
         date={date}
         onDateChange={handleDateChange}
-        rightAction={headerRight}
         showNotification={false}
       />
 
@@ -178,7 +176,8 @@ const FriendRoutinesModal = () => {
   }>();
   const { data: profile, isLoading: isProfileLoading } =
     useFriendProfileQuery(friendId);
-  const cheerMutation = useFriendCheerMutation();
+  const { isPending: isCheerPending, mutate: cheerFriend } =
+    useFriendCheerMutation();
   const { showToast } = useToast();
   const profileThemeName = profile
     ? getThemeNameFromUserJob(profile)
@@ -204,7 +203,7 @@ const FriendRoutinesModal = () => {
       return;
     }
 
-    cheerMutation.mutate(friendId, {
+    cheerFriend(friendId, {
       onSuccess: ({ message }) => {
         showToast(message, 'success');
       },
@@ -215,7 +214,26 @@ const FriendRoutinesModal = () => {
         );
       },
     });
-  }, [cheerMutation, friendId, showToast]);
+  }, [cheerFriend, friendId, showToast]);
+  const cheerHeaderAction = useMemo(
+    () => (
+      <Button
+        accessibilityLabel="응원 콕"
+        accessibilityRole="button"
+        backgroundColor={palette.white}
+        contentStyle={styles.cheerButtonContent}
+        leftIcon={<FriendCheerIcon />}
+        loading={isCheerPending}
+        onPress={handleCheer}
+        size="sm"
+        style={styles.cheerButton}
+        variant="ghost"
+      >
+        응원 콕
+      </Button>
+    ),
+    [handleCheer, isCheerPending],
+  );
 
   if (!friendId) {
     return (
@@ -239,30 +257,14 @@ const FriendRoutinesModal = () => {
         { backgroundColor: profileTheme.colors.brand.secondary },
       ]}
     >
+      <ModalHeaderAction>{cheerHeaderAction}</ModalHeaderAction>
+
       {backgroundAsset ? (
         <FriendRoutineSceneBackground backgroundAsset={backgroundAsset} />
       ) : null}
 
       <FriendRoutineDateSection
         friendId={friendId}
-        headerRight={
-          <Button
-            accessibilityLabel="응원 콕"
-            accessibilityRole="button"
-            leftIcon={({ color }) => (
-              <Ionicons
-                color={color}
-                name="heart"
-                size={baseFoundation.iconSize.s}
-              />
-            )}
-            loading={cheerMutation.isPending}
-            onPress={handleCheer}
-            size="sm"
-          >
-            응원 콕
-          </Button>
-        }
         routineColorFallback={profileTheme.colors.brand.primary}
       >
         <View style={styles.routineCharacterArea}>
@@ -315,6 +317,19 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+  },
+  cheerButton: {
+    borderColor: palette.theme.gray[50],
+    borderRadius: baseFoundation.dimension.x8,
+    borderWidth: baseFoundation.dimension.x1,
+    height: baseFoundation.dimension.x30,
+    minHeight: baseFoundation.dimension.x30,
+    minWidth: 67,
+    paddingHorizontal: baseFoundation.spacing[0],
+    width: 67,
+  },
+  cheerButtonContent: {
+    gap: baseFoundation.dimension.x3,
   },
   characterStage: {
     alignItems: 'center',
