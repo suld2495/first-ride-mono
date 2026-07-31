@@ -604,7 +604,7 @@ describe('루틴 조회 페이지', () => {
         const { findByLabelText, findByTestId } = render(<Index />);
 
         expect(
-          await findByTestId('routine-speech-bubble-edit-icon'),
+          await findByTestId('character-motto-speech-bubble-edit-icon'),
         ).toBeOnTheScreen();
 
         fireEvent.press(await findByLabelText('한마디 수정'));

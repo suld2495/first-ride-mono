@@ -156,6 +156,10 @@ describe('FriendRoutinesModal', () => {
       await screen.findByTestId('friend-routine-character-speech-bubble'),
     ).toBeOnTheScreen();
     expect(await screen.findByText('오늘도 전진')).toBeOnTheScreen();
+    expect(screen.queryByLabelText('한마디 수정')).toBeNull();
+    expect(
+      screen.queryByTestId('character-motto-speech-bubble-edit-icon'),
+    ).toBeNull();
 
     const redBackgroundViews = screen
       .UNSAFE_getAllByType(View)
