@@ -1317,13 +1317,11 @@ describe('루틴 조회 페이지', () => {
         const { findByTestId } = render(<Index />);
 
         expect(await findByTestId('routine-week-card-outer-1')).toHaveStyle({
-          borderRadius: 25,
+          borderRadius: 21,
           borderColor: palette.theme.gray[95],
           borderWidth: 1,
           backgroundColor: palette.white,
-          paddingHorizontal: 4,
-          paddingTop: 8,
-          paddingBottom: 6,
+          padding: 4,
         });
         expect(await findByTestId('routine-week-card-surface-1')).toHaveStyle({
           borderRadius: 16,

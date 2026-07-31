@@ -148,9 +148,7 @@ describe('FriendRoutinesModal', () => {
         backgroundColor: '#FFFFFF',
         borderColor: '#000306',
         borderWidth: 1,
-        paddingHorizontal: 4,
-        paddingTop: 8,
-        paddingBottom: 6,
+        padding: 4,
       },
     );
     expect(

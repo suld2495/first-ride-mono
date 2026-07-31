@@ -53,14 +53,10 @@ const CHECKBOX_SIZE = baseFoundation.dimension.x28;
 const TODAY_FRAME_SIZE =
   CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
 const ROUTINE_CARD_FRAME_GAP = baseFoundation.dimension.x4;
-const ROUTINE_CARD_FRAME_PADDING_TOP =
-  ROUTINE_CARD_FRAME_GAP + baseFoundation.dimension.x4;
-const ROUTINE_CARD_FRAME_PADDING_BOTTOM =
-  ROUTINE_CARD_FRAME_GAP + baseFoundation.dimension.x2;
 const ROUTINE_CARD_FRAME_BORDER_WIDTH = baseFoundation.dimension.x1;
 const ROUTINE_CARD_FRAME_RADIUS =
   baseFoundation.radii.m +
-  ROUTINE_CARD_FRAME_PADDING_TOP +
+  ROUTINE_CARD_FRAME_GAP +
   ROUTINE_CARD_FRAME_BORDER_WIDTH;
 
 const createWeekDateKeys = (startDate: string) => {
@@ -359,9 +355,7 @@ const styles = StyleSheet.create((theme) => ({
   list: {},
   cardOuter: {
     borderRadius: ROUTINE_CARD_FRAME_RADIUS,
-    paddingHorizontal: ROUTINE_CARD_FRAME_GAP,
-    paddingTop: ROUTINE_CARD_FRAME_PADDING_TOP,
-    paddingBottom: ROUTINE_CARD_FRAME_PADDING_BOTTOM,
+    padding: ROUTINE_CARD_FRAME_GAP,
     backgroundColor: palette.white,
     borderWidth: ROUTINE_CARD_FRAME_BORDER_WIDTH,
     borderColor: palette.theme.gray[95],
