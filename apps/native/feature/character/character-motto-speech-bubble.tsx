@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 import PencilIcon from '@/components/icons/pencil-icon';
-import { useAppTheme } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import CharacterSpeechBubble, {
   getCharacterSpeechBubbleMaxWidth,
 } from '@/feature/character/character-speech-bubble';
@@ -40,13 +40,19 @@ const CharacterMottoSpeechBubble = ({
 }: CharacterMottoSpeechBubbleProps) => {
   const { theme } = useAppTheme();
   const { width: windowWidth } = useWindowDimensions();
+  const availableWidth = getCharacterSpeechBubbleMaxWidth(windowWidth);
   const wrapperStyle = [
-    { width: getCharacterSpeechBubbleMaxWidth(windowWidth) },
+    {
+      left: '50%' as const,
+      marginLeft: -availableWidth / 2,
+      width: availableWidth,
+    },
     style,
   ];
   const content = (
     <CharacterSpeechBubble
       message={message}
+      style={styles.content}
       testID={`${testID}-content`}
       trailingIcon={
         isMine ? (
@@ -84,3 +90,9 @@ const CharacterMottoSpeechBubble = ({
 };
 
 export default CharacterMottoSpeechBubble;
+
+const styles = StyleSheet.create(() => ({
+  content: {
+    width: '100%',
+  },
+}));
