@@ -141,6 +141,7 @@ const DateCalendar = ({
   const [draftYear, setDraftYear] = React.useState(currentMonth.getFullYear());
   const [draftMonth, setDraftMonth] = React.useState(currentMonth.getMonth());
   const minDate = minimumDate ? getStartOfDay(minimumDate) : null;
+  const todayKey = formatDateKey(new Date());
   const selectedKey = selectedDate ? formatDateKey(selectedDate) : null;
   const selectedEndKey = selectedEndDate
     ? formatDateKey(selectedEndDate)
@@ -394,6 +395,7 @@ const DateCalendar = ({
         {cells.map((date) => {
           const inCurrentMonth = date.getMonth() === currentMonth.getMonth();
           const dateKey = formatDateKey(date);
+          const isToday = todayKey === dateKey;
           const isSelectable =
             (!minDate || getStartOfDay(date).getTime() >= minDate.getTime()) &&
             (isDateSelectable ? isDateSelectable(date) : true);
@@ -440,6 +442,7 @@ const DateCalendar = ({
                 style={[
                   styles.dayNumber,
                   isSelectable && styles.dayNumberEnabled,
+                  isToday && styles.dayNumberToday,
                   isSelected && styles.dayNumberSelected,
                 ]}
               >
@@ -622,6 +625,11 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   },
   dayNumberEnabled: {
     backgroundColor: 'transparent',
+  },
+  dayNumberToday: {
+    borderWidth: 1,
+    borderColor: theme.colors.action.primary.default,
+    borderRadius: baseFoundation.dimension.x6,
   },
   dayNumberSelected: {
     borderRadius: baseFoundation.dimension.x6,
