@@ -966,7 +966,24 @@ describe('루틴 조회 페이지', () => {
 
       it('루틴 아이템 배경은 gray 95로 표시된다', async () => {
         const { findByTestId } = render(<Index />);
+        const outerStyles = flattenStyles(
+          (await findByTestId('routine-count-card-outer-1')).props.style,
+        );
 
+        expect(outerStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              height: ROUTINE_ITEM_HEIGHT - 4,
+            }),
+          ]),
+        );
+        expect(outerStyles).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              backgroundColor: palette.white,
+            }),
+          ]),
+        );
         expect(await findByTestId('routine-count-card-surface-1')).toHaveStyle({
           backgroundColor: palette.theme.gray[95],
         });
@@ -1313,16 +1330,34 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('루틴 아이템은 흰색 프레임 안에 테마 80 테두리와 테마 100 배경을 표시한다', async () => {
+      it('루틴 아이템은 흰색 프레임 없이 테마 80 테두리와 테마 100 배경을 표시한다', async () => {
         const { findByTestId } = render(<Index />);
+        const outerStyles = flattenStyles(
+          (await findByTestId('routine-week-card-outer-1')).props.style,
+        );
 
-        expect(await findByTestId('routine-week-card-outer-1')).toHaveStyle({
-          borderRadius: 21,
-          borderColor: palette.theme.gray[95],
-          borderWidth: 1,
-          backgroundColor: palette.white,
-          padding: 4,
-        });
+        expect(outerStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              height: ROUTINE_ITEM_HEIGHT - 4,
+              marginBottom: 4,
+            }),
+          ]),
+        );
+        expect(outerStyles).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              backgroundColor: palette.white,
+            }),
+          ]),
+        );
+        expect(outerStyles).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              padding: 4,
+            }),
+          ]),
+        );
         expect(await findByTestId('routine-week-card-surface-1')).toHaveStyle({
           borderRadius: 16,
           borderColor: palette.theme.blue[80],

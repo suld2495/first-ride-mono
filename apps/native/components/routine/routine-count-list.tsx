@@ -51,13 +51,7 @@ const TODAY_FRAME_GAP = 1;
 const CHECKBOX_SIZE = baseFoundation.dimension.x24;
 const TODAY_FRAME_SIZE =
   CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
-const ROUTINE_CARD_FRAME_GAP = baseFoundation.dimension.x4;
-const ROUTINE_CARD_FRAME_BORDER_WIDTH = baseFoundation.dimension.x1;
 const ROUTINE_COUNT_CARD_SURFACE_RADIUS = baseFoundation.dimension.x12;
-const ROUTINE_CARD_FRAME_RADIUS =
-  ROUTINE_COUNT_CARD_SURFACE_RADIUS +
-  ROUTINE_CARD_FRAME_GAP +
-  ROUTINE_CARD_FRAME_BORDER_WIDTH;
 
 const createRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
@@ -384,11 +378,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   cardOuter: {
-    borderRadius: ROUTINE_CARD_FRAME_RADIUS,
-    padding: ROUTINE_CARD_FRAME_GAP,
-    backgroundColor: '#FFFFFF',
-    borderWidth: ROUTINE_CARD_FRAME_BORDER_WIDTH,
-    borderColor: palette.theme.gray[95],
+    borderRadius: ROUTINE_COUNT_CARD_SURFACE_RADIUS,
     shadowColor: theme.colors.brand.primary,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
