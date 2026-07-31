@@ -350,6 +350,7 @@ export default function SignUp() {
                 placeholder="이메일을 입력하세요"
                 value={form.userId}
                 onChangeText={(value) => handleChange('userId', value)}
+                disallowWhitespace
                 style={styles.input}
                 inputStyle={styles.inputText}
                 placeholderTextColor={palette.theme.gray[10]}
