@@ -16,6 +16,8 @@ export interface PasswordInputProps {
   value: string;
   /** Callback when text changes */
   onChangeText: (text: string) => void;
+  /** Prevent whitespace from reaching the native text input value */
+  disallowWhitespace?: boolean;
   /** Placeholder text */
   placeholder?: string;
   /** Optional width override */
@@ -52,6 +54,7 @@ const PasswordInput = ({
   accessibilityLabel,
   value,
   onChangeText,
+  disallowWhitespace = false,
   placeholder = '비밀번호를 입력해주세요.',
   width,
   autoFocus = false,
@@ -115,6 +118,7 @@ const PasswordInput = ({
         accessibilityLabel={accessibilityLabel}
         value={value}
         onChangeText={onChangeText}
+        disallowWhitespace={disallowWhitespace}
         placeholder={placeholder}
         autoFocus={autoFocus}
         secureTextEntry={!showPassword}

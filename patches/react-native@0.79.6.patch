@@ -1,0 +1,258 @@
+diff --git a/Libraries/Components/TextInput/AndroidTextInputNativeComponent.js b/Libraries/Components/TextInput/AndroidTextInputNativeComponent.js
+index 566ac1576247c5bf5eba54279b6d9b6a1e38a618..db1058f7b19cc8e981c5e351de8451600c2a4ad6 100644
+--- a/Libraries/Components/TextInput/AndroidTextInputNativeComponent.js
++++ b/Libraries/Components/TextInput/AndroidTextInputNativeComponent.js
+@@ -333,6 +333,11 @@ export type NativeProps = $ReadOnly<{
+    */
+   maxLength?: ?Int32,
+ 
++  /**
++   * Prevents whitespace characters from being committed by the native text input.
++   */
++  disallowWhitespace?: ?boolean,
++
+   /**
+    * If `true`, the text input can be multiple lines.
+    * The default value is `false`.
+@@ -669,6 +674,7 @@ export const __INTERNAL_VIEW_CONFIG: PartialViewConfig = {
+       process: require('../../StyleSheet/processColor').default,
+     },
+     maxLength: true,
++    disallowWhitespace: true,
+     selectTextOnFocus: true,
+     textShadowRadius: true,
+     underlineColorAndroid: {
+diff --git a/Libraries/Components/TextInput/RCTTextInputViewConfig.js b/Libraries/Components/TextInput/RCTTextInputViewConfig.js
+index fe5c4913a8310fc13dfdeb92e0fe1b50d820020a..c9504b8607c1206fb51415ee3c5ff2b00531675a 100644
+--- a/Libraries/Components/TextInput/RCTTextInputViewConfig.js
++++ b/Libraries/Components/TextInput/RCTTextInputViewConfig.js
+@@ -145,6 +145,7 @@ const RCTTextInputViewConfig = {
+     numberOfLines: true,
+     textContentType: true,
+     maxLength: true,
++    disallowWhitespace: true,
+     autoCapitalize: true,
+     keyboardAppearance: true,
+     passwordRules: true,
+diff --git a/Libraries/Components/TextInput/TextInput.d.ts b/Libraries/Components/TextInput/TextInput.d.ts
+index 897824e4401b992fedd56e7ee3cfb463d3110054..d974b4494837141dbba26941d50a6995e07f8c2d 100644
+--- a/Libraries/Components/TextInput/TextInput.d.ts
++++ b/Libraries/Components/TextInput/TextInput.d.ts
+@@ -755,6 +755,11 @@ export interface TextInputProps
+    */
+   maxLength?: number | undefined;
+ 
++  /**
++   * Prevents whitespace characters from being committed by the native text input.
++   */
++  disallowWhitespace?: boolean | undefined;
++
+   /**
+    * If true, the text input can be multiple lines. The default value is false.
+    */
+diff --git a/Libraries/Components/TextInput/TextInput.flow.js b/Libraries/Components/TextInput/TextInput.flow.js
+index 53d63372be2d6b3582497922b060b12fb408c6ae..cc3c537736dc9fa7b2643360a05f2781def9ffd4 100644
+--- a/Libraries/Components/TextInput/TextInput.flow.js
++++ b/Libraries/Components/TextInput/TextInput.flow.js
+@@ -728,6 +728,11 @@ export type TextInputProps = $ReadOnly<{
+    */
+   maxLength?: ?number,
+ 
++  /**
++   * Prevents whitespace characters from being committed by the native text input.
++   */
++  disallowWhitespace?: ?boolean,
++
+   /**
+    * If `true`, the text input can be multiple lines.
+    * The default value is `false`.
+diff --git a/Libraries/Components/TextInput/TextInput.js b/Libraries/Components/TextInput/TextInput.js
+index a2f20815b36c41322ce7e670817e699f18347f20..97c48bd691994862a4bb81fdce6afef110c4d4da 100644
+--- a/Libraries/Components/TextInput/TextInput.js
++++ b/Libraries/Components/TextInput/TextInput.js
+@@ -758,6 +758,11 @@ export type TextInputProps = $ReadOnly<{
+    */
+   maxLength?: ?number,
+ 
++  /**
++   * Prevents whitespace characters from being committed by the native text input.
++   */
++  disallowWhitespace?: ?boolean,
++
+   /**
+    * If `true`, the text input can be multiple lines.
+    * The default value is `false`.
+diff --git a/Libraries/Text/TextInput/RCTBaseTextInputView.h b/Libraries/Text/TextInput/RCTBaseTextInputView.h
+index 48046242d7ed6844fde3964db6ad746b8144174c..1058c67b52bbf8ac8c04e8fc2a84faadf822517a 100644
+--- a/Libraries/Text/TextInput/RCTBaseTextInputView.h
++++ b/Libraries/Text/TextInput/RCTBaseTextInputView.h
+@@ -47,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
+ @property (nonatomic, assign) BOOL secureTextEntry;
+ @property (nonatomic, copy) RCTTextSelection *selection;
+ @property (nonatomic, strong, nullable) NSNumber *maxLength;
++@property (nonatomic, assign) BOOL disallowWhitespace;
+ @property (nonatomic, copy, nullable) NSAttributedString *attributedText;
+ @property (nonatomic, copy) NSString *inputAccessoryViewID;
+ @property (nonatomic, strong) NSString *inputAccessoryViewButtonLabel;
+diff --git a/Libraries/Text/TextInput/RCTBaseTextInputView.mm b/Libraries/Text/TextInput/RCTBaseTextInputView.mm
+index 6a2d4f8f70a1aecc45431ad802fca52261336e26..41cda745bf6b5fa26c155f69db719cabc61b0fc7 100644
+--- a/Libraries/Text/TextInput/RCTBaseTextInputView.mm
++++ b/Libraries/Text/TextInput/RCTBaseTextInputView.mm
+@@ -496,6 +496,14 @@ - (NSString *)textInputShouldChangeText:(NSString *)text inRange:(NSRange)range
+                                  eventCount:_nativeEventCount];
+   }
+ 
++  if (_disallowWhitespace) {
++    text = [[text componentsSeparatedByCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet]
++        componentsJoinedByString:@""];
++    if (text.length == 0) {
++      return nil;
++    }
++  }
++
+   if (_maxLength) {
+     NSInteger allowedLength = MAX(
+         _maxLength.integerValue - (NSInteger)backedTextInputView.attributedText.string.length + (NSInteger)range.length,
+diff --git a/Libraries/Text/TextInput/RCTBaseTextInputViewManager.mm b/Libraries/Text/TextInput/RCTBaseTextInputViewManager.mm
+index dd3969933904eb378c7b5b8c7d1231053f4376a2..c07b584a2c12cf35697d483644ca22e3e9b505dd 100644
+--- a/Libraries/Text/TextInput/RCTBaseTextInputViewManager.mm
++++ b/Libraries/Text/TextInput/RCTBaseTextInputViewManager.mm
+@@ -54,6 +54,7 @@ @implementation RCTBaseTextInputViewManager {
+ RCT_EXPORT_VIEW_PROPERTY(keyboardType, UIKeyboardType)
+ RCT_EXPORT_VIEW_PROPERTY(showSoftInputOnFocus, BOOL)
+ RCT_EXPORT_VIEW_PROPERTY(maxLength, NSNumber)
++RCT_EXPORT_VIEW_PROPERTY(disallowWhitespace, BOOL)
+ RCT_EXPORT_VIEW_PROPERTY(selectTextOnFocus, BOOL)
+ RCT_EXPORT_VIEW_PROPERTY(selection, RCTTextSelection)
+ RCT_EXPORT_VIEW_PROPERTY(inputAccessoryViewID, NSString)
+diff --git a/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm b/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
+index e1cad8a3f1f37bfa1e107886ea17736a0a1f8ed1..fc296e2f849a44657f32670630dba40a0b48dd1e 100644
+--- a/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
++++ b/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
+@@ -415,6 +415,14 @@ - (NSString *)textInputShouldChangeText:(NSString *)text inRange:(NSRange)range
+     }
+   }
+ 
++  if (props.disallowWhitespace) {
++    text = [[text componentsSeparatedByCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet]
++        componentsJoinedByString:@""];
++    if (text.length == 0) {
++      return nil;
++    }
++  }
++
+   if (props.maxLength) {
+     NSInteger allowedLength = props.maxLength - _backedTextInputView.attributedText.string.length + range.length;
+ 
+diff --git a/ReactAndroid/src/main/java/com/facebook/react/views/textinput/ReactTextInputManager.java b/ReactAndroid/src/main/java/com/facebook/react/views/textinput/ReactTextInputManager.java
+index c93107684a754e9c023727661b08530ee68bd48b..3353015e79f94910891b1de8fdf0d8d107f9edb4 100644
+--- a/ReactAndroid/src/main/java/com/facebook/react/views/textinput/ReactTextInputManager.java
++++ b/ReactAndroid/src/main/java/com/facebook/react/views/textinput/ReactTextInputManager.java
+@@ -23,6 +23,7 @@ import android.text.InputType;
+ import android.text.Layout;
+ import android.text.Spannable;
+ import android.text.SpannableStringBuilder;
++import android.text.Spanned;
+ import android.text.TextWatcher;
+ import android.view.Gravity;
+ import android.view.View;
+@@ -168,6 +169,38 @@ public class ReactTextInputManager extends BaseViewManager<ReactEditText, Layout
+   private static final String KEYBOARD_TYPE_VISIBLE_PASSWORD = "visible-password";
+   private static final String KEYBOARD_TYPE_URI = "url";
+   private static final InputFilter[] EMPTY_FILTERS = new InputFilter[0];
++
++  private static final class WhitespaceFilter implements InputFilter {
++    @Override
++    public @Nullable CharSequence filter(
++        CharSequence source,
++        int start,
++        int end,
++        Spanned dest,
++        int dstart,
++        int dend) {
++      StringBuilder filtered = null;
++
++      for (int index = start; index < end; ) {
++        int codePoint = Character.codePointAt(source, index);
++        int characterCount = Character.charCount(codePoint);
++
++        if (Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint)) {
++          if (filtered == null) {
++            filtered = new StringBuilder(end - start);
++            filtered.append(source, start, index);
++          }
++        } else if (filtered != null) {
++          filtered.appendCodePoint(codePoint);
++        }
++
++        index += characterCount;
++      }
++
++      return filtered == null ? null : filtered.toString();
++    }
++  }
++
+   private static final int UNSET = -1;
+   private static final String[] DRAWABLE_HANDLE_RESOURCES = {
+     "mTextSelectHandleLeftRes", "mTextSelectHandleRightRes", "mTextSelectHandleRes"
+@@ -817,6 +850,23 @@ public class ReactTextInputManager extends BaseViewManager<ReactEditText, Layout
+     view.setFilters(newFilters);
+   }
+ 
++  @ReactProp(name = "disallowWhitespace", defaultBoolean = false)
++  public void setDisallowWhitespace(ReactEditText view, boolean disallowWhitespace) {
++    LinkedList<InputFilter> filters = new LinkedList<>();
++
++    for (InputFilter currentFilter : view.getFilters()) {
++      if (!(currentFilter instanceof WhitespaceFilter)) {
++        filters.add(currentFilter);
++      }
++    }
++
++    if (disallowWhitespace) {
++      filters.add(new WhitespaceFilter());
++    }
++
++    view.setFilters(filters.isEmpty() ? EMPTY_FILTERS : filters.toArray(new InputFilter[0]));
++  }
++
+   @ReactProp(name = "autoComplete")
+   public void setTextContentType(ReactEditText view, @Nullable String autoComplete) {
+     if (autoComplete == null) {
+diff --git a/ReactCommon/react/renderer/components/textinput/BaseTextInputProps.cpp b/ReactCommon/react/renderer/components/textinput/BaseTextInputProps.cpp
+index 47787a57a7e9ec2335abcd9dc42ea8b4b96cacd8..d2a1bd12edbc54f9f648b23d9cf21c1bb627a201 100644
+--- a/ReactCommon/react/renderer/components/textinput/BaseTextInputProps.cpp
++++ b/ReactCommon/react/renderer/components/textinput/BaseTextInputProps.cpp
+@@ -84,6 +84,12 @@ BaseTextInputProps::BaseTextInputProps(
+           "maxLength",
+           sourceProps.maxLength,
+           {})),
++      disallowWhitespace(convertRawProp(
++          context,
++          rawProps,
++          "disallowWhitespace",
++          sourceProps.disallowWhitespace,
++          false)),
+       text(convertRawProp(context, rawProps, "text", sourceProps.text, {})),
+       mostRecentEventCount(convertRawProp(
+           context,
+@@ -201,6 +207,7 @@ void BaseTextInputProps::setProp(
+     RAW_SET_PROP_SWITCH_CASE_BASIC(underlineColorAndroid);
+     RAW_SET_PROP_SWITCH_CASE_BASIC(autoFocus);
+     RAW_SET_PROP_SWITCH_CASE_BASIC(maxLength);
++    RAW_SET_PROP_SWITCH_CASE_BASIC(disallowWhitespace);
+     RAW_SET_PROP_SWITCH_CASE_BASIC(placeholder);
+     RAW_SET_PROP_SWITCH_CASE_BASIC(placeholderTextColor);
+     RAW_SET_PROP_SWITCH_CASE_BASIC(selectionColor);
+diff --git a/ReactCommon/react/renderer/components/textinput/BaseTextInputProps.h b/ReactCommon/react/renderer/components/textinput/BaseTextInputProps.h
+index 3e934024e05ee3598c1c82265e142319f438d505..60431683c46f1372d1739cd3777fca279f31d5af 100644
+--- a/ReactCommon/react/renderer/components/textinput/BaseTextInputProps.h
++++ b/ReactCommon/react/renderer/components/textinput/BaseTextInputProps.h
+@@ -61,6 +61,7 @@ class BaseTextInputProps : public ViewProps, public BaseTextProps {
+   SharedColor underlineColorAndroid{};
+ 
+   int maxLength{};
++  bool disallowWhitespace{false};
+ 
+   /*
+    * "Private" (only used by TextInput.js) props
