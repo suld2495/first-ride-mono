@@ -224,9 +224,7 @@ describe('StatsPage', () => {
       flattenStyles(
         getByTestId('stats-month-header').parent?.parent?.parent?.props.style,
       ),
-    ).toEqual(
-      expect.arrayContaining([expect.objectContaining({ flex: 1 })]),
-    );
+    ).toEqual(expect.arrayContaining([expect.objectContaining({ flex: 1 })]));
 
     fireEvent.press(getByLabelText('통계 보기'));
 
