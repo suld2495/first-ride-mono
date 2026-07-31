@@ -308,26 +308,6 @@ describe('SignUp 페이지', () => {
     ).toBeOnTheScreen();
   });
 
-  it('비밀번호 필드에 입력한 공백 문자를 제거한다', () => {
-    const screen = render(<SignUp />);
-
-    fireEvent.changeText(
-      screen.getByPlaceholderText('비밀번호를 입력하세요'),
-      'pass word\t1234\n',
-    );
-    fireEvent.changeText(
-      screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요'),
-      'pass\tword 1234\n',
-    );
-
-    expect(
-      screen.getByPlaceholderText('비밀번호를 입력하세요').props.value,
-    ).toBe('password1234');
-    expect(
-      screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요').props.value,
-    ).toBe('password1234');
-  });
-
   it('비밀번호 필드에 네이티브 공백 입력 차단을 적용한다', () => {
     const screen = render(<SignUp />);
 
@@ -339,6 +319,18 @@ describe('SignUp 페이지', () => {
       screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요').props
         .disallowWhitespace,
     ).toBe(true);
+  });
+
+  it('비밀번호 공백을 JS 상태 업데이트 후에 제거하지 않는다', () => {
+    const screen = render(<SignUp />);
+    const passwordInput = screen.getByPlaceholderText(
+      '비밀번호를 입력하세요',
+    );
+
+    // fireEvent.changeText는 네이티브 InputFilter를 거치지 않고 JS 콜백을 직접 호출한다.
+    fireEvent.changeText(passwordInput, 'pass word');
+
+    expect(passwordInput.props.value).toBe('pass word');
   });
 
   it('에러 상태에서 필드를 수정하면 해당 에러가 사라진다', async () => {
