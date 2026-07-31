@@ -102,7 +102,7 @@ index 6a2d4f8f70a1aecc45431ad802fca52261336e26..41cda745bf6b5fa26c155f69db719cab
                                   eventCount:_nativeEventCount];
    }
  
-+  if (_disallowWhitespace) {
++  if (_disallowWhitespace && text.length > 0) {
 +    text = [[text componentsSeparatedByCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet]
 +        componentsJoinedByString:@""];
 +    if (text.length == 0) {
@@ -133,7 +133,7 @@ index e1cad8a3f1f37bfa1e107886ea17736a0a1f8ed1..fc296e2f849a44657f32670630dba40a
      }
    }
  
-+  if (props.disallowWhitespace) {
++  if (props.disallowWhitespace && text.length > 0) {
 +    text = [[text componentsSeparatedByCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet]
 +        componentsJoinedByString:@""];
 +    if (text.length == 0) {
