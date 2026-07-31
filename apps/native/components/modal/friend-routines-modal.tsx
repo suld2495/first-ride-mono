@@ -88,12 +88,14 @@ FriendRoutineCharacterStage.displayName = 'FriendRoutineCharacterStage';
 interface FriendRoutineDateSectionProps {
   children: ReactNode;
   friendId: string;
+  headerRight: ReactNode;
   routineColorFallback: string;
 }
 
 const FriendRoutineDateSection = ({
   children,
   friendId,
+  headerRight,
   routineColorFallback,
 }: FriendRoutineDateSectionProps) => {
   const { date: dateParam } = useLocalSearchParams<{ date?: string }>();
@@ -129,6 +131,7 @@ const FriendRoutineDateSection = ({
       <RoutineHeader
         date={date}
         onDateChange={handleDateChange}
+        rightAction={headerRight}
         showNotification={false}
       />
 
@@ -242,13 +245,7 @@ const FriendRoutinesModal = () => {
 
       <FriendRoutineDateSection
         friendId={friendId}
-        routineColorFallback={profileTheme.colors.brand.primary}
-      >
-        <View style={styles.routineCharacterArea}>
-          <FriendRoutineCharacterStage
-            characterAsset={characterAsset}
-            speechBubbleMessage={speechBubbleMessage}
-          />
+        headerRight={
           <Button
             accessibilityLabel="응원 콕"
             accessibilityRole="button"
@@ -262,10 +259,17 @@ const FriendRoutinesModal = () => {
             loading={cheerMutation.isPending}
             onPress={handleCheer}
             size="sm"
-            style={styles.cheerButton}
           >
             응원 콕
           </Button>
+        }
+        routineColorFallback={profileTheme.colors.brand.primary}
+      >
+        <View style={styles.routineCharacterArea}>
+          <FriendRoutineCharacterStage
+            characterAsset={characterAsset}
+            speechBubbleMessage={speechBubbleMessage}
+          />
         </View>
       </FriendRoutineDateSection>
     </ThemeView>
@@ -311,11 +315,6 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-  },
-  cheerButton: {
-    bottom: theme.foundation.spacing[8],
-    position: 'absolute',
-    right: theme.foundation.spacing[4],
   },
   characterStage: {
     alignItems: 'center',

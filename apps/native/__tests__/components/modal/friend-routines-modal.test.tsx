@@ -308,12 +308,12 @@ describe('FriendRoutinesModal', () => {
 
     const screen = render(<FriendRoutinesModal />);
 
-    await screen.findByRole('button', { name: '응원 콕' });
+    const cheerButton = await screen.findByRole('button', { name: '응원 콕' });
 
     expect(
       screen
         .getByTestId('routine-header-actions')
-        .findAllByProps({ accessibilityLabel: '응원 콕' }),
+        .findAll((node: typeof cheerButton) => node === cheerButton),
     ).toHaveLength(1);
   });
 

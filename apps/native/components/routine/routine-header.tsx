@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { afterWeek, beforeWeek } from '@repo/shared/utils';
 import type { Href } from 'expo-router';
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import PageHeader from '@/components/layout/page-header';
@@ -21,6 +22,7 @@ interface RoutineHeaderProps {
   getDateHref?: (date: string) => Href;
   onDateChange?: (date: string) => void;
   onPressReorder?: () => void;
+  rightAction?: ReactNode;
   showNotification?: boolean;
 }
 
@@ -30,6 +32,7 @@ const RoutineHeader = ({
     `/(tabs)/(afterLogin)/(routine)?date=${targetDate}` as Href,
   onDateChange,
   onPressReorder,
+  rightAction,
   showNotification = true,
 }: RoutineHeaderProps) => {
   const { theme } = useAppTheme();
@@ -91,8 +94,9 @@ const RoutineHeader = ({
         </View>
       }
       right={
-        showNotification || onPressReorder ? (
+        showNotification || onPressReorder || rightAction ? (
           <View style={styles.actions} testID="routine-header-actions">
+            {rightAction}
             {onPressReorder ? (
               <IconButton
                 size="md"
