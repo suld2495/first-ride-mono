@@ -1,4 +1,4 @@
-import React, {
+import {
   forwardRef,
   useCallback,
   useEffect,
@@ -9,14 +9,18 @@ import React, {
 } from 'react';
 import {
   Dimensions,
+  Image,
   Keyboard,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
+  type ImageSourcePropType,
+  type TextInput,
   type ViewStyle,
 } from 'react-native';
 
+import SelectedOptionCheckIcon from '@/components/icons/selected-option-check-icon';
 import { useAppTheme } from '@/components/ui/tamagui';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation, palette } from '@/theme/tokens';
@@ -69,6 +73,7 @@ export const resolveAutocompleteDropdownLayout = ({
 export interface AutocompleteItem {
   label: string;
   value: string;
+  imageSource?: ImageSourcePropType;
 }
 
 export interface AutocompleteInputProps
@@ -153,6 +158,7 @@ export const AutocompleteInput = forwardRef<
   ) => {
     const { theme } = useAppTheme();
     const containerRef = useRef<View>(null);
+    const textInputRef = useRef<TextInput>(null);
     const visibleViewportBottomRef = useRef<number | null>(null);
     const [isFocused, setIsFocused] = useState(false);
     const [dropdownPlacement, setDropdownPlacement] =
@@ -176,6 +182,7 @@ export const AutocompleteInput = forwardRef<
     const shouldShowDropdown =
       isFocused && showDropdown && (items.length > 0 || loading);
     const dismissDropdown = useCallback(() => {
+      textInputRef.current?.blur();
       setIsFocused(false);
       Keyboard.dismiss();
     }, []);
@@ -218,9 +225,9 @@ export const AutocompleteInput = forwardRef<
     const handleSelectItem = useCallback(
       (item: AutocompleteItem): void => {
         onSelectItem?.(item);
-        setIsFocused(false);
+        dismissDropdown();
       },
-      [onSelectItem],
+      [dismissDropdown, onSelectItem],
     );
 
     const handleFocus = useCallback(
@@ -309,11 +316,13 @@ export const AutocompleteInput = forwardRef<
       return items.map((item, index) => {
         const isFirstItem = index === 0;
         const isLastItem = index === items.length - 1;
+        const isSelected = item.value === value;
 
         return (
           <TouchableOpacity
             key={item.value}
             testID="autocomplete-option"
+            accessibilityState={{ selected: isSelected }}
             style={[
               styles.dropdownItem,
               {
@@ -336,11 +345,48 @@ export const AutocompleteInput = forwardRef<
             ]}
             onPress={() => handleSelectItem(item)}
           >
-            <Typography color={dropdownColors.text}>{item.label}</Typography>
+            <View
+              testID={`autocomplete-option-content-${item.value}`}
+              style={styles.dropdownItemContent}
+            >
+              <View style={styles.dropdownItemLabel}>
+                {item.imageSource ? (
+                  <View
+                    testID={`autocomplete-option-avatar-${item.value}`}
+                    style={styles.optionAvatar}
+                  >
+                    <Image
+                      testID={`autocomplete-option-image-${item.value}`}
+                      source={item.imageSource}
+                      style={styles.optionImage}
+                      resizeMode="contain"
+                      accessibilityLabel={`${item.label} 캐릭터`}
+                    />
+                  </View>
+                ) : null}
+                <Typography color={dropdownColors.text} numberOfLines={1}>
+                  {item.label}
+                </Typography>
+              </View>
+              {isSelected ? (
+                <SelectedOptionCheckIcon
+                  testID={`autocomplete-selected-icon-${item.value}`}
+                  color={theme.colors.field.icon}
+                />
+              ) : null}
+            </View>
           </TouchableOpacity>
         );
       });
-    }, [loading, items, emptyMessage, dropdownColors, handleSelectItem]);
+    }, [
+      loading,
+      items,
+      emptyMessage,
+      dropdownColors,
+      handleSelectItem,
+      theme.colors.field.icon,
+      value,
+    ]);
 
     return (
       <View
@@ -349,6 +395,7 @@ export const AutocompleteInput = forwardRef<
         onTouchStart={(event) => event.stopPropagation()}
       >
         <Input
+          ref={textInputRef}
           {...inputProps}
           value={value}
           onChangeText={onChangeText}
@@ -418,8 +465,35 @@ const styles = StyleSheet.create({
   },
   dropdownItem: {
     height: DROPDOWN_ITEM_HEIGHT,
-    paddingHorizontal: baseFoundation.spacing[4],
+    paddingLeft: baseFoundation.spacing[4],
+    paddingRight: baseFoundation.spacing[3],
     paddingVertical: baseFoundation.spacing[3],
+  },
+  dropdownItemContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: baseFoundation.spacing[2],
+  },
+  dropdownItemLabel: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.spacing[2],
+  },
+  optionAvatar: {
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
+    borderRadius: baseFoundation.radii.round,
+    overflow: 'hidden',
+    backgroundColor: palette.theme.gray[5],
+  },
+  optionImage: {
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
+    transform: [{ translateY: -baseFoundation.dimension.x2 }],
   },
   emptyContainer: {
     paddingVertical: baseFoundation.spacing[4],

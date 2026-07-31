@@ -10,6 +10,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 import { RoutinePeriodWarningIcon } from '@/components/icons/routine-period-warning-icon';
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
+import { getRoutineSceneRemoteAsset } from '@/components/routine/routine-scene-art';
 import {
   AutocompleteInput,
   type AutocompleteInputHandle,
@@ -50,24 +51,30 @@ const ROUTINE_COLOR_ROWS = [
   ROUTINE_COLOR_OPTIONS.slice(5),
 ];
 
-const formatPenalty = (value: string | number | undefined) => {
-  const digits = String(value ?? '').replace(/[^0-9]/g, '');
-
-  if (!digits || digits === '0') {
-    return '0';
-  }
-
-  const parsed = Number.parseInt(digits, 10);
-
-  return Number.isNaN(parsed) ? '0' : parsed.toLocaleString('ko-KR');
-};
+const MAX_PENALTY = 100_000_000;
 
 const getPenaltyDigits = (text: string) => text.replace(/[^0-9]/g, '');
 
 const getPenaltyInputValue = (value: string | number | undefined) => {
   const digits = getPenaltyDigits(String(value ?? '')).replace(/^0+(?=\d)/, '');
 
-  return digits === '0' ? '' : digits;
+  if (!digits || digits === '0') {
+    return '';
+  }
+
+  const parsed = Number.parseInt(digits, 10);
+
+  if (Number.isNaN(parsed)) {
+    return '';
+  }
+
+  return String(Math.min(parsed, MAX_PENALTY));
+};
+
+const formatPenalty = (value: string | number | undefined) => {
+  const penaltyValue = getPenaltyInputValue(value);
+
+  return penaltyValue ? Number(penaltyValue).toLocaleString('ko-KR') : '0';
 };
 
 const getDateFromFormValue = (date?: string) => {
@@ -207,10 +214,17 @@ const RoutineFormModal = () => {
   // Convert friend list to autocomplete items
   const friendAutocompleteItems: AutocompleteItem[] = useMemo(
     () =>
-      friendList.map((friend) => ({
-        label: friend.nickname,
-        value: friend.nickname,
-      })),
+      friendList.map((friend) => {
+        const characterAsset = getRoutineSceneRemoteAsset(
+          friend.characterImageUrl,
+        );
+
+        return {
+          label: friend.nickname,
+          value: friend.nickname,
+          imageSource: characterAsset?.source,
+        };
+      }),
     [friendList],
   );
 

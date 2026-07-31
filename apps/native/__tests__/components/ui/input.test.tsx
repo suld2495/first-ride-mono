@@ -31,7 +31,7 @@ describe('Input', () => {
         />
       );
     };
-    const { getByTestId } = render(
+    const { getByTestId, queryByTestId } = render(
       <AppTamaguiProvider>
         <FormattedInput />
       </AppTamaguiProvider>,
@@ -40,15 +40,60 @@ describe('Input', () => {
 
     expect(input.props.value).toBeUndefined();
     expect(input.props.defaultValue).toBe('999');
-    expect(input.props.caretHidden).toBe(true);
+    expect(input.props.caretHidden).not.toBe(true);
+    expect(input.props.selectionColor).toBeDefined();
     expect(input).toHaveStyle({ color: 'transparent' });
+
+    fireEvent(input, 'focus');
+
+    expect(queryByTestId('formatted-input-display-cursor')).toBeNull();
+
+    fireEvent(input, 'selectionChange', {
+      nativeEvent: { selection: { start: 3, end: 3 } },
+    });
 
     fireEvent.changeText(input, '1000');
 
     expect(setNativeProps).toHaveBeenCalledWith({ text: '1,000' });
+    expect(setNativeProps).toHaveBeenCalledWith({
+      text: '1,000',
+      selection: { start: 5, end: 5 },
+    });
     expect(onChangeText).toHaveBeenCalledTimes(1);
     expect(onChangeText).toHaveBeenCalledWith('1000');
     expect(getByTestId('formatted-input-display').props.value).toBe('1,000');
+
+    fireEvent(input, 'blur');
+
+    expect(queryByTestId('formatted-input-display-cursor')).toBeNull();
+
+    setNativeProps.mockRestore();
+  });
+
+  it('중간 위치 입력 후 실제 selection을 포맷된 숫자 위치로 유지한다', () => {
+    const setNativeProps = jest.spyOn(TextInput.prototype, 'setNativeProps');
+    const { getByTestId } = render(
+      <AppTamaguiProvider>
+        <Input
+          testID="formatted-input"
+          value="12345"
+          displayFormatter={formatNumber}
+        />
+      </AppTamaguiProvider>,
+    );
+    const input = getByTestId('formatted-input');
+
+    expect(input.props.defaultValue).toBe('12,345');
+
+    fireEvent(input, 'selectionChange', {
+      nativeEvent: { selection: { start: 2, end: 2 } },
+    });
+    fireEvent.changeText(input, '129,345');
+
+    expect(setNativeProps).toHaveBeenCalledWith({
+      text: '129,345',
+      selection: { start: 3, end: 3 },
+    });
 
     setNativeProps.mockRestore();
   });

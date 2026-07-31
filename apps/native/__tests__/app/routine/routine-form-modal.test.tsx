@@ -379,7 +379,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       expect(penaltyInput.props.placeholder).toBeUndefined();
       expect(penaltyInput.props.value).toBeUndefined();
-      expect(penaltyInput.props.defaultValue).toBe('');
+      expect(penaltyInput.props.defaultValue).toBe('0');
       expect(penaltyDisplay.props.value).toBe('0');
       expect(penaltyDisplay).toHaveStyle({ textAlign: 'right' });
       expect(getByTestId('penalty-input-container')).toHaveStyle({
@@ -625,9 +625,8 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
   describe('사용자 인풋 유효성 검사 테스트', () => {
     it('메이트 input에 포커스하면 전체 친구 목록을 바로 표시한다', async () => {
-      const { getAllByTestId, getByPlaceholderText, getByText } = render(
-        <RoutineFormModal />,
-      );
+      const { getAllByTestId, getByPlaceholderText, getByTestId, getByText } =
+        render(<RoutineFormModal />);
 
       await act(async () => {
         fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
@@ -646,6 +645,13 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(getByText('friend1')).toBeOnTheScreen();
       expect(getByText('friend2')).toBeOnTheScreen();
       expect(getByText('friend3')).toBeOnTheScreen();
+      expect(
+        getByTestId('autocomplete-option-image-friend1').props.source,
+      ).toEqual({
+        uri: expect.stringContaining(
+          '/assets/characters/mage_intermediate.png',
+        ),
+      });
     });
 
     it('메이트 드롭다운 외부를 누르면 친구 목록을 닫는다', async () => {
@@ -788,6 +794,24 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       expect(getByTestId('penalty-input-display').props.value).toBe('10,000');
+    });
+
+    it('벌금이 1억을 초과하면 즉시 1억으로 제한한다', async () => {
+      const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      const penaltyInput = getByTestId('penalty-input');
+
+      await act(async () => {
+        fireEvent.changeText(penaltyInput, '100000001');
+      });
+
+      expect(getByTestId('penalty-input-display').props.value).toBe(
+        '100,000,000',
+      );
     });
 
     it('벌금 입력값을 모두 지우면 0을 표시한다', async () => {

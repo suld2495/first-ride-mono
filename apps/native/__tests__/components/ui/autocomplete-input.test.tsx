@@ -1,5 +1,5 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { Keyboard, StyleSheet, TextInput } from 'react-native';
 
 import {
   AutocompleteInput,
@@ -91,6 +91,99 @@ describe('AutocompleteInput', () => {
     expect(
       StyleSheet.flatten(getByTestId('autocomplete-option').props.style).height,
     ).toBe(baseFoundation.dimension.x48);
+  });
+
+  it('옵션 이미지가 있으면 24 크기의 원형 캐릭터와 이름을 8 간격으로 표시한다', () => {
+    const characterImageSource = {
+      uri: 'https://example.com/friend-character.png',
+    };
+    const { getByPlaceholderText, getByTestId } = render(
+      <AppTamaguiProvider>
+        <AutocompleteInput
+          placeholder="친구를 선택하세요"
+          items={[
+            {
+              label: 'friend1',
+              value: 'friend1',
+              imageSource: characterImageSource,
+            },
+          ]}
+        />
+      </AppTamaguiProvider>,
+    );
+
+    fireEvent(getByPlaceholderText('친구를 선택하세요'), 'focus');
+
+    expect(getByTestId('autocomplete-option-content-friend1')).toHaveStyle({
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: baseFoundation.spacing[2],
+    });
+    expect(getByTestId('autocomplete-option-avatar-friend1')).toHaveStyle({
+      width: baseFoundation.dimension.x24,
+      height: baseFoundation.dimension.x24,
+      borderRadius: baseFoundation.radii.round,
+      overflow: 'hidden',
+      backgroundColor: palette.theme.gray[5],
+    });
+    expect(
+      getByTestId('autocomplete-option-image-friend1').props.source,
+    ).toEqual(characterImageSource);
+  });
+
+  it('선택된 옵션 우측 12 여백에 현재 테마 50 색상의 체크 아이콘을 표시한다', () => {
+    useColorSchemeStore.getState().setColorScheme('green');
+
+    const { getAllByTestId, getByPlaceholderText, getByTestId, queryByTestId } =
+      render(
+        <AppTamaguiProvider>
+          <AutocompleteInput
+            placeholder="친구를 선택하세요"
+            value="friend2"
+            items={[
+              { label: 'friend1', value: 'friend1' },
+              { label: 'friend2', value: 'friend2' },
+            ]}
+          />
+        </AppTamaguiProvider>,
+      );
+
+    fireEvent(getByPlaceholderText('친구를 선택하세요'), 'focus');
+
+    expect(queryByTestId('autocomplete-selected-icon-friend1')).toBeNull();
+    expect(getByTestId('autocomplete-selected-icon-friend2').props.color).toBe(
+      palette.theme.green[50],
+    );
+    expect(
+      StyleSheet.flatten(getAllByTestId('autocomplete-option')[1].props.style)
+        .paddingRight,
+    ).toBe(baseFoundation.spacing[3]);
+  });
+
+  it('옵션을 선택하면 입력 포커스와 키보드를 해제한다', () => {
+    const dismissKeyboard = jest.spyOn(Keyboard, 'dismiss');
+    const blurInput = jest.spyOn(TextInput.prototype, 'blur');
+    const onSelectItem = jest.fn();
+    const { getByPlaceholderText, getByText, queryByTestId } = render(
+      <AppTamaguiProvider>
+        <AutocompleteInput
+          placeholder="친구를 선택하세요"
+          items={[{ label: 'friend1', value: 'friend1' }]}
+          onSelectItem={onSelectItem}
+        />
+      </AppTamaguiProvider>,
+    );
+
+    fireEvent(getByPlaceholderText('친구를 선택하세요'), 'focus');
+    fireEvent.press(getByText('friend1'));
+
+    expect(onSelectItem).toHaveBeenCalledWith({
+      label: 'friend1',
+      value: 'friend1',
+    });
+    expect(blurInput).toHaveBeenCalledTimes(1);
+    expect(dismissKeyboard).toHaveBeenCalledTimes(1);
+    expect(queryByTestId('autocomplete-dropdown')).not.toBeOnTheScreen();
   });
 
   it('컬러 테마에서도 드롭다운 옵션 텍스트가 배경과 대비되게 보인다', () => {

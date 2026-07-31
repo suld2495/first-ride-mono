@@ -46,6 +46,53 @@ export type InputColor =
   | 'warning'
   | 'info';
 
+type TextSelection = {
+  start: number;
+  end: number;
+};
+
+const DIGIT_PATTERN = /[0-9]/;
+
+const getSelectionAfterFormatting = (
+  previousText: string,
+  nextText: string,
+  formattedText: string,
+  selection: TextSelection,
+): TextSelection => {
+  const selectedLength = selection.end - selection.start;
+  const replacementLength =
+    nextText.length - (previousText.length - selectedLength);
+  const nativeCaretPosition =
+    replacementLength >= 0
+      ? selection.start + replacementLength
+      : Math.max(0, selection.start + replacementLength);
+  const digitCountBeforeCaret = nextText
+    .slice(0, nativeCaretPosition)
+    .replace(/[^0-9]/g, '').length;
+
+  if (digitCountBeforeCaret === 0) {
+    return { start: 0, end: 0 };
+  }
+
+  let digitCount = 0;
+
+  for (let index = 0; index < formattedText.length; index += 1) {
+    if (DIGIT_PATTERN.test(formattedText[index])) {
+      digitCount += 1;
+    }
+
+    if (digitCount === digitCountBeforeCaret) {
+      const caretPosition = index + 1;
+
+      return { start: caretPosition, end: caretPosition };
+    }
+  }
+
+  const endPosition = formattedText.length;
+
+  return { start: endPosition, end: endPosition };
+};
+
 export interface InputProps extends Omit<TextInputProps, 'style'> {
   /**
    * Input size
@@ -148,198 +195,270 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
  *   helperText="example@email.com 형식으로 입력"
  * />
  */
-export const Input: React.FC<InputProps> = ({
-  size = 'md',
-  variant = 'outlined',
-  error,
-  success,
-  fullWidth,
-  label,
-  helperText,
-  style,
-  containerTestID,
-  inputStyle,
-  suffix,
-  displayFormatter,
-  displayValueTestID,
-  suffixTestID,
-  color = 'input',
-  onChange,
-  onChangeText,
-  value,
-  defaultValue,
-  caretHidden,
-  ...props
-}) => {
-  const { theme } = useAppTheme();
-  const inputRef = React.useRef<TextInput>(null);
-  const displayInputRef = React.useRef<TextInput>(null);
-  const initialInputValueRef = React.useRef(
-    String(value ?? defaultValue ?? ''),
-  );
-  const lastInputTextRef = React.useRef<string | null>(null);
-  const hasFormattedDisplay = displayFormatter !== undefined;
-  const [displayValue, setDisplayValue] = React.useState(() =>
-    displayFormatter?.(initialInputValueRef.current),
-  );
-  const inputColorMap = {
-    input: theme.colors.field.text,
-    title: theme.colors.text.title,
-    subtitle: theme.colors.text.label,
-    caption: theme.colors.text.tertiary,
-    disabled: theme.colors.text.disabled,
-    error: theme.colors.feedback.error.text,
-    success: theme.colors.feedback.success.text,
-    warning: theme.colors.feedback.warning.text,
-    info: theme.colors.feedback.info.text,
-  } satisfies Record<InputColor, string>;
-  const inputColor = inputColorMap[color];
+export const Input = React.forwardRef<TextInput, InputProps>(
+  (
+    {
+      size = 'md',
+      variant = 'outlined',
+      error,
+      success,
+      fullWidth,
+      label,
+      helperText,
+      style,
+      containerTestID,
+      inputStyle,
+      suffix,
+      displayFormatter,
+      displayValueTestID,
+      suffixTestID,
+      color = 'input',
+      onChange,
+      onChangeText,
+      onFocus,
+      onBlur,
+      onSelectionChange,
+      value,
+      defaultValue,
+      caretHidden,
+      ...props
+    },
+    forwardedRef,
+  ) => {
+    const { theme } = useAppTheme();
+    const inputRef = React.useRef<TextInput>(null);
+    const displayInputRef = React.useRef<TextInput>(null);
+    React.useImperativeHandle(
+      forwardedRef,
+      () => inputRef.current as TextInput,
+    );
+    const initialInputValueRef = React.useRef(
+      String(value ?? defaultValue ?? ''),
+    );
+    const initialFormattedValueRef = React.useRef(
+      displayFormatter?.(initialInputValueRef.current) ??
+        initialInputValueRef.current,
+    );
+    const formattedInputValueRef = React.useRef(
+      initialFormattedValueRef.current,
+    );
+    const selectionRef = React.useRef<TextSelection>({
+      start: initialFormattedValueRef.current.length,
+      end: initialFormattedValueRef.current.length,
+    });
+    const lastInputTextRef = React.useRef<string | null>(null);
+    const hasFormattedDisplay = displayFormatter !== undefined;
+    const [displayValue, setDisplayValue] = React.useState(
+      initialFormattedValueRef.current,
+    );
+    const inputColorMap = {
+      input: theme.colors.field.text,
+      title: theme.colors.text.title,
+      subtitle: theme.colors.text.label,
+      caption: theme.colors.text.tertiary,
+      disabled: theme.colors.text.disabled,
+      error: theme.colors.feedback.error.text,
+      success: theme.colors.feedback.success.text,
+      warning: theme.colors.feedback.warning.text,
+      info: theme.colors.feedback.info.text,
+    } satisfies Record<InputColor, string>;
+    const inputColor = inputColorMap[color];
 
-  // 상태 결정
-  const state: InputState = error ? 'error' : success ? 'success' : 'default';
-  const sizeContainerStyle = {
-    xs: styles.containerXs,
-    sm: styles.containerSm,
-    md: styles.containerMd,
-    lg: styles.containerLg,
-  }[size];
-  const sizeInputStyle = {
-    xs: styles.inputXs,
-    sm: styles.inputSm,
-    md: styles.inputMd,
-    lg: styles.inputLg,
-  }[size];
-  const variantStyle = {
-    outlined: styles.variantOutlined,
-    filled: styles.variantFilled,
-    underlined: styles.variantUnderlined,
-    ghost: styles.variantGhost,
-  }[variant];
-  const stateStyle = {
-    default: null,
-    error: styles.stateError,
-    success: styles.stateSuccess,
-  }[state];
-  const helperStyle = {
-    default: styles.helperDefault,
-    error: styles.helperError,
-    success: styles.helperSuccess,
-  }[state];
-  const handleChange: NonNullable<TextInputProps['onChange']> = (event) => {
-    onChange?.(event);
-  };
-  const handleChangeText = (text: string) => {
-    if (displayFormatter) {
-      const formattedText = displayFormatter(text);
+    // 상태 결정
+    const state: InputState = error ? 'error' : success ? 'success' : 'default';
+    const sizeContainerStyle = {
+      xs: styles.containerXs,
+      sm: styles.containerSm,
+      md: styles.containerMd,
+      lg: styles.containerLg,
+    }[size];
+    const sizeInputStyle = {
+      xs: styles.inputXs,
+      sm: styles.inputSm,
+      md: styles.inputMd,
+      lg: styles.inputLg,
+    }[size];
+    const variantStyle = {
+      outlined: styles.variantOutlined,
+      filled: styles.variantFilled,
+      underlined: styles.variantUnderlined,
+      ghost: styles.variantGhost,
+    }[variant];
+    const stateStyle = {
+      default: null,
+      error: styles.stateError,
+      success: styles.stateSuccess,
+    }[state];
+    const helperStyle = {
+      default: styles.helperDefault,
+      error: styles.helperError,
+      success: styles.helperSuccess,
+    }[state];
+    const handleChange: NonNullable<TextInputProps['onChange']> = (event) => {
+      onChange?.(event);
+    };
+    const handleChangeText = (text: string) => {
+      if (displayFormatter) {
+        const formattedText = displayFormatter(text);
+        const nextSelection = getSelectionAfterFormatting(
+          formattedInputValueRef.current,
+          text,
+          formattedText,
+          selectionRef.current,
+        );
 
-      lastInputTextRef.current = text;
+        lastInputTextRef.current = text;
+        formattedInputValueRef.current = formattedText;
+        selectionRef.current = nextSelection;
+        inputRef.current?.setNativeProps({
+          text: formattedText,
+          selection: nextSelection,
+        });
+        displayInputRef.current?.setNativeProps({ text: formattedText });
+        setDisplayValue(formattedText);
+      }
+
+      onChangeText?.(text);
+    };
+    const handleFocus: NonNullable<TextInputProps['onFocus']> = (event) => {
+      onFocus?.(event);
+    };
+    const handleBlur: NonNullable<TextInputProps['onBlur']> = (event) => {
+      onBlur?.(event);
+    };
+    const handleSelectionChange: NonNullable<
+      TextInputProps['onSelectionChange']
+    > = (event) => {
+      selectionRef.current = event.nativeEvent.selection;
+      onSelectionChange?.(event);
+    };
+    React.useEffect(() => {
+      if (!displayFormatter || value === undefined) {
+        return;
+      }
+
+      const externalText = String(value);
+
+      if (lastInputTextRef.current === externalText) {
+        lastInputTextRef.current = null;
+        return;
+      }
+
+      const formattedText = displayFormatter(externalText);
+
+      if (formattedText === formattedInputValueRef.current) {
+        lastInputTextRef.current = null;
+        return;
+      }
+
+      const endSelection = {
+        start: formattedText.length,
+        end: formattedText.length,
+      };
+
+      formattedInputValueRef.current = formattedText;
+      selectionRef.current = endSelection;
+      inputRef.current?.setNativeProps({
+        text: formattedText,
+        selection: endSelection,
+      });
       displayInputRef.current?.setNativeProps({ text: formattedText });
       setDisplayValue(formattedText);
-    }
+    }, [displayFormatter, value]);
 
-    onChangeText?.(text);
-  };
-  React.useEffect(() => {
-    if (!displayFormatter || value === undefined) {
-      return;
-    }
+    const sharedInputStyle = [
+      styles.input,
+      sizeInputStyle,
+      { color: inputColor },
+      inputStyle,
+    ];
+    const regularValueProps =
+      value !== undefined ? { value } : { defaultValue };
+    const textInput = hasFormattedDisplay ? (
+      <TextInput
+        ref={inputRef}
+        style={[...sharedInputStyle, styles.formattedEditingInput]}
+        placeholderTextColor={theme.colors.field.placeholder}
+        defaultValue={initialFormattedValueRef.current}
+        caretHidden={caretHidden}
+        selectionColor={inputColor}
+        cursorColor={inputColor}
+        onChange={handleChange}
+        onChangeText={handleChangeText}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onSelectionChange={handleSelectionChange}
+        {...props}
+      />
+    ) : (
+      <TextInput
+        ref={inputRef}
+        style={sharedInputStyle}
+        placeholderTextColor={theme.colors.field.placeholder}
+        caretHidden={caretHidden}
+        onChange={handleChange}
+        onChangeText={handleChangeText}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        {...regularValueProps}
+        {...props}
+      />
+    );
 
-    const externalText = String(value);
-
-    if (lastInputTextRef.current === externalText) {
-      lastInputTextRef.current = null;
-      return;
-    }
-
-    const formattedText = displayFormatter(externalText);
-
-    inputRef.current?.setNativeProps({ text: externalText });
-    displayInputRef.current?.setNativeProps({ text: formattedText });
-    setDisplayValue(formattedText);
-  }, [displayFormatter, value]);
-
-  const sharedInputStyle = [
-    styles.input,
-    sizeInputStyle,
-    { color: inputColor },
-    inputStyle,
-  ];
-  const regularValueProps = value !== undefined ? { value } : { defaultValue };
-  const textInput = hasFormattedDisplay ? (
-    <TextInput
-      ref={inputRef}
-      style={[...sharedInputStyle, styles.hiddenInput]}
-      placeholderTextColor={theme.colors.field.placeholder}
-      defaultValue={initialInputValueRef.current}
-      caretHidden
-      onChange={handleChange}
-      onChangeText={handleChangeText}
-      {...props}
-    />
-  ) : (
-    <TextInput
-      ref={inputRef}
-      style={sharedInputStyle}
-      placeholderTextColor={theme.colors.field.placeholder}
-      caretHidden={caretHidden}
-      onChange={handleChange}
-      onChangeText={handleChangeText}
-      {...regularValueProps}
-      {...props}
-    />
-  );
-
-  return (
-    <View style={fullWidth && internalStyles.fullWidth}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <View
-        testID={containerTestID}
-        style={[
-          styles.container,
-          sizeContainerStyle,
-          variantStyle,
-          stateStyle,
-          suffix ? styles.containerWithSuffix : null,
-          style,
-        ]}
-      >
-        {hasFormattedDisplay ? (
-          <View style={styles.formattedInputSlot}>
-            {textInput}
-            <TextInput
-              ref={displayInputRef}
-              testID={displayValueTestID}
-              style={[
-                styles.formattedDisplayInput,
-                sizeInputStyle,
-                { color: inputColor },
-                inputStyle,
-              ]}
-              value={displayValue}
-              editable={false}
-              caretHidden
-              pointerEvents="none"
-              accessible={false}
-            />
-          </View>
-        ) : (
-          textInput
-        )}
-        {suffix && (
-          <Text
-            testID={suffixTestID}
-            style={[styles.suffix, { color: inputColor }]}
-          >
-            {suffix}
-          </Text>
+    return (
+      <View style={fullWidth && internalStyles.fullWidth}>
+        {label && <Text style={styles.label}>{label}</Text>}
+        <View
+          testID={containerTestID}
+          style={[
+            styles.container,
+            sizeContainerStyle,
+            variantStyle,
+            stateStyle,
+            suffix ? styles.containerWithSuffix : null,
+            style,
+          ]}
+        >
+          {hasFormattedDisplay ? (
+            <View style={styles.formattedInputSlot}>
+              <TextInput
+                ref={displayInputRef}
+                testID={displayValueTestID}
+                style={[
+                  styles.formattedDisplayInput,
+                  sizeInputStyle,
+                  { color: inputColor },
+                  inputStyle,
+                ]}
+                value={displayValue}
+                editable={false}
+                caretHidden
+                pointerEvents="none"
+                accessible={false}
+              />
+              {textInput}
+            </View>
+          ) : (
+            textInput
+          )}
+          {suffix && (
+            <Text
+              testID={suffixTestID}
+              style={[styles.suffix, { color: inputColor }]}
+            >
+              {suffix}
+            </Text>
+          )}
+        </View>
+        {helperText && (
+          <Text style={[styles.helperText, helperStyle]}>{helperText}</Text>
         )}
       </View>
-      {helperText && (
-        <Text style={[styles.helperText, helperStyle]}>{helperText}</Text>
-      )}
-    </View>
-  );
-};
+    );
+  },
+);
+
+Input.displayName = 'Input';
 
 const styles = StyleSheet.create((theme) => ({
   container: {},
@@ -351,8 +470,9 @@ const styles = StyleSheet.create((theme) => ({
   formattedInputSlot: {
     flex: 1,
   },
-  hiddenInput: {
+  formattedEditingInput: {
     color: 'transparent',
+    backgroundColor: 'transparent',
   },
   formattedDisplayInput: {
     position: 'absolute',
