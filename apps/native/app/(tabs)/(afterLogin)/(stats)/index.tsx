@@ -177,7 +177,15 @@ export default function StatsPage() {
           showsVerticalScrollIndicator={false}
         >
           {renderMonthHeader()}
-          <RoutineStatsSummary monthDate={currentMonth} routines={routines} />
+          {isLoading ? (
+            <ThemeView transparent style={styles.stateContainer}>
+              <Loading />
+            </ThemeView>
+          ) : routines.length ? (
+            <RoutineStatsSummary monthDate={currentMonth} routines={routines} />
+          ) : (
+            <EmptyState transparent message="등록된 루틴이 없습니다." />
+          )}
         </ScrollView>
       ) : isLoading ? (
         <ThemeView transparent style={styles.content}>
