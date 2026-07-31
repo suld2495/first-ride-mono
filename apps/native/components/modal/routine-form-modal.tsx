@@ -50,6 +50,26 @@ const ROUTINE_COLOR_ROWS = [
   ROUTINE_COLOR_OPTIONS.slice(5),
 ];
 
+const formatPenalty = (value: string | number | undefined) => {
+  const digits = String(value ?? '').replace(/[^0-9]/g, '');
+
+  if (!digits || digits === '0') {
+    return '0';
+  }
+
+  const parsed = Number.parseInt(digits, 10);
+
+  return Number.isNaN(parsed) ? '0' : parsed.toLocaleString('ko-KR');
+};
+
+const getPenaltyDigits = (text: string) => text.replace(/[^0-9]/g, '');
+
+const getPenaltyInputValue = (value: string | number | undefined) => {
+  const digits = getPenaltyDigits(String(value ?? '')).replace(/^0+(?=\d)/, '');
+
+  return digits === '0' ? '' : digits;
+};
+
 const getDateFromFormValue = (date?: string) => {
   if (!date) {
     return null;
@@ -353,15 +373,15 @@ const RoutineFormModal = () => {
           <FormItem
             name="isMe"
             showErrors={false}
-            item={({ value, setValue }) => (
+            item={({ value: isMe, setValue }) => (
               <ThemeView style={styles.mateSection} transparent>
                 <ThemeView style={styles.mateField} transparent>
                   <Checkbox
                     size="md"
-                    text="메이트와 함께 루틴 체크"
+                    text="메이트에게 루틴 인증 요청"
                     labelColor={theme.colors.field.label}
                     fillColor={palette.theme.gray[95]}
-                    isChecked={!value}
+                    isChecked={!isMe}
                     onPress={(checked) => {
                       setValue('isMe', !checked);
 
@@ -372,18 +392,18 @@ const RoutineFormModal = () => {
                     }}
                   />
                 </ThemeView>
-                {!value && (
+                {!isMe && (
                   <>
                     <FormItem
                       name="mateNickname"
-                      label="메이트"
+                      label="체크해줄 친구"
                       required
                       item={({ value, onChange }) => (
                         <AutocompleteInput
                           ref={mateAutocompleteRef}
                           variant="filled"
                           value={value !== undefined ? String(value) : value}
-                          placeholder="메이트를 지정하세요."
+                          placeholder="친구를 선택하세요"
                           onChangeText={(text) => {
                             onChange(text);
                             setMateKeyword(text);
@@ -404,36 +424,23 @@ const RoutineFormModal = () => {
                       name="penalty"
                       label="벌금"
                       optionalLabel="선택"
-                      item={({ value, onChange }) => {
-                        const formatNumber = (num: string | number) => {
-                          const numStr = String(num).replace(/[^0-9]/g, '');
-
-                          if (!numStr || numStr === '0') return '';
-                          const parsed = parseInt(numStr, 10);
-
-                          return isNaN(parsed)
-                            ? ''
-                            : parsed.toLocaleString('ko-KR');
-                        };
-
-                        const handleChange = (text: string) => {
-                          const numericValue = text.replace(/[^0-9]/g, '');
-
-                          onChange(numericValue);
-                        };
-
-                        return (
-                          <Input
-                            variant="filled"
-                            value={
-                              value !== undefined ? formatNumber(value) : value
-                            }
-                            placeholder="벌금을 입력하세요."
-                            onChangeText={handleChange}
-                            keyboardType="number-pad"
-                          />
-                        );
-                      }}
+                      item={({ value, onChange }) => (
+                        <Input
+                          variant="filled"
+                          testID="penalty-input"
+                          containerTestID="penalty-input-container"
+                          value={getPenaltyInputValue(value)}
+                          inputStyle={styles.penaltyInput}
+                          displayFormatter={formatPenalty}
+                          displayValueTestID="penalty-input-display"
+                          suffix="원"
+                          suffixTestID="penalty-unit"
+                          onChangeText={(text) =>
+                            onChange(getPenaltyInputValue(text))
+                          }
+                          keyboardType="number-pad"
+                        />
+                      )}
                     />
                   </>
                 )}
@@ -456,32 +463,21 @@ const RoutineFormModal = () => {
             name="penalty"
             label="벌금"
             optionalLabel="선택"
-            item={({ value, onChange }) => {
-              const formatNumber = (num: string | number) => {
-                const numStr = String(num).replace(/[^0-9]/g, '');
-
-                if (!numStr || numStr === '0') return '';
-                const parsed = parseInt(numStr, 10);
-
-                return isNaN(parsed) ? '' : parsed.toLocaleString('ko-KR');
-              };
-
-              const handleChange = (text: string) => {
-                const numericValue = text.replace(/[^0-9]/g, '');
-
-                onChange(numericValue);
-              };
-
-              return (
-                <Input
-                  variant="filled"
-                  value={value !== undefined ? formatNumber(value) : value}
-                  placeholder="벌금을 입력하세요."
-                  onChangeText={handleChange}
-                  keyboardType="number-pad"
-                />
-              );
-            }}
+            item={({ value, onChange }) => (
+              <Input
+                variant="filled"
+                testID="penalty-input"
+                containerTestID="penalty-input-container"
+                value={getPenaltyInputValue(value)}
+                inputStyle={styles.penaltyInput}
+                displayFormatter={formatPenalty}
+                displayValueTestID="penalty-input-display"
+                suffix="원"
+                suffixTestID="penalty-unit"
+                onChangeText={(text) => onChange(getPenaltyInputValue(text))}
+                keyboardType="number-pad"
+              />
+            )}
           />
         )}
         <ThemeView
@@ -620,6 +616,10 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     gap: theme.foundation.spacing[1],
     alignItems: 'center',
+  },
+
+  penaltyInput: {
+    textAlign: 'right',
   },
 
   statusSection: {

@@ -100,6 +100,26 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
   inputStyle?: StyleProp<TextStyle>;
 
   /**
+   * 입력값 오른쪽에 고정으로 표시할 접미사
+   */
+  suffix?: string;
+
+  /**
+   * 원래 입력값을 숨기고 별도로 표시할 문자열 포맷터
+   */
+  displayFormatter?: (text: string) => string;
+
+  /**
+   * 포맷된 표시값 테스트 ID
+   */
+  displayValueTestID?: string;
+
+  /**
+   * 접미사 테스트 ID
+   */
+  suffixTestID?: string;
+
+  /**
    * 입력 텍스트 색상 토큰
    * @default 'input'
    */
@@ -139,12 +159,29 @@ export const Input: React.FC<InputProps> = ({
   style,
   containerTestID,
   inputStyle,
+  suffix,
+  displayFormatter,
+  displayValueTestID,
+  suffixTestID,
   color = 'input',
   onChange,
   onChangeText,
+  value,
+  defaultValue,
+  caretHidden,
   ...props
 }) => {
   const { theme } = useAppTheme();
+  const inputRef = React.useRef<TextInput>(null);
+  const displayInputRef = React.useRef<TextInput>(null);
+  const initialInputValueRef = React.useRef(
+    String(value ?? defaultValue ?? ''),
+  );
+  const lastInputTextRef = React.useRef<string | null>(null);
+  const hasFormattedDisplay = displayFormatter !== undefined;
+  const [displayValue, setDisplayValue] = React.useState(() =>
+    displayFormatter?.(initialInputValueRef.current),
+  );
   const inputColorMap = {
     input: theme.colors.field.text,
     title: theme.colors.text.title,
@@ -190,15 +227,67 @@ export const Input: React.FC<InputProps> = ({
   }[state];
   const handleChange: NonNullable<TextInputProps['onChange']> = (event) => {
     onChange?.(event);
-
-    const nextText =
-      event.nativeEvent?.text ??
-      (event.target as unknown as { value?: string } | null)?.value;
-
-    if (typeof nextText === 'string') {
-      onChangeText?.(nextText);
-    }
   };
+  const handleChangeText = (text: string) => {
+    if (displayFormatter) {
+      const formattedText = displayFormatter(text);
+
+      lastInputTextRef.current = text;
+      displayInputRef.current?.setNativeProps({ text: formattedText });
+      setDisplayValue(formattedText);
+    }
+
+    onChangeText?.(text);
+  };
+  React.useEffect(() => {
+    if (!displayFormatter || value === undefined) {
+      return;
+    }
+
+    const externalText = String(value);
+
+    if (lastInputTextRef.current === externalText) {
+      lastInputTextRef.current = null;
+      return;
+    }
+
+    const formattedText = displayFormatter(externalText);
+
+    inputRef.current?.setNativeProps({ text: externalText });
+    displayInputRef.current?.setNativeProps({ text: formattedText });
+    setDisplayValue(formattedText);
+  }, [displayFormatter, value]);
+
+  const sharedInputStyle = [
+    styles.input,
+    sizeInputStyle,
+    { color: inputColor },
+    inputStyle,
+  ];
+  const regularValueProps = value !== undefined ? { value } : { defaultValue };
+  const textInput = hasFormattedDisplay ? (
+    <TextInput
+      ref={inputRef}
+      style={[...sharedInputStyle, styles.hiddenInput]}
+      placeholderTextColor={theme.colors.field.placeholder}
+      defaultValue={initialInputValueRef.current}
+      caretHidden
+      onChange={handleChange}
+      onChangeText={handleChangeText}
+      {...props}
+    />
+  ) : (
+    <TextInput
+      ref={inputRef}
+      style={sharedInputStyle}
+      placeholderTextColor={theme.colors.field.placeholder}
+      caretHidden={caretHidden}
+      onChange={handleChange}
+      onChangeText={handleChangeText}
+      {...regularValueProps}
+      {...props}
+    />
+  );
 
   return (
     <View style={fullWidth && internalStyles.fullWidth}>
@@ -210,21 +299,40 @@ export const Input: React.FC<InputProps> = ({
           sizeContainerStyle,
           variantStyle,
           stateStyle,
+          suffix ? styles.containerWithSuffix : null,
           style,
         ]}
       >
-        <TextInput
-          style={[
-            styles.input,
-            sizeInputStyle,
-            { color: inputColor },
-            inputStyle,
-          ]}
-          placeholderTextColor={theme.colors.field.placeholder}
-          onChange={handleChange}
-          onChangeText={onChangeText}
-          {...props}
-        />
+        {hasFormattedDisplay ? (
+          <View style={styles.formattedInputSlot}>
+            {textInput}
+            <TextInput
+              ref={displayInputRef}
+              testID={displayValueTestID}
+              style={[
+                styles.formattedDisplayInput,
+                sizeInputStyle,
+                { color: inputColor },
+                inputStyle,
+              ]}
+              value={displayValue}
+              editable={false}
+              caretHidden
+              pointerEvents="none"
+              accessible={false}
+            />
+          </View>
+        ) : (
+          textInput
+        )}
+        {suffix && (
+          <Text
+            testID={suffixTestID}
+            style={[styles.suffix, { color: inputColor }]}
+          >
+            {suffix}
+          </Text>
+        )}
       </View>
       {helperText && (
         <Text style={[styles.helperText, helperStyle]}>{helperText}</Text>
@@ -235,6 +343,25 @@ export const Input: React.FC<InputProps> = ({
 
 const styles = StyleSheet.create((theme) => ({
   container: {},
+  containerWithSuffix: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[1],
+  },
+  formattedInputSlot: {
+    flex: 1,
+  },
+  hiddenInput: {
+    color: 'transparent',
+  },
+  formattedDisplayInput: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    padding: 0,
+  },
   containerXs: {
     height: baseFoundation.dimension.x28,
     paddingHorizontal: theme.foundation.spacing[1],
@@ -293,6 +420,9 @@ const styles = StyleSheet.create((theme) => ({
   },
   inputLg: {
     fontSize: theme.foundation.typography.size.xl,
+  },
+  suffix: {
+    fontSize: theme.foundation.typography.size.m,
   },
   label: {
     fontSize: theme.foundation.typography.size.m,

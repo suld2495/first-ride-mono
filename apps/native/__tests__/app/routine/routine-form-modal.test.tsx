@@ -1,6 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
-import { act, waitFor, within } from '@testing-library/react-native';
+import { act, screen, waitFor, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { type ReactElement, useContext } from 'react';
 import { Alert, StyleSheet as RNStyleSheet } from 'react-native';
@@ -236,10 +236,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     }
     if (data.penalty) {
       await act(async () => {
-        fireEvent.changeText(
-          getByPlaceholderText('벌금을 입력하세요.'),
-          data.penalty,
-        );
+        fireEvent.changeText(screen.getByTestId('penalty-input'), data.penalty);
       });
     }
     if (data.routineCount) {
@@ -323,36 +320,35 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   };
 
   describe('필수값 입력 전 추가 버튼 비활성화 테스트', () => {
-    it('메이트와 함께 루틴 체크를 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
-      const { getAllByTestId, getByText, queryByPlaceholderText } = render(
-        <RoutineFormModal />,
-      );
+    it('메이트에게 루틴 인증 요청을 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
+      const {
+        getAllByTestId,
+        getByText,
+        queryByPlaceholderText,
+        queryByTestId,
+      } = render(<RoutineFormModal />);
       const mateCheckbox = getAllByTestId('bouncy-checkbox')[0];
 
-      expect(getByText('메이트와 함께 루틴 체크')).toHaveStyle({
+      expect(getByText('메이트에게 루틴 인증 요청')).toHaveStyle({
         color: '#272A2D',
       });
       expect(mateCheckbox.props.isChecked).toBe(false);
       expect(mateCheckbox.props.fillColor).toBe('#000306');
-      expect(
-        queryByPlaceholderText('메이트를 지정하세요.'),
-      ).not.toBeOnTheScreen();
-      expect(
-        queryByPlaceholderText('벌금을 입력하세요.'),
-      ).not.toBeOnTheScreen();
+      expect(queryByPlaceholderText('친구를 선택하세요')).not.toBeOnTheScreen();
+      expect(queryByTestId('penalty-input')).not.toBeOnTheScreen();
     });
 
-    it('메이트와 함께 루틴 체크 라벨을 누르면 체크된다', async () => {
+    it('메이트에게 루틴 인증 요청 라벨을 누르면 체크된다', async () => {
       const { getByPlaceholderText, getByText } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getByText('메이트와 함께 루틴 체크'));
+        fireEvent.press(getByText('메이트에게 루틴 인증 요청'));
       });
 
-      expect(getByPlaceholderText('메이트를 지정하세요.')).toBeOnTheScreen();
+      expect(getByPlaceholderText('친구를 선택하세요')).toBeOnTheScreen();
     });
 
-    it('메이트 루틴 입력에서는 메이트를 필수로, 벌금을 선택항목으로 표시한다', async () => {
+    it('메이트 루틴 입력에서는 체크해줄 친구를 필수로, 벌금을 선택항목으로 표시한다', async () => {
       const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
@@ -363,11 +359,34 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const penaltyLabelRow = within(getByTestId('penalty-label-row'));
       const penaltyOptional = penaltyLabelRow.getByText('선택');
 
-      expect(mateLabelRow.getByText('메이트')).toBeOnTheScreen();
+      expect(mateLabelRow.getByText('체크해줄 친구')).toBeOnTheScreen();
       expect(mateLabelRow.getByText('*')).toBeOnTheScreen();
       expect(penaltyLabelRow.getByText('벌금')).toBeOnTheScreen();
       expect(penaltyOptional).toBeOnTheScreen();
       expect(penaltyOptional.props.fontSize).toBe('$caption2');
+    });
+
+    it('벌금 입력은 기본값 0과 고정 원 단위를 우측 정렬로 표시한다', async () => {
+      mockRoutineStore.routineForm.penalty = 0;
+      const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      const penaltyInput = getByTestId('penalty-input');
+      const penaltyDisplay = getByTestId('penalty-input-display');
+
+      expect(penaltyInput.props.placeholder).toBeUndefined();
+      expect(penaltyInput.props.value).toBeUndefined();
+      expect(penaltyInput.props.defaultValue).toBe('');
+      expect(penaltyDisplay.props.value).toBe('0');
+      expect(penaltyDisplay).toHaveStyle({ textAlign: 'right' });
+      expect(getByTestId('penalty-input-container')).toHaveStyle({
+        flexDirection: 'row',
+        alignItems: 'center',
+      });
+      expect(getByTestId('penalty-unit')).toHaveTextContent('원');
     });
 
     it('생성 버튼은 modal.tsx의 고정 header action에 표시된다', () => {
@@ -621,7 +640,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       await act(async () => {
-        fireEvent(getByPlaceholderText('메이트를 지정하세요.'), 'focus');
+        fireEvent(getByPlaceholderText('친구를 선택하세요'), 'focus');
       });
 
       expect(getByText('friend1')).toBeOnTheScreen();
@@ -649,7 +668,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       await act(async () => {
-        fireEvent(getByPlaceholderText('메이트를 지정하세요.'), 'focus');
+        fireEvent(getByPlaceholderText('친구를 선택하세요'), 'focus');
       });
 
       expect(getByText('friend1')).toBeOnTheScreen();
@@ -669,7 +688,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
       });
 
-      const mateInput = getByPlaceholderText('메이트를 지정하세요.');
+      const mateInput = getByPlaceholderText('친구를 선택하세요');
 
       await act(async () => {
         fireEvent(mateInput, 'focus');
@@ -739,40 +758,53 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('벌금 입력 시 숫자만 입력된다', async () => {
-      const { getAllByTestId, getByPlaceholderText } = render(
-        <RoutineFormModal />,
-      );
+      const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
         fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
       });
 
-      const penaltyInput = getByPlaceholderText('벌금을 입력하세요.');
+      const penaltyInput = getByTestId('penalty-input');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, 'abc1000');
       });
 
       // 숫자만 남음 (1000), 포맷팅 적용 (1,000)
-      expect(penaltyInput.props.value).toBe('1,000');
+      expect(getByTestId('penalty-input-display').props.value).toBe('1,000');
     });
 
     it('벌금 입력 시 천 단위 콤마가 표시된다', async () => {
-      const { getAllByTestId, getByPlaceholderText } = render(
-        <RoutineFormModal />,
-      );
+      const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
         fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
       });
 
-      const penaltyInput = getByPlaceholderText('벌금을 입력하세요.');
+      const penaltyInput = getByTestId('penalty-input');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, '10000');
       });
 
-      expect(penaltyInput.props.value).toBe('10,000');
+      expect(getByTestId('penalty-input-display').props.value).toBe('10,000');
+    });
+
+    it('벌금 입력값을 모두 지우면 0을 표시한다', async () => {
+      const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      const penaltyInput = getByTestId('penalty-input');
+
+      await act(async () => {
+        fireEvent.changeText(penaltyInput, '10000');
+        fireEvent.changeText(penaltyInput, '');
+      });
+
+      expect(getByTestId('penalty-input-display').props.value).toBe('0');
     });
   });
 
@@ -892,7 +924,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         });
       });
 
-      it('메이트와 함께 루틴 체크 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
+      it('메이트에게 루틴 인증 요청 선택 시 메이트 루틴 API에 벌금과 메이트를 보낸다', async () => {
         mockAxios.onPost('/routine/mate').reply(201, {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
@@ -907,7 +939,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
         });
 
-        const mateInput = getByPlaceholderText('메이트를 지정하세요.');
+        const mateInput = getByPlaceholderText('친구를 선택하세요');
 
         await waitFor(() => {
           expect(mateInput.props.editable).toBe(true);
@@ -968,7 +1000,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
         });
 
-        const mateInput = getByPlaceholderText('메이트를 지정하세요.');
+        const mateInput = getByPlaceholderText('친구를 선택하세요');
 
         await waitFor(() => {
           expect(mateInput.props.editable).toBe(true);
@@ -1276,10 +1308,8 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       expect(await findByText('메이트')).toBeOnTheScreen();
       expect(await findByText('메이트닉네임')).toBeOnTheScreen();
-      expect(queryByText('메이트와 함께 루틴 체크')).not.toBeOnTheScreen();
-      expect(
-        queryByPlaceholderText('메이트를 지정하세요.'),
-      ).not.toBeOnTheScreen();
+      expect(queryByText('메이트에게 루틴 인증 요청')).not.toBeOnTheScreen();
+      expect(queryByPlaceholderText('친구를 선택하세요')).not.toBeOnTheScreen();
     });
 
     it('메이트가 지정되지 않은 루틴은 메이트 항목을 표시하지 않는다', async () => {
@@ -1290,10 +1320,8 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         await findByPlaceholderText('루틴 이름을 입력하세요.'),
       ).toBeOnTheScreen();
       expect(queryByText('메이트')).not.toBeOnTheScreen();
-      expect(queryByText('메이트와 함께 루틴 체크')).not.toBeOnTheScreen();
-      expect(
-        queryByPlaceholderText('메이트를 지정하세요.'),
-      ).not.toBeOnTheScreen();
+      expect(queryByText('메이트에게 루틴 인증 요청')).not.toBeOnTheScreen();
+      expect(queryByPlaceholderText('친구를 선택하세요')).not.toBeOnTheScreen();
     });
 
     it('승인 대기 수정 요청이 있으면 수정 요청 버튼을 복원한다', async () => {
@@ -1423,9 +1451,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       await findByPlaceholderText('루틴 이름을 입력하세요.');
       expect(queryByText('메이트')).not.toBeOnTheScreen();
-      expect(
-        queryByPlaceholderText('메이트를 지정하세요.'),
-      ).not.toBeOnTheScreen();
+      expect(queryByPlaceholderText('친구를 선택하세요')).not.toBeOnTheScreen();
     });
 
     it('isMe가 false여도 메이트 값이 내 닉네임이면 메이트 항목을 표시하지 않는다', async () => {
@@ -1441,9 +1467,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       await findByPlaceholderText('루틴 이름을 입력하세요.');
       expect(queryByText('메이트')).not.toBeOnTheScreen();
-      expect(
-        queryByPlaceholderText('메이트를 지정하세요.'),
-      ).not.toBeOnTheScreen();
+      expect(queryByPlaceholderText('친구를 선택하세요')).not.toBeOnTheScreen();
     });
   });
 
@@ -1470,16 +1494,18 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         isMe: false,
       });
 
-      const { findByPlaceholderText } = render(<RoutineFormModal />);
+      const { findByTestId, getByTestId } = render(<RoutineFormModal />);
 
-      const penaltyInput = await findByPlaceholderText('벌금을 입력하세요.');
+      const penaltyInput = await findByTestId('penalty-input');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, 'abc20000');
       });
 
       // 숫자만 남음 (20000), 포맷팅 적용 (20,000)
-      expect(penaltyInput.props.value).toBe('20,000');
+      expect(penaltyInput.props.placeholder).toBeUndefined();
+      expect(getByTestId('penalty-input-display').props.value).toBe('20,000');
+      expect(getByTestId('penalty-unit')).toHaveTextContent('원');
     });
 
     it('벌금 수정 시 천 단위 콤마가 표시된다', async () => {
@@ -1490,15 +1516,15 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         isMe: false,
       });
 
-      const { findByPlaceholderText } = render(<RoutineFormModal />);
+      const { findByTestId, getByTestId } = render(<RoutineFormModal />);
 
-      const penaltyInput = await findByPlaceholderText('벌금을 입력하세요.');
+      const penaltyInput = await findByTestId('penalty-input');
 
       await act(async () => {
         fireEvent.changeText(penaltyInput, '100000');
       });
 
-      expect(penaltyInput.props.value).toBe('100,000');
+      expect(getByTestId('penalty-input-display').props.value).toBe('100,000');
     });
   });
 
