@@ -1,7 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { useContext } from 'react';
-import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { Path } from 'react-native-svg';
 
 import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
@@ -405,12 +405,12 @@ describe('FriendRoutinesModal', () => {
 
     fireEvent.press(cheerButton);
 
-    await waitFor(() => {
-      expect(
-        screen.getByTestId('friend-cheer-loading-icon'),
-      ).toBeOnTheScreen();
-    });
-    expect(screen.UNSAFE_getByType(ActivityIndicator)).toBeOnTheScreen();
+    const loadingIcon = await screen.findByTestId(
+      'friend-cheer-loading-icon',
+    );
+
+    expect(loadingIcon).toHaveProp('color', palette.theme.blue[50]);
+    expect(loadingIcon).toHaveProp('size', baseFoundation.iconSize.xs);
     expect(screen.getByText('응원')).toBeOnTheScreen();
     expect(screen.queryByTestId('friend-cheer-icon')).toBeNull();
     expect(cheerButton).toHaveStyle({

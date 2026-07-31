@@ -7,7 +7,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
 import { memo, useCallback, useMemo, useState } from 'react';
-import { type LayoutChangeEvent, View } from 'react-native';
+import { ActivityIndicator, type LayoutChangeEvent, View } from 'react-native';
 
 import FriendCheerIcon from '@/components/icons/friend-cheer-icon';
 import ModalHeaderAction from '@/components/modal/modal-header-action';
@@ -221,8 +221,18 @@ const FriendRoutinesModal = () => {
         accessibilityRole="button"
         backgroundColor={palette.white}
         contentStyle={styles.cheerButtonContent}
-        leftIcon={<FriendCheerIcon />}
-        loading={isCheerPending}
+        disabled={isCheerPending}
+        leftIcon={
+          isCheerPending ? (
+            <ActivityIndicator
+              color={palette.theme.blue[50]}
+              size={baseFoundation.iconSize.xs}
+              testID="friend-cheer-loading-icon"
+            />
+          ) : (
+            <FriendCheerIcon />
+          )
+        }
         onPress={handleCheer}
         size="sm"
         style={styles.cheerButton}
@@ -326,6 +336,7 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x30,
     minHeight: baseFoundation.dimension.x30,
     minWidth: 67,
+    opacity: 1,
     paddingHorizontal: baseFoundation.spacing[0],
     width: 67,
   },
