@@ -267,6 +267,75 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
       expect(mockAxios.history.post).toHaveLength(0);
     });
+
+    it('응답 요청 중에는 승인과 거절 버튼을 비활성화한다', async () => {
+      let resolveRequest: () => void = () => {};
+      mockAxios.onPost('/routine/check').reply(
+        () =>
+          new Promise((resolve) => {
+            resolveRequest = () => resolve([200, { data: null }]);
+          }),
+      );
+      const screen = render(<RequestDetailModal />);
+
+      await screen.findByText('테스트 루틴 1');
+      fireEvent.press(screen.getByText('승인'));
+
+      await act(async () => {
+        pressAlertButton('승인');
+      });
+
+      await waitFor(() => {
+        expect(mockAxios.history.post).toHaveLength(1);
+        expect(screen.getByText('승인')).toBeDisabled();
+        expect(screen.getByText('거절')).toBeDisabled();
+      });
+
+      await act(async () => {
+        resolveRequest();
+      });
+
+      await waitFor(() => {
+        expect(mockBack).toHaveBeenCalled();
+      });
+    });
+
+    it('재렌더링 전에 승인 확인을 연속 실행해도 요청을 한 번만 보낸다', async () => {
+      const resolveRequests: Array<() => void> = [];
+      mockAxios.onPost('/routine/check').reply(
+        () =>
+          new Promise((resolve) => {
+            resolveRequests.push(() => resolve([200, { data: null }]));
+          }),
+      );
+      const screen = render(<RequestDetailModal />);
+
+      await screen.findByText('테스트 루틴 1');
+      fireEvent.press(screen.getByText('승인'));
+
+      const confirmButton = mockAlert.mock.calls[0][2]?.find(
+        (button: AlertButton) => button.text === '승인',
+      );
+
+      act(() => {
+        confirmButton?.onPress?.();
+        confirmButton?.onPress?.();
+      });
+
+      await waitFor(() => {
+        expect(mockAxios.history.post).toHaveLength(1);
+      });
+
+      await act(async () => {
+        for (const resolveRequest of resolveRequests) {
+          resolveRequest();
+        }
+      });
+
+      await waitFor(() => {
+        expect(mockBack).toHaveBeenCalled();
+      });
+    });
   });
 
   describe('승인 시 API 통합 테스트', () => {

@@ -8,11 +8,13 @@ import ThemeView from '@/components/ui/theme-view';
 import { baseFoundation } from '@/theme/tokens';
 
 interface ConfirmRequestButtonGroupProps {
+  disabled?: boolean;
   onSubmit: (status: RequestResponseStatus, comment: string) => void;
   useForm: () => FormContextType<{ comment: string }>;
 }
 
 const ConfirmRequestButtonGroup = ({
+  disabled = false,
   onSubmit,
   useForm,
 }: ConfirmRequestButtonGroupProps) => {
@@ -43,12 +45,14 @@ const ConfirmRequestButtonGroup = ({
       <Button
         title="승인"
         variant="primary"
+        disabled={disabled}
         onPress={() => requestConfirmation('PASS')}
         style={styles.button}
       />
       <Button
         title="거절"
         variant="secondary"
+        disabled={disabled}
         onPress={() => requestConfirmation('DENY')}
         style={styles.button}
       />

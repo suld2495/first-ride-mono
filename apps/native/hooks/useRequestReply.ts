@@ -1,7 +1,7 @@
 import { useReplyRequestMutation } from '@repo/shared/hooks/useRequest';
 import type { RequestResponseStatus } from '@repo/types';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { useToast } from '@/contexts/ToastContext';
 import { syncBadgeCountWithReceivedRequests } from '@/utils/notifications';
@@ -18,12 +18,15 @@ export const useRequestReply = ({
   const router = useRouter();
   const { showToast } = useToast();
   const replyRequest = useReplyRequestMutation(nickname);
+  const isReplyingRef = useRef(false);
 
   const handleSubmit = useCallback(
     (status: RequestResponseStatus, comment: string) => {
-      if (!confirmId) {
+      if (isReplyingRef.current || !confirmId) {
         return;
       }
+
+      isReplyingRef.current = true;
 
       replyRequest.mutate(
         {
@@ -43,11 +46,14 @@ export const useRequestReply = ({
           onError: () => {
             showToast('오류가 발생했습니다. 다시 시도해주세요.', 'error');
           },
+          onSettled: () => {
+            isReplyingRef.current = false;
+          },
         },
       );
     },
     [confirmId, replyRequest, router, showToast],
   );
 
-  return { handleSubmit };
+  return { handleSubmit, isPending: replyRequest.isPending };
 };
