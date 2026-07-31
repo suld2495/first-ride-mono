@@ -1,7 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import { fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { StyleSheet as RNStyleSheet } from 'react-native';
+import { StyleSheet as RNStyleSheet, TextInput } from 'react-native';
 
 import SignUp from '../../app/sign-up';
 import PageHeader from '../../components/layout/page-header';
@@ -320,25 +320,27 @@ describe('SignUp 페이지', () => {
       'pass\tword 1234\n',
     );
 
-    expect(
-      screen.getByPlaceholderText('비밀번호를 입력하세요').props.value,
-    ).toBe('password1234');
-    expect(
-      screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요').props.value,
-    ).toBe('password1234');
+    const visiblePasswords = screen
+      .UNSAFE_getAllByType(TextInput)
+      .filter((input) => input.props.editable === false)
+      .map((input) => input.props.value);
+
+    expect(visiblePasswords).toEqual(['password1234', 'password1234']);
   });
 
-  it('비밀번호 필드에 네이티브 공백 입력 차단을 적용한다', () => {
+  it('비밀번호 공백은 화면에 표시하지 않는다', () => {
     const screen = render(<SignUp />);
+    const passwordInput = screen.getByPlaceholderText('비밀번호를 입력하세요');
 
-    expect(
-      screen.getByPlaceholderText('비밀번호를 입력하세요').props
-        .disallowWhitespace,
-    ).toBe(true);
-    expect(
-      screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요').props
-        .disallowWhitespace,
-    ).toBe(true);
+    fireEvent.changeText(passwordInput, 'pass word');
+
+    const visiblePasswordInput = screen
+      .UNSAFE_getAllByType(TextInput)
+      .find((input) => input.props.editable === false && input.props.value);
+
+    expect(passwordInput).toHaveStyle({ color: 'transparent' });
+    expect(visiblePasswordInput?.props.value).toBe('password');
+    expect(visiblePasswordInput?.props.secureTextEntry).toBe(true);
   });
 
   it('에러 상태에서 필드를 수정하면 해당 에러가 사라진다', async () => {
