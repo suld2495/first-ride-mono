@@ -2,6 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { useContext } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
+import { Path } from 'react-native-svg';
 
 import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
 import ModalHeaderActionContext from '@/components/modal/modal-header-action-context';
@@ -9,7 +10,7 @@ import ModalHeaderActionProvider from '@/components/modal/modal-header-action-pr
 import * as routineSceneArt from '@/components/routine/routine-scene-art';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 import {
   act,
@@ -37,6 +38,14 @@ const ModalHeaderActionOutlet = () => {
     <View testID="friend-routines-page-header-actions">{context?.action}</View>
   );
 };
+
+const renderFriendRoutinesModal = () =>
+  render(
+    <ModalHeaderActionProvider>
+      <FriendRoutinesModal />
+      <ModalHeaderActionOutlet />
+    </ModalHeaderActionProvider>,
+  );
 
 const createFriendRoutineResponse = () => ({
   friend: {
@@ -106,7 +115,7 @@ describe('FriendRoutinesModal', () => {
       .onGet('/friends/42/routines?date=2026-05-25')
       .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
 
-    const screen = render(<FriendRoutinesModal />);
+    const screen = renderFriendRoutinesModal();
 
     const character = await screen.findByTestId(
       'friend-routine-scene-character',
@@ -179,7 +188,7 @@ describe('FriendRoutinesModal', () => {
       .onGet('/friends/42/routines?date=2026-05-25')
       .reply(200, wrapResponse(createFriendRoutineResponse()));
 
-    const screen = render(<FriendRoutinesModal />);
+    const screen = renderFriendRoutinesModal();
 
     expect(await screen.findByText('운동 10분 이상')).toBeOnTheScreen();
     expect(await screen.findByTestId('routine-count-card-outer-1')).toHaveStyle(
@@ -211,7 +220,7 @@ describe('FriendRoutinesModal', () => {
       .onGet('/friends/42/routines?date=2026-05-25')
       .reply(200, wrapResponse(createFriendRoutineResponse()));
 
-    const screen = render(<FriendRoutinesModal />);
+    const screen = renderFriendRoutinesModal();
 
     expect(await screen.findByText('운동 10분 이상')).toBeOnTheScreen();
     expect(await screen.findByTestId('routine-week-progress-1')).toHaveTextContent(
@@ -257,7 +266,7 @@ describe('FriendRoutinesModal', () => {
         }),
       );
 
-    const screen = render(<FriendRoutinesModal />);
+    const screen = renderFriendRoutinesModal();
 
     expect(await screen.findByText('운동 10분 이상')).toBeOnTheScreen();
     const initialRemoteAssetCallCount = getRemoteAssetSpy.mock.calls.length;
@@ -292,7 +301,7 @@ describe('FriendRoutinesModal', () => {
       .onGet('/friends/42/routines?date=2026-05-25')
       .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
 
-    const screen = render(<FriendRoutinesModal />);
+    const screen = renderFriendRoutinesModal();
 
     expect(await screen.findByText('오늘도 전진')).toBeOnTheScreen();
     expect(screen.queryByTestId('friend-routine-scene-character')).toBeNull();
@@ -317,12 +326,7 @@ describe('FriendRoutinesModal', () => {
       .onGet('/friends/42/routines?date=2026-05-25')
       .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
 
-    const screen = render(
-      <ModalHeaderActionProvider>
-        <FriendRoutinesModal />
-        <ModalHeaderActionOutlet />
-      </ModalHeaderActionProvider>,
-    );
+    const screen = renderFriendRoutinesModal();
 
     const cheerButton = await screen.findByRole('button', { name: '응원 콕' });
 
@@ -330,6 +334,29 @@ describe('FriendRoutinesModal', () => {
       screen
         .getByTestId('friend-routines-page-header-actions')
         .findAll((node: typeof cheerButton) => node === cheerButton),
+    ).toHaveLength(1);
+    expect(cheerButton).toHaveStyle({
+      backgroundColor: palette.white,
+      borderColor: palette.theme.gray[50],
+      borderRadius: baseFoundation.dimension.x8,
+      borderWidth: baseFoundation.dimension.x1,
+      height: baseFoundation.dimension.x30,
+      paddingHorizontal: baseFoundation.spacing[0],
+      width: 67,
+    });
+
+    const cheerIcon = screen.getByTestId('friend-cheer-icon');
+
+    expect(cheerIcon).toHaveProp('width', baseFoundation.iconSize.xs);
+    expect(cheerIcon).toHaveProp('height', baseFoundation.dimension.x13);
+    expect(
+      cheerIcon.findAllByType(Path).map((path) => path.props.fill),
+    ).toEqual([palette.theme.blue[50], palette.theme.blue[50]]);
+    expect(
+      cheerButton.findAll(
+        (node: typeof cheerButton) =>
+          StyleSheet.flatten(node.props.style)?.gap === 3,
+      ),
     ).toHaveLength(1);
   });
 
@@ -360,7 +387,7 @@ describe('FriendRoutinesModal', () => {
       createdAt: '2026-07-29 14:10',
     });
 
-    const screen = render(<FriendRoutinesModal />);
+    const screen = renderFriendRoutinesModal();
 
     fireEvent.press(await screen.findByRole('button', { name: '응원 콕' }));
 
@@ -400,7 +427,7 @@ describe('FriendRoutinesModal', () => {
       },
     });
 
-    const screen = render(<FriendRoutinesModal />);
+    const screen = renderFriendRoutinesModal();
 
     fireEvent.press(await screen.findByRole('button', { name: '응원 콕' }));
 
