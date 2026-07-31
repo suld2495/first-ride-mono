@@ -588,7 +588,7 @@ const styles = StyleSheet.create((theme) => ({
   intro: {
     position: 'relative',
     minHeight: baseFoundation.dimension.x120,
-    paddingHorizontal: baseFoundation.spacing[5],
+    paddingHorizontal: baseFoundation.spacing[6],
     paddingTop: baseFoundation.spacing[5],
     paddingRight: baseFoundation.spacing[24],
     paddingBottom: baseFoundation.spacing[4],
@@ -723,7 +723,7 @@ const styles = StyleSheet.create((theme) => ({
   groupHeader: {
     minHeight: baseFoundation.dimension.x52,
     justifyContent: 'center',
-    paddingHorizontal: baseFoundation.spacing[5],
+    paddingHorizontal: baseFoundation.spacing[6],
     borderBottomWidth: baseFoundation.dimension.x1,
     borderBottomColor: mixWithWhite(theme.colors.action.primary.default, 0.86),
   },
@@ -732,8 +732,8 @@ const styles = StyleSheet.create((theme) => ({
     minHeight: baseFoundation.dimension.x80,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: baseFoundation.spacing[5],
-    paddingRight: baseFoundation.spacing[5],
+    paddingLeft: baseFoundation.spacing[6],
+    paddingRight: baseFoundation.spacing[6],
     gap: baseFoundation.spacing[5],
     width: '100%',
   },

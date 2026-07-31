@@ -9,6 +9,9 @@ import { fireEvent, render } from '../../setup/test-utils';
 declare const mockBack: jest.Mock;
 
 describe('PageHeader', () => {
+  const pageHeaderHeight =
+    baseFoundation.dimension.x44 - baseFoundation.dimension.x6;
+
   beforeEach(() => {
     mockBack.mockClear();
   });
@@ -53,11 +56,28 @@ describe('PageHeader', () => {
       .UNSAFE_getAllByType(View)
       .filter(
         (node) =>
-          StyleSheet.flatten(node.props.style)?.height ===
-          baseFoundation.dimension.x44,
+          StyleSheet.flatten(node.props.style)?.height === pageHeaderHeight,
       );
 
     expect(headerViews).toHaveLength(1);
+  });
+
+  it('places the header flush below the status area and keeps a 6px bottom gap', () => {
+    const screen = render(<PageHeader title="공통 헤더" />);
+
+    const headerView = screen
+      .UNSAFE_getAllByType(View)
+      .find(
+        (node) =>
+          StyleSheet.flatten(node.props.style)?.height === pageHeaderHeight,
+      );
+
+    expect(StyleSheet.flatten(headerView?.props.style)).toEqual(
+      expect.objectContaining({
+        marginTop: 0,
+        marginBottom: 6,
+      }),
+    );
   });
 
   it('shows a back button only when requested and routes back', () => {

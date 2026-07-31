@@ -68,6 +68,8 @@ const fontAssets: Record<string, FontSource> = {
     require('../assets/fonts/Pretendard-SemiBold.otf') as FontSource,
   [fontFamilies.bold]:
     require('../assets/fonts/Pretendard-Bold.otf') as FontSource,
+  [fontFamilies.poppinsBold]:
+    require('../assets/fonts/Poppins_700Bold.ttf') as FontSource,
 };
 
 async function initializeKakaoSafely(): Promise<void> {

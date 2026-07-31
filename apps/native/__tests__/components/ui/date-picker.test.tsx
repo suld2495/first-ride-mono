@@ -85,4 +85,37 @@ describe('DatePicker', () => {
       }),
     );
   });
+
+  it('버튼 테스트 ID를 전달한다', () => {
+    const screen = render(
+      <DatePicker
+        value={null}
+        buttonTitle="시작일 선택"
+        sheetLabel="시작일 선택"
+        buttonTestID="start-date-button"
+        onConfirmDate={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('start-date-button')).toBeOnTheScreen();
+  });
+
+  it('비활성화하면 날짜 선택 바텀 시트를 열지 않는다', () => {
+    const screen = render(
+      <DatePicker
+        value={null}
+        buttonTitle="시작일 선택"
+        sheetLabel="시작일 선택"
+        buttonTestID="start-date-button"
+        disabled
+        onConfirmDate={jest.fn()}
+      />,
+    );
+
+    const button = screen.getByTestId('start-date-button');
+
+    expect(button).toBeDisabled();
+    fireEvent.press(button);
+    expect(screen.queryByLabelText('시작일 선택')).not.toBeOnTheScreen();
+  });
 });

@@ -12,3 +12,4 @@ export const ROUTINE_COLOR_OPTIONS = [
 ] as const;
 
 export const DEFAULT_ROUTINE_COLOR = ROUTINE_COLOR_OPTIONS[0].value;
+export const ROUTINE_LEMON_COLOR = '#E1EB74';

@@ -9,6 +9,11 @@ import ThemeView from '@/components/ui/theme-view';
 import Typography from '@/components/ui/typography';
 import { baseFoundation } from '@/theme/tokens';
 
+const PAGE_HEADER_HEIGHT =
+  baseFoundation.dimension.x44 - baseFoundation.dimension.x6;
+const PAGE_HEADER_BOTTOM_GAP =
+  baseFoundation.spacing[1] + baseFoundation.dimension.x2;
+
 interface PageHeaderProps {
   title?: string;
   center?: ReactNode;
@@ -74,9 +79,10 @@ const styles = StyleSheet.create((theme) => ({
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: theme.foundation.spacing[2],
+    marginTop: theme.foundation.spacing[0],
+    marginBottom: PAGE_HEADER_BOTTOM_GAP,
     paddingHorizontal: theme.foundation.spacing[4],
-    height: baseFoundation.dimension.x44,
+    height: PAGE_HEADER_HEIGHT,
   },
   left: {
     position: 'absolute',

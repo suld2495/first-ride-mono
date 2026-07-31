@@ -17,11 +17,13 @@ import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthSignOut, useAuthUser } from '@/hooks/useAuthSession';
 import { useNotifications } from '@/hooks/useNotifications';
+import { fontFamilies } from '@/theme/font-families';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 const FALLBACK_LEVEL = 1;
 const FALLBACK_EXP = 0;
 const FALLBACK_NEXT_LEVEL_EXP = 30;
+const SETTINGS_LEVEL_TEXT_SIZE = baseFoundation.typography.size.h3 - 4;
 
 const SOCIAL_LOGIN_TYPE_LABELS: Record<
   Exclude<UserLoginType, 'PLAIN'>,
@@ -158,6 +160,7 @@ const MyInfo = () => {
             <View testID="settings-profile-text" style={styles.profileText}>
               <Typography
                 color={palette.theme.gray[80]}
+                style={styles.profileName}
                 testID="settings-profile-name"
                 variant="body2"
                 weight="semibold"
@@ -199,64 +202,70 @@ const MyInfo = () => {
           </View>
 
           <View testID="settings-level-row" style={styles.levelRow}>
+            <View testID="settings-exp-row" style={styles.expLabelRow}>
+              <View testID="settings-exp-value-row" style={styles.expValueRow}>
+                <Typography
+                  color={themeColor[80]}
+                  style={styles.expSummaryText}
+                  testID="settings-exp-label"
+                  variant="body3"
+                  weight="semibold"
+                >
+                  경험치
+                </Typography>
+                <Typography
+                  color={softThemeColor[60]}
+                  style={styles.expSummaryText}
+                  testID="settings-exp-unit"
+                  variant="caption2"
+                  weight="semibold"
+                >
+                  EXP
+                </Typography>
+                <View
+                  testID="settings-exp-number-row"
+                  style={styles.expNumberRow}
+                >
+                  <Typography
+                    color={softThemeColor[60]}
+                    style={styles.expSummaryText}
+                    testID="settings-exp-current"
+                    variant="caption2"
+                    weight="semibold"
+                  >
+                    {currentExp}
+                  </Typography>
+                  <Typography
+                    color={softThemeColor[60]}
+                    style={styles.expSummaryText}
+                    variant="caption2"
+                    weight="semibold"
+                  >
+                    /
+                  </Typography>
+                  <Typography
+                    color={softThemeColor[60]}
+                    style={styles.expSummaryText}
+                    testID="settings-exp-next"
+                    variant="caption2"
+                    weight="semibold"
+                  >
+                    {nextLevelExp}
+                  </Typography>
+                </View>
+              </View>
+            </View>
+
             <View testID="settings-level-badge" style={styles.levelBadge}>
               <Typography
                 color={themeColor[80]}
+                style={styles.levelText}
                 testID="settings-level-text"
                 variant="h3"
-                weight="semibold"
+                weight="bold"
               >
                 Lv. {stats?.currentLevel ?? FALLBACK_LEVEL}
               </Typography>
-            </View>
-          </View>
-
-          <View testID="settings-exp-row" style={styles.expLabelRow}>
-            <View testID="settings-exp-value-row" style={styles.expValueRow}>
-              <Typography
-                color={themeColor[80]}
-                testID="settings-exp-label"
-                variant="body3"
-                weight="semibold"
-              >
-                경험치
-              </Typography>
-              <Typography
-                color={softThemeColor[80]}
-                testID="settings-exp-unit"
-                variant="caption2"
-                weight="semibold"
-              >
-                EXP
-              </Typography>
-              <View
-                testID="settings-exp-number-row"
-                style={styles.expNumberRow}
-              >
-                <Typography
-                  color={softThemeColor[80]}
-                  testID="settings-exp-current"
-                  variant="caption2"
-                  weight="semibold"
-                >
-                  {currentExp}
-                </Typography>
-                <Typography
-                  color={softThemeColor[80]}
-                  variant="caption2"
-                  weight="semibold"
-                >
-                  /
-                </Typography>
-                <Typography
-                  color={softThemeColor[80]}
-                  testID="settings-exp-next"
-                  variant="caption2"
-                  weight="semibold"
-                >
-                  {nextLevelExp}
-                </Typography>
-              </View>
             </View>
           </View>
 
@@ -303,7 +312,7 @@ const MyInfo = () => {
                   color={palette.theme.gray[60]}
                   testID={`settings-menu-text-${item.title}`}
                   variant="body2"
-                  weight="semibold"
+                  weight="regular"
                 >
                   {item.title}
                 </Typography>
@@ -320,7 +329,7 @@ const MyInfo = () => {
               color={palette.theme.gray[60]}
               testID="settings-menu-text-로그아웃"
               variant="body2"
-              weight="semibold"
+              weight="regular"
             >
               로그아웃
             </Typography>
@@ -335,7 +344,7 @@ const MyInfo = () => {
               color={palette.theme.red[50]}
               testID="settings-menu-text-베타 피드백"
               variant="body2"
-              weight="semibold"
+              weight="regular"
             >
               베타 피드백
             </Typography>
@@ -354,7 +363,7 @@ const MyInfo = () => {
               color={palette.theme.gray[30]}
               testID="settings-account-deletion-text"
               variant="body3"
-              weight="semibold"
+              weight="regular"
             >
               회원 탈퇴
             </Typography>
@@ -387,16 +396,19 @@ const styles = StyleSheet.create((theme) => ({
   avatar: {
     width: baseFoundation.dimension.x60,
     height: baseFoundation.dimension.x60,
-    borderRadius: baseFoundation.dimension.x30,
+    borderRadius: baseFoundation.dimension.x12,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
     backgroundColor: theme.colors.brand.card,
   },
   character: {
-    width: baseFoundation.dimension.x52,
-    height: baseFoundation.dimension.x52,
+    width: baseFoundation.dimension.x56,
+    height: baseFoundation.dimension.x56,
     transform: [{ translateY: -6 }],
+  },
+  profileName: {
+    fontSize: baseFoundation.typography.size.body2 + 2,
   },
   profileText: {
     marginLeft: theme.foundation.spacing[3],
@@ -413,25 +425,38 @@ const styles = StyleSheet.create((theme) => ({
   levelRow: {
     marginTop: theme.foundation.spacing[5],
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    gap: theme.foundation.spacing[3],
   },
   levelBadge: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+  },
+  levelText: {
+    fontFamily: fontFamilies.poppinsBold,
+    fontSize: SETTINGS_LEVEL_TEXT_SIZE,
+    textAlign: 'right',
+  },
+  expSummaryText: {
+    fontSize: baseFoundation.typography.size.caption1,
   },
   expLabelRow: {
-    marginTop: theme.foundation.spacing[2],
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
   },
   expValueRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
     gap: baseFoundation.dimension.x8,
   },
   expNumberRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     gap: baseFoundation.dimension.x2,
   },
   progressTrack: {

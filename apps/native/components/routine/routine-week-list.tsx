@@ -49,7 +49,7 @@ const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const TODAY_FRAME_COLOR = palette.white;
 const TODAY_FRAME_BORDER_WIDTH = 1;
 const TODAY_FRAME_GAP = 1;
-const CHECKBOX_SIZE = baseFoundation.dimension.x24;
+const CHECKBOX_SIZE = baseFoundation.dimension.x28;
 const TODAY_FRAME_SIZE =
   CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
 
@@ -151,143 +151,151 @@ const RoutineWeekList = ({
             },
           ]}
         >
-          <View style={styles.titleRow}>
-            <Typography variant="body3" weight="semibold" style={styles.title}>
-              {routineName}
-            </Typography>
-          </View>
-
           <View
-            pointerEvents="none"
-            style={styles.progressSummary}
-            testID={`routine-week-progress-summary-${routineId}`}
+            testID={`routine-week-card-surface-${routineId}`}
+            style={styles.cardSurface}
           >
-            {weeklyCount >= routineCount ? (
-              <RoutineCheckmarkIcon
-                size={baseFoundation.dimension.x14}
-                color={palette.theme.green[50]}
-              />
-            ) : null}
-            <Typography
-              variant="caption2"
-              weight="semibold"
-              style={styles.progressSummaryText}
-              testID={`routine-week-progress-${routineId}`}
+            <View style={styles.titleRow}>
+              <Typography
+                variant="body3"
+                weight="semibold"
+                style={styles.title}
+              >
+                {routineName}
+              </Typography>
+            </View>
+
+            <View
+              pointerEvents="none"
+              style={[
+                styles.progressSummary,
+                readOnly ? styles.progressSummaryReadOnly : null,
+              ]}
+              testID={`routine-week-progress-summary-${routineId}`}
             >
-              {weeklyCount}/{routineCount}
-            </Typography>
-          </View>
+              {weeklyCount >= routineCount ? (
+                <RoutineCheckmarkIcon
+                  size={baseFoundation.dimension.x14}
+                  color={palette.theme.green[50]}
+                />
+              ) : null}
+              <Typography
+                variant="caption2"
+                weight="semibold"
+                style={styles.progressSummaryText}
+                testID={`routine-week-progress-${routineId}`}
+              >
+                {weeklyCount}/{routineCount}
+              </Typography>
+            </View>
 
-          {!readOnly ? (
-            <>
-              <RoutineContextMenuTrigger
-                routineName={routineName}
-                iconColor={theme.colors.brand.routineProgressText}
-                onToggle={() => onToggleRoutineMenu(routineId)}
-              />
-            </>
-          ) : null}
+            {!readOnly ? (
+              <>
+                <RoutineContextMenuTrigger
+                  routineName={routineName}
+                  iconColor={theme.colors.brand.routineProgressText}
+                  onToggle={() => onToggleRoutineMenu(routineId)}
+                />
+              </>
+            ) : null}
 
-          <View style={styles.checkRow}>
-            {weeklyData[routineId].map((check, index) => {
-              const dateKey = weekDateKeys[index];
-              const isPastDay = dateKey < todayDateKey;
-              const isFutureDay = dateKey > todayDateKey;
-              const isToday = dateKey === todayDateKey;
-              const isTodaySuccess = check && dateKey === todayDateKey;
-              const isPendingConfirmation =
-                !check &&
-                routine.hasPendingConfirmation &&
-                dateKey === todayDateKey;
-              const isMissedPastDay =
-                isPastDay && !check && !isPendingConfirmation;
-              const isUpcomingDay =
-                !isPastDay && !check && !isPendingConfirmation;
-              const successCheckBoxStyle = check
-                ? {
-                    backgroundColor: routineColor,
-                  }
-                : null;
-              const todayFrameStyle = getTodayFrameStyle(isToday);
-              const upcomingCheckBoxStyle = getUpcomingCheckBoxStyle(
-                isUpcomingDay,
-                theme.colors.brand.routineUpcomingCheckboxBorder,
-              );
-              const pendingConfirmationCheckBoxStyle = isPendingConfirmation
-                ? {
-                    backgroundColor:
-                      theme.colors.brand.pendingConfirmationCheckbox,
-                  }
-                : null;
-              const missedPastDayCheckBoxStyle = isMissedPastDay
-                ? {
-                    backgroundColor: theme.colors.brand.routineMissedCheckbox,
-                  }
-                : null;
-              const statusLabel = check
-                ? isTodaySuccess
-                  ? '오늘 완료'
-                  : '달성'
-                : isPendingConfirmation
-                  ? '요청 중'
-                  : '미달성';
-              const dayTextColor = isFutureDay
-                ? theme.colors.brand.routineProgressText
-                : CHECKBOX_DAY_TEXT_COLOR;
-              const handlePressCheckBox = canRequestWithCheckBox
-                ? isMissedPastDay
-                  ? onBlockPastRoutineRequest
-                  : () => onRequestRoutine(routine)
-                : undefined;
+            <View style={styles.checkRow}>
+              {weeklyData[routineId].map((check, index) => {
+                const dateKey = weekDateKeys[index];
+                const isPastDay = dateKey < todayDateKey;
+                const isToday = dateKey === todayDateKey;
+                const isTodaySuccess = check && dateKey === todayDateKey;
+                const isPendingConfirmation =
+                  !check &&
+                  routine.hasPendingConfirmation &&
+                  dateKey === todayDateKey;
+                const isMissedPastDay =
+                  isPastDay && !check && !isPendingConfirmation;
+                const isUpcomingDay =
+                  !isPastDay && !check && !isPendingConfirmation;
+                const successCheckBoxStyle = check
+                  ? {
+                      backgroundColor: routineColor,
+                    }
+                  : null;
+                const todayFrameStyle = getTodayFrameStyle(isToday);
+                const upcomingCheckBoxStyle = getUpcomingCheckBoxStyle(
+                  isUpcomingDay,
+                  theme.colors.brand.routineUpcomingCheckboxBorder,
+                );
+                const pendingConfirmationCheckBoxStyle = isPendingConfirmation
+                  ? {
+                      backgroundColor:
+                        theme.colors.brand.pendingConfirmationCheckbox,
+                    }
+                  : null;
+                const missedPastDayCheckBoxStyle = isMissedPastDay
+                  ? {
+                      backgroundColor: theme.colors.brand.routineMissedCheckbox,
+                    }
+                  : null;
+                const statusLabel = check
+                  ? isTodaySuccess
+                    ? '오늘 완료'
+                    : '달성'
+                  : isPendingConfirmation
+                    ? '요청 중'
+                    : '미달성';
+                const dayTextColor = isUpcomingDay
+                  ? theme.colors.brand.routineProgressText
+                  : CHECKBOX_DAY_TEXT_COLOR;
+                const handlePressCheckBox = canRequestWithCheckBox
+                  ? isMissedPastDay
+                    ? onBlockPastRoutineRequest
+                    : () => onRequestRoutine(routine)
+                  : undefined;
 
-              return (
-                <Pressable
-                  key={`${routineId}-status-${index}`}
-                  style={styles.dayColumn}
-                  accessibilityLabel={`${DAY_LABELS[index]}요일 ${statusLabel}`}
-                  accessibilityRole={
-                    canRequestWithCheckBox ? 'button' : 'image'
-                  }
-                  disabled={!canRequestWithCheckBox}
-                  onPress={handlePressCheckBox}
-                >
-                  <View
-                    style={[styles.checkFrame, todayFrameStyle]}
-                    testID={`routine-week-check-frame-${routineId}-${index}`}
+                return (
+                  <Pressable
+                    key={`${routineId}-status-${index}`}
+                    style={styles.dayColumn}
+                    accessibilityLabel={`${DAY_LABELS[index]}요일 ${statusLabel}`}
+                    accessibilityRole={
+                      canRequestWithCheckBox ? 'button' : 'image'
+                    }
+                    disabled={!canRequestWithCheckBox}
+                    onPress={handlePressCheckBox}
                   >
                     <View
-                      style={[
-                        styles.checkBox,
-                        successCheckBoxStyle,
-                        upcomingCheckBoxStyle,
-                        pendingConfirmationCheckBoxStyle,
-                        missedPastDayCheckBoxStyle,
-                      ]}
-                      testID={`routine-week-check-${routineId}-${index}`}
+                      style={[styles.checkFrame, todayFrameStyle]}
+                      testID={`routine-week-check-frame-${routineId}-${index}`}
                     >
-                      {isMissedPastDay ? (
-                        <RoutineMissedIcon
-                          size={baseFoundation.iconSize.xs}
-                          color={theme.colors.brand.routineProgressText}
-                        />
-                      ) : (
-                        <Text
-                          style={[
-                            styles.dayText,
-                            { color: dayTextColor },
-                          ]}
-                        >
-                          {DAY_LABELS[index]}
-                        </Text>
-                      )}
+                      <View
+                        style={[
+                          styles.checkBox,
+                          successCheckBoxStyle,
+                          upcomingCheckBoxStyle,
+                          pendingConfirmationCheckBoxStyle,
+                          missedPastDayCheckBoxStyle,
+                        ]}
+                        testID={`routine-week-check-${routineId}-${index}`}
+                      >
+                        {isMissedPastDay ? (
+                          <RoutineMissedIcon
+                            size={baseFoundation.iconSize.xs}
+                            color={theme.colors.brand.routineProgressText}
+                          />
+                        ) : (
+                          <Text
+                            style={[styles.dayText, { color: dayTextColor }]}
+                          >
+                            {DAY_LABELS[index]}
+                          </Text>
+                        )}
+                      </View>
                     </View>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
+                  </Pressable>
+                );
+              })}
+            </View>
 
-          <View style={styles.footer} />
+            <View style={styles.footer} />
+          </View>
         </View>
       );
     },
@@ -339,12 +347,7 @@ export default RoutineWeekList;
 const styles = StyleSheet.create((theme) => ({
   list: {},
   cardOuter: {
-    position: 'relative',
     borderRadius: baseFoundation.radii.m,
-    paddingHorizontal: baseFoundation.spacing[4],
-    backgroundColor: theme.colors.brand.routineBackground,
-    borderWidth: 2,
-    borderColor: theme.colors.brand.routineBorder,
     shadowColor: theme.colors.brand.primary,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
@@ -353,6 +356,15 @@ const styles = StyleSheet.create((theme) => ({
     shadowOpacity: 0.16,
     shadowRadius: 8,
     elevation: 4,
+  },
+  cardSurface: {
+    flex: 1,
+    position: 'relative',
+    borderRadius: baseFoundation.radii.m,
+    paddingHorizontal: baseFoundation.spacing[4],
+    backgroundColor: theme.colors.brand.routineBackground,
+    borderWidth: 2,
+    borderColor: theme.colors.brand.routineBorder,
     justifyContent: 'center',
   },
   title: {
@@ -371,10 +383,13 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     top: baseFoundation.spacing[0],
     right: baseFoundation.spacing[9],
-    height: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x18,
     flexDirection: 'row',
     alignItems: 'center',
     gap: baseFoundation.spacing[1],
+  },
+  progressSummaryReadOnly: {
+    right: baseFoundation.spacing[4],
   },
   progressSummaryText: {
     color: theme.colors.brand.routineProgressText,
@@ -383,10 +398,11 @@ const styles = StyleSheet.create((theme) => ({
   },
   checkRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: baseFoundation.spacing[0.5],
   },
   dayColumn: {
-    flex: 1,
+    width: TODAY_FRAME_SIZE,
     alignItems: 'center',
   },
   checkFrame: {

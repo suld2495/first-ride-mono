@@ -55,7 +55,7 @@ const styles = StyleSheet.create((theme) => ({
     margin: baseFoundation.spacing[0],
   },
   header: {
-    paddingHorizontal: baseFoundation.dimension.x20,
+    paddingHorizontal: baseFoundation.dimension.x24,
     paddingVertical: baseFoundation.spacing[4],
     // borderBottomWidth: 1, // Optional: remove for cleaner look
     // borderBottomColor: theme.colors.border.divider,
@@ -68,7 +68,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   content: {
     paddingVertical: baseFoundation.spacing[4],
-    paddingHorizontal: baseFoundation.dimension.x20,
+    paddingHorizontal: baseFoundation.dimension.x24,
   },
 }));
 

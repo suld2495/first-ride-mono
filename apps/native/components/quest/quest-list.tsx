@@ -9,6 +9,8 @@ import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
 
+import QuestPixelStar from './quest-pixel-star';
+
 interface QuestItemProps {
   quest: Quest;
   onClick: (item: Quest) => void;
@@ -56,7 +58,9 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
             <View
               style={styles.iconPlaceholder}
               testID="quest-icon-placeholder"
-            />
+            >
+              <QuestPixelStar size={baseFoundation.dimension.x28} />
+            </View>
             <View style={styles.contentColumn} testID="quest-content-column">
               <View style={styles.titleStack} testID="quest-text-stack">
                 <Typography
@@ -191,6 +195,8 @@ const styles = StyleSheet.create((theme) => ({
     height: baseFoundation.dimension.x40,
     borderRadius: baseFoundation.dimension.x6,
     backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   contentColumn: {

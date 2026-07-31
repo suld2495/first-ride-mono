@@ -336,6 +336,26 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       );
     });
 
+    it('매일 반복을 선택하면 오늘부터 반복하고 날짜 선택 버튼을 비활성화한다', async () => {
+      const { getAllByTestId, getByTestId, getByText } = render(
+        <RoutineFormModal />,
+      );
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      expect(getByText('매일 반복')).toBeOnTheScreen();
+      expect(getByTestId('routine-daily-repeat-date-button')).toBeDisabled();
+
+      await act(async () => {
+        fireEvent.press(getByTestId('routine-daily-repeat-date-button'));
+      });
+
+      expect(mockRoutineStore.beginRoutineDateSelection).not.toHaveBeenCalled();
+      expect(mockPush).not.toHaveBeenCalledWith('/routine-date-select');
+    });
+
     it('메이트에게 루틴 인증 요청을 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
       const {
         getAllByTestId,
@@ -343,7 +363,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         queryByPlaceholderText,
         queryByTestId,
       } = render(<RoutineFormModal />);
-      const mateCheckbox = getAllByTestId('bouncy-checkbox')[0];
+      const mateCheckbox = getAllByTestId('bouncy-checkbox')[1];
 
       expect(getByText('메이트에게 루틴 인증 요청')).toHaveStyle({
         color: '#272A2D',
@@ -368,7 +388,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
       const mateLabelRow = within(getByTestId('mateNickname-label-row'));
@@ -387,7 +407,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
       const penaltyInput = getByTestId('penalty-input');
@@ -502,7 +522,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
       await waitFor(() => {
@@ -537,7 +557,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
       await waitFor(() => {
@@ -564,7 +584,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
       const mateInput = getByPlaceholderText('친구를 선택하세요');
@@ -640,7 +660,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
       const penaltyInput = getByTestId('penalty-input');
@@ -657,7 +677,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
       const penaltyInput = getByTestId('penalty-input');
@@ -673,7 +693,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
       const penaltyInput = getByTestId('penalty-input');
@@ -691,7 +711,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
       const penaltyInput = getByTestId('penalty-input');
@@ -791,7 +811,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         );
 
         await act(async () => {
-          fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
+          fireEvent.press(getAllByTestId('bouncy-checkbox')[2]);
         });
 
         await fillAllRequiredFields(getByPlaceholderText, getByText);
@@ -821,7 +841,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         );
 
         await act(async () => {
-          fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+          fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
         });
 
         const mateInput = getByPlaceholderText('친구를 선택하세요');
@@ -879,7 +899,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         );
 
         await act(async () => {
-          fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+          fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
         });
 
         const mateInput = getByPlaceholderText('친구를 선택하세요');
@@ -1017,7 +1037,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       expect(queryByText('루틴 일시정지')).not.toBeOnTheScreen();
       expect(getByText('루틴 숨김')).toBeOnTheScreen();
-      expect(getAllByTestId('bouncy-checkbox')[1].props.isChecked).toBe(false);
+      expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(false);
     });
 
     it('루틴 숨김 라벨을 누르면 체크된다', async () => {
@@ -1027,7 +1047,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         fireEvent.press(getByText('루틴 숨김'));
       });
 
-      expect(getAllByTestId('bouncy-checkbox')[1].props.isChecked).toBe(true);
+      expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(true);
     });
   });
 });
@@ -1066,7 +1086,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
   describe('초기 렌더링 테스트', () => {
     it('기존 루틴 데이터가 폼에 표시된다', async () => {
-      const { findByPlaceholderText, findByText } = render(
+      const { findByPlaceholderText, findByTestId, findByText } = render(
         <RoutineFormModal />,
       );
 
@@ -1085,8 +1105,10 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       // 기존 루틴 횟수가 표시되어야 함
       expect(await findByText('일주일에 3회')).toBeOnTheScreen();
 
-      // 시작 날짜가 표시되어야 함
-      expect(await findByText('2025-01-06')).toBeOnTheScreen();
+      expect(await findByText('매일 반복')).toBeOnTheScreen();
+      expect(
+        await findByTestId('routine-daily-repeat-date-button'),
+      ).toBeDisabled();
     });
 
     it('수정 모달은 routineId로 상세 조회한 값을 폼에 표시한다', async () => {
@@ -1109,9 +1131,8 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         startDate: '2026-05-26',
       });
 
-      const { getAllByTestId, getByPlaceholderText, getByText } = render(
-        <RoutineFormModal />,
-      );
+      const { getAllByTestId, getByPlaceholderText, getByTestId, getByText } =
+        render(<RoutineFormModal />);
 
       await waitFor(() => {
         expect(
@@ -1128,8 +1149,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         '상세 설명',
       );
       expect(getByText('일주일에 5회')).toBeOnTheScreen();
-      expect(getByText('2026-05-26')).toBeOnTheScreen();
-      expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(false);
+      expect(getByText('날짜 선택')).toBeOnTheScreen();
+      expect(getByTestId('routine-daily-repeat-date-button')).toBeDisabled();
+      expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(true);
     });
 
     it('수정 버튼이 화면에 표시된다', async () => {
@@ -1617,7 +1639,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
         const { findAllByTestId, findByText } = render(<RoutineFormModal />);
 
-        const [pausedCheckbox, hiddenCheckbox] =
+        const [, pausedCheckbox, hiddenCheckbox] =
           await findAllByTestId('bouncy-checkbox');
 
         (global as any).mockCheckboxChecked = false;
@@ -1765,7 +1787,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(hiddenLabel).toBeOnTheScreen();
       expect(pausedLabel).toHaveStyle({ color: palette.theme.gray[90] });
       expect(hiddenLabel).toHaveStyle({ color: palette.theme.gray[90] });
-      expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(2);
+      expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(3);
       expect(statusSectionStyle).toEqual(
         expect.objectContaining({
           gap: 40,
@@ -1790,7 +1812,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       });
       const { findAllByTestId } = render(<RoutineFormModal />);
 
-      const [pausedCheckbox, hiddenCheckbox] =
+      const [, pausedCheckbox, hiddenCheckbox] =
         await findAllByTestId('bouncy-checkbox');
 
       expect(pausedCheckbox.props.isChecked).toBe(true);
@@ -1805,7 +1827,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         fireEvent.press(await findByText('루틴 일시정지'));
       });
 
-      const [pausedCheckbox] = await findAllByTestId('bouncy-checkbox');
+      const [, pausedCheckbox] = await findAllByTestId('bouncy-checkbox');
 
       expect(pausedCheckbox.props.isChecked).toBe(true);
     });
@@ -1818,7 +1840,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         fireEvent.press(await findByText('루틴 숨김'));
       });
 
-      const [, hiddenCheckbox] = await findAllByTestId('bouncy-checkbox');
+      const [, , hiddenCheckbox] = await findAllByTestId('bouncy-checkbox');
 
       expect(hiddenCheckbox.props.isChecked).toBe(true);
     });

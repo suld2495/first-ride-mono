@@ -48,9 +48,10 @@ const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const TODAY_FRAME_COLOR = palette.white;
 const TODAY_FRAME_BORDER_WIDTH = 1;
 const TODAY_FRAME_GAP = 1;
-const CHECKBOX_SIZE = baseFoundation.dimension.x20;
+const CHECKBOX_SIZE = baseFoundation.dimension.x24;
 const TODAY_FRAME_SIZE =
   CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
+const ROUTINE_COUNT_CARD_SURFACE_RADIUS = baseFoundation.dimension.x12;
 
 const createRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
@@ -243,11 +244,10 @@ const RoutineCountList = ({
                     : null;
                   const todaySuccessFrameStyle =
                     getTodaySuccessFrameStyle(isTodaySuccess);
-                  const unachievedCheckBoxStyle =
-                    getUnachievedCheckBoxStyle(
-                      isUnachievedGoal,
-                      theme.colors.brand.routineUpcomingCheckboxBorder,
-                    );
+                  const unachievedCheckBoxStyle = getUnachievedCheckBoxStyle(
+                    isUnachievedGoal,
+                    theme.colors.brand.routineUpcomingCheckboxBorder,
+                  );
                   const pendingConfirmationCheckBoxStyle = isPendingConfirmation
                     ? {
                         backgroundColor:
@@ -378,11 +378,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
   },
   cardOuter: {
-    borderRadius: baseFoundation.dimension.x14,
-    padding: baseFoundation.spacing.px,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 2,
-    borderColor: theme.colors.brand.primary,
+    borderRadius: ROUTINE_COUNT_CARD_SURFACE_RADIUS,
     shadowColor: theme.colors.brand.primary,
     shadowOffset: {
       width: baseFoundation.dimension.x0,
@@ -395,7 +391,7 @@ const styles = StyleSheet.create((theme) => ({
   cardSurface: {
     flex: 1,
     position: 'relative',
-    borderRadius: baseFoundation.dimension.x12,
+    borderRadius: ROUTINE_COUNT_CARD_SURFACE_RADIUS,
     paddingHorizontal: baseFoundation.spacing[4],
     backgroundColor: palette.theme.gray[95],
     borderColor: theme.colors.brand.primary,

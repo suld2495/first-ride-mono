@@ -280,7 +280,7 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: baseFoundation.typography.size.body2,
     fontWeight: baseFoundation.typography.weight.semibold,
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     textAlign: 'center',
   },
   headerSaveButton: {

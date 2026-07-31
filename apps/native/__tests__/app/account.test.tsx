@@ -149,7 +149,7 @@ describe('Account', () => {
         color: palette.theme.gray[70],
         fontSize: baseFoundation.typography.size.body2,
         fontWeight: baseFoundation.typography.weight.semibold,
-        paddingHorizontal: 20,
+        paddingHorizontal: 24,
         paddingVertical: 12,
         textAlign: 'center',
       }),

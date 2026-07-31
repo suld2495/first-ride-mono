@@ -118,7 +118,7 @@ const RoutineStatsCalendar = ({
               <Typography
                 variant="caption2"
                 weight="medium"
-                color={palette.theme.gray[500]}
+                color={theme.colors.brand.routineUpcomingCheckboxBorder}
               >
                 {label}
               </Typography>
@@ -170,7 +170,7 @@ const RoutineStatsCalendar = ({
                       ]}
                     >
                       <Typography
-                        variant="body1"
+                        variant="body3"
                         weight="bold"
                         color={
                           isPerformed
@@ -202,7 +202,7 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     paddingVertical: ROUTINE_TITLE_VERTICAL_PADDING,
   },
   calendar: {
-    gap: theme.foundation.spacing[5],
+    gap: theme.foundation.spacing[3],
     paddingHorizontal: theme.foundation.spacing[3],
   },
   weekHeader: {

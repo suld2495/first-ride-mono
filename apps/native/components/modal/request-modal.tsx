@@ -377,7 +377,7 @@ const styles = StyleSheet.create((theme) => ({
   targetSummary: {
     flex: 1,
     justifyContent: 'center',
-    paddingLeft: baseFoundation.spacing[5],
+    paddingLeft: baseFoundation.spacing[6],
   },
 
   infoGroup: {

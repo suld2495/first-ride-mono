@@ -22,6 +22,9 @@ jest.mock('expo-router', () => ({
 }));
 
 describe('ModalHeader', () => {
+  const pageHeaderHeight =
+    baseFoundation.dimension.x44 - baseFoundation.dimension.x6;
+
   beforeEach(() => {
     mockBack.mockClear();
     mockReplace.mockClear();
@@ -57,8 +60,7 @@ describe('ModalHeader', () => {
       .UNSAFE_getAllByType(View)
       .filter(
         (node) =>
-          StyleSheet.flatten(node.props.style)?.height ===
-          baseFoundation.dimension.x44,
+          StyleSheet.flatten(node.props.style)?.height === pageHeaderHeight,
       );
 
     expect(commonHeaderViews).toHaveLength(1);

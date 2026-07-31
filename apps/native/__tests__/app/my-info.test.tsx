@@ -230,7 +230,7 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({
         width: 60,
         height: 60,
-        borderRadius: 30,
+        borderRadius: 12,
       }),
     );
     expect(getByTestId('settings-profile-character')).toBeOnTheScreen();
@@ -241,8 +241,8 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-profile-character').props.style),
     ).toEqual(
       expect.objectContaining({
-        width: 52,
-        height: 52,
+        width: 56,
+        height: 56,
         transform: [{ translateY: -6 }],
       }),
     );
@@ -260,6 +260,9 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({
         marginTop: 20,
         flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        gap: 12,
       }),
     );
     const levelBadgeStyle = StyleSheet.flatten(
@@ -274,7 +277,10 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-exp-row').props.style),
     ).toEqual(
       expect.objectContaining({
-        marginTop: 8,
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'flex-start',
       }),
     );
     expect(queryByTestId('settings-level-label')).toBeNull();
@@ -282,6 +288,8 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-exp-value-row').props.style),
     ).toEqual(
       expect.objectContaining({
+        alignItems: 'flex-end',
+        justifyContent: 'flex-start',
         gap: 8,
       }),
     );
@@ -289,6 +297,7 @@ describe('MyInfo 로그아웃', () => {
       StyleSheet.flatten(getByTestId('settings-exp-number-row').props.style),
     ).toEqual(
       expect.objectContaining({
+        alignItems: 'flex-end',
         gap: 2,
       }),
     );
@@ -344,7 +353,10 @@ describe('MyInfo 로그아웃', () => {
     expect(name.props.fontSize).toBe('$body2');
     expect(name.props.fontWeight).toBe('600');
     expect(StyleSheet.flatten(name.props.style)).toEqual(
-      expect.objectContaining({ color: palette.theme.gray[80] }),
+      expect.objectContaining({
+        color: palette.theme.gray[80],
+        fontSize: 17,
+      }),
     );
     expect(userId.props.fontSize).toBe('$caption1');
     expect(userId.props.fontWeight).toBe('600');
@@ -352,38 +364,62 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({ color: palette.theme.softBlue[50] }),
     );
     expect(level.props.fontSize).toBe('$h3');
-    expect(level.props.fontWeight).toBe('600');
+    expect(level.props.fontWeight).toBe('700');
     expect(StyleSheet.flatten(level.props.style)).toEqual(
-      expect.objectContaining({ color: palette.theme.blue[80] }),
+      expect.objectContaining({
+        color: palette.theme.blue[80],
+        fontFamily: 'Poppins_700Bold',
+        fontSize: 20,
+        textAlign: 'right',
+      }),
     );
     expect(expLabel.props.fontSize).toBe('$body3');
     expect(expLabel.props.fontWeight).toBe('600');
     expect(StyleSheet.flatten(expLabel.props.style)).toEqual(
-      expect.objectContaining({ color: palette.theme.blue[80] }),
+      expect.objectContaining({
+        color: palette.theme.blue[80],
+        fontSize: 13,
+      }),
     );
     expect(expUnit.props.fontSize).toBe('$caption2');
     expect(expUnit.props.fontWeight).toBe('600');
     expect(StyleSheet.flatten(expUnit.props.style)).toEqual(
-      expect.objectContaining({ color: palette.theme.softBlue[80] }),
+      expect.objectContaining({
+        color: palette.theme.softBlue[60],
+        fontSize: 13,
+      }),
     );
     expect(expCurrent.props.fontSize).toBe('$caption2');
     expect(expCurrent.props.fontWeight).toBe('600');
     expect(StyleSheet.flatten(expCurrent.props.style)).toEqual(
-      expect.objectContaining({ color: palette.theme.softBlue[80] }),
+      expect.objectContaining({
+        color: palette.theme.softBlue[60],
+        fontSize: 13,
+      }),
     );
     expect(menuText.props.fontSize).toBe('$body2');
-    expect(menuText.props.fontWeight).toBe('600');
+    expect(menuText.props.fontWeight).toBe('400');
     expect(StyleSheet.flatten(menuText.props.style)).toEqual(
       expect.objectContaining({ color: palette.theme.gray[60] }),
     );
   });
 
   it.each([
-    ['green', palette.theme.green[80], palette.theme.green[50]],
-    ['red', palette.theme.red[80], palette.theme.red[50]],
+    [
+      'green',
+      palette.theme.green[80],
+      palette.theme.softGreen[60],
+      palette.theme.green[50],
+    ],
+    [
+      'red',
+      palette.theme.red[80],
+      palette.theme.softRed[60],
+      palette.theme.red[50],
+    ],
   ] as const)(
     '%s 테마의 색상 토큰으로 경험치 요약을 표시한다',
-    (themeName, labelColor, progressColor) => {
+    (themeName, levelColor, expColor, progressColor) => {
       (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
       useColorSchemeStore.getState().setColorScheme(themeName);
 
@@ -391,7 +427,13 @@ describe('MyInfo 로그아웃', () => {
 
       expect(
         StyleSheet.flatten(getByTestId('settings-level-text').props.style),
-      ).toEqual(expect.objectContaining({ color: labelColor }));
+      ).toEqual(expect.objectContaining({ color: levelColor }));
+      expect(
+        StyleSheet.flatten(getByTestId('settings-exp-unit').props.style),
+      ).toEqual(expect.objectContaining({ color: expColor, fontSize: 13 }));
+      expect(
+        StyleSheet.flatten(getByTestId('settings-exp-current').props.style),
+      ).toEqual(expect.objectContaining({ color: expColor, fontSize: 13 }));
       expect(
         StyleSheet.flatten(getByTestId('settings-progress-fill').props.style),
       ).toEqual(expect.objectContaining({ backgroundColor: progressColor }));
@@ -472,6 +514,7 @@ describe('MyInfo 로그아웃', () => {
     expect(StyleSheet.flatten(feedbackText.props.style)).toEqual(
       expect.objectContaining({ color: palette.theme.red[50] }),
     );
+    expect(feedbackText.props.fontWeight).toBe('400');
   });
 
   it('회원 탈퇴를 메뉴와 분리된 화면 최하단에 한 단계 작은 글자로 표시한다', () => {
@@ -489,6 +532,7 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({ marginTop: 'auto' }),
     );
     expect(deletionText.props.fontSize).toBe('$body3');
+    expect(deletionText.props.fontWeight).toBe('400');
     expect(StyleSheet.flatten(deletionText.props.style)).toEqual(
       expect.objectContaining({ color: palette.theme.gray[30] }),
     );

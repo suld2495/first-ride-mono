@@ -15,6 +15,8 @@ interface DatePickerButtonProps {
   variant?: InputVariant;
   buttonSize?: ButtonSize;
   buttonStyle?: StyleProp<ViewStyle>;
+  testID?: string;
+  disabled?: boolean;
   onPress: () => void;
 }
 
@@ -23,6 +25,8 @@ const DatePickerButton = ({
   variant = 'outlined',
   buttonSize,
   buttonStyle,
+  testID,
+  disabled = false,
   onPress,
 }: DatePickerButtonProps) => {
   const { theme } = useAppTheme();
@@ -35,10 +39,12 @@ const DatePickerButton = ({
 
   return (
     <Button
+      testID={testID}
       title={buttonTitle}
       variant="secondary"
       size={buttonSize}
       textColor={theme.colors.field.text}
+      disabled={disabled}
       onPress={onPress}
       leftIcon={() => (
         <Ionicons

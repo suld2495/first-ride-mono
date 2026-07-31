@@ -46,7 +46,7 @@ describe('FriendList', () => {
     );
   });
 
-  it('keeps enough vertical space between friend rows', () => {
+  it('keeps an 8px vertical gap between friend rows', () => {
     const friends = createMockFriends(3);
     const { getByLabelText } = render(
       <FriendList
@@ -61,7 +61,7 @@ describe('FriendList', () => {
     expect(
       flattenPressableStyles(getByLabelText('friend1 루틴 보기').props.style),
     ).toEqual(
-      expect.arrayContaining([expect.objectContaining({ marginBottom: 20 })]),
+      expect.arrayContaining([expect.objectContaining({ marginBottom: 8 })]),
     );
   });
 
@@ -102,11 +102,11 @@ describe('FriendList', () => {
       getByLabelText('friend1 캐릭터').props.style,
     );
 
-    expect(firstCardWidth).toBe(347);
+    expect(firstCardWidth).toBe(343);
     expect(firstCharacterStyle).toEqual(
       expect.objectContaining({
-        height: 277,
-        width: 277,
+        height: 279,
+        width: 279,
       }),
     );
   });
@@ -133,8 +133,8 @@ describe('FriendList', () => {
 
     expect(characterStyle).toEqual(
       expect.objectContaining({
-        height: 277,
-        width: 277,
+        height: 279,
+        width: 279,
       }),
     );
   });
@@ -177,7 +177,6 @@ describe('FriendList', () => {
     expect(motto.props.textAlign).toBe('center');
     expect(StyleSheet.flatten(motto.props.style)).toEqual(
       expect.objectContaining({
-        alignSelf: 'stretch',
         color: palette.theme.gray[90],
         textAlign: 'center',
       }),
@@ -190,7 +189,7 @@ describe('FriendList', () => {
     );
     expect(StyleSheet.flatten(speechBubbleContainer.props.style)).toEqual(
       expect.objectContaining({
-        maxWidth: 331,
+        maxWidth: 327,
         minWidth: 80,
         paddingBottom: 5,
         paddingTop: 5,
@@ -201,7 +200,7 @@ describe('FriendList', () => {
     ).toBe(undefined);
     expect(StyleSheet.flatten(character.props.style)).toEqual(
       expect.objectContaining({
-        transform: [{ translateY: 17 }],
+        transform: [{ translateY: 13 }],
       }),
     );
     expect(

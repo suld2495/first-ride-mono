@@ -16,6 +16,8 @@ interface DatePickerProps {
   defaultDate?: Date | null;
   buttonSize?: ButtonSize;
   buttonStyle?: StyleProp<ViewStyle>;
+  buttonTestID?: string;
+  disabled?: boolean;
   isDateSelectable?: (date: Date) => boolean;
   onConfirmDate: (date: Date) => void;
 }
@@ -29,6 +31,8 @@ const DatePicker = ({
   defaultDate = null,
   buttonSize,
   buttonStyle,
+  buttonTestID,
+  disabled = false,
   isDateSelectable,
   onConfirmDate,
 }: DatePickerProps) => {
@@ -40,6 +44,10 @@ const DatePicker = ({
   }, []);
 
   const open = () => {
+    if (disabled) {
+      return;
+    }
+
     setDraftDate(value ?? defaultDate);
     setIsOpen(true);
   };
@@ -51,10 +59,12 @@ const DatePicker = ({
   return (
     <>
       <DatePickerButton
+        testID={buttonTestID}
         buttonTitle={buttonTitle}
         variant={variant}
         buttonSize={buttonSize}
         buttonStyle={buttonStyle}
+        disabled={disabled}
         onPress={open}
       />
       <BottomSheet

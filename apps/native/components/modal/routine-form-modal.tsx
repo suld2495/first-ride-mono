@@ -1,6 +1,7 @@
 import { useFetchFriendsQuery } from '@repo/shared/hooks/useFriend';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { routineFormValidators } from '@repo/shared/service/validatorMessage';
+import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -81,9 +82,17 @@ const formatPenalty = (value: string | number | undefined) => {
   return penaltyValue ? Number(penaltyValue).toLocaleString('ko-KR') : '0';
 };
 
+const getStartOfToday = () => {
+  const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
 type RoutineStatusForm = RoutineForm & {
   paused?: boolean;
   hidden?: boolean;
+  isDailyRepeat?: boolean;
 };
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -97,6 +106,7 @@ const RoutineDateFormItem = () => {
   const clearRoutineDateSelection = useClearRoutineDateSelection();
   const confirmedStartDate = routineDateSelection?.confirmedStartDate;
   const confirmedEndDate = routineDateSelection?.confirmedEndDate;
+  const todayDateValue = useMemo(() => getFormatDate(getStartOfToday()), []);
 
   useEffect(() => {
     if (!confirmedStartDate) {
@@ -105,6 +115,7 @@ const RoutineDateFormItem = () => {
 
     setValue('startDate', confirmedStartDate);
     setValue('endDate', confirmedEndDate ?? '');
+    setValue('isDailyRepeat', false);
     clearRoutineDateSelection();
   }, [
     clearRoutineDateSelection,
@@ -117,21 +128,53 @@ const RoutineDateFormItem = () => {
     <FormItem
       name="startDate"
       label="루틴 기간"
-      item={({ value, form }) => (
-        <ThemeView style={styles.dateContainer} transparent>
-          <DatePickerButton
-            buttonTitle={
-              value
-                ? `${value}${form.endDate ? ` ~ ${form.endDate}` : ''}`
-                : '날짜 선택'
-            }
-            variant="outlined"
-            onPress={() => {
-              beginRoutineDateSelection(value || null, form.endDate || null);
-              router.push('/routine-date-select');
-            }}
-            buttonStyle={styles.button}
-          />
+      item={({ value, form, setValue: setFieldValue }) => (
+        <ThemeView style={styles.dateSection} transparent>
+          <ThemeView
+            style={styles.dailyRepeatControl}
+            transparent
+            testID="routine-daily-repeat-control"
+          >
+            <Checkbox
+              size="md"
+              text="매일 반복"
+              isChecked={Boolean(form.isDailyRepeat)}
+              onPress={(checked) => {
+                setFieldValue('isDailyRepeat', checked);
+
+                if (checked) {
+                  setFieldValue('startDate', todayDateValue);
+                  setFieldValue('endDate', '');
+                }
+              }}
+            />
+          </ThemeView>
+          <ThemeView style={styles.dateContainer} transparent>
+            <DatePickerButton
+              testID={
+                form.isDailyRepeat
+                  ? 'routine-daily-repeat-date-button'
+                  : 'routine-date-button'
+              }
+              buttonTitle={
+                form.isDailyRepeat
+                  ? '날짜 선택'
+                  : value
+                    ? `${value}${form.endDate ? ` ~ ${form.endDate}` : ''}`
+                    : '날짜 선택'
+              }
+              variant="outlined"
+              disabled={Boolean(form.isDailyRepeat)}
+              onPress={() => {
+                beginRoutineDateSelection(value || null, form.endDate || null);
+                router.push('/routine-date-select');
+              }}
+              buttonStyle={[
+                styles.button,
+                form.isDailyRepeat && styles.disabledDateButton,
+              ]}
+            />
+          </ThemeView>
         </ThemeView>
       )}
       required
@@ -162,6 +205,9 @@ const RoutineFormModal = () => {
     const formWithColor = {
       ...sourceRoutineForm,
       symbolColor: sourceRoutineForm.symbolColor || DEFAULT_ROUTINE_COLOR,
+      isDailyRepeat: Boolean(
+        sourceRoutineForm.startDate && !sourceRoutineForm.endDate,
+      ),
     };
 
     return isDirectRoutine
@@ -575,6 +621,19 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+
+  dateSection: {
+    gap: theme.foundation.spacing[3],
+  },
+
+  dailyRepeatControl: {
+    alignSelf: 'flex-end',
+  },
+
+  disabledDateButton: {
+    backgroundColor: palette.theme.gray[5],
+    borderColor: palette.theme.gray[10],
   },
 
   button: {

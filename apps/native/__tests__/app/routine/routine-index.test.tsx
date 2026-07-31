@@ -100,7 +100,6 @@ const findAncestorStyleWith = (
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = 8;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_ITEM_HEIGHT = 96;
-const CHECKBOX_DAY_TEXT_COLOR = '#000306';
 const UPCOMING_DAY_TEXT_COLOR = palette.theme.softBlue[80];
 const PUBLIC_CHARACTER_IMAGE_URL =
   'https://api.irura.uk/assets/characters/warrior_female_beginner.png';
@@ -1122,7 +1121,24 @@ describe('루틴 조회 페이지', () => {
 
       it('루틴 아이템 배경은 gray 95로 표시된다', async () => {
         const { findByTestId } = render(<Index />);
+        const outerStyles = flattenStyles(
+          (await findByTestId('routine-count-card-outer-1')).props.style,
+        );
 
+        expect(outerStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              height: ROUTINE_ITEM_HEIGHT - 4,
+            }),
+          ]),
+        );
+        expect(outerStyles).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              backgroundColor: palette.white,
+            }),
+          ]),
+        );
         expect(await findByTestId('routine-count-card-surface-1')).toHaveStyle({
           backgroundColor: palette.theme.gray[95],
         });
@@ -1420,7 +1436,7 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('요일 텍스트를 24px 체크박스 내부에 caption2 semibold로 표시한다', async () => {
+      it('요일 텍스트를 28px 체크박스 내부에 caption2 semibold로 표시한다', async () => {
         const todayIndex = getRoutineWeekIndex(new Date());
         const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
           todayIndex
@@ -1432,26 +1448,77 @@ describe('루틴 조회 페이지', () => {
         const todayText = within(todayCheckBox).getByText(todayLabel);
 
         expect(todayCheckBox).toHaveStyle({
-          width: 24,
-          height: 24,
+          width: 28,
+          height: 28,
           borderRadius: 6,
         });
         expect(todayText).toHaveStyle({
-          color: CHECKBOX_DAY_TEXT_COLOR,
+          color: UPCOMING_DAY_TEXT_COLOR,
           fontSize: 12,
           fontWeight: '600',
         });
       });
 
-      it('루틴 아이템은 단일 카드에 테마 80 테두리와 테마 100 배경을 표시한다', async () => {
-        const { findByTestId, queryByTestId } = render(<Index />);
+      it('요일 체크박스 줄은 첫 월요일과 마지막 일요일을 카드 좌우 패딩에 맞춘다', async () => {
+        const { findByTestId } = render(<Index />);
+        const mondayFrame = await findByTestId('routine-week-check-frame-1-0');
+        const mondayColumnStyles = flattenPressableStyles(
+          mondayFrame.parent?.props?.style,
+        );
+        const rowStyles = findAncestorStyleWith(mondayFrame, 'flexDirection');
 
-        expect(await findByTestId('routine-week-card-outer-1')).toHaveStyle({
+        expect(mondayColumnStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              width: 32,
+              alignItems: 'center',
+            }),
+          ]),
+        );
+        expect(rowStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }),
+          ]),
+        );
+      });
+
+      it('루틴 아이템은 흰색 프레임 없이 테마 80 테두리와 테마 100 배경을 표시한다', async () => {
+        const { findByTestId } = render(<Index />);
+        const outerStyles = flattenStyles(
+          (await findByTestId('routine-week-card-outer-1')).props.style,
+        );
+
+        expect(outerStyles).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              height: ROUTINE_ITEM_HEIGHT - 4,
+              marginBottom: 4,
+            }),
+          ]),
+        );
+        expect(outerStyles).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              backgroundColor: palette.white,
+            }),
+          ]),
+        );
+        expect(outerStyles).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              padding: 4,
+            }),
+          ]),
+        );
+        expect(await findByTestId('routine-week-card-surface-1')).toHaveStyle({
           borderRadius: 16,
           borderColor: palette.theme.blue[80],
+          borderWidth: 2,
           backgroundColor: palette.theme.blue[100],
         });
-        expect(queryByTestId('routine-week-card-surface-1')).toBeNull();
       });
 
       it('week 타입 루틴 제목을 좌측 정렬한다', async () => {
@@ -1495,6 +1562,7 @@ describe('루틴 조회 페이지', () => {
             expect.objectContaining({
               position: 'absolute',
               right: 36,
+              height: 18,
             }),
           ]),
         );
@@ -1581,7 +1649,7 @@ describe('루틴 조회 페이지', () => {
     });
 
     describe('요일별 달성 아이콘 표시', () => {
-      it('모든 요일을 동일한 28px 투명 외곽 프레임으로 감싼다', async () => {
+      it('모든 요일을 동일한 32px 투명 외곽 프레임으로 감싼다', async () => {
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
             weeklyCount: 0,
@@ -1601,8 +1669,8 @@ describe('루틴 조회 페이지', () => {
           const isToday = index === getRoutineWeekIndex(new Date());
 
           expect(frame).toHaveStyle({
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             borderRadius: 8,
             borderWidth: 1,
             borderColor: isToday ? palette.white : 'transparent',
@@ -1760,7 +1828,7 @@ describe('루틴 조회 페이지', () => {
         },
       );
 
-      it('오늘 미달성은 soft 테마 60 테두리와 gray95 텍스트로 표시한다', async () => {
+      it('오늘 미달성은 미래 날짜와 같은 테마 텍스트 컬러로 표시한다', async () => {
         const today = new Date();
         const todayIndex = getRoutineWeekIndex(today);
         const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
@@ -1786,9 +1854,41 @@ describe('루틴 조회 페이지', () => {
           borderWidth: 1,
         });
         expect(within(todayCheckBox).getByText(todayLabel)).toHaveStyle({
-          color: CHECKBOX_DAY_TEXT_COLOR,
+          color: UPCOMING_DAY_TEXT_COLOR,
         });
       });
+
+      it.each([
+        ['green', palette.theme.softGreen[80]],
+        ['red', palette.theme.softRed[80]],
+      ] as const)(
+        '%s 테마의 오늘 미달성 요일은 같은 단계의 테마 컬러로 표시한다',
+        async (themeName, textColor) => {
+          useColorSchemeStore.getState().setColorScheme(themeName);
+          const today = new Date();
+          const todayIndex = getRoutineWeekIndex(today);
+          const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
+            todayIndex
+          ];
+
+          mockAxios.onGet(/\/routine\/list/).reply(200, {
+            data: createMockRoutines(1, {
+              weeklyCount: 0,
+              routineCount: 5,
+              successDate: [],
+            }),
+          });
+
+          const { findByTestId } = render(<Index />);
+          const todayCheckBox = await findByTestId(
+            `routine-week-check-1-${todayIndex}`,
+          );
+
+          expect(within(todayCheckBox).getByText(todayLabel)).toHaveStyle({
+            color: textColor,
+          });
+        },
+      );
 
       it('오늘 완료한 요일을 successDate의 오늘 날짜로 구분한다', async () => {
         const today = new Date();
