@@ -328,6 +328,19 @@ describe('SignUp 페이지', () => {
     ).toBe('password1234');
   });
 
+  it('비밀번호 필드에 네이티브 공백 입력 차단을 적용한다', () => {
+    const screen = render(<SignUp />);
+
+    expect(
+      screen.getByPlaceholderText('비밀번호를 입력하세요').props
+        .disallowWhitespace,
+    ).toBe(true);
+    expect(
+      screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요').props
+        .disallowWhitespace,
+    ).toBe(true);
+  });
+
   it('에러 상태에서 필드를 수정하면 해당 에러가 사라진다', async () => {
     const { getByPlaceholderText, getByText, findByText, queryByText } = render(
       <SignUp />,
