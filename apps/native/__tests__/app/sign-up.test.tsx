@@ -324,8 +324,7 @@ describe('SignUp 페이지', () => {
       screen.getByPlaceholderText('비밀번호를 입력하세요').props.value,
     ).toBe('password1234');
     expect(
-      screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요').props
-        .value,
+      screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요').props.value,
     ).toBe('password1234');
   });
 
