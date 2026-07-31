@@ -215,13 +215,29 @@ describe('StatsPage', () => {
       },
     });
 
-    const { findByText, getByLabelText, getByText } = render(<StatsPage />);
+    const { findByText, getByLabelText, getByTestId, getByText } = render(
+      <StatsPage />,
+    );
 
     expect(await findByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
+    expect(
+      flattenStyles(
+        getByTestId('stats-month-header').parent?.parent?.parent?.props.style,
+      ),
+    ).toEqual(
+      expect.arrayContaining([expect.objectContaining({ flex: 1 })]),
+    );
 
     fireEvent.press(getByLabelText('통계 보기'));
 
     expect(getByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
+    expect(
+      flattenStyles(
+        getByTestId('stats-summary-scroll').props.contentContainerStyle,
+      ),
+    ).toEqual(
+      expect.arrayContaining([expect.objectContaining({ flexGrow: 1 })]),
+    );
   });
 
   it('월간 루틴 응답 필드가 비정상이어도 캘린더 UI를 유지한다', async () => {
