@@ -1,7 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { useContext } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import { Path } from 'react-native-svg';
 
 import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
@@ -369,6 +369,59 @@ describe('FriendRoutinesModal', () => {
     expect(screen.getByText('응원')).toHaveStyle({
       color: palette.theme.gray[70],
       fontSize: baseFoundation.typography.size.caption1,
+    });
+  });
+
+  it('응원 콕 전송 중에는 응원 아이콘만 로딩 아이콘으로 교체한다', async () => {
+    let resolveCheerRequest:
+      | ((response: [number, { message: string }]) => void)
+      | undefined;
+
+    mockAxios.onGet('/friends/42/profile').reply(
+      200,
+      wrapResponse({
+        friendId: 42,
+        nickname: '혜연',
+        job: '검사',
+        motto: '오늘도 전진',
+        level: 7,
+        characterCode: 'WARRIOR_INTERMEDIATE',
+        characterImageUrl: null,
+        backgroundImageUrl: null,
+      }),
+    );
+    mockAxios
+      .onGet('/friends/42/routines?date=2026-05-25')
+      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
+    mockAxios.onPost('/friends/42/cheer').reply(
+      () =>
+        new Promise((resolve) => {
+          resolveCheerRequest = resolve;
+        }),
+    );
+
+    const screen = renderFriendRoutinesModal();
+    const cheerButton = await screen.findByRole('button', { name: '응원 콕' });
+
+    fireEvent.press(cheerButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('friend-cheer-loading-icon'),
+      ).toBeOnTheScreen();
+    });
+    expect(screen.UNSAFE_getByType(ActivityIndicator)).toBeOnTheScreen();
+    expect(screen.getByText('응원')).toBeOnTheScreen();
+    expect(screen.queryByTestId('friend-cheer-icon')).toBeNull();
+    expect(cheerButton).toHaveStyle({
+      height: baseFoundation.dimension.x30,
+      opacity: 1,
+      width: 67,
+    });
+    expect(cheerButton).toBeDisabled();
+
+    await act(async () => {
+      resolveCheerRequest?.([200, { message: '응원 완료' }]);
     });
   });
 
