@@ -1281,7 +1281,7 @@ describe('루틴 조회 페이지', () => {
           borderRadius: 6,
         });
         expect(todayText).toHaveStyle({
-          color: CHECKBOX_DAY_TEXT_COLOR,
+          color: UPCOMING_DAY_TEXT_COLOR,
           fontSize: 12,
           fontWeight: '600',
         });
@@ -1637,7 +1637,7 @@ describe('루틴 조회 페이지', () => {
         },
       );
 
-      it('오늘 미달성은 soft 테마 60 테두리와 gray95 텍스트로 표시한다', async () => {
+      it('오늘 미달성은 미래 날짜와 같은 테마 텍스트 컬러로 표시한다', async () => {
         const today = new Date();
         const todayIndex = getRoutineWeekIndex(today);
         const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
@@ -1663,9 +1663,41 @@ describe('루틴 조회 페이지', () => {
           borderWidth: 1,
         });
         expect(within(todayCheckBox).getByText(todayLabel)).toHaveStyle({
-          color: CHECKBOX_DAY_TEXT_COLOR,
+          color: UPCOMING_DAY_TEXT_COLOR,
         });
       });
+
+      it.each([
+        ['green', palette.theme.softGreen[80]],
+        ['red', palette.theme.softRed[80]],
+      ] as const)(
+        '%s 테마의 오늘 미달성 요일은 같은 단계의 테마 컬러로 표시한다',
+        async (themeName, textColor) => {
+          useColorSchemeStore.getState().setColorScheme(themeName);
+          const today = new Date();
+          const todayIndex = getRoutineWeekIndex(today);
+          const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
+            todayIndex
+          ];
+
+          mockAxios.onGet(/\/routine\/list/).reply(200, {
+            data: createMockRoutines(1, {
+              weeklyCount: 0,
+              routineCount: 5,
+              successDate: [],
+            }),
+          });
+
+          const { findByTestId } = render(<Index />);
+          const todayCheckBox = await findByTestId(
+            `routine-week-check-1-${todayIndex}`,
+          );
+
+          expect(within(todayCheckBox).getByText(todayLabel)).toHaveStyle({
+            color: textColor,
+          });
+        },
+      );
 
       it('오늘 완료한 요일을 successDate의 오늘 날짜로 구분한다', async () => {
         const today = new Date();

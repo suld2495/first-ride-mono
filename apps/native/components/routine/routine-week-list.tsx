@@ -248,7 +248,7 @@ const RoutineWeekList = ({
                   : isPendingConfirmation
                     ? '요청 중'
                     : '미달성';
-                const dayTextColor = isFutureDay
+                const dayTextColor = isUpcomingDay
                   ? theme.colors.brand.routineProgressText
                   : CHECKBOX_DAY_TEXT_COLOR;
                 const handlePressCheckBox = canRequestWithCheckBox
