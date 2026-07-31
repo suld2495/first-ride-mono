@@ -81,6 +81,13 @@ describe('CharacterMottoSpeechBubble', () => {
     const friendWrapperStyle = StyleSheet.flatten(
       friendScreen.getByTestId('friend-motto-speech-bubble').props.style,
     );
+    const myContentWrapperStyle = StyleSheet.flatten(
+      myScreen.getByTestId('my-motto-speech-bubble-content').props.style,
+    );
+    const friendContentWrapperStyle = StyleSheet.flatten(
+      friendScreen.getByTestId('friend-motto-speech-bubble-content').props
+        .style,
+    );
 
     expect(myStyle).toEqual(
       expect.objectContaining({
@@ -95,10 +102,30 @@ describe('CharacterMottoSpeechBubble', () => {
       }),
     );
     expect(myWrapperStyle).toEqual(
-      expect.objectContaining({ width: myStyle.maxWidth }),
+      expect.objectContaining({
+        left: '50%',
+        marginLeft: -myStyle.maxWidth / 2,
+        width: myStyle.maxWidth,
+      }),
     );
     expect(friendWrapperStyle).toEqual(
-      expect.objectContaining({ width: friendStyle.maxWidth }),
+      expect.objectContaining({
+        left: '50%',
+        marginLeft: -friendStyle.maxWidth / 2,
+        width: friendStyle.maxWidth,
+      }),
+    );
+    expect(myContentWrapperStyle).toEqual(
+      expect.objectContaining({
+        alignItems: 'center',
+        width: '100%',
+      }),
+    );
+    expect(friendContentWrapperStyle).toEqual(
+      expect.objectContaining({
+        alignItems: 'center',
+        width: '100%',
+      }),
     );
   });
 });
