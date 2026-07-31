@@ -106,6 +106,21 @@ describe('친구 추가 모달', () => {
   });
 
   describe('유저 검색 테스트', () => {
+    it('검색어가 두 글자 이상일 때만 검색 버튼이 활성화된다', () => {
+      const screen = render(<FriendAddModal {...defaultProps} />);
+      const searchInput =
+        screen.getByPlaceholderText('유저이름을 입력해주세요.');
+      const searchButton = screen.getByTestId('friend-add-search-button');
+
+      expect(searchButton).toBeDisabled();
+
+      fireEvent.changeText(searchInput, '친');
+      expect(searchButton).toBeDisabled();
+
+      fireEvent.changeText(searchInput, '친구');
+      expect(searchButton).toBeEnabled();
+    });
+
     describe('검색어를 입력하지 않은 경우', () => {
       it('유저 리스트가 표시되지 않고 빈 상태 메시지가 표시된다', async () => {
         const { findByText } = render(<FriendAddModal {...defaultProps} />);

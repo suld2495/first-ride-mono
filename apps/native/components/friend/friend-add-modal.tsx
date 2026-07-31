@@ -49,6 +49,7 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
 );
 const FRIEND_ADD_RESULT_ITEM_ESTIMATED_HEIGHT = 59;
 const MODAL_ANIMATION_DURATION = baseFoundation.motion.duration.normal;
+const MIN_SEARCH_KEYWORD_LENGTH = 2;
 
 const getCharacterImageSource = (
   characterImageUrl: SearchResultUser['characterImageUrl'],
@@ -181,6 +182,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
     keyword: '',
   });
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSearchEnabled = keyword.trim().length >= MIN_SEARCH_KEYWORD_LENGTH;
 
   const { data: userList, refetch } = useFetchUserListQuery(searchOption);
 
@@ -328,6 +330,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                     variant="ghost"
                     size="sm"
                     onPress={handleSearch}
+                    disabled={!isSearchEnabled}
                     backgroundColor="#17181C"
                     textColor="#FFFFFF"
                     style={styles.searchButton}
