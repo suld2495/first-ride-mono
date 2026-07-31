@@ -104,14 +104,14 @@ describe('CharacterMottoSpeechBubble', () => {
     expect(myWrapperStyle).toEqual(
       expect.objectContaining({
         left: '50%',
-        marginLeft: -myStyle.maxWidth / 2,
+        transform: [{ translateX: -myStyle.maxWidth / 2 }],
         width: myStyle.maxWidth,
       }),
     );
     expect(friendWrapperStyle).toEqual(
       expect.objectContaining({
         left: '50%',
-        marginLeft: -friendStyle.maxWidth / 2,
+        transform: [{ translateX: -friendStyle.maxWidth / 2 }],
         width: friendStyle.maxWidth,
       }),
     );
