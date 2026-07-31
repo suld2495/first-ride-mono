@@ -1,34 +1,30 @@
-import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 import { Alert, AppState, Linking, Platform } from 'react-native';
 import RNExitApp from 'react-native-exit-app';
 
-import {
-  fetchRequiredAppVersion,
-  type RequiredAppVersion,
-} from '@/api/app-version.api';
-import { isVersionLower } from '@/utils/app-version';
+import { type RequiredAppVersion } from '@/api/app-version.api';
+import { useRequiredAppVersionQuery } from '@/hooks/useRequiredAppVersionQuery';
+import { isBuildNumberLower } from '@/utils/app-version';
 
 const UPDATE_ALERT_TITLE = '업데이트가 필요해요';
-const appVersionKeys = {
-  config: () => ['app-version', 'config'] as const,
-};
 
-export const useForceUpdate = (installedVersion: string | null): void => {
+export const useForceUpdate = (
+  installedBuildNumber: string | null,
+  userId?: string,
+  isPhysicalDevice: boolean = true,
+): void => {
   const isCheckingRef = useRef(false);
   const isAlertVisibleRef = useRef(false);
-  const isEnabled = Platform.OS === 'ios' && !!installedVersion;
+  const canShowForceUpdate =
+    Platform.OS === 'ios' &&
+    isPhysicalDevice &&
+    !!installedBuildNumber &&
+    !!userId;
   const {
     data: storeVersion,
-    error,
+    isSuccess: isVersionLookupSuccessful,
     refetch,
-  } = useQuery({
-    queryKey: appVersionKeys.config(),
-    queryFn: () => fetchRequiredAppVersion(),
-    enabled: isEnabled,
-    retry: false,
-    staleTime: 5 * 60 * 1000,
-  });
+  } = useRequiredAppVersionQuery(userId, canShowForceUpdate);
 
   const showUpdateAlert = useCallback((requiredVersion: RequiredAppVersion) => {
     if (isAlertVisibleRef.current) {
@@ -39,7 +35,7 @@ export const useForceUpdate = (installedVersion: string | null): void => {
 
     Alert.alert(
       UPDATE_ALERT_TITLE,
-      `더 안정적인 이용을 위해 최신 버전(${requiredVersion.minimumVersion})으로 업데이트해주세요.`,
+      `더 안정적인 이용을 위해 최신 버전(빌드 ${requiredVersion.minimumBuildNumber})으로 업데이트해주세요.`,
       [
         {
           text: '취소',
@@ -59,24 +55,26 @@ export const useForceUpdate = (installedVersion: string | null): void => {
 
   useEffect(() => {
     if (
-      installedVersion &&
+      canShowForceUpdate &&
+      isVersionLookupSuccessful &&
+      installedBuildNumber &&
       storeVersion &&
-      isVersionLower(installedVersion, storeVersion.minimumVersion)
+      isBuildNumberLower(installedBuildNumber, storeVersion.minimumBuildNumber)
     ) {
       showUpdateAlert(storeVersion);
     }
-  }, [installedVersion, showUpdateAlert, storeVersion]);
-
-  useEffect(() => {
-    if (error) {
-      console.error('[AppVersion] Version config lookup failed', error);
-    }
-  }, [error]);
+  }, [
+    canShowForceUpdate,
+    installedBuildNumber,
+    isVersionLookupSuccessful,
+    showUpdateAlert,
+    storeVersion,
+  ]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
-        if (isEnabled && !isCheckingRef.current) {
+        if (canShowForceUpdate && !isCheckingRef.current) {
           isCheckingRef.current = true;
           void refetch().finally(() => {
             isCheckingRef.current = false;
@@ -89,5 +87,5 @@ export const useForceUpdate = (installedVersion: string | null): void => {
     });
 
     return () => subscription?.remove();
-  }, [isEnabled, refetch]);
+  }, [canShowForceUpdate, refetch]);
 };

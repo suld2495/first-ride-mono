@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import RNExitApp from 'react-native-exit-app';
 
-import { render, waitFor } from '@/__tests__/setup/test-utils';
+import { act, render, waitFor } from '@/__tests__/setup/test-utils';
 import {
   TESTFLIGHT_UPDATE_URL,
   fetchRequiredAppVersion,
@@ -16,7 +16,7 @@ import ForceUpdateController from '@/components/force-update-controller';
 
 jest.mock('expo-application', () => ({
   __esModule: true,
-  nativeApplicationVersion: '1.0.0',
+  nativeBuildVersion: '42',
 }));
 
 jest.mock(
@@ -38,12 +38,18 @@ jest.mock('@/api/app-version.api', () => ({
 const mockedFetchRequiredAppVersion = jest.mocked(fetchRequiredAppVersion);
 const mockedExitApp = jest.mocked(RNExitApp.exitApp);
 
+declare const mockUser: Record<string, unknown>;
+declare const mockAuthStore: {
+  user: null | Record<string, unknown>;
+};
+
 describe('ForceUpdateController', () => {
   const alertSpy = jest.spyOn(Alert, 'alert');
   const openUrlSpy = jest.spyOn(Linking, 'openURL');
   const consoleErrorSpy = jest.spyOn(console, 'error');
 
   beforeEach(() => {
+    mockAuthStore.user = mockUser;
     jest.replaceProperty(Platform, 'OS', 'ios');
     mockedFetchRequiredAppVersion.mockReset();
     mockedExitApp.mockReset();
@@ -59,9 +65,9 @@ describe('ForceUpdateController', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it('shows a required update confirm when the installed version is lower', async () => {
+  it('shows a required update confirm when the installed build number is lower', async () => {
     mockedFetchRequiredAppVersion.mockResolvedValue({
-      minimumVersion: '1.1.0',
+      minimumBuildNumber: 43,
       updateUrl: TESTFLIGHT_UPDATE_URL,
     });
 
@@ -70,7 +76,7 @@ describe('ForceUpdateController', () => {
     await waitFor(() => {
       expect(alertSpy).toHaveBeenCalledWith(
         '업데이트가 필요해요',
-        expect.stringContaining('최신 버전(1.1.0)'),
+        expect.stringContaining('최신 버전(빌드 43)'),
         expect.any(Array),
         { cancelable: false },
       );
@@ -79,7 +85,7 @@ describe('ForceUpdateController', () => {
 
   it('opens the App Store from the update button', async () => {
     mockedFetchRequiredAppVersion.mockResolvedValue({
-      minimumVersion: '1.1.0',
+      minimumBuildNumber: 43,
       updateUrl: TESTFLIGHT_UPDATE_URL,
     });
 
@@ -98,7 +104,7 @@ describe('ForceUpdateController', () => {
 
   it('exits the app from the cancel button', async () => {
     mockedFetchRequiredAppVersion.mockResolvedValue({
-      minimumVersion: '1.1.0',
+      minimumBuildNumber: 43,
       updateUrl: TESTFLIGHT_UPDATE_URL,
     });
 
@@ -114,17 +120,19 @@ describe('ForceUpdateController', () => {
   });
 
   it.each([
-    ['the installed version is current', '1.1.0', '1.1.0'],
-    ['the installed version is newer', '1.2.0', '1.1.0'],
+    ['the installed build is current', '43', 43],
+    ['the installed build is newer', '44', 43],
   ])(
     'does not interrupt the user when %s',
-    async (_caseName, currentVersion, latestVersion) => {
+    async (_caseName, installedBuildNumber, minimumBuildNumber) => {
       mockedFetchRequiredAppVersion.mockResolvedValue({
-        minimumVersion: latestVersion,
+        minimumBuildNumber,
         updateUrl: TESTFLIGHT_UPDATE_URL,
       });
 
-      render(<ForceUpdateController installedVersion={currentVersion} />);
+      render(
+        <ForceUpdateController installedBuildNumber={installedBuildNumber} />,
+      );
 
       await waitFor(() =>
         expect(mockedFetchRequiredAppVersion).toHaveBeenCalledTimes(1),
@@ -156,7 +164,7 @@ describe('ForceUpdateController', () => {
       });
 
     mockedFetchRequiredAppVersion.mockResolvedValue({
-      minimumVersion: '1.1.0',
+      minimumBuildNumber: 43,
       updateUrl: TESTFLIGHT_UPDATE_URL,
     });
 
@@ -181,5 +189,34 @@ describe('ForceUpdateController', () => {
       expect(mockedFetchRequiredAppVersion).not.toHaveBeenCalled(),
     );
     expect(alertSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not request the authenticated build number API before login', async () => {
+    mockAuthStore.user = null;
+    mockedFetchRequiredAppVersion.mockResolvedValue({
+      minimumBuildNumber: 43,
+      updateUrl: TESTFLIGHT_UPDATE_URL,
+    });
+
+    render(<ForceUpdateController />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockedFetchRequiredAppVersion).not.toHaveBeenCalled();
+  });
+
+  it('does not request the build number API on an iOS simulator', async () => {
+    mockedFetchRequiredAppVersion.mockResolvedValue({
+      minimumBuildNumber: 43,
+      updateUrl: TESTFLIGHT_UPDATE_URL,
+    });
+
+    render(<ForceUpdateController isPhysicalDevice={false} />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockedFetchRequiredAppVersion).not.toHaveBeenCalled();
   });
 });

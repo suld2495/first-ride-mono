@@ -1,71 +1,51 @@
+import { NetworkError } from '@repo/shared/api/AppError';
+import http from '@repo/shared/api/client';
+
 import {
   TESTFLIGHT_UPDATE_URL,
-  VERSION_CONFIG_URL,
   fetchRequiredAppVersion,
 } from '@/api/app-version.api';
 
-jest.mock('expo/fetch', () => ({
-  fetch: jest.fn(),
+jest.mock('@repo/shared/api/client', () => ({
+  __esModule: true,
+  default: {
+    get: jest.fn(),
+  },
 }));
 
-const createResponse = (
-  body: unknown,
-  options: { ok?: boolean; status?: number } = {},
-) =>
-  ({
-    ok: options.ok ?? true,
-    status: options.status ?? 200,
-    json: jest.fn().mockResolvedValue(body),
-  }) as unknown as Response;
+const mockedHttpGet = jest.mocked(http.get);
 
-describe('app version config API', () => {
-  it('loads the minimum version and official TestFlight update URL', async () => {
-    const fetcher = jest.fn().mockResolvedValue(
-      createResponse({
-        minimumVersion: '1.2.0',
-        updateUrl: TESTFLIGHT_UPDATE_URL,
-      }),
-    );
+describe('build number API', () => {
+  beforeEach(() => {
+    mockedHttpGet.mockReset();
+  });
 
-    await expect(fetchRequiredAppVersion(fetcher)).resolves.toEqual({
-      minimumVersion: '1.2.0',
+  it('loads the required build number from the authenticated server API', async () => {
+    mockedHttpGet.mockResolvedValue({ buildNumber: '43' });
+
+    await expect(fetchRequiredAppVersion()).resolves.toEqual({
+      minimumBuildNumber: 43,
       updateUrl: TESTFLIGHT_UPDATE_URL,
     });
-    expect(fetcher).toHaveBeenCalledWith(
-      VERSION_CONFIG_URL,
-      expect.objectContaining({
-        headers: {
-          Accept: 'application/json',
-          'Cache-Control': 'no-cache',
-        },
-      }),
-    );
+    expect(mockedHttpGet).toHaveBeenCalledWith('/build-number');
   });
 
-  it('rejects failed HTTP responses', async () => {
-    const fetcher = jest
-      .fn()
-      .mockResolvedValue(createResponse({}, { ok: false, status: 503 }));
+  it.each(['', '0', '-1', '1.2.0', 'latest'])(
+    'rejects an invalid server build number: %s',
+    async (buildNumber) => {
+      mockedHttpGet.mockResolvedValue({ buildNumber });
 
-    await expect(fetchRequiredAppVersion(fetcher)).rejects.toThrow(
-      'App version config failed with HTTP 503',
-    );
-  });
+      await expect(fetchRequiredAppVersion()).rejects.toThrow(
+        'Build number API returned invalid metadata',
+      );
+    },
+  );
 
-  it.each([
-    [{ updateUrl: TESTFLIGHT_UPDATE_URL }],
-    [{ minimumVersion: '1.2.0' }],
-    [
-      {
-        minimumVersion: '1.2.0',
-        updateUrl: 'https://example.com/not-testflight',
-      },
-    ],
-  ])('rejects malformed version metadata: %p', async (body) => {
-    const fetcher = jest.fn().mockResolvedValue(createResponse(body));
+  it('propagates a server lookup failure', async () => {
+    const networkError = new NetworkError(new Error('network unavailable'));
 
-    await expect(fetchRequiredAppVersion(fetcher)).rejects.toThrow(
-      'App version config returned invalid metadata',
-    );
+    mockedHttpGet.mockRejectedValue(networkError);
+
+    await expect(fetchRequiredAppVersion()).rejects.toBe(networkError);
   });
 });

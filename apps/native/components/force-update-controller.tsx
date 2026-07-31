@@ -1,15 +1,21 @@
 import * as Application from 'expo-application';
+import * as Device from 'expo-device';
 
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useForceUpdate } from '@/hooks/useForceUpdate';
 
 interface ForceUpdateControllerProps {
-  installedVersion?: string | null;
+  installedBuildNumber?: string | null;
+  isPhysicalDevice?: boolean;
 }
 
 export default function ForceUpdateController({
-  installedVersion = Application.nativeApplicationVersion,
+  installedBuildNumber = Application.nativeBuildVersion,
+  isPhysicalDevice = Device.isDevice,
 }: ForceUpdateControllerProps) {
-  useForceUpdate(installedVersion);
+  const user = useAuthUser();
+
+  useForceUpdate(installedBuildNumber, user?.userId, isPhysicalDevice);
 
   return null;
 }

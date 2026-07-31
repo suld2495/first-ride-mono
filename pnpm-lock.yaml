@@ -100,6 +100,11 @@ overrides:
   '@babel/core': 7.29.6
   '@expo/cli>tar': 7.5.21
 
+patchedDependencies:
+  react-native-exit-app@2.0.0:
+    hash: a8f4a495a5f0982ef194dc4573a9e2abbb142dcb19cf32a9f6f6e13aaa4a8abb
+    path: patches/react-native-exit-app@2.0.0.patch
+
 importers:
 
   .:
@@ -362,7 +367,7 @@ importers:
         version: 1.6.0(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
       react-native-exit-app:
         specifier: 2.0.0
-        version: 2.0.0
+        version: 2.0.0(patch_hash=a8f4a495a5f0982ef194dc4573a9e2abbb142dcb19cf32a9f6f6e13aaa4a8abb)
       react-native-gesture-handler:
         specifier: ~2.24.0
         version: 2.24.0(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
@@ -16540,7 +16545,7 @@ snapshots:
       react: 19.0.0
       react-native: 0.79.6(@babel/core@8.0.1)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0)
 
-  react-native-exit-app@2.0.0: {}
+  react-native-exit-app@2.0.0(patch_hash=a8f4a495a5f0982ef194dc4573a9e2abbb142dcb19cf32a9f6f6e13aaa4a8abb): {}
 
   react-native-fit-image@1.5.5:
     dependencies:

@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '@repo/shared/api';
 import * as routineHooks from '@repo/shared/hooks/useRoutine';
 import { afterWeek, beforeWeek, getWeekMonday } from '@repo/shared/utils';
@@ -5,13 +6,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render as renderNative, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import type React from 'react';
-import { Pressable, Text } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import {
+  TESTFLIGHT_UPDATE_URL,
+  fetchRequiredAppVersion,
+} from '@/api/app-version.api';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
 import { routineSceneBackgroundAssets } from '../../../components/routine/routine-scene-art';
 import { useColorSchemeStore } from '../../../store/color-scheme.store';
-import { palette } from '../../../theme/tokens';
+import { baseFoundation, palette } from '../../../theme/tokens';
 import {
   act,
   describeAuthRedirect,
@@ -24,6 +30,18 @@ import {
   createMockRoutine,
   createMockRoutines,
 } from '../../setup/routine/mock';
+
+jest.mock('expo-application', () => ({
+  nativeBuildVersion: '42',
+}));
+
+jest.mock('@/api/app-version.api', () => ({
+  TESTFLIGHT_UPDATE_URL: 'https://testflight.apple.com/join/qasZjjWJ',
+  fetchRequiredAppVersion: jest.fn(),
+}));
+
+const mockedFetchRequiredAppVersion = jest.mocked(fetchRequiredAppVersion);
+const WHATS_NEW_DISMISSED_BUILD_43_KEY = 'whats-new-dismissed-build:43';
 
 const formatRoutineHeaderDate = (date: Date) => {
   const year = date.getFullYear();
@@ -44,16 +62,16 @@ const formatRoutineDateKey = (date: Date) => {
 
 const getRoutineWeekIndex = (date: Date) => (date.getDay() + 6) % 7;
 
-const flattenStyles = (styles: unknown): object[] => {
+const flattenStyles = (styles: unknown): Record<string, unknown>[] => {
   if (!styles) return [];
   if (Array.isArray(styles)) {
     return styles.flatMap((style) => flattenStyles(style));
   }
 
-  return [styles as object];
+  return [styles as Record<string, unknown>];
 };
 
-const flattenPressableStyles = (style: unknown): object[] => {
+const flattenPressableStyles = (style: unknown): Record<string, unknown>[] => {
   if (typeof style === 'function') {
     return flattenStyles(style({ pressed: false }));
   }
@@ -64,7 +82,7 @@ const flattenPressableStyles = (style: unknown): object[] => {
 const findAncestorStyleWith = (
   node: { parent?: unknown; props?: { style?: unknown } } | null,
   styleKey: string,
-): object[] => {
+): Record<string, unknown>[] => {
   let current = node;
 
   while (current) {
@@ -84,6 +102,8 @@ const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_ITEM_HEIGHT = 96;
 const CHECKBOX_DAY_TEXT_COLOR = '#000306';
 const UPCOMING_DAY_TEXT_COLOR = palette.theme.softBlue[80];
+const PUBLIC_CHARACTER_IMAGE_URL =
+  'https://api.irura.uk/assets/characters/warrior_female_beginner.png';
 
 const createSharedQueryClient = () =>
   new QueryClient({
@@ -168,8 +188,14 @@ const getMockFocusEffectCleanup = () =>
 let mockAxios: MockAdapter;
 
 describe('루틴 조회 페이지', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await AsyncStorage.clear();
     resetAuthMocks();
+    mockedFetchRequiredAppVersion.mockReset();
+    mockedFetchRequiredAppVersion.mockResolvedValue({
+      minimumBuildNumber: 43,
+      updateUrl: TESTFLIGHT_UPDATE_URL,
+    });
     useColorSchemeStore.getState().clearColorSchemeOverride();
     useColorSchemeStore.getState().setColorScheme('blue');
     mockAxios = new MockAdapter(axiosInstance);
@@ -181,6 +207,23 @@ describe('루틴 조회 페이지', () => {
         backgroundImageUrl:
           'https://cdn.example.com/backgrounds/warrior-background.webp',
       },
+    });
+    mockAxios.onGet('/auth/job-options').reply(200, {
+      data: [
+        {
+          jobName: '마법사',
+          jobType: 'MAGE',
+          characterCode: 'MAGE_BEGINNER',
+          imageUrl:
+            'https://api.irura.uk/assets/characters/mage_female_beginner.png',
+        },
+        {
+          jobName: '전사',
+          jobType: 'WARRIOR',
+          characterCode: 'WARRIOR_FEMALE_BEGINNER',
+          imageUrl: PUBLIC_CHARACTER_IMAGE_URL,
+        },
+      ],
     });
     // 기본 API 응답 설정 (인증 테스트용)
     mockAxios.onGet(/\/routine\/list/).reply(200, { data: [] });
@@ -195,6 +238,119 @@ describe('루틴 조회 페이지', () => {
 
   // 공통 인증 테스트
   describeAuthRedirect(() => render(<Index />));
+
+  it('새로워진 이루라 안내에 공개 API의 여자 전사 캐릭터를 표시한다', async () => {
+    const {
+      findByTestId,
+      findByText,
+      getByTestId,
+      getByText,
+      queryByText,
+      UNSAFE_getAllByType,
+    } = render(<Index />);
+
+    expect(await findByText('새로워진 이루라')).toBeOnTheScreen();
+    expect(
+      flattenStyles((await findByTestId('whats-new-sheet')).props.style),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          height: '80%',
+        }),
+      ]),
+    );
+
+    const updateTitles = [
+      '더 편리해진 루틴 만들기',
+      '나만 보는 비공개 루틴',
+      '인증 사진에 한 줄 메시지',
+      '메이트에게 ‘응원 콕’ 보내기',
+      '사진과 함께 피드백 보내기',
+      '작지만 중요한 개선들',
+    ];
+
+    for (const title of updateTitles) {
+      expect(getByText(title)).toBeOnTheScreen();
+    }
+
+    await waitFor(() => {
+      expect(getByText('이루라 시작하기')).toBeOnTheScreen();
+      expect(
+        mockAxios.history.get.some(
+          (request) =>
+            request.url === '/auth/job-options' &&
+            request.params?.gender === 'FEMALE',
+        ),
+      ).toBe(true);
+      expect(getByTestId('whats-new-character').props.source).toEqual({
+        uri: PUBLIC_CHARACTER_IMAGE_URL,
+      });
+    });
+
+    expect(getByText('이루라 시작하기')).toBeOnTheScreen();
+    expect(
+      queryByText('닫으면 이번 버전에서는 다시 표시되지 않아요.'),
+    ).not.toBeOnTheScreen();
+    expect(
+      UNSAFE_getAllByType(View).some((view) =>
+        flattenStyles(view.props.style).some(
+          (style) =>
+            style.width === baseFoundation.dimension.x112 &&
+            style.height === baseFoundation.dimension.x8 &&
+            style.backgroundColor === palette.theme.blue[100],
+        ),
+      ),
+    ).toBe(false);
+  });
+
+  it('이루라 시작하기를 누르면 현재 빌드의 공지를 다시 표시하지 않도록 저장한다', async () => {
+    const { findByText, queryByText } = render(<Index />);
+
+    fireEvent.press(await findByText('이루라 시작하기'));
+
+    await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        WHATS_NEW_DISMISSED_BUILD_43_KEY,
+        'true',
+      );
+      expect(queryByText('새로워진 이루라')).not.toBeOnTheScreen();
+    });
+  });
+
+  it('현재 빌드의 공지를 이미 닫았다면 다시 표시하지 않는다', async () => {
+    await AsyncStorage.setItem(WHATS_NEW_DISMISSED_BUILD_43_KEY, 'true');
+
+    const { queryByText } = render(<Index />);
+
+    await waitFor(() => {
+      expect(AsyncStorage.getItem).toHaveBeenCalledWith(
+        WHATS_NEW_DISMISSED_BUILD_43_KEY,
+      );
+    });
+    expect(queryByText('새로워진 이루라')).not.toBeOnTheScreen();
+  });
+
+  it('이전 빌드의 공지만 닫았다면 현재 빌드 공지를 한 번 표시한다', async () => {
+    await AsyncStorage.setItem('whats-new-dismissed-build:40', 'true');
+
+    const { findByText } = render(<Index />);
+
+    expect(await findByText('새로워진 이루라')).toBeOnTheScreen();
+  });
+
+  it('빌드 번호 API 조회에 실패하면 공지를 표시하지 않고 루틴 화면을 사용한다', async () => {
+    mockedFetchRequiredAppVersion.mockRejectedValue(
+      new Error('build number lookup failed'),
+    );
+
+    const { getByLabelText, queryByText } = render(<Index />);
+
+    await waitFor(() => {
+      expect(mockedFetchRequiredAppVersion).toHaveBeenCalledTimes(1);
+    });
+    expect(queryByText('새로워진 이루라')).not.toBeOnTheScreen();
+    expect(getByLabelText('루틴 추가')).toBeOnTheScreen();
+  });
 
   describe('루틴 존재 여부 테스트', () => {
     describe('루틴이 존재하지 않는 경우', () => {
@@ -1050,13 +1206,12 @@ describe('루틴 조회 페이지', () => {
           todayCompletedCheck,
           todayCompletedFrame,
           pendingCheck,
-        ] =
-          await Promise.all([
-            findByTestId('routine-count-check-1-1'),
-            findByTestId('routine-count-check-1-2'),
-            findByTestId('routine-count-check-frame-1-2'),
-            findByTestId('routine-count-check-1-3'),
-          ]);
+        ] = await Promise.all([
+          findByTestId('routine-count-check-1-1'),
+          findByTestId('routine-count-check-1-2'),
+          findByTestId('routine-count-check-frame-1-2'),
+          findByTestId('routine-count-check-1-3'),
+        ]);
 
         expect(await findByLabelText('3회 요청 중')).toBeOnTheScreen();
         expect(

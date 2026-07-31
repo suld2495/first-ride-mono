@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import WhatsNewModal from '@/components/modal/whats-new-modal';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
@@ -22,6 +23,7 @@ import CharacterMottoSpeechBubble from '@/feature/character/character-motto-spee
 import RoutineCharacter from '@/feature/character/routine-character';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useRequiredAppVersionQuery } from '@/hooks/useRequiredAppVersionQuery';
 import { useResetRoutineFormState } from '@/hooks/useRoutineFormState';
 import {
   clearRoutineShareTargets,
@@ -74,6 +76,10 @@ export default function Index() {
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
   const user = useAuthUser();
+  const requiredAppVersionQuery = useRequiredAppVersionQuery(user?.userId);
+  const whatsNewBuildNumber = requiredAppVersionQuery.isSuccess
+    ? (requiredAppVersionQuery.data?.minimumBuildNumber ?? null)
+    : null;
   const { data: currentUser } = useFetchMeQuery(user?.userId);
   const themeName = useColorScheme();
   const userThemeName = currentUser
@@ -285,6 +291,7 @@ export default function Index() {
         testID="routine-add-fab"
         style={styles.fab}
       />
+      <WhatsNewModal buildNumber={whatsNewBuildNumber} />
     </SafeAreaView>
   );
 }

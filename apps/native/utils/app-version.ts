@@ -1,36 +1,32 @@
-const VERSION_PATTERN = /^v?(\d+(?:\.\d+)*)(?:[-+][0-9A-Za-z.-]+)?$/;
+const BUILD_NUMBER_PATTERN = /^\d+$/;
 
-const parseVersion = (version: string): number[] | null => {
-  const match = VERSION_PATTERN.exec(version.trim());
+const parseBuildNumber = (buildNumber: string): number | null => {
+  const normalizedBuildNumber = buildNumber.trim();
 
-  if (!match?.[1]) {
+  if (!BUILD_NUMBER_PATTERN.test(normalizedBuildNumber)) {
     return null;
   }
 
-  return match[1].split('.').map(Number);
+  const parsedBuildNumber = Number(normalizedBuildNumber);
+
+  return Number.isSafeInteger(parsedBuildNumber) && parsedBuildNumber > 0
+    ? parsedBuildNumber
+    : null;
 };
 
-export const isVersionLower = (
-  currentVersion: string,
-  latestVersion: string,
+export const isBuildNumberLower = (
+  currentBuildNumber: string,
+  minimumBuildNumber: number,
 ): boolean => {
-  const currentParts = parseVersion(currentVersion);
-  const latestParts = parseVersion(latestVersion);
+  const parsedCurrentBuildNumber = parseBuildNumber(currentBuildNumber);
 
-  if (!currentParts || !latestParts) {
+  if (
+    parsedCurrentBuildNumber === null ||
+    !Number.isSafeInteger(minimumBuildNumber) ||
+    minimumBuildNumber <= 0
+  ) {
     return false;
   }
 
-  const partCount = Math.max(currentParts.length, latestParts.length);
-
-  for (let index = 0; index < partCount; index += 1) {
-    const currentPart = currentParts[index] ?? 0;
-    const latestPart = latestParts[index] ?? 0;
-
-    if (currentPart !== latestPart) {
-      return currentPart < latestPart;
-    }
-  }
-
-  return false;
+  return parsedCurrentBuildNumber < minimumBuildNumber;
 };

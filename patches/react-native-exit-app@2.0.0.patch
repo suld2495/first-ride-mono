@@ -1,0 +1,26 @@
+diff --git a/ios/RNExitApp/RNExitApp.h b/ios/RNExitApp/RNExitApp.h
+index a721c54a70cc0cb51cb98496536830042492c96f..82bef8ea5c356a95196c77b217da8a9b0451ef50 100644
+--- a/ios/RNExitApp/RNExitApp.h
++++ b/ios/RNExitApp/RNExitApp.h
+@@ -7,7 +7,7 @@
+ #endif
+
+ #if RCT_NEW_ARCH_ENABLED
+-#import <React-Codegen/RNExitAppSpec/RNExitAppSpec.h>
++#import <ReactCodegen/RNExitAppSpec/RNExitAppSpec.h>
+ #endif
+
+ @interface RNExitApp : NSObject <RCTBridgeModule>
+diff --git a/ios/RNExitApp/RNExitApp.mm b/ios/RNExitApp/RNExitApp.mm
+index c52429bbfa8c9247cdd9e8ee95811051d52f8f78..80c10eab4e97f81a2614ad0125b581dd3a1f7387 100644
+--- a/ios/RNExitApp/RNExitApp.mm
++++ b/ios/RNExitApp/RNExitApp.mm
+@@ -3,7 +3,7 @@
+ #import "RNExitApp.h"
+
+ #if RCT_NEW_ARCH_ENABLED
+-#import <RNExitAppSpec/RNExitAppSpec.h>
++#import <ReactCodegen/RNExitAppSpec/RNExitAppSpec.h>
+ #endif
+
+ @implementation RNExitApp
