@@ -4,14 +4,14 @@ import { Alert, AppState, Linking, Platform } from 'react-native';
 import RNExitApp from 'react-native-exit-app';
 
 import {
-  fetchLatestAppStoreVersion,
-  type AppStoreVersion,
-} from '@/api/app-store-version.api';
+  fetchRequiredAppVersion,
+  type RequiredAppVersion,
+} from '@/api/app-version.api';
 import { isVersionLower } from '@/utils/app-version';
 
 const UPDATE_ALERT_TITLE = '업데이트가 필요해요';
 const appVersionKeys = {
-  store: () => ['app-version', 'store'] as const,
+  config: () => ['app-version', 'config'] as const,
 };
 
 export const useForceUpdate = (installedVersion: string | null): void => {
@@ -23,14 +23,14 @@ export const useForceUpdate = (installedVersion: string | null): void => {
     error,
     refetch,
   } = useQuery({
-    queryKey: appVersionKeys.store(),
-    queryFn: () => fetchLatestAppStoreVersion(),
+    queryKey: appVersionKeys.config(),
+    queryFn: () => fetchRequiredAppVersion(),
     enabled: isEnabled,
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
 
-  const showUpdateAlert = useCallback((latestVersion: AppStoreVersion) => {
+  const showUpdateAlert = useCallback((requiredVersion: RequiredAppVersion) => {
     if (isAlertVisibleRef.current) {
       return;
     }
@@ -39,7 +39,7 @@ export const useForceUpdate = (installedVersion: string | null): void => {
 
     Alert.alert(
       UPDATE_ALERT_TITLE,
-      `더 안정적인 이용을 위해 최신 버전(${latestVersion.version})으로 업데이트해주세요.`,
+      `더 안정적인 이용을 위해 최신 버전(${requiredVersion.minimumVersion})으로 업데이트해주세요.`,
       [
         {
           text: '취소',
@@ -49,7 +49,7 @@ export const useForceUpdate = (installedVersion: string | null): void => {
         {
           text: '업데이트 하러가기',
           onPress: () => {
-            void Linking.openURL(latestVersion.storeUrl);
+            void Linking.openURL(requiredVersion.updateUrl);
           },
         },
       ],
@@ -61,7 +61,7 @@ export const useForceUpdate = (installedVersion: string | null): void => {
     if (
       installedVersion &&
       storeVersion &&
-      isVersionLower(installedVersion, storeVersion.version)
+      isVersionLower(installedVersion, storeVersion.minimumVersion)
     ) {
       showUpdateAlert(storeVersion);
     }
@@ -69,7 +69,7 @@ export const useForceUpdate = (installedVersion: string | null): void => {
 
   useEffect(() => {
     if (error) {
-      console.error('[AppVersion] App Store lookup failed', error);
+      console.error('[AppVersion] Version config lookup failed', error);
     }
   }, [error]);
 
