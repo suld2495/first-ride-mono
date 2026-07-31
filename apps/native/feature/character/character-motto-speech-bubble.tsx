@@ -44,7 +44,7 @@ const CharacterMottoSpeechBubble = ({
   const wrapperStyle = [
     {
       left: '50%' as const,
-      marginLeft: -availableWidth / 2,
+      transform: [{ translateX: -availableWidth / 2 }],
       width: availableWidth,
     },
     style,
