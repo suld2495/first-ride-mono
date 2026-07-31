@@ -1,8 +1,11 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
+import { useContext } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
 import FriendRoutinesModal from '@/components/modal/friend-routines-modal';
+import ModalHeaderActionContext from '@/components/modal/modal-header-action-context';
+import ModalHeaderActionProvider from '@/components/modal/modal-header-action-provider';
 import * as routineSceneArt from '@/components/routine/routine-scene-art';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
@@ -26,6 +29,14 @@ declare const mockRoutineStore: {
 let mockAxios: MockAdapter;
 
 const wrapResponse = <T,>(data: T) => ({ data });
+
+const ModalHeaderActionOutlet = () => {
+  const context = useContext(ModalHeaderActionContext);
+
+  return (
+    <View testID="friend-routines-page-header-actions">{context?.action}</View>
+  );
+};
 
 const createFriendRoutineResponse = () => ({
   friend: {
@@ -288,7 +299,7 @@ describe('FriendRoutinesModal', () => {
     expect(screen.queryByTestId('friend-routine-scene-background')).toBeNull();
   });
 
-  it('응원 콕 버튼을 헤더 타이틀 우측에 표시한다', async () => {
+  it('응원 콕 버튼을 상단 친구 타이틀 우측에 표시한다', async () => {
     mockAxios.onGet('/friends/42/profile').reply(
       200,
       wrapResponse({
@@ -306,13 +317,18 @@ describe('FriendRoutinesModal', () => {
       .onGet('/friends/42/routines?date=2026-05-25')
       .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
 
-    const screen = render(<FriendRoutinesModal />);
+    const screen = render(
+      <ModalHeaderActionProvider>
+        <FriendRoutinesModal />
+        <ModalHeaderActionOutlet />
+      </ModalHeaderActionProvider>,
+    );
 
     const cheerButton = await screen.findByRole('button', { name: '응원 콕' });
 
     expect(
       screen
-        .getByTestId('routine-header-actions')
+        .getByTestId('friend-routines-page-header-actions')
         .findAll((node: typeof cheerButton) => node === cheerButton),
     ).toHaveLength(1);
   });
