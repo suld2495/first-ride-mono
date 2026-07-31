@@ -170,25 +170,6 @@ describe('Account', () => {
     expect(mottoInput.props.value).toBe('바뀐 한마디');
   });
 
-  it('한마디 입력은 26자를 넘는 문자를 입력할 수 없다', () => {
-    (useUpdateMottoMutation as jest.Mock).mockReturnValue({
-      isPending: false,
-      mutate: jest.fn(),
-    });
-
-    const { getByTestId } = render(<Account />);
-    const mottoInput = getByTestId('account-motto-input');
-    const twentySixCharacters = '12345678901234567890123456';
-
-    fireEvent.changeText(mottoInput, `${twentySixCharacters}7`);
-
-    expect(mottoInput.props.value).toBe(twentySixCharacters);
-
-    fireEvent.changeText(mottoInput, `${'가'.repeat(26)}나`);
-
-    expect(mottoInput.props.value).toBe('가'.repeat(26));
-  });
-
   it('한마디 입력은 네이티브 입력 단계에서 26자로 제한한다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,

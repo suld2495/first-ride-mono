@@ -45,9 +45,6 @@ const getSkinLevel50Color = (themeName: string) => {
 const getMottoCharacterCountLabel = (value: string) =>
   `${Array.from(value).length}/${MAX_MOTTO_CHARACTERS}자`;
 
-const limitMottoCharacters = (value: string) =>
-  Array.from(value).slice(0, MAX_MOTTO_CHARACTERS).join('');
-
 const Account = () => {
   const user = useAuthUser();
   const signIn = useAuthSignIn();
@@ -121,7 +118,7 @@ const Account = () => {
   }, [hasPrimaryMottoChanged, primaryMottoInput, updatePrimaryMotto]);
 
   const handlePrimaryMottoChange = useCallback((value: string) => {
-    setPrimaryMottoInput(limitMottoCharacters(value));
+    setPrimaryMottoInput(value);
   }, []);
 
   return (
@@ -169,6 +166,7 @@ const Account = () => {
               containerTestID="account-motto-input-container"
               fullWidth
               inputStyle={styles.mottoInputText}
+              maxLength={MAX_MOTTO_CHARACTERS}
               onChangeText={handlePrimaryMottoChange}
               onSubmitEditing={handlePrimaryMottoSubmit}
               placeholder="한마디를 입력하세요"
