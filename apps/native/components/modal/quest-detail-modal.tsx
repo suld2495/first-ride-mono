@@ -2,6 +2,7 @@ import { useFetchQuestDetailQuery } from '@repo/shared/hooks/useQuest';
 import { ScrollView, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import QuestPixelStar from '@/components/quest/quest-pixel-star';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
@@ -169,7 +170,9 @@ const QuestDetailModal = () => {
               <ThemeView
                 style={styles.imagePlaceholder}
                 testID="quest-detail-image-placeholder"
-              />
+              >
+                <QuestPixelStar size={baseFoundation.dimension.x96} />
+              </ThemeView>
 
               <ThemeView
                 style={styles.periodBadge}
@@ -315,6 +318,8 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: baseFoundation.dimension.x36,
     borderRadius: baseFoundation.dimension.x12,
     backgroundColor: theme.colors.brand.background ?? '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   periodBadge: {

@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { ScrollView, StyleSheet } from 'react-native';
 
 import QuestDetailModal from '../../../components/modal/quest-detail-modal';
+import { useColorSchemeStore } from '../../../store/color-scheme.store';
 import { appThemes } from '../../../theme/themes';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockQuest } from '../../setup/quest/mock';
@@ -78,6 +79,8 @@ describe('QuestDetailModal', () => {
   });
 
   afterEach(() => {
+    useColorSchemeStore.getState().setColorScheme('blue');
+    useColorSchemeStore.getState().clearColorSchemeOverride();
     jest.restoreAllMocks();
     mockAxios.restore();
   });
@@ -158,6 +161,10 @@ describe('QuestDetailModal', () => {
     expect(
       screen.getByTestId('quest-detail-image-placeholder'),
     ).toBeOnTheScreen();
+    expect(screen.getByTestId('quest-pixel-star')).toHaveStyle({
+      width: 96,
+      height: 96,
+    });
     expect(screen.getByText('보상 받기')).toBeOnTheScreen();
   });
 
@@ -291,8 +298,10 @@ describe('QuestDetailModal', () => {
       color: appThemes.blue.colors.brand.background,
     });
     expect(imageStyle).toMatchObject({
+      alignItems: 'center',
       borderRadius: 12,
       height: 140,
+      justifyContent: 'center',
       marginTop: 36,
       width: 140,
     });
@@ -383,6 +392,47 @@ describe('QuestDetailModal', () => {
       backgroundColor: appThemes.blue.colors.brand.text,
     });
   });
+
+  it.each(['blue', 'red', 'green'] as const)(
+    '%s 테마에서는 상세 별 아이콘 색상을 해당 테마 컬러로 표시한다',
+    async (themeName) => {
+      useColorSchemeStore.getState().setColorScheme(themeName);
+
+      const mockDetail = createMockQuest();
+
+      mockAxios.onGet('/quest/1').reply(200, { data: mockDetail });
+
+      const screen = render(<QuestDetailModal />);
+
+      await screen.findByTestId('quest-detail-image-placeholder');
+
+      expect(screen.getByTestId('quest-pixel-star')).toHaveStyle({
+        width: 96,
+        height: 96,
+      });
+      expect(
+        StyleSheet.flatten(
+          screen.getAllByTestId('quest-pixel-star-F')[0]?.props.style,
+        ),
+      ).toMatchObject({
+        backgroundColor: appThemes[themeName].colors.brand.primary,
+      });
+      expect(
+        StyleSheet.flatten(
+          screen.getAllByTestId('quest-pixel-star-H')[0]?.props.style,
+        ),
+      ).toMatchObject({
+        backgroundColor: appThemes[themeName].colors.brand.secondary,
+      });
+      expect(
+        StyleSheet.flatten(
+          screen.getAllByTestId('quest-pixel-star-S')[0]?.props.style,
+        ),
+      ).toMatchObject({
+        backgroundColor: appThemes[themeName].colors.brand.text,
+      });
+    },
+  );
 
   it('공통 모달 패딩과 중첩되는 내부 좌우 패딩을 추가하지 않는다', async () => {
     const mockDetail = createMockQuest();

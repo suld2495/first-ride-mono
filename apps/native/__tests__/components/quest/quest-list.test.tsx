@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import QuestList from '@/components/quest/quest-list';
 import { FlashList } from '@/components/ui/flash-list';
+import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
 
 import { createMockQuest, createMockQuests } from '../../setup/quest/mock';
@@ -14,6 +15,8 @@ describe('QuestList', () => {
   });
 
   afterEach(() => {
+    useColorSchemeStore.getState().setColorScheme('blue');
+    useColorSchemeStore.getState().clearColorSchemeOverride();
     jest.useRealTimers();
   });
 
@@ -121,10 +124,16 @@ describe('QuestList', () => {
       screen.queryByText('기존 설명은 숨겨져야 합니다.'),
     ).not.toBeOnTheScreen();
     expect(iconBoxStyle).toMatchObject({
+      alignItems: 'center',
       backgroundColor: '#FFFFFF',
       borderRadius: 6,
       height: 40,
+      justifyContent: 'center',
       width: 40,
+    });
+    expect(screen.getByTestId('quest-pixel-star')).toHaveStyle({
+      width: 28,
+      height: 28,
     });
     expect(contentRowStyle).toMatchObject({
       alignItems: 'flex-start',
@@ -166,6 +175,36 @@ describe('QuestList', () => {
       color: appThemes.blue.colors.brand.background,
     });
   });
+
+  it.each(['blue', 'red', 'green'] as const)(
+    '%s 테마에서는 별 아이콘 색상을 해당 테마 컬러로 표시한다',
+    (themeName) => {
+      useColorSchemeStore.getState().setColorScheme(themeName);
+
+      const screen = render(
+        <QuestList quests={[createMockQuest()]} onClickItem={jest.fn()} />,
+      );
+      const fillPixelStyle = StyleSheet.flatten(
+        screen.getAllByTestId('quest-pixel-star-F')[0]?.props.style,
+      );
+      const highlightPixelStyle = StyleSheet.flatten(
+        screen.getAllByTestId('quest-pixel-star-H')[0]?.props.style,
+      );
+      const shadowPixelStyle = StyleSheet.flatten(
+        screen.getAllByTestId('quest-pixel-star-S')[0]?.props.style,
+      );
+
+      expect(fillPixelStyle).toMatchObject({
+        backgroundColor: appThemes[themeName].colors.brand.primary,
+      });
+      expect(highlightPixelStyle).toMatchObject({
+        backgroundColor: appThemes[themeName].colors.brand.secondary,
+      });
+      expect(shadowPixelStyle).toMatchObject({
+        backgroundColor: appThemes[themeName].colors.brand.text,
+      });
+    },
+  );
 
   it('uses successCount as the current progress count', () => {
     const quest = createMockQuest(0, {
