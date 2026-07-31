@@ -394,7 +394,7 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     top: baseFoundation.spacing[0],
     right: baseFoundation.spacing[9],
-    height: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x18,
     flexDirection: 'row',
     alignItems: 'center',
     gap: baseFoundation.spacing[1],

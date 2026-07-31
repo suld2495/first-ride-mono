@@ -1372,6 +1372,7 @@ describe('루틴 조회 페이지', () => {
             expect.objectContaining({
               position: 'absolute',
               right: 36,
+              height: 18,
             }),
           ]),
         );

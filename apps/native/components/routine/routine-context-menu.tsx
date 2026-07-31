@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     right: baseFoundation.spacing[4],
     top: baseFoundation.spacing[0],
     width: ROUTINE_CONTEXT_MENU_TRIGGER_WIDTH,
-    height: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x18,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },

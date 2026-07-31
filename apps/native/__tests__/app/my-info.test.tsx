@@ -280,7 +280,7 @@ describe('MyInfo 로그아웃', () => {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'flex-end',
-        justifyContent: 'flex-end',
+        justifyContent: 'flex-start',
       }),
     );
     expect(queryByTestId('settings-level-label')).toBeNull();
@@ -289,7 +289,7 @@ describe('MyInfo 로그아웃', () => {
     ).toEqual(
       expect.objectContaining({
         alignItems: 'flex-end',
-        justifyContent: 'flex-end',
+        justifyContent: 'flex-start',
         gap: 8,
       }),
     );
@@ -370,7 +370,7 @@ describe('MyInfo 로그아웃', () => {
         color: palette.theme.blue[80],
         fontFamily: 'Poppins_700Bold',
         fontSize: 20,
-        textAlign: 'left',
+        textAlign: 'right',
       }),
     );
     expect(expLabel.props.fontSize).toBe('$body3');
@@ -378,7 +378,7 @@ describe('MyInfo 로그아웃', () => {
     expect(StyleSheet.flatten(expLabel.props.style)).toEqual(
       expect.objectContaining({
         color: palette.theme.blue[80],
-        fontSize: 20,
+        fontSize: 13,
       }),
     );
     expect(expUnit.props.fontSize).toBe('$caption2');
@@ -386,7 +386,7 @@ describe('MyInfo 로그아웃', () => {
     expect(StyleSheet.flatten(expUnit.props.style)).toEqual(
       expect.objectContaining({
         color: palette.theme.softBlue[60],
-        fontSize: 20,
+        fontSize: 13,
       }),
     );
     expect(expCurrent.props.fontSize).toBe('$caption2');
@@ -394,7 +394,7 @@ describe('MyInfo 로그아웃', () => {
     expect(StyleSheet.flatten(expCurrent.props.style)).toEqual(
       expect.objectContaining({
         color: palette.theme.softBlue[60],
-        fontSize: 20,
+        fontSize: 13,
       }),
     );
     expect(menuText.props.fontSize).toBe('$body2');
@@ -430,10 +430,10 @@ describe('MyInfo 로그아웃', () => {
       ).toEqual(expect.objectContaining({ color: levelColor }));
       expect(
         StyleSheet.flatten(getByTestId('settings-exp-unit').props.style),
-      ).toEqual(expect.objectContaining({ color: expColor, fontSize: 20 }));
+      ).toEqual(expect.objectContaining({ color: expColor, fontSize: 13 }));
       expect(
         StyleSheet.flatten(getByTestId('settings-exp-current').props.style),
-      ).toEqual(expect.objectContaining({ color: expColor, fontSize: 20 }));
+      ).toEqual(expect.objectContaining({ color: expColor, fontSize: 13 }));
       expect(
         StyleSheet.flatten(getByTestId('settings-progress-fill').props.style),
       ).toEqual(expect.objectContaining({ backgroundColor: progressColor }));

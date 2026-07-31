@@ -203,18 +203,6 @@ const MyInfo = () => {
           </View>
 
           <View testID="settings-level-row" style={styles.levelRow}>
-            <View testID="settings-level-badge" style={styles.levelBadge}>
-              <Typography
-                color={themeColor[80]}
-                style={styles.levelText}
-                testID="settings-level-text"
-                variant="h3"
-                weight="bold"
-              >
-                Lv. {stats?.currentLevel ?? FALLBACK_LEVEL}
-              </Typography>
-            </View>
-
             <View testID="settings-exp-row" style={styles.expLabelRow}>
               <View testID="settings-exp-value-row" style={styles.expValueRow}>
                 <Typography
@@ -267,6 +255,18 @@ const MyInfo = () => {
                   </Typography>
                 </View>
               </View>
+            </View>
+
+            <View testID="settings-level-badge" style={styles.levelBadge}>
+              <Typography
+                color={themeColor[80]}
+                style={styles.levelText}
+                testID="settings-level-text"
+                variant="h3"
+                weight="bold"
+              >
+                Lv. {stats?.currentLevel ?? FALLBACK_LEVEL}
+              </Typography>
             </View>
           </View>
 
@@ -431,28 +431,28 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing[3],
   },
   levelBadge: {
-    flexShrink: 0,
-    alignItems: 'flex-start',
+    flex: 1,
+    alignItems: 'flex-end',
     justifyContent: 'flex-end',
   },
   levelText: {
     fontFamily: fontFamilies.poppinsBold,
     fontSize: SETTINGS_LEVEL_TEXT_SIZE,
-    textAlign: 'left',
+    textAlign: 'right',
   },
   expSummaryText: {
-    fontSize: SETTINGS_LEVEL_TEXT_SIZE,
+    fontSize: baseFoundation.typography.size.caption1,
   },
   expLabelRow: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
   },
   expValueRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     gap: baseFoundation.dimension.x8,
   },
   expNumberRow: {
