@@ -168,6 +168,7 @@ const styles = StyleSheet.create(() => ({
   wrapper: {
     position: 'relative',
     alignSelf: 'center',
+    alignItems: 'center',
     paddingBottom: baseFoundation.spacing[2],
   },
   container: {
