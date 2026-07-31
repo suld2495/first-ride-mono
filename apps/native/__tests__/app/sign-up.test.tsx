@@ -308,6 +308,27 @@ describe('SignUp 페이지', () => {
     ).toBeOnTheScreen();
   });
 
+  it('비밀번호 필드에 입력한 공백 문자를 제거한다', () => {
+    const screen = render(<SignUp />);
+
+    fireEvent.changeText(
+      screen.getByPlaceholderText('비밀번호를 입력하세요'),
+      'pass word\t1234\n',
+    );
+    fireEvent.changeText(
+      screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요'),
+      'pass\tword 1234\n',
+    );
+
+    expect(
+      screen.getByPlaceholderText('비밀번호를 입력하세요').props.value,
+    ).toBe('password1234');
+    expect(
+      screen.getByPlaceholderText('비밀번호를 한 번 더 입력하세요').props
+        .value,
+    ).toBe('password1234');
+  });
+
   it('에러 상태에서 필드를 수정하면 해당 에러가 사라진다', async () => {
     const { getByPlaceholderText, getByText, findByText, queryByText } = render(
       <SignUp />,
