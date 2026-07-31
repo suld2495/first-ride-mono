@@ -25,7 +25,7 @@ import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
-import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
+import CharacterMottoSpeechBubble from '@/feature/character/character-motto-speech-bubble';
 import RoutineCharacter from '@/feature/character/routine-character';
 import { useScopedColorSchemeOverride } from '@/hooks/useScopedColorSchemeOverride';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
@@ -73,13 +73,12 @@ const FriendRoutineCharacterStage = memo(
           testID="friend-routine-scene-character"
         />
       ) : null}
-      <View
+      <CharacterMottoSpeechBubble
+        isMine={false}
+        message={speechBubbleMessage}
         testID="friend-routine-character-speech-bubble"
         style={styles.speechBubble}
-        pointerEvents="none"
-      >
-        <CharacterSpeechBubble message={speechBubbleMessage} />
-      </View>
+      />
     </View>
   ),
 );

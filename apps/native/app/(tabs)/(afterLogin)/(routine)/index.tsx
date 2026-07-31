@@ -5,10 +5,9 @@ import { getWeekMonday } from '@repo/shared/utils';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { type LayoutChangeEvent, Pressable, View } from 'react-native';
+import { type LayoutChangeEvent, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import PencilIcon from '@/components/icons/pencil-icon';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
@@ -19,7 +18,7 @@ import {
 import { IconButton } from '@/components/ui/icon-button';
 import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
-import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
+import CharacterMottoSpeechBubble from '@/feature/character/character-motto-speech-bubble';
 import RoutineCharacter from '@/feature/character/routine-character';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -225,26 +224,13 @@ export default function Index() {
                     {routineCharacterAsset ? (
                       <RoutineCharacter asset={routineCharacterAsset} />
                     ) : null}
-                    <Pressable
-                      accessibilityLabel="한마디 수정"
-                      accessibilityRole="button"
-                      onPress={handleOpenAccountMotto}
+                    <CharacterMottoSpeechBubble
+                      isMine
+                      message={speechBubbleMessage}
+                      onEdit={handleOpenAccountMotto}
                       testID="routine-character-speech-bubble"
                       style={styles.speechBubble}
-                    >
-                      <CharacterSpeechBubble
-                        message={speechBubbleMessage}
-                        trailingIcon={
-                          <PencilIcon
-                            color={styles.speechBubbleEditIcon.color}
-                            height={baseFoundation.iconSize.s}
-                            opacity={0.45}
-                            testID="routine-speech-bubble-edit-icon"
-                            width={baseFoundation.iconSize.s}
-                          />
-                        }
-                      />
-                    </Pressable>
+                    />
                   </View>
                 </View>
                 <View
@@ -266,26 +252,13 @@ export default function Index() {
                     {routineCharacterAsset ? (
                       <RoutineCharacter asset={routineCharacterAsset} />
                     ) : null}
-                    <Pressable
-                      accessibilityLabel="한마디 수정"
-                      accessibilityRole="button"
-                      onPress={handleOpenAccountMotto}
+                    <CharacterMottoSpeechBubble
+                      isMine
+                      message={speechBubbleMessage}
+                      onEdit={handleOpenAccountMotto}
                       testID="routine-character-speech-bubble"
                       style={styles.speechBubble}
-                    >
-                      <CharacterSpeechBubble
-                        message={speechBubbleMessage}
-                        trailingIcon={
-                          <PencilIcon
-                            color={styles.speechBubbleEditIcon.color}
-                            height={baseFoundation.iconSize.s}
-                            opacity={0.45}
-                            testID="routine-speech-bubble-edit-icon"
-                            width={baseFoundation.iconSize.s}
-                          />
-                        }
-                      />
-                    </Pressable>
+                    />
                   </View>
                 </View>
                 <View style={styles.emptyStateOverlay}>
@@ -379,9 +352,6 @@ const styles = StyleSheet.create((theme) => ({
   speechBubble: {
     bottom: SPEECH_BUBBLE_BOTTOM_OFFSET,
     position: 'absolute',
-  },
-  speechBubbleEditIcon: {
-    color: theme.colors.text.soft,
   },
   fab: {
     position: 'absolute',

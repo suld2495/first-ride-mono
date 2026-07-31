@@ -39,6 +39,18 @@ describe('CharacterMottoSpeechBubble', () => {
     ).toBeNull();
   });
 
+  it('옵션을 생략하면 수정할 수 없는 친구 말풍선으로 표시한다', () => {
+    const screen = render(<CharacterMottoSpeechBubble message="기본 한마디" />);
+
+    expect(
+      screen.getByTestId('character-motto-speech-bubble'),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByTestId('character-motto-speech-bubble-content-container'),
+    ).toBeOnTheScreen();
+    expect(screen.queryByLabelText('한마디 수정')).toBeNull();
+  });
+
   it('주체와 관계없이 공통 말풍선 너비 설정을 사용한다', () => {
     const myScreen = render(
       <CharacterMottoSpeechBubble
