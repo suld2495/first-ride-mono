@@ -106,7 +106,6 @@ const RoutineDateFormItem = () => {
   const clearRoutineDateSelection = useClearRoutineDateSelection();
   const confirmedStartDate = routineDateSelection?.confirmedStartDate;
   const confirmedEndDate = routineDateSelection?.confirmedEndDate;
-  const todayDateValue = useMemo(() => getFormatDate(getStartOfToday()), []);
 
   useEffect(() => {
     if (!confirmedStartDate) {
@@ -137,17 +136,28 @@ const RoutineDateFormItem = () => {
           >
             <Checkbox
               size="md"
-              text="매일 반복"
+              disableText
+              fillColor={palette.white}
+              checkedColor={palette.theme.gray[95]}
               isChecked={Boolean(form.isDailyRepeat)}
               onPress={(checked) => {
                 setFieldValue('isDailyRepeat', checked);
-
-                if (checked) {
-                  setFieldValue('startDate', todayDateValue);
-                  setFieldValue('endDate', '');
-                }
               }}
             />
+            <Pressable
+              hitSlop={baseFoundation.spacing[1]}
+              onPress={() => {
+                setFieldValue('isDailyRepeat', !form.isDailyRepeat);
+              }}
+            >
+              <Typography
+                variant="body2"
+                weight="regular"
+                style={styles.dailyRepeatLabel}
+              >
+                매일 반복
+              </Typography>
+            </Pressable>
           </ThemeView>
           <ThemeView style={styles.dateContainer} transparent>
             <DatePickerButton
@@ -157,11 +167,9 @@ const RoutineDateFormItem = () => {
                   : 'routine-date-button'
               }
               buttonTitle={
-                form.isDailyRepeat
-                  ? '날짜 선택'
-                  : value
-                    ? `${value}${form.endDate ? ` ~ ${form.endDate}` : ''}`
-                    : '날짜 선택'
+                value
+                  ? `${value}${form.endDate ? ` ~ ${form.endDate}` : ''}`
+                  : '날짜 선택'
               }
               variant="outlined"
               disabled={Boolean(form.isDailyRepeat)}
@@ -187,6 +195,7 @@ const RoutineFormModal = () => {
   const { theme } = useAppTheme();
   const mateAutocompleteRef = useRef<AutocompleteInputHandle>(null);
   const isRoutineAdd = type === 'routine-add';
+  const defaultStartDate = useMemo(() => getFormatDate(getStartOfToday()), []);
 
   const routineId = useRoutineId();
   const routineForm = useRoutineForm();
@@ -204,8 +213,9 @@ const RoutineFormModal = () => {
   const normalizedRoutineForm = useMemo<RoutineStatusForm>(() => {
     const formWithColor = {
       ...sourceRoutineForm,
+      startDate: sourceRoutineForm.startDate || defaultStartDate,
       symbolColor: sourceRoutineForm.symbolColor || DEFAULT_ROUTINE_COLOR,
-      isDailyRepeat: Boolean(
+      isDailyRepeat: !isRoutineAdd && Boolean(
         sourceRoutineForm.startDate && !sourceRoutineForm.endDate,
       ),
     };
@@ -217,7 +227,7 @@ const RoutineFormModal = () => {
           mateNickname: '',
         }
       : formWithColor;
-  }, [isDirectRoutine, sourceRoutineForm]);
+  }, [defaultStartDate, isDirectRoutine, isRoutineAdd, sourceRoutineForm]);
   const initialMateNickname = String(normalizedRoutineForm.mateNickname ?? '');
 
   const [mateKeyword, setMateKeyword] = useState(() =>
@@ -629,6 +639,14 @@ const styles = StyleSheet.create((theme) => ({
 
   dailyRepeatControl: {
     alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[2],
+  },
+
+  dailyRepeatLabel: {
+    color: theme.colors.field.label,
+    lineHeight: baseFoundation.dimension.x18,
   },
 
   disabledDateButton: {

@@ -440,7 +440,7 @@ describe('루틴 조회 페이지', () => {
         expect(await findByText('테스트 루틴 2')).toBeOnTheScreen();
       });
 
-      it('number 타입 루틴 제목을 좌측 정렬한다', async () => {
+      it('number 타입 루틴 제목을 좌측 정렬하고 헤더를 세로 중앙 정렬한다', async () => {
         const { findByText } = render(<Index />);
 
         const routineTitle = await findByText('테스트 루틴 1');
@@ -456,7 +456,7 @@ describe('루틴 조회 페이지', () => {
         );
         expect(titleRowStyles).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ alignItems: 'flex-start' }),
+            expect.objectContaining({ alignItems: 'center' }),
           ]),
         );
       });
@@ -1436,7 +1436,7 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('요일 텍스트를 28px 체크박스 내부에 caption2 semibold로 표시한다', async () => {
+      it('요일 텍스트를 24px 체크박스 내부에 caption2 semibold로 표시한다', async () => {
         const todayIndex = getRoutineWeekIndex(new Date());
         const todayLabel = ['월', '화', '수', '목', '금', '토', '일'][
           todayIndex
@@ -1448,8 +1448,8 @@ describe('루틴 조회 페이지', () => {
         const todayText = within(todayCheckBox).getByText(todayLabel);
 
         expect(todayCheckBox).toHaveStyle({
-          width: 28,
-          height: 28,
+          width: 24,
+          height: 24,
           borderRadius: 6,
         });
         expect(todayText).toHaveStyle({
@@ -1470,7 +1470,7 @@ describe('루틴 조회 페이지', () => {
         expect(mondayColumnStyles).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              width: 32,
+              width: 28,
               alignItems: 'center',
             }),
           ]),
@@ -1521,7 +1521,7 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
-      it('week 타입 루틴 제목을 좌측 정렬한다', async () => {
+      it('week 타입 루틴 제목을 좌측 정렬하고 헤더를 세로 중앙 정렬한다', async () => {
         const { findByText } = render(<Index />);
 
         const routineTitle = await findByText('테스트 루틴 1');
@@ -1537,18 +1537,18 @@ describe('루틴 조회 페이지', () => {
         );
         expect(titleRowStyles).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ alignItems: 'flex-start' }),
+            expect.objectContaining({ alignItems: 'center' }),
           ]),
         );
         expect(routineTitle).toHaveProp('fontWeight', '600');
       });
 
-      it('우측 메뉴 아이콘 왼쪽에 수행 횟수를 caption2 semibold로 표시한다', async () => {
+      it('우측 메뉴 아이콘 왼쪽에 수행 횟수를 같은 줄 caption2 semibold로 표시한다', async () => {
         const { findByTestId } = render(<Index />);
         const progress = await findByTestId('routine-week-progress-1');
         const progressContainerStyles = findAncestorStyleWith(
           progress,
-          'right',
+          'height',
         );
 
         expect(progress).toHaveTextContent('3/5');
@@ -1560,9 +1560,9 @@ describe('루틴 조회 페이지', () => {
         expect(progressContainerStyles).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              position: 'absolute',
-              right: 36,
-              height: 18,
+              height: 20,
+              flexDirection: 'row',
+              alignItems: 'center',
             }),
           ]),
         );
@@ -1573,7 +1573,7 @@ describe('루틴 조회 페이지', () => {
         const progress = await findByTestId('routine-week-progress-1');
 
         expect(progress).toHaveStyle({
-          lineHeight: 14,
+          lineHeight: 20,
           includeFontPadding: false,
         });
       });
@@ -1669,8 +1669,8 @@ describe('루틴 조회 페이지', () => {
           const isToday = index === getRoutineWeekIndex(new Date());
 
           expect(frame).toHaveStyle({
-            width: 32,
-            height: 32,
+            width: 28,
+            height: 28,
             borderRadius: 8,
             borderWidth: 1,
             borderColor: isToday ? palette.white : 'transparent',
@@ -2302,7 +2302,7 @@ describe('루틴 조회 페이지', () => {
         expect(await findByTestId('routine-request-icon')).toBeOnTheScreen();
       });
 
-      it('루틴 메뉴 버튼은 충분한 터치 영역을 갖고 아이콘을 오른쪽 끝에 정렬한다', async () => {
+      it('루틴 메뉴 버튼은 헤더 라인에 중앙 정렬하고 충분한 터치 여백을 갖는다', async () => {
         const { findByLabelText } = render(<Index />);
 
         const menuButton = await findByLabelText('테스트 루틴 1 메뉴 열기');
@@ -2310,13 +2310,14 @@ describe('루틴 조회 페이지', () => {
         expect(flattenStyles(menuButton.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              width: 32,
-              height: 56,
-              alignItems: 'flex-end',
+              width: 20,
+              height: 20,
+              alignItems: 'center',
+              justifyContent: 'center',
             }),
           ]),
         );
-        expect(menuButton.props.hitSlop).toBeUndefined();
+        expect(menuButton.props.hitSlop).toBe(6);
       });
 
       it('루틴 메뉴 버튼을 클릭하면 상세 모달로 이동하지 않고 왼쪽에 컨텍스트 메뉴를 표시한다', async () => {

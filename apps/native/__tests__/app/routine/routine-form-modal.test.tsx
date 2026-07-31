@@ -295,17 +295,17 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
   describe('필수값 입력 전 추가 버튼 비활성화 테스트', () => {
     it('날짜 선택 버튼을 누르면 날짜 선택 페이지로 이동한다', async () => {
-      const { getByText, queryByLabelText } = render(<RoutineFormModal />);
+      const { getByTestId, queryByLabelText } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getByText('날짜 선택'));
+        fireEvent.press(getByTestId('routine-date-button'));
       });
 
       expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledTimes(
         1,
       );
       expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
-        null,
+        '2026-07-31',
         null,
       );
       expect(mockPush).toHaveBeenCalledWith('/routine-date-select');
@@ -336,7 +336,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       );
     });
 
-    it('매일 반복을 선택하면 오늘부터 반복하고 날짜 선택 버튼을 비활성화한다', async () => {
+    it('매일 반복을 선택하면 표시된 날짜를 유지하고 날짜 선택 버튼을 비활성화한다', async () => {
       const { getAllByTestId, getByTestId, getByText } = render(
         <RoutineFormModal />,
       );
@@ -346,6 +346,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       expect(getByText('매일 반복')).toBeOnTheScreen();
+      expect(getByText('2026-07-31')).toBeOnTheScreen();
       expect(getByTestId('routine-daily-repeat-date-button')).toBeDisabled();
 
       await act(async () => {
@@ -1149,7 +1150,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         '상세 설명',
       );
       expect(getByText('일주일에 5회')).toBeOnTheScreen();
-      expect(getByText('날짜 선택')).toBeOnTheScreen();
+      expect(getByText('2026-05-26')).toBeOnTheScreen();
       expect(getByTestId('routine-daily-repeat-date-button')).toBeDisabled();
       expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(true);
     });

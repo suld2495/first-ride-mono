@@ -31,7 +31,11 @@ type RoutineContextMenuProps = {
 type RoutineContextMenuTriggerProps = Pick<
   RoutineContextMenuProps,
   'routineName' | 'iconColor' | 'onToggle'
->;
+> & {
+  iconAnchorStyle?: StyleProp<ViewStyle>;
+  inline?: boolean;
+  style?: StyleProp<ViewStyle>;
+};
 
 type RoutineContextMenuPanelProps = Pick<
   RoutineContextMenuProps,
@@ -59,14 +63,23 @@ export const RoutineContextMenuTrigger = ({
   routineName,
   iconColor,
   onToggle,
+  iconAnchorStyle,
+  inline = false,
+  style,
 }: RoutineContextMenuTriggerProps) => (
   <Pressable
     onPress={onToggle}
-    style={styles.trigger}
+    style={[inline ? styles.inlineTrigger : styles.trigger, style]}
+    hitSlop={inline ? baseFoundation.spacing[1.5] : undefined}
     accessibilityRole="button"
     accessibilityLabel={`${routineName} 메뉴 열기`}
   >
-    <View style={styles.triggerIconAnchor}>
+    <View
+      style={[
+        inline ? styles.inlineTriggerIconAnchor : styles.triggerIconAnchor,
+        iconAnchorStyle,
+      ]}
+    >
       <RoutineRequestIcon color={iconColor} />
     </View>
   </Pressable>
@@ -187,6 +200,18 @@ const styles = StyleSheet.create({
     height: baseFoundation.dimension.x18,
     justifyContent: 'center',
     alignItems: 'flex-end',
+  },
+  inlineTrigger: {
+    width: baseFoundation.dimension.x20,
+    height: baseFoundation.dimension.x20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  inlineTriggerIconAnchor: {
+    width: baseFoundation.dimension.x12,
+    height: baseFoundation.dimension.x20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   menu: {
     position: 'absolute',

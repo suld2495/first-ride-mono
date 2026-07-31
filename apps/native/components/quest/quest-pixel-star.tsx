@@ -2,24 +2,23 @@ import { memo, useMemo } from 'react';
 import { View } from 'react-native';
 
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
-import { baseFoundation } from '@/theme/tokens';
 
 type QuestPixelStarProps = {
   size: number;
 };
 
 const STAR_PATTERN = [
-  '.....H.....',
-  '....HHH....',
-  '...HFFFH...',
-  '..HFFFFFH..',
-  '.HFFFFFFFH.',
-  'HHFFFFFFFHH',
+  '.....S.....',
+  '....SHS....',
+  '....SFS....',
+  '...SFFFS...',
+  'SSSFFFFSSS',
+  '.SFFFFFFFS.',
   '..SFFFFFS..',
   '...SFFFS...',
-  '..SS.S.SS..',
-  '.SS.....SS.',
-  '.S.......S.',
+  '..SFS.SFS..',
+  '.SFS...SFS.',
+  'SSS.....SSS',
 ] as const;
 
 const PIXEL_GRID_SIZE = STAR_PATTERN.length;
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
   },
   pixel: {
     position: 'absolute',
-    borderRadius: baseFoundation.dimension.x1,
+    borderRadius: 0,
   },
 });
 

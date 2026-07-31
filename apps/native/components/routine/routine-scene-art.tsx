@@ -34,6 +34,81 @@ const routineGreenPreviewOverlaySource =
 const routineRedPreviewOverlaySource =
   require('@/assets/routine/preview-overlay-red.png') as ImageSourcePropType;
 
+const characterAssetSources: Record<string, ImageSourcePropType> = {
+  '/assets/characters/archer_female_advanced.png':
+    require('@/assets/characters/archer_female_advanced.png') as ImageSourcePropType,
+  '/assets/characters/archer_female_beginner.png':
+    require('@/assets/characters/archer_female_beginner.png') as ImageSourcePropType,
+  '/assets/characters/archer_female_intermediate.png':
+    require('@/assets/characters/archer_female_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/archer_male_advanced.png':
+    require('@/assets/characters/archer_male_advanced.png') as ImageSourcePropType,
+  '/assets/characters/archer_male_beginner.png':
+    require('@/assets/characters/archer_male_beginner.png') as ImageSourcePropType,
+  '/assets/characters/archer_male_intermediate.png':
+    require('@/assets/characters/archer_male_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/mage_female_advanced.png':
+    require('@/assets/characters/mage_female_advanced.png') as ImageSourcePropType,
+  '/assets/characters/mage_female_beginner.png':
+    require('@/assets/characters/mage_female_beginner.png') as ImageSourcePropType,
+  '/assets/characters/mage_female_intermediate.png':
+    require('@/assets/characters/mage_female_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/mage_male_advanced.png':
+    require('@/assets/characters/mage_male_advanced.png') as ImageSourcePropType,
+  '/assets/characters/mage_male_beginner.png':
+    require('@/assets/characters/mage_male_beginner.png') as ImageSourcePropType,
+  '/assets/characters/mage_male_intermediate.png':
+    require('@/assets/characters/mage_male_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/warrior_female_advanced.png':
+    require('@/assets/characters/warrior_female_advanced.png') as ImageSourcePropType,
+  '/assets/characters/warrior_female_beginner.png':
+    require('@/assets/characters/warrior_female_beginner.png') as ImageSourcePropType,
+  '/assets/characters/warrior_female_intermediate.png':
+    require('@/assets/characters/warrior_female_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/warrior_male_advanced.png':
+    require('@/assets/characters/warrior_male_advanced.png') as ImageSourcePropType,
+  '/assets/characters/warrior_male_beginner.png':
+    require('@/assets/characters/warrior_male_beginner.png') as ImageSourcePropType,
+  '/assets/characters/warrior_male_intermediate.png':
+    require('@/assets/characters/warrior_male_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/evolution/archer_female_advanced.png':
+    require('@/assets/characters/evolution/archer_female_advanced.png') as ImageSourcePropType,
+  '/assets/characters/evolution/archer_female_beginner.png':
+    require('@/assets/characters/evolution/archer_female_beginner.png') as ImageSourcePropType,
+  '/assets/characters/evolution/archer_female_intermediate.png':
+    require('@/assets/characters/evolution/archer_female_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/evolution/archer_male_advanced.png':
+    require('@/assets/characters/evolution/archer_male_advanced.png') as ImageSourcePropType,
+  '/assets/characters/evolution/archer_male_beginner.png':
+    require('@/assets/characters/evolution/archer_male_beginner.png') as ImageSourcePropType,
+  '/assets/characters/evolution/archer_male_intermediate.png':
+    require('@/assets/characters/evolution/archer_male_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/evolution/mage_female_advanced.png':
+    require('@/assets/characters/evolution/mage_female_advanced.png') as ImageSourcePropType,
+  '/assets/characters/evolution/mage_female_beginner.png':
+    require('@/assets/characters/evolution/mage_female_beginner.png') as ImageSourcePropType,
+  '/assets/characters/evolution/mage_female_intermediate.png':
+    require('@/assets/characters/evolution/mage_female_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/evolution/mage_male_advanced.png':
+    require('@/assets/characters/evolution/mage_male_advanced.png') as ImageSourcePropType,
+  '/assets/characters/evolution/mage_male_beginner.png':
+    require('@/assets/characters/evolution/mage_male_beginner.png') as ImageSourcePropType,
+  '/assets/characters/evolution/mage_male_intermediate.png':
+    require('@/assets/characters/evolution/mage_male_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/evolution/warrior_female_advanced.png':
+    require('@/assets/characters/evolution/warrior_female_advanced.png') as ImageSourcePropType,
+  '/assets/characters/evolution/warrior_female_beginner.png':
+    require('@/assets/characters/evolution/warrior_female_beginner.png') as ImageSourcePropType,
+  '/assets/characters/evolution/warrior_female_intermediate.png':
+    require('@/assets/characters/evolution/warrior_female_intermediate.png') as ImageSourcePropType,
+  '/assets/characters/evolution/warrior_male_advanced.png':
+    require('@/assets/characters/evolution/warrior_male_advanced.png') as ImageSourcePropType,
+  '/assets/characters/evolution/warrior_male_beginner.png':
+    require('@/assets/characters/evolution/warrior_male_beginner.png') as ImageSourcePropType,
+  '/assets/characters/evolution/warrior_male_intermediate.png':
+    require('@/assets/characters/evolution/warrior_male_intermediate.png') as ImageSourcePropType,
+};
+
 export type RoutineSceneAsset = {
   Character?: ComponentType<RoutineCharacterIconProps>;
   source?: ImageSourcePropType;
@@ -44,6 +119,12 @@ export const getRoutineSceneRemoteAsset = (
 ): RoutineSceneAsset | null => {
   if (!imageUrl) {
     return null;
+  }
+
+  if (imageUrl in characterAssetSources) {
+    return {
+      source: characterAssetSources[imageUrl],
+    };
   }
 
   if (/^(https?:|data:|file:)/.test(imageUrl)) {

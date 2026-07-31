@@ -1,6 +1,7 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMyStatsQuery } from '@repo/shared/hooks/useStat';
 import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
-import type { UserLoginType } from '@repo/types';
+import type { Gender, UserLoginType } from '@repo/types';
 import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
@@ -23,7 +24,7 @@ import { baseFoundation, palette } from '@/theme/tokens';
 const FALLBACK_LEVEL = 1;
 const FALLBACK_EXP = 0;
 const FALLBACK_NEXT_LEVEL_EXP = 10;
-const SETTINGS_LEVEL_TEXT_SIZE = baseFoundation.typography.size.h3 - 4;
+const SETTINGS_LEVEL_TEXT_SIZE = baseFoundation.typography.size.h3 - 6;
 const CHARACTER_EVOLUTION_EXP_PER_LEVEL = 10;
 
 const SOCIAL_LOGIN_TYPE_LABELS: Record<
@@ -58,6 +59,12 @@ const SETTING_ITEMS: Array<{
 ];
 
 type ThemeTone = 'blue' | 'green' | 'red';
+type EvolutionGender = Lowercase<Gender>;
+type EvolutionUserSource = {
+  characterCode?: null | string;
+  characterImageUrl?: null | string;
+  gender?: Gender;
+};
 
 const getThemeTone = (themeName?: string): ThemeTone => {
   if (themeName === 'green' || themeName === 'red') {
@@ -98,24 +105,53 @@ const getEvolutionJobType = (themeTone: ThemeTone) => {
   }
 };
 
-const getCharacterEvolutionStages = (themeTone: ThemeTone) => {
+const getEvolutionGender = (
+  userSource: EvolutionUserSource | null | undefined,
+): EvolutionGender => {
+  if (userSource?.gender === 'MALE') {
+    return 'male';
+  }
+
+  if (userSource?.gender === 'FEMALE') {
+    return 'female';
+  }
+
+  const sourceText =
+    `${userSource?.characterCode ?? ''} ${userSource?.characterImageUrl ?? ''}`
+      .toLowerCase()
+      .trim();
+
+  if (/(^|[_/\-.])male([_/\-.]|$)/.test(sourceText)) {
+    return 'male';
+  }
+
+  return 'female';
+};
+
+const getCharacterEvolutionStages = (
+  themeTone: ThemeTone,
+  gender: EvolutionGender,
+) => {
   const jobType = getEvolutionJobType(themeTone);
 
   return [
     {
       label: '초보자',
       levelRange: 'Lv.1~4',
-      imageUrl: `/assets/characters/${jobType}_beginner.png`,
+      imageUrl: `/assets/characters/evolution/${jobType}_${gender}_beginner.png`,
+      isLocked: false,
     },
     {
       label: '1차 전직',
       levelRange: 'Lv.5~9',
-      imageUrl: `/assets/characters/${jobType}_intermediate.png`,
+      imageUrl: `/assets/characters/evolution/${jobType}_${gender}_intermediate.png`,
+      isLocked: true,
     },
     {
       label: '2차 전직',
       levelRange: 'Lv.10+',
-      imageUrl: `/assets/characters/${jobType}_advanced.png`,
+      imageUrl: `/assets/characters/evolution/${jobType}_${gender}_advanced.png`,
+      isLocked: true,
     },
   ] as const;
 };
@@ -136,9 +172,10 @@ const MyInfo = () => {
     nextLevelExp > 0 ? Math.min(currentExp / nextLevelExp, 1) : 0;
   const themeTone = getThemeTone(theme.name);
   const { themeColor, softThemeColor } = getThemePalette(themeTone);
+  const evolutionGender = getEvolutionGender(currentUser);
   const evolutionStages = useMemo(
-    () => getCharacterEvolutionStages(themeTone),
-    [themeTone],
+    () => getCharacterEvolutionStages(themeTone, evolutionGender),
+    [evolutionGender, themeTone],
   );
   const characterAsset = getRoutineSceneRemoteAsset(
     currentUser?.characterImageUrl,
@@ -464,18 +501,16 @@ const MyInfo = () => {
               <Pressable
                 accessibilityLabel="닫기"
                 accessibilityRole="button"
-                hitSlop={8}
+                hitSlop={baseFoundation.spacing[2]}
                 onPress={closeEvolutionModal}
                 style={styles.evolutionCloseButton}
                 testID="settings-evolution-modal-close"
               >
-                <Typography
-                  color={palette.theme.gray[60]}
-                  variant="body2"
-                  weight="semibold"
-                >
-                  ×
-                </Typography>
+                <Ionicons
+                  color={palette.theme.gray[70]}
+                  name="close-outline"
+                  size={baseFoundation.iconSize.l}
+                />
               </Pressable>
             </View>
             <Typography
@@ -485,8 +520,8 @@ const MyInfo = () => {
               variant="caption1"
               weight="medium"
             >
-              베타 기간에는 {CHARACTER_EVOLUTION_EXP_PER_LEVEL} EXP마다 1레벨이
-              올라요. 레벨 구간에 따라 캐릭터 모습이 바뀝니다.
+              레벨에 따라 캐릭터 모습이 바뀌어요. (베타기간에는{' '}
+              {CHARACTER_EVOLUTION_EXP_PER_LEVEL}EXP 마다 1레벨이 올라요)
             </Typography>
 
             <View style={styles.evolutionStageRow}>
@@ -512,6 +547,17 @@ const MyInfo = () => {
                             style: styles.evolutionCharacter,
                           })
                         : null}
+                      {stage.isLocked ? (
+                        <Typography
+                          color={palette.white}
+                          style={styles.evolutionLockedQuestion}
+                          testID={`settings-evolution-character-question-${stage.label}`}
+                          variant="h3"
+                          weight="bold"
+                        >
+                          ?
+                        </Typography>
+                      ) : null}
                     </View>
                     <Typography
                       color={themeColor[80]}
@@ -625,16 +671,16 @@ const styles = StyleSheet.create((theme) => ({
     gap: baseFoundation.dimension.x2,
   },
   expInfoButton: {
-    width: baseFoundation.dimension.x18,
-    height: baseFoundation.dimension.x18,
-    borderRadius: baseFoundation.dimension.x9,
+    width: baseFoundation.dimension.x14,
+    height: baseFoundation.dimension.x14,
+    borderRadius: baseFoundation.dimension.x7,
     borderWidth: baseFoundation.dimension.x1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   expInfoText: {
-    fontSize: baseFoundation.typography.size.caption2,
-    lineHeight: baseFoundation.dimension.x14,
+    fontSize: baseFoundation.typography.size.caption2 - 1,
+    lineHeight: baseFoundation.dimension.x12,
     includeFontPadding: false,
   },
   progressTrack: {
@@ -696,8 +742,8 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'space-between',
   },
   evolutionCloseButton: {
-    width: baseFoundation.dimension.x28,
-    height: baseFoundation.dimension.x28,
+    width: baseFoundation.dimension.x36,
+    height: baseFoundation.dimension.x36,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -728,6 +774,20 @@ const styles = StyleSheet.create((theme) => ({
   evolutionCharacter: {
     width: baseFoundation.dimension.x56,
     height: baseFoundation.dimension.x56,
+  },
+  evolutionLockedQuestion: {
+    position: 'absolute',
+    width: baseFoundation.dimension.x28,
+    height: baseFoundation.dimension.x28,
+    fontFamily: fontFamilies.poppinsBold,
+    fontSize: baseFoundation.typography.size.h3 - 4,
+    lineHeight: baseFoundation.dimension.x28,
+    includeFontPadding: false,
+    textAlign: 'center',
+    transform: [
+      { translateX: baseFoundation.dimension.x6 },
+      { translateY: baseFoundation.dimension.x6 },
+    ],
   },
   evolutionStageLevel: {
     marginTop: baseFoundation.spacing[1],

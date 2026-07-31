@@ -49,9 +49,11 @@ const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const TODAY_FRAME_COLOR = palette.white;
 const TODAY_FRAME_BORDER_WIDTH = 1;
 const TODAY_FRAME_GAP = 1;
-const CHECKBOX_SIZE = baseFoundation.dimension.x28;
+const CHECKBOX_SIZE = baseFoundation.dimension.x24;
+const CHECKBOX_ICON_SIZE = baseFoundation.iconSize.xs - 2;
 const TODAY_FRAME_SIZE =
   CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
+const ROUTINE_HEADER_ITEM_HEIGHT = baseFoundation.dimension.x20;
 
 const createWeekDateKeys = (startDate: string) => {
   const date = new Date(startDate);
@@ -156,48 +158,51 @@ const RoutineWeekList = ({
             style={styles.cardSurface}
           >
             <View style={styles.titleRow}>
-              <Typography
-                variant="body3"
-                weight="semibold"
-                style={styles.title}
-              >
-                {routineName}
-              </Typography>
-            </View>
+              <View style={styles.titleTextWrap}>
+                <Typography
+                  variant="body3"
+                  weight="semibold"
+                  style={styles.title}
+                  numberOfLines={1}
+                >
+                  {routineName}
+                </Typography>
+              </View>
+              <View style={readOnly ? styles.metaRowReadOnly : styles.metaRow}>
+                <View
+                  pointerEvents="none"
+                  style={[
+                    styles.progressSummary,
+                    readOnly ? styles.progressSummaryReadOnly : null,
+                  ]}
+                  testID={`routine-week-progress-summary-${routineId}`}
+                >
+                  {weeklyCount >= routineCount ? (
+                    <RoutineCheckmarkIcon
+                      size={baseFoundation.dimension.x14}
+                      color={palette.theme.green[50]}
+                    />
+                  ) : null}
+                  <Typography
+                    variant="caption2"
+                    weight="semibold"
+                    style={styles.progressSummaryText}
+                    testID={`routine-week-progress-${routineId}`}
+                  >
+                    {weeklyCount}/{routineCount}
+                  </Typography>
+                </View>
 
-            <View
-              pointerEvents="none"
-              style={[
-                styles.progressSummary,
-                readOnly ? styles.progressSummaryReadOnly : null,
-              ]}
-              testID={`routine-week-progress-summary-${routineId}`}
-            >
-              {weeklyCount >= routineCount ? (
-                <RoutineCheckmarkIcon
-                  size={baseFoundation.dimension.x14}
-                  color={palette.theme.green[50]}
-                />
-              ) : null}
-              <Typography
-                variant="caption2"
-                weight="semibold"
-                style={styles.progressSummaryText}
-                testID={`routine-week-progress-${routineId}`}
-              >
-                {weeklyCount}/{routineCount}
-              </Typography>
+                {!readOnly ? (
+                  <RoutineContextMenuTrigger
+                    routineName={routineName}
+                    iconColor={theme.colors.brand.routineProgressText}
+                    inline
+                    onToggle={() => onToggleRoutineMenu(routineId)}
+                  />
+                ) : null}
+              </View>
             </View>
-
-            {!readOnly ? (
-              <>
-                <RoutineContextMenuTrigger
-                  routineName={routineName}
-                  iconColor={theme.colors.brand.routineProgressText}
-                  onToggle={() => onToggleRoutineMenu(routineId)}
-                />
-              </>
-            ) : null}
 
             <View style={styles.checkRow}>
               {weeklyData[routineId].map((check, index) => {
@@ -277,7 +282,7 @@ const RoutineWeekList = ({
                       >
                         {isMissedPastDay ? (
                           <RoutineMissedIcon
-                            size={baseFoundation.iconSize.xs}
+                            size={CHECKBOX_ICON_SIZE}
                             color={theme.colors.brand.routineProgressText}
                           />
                         ) : (
@@ -370,30 +375,49 @@ const styles = StyleSheet.create((theme) => ({
   title: {
     color: palette.white,
     textAlign: 'left',
+    lineHeight: ROUTINE_HEADER_ITEM_HEIGHT,
+    includeFontPadding: false,
+  },
+  titleTextWrap: {
+    flex: 1,
+    height: ROUTINE_HEADER_ITEM_HEIGHT,
+    justifyContent: 'center',
   },
   titleRow: {
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    minHeight: baseFoundation.dimension.x18,
-    paddingRight: baseFoundation.spacing[14],
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    height: ROUTINE_HEADER_ITEM_HEIGHT,
     marginBottom: baseFoundation.spacing[3],
+    gap: baseFoundation.spacing[2],
   },
-  progressSummary: {
-    position: 'absolute',
-    top: baseFoundation.spacing[0],
-    right: baseFoundation.spacing[9],
-    height: baseFoundation.dimension.x18,
+  metaRow: {
+    height: ROUTINE_HEADER_ITEM_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: baseFoundation.spacing[3],
+  },
+  metaRowReadOnly: {
+    height: ROUTINE_HEADER_ITEM_HEIGHT,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 'auto',
+  },
+  progressSummary: {
+    height: ROUTINE_HEADER_ITEM_HEIGHT,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: baseFoundation.spacing[1],
   },
   progressSummaryReadOnly: {
-    right: baseFoundation.spacing[4],
+    marginLeft: 'auto',
   },
   progressSummaryText: {
     color: theme.colors.brand.routineProgressText,
-    lineHeight: baseFoundation.dimension.x14,
+    lineHeight: ROUTINE_HEADER_ITEM_HEIGHT,
     includeFontPadding: false,
   },
   checkRow: {
