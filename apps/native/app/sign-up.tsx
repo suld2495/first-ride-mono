@@ -266,9 +266,14 @@ export default function SignUp() {
     key: keyof JoinFormType | 'passwordConfirm',
     value: string,
   ) => {
+    const nextValue =
+      key === 'password' || key === 'passwordConfirm'
+        ? value.replace(/\s/g, '')
+        : value;
+
     setForm((prev) => ({
       ...prev,
-      [key]: value,
+      [key]: nextValue,
     }));
 
     if (fieldErrors[key]) {
