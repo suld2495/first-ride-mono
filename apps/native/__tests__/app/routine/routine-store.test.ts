@@ -14,4 +14,32 @@ describe('routine store', () => {
 
     expect(useRoutineStore.getState().routineForm.isMe).toBe(true);
   });
+
+  it('날짜 선택 페이지의 초기값과 확정값을 전달한다', () => {
+    useRoutineStore
+      .getState()
+      .beginRoutineDateSelection('2026-07-31', '2026-08-01');
+
+    expect(useRoutineStore.getState().routineDateSelection).toEqual({
+      initialStartDate: '2026-07-31',
+      initialEndDate: '2026-08-01',
+      confirmedStartDate: null,
+      confirmedEndDate: null,
+    });
+
+    useRoutineStore
+      .getState()
+      .confirmRoutineDateSelection('2026-08-02', '2026-08-03');
+
+    expect(useRoutineStore.getState().routineDateSelection).toEqual({
+      initialStartDate: '2026-07-31',
+      initialEndDate: '2026-08-01',
+      confirmedStartDate: '2026-08-02',
+      confirmedEndDate: '2026-08-03',
+    });
+
+    useRoutineStore.getState().clearRoutineDateSelection();
+
+    expect(useRoutineStore.getState().routineDateSelection).toBeNull();
+  });
 });

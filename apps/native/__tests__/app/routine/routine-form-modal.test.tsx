@@ -1,5 +1,5 @@
 import axiosInstance from '@repo/shared/api';
-import { getFormatDate, getThisWeekMonday } from '@repo/shared/utils';
+import { getFormatDate } from '@repo/shared/utils';
 import { act, screen, waitFor, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { type ReactElement, useContext } from 'react';
@@ -21,6 +21,7 @@ import { createMockFriends } from '../../setup/friend/mock';
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockBack: jest.Mock;
 declare const mockDismissTo: jest.Mock;
+declare const mockPush: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockRoutineStore: {
   type: 'number' | 'week';
@@ -29,6 +30,15 @@ declare const mockRoutineStore: {
   setRoutineId: jest.Mock;
   routineForm: Record<string, unknown>;
   setRoutineForm: jest.Mock;
+  routineDateSelection: null | {
+    initialStartDate: string | null;
+    initialEndDate: string | null;
+    confirmedStartDate: string | null;
+    confirmedEndDate: string | null;
+  };
+  beginRoutineDateSelection: jest.Mock;
+  confirmRoutineDateSelection: jest.Mock;
+  clearRoutineDateSelection: jest.Mock;
 };
 declare const mockShowToast: jest.Mock;
 
@@ -194,6 +204,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       symbolColor: '#3C9FFF',
     };
     mockRoutineStore.routineId = 0;
+    mockRoutineStore.routineDateSelection = null;
+    mockRoutineStore.beginRoutineDateSelection.mockReset();
+    mockRoutineStore.confirmRoutineDateSelection.mockReset();
+    mockRoutineStore.clearRoutineDateSelection.mockReset();
     (global as any).mockCheckboxChecked = false;
     mockShowToast.mockClear();
     mockAlert.mockClear();
@@ -250,20 +264,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     }
   };
 
-  const getPreviousDate = (date: Date) => {
-    const previousDate = new Date(date);
-
-    previousDate.setDate(previousDate.getDate() - 1);
-    return previousDate;
-  };
-
-  const getNextDate = (date: Date) => {
-    const nextDate = new Date(date);
-
-    nextDate.setDate(nextDate.getDate() + 1);
-    return nextDate;
-  };
-
   const getStartOfToday = () => {
     const today = new Date();
 
@@ -271,30 +271,8 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     return today;
   };
 
-  // 날짜 선택 헬퍼 함수
-  const selectStartDate = async (
-    getByText: (text: string) => any,
-    getByLabelText: (text: string) => any,
-    date = getStartOfToday(),
-  ) => {
-    await act(async () => {
-      fireEvent.press(getByText('시작일 선택'));
-    });
-
-    await act(async () => {
-      fireEvent.press(getByLabelText(`${getFormatDate(date)} 선택 가능`));
-    });
-
-    await act(async () => {
-      fireEvent.press(getByText('확인'));
-    });
-  };
-
-  const getNextWeekDate = (date: Date) => {
-    const nextWeekDate = new Date(date);
-
-    nextWeekDate.setDate(nextWeekDate.getDate() + 7);
-    return nextWeekDate;
+  const setInitialStartDate = (date = getStartOfToday()) => {
+    mockRoutineStore.routineForm.startDate = getFormatDate(date);
   };
 
   // 모든 필수 필드 입력 헬퍼 함수
@@ -302,7 +280,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   const fillAllRequiredFields = async (
     getByPlaceholderText: (text: string) => any,
     getByText: (text: string) => any,
-    getByLabelText: (text: string) => any,
   ) => {
     // API 호출이 완료될 때까지 대기
     await waitFor(() => {
@@ -314,12 +291,51 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       routineDetail: '테스트 설명',
       routineCount: 3,
     });
-
-    // 시작 날짜 선택
-    await selectStartDate(getByText, getByLabelText);
   };
 
   describe('필수값 입력 전 추가 버튼 비활성화 테스트', () => {
+    it('날짜 선택 버튼을 누르면 날짜 선택 페이지로 이동한다', async () => {
+      const { getByText, queryByLabelText } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getByText('날짜 선택'));
+      });
+
+      expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
+        null,
+        null,
+      );
+      expect(mockPush).toHaveBeenCalledWith('/routine-date-select');
+      expect(queryByLabelText('날짜 선택 바텀 시트')).not.toBeOnTheScreen();
+    });
+
+    it('날짜 선택 페이지에서 확정한 날짜를 폼에 반영한다', async () => {
+      const confirmedStartDate = '2026-08-01';
+      const confirmedEndDate = '2026-08-07';
+
+      mockRoutineStore.routineDateSelection = {
+        initialStartDate: confirmedStartDate,
+        initialEndDate: confirmedEndDate,
+        confirmedStartDate,
+        confirmedEndDate,
+      };
+      mockRoutineStore.clearRoutineDateSelection.mockImplementation(() => {
+        mockRoutineStore.routineDateSelection = null;
+      });
+
+      const { findByText } = render(<RoutineFormModal />);
+
+      expect(
+        await findByText(`${confirmedStartDate} ~ ${confirmedEndDate}`),
+      ).toBeOnTheScreen();
+      expect(mockRoutineStore.clearRoutineDateSelection).toHaveBeenCalledTimes(
+        1,
+      );
+    });
+
     it('메이트에게 루틴 인증 요청을 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
       const {
         getAllByTestId,
@@ -408,138 +424,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
     });
 
-    it('루틴 기간 안내 아이콘을 누르면 툴팁이 표시된다', async () => {
-      const { getByLabelText, getByText, queryByText } = render(
-        <RoutineFormModal />,
-      );
-
-      expect(
-        queryByText('시작일부터 종료일까지 루틴을 진행할 기간을 선택해주세요.'),
-      ).not.toBeOnTheScreen();
-
-      await act(async () => {
-        fireEvent.press(getByLabelText('루틴 기간 안내 보기'));
-      });
-
-      expect(
-        getByText('시작일부터 종료일까지 루틴을 진행할 기간을 선택해주세요.'),
-      ).toBeOnTheScreen();
-    });
-
-    it('루틴 기간 안내 아이콘은 SVG 아이콘을 사용한다', () => {
-      const { getByTestId } = render(<RoutineFormModal />);
-
-      expect(getByTestId('routine-period-warning-icon')).toBeOnTheScreen();
-    });
-
-    it('루틴 기간 툴팁이 열린 상태에서 다른 곳을 누르면 툴팁이 닫힌다', async () => {
-      const { getByLabelText, getByText, queryByText } = render(
-        <RoutineFormModal />,
-      );
-
-      await act(async () => {
-        fireEvent.press(getByLabelText('루틴 기간 안내 보기'));
-      });
-
-      expect(
-        getByText('시작일부터 종료일까지 루틴을 진행할 기간을 선택해주세요.'),
-      ).toBeOnTheScreen();
-
-      await act(async () => {
-        fireEvent.press(getByLabelText('루틴 기간 안내 닫기'));
-      });
-
-      expect(
-        queryByText('시작일부터 종료일까지 루틴을 진행할 기간을 선택해주세요.'),
-      ).not.toBeOnTheScreen();
-    });
-
-    it('시작일 선택 시 캘린더가 바텀 시트로 열린다', async () => {
-      const { getByLabelText, getByTestId, getByText } = render(
-        <RoutineFormModal />,
-      );
-
-      await act(async () => {
-        fireEvent.press(getByText('시작일 선택'));
-      });
-
-      expect(getByLabelText('시작일 선택 바텀 시트')).toBeOnTheScreen();
-      expect(
-        getByTestId('bottom-sheet-backdrop').props.entering.constructor
-          .presetName,
-      ).toBe('FadeIn');
-      expect(
-        getByTestId('bottom-sheet-backdrop').props.exiting.constructor
-          .presetName,
-      ).toBe('FadeOut');
-      expect(
-        getByTestId('bottom-sheet-container').props.entering.constructor
-          .presetName,
-      ).toBe('SlideInDown');
-      expect(
-        getByTestId('bottom-sheet-container').props.exiting.constructor
-          .presetName,
-      ).toBe('SlideOutDown');
-      expect(
-        getByLabelText(`${getFormatDate(getStartOfToday())} 선택 가능`),
-      ).toBeOnTheScreen();
-    });
-
-    it('시작일은 오늘부터 월요일이 아닌 미래 날짜도 선택할 수 있다', async () => {
-      const { getByLabelText, getByText } = render(<RoutineFormModal />);
-      const today = getStartOfToday();
-      const yesterday = getPreviousDate(today);
-      const tomorrow = getNextDate(today);
-
-      await act(async () => {
-        fireEvent.press(getByText('시작일 선택'));
-      });
-
-      expect(
-        getByLabelText(`${getFormatDate(yesterday)} 선택 불가`),
-      ).toBeDisabled();
-      expect(getByLabelText(`${getFormatDate(today)} 선택 가능`)).toBeEnabled();
-      expect(
-        getByLabelText(`${getFormatDate(tomorrow)} 선택 가능`),
-      ).toBeEnabled();
-    });
-
-    it('종료일 선택 시 캘린더가 바텀 시트로 열린다', async () => {
-      const { getByLabelText, getByText } = render(<RoutineFormModal />);
-
-      await act(async () => {
-        fireEvent.press(getByText('종료일 선택'));
-      });
-
-      expect(getByLabelText('종료일 선택 바텀 시트')).toBeOnTheScreen();
-      expect(
-        getByLabelText(`${getFormatDate(getStartOfToday())} 선택 가능`),
-      ).toBeOnTheScreen();
-    });
-
-    it('종료일은 시작일 포함 이후 날짜를 선택할 수 있다', async () => {
-      const { getByLabelText, getByText } = render(<RoutineFormModal />);
-      const startDate = getNextWeekDate(getThisWeekMonday());
-      const previousDate = getPreviousDate(startDate);
-      const nextDate = getNextDate(startDate);
-
-      await selectStartDate(getByText, getByLabelText, startDate);
-
-      await act(async () => {
-        fireEvent.press(getByText('종료일 선택'));
-      });
-
-      expect(
-        getByLabelText(`${getFormatDate(previousDate)} 선택 불가`),
-      ).toBeDisabled();
-      expect(
-        getByLabelText(`${getFormatDate(startDate)} 선택 가능`),
-      ).toBeEnabled();
-      expect(
-        getByLabelText(`${getFormatDate(nextDate)} 선택 가능`),
-      ).toBeEnabled();
-    });
-
     it('모든 필드가 비어있을 때 추가 버튼이 비활성화되어 있다', async () => {
       const { getByText } = render(<RoutineFormModal />);
 
@@ -549,15 +433,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('모든 필수값 입력 시 혼자 루틴 추가 버튼이 활성화된다', async () => {
-      const { getByLabelText, getByPlaceholderText, getByText } = render(
-        <RoutineFormModal />,
-      );
+      setInitialStartDate();
+      const { getByPlaceholderText, getByText } = render(<RoutineFormModal />);
 
-      await fillAllRequiredFields(
-        getByPlaceholderText,
-        getByText,
-        getByLabelText,
-      );
+      await fillAllRequiredFields(getByPlaceholderText, getByText);
 
       await waitFor(
         () => {
@@ -570,9 +449,8 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('벌금 없이 필수값을 입력하면 추가 버튼이 활성화된다', async () => {
-      const { getByLabelText, getByPlaceholderText, getByText } = render(
-        <RoutineFormModal />,
-      );
+      setInitialStartDate();
+      const { getByPlaceholderText, getByText } = render(<RoutineFormModal />);
 
       await waitFor(() => {
         expect(mockAxios.history.get.length).toBeGreaterThan(0);
@@ -583,8 +461,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         routineDetail: '테스트 설명',
         routineCount: 3,
       });
-
-      await selectStartDate(getByText, getByLabelText);
 
       await waitFor(
         () => {
@@ -597,9 +473,8 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('루틴 설명 없이 필수값을 입력하면 추가 버튼이 활성화된다', async () => {
-      const { getByLabelText, getByPlaceholderText, getByText } = render(
-        <RoutineFormModal />,
-      );
+      setInitialStartDate();
+      const { getByPlaceholderText, getByText } = render(<RoutineFormModal />);
 
       await waitFor(() => {
         expect(mockAxios.history.get.length).toBeGreaterThan(0);
@@ -609,8 +484,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         routineName: '테스트 루틴',
         routineCount: 3,
       });
-
-      await selectStartDate(getByText, getByLabelText);
 
       await waitFor(
         () => {
@@ -841,15 +714,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       it('성공 알림이 표시되고 루틴 페이지로 이동한다', async () => {
-        const { getByLabelText, getByPlaceholderText, getByText } = render(
+        setInitialStartDate();
+        const { getByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
 
-        await fillAllRequiredFields(
-          getByPlaceholderText,
-          getByText,
-          getByLabelText,
-        );
+        await fillAllRequiredFields(getByPlaceholderText, getByText);
 
         await waitFor(() => {
           const addButton = getByText('생성');
@@ -872,7 +742,8 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       it('메이트 체크가 해제된 기본 상태에서 내 루틴 API에 허용된 필드만 보낸다', async () => {
-        const { getByLabelText, getByPlaceholderText, getByText } = render(
+        setInitialStartDate();
+        const { getByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
 
@@ -885,8 +756,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           routineDetail: '테스트 설명',
           routineCount: 3,
         });
-
-        await selectStartDate(getByText, getByLabelText);
 
         await waitFor(() => {
           expect(getByText('생성')).toBeEnabled();
@@ -916,22 +785,16 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       it('숨김 체크 시 생성 요청에 hidden true를 보낸다', async () => {
-        const {
-          getAllByTestId,
-          getByLabelText,
-          getByPlaceholderText,
-          getByText,
-        } = render(<RoutineFormModal />);
+        setInitialStartDate();
+        const { getAllByTestId, getByPlaceholderText, getByText } = render(
+          <RoutineFormModal />,
+        );
 
         await act(async () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
         });
 
-        await fillAllRequiredFields(
-          getByPlaceholderText,
-          getByText,
-          getByLabelText,
-        );
+        await fillAllRequiredFields(getByPlaceholderText, getByText);
 
         await waitFor(() => {
           expect(getByText('생성')).toBeEnabled();
@@ -952,12 +815,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         mockAxios.onPost('/routine/mate').reply(201, {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
-        const {
-          getAllByTestId,
-          getByLabelText,
-          getByPlaceholderText,
-          getByText,
-        } = render(<RoutineFormModal />);
+        setInitialStartDate();
+        const { getAllByTestId, getByPlaceholderText, getByText } = render(
+          <RoutineFormModal />,
+        );
 
         await act(async () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
@@ -979,7 +840,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           penalty: '5000',
           routineCount: 3,
         });
-        await selectStartDate(getByText, getByLabelText);
 
         await waitFor(() => {
           expect(getByText('생성')).toBeEnabled();
@@ -1013,12 +873,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         mockAxios.onPost('/routine/mate').reply(201, {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
-        const {
-          getAllByTestId,
-          getByLabelText,
-          getByPlaceholderText,
-          getByText,
-        } = render(<RoutineFormModal />);
+        setInitialStartDate();
+        const { getAllByTestId, getByPlaceholderText, getByText } = render(
+          <RoutineFormModal />,
+        );
 
         await act(async () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
@@ -1039,7 +897,6 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           routineDetail: '함께 달리기',
           routineCount: 3,
         });
-        await selectStartDate(getByText, getByLabelText);
 
         await waitFor(() => {
           expect(getByText('생성')).toBeEnabled();
@@ -1077,15 +934,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       it('실패 알림이 표시된다', async () => {
-        const { getByLabelText, getByPlaceholderText, getByText } = render(
+        setInitialStartDate();
+        const { getByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
 
-        await fillAllRequiredFields(
-          getByPlaceholderText,
-          getByText,
-          getByLabelText,
-        );
+        await fillAllRequiredFields(getByPlaceholderText, getByText);
 
         await waitFor(
           () => {
@@ -1117,15 +971,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       it('실패 알림이 표시된다', async () => {
-        const { getByLabelText, getByPlaceholderText, getByText } = render(
+        setInitialStartDate();
+        const { getByPlaceholderText, getByText } = render(
           <RoutineFormModal />,
         );
 
-        await fillAllRequiredFields(
-          getByPlaceholderText,
-          getByText,
-          getByLabelText,
-        );
+        await fillAllRequiredFields(getByPlaceholderText, getByText);
 
         await waitFor(
           () => {
@@ -1740,8 +1591,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
         const { findByText } = render(<RoutineFormModal />);
 
-        expect(await findByText('2026-07-01')).toBeOnTheScreen();
-        expect(await findByText('2026-07-31')).toBeOnTheScreen();
+        expect(await findByText('2026-07-01 ~ 2026-07-31')).toBeOnTheScreen();
 
         await act(async () => {
           fireEvent.press(await findByText('저장'));

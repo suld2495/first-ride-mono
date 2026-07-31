@@ -24,6 +24,15 @@ declare const mockRoutineStore: {
   routineId: number;
   setRoutineId: jest.Mock;
   resetRoutineForm: jest.Mock;
+  routineDateSelection: null | {
+    initialStartDate: string | null;
+    initialEndDate: string | null;
+    confirmedStartDate: string | null;
+    confirmedEndDate: string | null;
+  };
+  beginRoutineDateSelection: jest.Mock;
+  confirmRoutineDateSelection: jest.Mock;
+  clearRoutineDateSelection: jest.Mock;
 };
 declare const mockRequestStore: {
   requestId: number;
@@ -95,6 +104,10 @@ export const resetAuthMocks = () => {
   mockRoutineStore.routineId = 0;
   mockRoutineStore.setRoutineId.mockClear();
   mockRoutineStore.resetRoutineForm.mockClear();
+  mockRoutineStore.routineDateSelection = null;
+  mockRoutineStore.beginRoutineDateSelection.mockReset();
+  mockRoutineStore.confirmRoutineDateSelection.mockReset();
+  mockRoutineStore.clearRoutineDateSelection.mockReset();
   mockRequestStore.requestId = 0;
   mockRequestStore.setRequestId.mockClear();
 };
