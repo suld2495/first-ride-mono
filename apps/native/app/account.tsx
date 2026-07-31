@@ -18,8 +18,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { useAuthSignIn, useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation, palette } from '@/theme/tokens';
 
-const MAX_MOTTO_BYTES = 80;
-const MAX_MOTTO_KOREAN_CHARACTERS = Math.floor(MAX_MOTTO_BYTES / 3);
+const MAX_MOTTO_CHARACTERS = 26;
 const getSkinLevel5Color = (themeName: string) => {
   if (themeName === 'green') {
     return palette.theme.green[5];
@@ -43,46 +42,11 @@ const getSkinLevel50Color = (themeName: string) => {
   return palette.theme.blue[50];
 };
 
-const getUtf8ByteLength = (value: string) => {
-  let byteLength = 0;
-
-  for (const character of value) {
-    const codePoint = character.codePointAt(0) ?? 0;
-
-    if (codePoint <= 0x7f) {
-      byteLength += 1;
-    } else if (codePoint <= 0x7ff) {
-      byteLength += 2;
-    } else if (codePoint <= 0xffff) {
-      byteLength += 3;
-    } else {
-      byteLength += 4;
-    }
-  }
-
-  return byteLength;
-};
-
 const getMottoCharacterCountLabel = (value: string) =>
-  `${Array.from(value).length}/${MAX_MOTTO_KOREAN_CHARACTERS}자`;
+  `${Array.from(value).length}/${MAX_MOTTO_CHARACTERS}자`;
 
-const limitMottoBytes = (value: string) => {
-  let nextValue = '';
-  let byteLength = 0;
-
-  for (const character of value) {
-    const characterByteLength = getUtf8ByteLength(character);
-
-    if (byteLength + characterByteLength > MAX_MOTTO_BYTES) {
-      break;
-    }
-
-    nextValue += character;
-    byteLength += characterByteLength;
-  }
-
-  return nextValue;
-};
+const limitMottoCharacters = (value: string) =>
+  Array.from(value).slice(0, MAX_MOTTO_CHARACTERS).join('');
 
 const Account = () => {
   const user = useAuthUser();
@@ -157,7 +121,7 @@ const Account = () => {
   }, [hasPrimaryMottoChanged, primaryMottoInput, updatePrimaryMotto]);
 
   const handlePrimaryMottoChange = useCallback((value: string) => {
-    setPrimaryMottoInput(limitMottoBytes(value));
+    setPrimaryMottoInput(limitMottoCharacters(value));
   }, []);
 
   return (
