@@ -43,8 +43,6 @@ const CharacterMottoSpeechBubble = ({
   const availableWidth = getCharacterSpeechBubbleMaxWidth(windowWidth);
   const wrapperStyle = [
     {
-      left: '50%' as const,
-      transform: [{ translateX: -availableWidth / 2 }],
       width: availableWidth,
     },
     style,
