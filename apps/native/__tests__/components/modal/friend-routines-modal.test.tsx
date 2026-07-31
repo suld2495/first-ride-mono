@@ -362,6 +362,10 @@ describe('FriendRoutinesModal', () => {
             StyleSheet.flatten(node.props.style)?.gap === 3,
         ),
     ).toBe(true);
+    expect(screen.getByText('응원')).toHaveStyle({
+      color: palette.theme.gray[70],
+      fontSize: baseFoundation.typography.size.caption1,
+    });
   });
 
   it('응원 콕을 보낸 뒤 루틴과 프로필을 다시 조회하지 않고 서버 메시지를 표시한다', async () => {
