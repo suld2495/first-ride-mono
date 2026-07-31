@@ -1,8 +1,16 @@
-import { Pressable, type StyleProp, View, type ViewStyle } from 'react-native';
+import {
+  Pressable,
+  type StyleProp,
+  useWindowDimensions,
+  View,
+  type ViewStyle,
+} from 'react-native';
 
 import PencilIcon from '@/components/icons/pencil-icon';
 import { useAppTheme } from '@/components/ui/tamagui';
-import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
+import CharacterSpeechBubble, {
+  getCharacterSpeechBubbleMaxWidth,
+} from '@/feature/character/character-speech-bubble';
 import { baseFoundation } from '@/theme/tokens';
 
 type CharacterMottoSpeechBubbleBaseProps = {
@@ -31,6 +39,11 @@ const CharacterMottoSpeechBubble = ({
   testID = 'character-motto-speech-bubble',
 }: CharacterMottoSpeechBubbleProps) => {
   const { theme } = useAppTheme();
+  const { width: windowWidth } = useWindowDimensions();
+  const wrapperStyle = [
+    { width: getCharacterSpeechBubbleMaxWidth(windowWidth) },
+    style,
+  ];
   const content = (
     <CharacterSpeechBubble
       message={message}
@@ -55,7 +68,7 @@ const CharacterMottoSpeechBubble = ({
         accessibilityLabel="한마디 수정"
         accessibilityRole="button"
         onPress={onEdit}
-        style={style}
+        style={wrapperStyle}
         testID={testID}
       >
         {content}
@@ -64,7 +77,7 @@ const CharacterMottoSpeechBubble = ({
   }
 
   return (
-    <View pointerEvents="none" style={style} testID={testID}>
+    <View pointerEvents="none" style={wrapperStyle} testID={testID}>
       {content}
     </View>
   );
