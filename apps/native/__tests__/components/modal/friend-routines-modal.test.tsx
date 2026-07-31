@@ -288,7 +288,7 @@ describe('FriendRoutinesModal', () => {
     expect(screen.queryByTestId('friend-routine-scene-background')).toBeNull();
   });
 
-  it('응원 콕 버튼을 화면 가장자리에서 충분히 떨어뜨려 표시한다', async () => {
+  it('응원 콕 버튼을 헤더 타이틀 우측에 표시한다', async () => {
     mockAxios.onGet('/friends/42/profile').reply(
       200,
       wrapResponse({
@@ -308,10 +308,13 @@ describe('FriendRoutinesModal', () => {
 
     const screen = render(<FriendRoutinesModal />);
 
-    expect(await screen.findByRole('button', { name: '응원 콕' })).toHaveStyle({
-      bottom: baseFoundation.spacing[8],
-      right: baseFoundation.spacing[4],
-    });
+    await screen.findByRole('button', { name: '응원 콕' });
+
+    expect(
+      screen
+        .getByTestId('routine-header-actions')
+        .findAllByProps({ accessibilityLabel: '응원 콕' }),
+    ).toHaveLength(1);
   });
 
   it('응원 콕을 보낸 뒤 루틴과 프로필을 다시 조회하지 않고 서버 메시지를 표시한다', async () => {
