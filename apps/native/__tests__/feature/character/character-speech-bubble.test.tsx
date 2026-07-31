@@ -72,6 +72,26 @@ describe('CharacterSpeechBubble', () => {
     );
   });
 
+  it('넓은 래퍼에서도 말풍선 본체와 말꼬리가 같은 중앙을 사용한다', () => {
+    const { getByTestId } = render(
+      <CharacterSpeechBubble message="한마디" style={{ width: 355 }} />,
+    );
+    const bubbleWrapper = getByTestId('character-speech-bubble');
+    const bubbleTail = getByTestId('character-speech-bubble-tail');
+
+    expect(StyleSheet.flatten(bubbleWrapper.props.style)).toEqual(
+      expect.objectContaining({
+        alignItems: 'center',
+        width: 355,
+      }),
+    );
+    expect(StyleSheet.flatten(bubbleTail.props.style)).toEqual(
+      expect.objectContaining({
+        left: '50%',
+      }),
+    );
+  });
+
   it('말풍선 텍스트는 body3 semibold와 skin gray 90 컬러를 사용한다', () => {
     const { getByText } = render(<CharacterSpeechBubble message="한마디" />);
     const message = getByText('한마디');
