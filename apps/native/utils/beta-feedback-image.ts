@@ -3,6 +3,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 
 export const MAX_BETA_FEEDBACK_IMAGE_BYTES = 10 * 1024 * 1024;
 export const MAX_BETA_FEEDBACK_IMAGE_PIXELS = 60_000_000;
+export const MAX_BETA_FEEDBACK_IMAGE_DIMENSION = 1_920;
 
 export const BETA_FEEDBACK_IMAGE_CONVERSION_ERROR =
   '이미지를 변환하지 못했습니다.';
@@ -36,6 +37,25 @@ const exceedsPixelLimit = ({
   height > 0 &&
   width * height > MAX_BETA_FEEDBACK_IMAGE_PIXELS;
 
+const getResizeActions = ({
+  width,
+  height,
+}: BetaFeedbackImageSource): ImageManipulator.Action[] => {
+  if (
+    typeof width !== 'number' ||
+    typeof height !== 'number' ||
+    width <= 0 ||
+    height <= 0 ||
+    Math.max(width, height) <= MAX_BETA_FEEDBACK_IMAGE_DIMENSION
+  ) {
+    return [];
+  }
+
+  return width >= height
+    ? [{ resize: { width: MAX_BETA_FEEDBACK_IMAGE_DIMENSION } }]
+    : [{ resize: { height: MAX_BETA_FEEDBACK_IMAGE_DIMENSION } }];
+};
+
 const convertToJpeg = async (
   source: BetaFeedbackImageSource,
 ): Promise<ImageManipulator.ImageResult> => {
@@ -46,7 +66,7 @@ const convertToJpeg = async (
   try {
     const convertedImage = await ImageManipulator.manipulateAsync(
       source.uri,
-      [],
+      getResizeActions(source),
       {
         compress: JPEG_COMPRESSION_QUALITY,
         format: ImageManipulator.SaveFormat.JPEG,

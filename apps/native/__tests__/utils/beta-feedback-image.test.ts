@@ -65,6 +65,41 @@ describe('beta-feedback-image', () => {
     },
   );
 
+  it.each([
+    {
+      direction: '가로',
+      source: {
+        uri: 'file:///landscape.heic',
+        width: 4_032,
+        height: 3_024,
+      },
+      resizeAction: { resize: { width: 1_920 } },
+    },
+    {
+      direction: '세로',
+      source: {
+        uri: 'file:///portrait.heic',
+        width: 3_024,
+        height: 4_032,
+      },
+      resizeAction: { resize: { height: 1_920 } },
+    },
+  ])(
+    '$direction 이미지의 긴 변을 1,920px로 줄인다',
+    async ({ source, resizeAction }) => {
+      await normalizeBetaFeedbackImage(source, 0);
+
+      expect(mockManipulateAsync).toHaveBeenCalledWith(
+        source.uri,
+        [resizeAction],
+        {
+          compress: 0.85,
+          format: 'jpeg',
+        },
+      );
+    },
+  );
+
   it('변환된 JPEG가 정확히 10MB이면 첨부할 수 있다', async () => {
     mockGetInfoAsync.mockResolvedValue({
       exists: true,
