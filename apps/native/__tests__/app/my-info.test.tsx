@@ -302,6 +302,17 @@ describe('MyInfo 로그아웃', () => {
       }),
     );
     expect(
+      StyleSheet.flatten(getByTestId('settings-exp-info-button').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        borderWidth: 1,
+        borderColor: palette.theme.blue[80],
+      }),
+    );
+    expect(
       StyleSheet.flatten(getByTestId('settings-progress-track').props.style),
     ).toEqual(
       expect.objectContaining({
@@ -397,6 +408,17 @@ describe('MyInfo 로그아웃', () => {
         fontSize: 13,
       }),
     );
+    expect(getByTestId('settings-exp-info-icon').props.fontSize).toBe(
+      '$caption2',
+    );
+    expect(
+      StyleSheet.flatten(getByTestId('settings-exp-info-icon').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.blue[80],
+        fontSize: 12,
+      }),
+    );
     expect(menuText.props.fontSize).toBe('$body2');
     expect(menuText.props.fontWeight).toBe('400');
     expect(StyleSheet.flatten(menuText.props.style)).toEqual(
@@ -435,6 +457,9 @@ describe('MyInfo 로그아웃', () => {
         StyleSheet.flatten(getByTestId('settings-exp-current').props.style),
       ).toEqual(expect.objectContaining({ color: expColor, fontSize: 13 }));
       expect(
+        StyleSheet.flatten(getByTestId('settings-exp-info-button').props.style),
+      ).toEqual(expect.objectContaining({ borderColor: levelColor }));
+      expect(
         StyleSheet.flatten(getByTestId('settings-progress-fill').props.style),
       ).toEqual(expect.objectContaining({ backgroundColor: progressColor }));
     },
@@ -462,6 +487,71 @@ describe('MyInfo 로그아웃', () => {
     expect(queryByTestId('settings-profile-character')).toBeNull();
     expect(queryByTestId('settings-profile-user-id')).toBeNull();
   });
+
+  it('경험치 인포 버튼을 누르면 캐릭터 진화 정책 모달을 표시하고 닫을 수 있다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+
+    const { getByTestId, queryByTestId } = render(<MyInfo />);
+
+    expect(queryByTestId('settings-evolution-modal')).toBeNull();
+
+    fireEvent.press(getByTestId('settings-exp-info-button'));
+
+    expect(getByTestId('settings-evolution-modal')).toBeOnTheScreen();
+    expect(getByTestId('settings-evolution-modal-title')).toHaveTextContent(
+      '캐릭터 진화',
+    );
+    expect(
+      getByTestId('settings-evolution-modal-description'),
+    ).toHaveTextContent(/10 EXP마다\s*1레벨/);
+    expect(getByTestId('settings-evolution-stage-초보자')).toBeOnTheScreen();
+    expect(getByTestId('settings-evolution-stage-1차 전직')).toBeOnTheScreen();
+    expect(getByTestId('settings-evolution-stage-2차 전직')).toBeOnTheScreen();
+    expect(getByTestId('settings-evolution-character-초보자')).toHaveProp(
+      'source',
+      { uri: '/assets/characters/warrior_beginner.png' },
+    );
+    expect(getByTestId('settings-evolution-character-1차 전직')).toHaveProp(
+      'source',
+      { uri: '/assets/characters/warrior_intermediate.png' },
+    );
+    expect(getByTestId('settings-evolution-character-2차 전직')).toHaveProp(
+      'source',
+      { uri: '/assets/characters/warrior_advanced.png' },
+    );
+
+    fireEvent.press(getByTestId('settings-evolution-modal-close'));
+
+    expect(queryByTestId('settings-evolution-modal')).toBeNull();
+  });
+
+  it.each([
+    ['red', 'mage'],
+    ['green', 'archer'],
+  ] as const)(
+    '%s 테마의 캐릭터 진화 모달에는 해당 직업 캐릭터 3단계를 표시한다',
+    (themeName, jobType) => {
+      (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+      useColorSchemeStore.getState().setColorScheme(themeName);
+
+      const { getByTestId } = render(<MyInfo />);
+
+      fireEvent.press(getByTestId('settings-exp-info-button'));
+
+      expect(getByTestId('settings-evolution-character-초보자')).toHaveProp(
+        'source',
+        { uri: `/assets/characters/${jobType}_beginner.png` },
+      );
+      expect(getByTestId('settings-evolution-character-1차 전직')).toHaveProp(
+        'source',
+        { uri: `/assets/characters/${jobType}_intermediate.png` },
+      );
+      expect(getByTestId('settings-evolution-character-2차 전직')).toHaveProp(
+        'source',
+        { uri: `/assets/characters/${jobType}_advanced.png` },
+      );
+    },
+  );
 
   it('문의 항목을 숨기고 나머지 설정 항목 라우트는 유지한다', () => {
     (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());

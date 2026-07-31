@@ -3,8 +3,8 @@ import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import type { UserLoginType } from '@repo/types';
 import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
-import { useCallback } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { Alert, Modal, Pressable, ScrollView, View } from 'react-native';
 
 import Container from '@/components/layout/container';
 import Header from '@/components/layout/header';
@@ -22,8 +22,9 @@ import { baseFoundation, palette } from '@/theme/tokens';
 
 const FALLBACK_LEVEL = 1;
 const FALLBACK_EXP = 0;
-const FALLBACK_NEXT_LEVEL_EXP = 30;
+const FALLBACK_NEXT_LEVEL_EXP = 10;
 const SETTINGS_LEVEL_TEXT_SIZE = baseFoundation.typography.size.h3 - 4;
+const CHARACTER_EVOLUTION_EXP_PER_LEVEL = 10;
 
 const SOCIAL_LOGIN_TYPE_LABELS: Record<
   Exclude<UserLoginType, 'PLAIN'>,
@@ -86,7 +87,41 @@ const getThemePalette = (themeTone: ThemeTone) => {
   }
 };
 
+const getEvolutionJobType = (themeTone: ThemeTone) => {
+  switch (themeTone) {
+    case 'green':
+      return 'archer';
+    case 'red':
+      return 'mage';
+    default:
+      return 'warrior';
+  }
+};
+
+const getCharacterEvolutionStages = (themeTone: ThemeTone) => {
+  const jobType = getEvolutionJobType(themeTone);
+
+  return [
+    {
+      label: '초보자',
+      levelRange: 'Lv.1~4',
+      imageUrl: `/assets/characters/${jobType}_beginner.png`,
+    },
+    {
+      label: '1차 전직',
+      levelRange: 'Lv.5~9',
+      imageUrl: `/assets/characters/${jobType}_intermediate.png`,
+    },
+    {
+      label: '2차 전직',
+      levelRange: 'Lv.10+',
+      imageUrl: `/assets/characters/${jobType}_advanced.png`,
+    },
+  ] as const;
+};
+
 const MyInfo = () => {
+  const [isEvolutionModalVisible, setIsEvolutionModalVisible] = useState(false);
   const signOut = useAuthSignOut();
   const user = useAuthUser();
   const { data: currentUser } = useFetchMeQuery(user?.userId);
@@ -101,6 +136,10 @@ const MyInfo = () => {
     nextLevelExp > 0 ? Math.min(currentExp / nextLevelExp, 1) : 0;
   const themeTone = getThemeTone(theme.name);
   const { themeColor, softThemeColor } = getThemePalette(themeTone);
+  const evolutionStages = useMemo(
+    () => getCharacterEvolutionStages(themeTone),
+    [themeTone],
+  );
   const characterAsset = getRoutineSceneRemoteAsset(
     currentUser?.characterImageUrl,
   );
@@ -133,6 +172,10 @@ const MyInfo = () => {
         },
       },
     ]);
+  };
+
+  const closeEvolutionModal = () => {
+    setIsEvolutionModalVisible(false);
   };
 
   return (
@@ -253,6 +296,27 @@ const MyInfo = () => {
                     {nextLevelExp}
                   </Typography>
                 </View>
+                <Pressable
+                  accessibilityLabel="캐릭터 진화 안내"
+                  accessibilityRole="button"
+                  hitSlop={8}
+                  onPress={() => setIsEvolutionModalVisible(true)}
+                  style={[
+                    styles.expInfoButton,
+                    { borderColor: themeColor[80] },
+                  ]}
+                  testID="settings-exp-info-button"
+                >
+                  <Typography
+                    color={themeColor[80]}
+                    style={styles.expInfoText}
+                    testID="settings-exp-info-icon"
+                    variant="caption2"
+                    weight="bold"
+                  >
+                    ?
+                  </Typography>
+                </Pressable>
               </View>
             </View>
 
@@ -370,6 +434,107 @@ const MyInfo = () => {
           </Pressable>
         </View>
       </ScrollView>
+      <Modal
+        animationType="fade"
+        onRequestClose={closeEvolutionModal}
+        transparent
+        visible={isEvolutionModalVisible}
+      >
+        <View style={styles.evolutionModalRoot}>
+          <Pressable
+            accessibilityLabel="캐릭터 진화 안내 닫기"
+            onPress={closeEvolutionModal}
+            style={styles.evolutionModalBackdrop}
+            testID="settings-evolution-modal-backdrop"
+          />
+          <View
+            accessibilityViewIsModal
+            style={styles.evolutionModalCard}
+            testID="settings-evolution-modal"
+          >
+            <View style={styles.evolutionModalHeader}>
+              <Typography
+                color={palette.theme.gray[80]}
+                testID="settings-evolution-modal-title"
+                variant="subtitle2"
+                weight="bold"
+              >
+                캐릭터 진화
+              </Typography>
+              <Pressable
+                accessibilityLabel="닫기"
+                accessibilityRole="button"
+                hitSlop={8}
+                onPress={closeEvolutionModal}
+                style={styles.evolutionCloseButton}
+                testID="settings-evolution-modal-close"
+              >
+                <Typography
+                  color={palette.theme.gray[60]}
+                  variant="body2"
+                  weight="semibold"
+                >
+                  ×
+                </Typography>
+              </Pressable>
+            </View>
+            <Typography
+              color={palette.theme.gray[60]}
+              style={styles.evolutionDescription}
+              testID="settings-evolution-modal-description"
+              variant="caption1"
+              weight="medium"
+            >
+              베타 기간에는 {CHARACTER_EVOLUTION_EXP_PER_LEVEL} EXP마다 1레벨이
+              올라요. 레벨 구간에 따라 캐릭터 모습이 바뀝니다.
+            </Typography>
+
+            <View style={styles.evolutionStageRow}>
+              {evolutionStages.map((stage) => {
+                const stageAsset = getRoutineSceneRemoteAsset(stage.imageUrl);
+
+                return (
+                  <View
+                    key={stage.label}
+                    style={[
+                      styles.evolutionStageCard,
+                      { backgroundColor: theme.colors.brand.card },
+                    ]}
+                    testID={`settings-evolution-stage-${stage.label}`}
+                  >
+                    <View
+                      style={styles.evolutionCharacterSlot}
+                      testID={`settings-evolution-character-slot-${stage.label}`}
+                    >
+                      {stageAsset
+                        ? renderRoutineSceneAsset(stageAsset, {
+                            testID: `settings-evolution-character-${stage.label}`,
+                            style: styles.evolutionCharacter,
+                          })
+                        : null}
+                    </View>
+                    <Typography
+                      color={themeColor[80]}
+                      style={styles.evolutionStageLevel}
+                      variant="caption2"
+                      weight="bold"
+                    >
+                      {stage.levelRange}
+                    </Typography>
+                    <Typography
+                      color={palette.theme.gray[70]}
+                      variant="caption2"
+                      weight="semibold"
+                    >
+                      {stage.label}
+                    </Typography>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </Container>
   );
 };
@@ -459,6 +624,19 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'flex-end',
     gap: baseFoundation.dimension.x2,
   },
+  expInfoButton: {
+    width: baseFoundation.dimension.x18,
+    height: baseFoundation.dimension.x18,
+    borderRadius: baseFoundation.dimension.x9,
+    borderWidth: baseFoundation.dimension.x1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  expInfoText: {
+    fontSize: baseFoundation.typography.size.caption2,
+    lineHeight: baseFoundation.dimension.x14,
+    includeFontPadding: false,
+  },
   progressTrack: {
     marginTop: theme.foundation.spacing[2],
     height: baseFoundation.dimension.x8,
@@ -494,5 +672,64 @@ const styles = StyleSheet.create((theme) => ({
     alignSelf: 'flex-start',
     minHeight: baseFoundation.dimension.x44,
     justifyContent: 'center',
+  },
+  evolutionModalRoot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: baseFoundation.spacing[6],
+  },
+  evolutionModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 3, 6, 0.48)',
+  },
+  evolutionModalCard: {
+    width: '100%',
+    maxWidth: 360,
+    borderRadius: baseFoundation.dimension.x16,
+    backgroundColor: palette.white,
+    padding: baseFoundation.spacing[5],
+  },
+  evolutionModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  evolutionCloseButton: {
+    width: baseFoundation.dimension.x28,
+    height: baseFoundation.dimension.x28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  evolutionDescription: {
+    marginTop: baseFoundation.spacing[2],
+    lineHeight: baseFoundation.dimension.x18,
+  },
+  evolutionStageRow: {
+    marginTop: baseFoundation.spacing[4],
+    flexDirection: 'row',
+    gap: baseFoundation.spacing[2],
+  },
+  evolutionStageCard: {
+    flex: 1,
+    minHeight: baseFoundation.dimension.x112,
+    borderRadius: baseFoundation.dimension.x12,
+    alignItems: 'center',
+    paddingHorizontal: baseFoundation.spacing[1],
+    paddingTop: baseFoundation.spacing[2],
+    paddingBottom: baseFoundation.spacing[2],
+  },
+  evolutionCharacterSlot: {
+    width: baseFoundation.dimension.x60,
+    height: baseFoundation.dimension.x60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  evolutionCharacter: {
+    width: baseFoundation.dimension.x56,
+    height: baseFoundation.dimension.x56,
+  },
+  evolutionStageLevel: {
+    marginTop: baseFoundation.spacing[1],
   },
 }));
