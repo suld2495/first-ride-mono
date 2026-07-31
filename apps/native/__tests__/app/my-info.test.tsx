@@ -302,6 +302,17 @@ describe('MyInfo 로그아웃', () => {
       }),
     );
     expect(
+      StyleSheet.flatten(getByTestId('settings-exp-info-button').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        width: 14,
+        height: 14,
+        borderRadius: 7,
+        borderWidth: 1,
+        borderColor: palette.theme.blue[80],
+      }),
+    );
+    expect(
       StyleSheet.flatten(getByTestId('settings-progress-track').props.style),
     ).toEqual(
       expect.objectContaining({
@@ -369,7 +380,7 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({
         color: palette.theme.blue[80],
         fontFamily: 'Poppins_700Bold',
-        fontSize: 20,
+        fontSize: 18,
         textAlign: 'right',
       }),
     );
@@ -395,6 +406,17 @@ describe('MyInfo 로그아웃', () => {
       expect.objectContaining({
         color: palette.theme.softBlue[60],
         fontSize: 13,
+      }),
+    );
+    expect(getByTestId('settings-exp-info-icon').props.fontSize).toBe(
+      '$caption2',
+    );
+    expect(
+      StyleSheet.flatten(getByTestId('settings-exp-info-icon').props.style),
+    ).toEqual(
+      expect.objectContaining({
+        color: palette.theme.blue[80],
+        fontSize: 11,
       }),
     );
     expect(menuText.props.fontSize).toBe('$body2');
@@ -435,6 +457,9 @@ describe('MyInfo 로그아웃', () => {
         StyleSheet.flatten(getByTestId('settings-exp-current').props.style),
       ).toEqual(expect.objectContaining({ color: expColor, fontSize: 13 }));
       expect(
+        StyleSheet.flatten(getByTestId('settings-exp-info-button').props.style),
+      ).toEqual(expect.objectContaining({ borderColor: levelColor }));
+      expect(
         StyleSheet.flatten(getByTestId('settings-progress-fill').props.style),
       ).toEqual(expect.objectContaining({ backgroundColor: progressColor }));
     },
@@ -461,6 +486,197 @@ describe('MyInfo 로그아웃', () => {
     ).toEqual(expect.objectContaining({ width: '0%' }));
     expect(queryByTestId('settings-profile-character')).toBeNull();
     expect(queryByTestId('settings-profile-user-id')).toBeNull();
+  });
+
+  it('경험치 인포 버튼을 누르면 캐릭터 진화 정책 모달을 표시하고 닫을 수 있다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+
+    const { getByTestId, queryByTestId } = render(<MyInfo />);
+
+    expect(queryByTestId('settings-evolution-modal')).toBeNull();
+
+    fireEvent.press(getByTestId('settings-exp-info-button'));
+
+    expect(getByTestId('settings-evolution-modal')).toBeOnTheScreen();
+    expect(getByTestId('settings-evolution-modal-title')).toHaveTextContent(
+      '캐릭터 진화',
+    );
+    expect(
+      getByTestId('settings-evolution-modal-description'),
+    ).toHaveTextContent(
+      '레벨에 따라 캐릭터 모습이 바뀌어요. (베타기간에는 10EXP 마다 1레벨이 올라요)',
+    );
+    expect(getByTestId('settings-evolution-stage-초보자')).toBeOnTheScreen();
+    expect(getByTestId('settings-evolution-stage-1차 전직')).toBeOnTheScreen();
+    expect(getByTestId('settings-evolution-stage-2차 전직')).toBeOnTheScreen();
+    expect(getByTestId('settings-evolution-character-초보자')).toHaveProp(
+      'source',
+      expect.objectContaining({
+        testUri: expect.stringContaining(
+          'evolution/warrior_female_beginner.png',
+        ),
+      }),
+    );
+    expect(getByTestId('settings-evolution-character-1차 전직')).toHaveProp(
+      'source',
+      expect.objectContaining({
+        testUri: expect.stringContaining(
+          'evolution/warrior_female_intermediate.png',
+        ),
+      }),
+    );
+    expect(getByTestId('settings-evolution-character-2차 전직')).toHaveProp(
+      'source',
+      expect.objectContaining({
+        testUri: expect.stringContaining(
+          'evolution/warrior_female_advanced.png',
+        ),
+      }),
+    );
+    expect(
+      StyleSheet.flatten(
+        getByTestId('settings-evolution-character-1차 전직').props.style,
+      ),
+    ).not.toEqual(expect.objectContaining({ tintColor: expect.any(String) }));
+    expect(
+      getByTestId('settings-evolution-character-question-1차 전직'),
+    ).toHaveTextContent('?');
+    expect(
+      getByTestId('settings-evolution-character-question-2차 전직'),
+    ).toHaveTextContent('?');
+    expect(
+      queryByTestId('settings-evolution-character-question-초보자'),
+    ).toBeNull();
+
+    fireEvent.press(getByTestId('settings-evolution-modal-close'));
+
+    expect(queryByTestId('settings-evolution-modal')).toBeNull();
+  });
+
+  it('남자 캐릭터 사용자는 캐릭터 진화 모달에 남자 초보자 이미지를 표시한다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+    (useFetchMeQuery as jest.Mock).mockReturnValue({
+      data: {
+        userId: 'test123',
+        nickname: 'testuser',
+        loginType: 'PLAIN',
+        motto: null,
+        mottos: [],
+        role: 'USER',
+        gender: 'MALE',
+        characterCode: 'WARRIOR_MALE_BEGINNER',
+        characterImageUrl:
+          'https://cdn.example.com/characters/warrior_male_beginner.png',
+      },
+    });
+
+    const { getByTestId, queryByTestId } = render(<MyInfo />);
+
+    fireEvent.press(getByTestId('settings-exp-info-button'));
+
+    expect(getByTestId('settings-evolution-character-초보자')).toHaveProp(
+      'source',
+      expect.objectContaining({
+        testUri: expect.stringContaining('evolution/warrior_male_beginner.png'),
+      }),
+    );
+
+    fireEvent.press(getByTestId('settings-evolution-modal-close'));
+
+    expect(queryByTestId('settings-evolution-modal')).toBeNull();
+  });
+
+  it.each([
+    ['red', 'mage'],
+    ['green', 'archer'],
+  ] as const)(
+    '%s 테마의 캐릭터 진화 모달에는 해당 직업의 모달 전용 진화 이미지를 표시한다',
+    (themeName, jobType) => {
+      (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+      useColorSchemeStore.getState().setColorScheme(themeName);
+
+      const { getByTestId } = render(<MyInfo />);
+
+      fireEvent.press(getByTestId('settings-exp-info-button'));
+
+      expect(getByTestId('settings-evolution-character-초보자')).toHaveProp(
+        'source',
+        expect.objectContaining({
+          testUri: expect.stringContaining(`${jobType}_female_beginner.png`),
+        }),
+      );
+      expect(getByTestId('settings-evolution-character-1차 전직')).toHaveProp(
+        'source',
+        expect.objectContaining({
+          testUri: expect.stringContaining(
+            `${jobType}_female_intermediate.png`,
+          ),
+        }),
+      );
+      expect(getByTestId('settings-evolution-character-2차 전직')).toHaveProp(
+        'source',
+        expect.objectContaining({
+          testUri: expect.stringContaining(`${jobType}_female_advanced.png`),
+        }),
+      );
+      expect(
+        StyleSheet.flatten(
+          getByTestId('settings-evolution-character-1차 전직').props.style,
+        ),
+      ).not.toEqual(expect.objectContaining({ tintColor: expect.any(String) }));
+      expect(
+        StyleSheet.flatten(
+          getByTestId('settings-evolution-character-2차 전직').props.style,
+        ),
+      ).not.toEqual(expect.objectContaining({ tintColor: expect.any(String) }));
+      expect(
+        getByTestId('settings-evolution-character-question-1차 전직'),
+      ).toBeOnTheScreen();
+      expect(
+        getByTestId('settings-evolution-character-question-2차 전직'),
+      ).toBeOnTheScreen();
+    },
+  );
+
+  it('성별 필드가 없어도 캐릭터 코드에서 남자 캐릭터를 판별한다', () => {
+    (useAuthSignOut as jest.Mock).mockReturnValue(jest.fn());
+    (useFetchMeQuery as jest.Mock).mockReturnValue({
+      data: {
+        userId: 'test123',
+        nickname: 'testuser',
+        loginType: 'PLAIN',
+        motto: null,
+        mottos: [],
+        role: 'USER',
+        characterCode: 'MAGE_MALE_BEGINNER',
+        characterImageUrl: '/assets/characters/mage_male_beginner.png',
+      },
+    });
+    useColorSchemeStore.getState().setColorScheme('red');
+
+    const { getByTestId } = render(<MyInfo />);
+
+    fireEvent.press(getByTestId('settings-exp-info-button'));
+
+    expect(getByTestId('settings-evolution-character-초보자')).toHaveProp(
+      'source',
+      expect.objectContaining({
+        testUri: expect.stringContaining('evolution/mage_male_beginner.png'),
+      }),
+    );
+    expect(getByTestId('settings-evolution-character-1차 전직')).toHaveProp(
+      'source',
+      expect.objectContaining({
+        testUri: expect.stringContaining(
+          'evolution/mage_male_intermediate.png',
+        ),
+      }),
+    );
+    expect(
+      StyleSheet.flatten(
+        getByTestId('settings-evolution-character-1차 전직').props.style,
+      ),
+    ).not.toEqual(expect.objectContaining({ tintColor: expect.any(String) }));
   });
 
   it('문의 항목을 숨기고 나머지 설정 항목 라우트는 유지한다', () => {

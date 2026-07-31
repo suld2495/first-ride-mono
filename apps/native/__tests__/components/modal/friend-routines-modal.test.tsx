@@ -195,14 +195,6 @@ describe('FriendRoutinesModal', () => {
     const screen = renderFriendRoutinesModal();
 
     expect(await screen.findByText('운동 10분 이상')).toBeOnTheScreen();
-    expect(await screen.findByTestId('routine-count-card-outer-1')).toHaveStyle(
-      {
-        backgroundColor: '#FFFFFF',
-        borderColor: '#000306',
-        borderWidth: 1,
-        padding: 4,
-      },
-    );
     expect(
       await screen.findByTestId('routine-count-card-surface-1'),
     ).toHaveStyle({
@@ -243,7 +235,7 @@ describe('FriendRoutinesModal', () => {
         (await screen.findByTestId('routine-week-progress-summary-1')).props
           .style,
       ),
-    ).toEqual(expect.objectContaining({ right: 16 }));
+    ).toEqual(expect.objectContaining({ marginLeft: 'auto' }));
     expect(screen.queryByLabelText('운동 10분 이상 메뉴 열기')).toBeNull();
   });
 

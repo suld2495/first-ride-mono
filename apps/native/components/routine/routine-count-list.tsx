@@ -48,10 +48,13 @@ const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
 const TODAY_FRAME_COLOR = palette.white;
 const TODAY_FRAME_BORDER_WIDTH = 1;
 const TODAY_FRAME_GAP = 1;
-const CHECKBOX_SIZE = baseFoundation.dimension.x24;
+const CHECKBOX_SIZE = baseFoundation.dimension.x20;
+const CHECKBOX_ICON_SIZE = baseFoundation.iconSize.xs - 2;
+const CHECKBOX_CHECK_ICON_SIZE = baseFoundation.iconSize.s - 2;
 const TODAY_FRAME_SIZE =
   CHECKBOX_SIZE + TODAY_FRAME_GAP * 2 + TODAY_FRAME_BORDER_WIDTH * 2;
 const ROUTINE_COUNT_CARD_SURFACE_RADIUS = baseFoundation.dimension.x12;
+const ROUTINE_HEADER_ITEM_HEIGHT = baseFoundation.dimension.x20;
 
 const createRoutineDateKey = (date: Date) => {
   const year = date.getFullYear() - SHORT_YEAR_OFFSET;
@@ -185,22 +188,26 @@ const RoutineCountList = ({
               style={styles.cardSurface}
             >
               <View style={styles.titleRow}>
-                <Typography
-                  variant="body3"
-                  weight="semibold"
-                  style={styles.title}
-                >
-                  {routineName}
-                </Typography>
-              </View>
+                <View style={styles.titleTextWrap}>
+                  <Typography
+                    variant="body3"
+                    weight="semibold"
+                    style={styles.title}
+                    numberOfLines={1}
+                  >
+                    {routineName}
+                  </Typography>
+                </View>
 
-              {!readOnly ? (
-                <RoutineContextMenuTrigger
-                  routineName={routineName}
-                  iconColor={theme.colors.brand.routineProgressText}
-                  onToggle={() => onToggleRoutineMenu(routineId)}
-                />
-              ) : null}
+                {!readOnly ? (
+                  <RoutineContextMenuTrigger
+                    routineName={routineName}
+                    iconColor={theme.colors.brand.routineProgressText}
+                    inline
+                    onToggle={() => onToggleRoutineMenu(routineId)}
+                  />
+                ) : null}
+              </View>
 
               <View style={styles.headerRow}>
                 {countLabels.map((label) => (
@@ -300,19 +307,19 @@ const RoutineCountList = ({
                         >
                           {isMissedPastGoal ? (
                             <RoutineMissedIcon
-                              size={baseFoundation.iconSize.xs}
+                              size={CHECKBOX_ICON_SIZE}
                               color={theme.colors.brand.routineProgressText}
                             />
                           ) : achieved || isPendingConfirmation ? (
                             <RoutineCheckmarkIcon
-                              size={baseFoundation.iconSize.s}
+                              size={CHECKBOX_CHECK_ICON_SIZE}
                               color={CHECKED_ICON_COLOR}
                             />
                           ) : !isGoalRange ? (
                             <Ionicons
                               testID={`routine-count-no-goal-icon-${routineId}-${countIndex}`}
                               name="remove"
-                              size={baseFoundation.iconSize.s}
+                              size={CHECKBOX_CHECK_ICON_SIZE}
                               color={
                                 theme.colors.brand.routineUpcomingCheckboxBorder
                               }
@@ -402,13 +409,21 @@ const styles = StyleSheet.create((theme) => ({
     color: palette.white,
     textAlign: 'left',
     fontSize: baseFoundation.typography.size.body3,
+    lineHeight: ROUTINE_HEADER_ITEM_HEIGHT,
+    includeFontPadding: false,
+  },
+  titleTextWrap: {
+    flex: 1,
+    height: ROUTINE_HEADER_ITEM_HEIGHT,
+    justifyContent: 'center',
   },
   titleRow: {
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    minHeight: baseFoundation.dimension.x18,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    height: ROUTINE_HEADER_ITEM_HEIGHT,
     marginBottom: baseFoundation.spacing[3],
+    gap: baseFoundation.spacing[2],
   },
   headerRow: {
     flexDirection: 'row',

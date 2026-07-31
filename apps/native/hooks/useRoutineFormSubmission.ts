@@ -23,6 +23,7 @@ interface UseRoutineFormSubmissionParams {
 type RoutineStatusSubmitForm = RoutineForm & {
   hidden?: boolean;
   paused?: boolean;
+  isDailyRepeat?: boolean;
 };
 
 type EditableRoutineUpdateValues = Pick<
@@ -61,7 +62,7 @@ const normalizeRoutineCreateRequest = (
     routineCount: data.routineCount,
     symbolColor: data.symbolColor,
     hidden: data.hidden ?? false,
-    ...(data.endDate ? { endDate: data.endDate } : {}),
+    ...(!data.isDailyRepeat && data.endDate ? { endDate: data.endDate } : {}),
   };
 
   if (data.isMe) {
@@ -87,7 +88,7 @@ const normalizeRoutineUpdateValues = (
   const values: EditableRoutineUpdateValues = {
     routineName: data.routineName,
     startDate: data.startDate,
-    endDate: data.endDate,
+    endDate: data.isDailyRepeat ? '' : data.endDate,
     routineDetail: data.routineDetail,
     penalty: normalizePenalty(data.penalty),
     routineCount: data.routineCount,
