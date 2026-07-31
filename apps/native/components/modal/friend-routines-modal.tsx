@@ -227,9 +227,11 @@ const FriendRoutinesModal = () => {
         onPress={handleCheer}
         size="sm"
         style={styles.cheerButton}
+        textColor={palette.theme.gray[70]}
+        textStyle={styles.cheerButtonText}
         variant="ghost"
       >
-        응원 콕
+        응원
       </Button>
     ),
     [handleCheer, isCheerPending],
@@ -330,6 +332,9 @@ const styles = StyleSheet.create((theme) => ({
   },
   cheerButtonContent: {
     gap: baseFoundation.dimension.x3,
+  },
+  cheerButtonText: {
+    fontSize: baseFoundation.typography.size.caption1,
   },
   characterStage: {
     alignItems: 'center',
