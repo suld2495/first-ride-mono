@@ -215,9 +215,13 @@ describe('StatsPage', () => {
       },
     });
 
-    const { findByText } = render(<StatsPage />);
+    const { findByText, getByLabelText, getByText } = render(<StatsPage />);
 
     expect(await findByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
+
+    fireEvent.press(getByLabelText('통계 보기'));
+
+    expect(getByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
   });
 
   it('월간 루틴 응답 필드가 비정상이어도 캘린더 UI를 유지한다', async () => {
