@@ -288,6 +288,9 @@ importers:
       expo-apple-authentication:
         specifier: ~7.2.4
         version: 7.2.4(expo@53.0.27(@babel/core@7.29.6)(@expo/metro-runtime@5.0.5(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))
+      expo-application:
+        specifier: ~6.1.5
+        version: 6.1.5(expo@53.0.27(@babel/core@7.29.6)(@expo/metro-runtime@5.0.5(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))
       expo-build-properties:
         specifier: ~0.14.6
         version: 0.14.8(expo@53.0.27(@babel/core@7.29.6)(@expo/metro-runtime@5.0.5(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0)))(graphql@16.11.0)(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))(react@19.0.0))
@@ -357,6 +360,9 @@ importers:
       react-native-edge-to-edge:
         specifier: ^1.6.0
         version: 1.6.0(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
+      react-native-exit-app:
+        specifier: 2.0.0
+        version: 2.0.0
       react-native-gesture-handler:
         specifier: ~2.24.0
         version: 2.24.0(react-native@0.79.6(@babel/core@7.29.6)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
@@ -6693,6 +6699,9 @@ packages:
     peerDependencies:
       react: 19.0.0
       react-native: 0.79.6
+
+  react-native-exit-app@2.0.0:
+    resolution: {integrity: sha512-vr9e/8jgPcKCBw6qo0QLxfeMiTwExydghbYDqpLZYAGWR+6cbgnhvOxwdYj/JWR7ZtOALrRA4GMGSvU/ayxM7w==}
 
   react-native-fit-image@1.5.5:
     resolution: {integrity: sha512-Wl3Vq2DQzxgsWKuW4USfck9zS7YzhvLNPpkwUUCF90bL32e1a0zOVQ3WsJILJOwzmPdHfzZmWasiiAUNBkhNkg==}
@@ -16530,6 +16539,8 @@ snapshots:
     dependencies:
       react: 19.0.0
       react-native: 0.79.6(@babel/core@8.0.1)(@react-native-community/cli@20.2.0(typescript@5.8.3))(@types/react@19.0.14)(react@19.0.0)
+
+  react-native-exit-app@2.0.0: {}
 
   react-native-fit-image@1.5.5:
     dependencies:

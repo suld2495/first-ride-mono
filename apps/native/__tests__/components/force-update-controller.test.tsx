@@ -1,21 +1,31 @@
-import { render, waitFor } from '@testing-library/react-native';
-import * as Application from 'expo-application';
-import { Alert, AppState, Linking, Platform } from 'react-native';
+import {
+  Alert,
+  AppState,
+  type AppStateStatus,
+  Linking,
+  Platform,
+} from 'react-native';
 import RNExitApp from 'react-native-exit-app';
 
+import { render, waitFor } from '@/__tests__/setup/test-utils';
 import { fetchLatestAppStoreVersion } from '@/api/app-store-version.api';
 import ForceUpdateController from '@/components/force-update-controller';
 
 jest.mock('expo-application', () => ({
+  __esModule: true,
   nativeApplicationVersion: '1.0.0',
 }));
 
-jest.mock('react-native-exit-app', () => ({
-  __esModule: true,
-  default: {
-    exitApp: jest.fn(),
-  },
-}), { virtual: true });
+jest.mock(
+  'react-native-exit-app',
+  () => ({
+    __esModule: true,
+    default: {
+      exitApp: jest.fn(),
+    },
+  }),
+  { virtual: true },
+);
 
 jest.mock('@/api/app-store-version.api', () => ({
   fetchLatestAppStoreVersion: jest.fn(),
@@ -29,20 +39,22 @@ const mockedExitApp = jest.mocked(RNExitApp.exitApp);
 describe('ForceUpdateController', () => {
   const alertSpy = jest.spyOn(Alert, 'alert');
   const openUrlSpy = jest.spyOn(Linking, 'openURL');
+  const consoleErrorSpy = jest.spyOn(console, 'error');
 
   beforeEach(() => {
     jest.replaceProperty(Platform, 'OS', 'ios');
-    jest.replaceProperty(Application, 'nativeApplicationVersion', '1.0.0');
     mockedFetchLatestAppStoreVersion.mockReset();
     mockedExitApp.mockReset();
     alertSpy.mockReset();
     openUrlSpy.mockReset();
-    openUrlSpy.mockResolvedValue();
+    openUrlSpy.mockResolvedValue(undefined);
+    consoleErrorSpy.mockReset();
   });
 
   afterAll(() => {
     alertSpy.mockRestore();
     openUrlSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   it('shows a required update confirm when the installed version is lower', async () => {
@@ -107,17 +119,12 @@ describe('ForceUpdateController', () => {
   ])(
     'does not interrupt the user when %s',
     async (_caseName, currentVersion, latestVersion) => {
-      jest.replaceProperty(
-        Application,
-        'nativeApplicationVersion',
-        currentVersion,
-      );
       mockedFetchLatestAppStoreVersion.mockResolvedValue({
         version: latestVersion,
         storeUrl: 'https://apps.apple.com/kr/app/id6747031303',
       });
 
-      render(<ForceUpdateController />);
+      render(<ForceUpdateController installedVersion={currentVersion} />);
 
       await waitFor(() =>
         expect(mockedFetchLatestAppStoreVersion).toHaveBeenCalledTimes(1),
@@ -140,7 +147,7 @@ describe('ForceUpdateController', () => {
   });
 
   it('checks again after returning to the foreground', async () => {
-    let appStateHandler: ((state: string) => void) | undefined;
+    let appStateHandler: ((state: AppStateStatus) => void) | undefined;
     const appStateSpy = jest
       .spyOn(AppState, 'addEventListener')
       .mockImplementation((_event, handler) => {

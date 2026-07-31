@@ -12,6 +12,7 @@ import { AppState, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { updatePushToken } from '@/api/push-token.api';
+import ForceUpdateController from '@/components/force-update-controller';
 import MockProvider from '@/components/mock/mock-provider';
 import SplashScreenController from '@/components/splash';
 import AppTamaguiProvider, {
@@ -91,6 +92,7 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
     <>
       <StatusBar style="dark" />
       <SplashScreenController isReady={isFontReady} />
+      <ForceUpdateController />
       <NavThemeProvider value={NAV_THEME[colorScheme]}>
         <Stack
           key={getAuthStackKey(!!user)}

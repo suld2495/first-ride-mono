@@ -3,6 +3,10 @@ import {
   fetchLatestAppStoreVersion,
 } from '@/api/app-store-version.api';
 
+jest.mock('expo/fetch', () => ({
+  fetch: jest.fn(),
+}));
+
 const createResponse = (
   body: unknown,
   options: { ok?: boolean; status?: number } = {},
