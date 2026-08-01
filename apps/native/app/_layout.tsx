@@ -21,7 +21,7 @@ import AppTamaguiProvider, {
 import ToastContainer from '@/components/ui/toast-container';
 import { ToastProvider, useToast } from '@/contexts/ToastContext';
 import { useAppActiveRefresh } from '@/hooks/useAppActiveRefresh';
-import { useAuthUser } from '@/hooks/useAuthSession';
+import { useAuthIsLoading, useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {
   setNotificationHandler,
@@ -43,6 +43,7 @@ import type { NotificationHandlers } from '@/types/notification-types';
 import {
   getAuthStackInitialRouteName,
   getAuthStackKey,
+  getNotificationResponseHandlingMode,
 } from '@/utils/auth-stack-route';
 import { initializeClarityWithStoredConsent } from '@/utils/clarity';
 import { initializeKakao } from '@/utils/initialize-kakao';
@@ -158,6 +159,7 @@ function AppShell({ isFontReady }: AppShellProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const user = useAuthUser();
+  const isAuthLoading = useAuthIsLoading();
   const themeName = useColorScheme();
   const setRequestId = useSetRequestId();
   const setRoutineId = useSetRoutineId();
@@ -174,7 +176,7 @@ function AppShell({ isFontReady }: AppShellProps) {
    * 알림 탭 시 딥링크 처리
    */
   const handleNotificationResponse = useCallback(
-    (
+    async (
       response: Parameters<
         NonNullable<NotificationHandlers['onResponseReceived']>
       >[0],
@@ -192,29 +194,27 @@ function AppShell({ isFontReady }: AppShellProps) {
 
       const data = extractDeepLinkData(response.notification);
 
-      void (async () => {
-        try {
-          const intent = await getNotificationNavigationIntent(data);
+      try {
+        const intent = await getNotificationNavigationIntent(data);
 
-          if (intent.kind === 'toast') {
-            showToast(intent.message, 'info');
-            return;
-          }
-
-          // 알림 타입에 따라 store 설정
-          if (data?.requestId) {
-            setRequestId(data.requestId);
-          }
-          if (data?.routineId) {
-            setRoutineId(data.routineId);
-          }
-
-          // 해당 화면으로 이동
-          router.push(intent.path as Href);
-        } catch {
-          showToast('알림을 처리하지 못했습니다. 다시 시도해주세요.', 'error');
+        if (intent.kind === 'toast') {
+          showToast(intent.message, 'info');
+          return;
         }
-      })();
+
+        // 알림 타입에 따라 store 설정
+        if (data?.requestId) {
+          setRequestId(data.requestId);
+        }
+        if (data?.routineId) {
+          setRoutineId(data.routineId);
+        }
+
+        // 해당 화면으로 이동
+        router.push(intent.path as Href);
+      } catch {
+        showToast('알림을 처리하지 못했습니다. 다시 시도해주세요.', 'error');
+      }
     },
     [
       user,
@@ -255,7 +255,13 @@ function AppShell({ isFontReady }: AppShellProps) {
     [handleNotificationReceived, handleNotificationResponse],
   );
 
-  const { pushToken, isInitialized } = useNotifications(notificationHandlers);
+  const responseHandlingMode = getNotificationResponseHandlingMode(
+    isAuthLoading,
+    !!user,
+  );
+  const { pushToken, isInitialized } = useNotifications(notificationHandlers, {
+    responseHandlingMode,
+  });
 
   useAppActiveRefresh(user?.nickname || '', themeName);
 

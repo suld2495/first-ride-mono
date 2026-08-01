@@ -1,6 +1,7 @@
 import {
   getAuthStackInitialRouteName,
   getAuthStackKey,
+  getNotificationResponseHandlingMode,
 } from '@/utils/auth-stack-route';
 
 describe('getAuthStackInitialRouteName', () => {
@@ -12,5 +13,11 @@ describe('getAuthStackInitialRouteName', () => {
   it('인증 상태별로 루트 Stack remount key를 반환한다', () => {
     expect(getAuthStackKey(true)).toBe('auth-stack-signed-in');
     expect(getAuthStackKey(false)).toBe('auth-stack-signed-out');
+  });
+
+  it('인증 복원 및 로그인 상태에 맞는 알림 응답 처리 상태를 반환한다', () => {
+    expect(getNotificationResponseHandlingMode(true, false)).toBe('defer');
+    expect(getNotificationResponseHandlingMode(false, true)).toBe('handle');
+    expect(getNotificationResponseHandlingMode(false, false)).toBe('discard');
   });
 });

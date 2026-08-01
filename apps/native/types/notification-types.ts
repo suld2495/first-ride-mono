@@ -103,7 +103,13 @@ export interface NotificationOptions {
  */
 export interface NotificationHandlers {
   onReceived?: (notification: Notifications.Notification) => void;
-  onResponseReceived?: (response: NotificationResponse) => void;
+  onResponseReceived?: (response: NotificationResponse) => void | Promise<void>;
+}
+
+export type NotificationResponseHandlingMode = 'defer' | 'handle' | 'discard';
+
+export interface UseNotificationsOptions {
+  responseHandlingMode?: NotificationResponseHandlingMode;
 }
 
 /**

@@ -65,6 +65,8 @@ jest.mock('expo-notifications', () => ({
   addNotificationResponseReceivedListener: jest.fn(() => ({
     remove: jest.fn(),
   })),
+  useLastNotificationResponse: jest.fn(() => null),
+  clearLastNotificationResponseAsync: jest.fn(() => Promise.resolve()),
   AndroidImportance: { MAX: 5 },
   setNotificationChannelAsync: jest.fn(),
 }));
@@ -445,6 +447,8 @@ jest.mock('expo-notifications', () => ({
   setNotificationHandler: jest.fn(),
   addNotificationReceivedListener: jest.fn(),
   addNotificationResponseReceivedListener: jest.fn(),
+  useLastNotificationResponse: jest.fn(() => null),
+  clearLastNotificationResponseAsync: jest.fn(() => Promise.resolve()),
 }));
 
 // ========================================

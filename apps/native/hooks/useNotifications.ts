@@ -6,6 +6,7 @@ import type {
   NotificationHandlers,
   NotificationPermissionStatus,
   PushNotificationToken,
+  UseNotificationsOptions,
 } from '@/types/notification-types';
 import {
   checkPermissions,
@@ -19,7 +20,10 @@ import {
  *
  * 알림 권한, 푸시 토큰, 알림 리스너를 관리합니다.
  */
-export function useNotifications(handlers?: NotificationHandlers) {
+export function useNotifications(
+  handlers?: NotificationHandlers,
+  { responseHandlingMode = 'handle' }: UseNotificationsOptions = {},
+) {
   const [permissionStatus, setPermissionStatus] =
     useState<NotificationPermissionStatus>('undetermined');
   const [pushToken, setPushToken] = useState<PushNotificationToken | null>(
@@ -28,9 +32,10 @@ export function useNotifications(handlers?: NotificationHandlers) {
   const [notification, setNotification] =
     useState<Notifications.Notification | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
   const notificationListener = useRef<Notifications.EventSubscription>(null);
-  const responseListener = useRef<Notifications.EventSubscription>(null);
+  const handledResponseIdRef = useRef<string | null>(null);
 
   /**
    * 알림 권한 요청
@@ -55,6 +60,37 @@ export function useNotifications(handlers?: NotificationHandlers) {
   /**
    * 초기화
    */
+  useEffect(() => {
+    if (!lastNotificationResponse || responseHandlingMode === 'defer') {
+      return;
+    }
+
+    const responseId = [
+      lastNotificationResponse.notification.request.identifier,
+      lastNotificationResponse.actionIdentifier,
+    ].join(':');
+
+    if (handledResponseIdRef.current === responseId) {
+      return;
+    }
+
+    if (responseHandlingMode === 'discard') {
+      handledResponseIdRef.current = responseId;
+      void Notifications.clearLastNotificationResponseAsync();
+      return;
+    }
+
+    if (!handlers?.onResponseReceived) {
+      return;
+    }
+
+    handledResponseIdRef.current = responseId;
+
+    void Promise.resolve(
+      handlers.onResponseReceived(lastNotificationResponse),
+    ).then(() => Notifications.clearLastNotificationResponseAsync());
+  }, [handlers, lastNotificationResponse, responseHandlingMode]);
+
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -100,23 +136,10 @@ export function useNotifications(handlers?: NotificationHandlers) {
         handlers?.onReceived?.(receivedNotification);
       });
 
-    // 사용자가 알림을 탭했을 때 리스너
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        handlers?.onResponseReceived?.({
-          notification: response.notification,
-          actionIdentifier: response.actionIdentifier,
-          userText: response.userText,
-        });
-      });
-
     // 클린업
     return () => {
       if (notificationListener.current) {
         notificationListener.current.remove();
-      }
-      if (responseListener.current) {
-        responseListener.current.remove();
       }
     };
   }, [handlers]);
