@@ -1043,16 +1043,19 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     });
 
     it('비공개 루틴 라벨 오른쪽에 원형 물음표 아이콘을 표시한다', () => {
-      const { getByLabelText, getByTestId, queryByTestId } = render(
-        <RoutineFormModal />,
-      );
+      const { getAllByTestId, getByLabelText, getByTestId, queryByTestId } =
+        render(<RoutineFormModal />);
       const labelRow = getByTestId('hidden-routine-label-row');
+      const hiddenCheckbox = getAllByTestId('bouncy-checkbox')[2];
+      const hiddenLabel = getByTestId('hidden-routine-label');
       const helpButton = getByLabelText('비공개 루틴 안내 보기');
       const helpIcon = getByTestId('hidden-routine-help-icon', {
         includeHiddenElements: true,
       });
 
       expect(helpButton).toBeOnTheScreen();
+      expect(hiddenCheckbox.props.disableText).toBe(true);
+      expect(hiddenLabel).toHaveTextContent('비공개 루틴');
       expect(queryByTestId('hidden-routine-info-icon')).not.toBeOnTheScreen();
       expect(RNStyleSheet.flatten(labelRow.props.style)).toEqual(
         expect.objectContaining({
@@ -1069,16 +1072,34 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       );
     });
 
-    it('원형 물음표 아이콘을 누르면 메이트 공개 안내를 표시한다', () => {
-      const { getByLabelText, getByText, queryByText } = render(
+    it('원형 물음표 아이콘을 누르면 메이트 공개 안내를 팝오버로 표시한다', () => {
+      const { getByLabelText, getByTestId, getByText, queryByTestId } = render(
         <RoutineFormModal />,
       );
 
-      expect(queryByText('메이트에게는 공개됩니다')).not.toBeOnTheScreen();
+      expect(
+        queryByTestId('hidden-routine-info-popover'),
+      ).not.toBeOnTheScreen();
 
       fireEvent.press(getByLabelText('비공개 루틴 안내 보기'));
 
+      const popover = getByTestId('hidden-routine-info-popover');
+
       expect(getByText('메이트에게는 공개됩니다')).toBeOnTheScreen();
+      expect(RNStyleSheet.flatten(popover.props.style)).toEqual(
+        expect.objectContaining({
+          position: 'absolute',
+          top: baseFoundation.dimension.x24 + baseFoundation.spacing[0.5],
+          width: 220,
+          zIndex: baseFoundation.zIndex.tooltip,
+        }),
+      );
+
+      fireEvent.press(getByLabelText('비공개 루틴 안내 닫기'));
+
+      expect(
+        queryByTestId('hidden-routine-info-popover'),
+      ).not.toBeOnTheScreen();
     });
 
     it('비공개 루틴 라벨을 누르면 체크된다', async () => {

@@ -574,6 +574,14 @@ const RoutineFormModal = () => {
                 showErrors={false}
                 item={({ value, setValue }) => (
                   <ThemeView style={styles.hiddenStatusControl} transparent>
+                    {showHiddenRoutineInfo && (
+                      <Pressable
+                        accessibilityLabel="비공개 루틴 안내 닫기"
+                        accessibilityRole="button"
+                        style={styles.hiddenRoutineInfoBackdrop}
+                        onPress={() => setShowHiddenRoutineInfo(false)}
+                      />
+                    )}
                     <ThemeView
                       testID="hidden-routine-label-row"
                       style={styles.hiddenRoutineLabelRow}
@@ -581,41 +589,67 @@ const RoutineFormModal = () => {
                     >
                       <Checkbox
                         size="md"
-                        text="비공개 루틴"
-                        labelColor={theme.colors.text.gray}
+                        disableText
                         isChecked={!!value}
                         onPress={(checked) => {
                           setValue('hidden', checked);
                         }}
                       />
                       <Pressable
-                        accessibilityLabel="비공개 루틴 안내 보기"
-                        accessibilityRole="button"
-                        accessibilityState={{ expanded: showHiddenRoutineInfo }}
-                        hitSlop={theme.foundation.spacing[2]}
-                        style={styles.hiddenRoutineHelpButton}
+                        accessibilityRole="checkbox"
+                        accessibilityState={{ checked: !!value }}
+                        hitSlop={theme.foundation.spacing[1]}
                         onPress={() => {
-                          setShowHiddenRoutineInfo((visible) => !visible);
+                          setValue('hidden', !value);
                         }}
                       >
-                        <Ionicons
-                          accessibilityElementsHidden
-                          testID="hidden-routine-help-icon"
-                          name="help-circle-outline"
-                          size={theme.foundation.iconSize.m}
+                        <Typography
+                          testID="hidden-routine-label"
+                          variant="body2"
+                          weight="semibold"
                           color={theme.colors.text.gray}
-                        />
+                          style={styles.hiddenRoutineLabel}
+                        >
+                          비공개 루틴
+                        </Typography>
                       </Pressable>
+                      <View style={styles.hiddenRoutineHelpContainer}>
+                        <Pressable
+                          accessibilityLabel="비공개 루틴 안내 보기"
+                          accessibilityRole="button"
+                          accessibilityState={{
+                            expanded: showHiddenRoutineInfo,
+                          }}
+                          hitSlop={theme.foundation.spacing[2]}
+                          style={styles.hiddenRoutineHelpButton}
+                          onPress={() => {
+                            setShowHiddenRoutineInfo((visible) => !visible);
+                          }}
+                        >
+                          <Ionicons
+                            accessibilityElementsHidden
+                            testID="hidden-routine-help-icon"
+                            name="help-circle-outline"
+                            size={theme.foundation.iconSize.m}
+                            color={theme.colors.text.gray}
+                          />
+                        </Pressable>
+                        {showHiddenRoutineInfo && (
+                          <View
+                            testID="hidden-routine-info-popover"
+                            style={styles.hiddenRoutineInfoPopover}
+                          >
+                            <Typography
+                              variant="caption2"
+                              weight="regular"
+                              style={styles.hiddenRoutineInfoText}
+                            >
+                              메이트에게는 공개됩니다
+                            </Typography>
+                          </View>
+                        )}
+                      </View>
                     </ThemeView>
-                    {showHiddenRoutineInfo && (
-                      <Typography
-                        variant="caption1"
-                        color={theme.colors.text.gray}
-                        style={styles.hiddenRoutineDescription}
-                      >
-                        메이트에게는 공개됩니다
-                      </Typography>
-                    )}
                   </ThemeView>
                 )}
               />
@@ -750,12 +784,27 @@ const styles = StyleSheet.create((theme) => ({
   },
   hiddenStatusControl: {
     alignItems: 'flex-start',
-    gap: theme.foundation.spacing[1],
   },
   hiddenRoutineLabelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.foundation.spacing[1],
+    gap: theme.foundation.dimension.x7,
+    zIndex: baseFoundation.zIndex.tooltip,
+  },
+  hiddenRoutineLabel: {
+    lineHeight: theme.foundation.dimension.x18,
+  },
+  hiddenRoutineInfoBackdrop: {
+    position: 'absolute',
+    top: -1000,
+    right: -1000,
+    bottom: -1000,
+    left: -1000,
+    zIndex: baseFoundation.zIndex.tooltip - 1,
+  },
+  hiddenRoutineHelpContainer: {
+    position: 'relative',
+    justifyContent: 'center',
   },
   hiddenRoutineHelpButton: {
     width: theme.foundation.dimension.x24,
@@ -763,8 +812,26 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  hiddenRoutineDescription: {
-    marginLeft: theme.foundation.spacing[6],
+  hiddenRoutineInfoPopover: {
+    position: 'absolute',
+    top: baseFoundation.dimension.x24 + baseFoundation.spacing[0.5],
+    left: -baseFoundation.spacing[2],
+    width: 220,
+    paddingHorizontal: baseFoundation.spacing[2.5],
+    paddingVertical: baseFoundation.spacing[2],
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: theme.colors.feedback.info.border,
+    borderRadius: theme.foundation.radii.xs,
+    backgroundColor: theme.colors.feedback.info.bg,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.16,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: baseFoundation.zIndex.tooltip,
+  },
+  hiddenRoutineInfoText: {
+    color: theme.colors.feedback.info.text,
   },
   deleteButton: {
     height: 44,
