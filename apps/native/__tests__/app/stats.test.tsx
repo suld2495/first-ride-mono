@@ -1,7 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import { act, fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { processColor } from 'react-native';
+import { ActivityIndicator, processColor } from 'react-native';
 
 import { palette } from '@/theme/tokens';
 
@@ -84,9 +84,30 @@ describe('StatsPage', () => {
   });
 
   it('연속으로 월을 변경하면 마지막 선택 월만 조회한다', async () => {
+    let resolveFinalRequest: (() => void) | undefined;
+
     mockAxios.onGet('/routine/list/monthly').reply((config) => {
       const year = Number(config.params?.year);
       const month = Number(config.params?.month);
+
+      if (month === 9) {
+        return new Promise((resolve) => {
+          resolveFinalRequest = () =>
+            resolve([
+              200,
+              {
+                data: {
+                  year,
+                  month,
+                  startDate: '2026-09-01',
+                  endDate: '2026-09-30',
+                  activeOnly: false,
+                  routines: [],
+                },
+              },
+            ]);
+        });
+      }
 
       return [
         200,
@@ -103,11 +124,10 @@ describe('StatsPage', () => {
       ];
     });
 
-    const { getByLabelText, getByText } = render(<StatsPage />);
+    const { findByText, getByLabelText, getByText, UNSAFE_queryByType } =
+      render(<StatsPage />);
 
-    await waitFor(() => {
-      expect(mockAxios.history.get).toHaveLength(1);
-    });
+    expect(await findByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
 
     for (let index = 0; index < 3; index += 1) {
       await act(async () => {
@@ -117,15 +137,24 @@ describe('StatsPage', () => {
 
     expect(getByText('9월')).toBeOnTheScreen();
     expect(mockAxios.history.get).toHaveLength(1);
+    expect(UNSAFE_queryByType(ActivityIndicator)).toBeNull();
+    expect(getByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
 
     await act(() => new Promise((resolve) => setTimeout(resolve, 350)));
     await waitFor(() => {
       expect(mockAxios.history.get).toHaveLength(2);
+      expect(resolveFinalRequest).toEqual(expect.any(Function));
     });
     expect(mockAxios.history.get[1]?.params).toEqual({
       year: 2026,
       month: 9,
     });
+    expect(UNSAFE_queryByType(ActivityIndicator)).toBeOnTheScreen();
+
+    await act(async () => {
+      resolveFinalRequest?.();
+    });
+    expect(await findByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
   });
 
   it('실제 루틴 목록 응답으로 통계 캘린더를 렌더링한다', async () => {
