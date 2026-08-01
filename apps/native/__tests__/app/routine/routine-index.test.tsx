@@ -2158,6 +2158,58 @@ describe('루틴 조회 페이지', () => {
       expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
     });
 
+    it('canRequestToday가 false인 number 타입 루틴 체크박스를 누르면 오늘 인증 완료 안내를 표시한다', async () => {
+      mockRoutineStore.type = 'number';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          todayConfirmStatus: 'PASS',
+          todayConfirmId: 781,
+          canRequestToday: false,
+        }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(await findByTestId('routine-count-check-1-4'));
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '오늘 이미 인증을 완료하였습니다.',
+          'error',
+        );
+      });
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
+      expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
+    });
+
+    it('canRequestToday가 false인 week 타입 루틴 체크박스를 누르면 오늘 인증 완료 안내를 표시한다', async () => {
+      mockRoutineStore.type = 'week';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          todayConfirmStatus: 'WAIT',
+          todayConfirmId: 781,
+          canRequestToday: false,
+        }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(
+        await findByTestId(
+          `routine-week-check-1-${getRoutineWeekIndex(new Date())}`,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '오늘 이미 인증을 완료하였습니다.',
+          'error',
+        );
+      });
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
+      expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
+    });
+
     it('지난 날짜의 미달성 week 타입 체크박스를 누르면 에러 토스트로 막는다', async () => {
       mockRoutineStore.type = 'week';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
@@ -2543,6 +2595,32 @@ describe('루틴 조회 페이지', () => {
         await waitFor(() => {
           expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
         });
+      });
+
+      it('canRequestToday가 false이면 컨텍스트 메뉴의 인증요청을 비활성화한다', async () => {
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            todayConfirmStatus: 'PASS',
+            todayConfirmId: 781,
+            canRequestToday: false,
+          }),
+        });
+
+        const { findByLabelText } = render(<Index />);
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+
+        const requestButton = await findByLabelText('인증요청');
+
+        expect(requestButton).toBeDisabled();
+        expect(requestButton).toHaveAccessibilityState({ disabled: true });
+
+        fireEvent.press(requestButton);
+
+        expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
+        expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
       });
     });
 

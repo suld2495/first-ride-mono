@@ -18,6 +18,9 @@ export interface CreateMockRoutineOptions {
   hasPendingConfirmation?: boolean;
   pendingConfirmationCount?: number;
   pendingConfirmationIds?: number[];
+  todayConfirmStatus?: Routine['todayConfirmStatus'];
+  todayConfirmId?: number | null;
+  canRequestToday?: boolean;
   hasPendingChangeRequest?: boolean;
   pendingChangeRequestId?: number | null;
   pendingChangeRequestStatus?: Routine['pendingChangeRequestStatus'];
@@ -44,6 +47,9 @@ export const createMockRoutine = (
   hasPendingConfirmation: options.hasPendingConfirmation ?? false,
   pendingConfirmationCount: options.pendingConfirmationCount ?? 0,
   pendingConfirmationIds: options.pendingConfirmationIds ?? [],
+  todayConfirmStatus: options.todayConfirmStatus ?? null,
+  todayConfirmId: options.todayConfirmId ?? null,
+  canRequestToday: options.canRequestToday ?? true,
   hasPendingChangeRequest: options.hasPendingChangeRequest ?? false,
   pendingChangeRequestId: options.pendingChangeRequestId ?? null,
   pendingChangeRequestStatus: options.pendingChangeRequestStatus ?? null,
