@@ -2300,9 +2300,7 @@ describe('루틴 조회 페이지', () => {
 
       expect(routineListRequests()).toHaveLength(1);
 
-      await act(
-        () => new Promise((resolve) => setTimeout(resolve, 350)),
-      );
+      await act(() => new Promise((resolve) => setTimeout(resolve, 350)));
       await waitFor(() => {
         expect(routineListRequests()).toHaveLength(2);
       });

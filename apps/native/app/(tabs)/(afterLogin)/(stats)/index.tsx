@@ -17,6 +17,7 @@ import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useDebounce } from '@/hooks/useDebounce';
 import { baseFoundation, palette } from '@/theme/tokens';
 import { normalizeRoutineDateKey } from '@/utils/routine-stats';
 
@@ -28,6 +29,14 @@ const ROUTINE_STATS_CALENDAR_ITEM_INTERVAL =
 const MONTH_HEADER_VERTICAL_PADDING = 10;
 const EMPTY_MONTHLY_ROUTINES: RoutineMonthlySummary[] = [];
 type StatsViewMode = 'calendar' | 'summary';
+
+const getVisibleMonthlyRoutines = (
+  routines: RoutineMonthlySummary[] | undefined,
+  isMonthChangePending: boolean,
+) =>
+  !isMonthChangePending && Array.isArray(routines)
+    ? routines
+    : EMPTY_MONTHLY_ROUTINES;
 
 const getMonthStart = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), 1);
@@ -69,15 +78,20 @@ export default function StatsPage() {
   const [currentMonth, setCurrentMonth] = React.useState(() =>
     getMonthStart(new Date(Date.now())),
   );
+  const debouncedCurrentMonth = useDebounce(currentMonth);
   const [viewMode, setViewMode] = React.useState<StatsViewMode>('calendar');
-  const { data, isLoading } = useMonthlyRoutinesQuery(
+  const { data, isLoading: isQueryLoading } = useMonthlyRoutinesQuery(
     user?.nickname || '',
-    currentMonth.getFullYear(),
-    currentMonth.getMonth() + 1,
+    debouncedCurrentMonth.getFullYear(),
+    debouncedCurrentMonth.getMonth() + 1,
   );
-  const routines = Array.isArray(data?.routines)
-    ? data.routines
-    : EMPTY_MONTHLY_ROUTINES;
+  const isMonthChangePending =
+    currentMonth.getTime() !== debouncedCurrentMonth.getTime();
+  const isLoading = isQueryLoading || isMonthChangePending;
+  const routines = getVisibleMonthlyRoutines(
+    data?.routines,
+    isMonthChangePending,
+  );
 
   const moveMonth = (offset: number) => {
     setCurrentMonth(
@@ -199,9 +213,7 @@ export default function StatsPage() {
           testID="stats-routine-list"
           data={routines}
           renderItem={renderRoutineCalendar}
-          keyExtractor={(routine, index) =>
-            `${String(routine.routineId ?? 'routine')}-${index}`
-          }
+          keyExtractor={(routine) => String(routine.routineId)}
           ListHeaderComponent={renderMonthHeader}
           ItemSeparatorComponent={renderRoutineCalendarSeparator}
           contentContainerStyle={styles.content}

@@ -30,6 +30,7 @@ import CharacterMottoSpeechBubble from '@/feature/character/character-motto-spee
 import RoutineCharacter from '@/feature/character/routine-character';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useRequiredAppVersionQuery } from '@/hooks/useRequiredAppVersionQuery';
 import { useResetRoutineFormState } from '@/hooks/useRoutineFormState';
 import {
@@ -82,6 +83,7 @@ export default function Index() {
 
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
+  const debouncedDate = useDebounce(date);
   const routineDateRef = useRef(date);
   const user = useAuthUser();
   const requiredAppVersionQuery = useRequiredAppVersionQuery(user?.userId);
@@ -98,7 +100,7 @@ export default function Index() {
     data: routines = [],
     isLoading,
     refetch,
-  } = useRoutinesQuery(user?.nickname || '', date);
+  } = useRoutinesQuery(user?.nickname || '', debouncedDate);
   const hasRoutines = routines.length > 0;
   const routineCharacterAsset = useMemo(
     () => getRoutineSceneRemoteAsset(currentUser?.characterImageUrl),
