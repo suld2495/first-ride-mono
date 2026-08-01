@@ -203,8 +203,8 @@ const FriendRoutinesModal = () => {
     }
 
     cheerFriend(friendId, {
-      onSuccess: ({ message }) => {
-        showToast(message, 'success');
+      onSuccess: () => {
+        showToast('친구에게 응원을 보냈어요!', 'success');
       },
       onError: (error) => {
         showToast(
