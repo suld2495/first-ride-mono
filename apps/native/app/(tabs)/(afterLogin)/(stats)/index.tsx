@@ -32,11 +32,7 @@ type StatsViewMode = 'calendar' | 'summary';
 
 const getVisibleMonthlyRoutines = (
   routines: RoutineMonthlySummary[] | undefined,
-  isMonthChangePending: boolean,
-) =>
-  !isMonthChangePending && Array.isArray(routines)
-    ? routines
-    : EMPTY_MONTHLY_ROUTINES;
+) => (Array.isArray(routines) ? routines : EMPTY_MONTHLY_ROUTINES);
 
 const getMonthStart = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), 1);
@@ -80,18 +76,13 @@ export default function StatsPage() {
   );
   const debouncedCurrentMonth = useDebounce(currentMonth);
   const [viewMode, setViewMode] = React.useState<StatsViewMode>('calendar');
-  const { data, isLoading: isQueryLoading } = useMonthlyRoutinesQuery(
+  const { data, isFetching } = useMonthlyRoutinesQuery(
     user?.nickname || '',
     debouncedCurrentMonth.getFullYear(),
     debouncedCurrentMonth.getMonth() + 1,
   );
-  const isMonthChangePending =
-    currentMonth.getTime() !== debouncedCurrentMonth.getTime();
-  const isLoading = isQueryLoading || isMonthChangePending;
-  const routines = getVisibleMonthlyRoutines(
-    data?.routines,
-    isMonthChangePending,
-  );
+  const isLoading = isFetching;
+  const routines = getVisibleMonthlyRoutines(data?.routines);
 
   const moveMonth = (offset: number) => {
     setCurrentMonth(

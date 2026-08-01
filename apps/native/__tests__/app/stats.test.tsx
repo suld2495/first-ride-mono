@@ -149,7 +149,7 @@ describe('StatsPage', () => {
       year: 2026,
       month: 9,
     });
-    expect(UNSAFE_queryByType(ActivityIndicator)).toBeOnTheScreen();
+    expect(UNSAFE_queryByType(ActivityIndicator)).not.toBeNull();
 
     await act(async () => {
       resolveFinalRequest?.();
