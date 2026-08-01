@@ -9,7 +9,12 @@ import type {
   UpdateRoutineVisibilityRequest,
   WeeklyRoutine,
 } from '@repo/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import type { QueryKey } from '@tanstack/react-query';
 
 import * as routineApi from '../api/routine.api';
@@ -56,6 +61,7 @@ export const useRoutinesQuery = (nickname: string, date: string) => {
     queryKey: routineKey.listByDate(nickname, date),
     queryFn: () => routineApi.fetchRoutines(date),
     enabled: !!nickname && !!date,
+    placeholderData: keepPreviousData,
     refetchOnMount: 'always',
   });
 };

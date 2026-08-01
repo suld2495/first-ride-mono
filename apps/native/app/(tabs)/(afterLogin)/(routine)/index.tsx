@@ -4,7 +4,14 @@ import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -75,6 +82,7 @@ export default function Index() {
 
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
+  const routineDateRef = useRef(date);
   const user = useAuthUser();
   const requiredAppVersionQuery = useRequiredAppVersionQuery(user?.userId);
   const whatsNewBuildNumber = requiredAppVersionQuery.isSuccess
@@ -114,6 +122,10 @@ export default function Index() {
   const routineCharacterBottomOffset = ROUTINE_CHARACTER_BOTTOM_OFFSET;
   const speechBubbleMessage = mottos[0] ?? '안녕?';
 
+  useLayoutEffect(() => {
+    routineDateRef.current = date;
+  }, [date]);
+
   useEffect(() => {
     if (user && !isLoading && isFirstLoadRef.current) {
       isFirstLoadRef.current = false;
@@ -150,8 +162,8 @@ export default function Index() {
   );
 
   const handleOpenRoutineReorderModal = useCallback(() => {
-    router.push(`/modal?type=routine-reorder&date=${date}`);
-  }, [date, router]);
+    router.push(`/modal?type=routine-reorder&date=${routineDateRef.current}`);
+  }, [router]);
 
   const handleOpenRoutineAddModal = useCallback(() => {
     resetRoutineForm();
@@ -204,6 +216,26 @@ export default function Index() {
           </View>
         ) : (
           <View style={styles.content} testID="routine-content">
+            <View
+              style={[
+                styles.routineCharacterArea,
+                { bottom: routineCharacterBottomOffset },
+              ]}
+              testID="routine-character-area"
+            >
+              <View style={styles.characterStage}>
+                {routineCharacterAsset ? (
+                  <RoutineCharacter asset={routineCharacterAsset} />
+                ) : null}
+                <CharacterMottoSpeechBubble
+                  isMine
+                  message={speechBubbleMessage}
+                  onEdit={handleOpenAccountMotto}
+                  testID="routine-character-speech-bubble"
+                  style={styles.speechBubble}
+                />
+              </View>
+            </View>
             {hasRoutines ? (
               <>
                 <View
@@ -220,62 +252,20 @@ export default function Index() {
                   />
                 </View>
                 <View
-                  style={[
-                    styles.routineCharacterArea,
-                    { bottom: routineCharacterBottomOffset },
-                  ]}
-                  testID="routine-character-area"
-                >
-                  <View style={styles.characterStage}>
-                    {routineCharacterAsset ? (
-                      <RoutineCharacter asset={routineCharacterAsset} />
-                    ) : null}
-                    <CharacterMottoSpeechBubble
-                      isMine
-                      message={speechBubbleMessage}
-                      onEdit={handleOpenAccountMotto}
-                      testID="routine-character-speech-bubble"
-                      style={styles.speechBubble}
-                    />
-                  </View>
-                </View>
-                <View
                   style={styles.routineBottomSpacer}
                   pointerEvents="none"
                   testID="routine-bottom-spacer"
                 />
               </>
             ) : (
-              <>
-                <View
-                  style={[
-                    styles.routineCharacterArea,
-                    { bottom: routineCharacterBottomOffset },
-                  ]}
-                  testID="routine-character-area"
-                >
-                  <View style={styles.characterStage}>
-                    {routineCharacterAsset ? (
-                      <RoutineCharacter asset={routineCharacterAsset} />
-                    ) : null}
-                    <CharacterMottoSpeechBubble
-                      isMine
-                      message={speechBubbleMessage}
-                      onEdit={handleOpenAccountMotto}
-                      testID="routine-character-speech-bubble"
-                      style={styles.speechBubble}
-                    />
-                  </View>
-                </View>
-                <View style={styles.emptyStateOverlay}>
-                  <RoutineList
-                    routines={routines}
-                    date={date}
-                    refreshing={isManualRefreshing}
-                    onRefresh={handleRefresh}
-                  />
-                </View>
-              </>
+              <View style={styles.emptyStateOverlay}>
+                <RoutineList
+                  routines={routines}
+                  date={date}
+                  refreshing={isManualRefreshing}
+                  onRefresh={handleRefresh}
+                />
+              </View>
             )}
           </View>
         )}

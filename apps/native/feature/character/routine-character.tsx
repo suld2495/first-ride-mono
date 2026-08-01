@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
   Pressable,
   type GestureResponderEvent,
@@ -75,7 +76,7 @@ const RoutineCharacter = ({
   );
 };
 
-export default RoutineCharacter;
+export default memo(RoutineCharacter);
 
 const styles = StyleSheet.create(() => ({
   image: {

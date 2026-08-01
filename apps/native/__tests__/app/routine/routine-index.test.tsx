@@ -15,6 +15,7 @@ import {
 } from '@/api/app-version.api';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
+import * as routineSceneArt from '../../../components/routine/routine-scene-art';
 import { routineSceneBackgroundAssets } from '../../../components/routine/routine-scene-art';
 import { useColorSchemeStore } from '../../../store/color-scheme.store';
 import { baseFoundation, palette } from '../../../theme/tokens';
@@ -2333,6 +2334,98 @@ describe('루틴 조회 페이지', () => {
       expect(
         await findByText(formatRoutineHeaderDate(nextStartDate)),
       ).toBeOnTheScreen();
+    });
+
+    it('날짜를 변경해도 캐릭터 이미지를 다시 렌더링하지 않는다', async () => {
+      const specificDate = '2024-12-09';
+      const nextMonday = afterWeek(new Date(specificDate));
+      const sceneRenderSpy = jest.spyOn(
+        routineSceneArt,
+        'renderRoutineSceneAsset',
+      );
+
+      mockSearchParams.date = specificDate;
+
+      try {
+        const { findByText, getByTestId, rerender } = render(<Index />);
+
+        await findByText('테스트 루틴 1');
+        expect(getByTestId('routine-scene-character')).toBeOnTheScreen();
+        sceneRenderSpy.mockClear();
+
+        mockSearchParams.date = nextMonday;
+        rerender(<Index />);
+
+        await findByText(formatRoutineHeaderDate(new Date(nextMonday)));
+        await findByText('테스트 루틴 1');
+
+        expect(sceneRenderSpy).not.toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({ testID: 'routine-scene-character' }),
+        );
+      } finally {
+        sceneRenderSpy.mockRestore();
+      }
+    });
+
+    it('날짜별 루틴을 조회하는 동안에도 순서 변경 버튼을 재생성하지 않는다', async () => {
+      const specificDate = '2024-12-09';
+      const nextMonday = afterWeek(new Date(specificDate));
+      let resolveNextRequest: (() => void) | undefined;
+
+      mockSearchParams.date = specificDate;
+      mockAxios.onGet(/\/routine\/list/).reply((config) => {
+        if (config.url?.includes(nextMonday)) {
+          return new Promise((resolve) => {
+            resolveNextRequest = () =>
+              resolve([
+                200,
+                {
+                  data: [
+                    {
+                      ...createMockRoutine(),
+                      routineName: '다음 주 루틴',
+                    },
+                  ],
+                },
+              ]);
+          });
+        }
+
+        return [200, { data: createMockRoutines(1) }];
+      });
+
+      const { findByText, getByTestId, queryByTestId, rerender } = render(
+        <Index />,
+      );
+
+      await findByText('테스트 루틴 1');
+      const reorderButton = getByTestId('routine-reorder-button');
+
+      mockSearchParams.date = nextMonday;
+      rerender(<Index />);
+
+      await waitFor(() => {
+        expect(resolveNextRequest).toEqual(expect.any(Function));
+      });
+
+      try {
+        expect(queryByTestId('routine-reorder-button')).toBe(reorderButton);
+      } finally {
+        await act(async () => {
+          resolveNextRequest?.();
+        });
+        await findByText('다음 주 루틴');
+      }
+
+      expect(queryByTestId('routine-reorder-button')).toBe(reorderButton);
+
+      mockPush.mockClear();
+      fireEvent.press(getByTestId('routine-reorder-button'));
+
+      expect(mockPush).toHaveBeenCalledWith(
+        `/modal?type=routine-reorder&date=${nextMonday}`,
+      );
     });
   });
 

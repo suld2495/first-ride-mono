@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { afterWeek, beforeWeek } from '@repo/shared/utils';
 import type { Href } from 'expo-router';
+import { memo } from 'react';
 import { View } from 'react-native';
 
 import PageHeader from '@/components/layout/page-header';
@@ -15,6 +16,33 @@ import { useReceivedRequests } from '@/hooks/useReceivedRequests';
 import { baseFoundation } from '@/theme/tokens';
 
 const NOTIFICATION_ICON_COLOR = '#0E0E0E';
+
+interface RoutineReorderButtonProps {
+  onPress: () => void;
+}
+
+const RoutineReorderButton = memo(function RoutineReorderButton({
+  onPress,
+}: RoutineReorderButtonProps) {
+  return (
+    <IconButton
+      size="md"
+      variant="ghost"
+      icon={({ size }) => (
+        <Ionicons
+          name="swap-vertical"
+          size={size}
+          color={NOTIFICATION_ICON_COLOR}
+        />
+      )}
+      onPress={onPress}
+      accessibilityLabel="루틴 순서 변경"
+      accessibilityRole="button"
+      style={styles.actionButton}
+      testID="routine-reorder-button"
+    />
+  );
+});
 
 interface RoutineHeaderProps {
   date: string;
@@ -94,22 +122,7 @@ const RoutineHeader = ({
         showNotification || onPressReorder ? (
           <View style={styles.actions} testID="routine-header-actions">
             {onPressReorder ? (
-              <IconButton
-                size="md"
-                variant="ghost"
-                icon={({ size }) => (
-                  <Ionicons
-                    name="swap-vertical"
-                    size={size}
-                    color={NOTIFICATION_ICON_COLOR}
-                  />
-                )}
-                onPress={onPressReorder}
-                accessibilityLabel="루틴 순서 변경"
-                accessibilityRole="button"
-                style={styles.actionButton}
-                testID="routine-reorder-button"
-              />
+              <RoutineReorderButton onPress={onPressReorder} />
             ) : null}
             {showNotification ? (
               <NotificationBell
