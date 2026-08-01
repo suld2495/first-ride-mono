@@ -20,6 +20,9 @@ const routine = {
   hasPendingConfirmation: false,
   pendingConfirmationCount: 0,
   pendingConfirmationIds: [],
+  todayConfirmStatus: null,
+  todayConfirmId: null,
+  canRequestToday: true,
 };
 
 describe('refreshRoutineWidgetSnapshot', () => {

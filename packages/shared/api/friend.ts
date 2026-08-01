@@ -208,6 +208,9 @@ const toFriendRoutine = (
   hasPendingConfirmation: false,
   pendingConfirmationCount: 0,
   pendingConfirmationIds: [],
+  todayConfirmStatus: routine.todayConfirmStatus,
+  todayConfirmId: routine.todayConfirmId,
+  canRequestToday: routine.canRequestToday,
 });
 
 const unwrapFriendRoutinesResponse = (

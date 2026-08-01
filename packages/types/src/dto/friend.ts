@@ -55,6 +55,9 @@ export interface FriendRoutineItem {
   confirmCount: number;
   weeklyCount: Routine['weeklyCount'];
   successDate: Routine['successDate'] | null;
+  todayConfirmStatus: Routine['todayConfirmStatus'];
+  todayConfirmId: Routine['todayConfirmId'];
+  canRequestToday: Routine['canRequestToday'];
   displayOrder: number;
   paused: boolean;
   hidden: boolean;

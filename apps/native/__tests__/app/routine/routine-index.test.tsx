@@ -2615,7 +2615,9 @@ describe('루틴 조회 페이지', () => {
         const requestButton = await findByLabelText('인증요청');
 
         expect(requestButton).toBeDisabled();
-        expect(requestButton).toHaveAccessibilityState({ disabled: true });
+        expect(requestButton.props.accessibilityState).toEqual({
+          disabled: true,
+        });
 
         fireEvent.press(requestButton);
 

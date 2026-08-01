@@ -19,6 +19,9 @@ export interface Routine {
   hasPendingConfirmation: boolean;
   pendingConfirmationCount: number;
   pendingConfirmationIds: number[];
+  todayConfirmStatus: 'WAIT' | 'PASS' | 'DENY' | null;
+  todayConfirmId: number | null;
+  canRequestToday: boolean;
   hasPendingChangeRequest?: boolean;
   pendingChangeRequestId?: number | null;
   pendingChangeRequestStatus?: 'PENDING' | null;
@@ -34,6 +37,9 @@ export type RoutineForm = Omit<
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
+  | 'todayConfirmStatus'
+  | 'todayConfirmId'
+  | 'canRequestToday'
   | 'hasPendingChangeRequest'
   | 'pendingChangeRequestId'
   | 'pendingChangeRequestStatus'

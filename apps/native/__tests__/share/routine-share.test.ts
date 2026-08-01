@@ -30,6 +30,9 @@ const createRoutine = (
   pendingConfirmationCount: 0,
   pendingConfirmationIds: [],
   ...overrides,
+  todayConfirmStatus: overrides.todayConfirmStatus ?? null,
+  todayConfirmId: overrides.todayConfirmId ?? null,
+  canRequestToday: overrides.canRequestToday ?? true,
 });
 
 describe('routine share', () => {

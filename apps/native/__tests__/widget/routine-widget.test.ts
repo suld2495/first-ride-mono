@@ -25,6 +25,9 @@ const createRoutine = (overrides: Partial<Routine>): Routine => ({
   pendingConfirmationCount: 0,
   pendingConfirmationIds: [],
   ...overrides,
+  todayConfirmStatus: overrides.todayConfirmStatus ?? null,
+  todayConfirmId: overrides.todayConfirmId ?? null,
+  canRequestToday: overrides.canRequestToday ?? true,
 });
 
 describe('routine widget snapshot', () => {

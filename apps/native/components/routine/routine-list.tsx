@@ -169,9 +169,15 @@ const RoutineList = ({
         return;
       }
 
+      if (!routine.canRequestToday) {
+        showToast('오늘 이미 인증을 완료하였습니다.', 'error');
+
+        return;
+      }
+
       handleShowRequestModal(routine.routineId);
     },
-    [handleShowRequestModal, showsRequestMenuItem],
+    [handleShowRequestModal, showToast, showsRequestMenuItem],
   );
 
   const handleBlockPastRoutineRequest = useCallback(() => {
@@ -406,6 +412,7 @@ const RoutineList = ({
             onRequest={() => handleShowRequestModal(openMenuRoutine.routineId)}
             onDelete={() => handleDeleteRoutine(openMenuRoutine)}
             showsRequestItem={showsRequestMenuItem}
+            requestDisabled={!openMenuRoutine.canRequestToday}
             showsStatusItems={false}
             style={{
               top:

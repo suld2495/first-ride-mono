@@ -25,6 +25,7 @@ type RoutineContextMenuProps = {
   onRequest: () => void;
   onDelete: () => void;
   showsRequestItem: boolean;
+  requestDisabled?: boolean;
   showsStatusItems?: boolean;
 };
 
@@ -48,6 +49,7 @@ type RoutineContextMenuPanelProps = Pick<
   | 'onRequest'
   | 'onDelete'
   | 'showsRequestItem'
+  | 'requestDisabled'
   | 'showsStatusItems'
 > & {
   style?: StyleProp<ViewStyle>;
@@ -57,6 +59,7 @@ type RoutineContextMenuItem = {
   label: string;
   onPress: () => void;
   color?: string;
+  disabled?: boolean;
 };
 
 export const RoutineContextMenuTrigger = ({
@@ -95,11 +98,14 @@ export const RoutineContextMenuPanel = ({
   onRequest,
   onDelete,
   showsRequestItem,
+  requestDisabled = false,
   showsStatusItems = true,
   style,
 }: RoutineContextMenuPanelProps) => {
   const items: RoutineContextMenuItem[] = [
-    ...(showsRequestItem ? [{ label: '인증요청', onPress: onRequest }] : []),
+    ...(showsRequestItem
+      ? [{ label: '인증요청', onPress: onRequest, disabled: requestDisabled }]
+      : []),
     { label: '수정', onPress: onEdit },
     ...(showsStatusItems
       ? [
@@ -114,13 +120,16 @@ export const RoutineContextMenuPanel = ({
     label,
     onPress,
     color,
+    disabled,
   }: RoutineContextMenuItem) => (
     <Pressable
       key={label}
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
-      style={styles.menuItem}
+      style={[styles.menuItem, disabled ? styles.menuItemDisabled : null]}
       testID="routine-context-menu-item"
     >
       <Typography
@@ -158,6 +167,7 @@ const RoutineContextMenu = ({
   onRequest,
   onDelete,
   showsRequestItem,
+  requestDisabled,
   showsStatusItems,
 }: RoutineContextMenuProps) => (
   <>
@@ -177,6 +187,7 @@ const RoutineContextMenu = ({
         onRequest={onRequest}
         onDelete={onDelete}
         showsRequestItem={showsRequestItem}
+        requestDisabled={requestDisabled}
         showsStatusItems={showsStatusItems}
       />
     ) : null}
@@ -236,6 +247,9 @@ const styles = StyleSheet.create({
     height: baseFoundation.dimension.x30,
     paddingLeft: baseFoundation.spacing[2],
     justifyContent: 'center',
+  },
+  menuItemDisabled: {
+    opacity: baseFoundation.opacity.disabled,
   },
 });
 
