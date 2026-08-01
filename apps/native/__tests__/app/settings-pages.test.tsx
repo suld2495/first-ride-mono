@@ -202,6 +202,9 @@ describe('설정 하위 페이지', () => {
         color: palette.theme.blue[90],
       }),
     );
+    expect(
+      getByTestId('routine-settings-hidden-checkbox-label').props.children,
+    ).toBe('비공개');
     expect(await findByText('물 마시기')).toBeOnTheScreen();
     expect(await findByText('책 읽기')).toBeOnTheScreen();
     expect(await findByText('명상하기')).toBeOnTheScreen();
@@ -271,7 +274,7 @@ describe('설정 하위 페이지', () => {
       getAllByTestId('routine-context-menu-item-text').map(
         (item) => item.props.children,
       ),
-    ).toEqual(['수정', '숨김', '일시정지', '삭제']);
+    ).toEqual(['수정', '비공개', '일시정지', '삭제']);
     expect(getByTestId('routine-context-menu-1')).toHaveStyle({
       width: 144,
     });
@@ -283,7 +286,16 @@ describe('설정 하위 페이지', () => {
       getAllByTestId('routine-context-menu-item-text').map(
         (item) => item.props.children,
       ),
-    ).toEqual(['수정', '숨김', '시작', '삭제']);
+    ).toEqual(['수정', '비공개', '시작', '삭제']);
+    fireEvent.press(getByTestId('routine-context-menu-backdrop'));
+    fireEvent.press(getByTestId('routine-settings-routine-menu-trigger-3'));
+
+    expect(
+      getAllByTestId('routine-context-menu-item-text').map(
+        (item) => item.props.children,
+      ),
+    ).toEqual(['수정', '공개', '일시정지', '삭제']);
+    fireEvent.press(getByTestId('routine-context-menu-backdrop'));
 
     expect(getByTestId('routine-status-filter-active')).toBeOnTheScreen();
     expect(getByTestId('routine-status-filter-done')).toBeOnTheScreen();

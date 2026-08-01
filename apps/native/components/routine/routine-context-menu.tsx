@@ -103,7 +103,7 @@ export const RoutineContextMenuPanel = ({
     { label: '수정', onPress: onEdit },
     ...(showsStatusItems
       ? [
-          { label: isHidden ? '보이기' : '숨김', onPress: onHide },
+          { label: isHidden ? '공개' : '비공개', onPress: onHide },
           { label: isPaused ? '시작' : '일시정지', onPress: onPause },
         ]
       : []),

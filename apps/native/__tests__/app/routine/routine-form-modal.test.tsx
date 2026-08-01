@@ -1031,21 +1031,61 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(queryByText('취소')).not.toBeOnTheScreen();
     });
 
-    it('루틴 숨김 체크박스를 기본 해제 상태로 표시한다', async () => {
+    it('비공개 루틴 체크박스를 기본 해제 상태로 표시한다', async () => {
       const { getAllByTestId, getByText, queryByText } = render(
         <RoutineFormModal />,
       );
 
       expect(queryByText('루틴 일시정지')).not.toBeOnTheScreen();
-      expect(getByText('루틴 숨김')).toBeOnTheScreen();
+      expect(getByText('비공개 루틴')).toBeOnTheScreen();
+      expect(queryByText('메이트에게는 공개됩니다')).not.toBeOnTheScreen();
       expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(false);
     });
 
-    it('루틴 숨김 라벨을 누르면 체크된다', async () => {
+    it('비공개 루틴 라벨 오른쪽에 원형 물음표 아이콘을 표시한다', () => {
+      const { getByLabelText, getByTestId, queryByTestId } = render(
+        <RoutineFormModal />,
+      );
+      const labelRow = getByTestId('hidden-routine-label-row');
+      const helpButton = getByLabelText('비공개 루틴 안내 보기');
+      const helpIcon = getByTestId('hidden-routine-help-icon', {
+        includeHiddenElements: true,
+      });
+
+      expect(helpButton).toBeOnTheScreen();
+      expect(queryByTestId('hidden-routine-info-icon')).not.toBeOnTheScreen();
+      expect(RNStyleSheet.flatten(labelRow.props.style)).toEqual(
+        expect.objectContaining({
+          flexDirection: 'row',
+          alignItems: 'center',
+        }),
+      );
+      expect(helpIcon.props).toEqual(
+        expect.objectContaining({
+          name: 'help-circle-outline',
+          size: baseFoundation.iconSize.m,
+          color: palette.theme.gray[90],
+        }),
+      );
+    });
+
+    it('원형 물음표 아이콘을 누르면 메이트 공개 안내를 표시한다', () => {
+      const { getByLabelText, getByText, queryByText } = render(
+        <RoutineFormModal />,
+      );
+
+      expect(queryByText('메이트에게는 공개됩니다')).not.toBeOnTheScreen();
+
+      fireEvent.press(getByLabelText('비공개 루틴 안내 보기'));
+
+      expect(getByText('메이트에게는 공개됩니다')).toBeOnTheScreen();
+    });
+
+    it('비공개 루틴 라벨을 누르면 체크된다', async () => {
       const { getAllByTestId, getByText } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(getByText('루틴 숨김'));
+        fireEvent.press(getByText('비공개 루틴'));
       });
 
       expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(true);
@@ -1775,7 +1815,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
           findByTestId('routine-status-section'),
           findByTestId('routine-status-options'),
           findByText('루틴 일시정지'),
-          findByText('루틴 숨김'),
+          findByText('비공개 루틴'),
         ]);
       const statusSectionStyle = RNStyleSheet.flatten(
         statusSection.props.style,
@@ -1786,6 +1826,11 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
       expect(pausedLabel).toBeOnTheScreen();
       expect(hiddenLabel).toBeOnTheScreen();
+      expect(
+        await findByTestId('hidden-routine-help-icon', {
+          includeHiddenElements: true,
+        }),
+      ).toBeOnTheScreen();
       expect(pausedLabel).toHaveStyle({ color: palette.theme.gray[90] });
       expect(hiddenLabel).toHaveStyle({ color: palette.theme.gray[90] });
       expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(3);
@@ -1833,12 +1878,12 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(pausedCheckbox.props.isChecked).toBe(true);
     });
 
-    it('루틴 숨김 라벨을 누르면 체크된다', async () => {
+    it('비공개 루틴 라벨을 누르면 체크된다', async () => {
       (global as any).mockCheckboxChecked = false;
       const { findAllByTestId, findByText } = render(<RoutineFormModal />);
 
       await act(async () => {
-        fireEvent.press(await findByText('루틴 숨김'));
+        fireEvent.press(await findByText('비공개 루틴'));
       });
 
       const [, , hiddenCheckbox] = await findAllByTestId('bouncy-checkbox');

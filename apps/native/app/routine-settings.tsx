@@ -460,7 +460,7 @@ export default function RoutineSettingsPage() {
               </Typography>
             </Pressable>
             <Pressable
-              accessibilityLabel="숨김 루틴 표시"
+              accessibilityLabel="비공개 루틴 표시"
               accessibilityRole="checkbox"
               accessibilityState={{
                 checked: filtersHiddenRoutines,
@@ -487,7 +487,7 @@ export default function RoutineSettingsPage() {
                 testID="routine-settings-hidden-checkbox-label"
                 variant="body3"
               >
-                숨김
+                비공개
               </Typography>
             </Pressable>
           </View>
