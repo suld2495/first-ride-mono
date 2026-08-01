@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
-import { useJobOptionsQuery } from '@/hooks/useAuth';
 import { useWhatsNewModal } from '@/hooks/useWhatsNewModal';
 import { baseFoundation, palette } from '@/theme/tokens';
 
@@ -77,17 +76,6 @@ interface WhatsNewModalContentProps {
 
 const WhatsNewModalContent = ({ onDismiss }: WhatsNewModalContentProps) => {
   const insets = useSafeAreaInsets();
-  const { data: publicCharacters } = useJobOptionsQuery('FEMALE');
-  const publicCharacterImageUrl = publicCharacters
-    ?.find(
-      (character) =>
-        character.jobType.toUpperCase().includes('WARRIOR') &&
-        character.imageUrl.trim(),
-    )
-    ?.imageUrl.trim();
-  const characterImageSource: ImageSourcePropType = publicCharacterImageUrl
-    ? { uri: publicCharacterImageUrl }
-    : CHARACTER_IMAGE;
 
   return (
     <Modal
@@ -104,13 +92,18 @@ const WhatsNewModalContent = ({ onDismiss }: WhatsNewModalContentProps) => {
           testID="whats-new-sheet"
         >
           <View style={styles.hero}>
-            <Image
-              accessibilityLabel="이루라 캐릭터"
-              resizeMode="contain"
-              source={characterImageSource}
-              style={styles.character}
-              testID="whats-new-character"
-            />
+            <View
+              style={styles.characterSlot}
+              testID="whats-new-character-slot"
+            >
+              <Image
+                accessibilityLabel="이루라 캐릭터"
+                resizeMode="contain"
+                source={CHARACTER_IMAGE}
+                style={styles.character}
+                testID="whats-new-character"
+              />
+            </View>
             <Typography variant="caption1" weight="bold" style={styles.eyebrow}>
               WHAT&apos;S NEW
             </Typography>
@@ -223,11 +216,15 @@ const styles = StyleSheet.create((theme) => ({
     paddingBottom: theme.foundation.spacing[5],
     backgroundColor: palette.theme.blue[5],
   },
-  character: {
+  characterSlot: {
     width: baseFoundation.dimension.x80,
     height: baseFoundation.dimension.x84,
     marginBottom: theme.foundation.spacing[3],
     zIndex: 1,
+  },
+  character: {
+    width: '100%',
+    height: '100%',
   },
   eyebrow: {
     marginBottom: theme.foundation.spacing[1],
