@@ -48,6 +48,7 @@ export interface FriendRoutineItem {
   routineDetail: Routine['routineDetail'];
   penalty: Routine['penalty'];
   routineCount: Routine['routineCount'];
+  symbolColor?: Routine['symbolColor'] | null;
   mateNickname: Routine['mateNickname'];
   startDate: Routine['startDate'];
   endDate: Routine['endDate'] | null;

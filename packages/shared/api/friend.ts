@@ -197,6 +197,7 @@ const toFriendRoutine = (
   penalty: routine.penalty,
   weeklyCount: routine.weeklyCount,
   routineCount: routine.routineCount,
+  symbolColor: routine.symbolColor ?? undefined,
   mateNickname: routine.mateNickname,
   isMe: false,
   startDate: routine.startDate,
