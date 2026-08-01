@@ -181,6 +181,20 @@ describe('Account', () => {
     expect(getByTestId('account-motto-input')).toHaveProp('maxLength', 26);
   });
 
+  it('한마디 입력은 공백 차단 필터를 명시적으로 비활성화한다', () => {
+    (useUpdateMottoMutation as jest.Mock).mockReturnValue({
+      isPending: false,
+      mutate: jest.fn(),
+    });
+
+    const { getByTestId } = render(<Account />);
+
+    expect(getByTestId('account-motto-input')).toHaveProp(
+      'disallowWhitespace',
+      false,
+    );
+  });
+
   it('한마디 입력 아래에 현재 글자 수와 최대 한글 글자 수를 표시한다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
