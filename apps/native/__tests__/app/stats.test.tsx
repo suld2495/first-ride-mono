@@ -1,5 +1,5 @@
 import axiosInstance from '@repo/shared/api';
-import { fireEvent, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import { processColor } from 'react-native';
 
@@ -80,6 +80,51 @@ describe('StatsPage', () => {
     expect(mockAxios.history.get[0]?.params).toEqual({
       year: 2026,
       month: 6,
+    });
+  });
+
+  it('연속으로 월을 변경하면 마지막 선택 월만 조회한다', async () => {
+    mockAxios.onGet('/routine/list/monthly').reply((config) => {
+      const year = Number(config.params?.year);
+      const month = Number(config.params?.month);
+
+      return [
+        200,
+        {
+          data: {
+            year,
+            month,
+            startDate: `${year}-${String(month).padStart(2, '0')}-01`,
+            endDate: `${year}-${String(month).padStart(2, '0')}-30`,
+            activeOnly: false,
+            routines: [],
+          },
+        },
+      ];
+    });
+
+    const { getByLabelText, getByText } = render(<StatsPage />);
+
+    await waitFor(() => {
+      expect(mockAxios.history.get).toHaveLength(1);
+    });
+
+    for (let index = 0; index < 3; index += 1) {
+      await act(async () => {
+        fireEvent.press(getByLabelText('다음 달'));
+      });
+    }
+
+    expect(getByText('9월')).toBeOnTheScreen();
+    expect(mockAxios.history.get).toHaveLength(1);
+
+    await act(() => new Promise((resolve) => setTimeout(resolve, 350)));
+    await waitFor(() => {
+      expect(mockAxios.history.get).toHaveLength(2);
+    });
+    expect(mockAxios.history.get[1]?.params).toEqual({
+      year: 2026,
+      month: 9,
     });
   });
 

@@ -2274,6 +2274,43 @@ describe('루틴 조회 페이지', () => {
       expect(nextButton).toBeOnTheScreen();
     });
 
+    it('연속으로 주를 변경하면 마지막 선택 날짜만 조회한다', async () => {
+      const initialDate = '2024-12-09';
+      let targetDate = initialDate;
+
+      mockSearchParams.date = initialDate;
+      const { getByLabelText, rerender } = render(<Index />);
+      const routineListRequests = () =>
+        mockAxios.history.get.filter((request) =>
+          request.url?.startsWith('/routine/list?date='),
+        );
+
+      await waitFor(() => {
+        expect(routineListRequests()).toHaveLength(1);
+      });
+
+      await act(async () => {
+        for (let index = 0; index < 3; index += 1) {
+          fireEvent.press(getByLabelText('다음 주'));
+          targetDate = afterWeek(new Date(targetDate));
+          mockSearchParams.date = targetDate;
+          rerender(<Index />);
+        }
+      });
+
+      expect(routineListRequests()).toHaveLength(1);
+
+      await act(
+        () => new Promise((resolve) => setTimeout(resolve, 350)),
+      );
+      await waitFor(() => {
+        expect(routineListRequests()).toHaveLength(2);
+      });
+      expect(routineListRequests()[1]?.url).toBe(
+        `/routine/list?date=${targetDate}`,
+      );
+    });
+
     it('특정 주에서 이전 주로 이동하면 날짜가 변경된다', async () => {
       const specificDate = '2024-12-09'; // 월요일
 
