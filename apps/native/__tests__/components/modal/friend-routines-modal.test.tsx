@@ -205,6 +205,44 @@ describe('FriendRoutinesModal', () => {
     });
   });
 
+  it('친구가 지정한 루틴 컬러를 완료 체크 배경에 표시한다', async () => {
+    const routineColor = '#F791DE';
+
+    mockAxios.onGet('/friends/42/profile').reply(
+      200,
+      wrapResponse({
+        friendId: 42,
+        nickname: '혜연',
+        job: '검사',
+        motto: '오늘도 전진',
+        level: 7,
+        characterCode: 'WARRIOR_INTERMEDIATE',
+        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
+        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.png',
+      }),
+    );
+    mockAxios
+      .onGet('/friends/42/routines?date=2026-05-25')
+      .reply(
+        200,
+        wrapResponse({
+          ...createFriendRoutineResponse(),
+          routines: [
+            {
+              ...createFriendRoutineResponse().routines[0],
+              symbolColor: routineColor,
+            },
+          ],
+        }),
+      );
+
+    const screen = renderFriendRoutinesModal();
+
+    expect(await screen.findByTestId('routine-count-check-1-1')).toHaveStyle({
+      backgroundColor: routineColor,
+    });
+  });
+
   it('친구 홈의 주간 루틴 카드에도 수행 횟수를 표시하고 메뉴는 숨긴다', async () => {
     mockRoutineStore.type = 'week';
     mockAxios.onGet('/friends/42/profile').reply(
