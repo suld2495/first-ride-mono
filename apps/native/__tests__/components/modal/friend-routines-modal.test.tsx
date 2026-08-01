@@ -465,7 +465,7 @@ describe('FriendRoutinesModal', () => {
     });
   });
 
-  it('응원 콕을 보낸 뒤 루틴과 프로필을 다시 조회하지 않고 서버 메시지를 표시한다', async () => {
+  it('응원 콕을 보낸 뒤 루틴과 프로필을 다시 조회하지 않고 성공 메시지를 표시한다', async () => {
     mockAxios.onGet('/friends/42/profile').reply(
       200,
       wrapResponse({
@@ -498,7 +498,7 @@ describe('FriendRoutinesModal', () => {
 
     await waitFor(() => {
       expect(mockShowToast).toHaveBeenCalledWith(
-        '윤윤님이 함께 모험을 떠나자고 합니다!',
+        '친구에게 응원을 보냈어요!',
         'success',
       );
     });
