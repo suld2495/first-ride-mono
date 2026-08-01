@@ -221,20 +221,18 @@ describe('FriendRoutinesModal', () => {
         backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.png',
       }),
     );
-    mockAxios
-      .onGet('/friends/42/routines?date=2026-05-25')
-      .reply(
-        200,
-        wrapResponse({
-          ...createFriendRoutineResponse(),
-          routines: [
-            {
-              ...createFriendRoutineResponse().routines[0],
-              symbolColor: routineColor,
-            },
-          ],
-        }),
-      );
+    mockAxios.onGet('/friends/42/routines?date=2026-05-25').reply(
+      200,
+      wrapResponse({
+        ...createFriendRoutineResponse(),
+        routines: [
+          {
+            ...createFriendRoutineResponse().routines[0],
+            symbolColor: routineColor,
+          },
+        ],
+      }),
+    );
 
     const screen = renderFriendRoutinesModal();
 
@@ -449,9 +447,7 @@ describe('FriendRoutinesModal', () => {
 
     fireEvent.press(cheerButton);
 
-    const loadingIcon = await screen.findByTestId(
-      'friend-cheer-loading-icon',
-    );
+    const loadingIcon = await screen.findByTestId('friend-cheer-loading-icon');
 
     expect(loadingIcon).toHaveProp('color', palette.theme.blue[50]);
     expect(loadingIcon).toHaveProp('size', baseFoundation.iconSize.xs);
