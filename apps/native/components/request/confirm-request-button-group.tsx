@@ -9,12 +9,14 @@ import { baseFoundation } from '@/theme/tokens';
 
 interface ConfirmRequestButtonGroupProps {
   disabled?: boolean;
+  loadingStatus?: RequestResponseStatus;
   onSubmit: (status: RequestResponseStatus, comment: string) => void;
   useForm: () => FormContextType<{ comment: string }>;
 }
 
 const ConfirmRequestButtonGroup = ({
   disabled = false,
+  loadingStatus,
   onSubmit,
   useForm,
 }: ConfirmRequestButtonGroupProps) => {
@@ -46,6 +48,7 @@ const ConfirmRequestButtonGroup = ({
         title="승인"
         variant="primary"
         disabled={disabled}
+        loading={loadingStatus === 'PASS'}
         onPress={() => requestConfirmation('PASS')}
         style={styles.button}
       />
@@ -53,6 +56,7 @@ const ConfirmRequestButtonGroup = ({
         title="거절"
         variant="secondary"
         disabled={disabled}
+        loading={loadingStatus === 'DENY'}
         onPress={() => requestConfirmation('DENY')}
         style={styles.button}
       />

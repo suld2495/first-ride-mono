@@ -27,7 +27,7 @@ const RequestDetailModal = () => {
   const user = useAuthUser();
   const [ratio, setRatio] = useState(1);
   const initialForm = useMemo(() => ({ comment: '' }), []);
-  const { handleSubmit, isPending } = useRequestReply({
+  const { handleSubmit, isPending, pendingStatus } = useRequestReply({
     confirmId: detail?.id,
     nickname: user?.nickname || '',
   });
@@ -136,6 +136,7 @@ const RequestDetailModal = () => {
 
           <ConfirmRequestButtonGroup
             disabled={isPending}
+            loadingStatus={pendingStatus}
             onSubmit={handleSubmit}
             useForm={useForm}
           />

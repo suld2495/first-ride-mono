@@ -55,5 +55,11 @@ export const useRequestReply = ({
     [confirmId, replyRequest, router, showToast],
   );
 
-  return { handleSubmit, isPending: replyRequest.isPending };
+  return {
+    handleSubmit,
+    isPending: replyRequest.isPending,
+    pendingStatus: replyRequest.isPending
+      ? replyRequest.variables?.checkStatus
+      : undefined,
+  };
 };
