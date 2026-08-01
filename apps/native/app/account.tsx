@@ -164,6 +164,7 @@ const Account = () => {
             <Input
               accessibilityLabel="한마디 입력"
               containerTestID="account-motto-input-container"
+              disallowWhitespace={false}
               fullWidth
               inputStyle={styles.mottoInputText}
               maxLength={MAX_MOTTO_CHARACTERS}
