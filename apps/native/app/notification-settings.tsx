@@ -1,12 +1,14 @@
 import {
+  NOTIFICATION_SUBTYPES,
   type NotificationSettings,
   type NotificationSubtype,
+  type UpdateNotificationSettingsRequest,
 } from '@repo/shared/api/notification-settings.api';
 import {
   useNotificationSettingsQuery,
   useUpdateNotificationSettingsMutation,
 } from '@repo/shared/hooks/useNotificationSettings';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, ScrollView, View } from 'react-native';
 
 import Container from '@/components/layout/container';
@@ -102,6 +104,43 @@ const getEnabledSubtypeCount = (
 
 const SWITCH_THUMB_TRAVEL = baseFoundation.dimension.x20;
 const SWITCH_ANIMATION_DURATION_MS = 160;
+const NOTIFICATION_SETTINGS_UPDATE_DEBOUNCE_MS = 300;
+
+const applyNotificationSettingsUpdate = (
+  settings: NotificationSettings,
+  update: UpdateNotificationSettingsRequest,
+): NotificationSettings => ({
+  allEnabled: update.allEnabled ?? settings.allEnabled,
+  subtypes: {
+    ...settings.subtypes,
+    ...update.subtypes,
+  },
+});
+
+const createNotificationSettingsUpdate = (
+  confirmedSettings: NotificationSettings,
+  draftSettings: NotificationSettings,
+): UpdateNotificationSettingsRequest => {
+  const changedSubtypes = Object.fromEntries(
+    NOTIFICATION_SUBTYPES.filter(
+      (subtype) =>
+        confirmedSettings.subtypes[subtype] !== draftSettings.subtypes[subtype],
+    ).map((subtype) => [subtype, draftSettings.subtypes[subtype]]),
+  ) as Partial<Record<NotificationSubtype, boolean>>;
+
+  return {
+    ...(confirmedSettings.allEnabled !== draftSettings.allEnabled
+      ? { allEnabled: draftSettings.allEnabled }
+      : {}),
+    ...(Object.keys(changedSubtypes).length > 0
+      ? { subtypes: changedSubtypes }
+      : {}),
+  };
+};
+
+const hasNotificationSettingsUpdate = (
+  update: UpdateNotificationSettingsRequest,
+): boolean => update.allEnabled !== undefined || update.subtypes !== undefined;
 
 type SettingsErrorStateProps = {
   onRetry: () => void;
@@ -412,6 +451,19 @@ export default function NotificationSettingsPage() {
   const updateSettings = useUpdateNotificationSettingsMutation(
     user?.userId ?? '',
   );
+  const [draftSettings, setDraftSettings] = useState<NotificationSettings>();
+  const confirmedSettingsRef = useRef<NotificationSettings | undefined>(
+    undefined,
+  );
+  const draftSettingsRef = useRef<NotificationSettings | undefined>(undefined);
+  const updateTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const flushSettingsUpdateRef = useRef<() => void>(() => undefined);
+  const updateRevisionRef = useRef(0);
+  const isSavingRef = useRef(false);
+  const isMountedRef = useRef(true);
+
   const handleMutationError = (error: unknown) => {
     showToast(
       getApiErrorMessage(error, '알림 설정을 변경하지 못했습니다.'),
@@ -419,39 +471,122 @@ export default function NotificationSettingsPage() {
     );
   };
 
-  const handleToggleAll = (allEnabled: boolean) => {
-    updateSettings.mutate(
-      { allEnabled },
-      {
-        onError: handleMutationError,
-      },
+  const flushSettingsUpdate = () => {
+    const confirmedSettings = confirmedSettingsRef.current;
+    const latestDraftSettings = draftSettingsRef.current;
+
+    if (isSavingRef.current || !confirmedSettings || !latestDraftSettings) {
+      return;
+    }
+
+    const update = createNotificationSettingsUpdate(
+      confirmedSettings,
+      latestDraftSettings,
     );
+
+    if (!hasNotificationSettingsUpdate(update)) {
+      draftSettingsRef.current = undefined;
+      if (isMountedRef.current) {
+        setDraftSettings(undefined);
+      }
+      return;
+    }
+
+    const submittedRevision = updateRevisionRef.current;
+    isSavingRef.current = true;
+    updateSettings.mutate(update, {
+      onError: handleMutationError,
+      onSuccess: (savedSettings) => {
+        confirmedSettingsRef.current = savedSettings;
+      },
+      onSettled: (_savedSettings, error) => {
+        isSavingRef.current = false;
+
+        if (!isMountedRef.current) {
+          return;
+        }
+
+        if (updateRevisionRef.current === submittedRevision) {
+          draftSettingsRef.current = undefined;
+          setDraftSettings(undefined);
+          return;
+        }
+
+        if (error) {
+          confirmedSettingsRef.current = confirmedSettings;
+        }
+        flushSettingsUpdate();
+      },
+    });
+  };
+
+  const queueSettingsUpdate = (update: UpdateNotificationSettingsRequest) => {
+    const currentSettings = draftSettingsRef.current ?? settings;
+
+    if (!currentSettings) {
+      return;
+    }
+
+    const nextSettings = applyNotificationSettingsUpdate(
+      currentSettings,
+      update,
+    );
+    draftSettingsRef.current = nextSettings;
+    updateRevisionRef.current += 1;
+    setDraftSettings(nextSettings);
+
+    if (updateTimerRef.current) {
+      clearTimeout(updateTimerRef.current);
+    }
+    updateTimerRef.current = setTimeout(() => {
+      updateTimerRef.current = undefined;
+      flushSettingsUpdate();
+    }, NOTIFICATION_SETTINGS_UPDATE_DEBOUNCE_MS);
+  };
+
+  useEffect(() => {
+    flushSettingsUpdateRef.current = flushSettingsUpdate;
+  });
+
+  useEffect(() => {
+    if (!draftSettingsRef.current && !isSavingRef.current) {
+      confirmedSettingsRef.current = settings;
+    }
+  }, [settings]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      if (updateTimerRef.current) {
+        clearTimeout(updateTimerRef.current);
+        updateTimerRef.current = undefined;
+      }
+      isMountedRef.current = false;
+      flushSettingsUpdateRef.current();
+    };
+  }, []);
+
+  const handleToggleAll = (allEnabled: boolean) => {
+    queueSettingsUpdate({ allEnabled });
   };
   const handleToggleSubtype = (
     subtype: NotificationSubtype,
     enabled: boolean,
   ) => {
-    updateSettings.mutate(
-      {
-        subtypes: {
-          [subtype]: enabled,
-        },
+    queueSettingsUpdate({
+      subtypes: {
+        [subtype]: enabled,
       },
-      {
-        onError: handleMutationError,
-      },
-    );
+    });
   };
   const handleToggleGroup = (group: NotificationGroup, enabled: boolean) => {
-    updateSettings.mutate(
-      {
-        subtypes: createSubtypeUpdate(group.subtypes, enabled),
-      },
-      {
-        onError: handleMutationError,
-      },
-    );
+    queueSettingsUpdate({
+      subtypes: createSubtypeUpdate(group.subtypes, enabled),
+    });
   };
+
+  const displayedSettings = draftSettings ?? settings;
 
   return (
     <Container noPadding style={styles.container}>
@@ -464,12 +599,12 @@ export default function NotificationSettingsPage() {
           }}
         />
       ) : null}
-      {settings ? (
+      {displayedSettings ? (
         <NotificationSettingsContent
           onToggleAll={handleToggleAll}
           onToggleGroup={handleToggleGroup}
           onToggleSubtype={handleToggleSubtype}
-          settings={settings}
+          settings={displayedSettings}
         />
       ) : null}
     </Container>
