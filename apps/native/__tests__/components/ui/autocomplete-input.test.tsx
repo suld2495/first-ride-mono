@@ -154,6 +154,37 @@ describe('AutocompleteInput', () => {
     expect(getByText('friend1')).toBeOnTheScreen();
   });
 
+  it('버튼 드롭다운의 첫 번째 항목에 입력창을 표시하고 텍스트 변경을 전달한다', () => {
+    const onChangeText = jest.fn();
+    const { getByLabelText, getByPlaceholderText, getByTestId } = render(
+      <AppTamaguiProvider>
+        <AutocompleteInput
+          interactionMode="button"
+          placeholder="친구를 선택하세요"
+          dropdownInput={{
+            value: '',
+            placeholder: '친구를 검색하세요',
+            onChangeText,
+          }}
+          items={[{ label: 'friend1', value: 'friend1' }]}
+        />
+      </AppTamaguiProvider>,
+    );
+
+    fireEvent.press(getByLabelText('친구를 선택하세요'));
+
+    const dropdownScroll = getByTestId('autocomplete-dropdown-scroll');
+    const dropdownInput = getByPlaceholderText('친구를 검색하세요');
+
+    expect(dropdownScroll.props.children[0].props.testID).toBe(
+      'autocomplete-dropdown-input-item',
+    );
+
+    fireEvent.changeText(dropdownInput, 'friend2');
+
+    expect(onChangeText).toHaveBeenCalledWith('friend2');
+  });
+
   it('선택된 옵션 우측 12 여백에 현재 테마 50 색상의 체크 아이콘을 표시한다', () => {
     useColorSchemeStore.getState().setColorScheme('green');
 

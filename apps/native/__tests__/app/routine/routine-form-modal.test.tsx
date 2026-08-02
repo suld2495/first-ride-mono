@@ -607,6 +607,48 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(queryByText('friend3')).not.toBeOnTheScreen();
     });
 
+    it('드롭다운 첫 번째 입력창에서 닉네임으로 친구 목록을 필터링한다', async () => {
+      const {
+        getAllByTestId,
+        getByLabelText,
+        getByPlaceholderText,
+        getByTestId,
+        getByText,
+        queryByText,
+      } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
+      });
+
+      await waitFor(() => {
+        expect(
+          mockAxios.history.get.some(({ url }) => url === '/friends'),
+        ).toBe(true);
+      });
+
+      await act(async () => {
+        fireEvent.press(getByLabelText('친구를 선택하세요'));
+      });
+
+      const dropdownScroll = getByTestId('autocomplete-dropdown-scroll');
+      const dropdownInput = getByPlaceholderText('친구를 검색하세요');
+
+      expect(dropdownScroll.props.children[0].props.testID).toBe(
+        'autocomplete-dropdown-input-item',
+      );
+
+      await act(async () => {
+        fireEvent.changeText(dropdownInput, 'friend2');
+      });
+
+      await waitFor(() => {
+        expect(getByText('friend2')).toBeOnTheScreen();
+        expect(queryByText('friend1')).not.toBeOnTheScreen();
+        expect(queryByText('friend3')).not.toBeOnTheScreen();
+      });
+    });
+
     it('10개 컬러 중 하나를 선택한다', async () => {
       const { getAllByTestId, getByLabelText, getByTestId } = render(
         <RoutineFormModal />,
