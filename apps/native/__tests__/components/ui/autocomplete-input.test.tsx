@@ -175,9 +175,12 @@ describe('AutocompleteInput', () => {
 
     const dropdownScroll = getByTestId('autocomplete-dropdown-scroll');
     const dropdownInput = getByPlaceholderText('검색');
-    const searchIcon = getByTestId('autocomplete-dropdown-search-icon');
+    const searchIcon = getByTestId('autocomplete-dropdown-search-icon', {
+      includeHiddenElements: true,
+    });
     const searchIconPath = getByTestId(
       'autocomplete-dropdown-search-icon-path',
+      { includeHiddenElements: true },
     );
     const dropdownItems = within(dropdownScroll).getAllByTestId(
       /^(autocomplete-dropdown-input-item|autocomplete-option)$/,
@@ -186,13 +189,14 @@ describe('AutocompleteInput', () => {
     expect(dropdownItems[0].props.testID).toBe(
       'autocomplete-dropdown-input-item',
     );
-    expect(searchIcon.props).toMatchObject({ width: 17, height: 17 });
+    expect(searchIcon.props).toMatchObject({
+      width: 17,
+      height: 17,
+      color: '#B0B4BA',
+    });
     expect(searchIconPath.props).toMatchObject({
       d: 'M15.875 15.875L12.2916 12.2916M14.2083 7.54167C14.2083 11.2236 11.2236 14.2083 7.54167 14.2083C3.85977 14.2083 0.875 11.2236 0.875 7.54167C0.875 3.85977 3.85977 0.875 7.54167 0.875C11.2236 0.875 14.2083 3.85977 14.2083 7.54167Z',
-      stroke: '#B0B4BA',
       strokeWidth: 1.75,
-      strokeLinecap: 'round',
-      strokeLinejoin: 'round',
     });
 
     fireEvent.changeText(dropdownInput, 'friend2');

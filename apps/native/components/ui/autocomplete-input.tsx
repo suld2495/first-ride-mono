@@ -21,6 +21,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import SearchIcon from '@/components/icons/search-icon';
 import SelectedOptionCheckIcon from '@/components/icons/selected-option-check-icon';
 import { useAppTheme } from '@/components/ui/tamagui';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
@@ -518,16 +519,26 @@ export const AutocompleteInput = forwardRef<
                     },
                   ]}
                 >
-                  <Input
-                    ref={dropdownInputRef}
-                    variant="filled"
-                    value={dropdownInput.value}
-                    placeholder={dropdownInput.placeholder}
-                    onChangeText={dropdownInput.onChangeText}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    returnKeyType="search"
-                  />
+                  <View style={styles.dropdownSearchField}>
+                    <Input
+                      ref={dropdownInputRef}
+                      variant="filled"
+                      fullWidth
+                      value={dropdownInput.value}
+                      placeholder={dropdownInput.placeholder}
+                      inputStyle={styles.dropdownSearchInput}
+                      onChangeText={dropdownInput.onChangeText}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      returnKeyType="search"
+                    />
+                    <View
+                      pointerEvents="none"
+                      style={styles.dropdownSearchIcon}
+                    >
+                      <SearchIcon testID="autocomplete-dropdown-search-icon" />
+                    </View>
+                  </View>
                 </View>
               ) : null}
               {renderDropdownContent()}
@@ -582,6 +593,21 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderTopLeftRadius: baseFoundation.dimension.x8,
     borderTopRightRadius: baseFoundation.dimension.x8,
+  },
+  dropdownSearchField: {
+    flex: 1,
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  dropdownSearchInput: {
+    paddingRight: baseFoundation.dimension.x24,
+  },
+  dropdownSearchIcon: {
+    position: 'absolute',
+    right: baseFoundation.spacing[3],
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
   },
   dropdownItemContent: {
     flex: 1,

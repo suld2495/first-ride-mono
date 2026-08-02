@@ -456,7 +456,7 @@ const RoutineFormModal = () => {
                           placeholder="친구를 선택하세요"
                           dropdownInput={{
                             value: mateKeyword,
-                            placeholder: '친구를 검색하세요',
+                            placeholder: '검색',
                             onChangeText: setMateKeyword,
                           }}
                           onDropdownDismiss={() => setMateKeyword('')}
