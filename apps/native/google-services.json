@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "9337011609",
+    "project_id": "irura-73e5f",
+    "storage_bucket": "irura-73e5f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:9337011609:android:bb86abdc95380999586708",
+        "android_client_info": {
+          "package_name": "com.mannal.firstride"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgbVOFYOn0C-WwrBxj2vFzO5tE63XX2tc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

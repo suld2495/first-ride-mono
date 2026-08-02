@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
 import { getClarityProjectId } from '@/utils/env';
+import { setFirebaseAnalyticsEnabled } from '@/utils/firebase-analytics';
 
 type ClaritySdk = typeof ClaritySdkModule;
 
@@ -74,6 +75,8 @@ export async function initializeClarityWithStoredConsent(
     return false;
   }
 
+  await setFirebaseAnalyticsEnabled(true, { platform: options.platform });
+
   const wasInitialized = isClarityInitialized;
   const initialized = initializeClarity(options);
   const claritySdk = activeClaritySdk;
@@ -135,6 +138,7 @@ export async function setClarityAnalyticsEnabled(
     const wasInitialized = isClarityInitialized;
 
     try {
+      await setFirebaseAnalyticsEnabled(true, { platform: options.platform });
       initializeClarity(options);
 
       if (!activeClaritySdk) {
@@ -154,5 +158,13 @@ export async function setClarityAnalyticsEnabled(
     return;
   }
 
-  await stopActiveClarity();
+  const results = await Promise.allSettled([
+    setFirebaseAnalyticsEnabled(false, { platform: options.platform }),
+    stopActiveClarity(),
+  ]);
+  const failedResult = results.find((result) => result.status === 'rejected');
+
+  if (failedResult?.status === 'rejected') {
+    throw failedResult.reason;
+  }
 }

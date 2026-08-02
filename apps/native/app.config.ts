@@ -22,6 +22,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     'expo-router',
+    '@react-native-firebase/app',
+    [
+      '@react-native-firebase/analytics',
+      {
+        ios: {
+          withoutAdIdSupport: true,
+        },
+      },
+    ],
     'expo-apple-authentication',
     './plugins/with-routine-share-android',
     'expo-font',
@@ -95,6 +104,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supportsTablet: true,
     usesAppleSignIn: true,
     bundleIdentifier: 'com.mannal.firstride',
+    googleServicesFile: './GoogleService-Info.plist',
     appleTeamId: '8C683MXTH7',
     infoPlist: {
       CFBundleAllowMixedLocalizations: true,
@@ -117,6 +127,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
+    googleServicesFile: './google-services.json',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#76dcd1',

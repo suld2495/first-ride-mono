@@ -26,6 +26,10 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
 }));
 
+jest.mock('@/utils/firebase-analytics', () => ({
+  setFirebaseAnalyticsEnabled: jest.fn(() => Promise.resolve()),
+}));
+
 const getMockedStorage = () =>
   jest.requireMock('@react-native-async-storage/async-storage') as {
     getItem: jest.Mock;
@@ -160,6 +164,12 @@ describe('initializeClarity', () => {
       }),
     ).resolves.toBe(true);
 
+    const {
+      setFirebaseAnalyticsEnabled,
+    } = require('@/utils/firebase-analytics');
+    expect(setFirebaseAnalyticsEnabled).toHaveBeenCalledWith(true, {
+      platform: 'android',
+    });
     expect(claritySdk.initialize).toHaveBeenCalledTimes(1);
     expect(claritySdk.consent).toHaveBeenCalledWith(false, true);
   });
@@ -192,6 +202,12 @@ describe('initializeClarity', () => {
       CLARITY_ANALYTICS_PREFERENCE_KEY,
       'disabled',
     );
+    const {
+      setFirebaseAnalyticsEnabled,
+    } = require('@/utils/firebase-analytics');
+    expect(setFirebaseAnalyticsEnabled).toHaveBeenLastCalledWith(false, {
+      platform: 'ios',
+    });
     expect(claritySdk.consent).toHaveBeenLastCalledWith(false, false);
     expect(claritySdk.pause).toHaveBeenCalledTimes(1);
   });

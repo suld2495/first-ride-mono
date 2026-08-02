@@ -22,6 +22,8 @@
     "@microsoft/react-native-clarity": "4.6.3",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-community/datetimepicker": "8.4.1",
+    "@react-native-firebase/analytics": "^26.0.0",
+    "@react-native-firebase/app": "^26.0.0",
     "@react-native-kakao/core": "^2.4.2",
     "@react-native-kakao/user": "^2.4.2",
     "@react-navigation/bottom-tabs": "^7.0.5",

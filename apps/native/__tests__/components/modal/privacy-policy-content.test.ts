@@ -16,6 +16,7 @@ describe('개인정보 처리 안내', () => {
 
   it('실제로 사용하는 외부 서비스와 분석 수집 중지 방법을 안내한다', () => {
     expect(PRIVACY_POLICY_MARKDOWN).toContain('Microsoft Clarity');
+    expect(PRIVACY_POLICY_MARKDOWN).toContain('Firebase Analytics');
     expect(PRIVACY_POLICY_MARKDOWN).toContain('Expo Push Service');
     expect(PRIVACY_POLICY_MARKDOWN).toContain('카카오');
     expect(PRIVACY_POLICY_MARKDOWN).toContain('Apple');
@@ -27,9 +28,7 @@ describe('개인정보 처리 안내', () => {
 
   it('실제 앱과 다른 이전 서비스명과 수집 설명을 제거한다', () => {
     expect(PRIVACY_POLICY_MARKDOWN).not.toContain('처음처럼');
-    expect(PRIVACY_POLICY_MARKDOWN).not.toContain('Firebase Analytics');
     expect(PRIVACY_POLICY_MARKDOWN).not.toContain('휴대전화번호');
     expect(TERMS_POLICY_MARKDOWN).not.toContain('처음처럼');
-    expect(TERMS_POLICY_MARKDOWN).not.toContain('Firebase Analytics');
   });
 });
