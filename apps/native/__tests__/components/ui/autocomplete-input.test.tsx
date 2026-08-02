@@ -131,6 +131,29 @@ describe('AutocompleteInput', () => {
     ).toEqual(characterImageSource);
   });
 
+  it('버튼 모드에서 기존 입력창을 직접 편집하지 않고 눌러서 옵션을 연다', () => {
+    const { getByLabelText, getByPlaceholderText, getByText } = render(
+      <AppTamaguiProvider>
+        <AutocompleteInput
+          interactionMode="button"
+          placeholder="친구를 선택하세요"
+          items={[{ label: 'friend1', value: 'friend1' }]}
+        />
+      </AppTamaguiProvider>,
+    );
+
+    const button = getByLabelText('친구를 선택하세요');
+
+    expect(button.props.accessibilityRole).toBe('button');
+    expect(getByPlaceholderText('친구를 선택하세요').props.editable).toBe(
+      false,
+    );
+
+    fireEvent.press(button);
+
+    expect(getByText('friend1')).toBeOnTheScreen();
+  });
+
   it('선택된 옵션 우측 12 여백에 현재 테마 50 색상의 체크 아이콘을 표시한다', () => {
     useColorSchemeStore.getState().setColorScheme('green');
 
