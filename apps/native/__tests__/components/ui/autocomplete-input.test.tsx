@@ -4,6 +4,7 @@ import { Keyboard, StyleSheet, TextInput } from 'react-native';
 import {
   AutocompleteInput,
   resolveAutocompleteDropdownLayout,
+  shouldUpdateAutocompleteDropdownPlacement,
 } from '../../../components/ui/autocomplete-input';
 import AppTamaguiProvider from '../../../components/ui/tamagui-provider';
 import { useColorSchemeStore } from '../../../store/color-scheme.store';
@@ -74,6 +75,24 @@ describe('AutocompleteInput', () => {
       placement: 'above',
       maxHeight: 116,
     });
+  });
+
+  it('버튼 모드는 열린 뒤 목록과 viewport가 변해도 드롭다운 배치를 다시 계산하지 않는다', () => {
+    expect(
+      shouldUpdateAutocompleteDropdownPlacement('button', 'open'),
+    ).toBe(true);
+    expect(
+      shouldUpdateAutocompleteDropdownPlacement('button', 'content-change'),
+    ).toBe(false);
+    expect(
+      shouldUpdateAutocompleteDropdownPlacement('button', 'viewport-change'),
+    ).toBe(false);
+    expect(
+      shouldUpdateAutocompleteDropdownPlacement('input', 'content-change'),
+    ).toBe(true);
+    expect(
+      shouldUpdateAutocompleteDropdownPlacement('input', 'viewport-change'),
+    ).toBe(true);
   });
 
   it('옵션의 실제 높이를 드롭다운 전체 높이 계산 단위와 일치시킨다', () => {
