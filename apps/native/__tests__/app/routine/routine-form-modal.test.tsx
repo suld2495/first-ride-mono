@@ -632,7 +632,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       const dropdownScroll = getByTestId('autocomplete-dropdown-scroll');
-      const dropdownInput = getByPlaceholderText('친구를 검색하세요');
+      const dropdownInput = getByPlaceholderText('검색');
+      expect(
+        getByTestId('autocomplete-dropdown-search-icon'),
+      ).toBeOnTheScreen();
       const dropdownItems = within(dropdownScroll).getAllByTestId(
         /^(autocomplete-dropdown-input-item|autocomplete-option)$/,
       );
