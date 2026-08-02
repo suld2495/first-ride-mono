@@ -32,6 +32,7 @@ import { Typography } from './typography';
 
 const DROPDOWN_ITEM_HEIGHT = baseFoundation.dimension.x48;
 const DROPDOWN_EMPTY_HEIGHT = baseFoundation.dimension.x48;
+const DROPDOWN_INPUT_HEIGHT = baseFoundation.dimension.x52;
 const DROPDOWN_GAP = baseFoundation.spacing[1];
 
 type DropdownPlacement = 'above' | 'below';
@@ -77,6 +78,12 @@ export interface AutocompleteItem {
   imageSource?: ImageSourcePropType;
 }
 
+export interface AutocompleteDropdownInput {
+  value: string;
+  placeholder?: string;
+  onChangeText: (text: string) => void;
+}
+
 export interface AutocompleteInputProps
   extends Omit<InputProps, 'onChangeText'> {
   /**
@@ -84,6 +91,16 @@ export interface AutocompleteInputProps
    * @default 'input'
    */
   interactionMode?: 'input' | 'button';
+
+  /**
+   * 버튼 드롭다운의 첫 번째 항목에 표시할 입력창
+   */
+  dropdownInput?: AutocompleteDropdownInput;
+
+  /**
+   * 드롭다운이 닫혔을 때 호출할 핸들러
+   */
+  onDropdownDismiss?: () => void;
 
   /**
    * 자동완성 항목 목록
@@ -153,6 +170,8 @@ export const AutocompleteInput = forwardRef<
       items = [],
       loading = false,
       interactionMode = 'input',
+      dropdownInput,
+      onDropdownDismiss,
       onChangeText,
       onSelectItem,
       showDropdown = true,
@@ -167,8 +186,10 @@ export const AutocompleteInput = forwardRef<
     const { theme } = useAppTheme();
     const containerRef = useRef<View>(null);
     const textInputRef = useRef<TextInput>(null);
+    const dropdownInputRef = useRef<TextInput>(null);
     const visibleViewportBottomRef = useRef<number | null>(null);
     const isButtonMode = interactionMode === 'button';
+    const hasDropdownInput = isButtonMode && dropdownInput !== undefined;
     const [isFocused, setIsFocused] = useState(false);
     const [dropdownPlacement, setDropdownPlacement] =
       useState<DropdownPlacement>('below');
@@ -189,19 +210,28 @@ export const AutocompleteInput = forwardRef<
     }, [theme]);
 
     const shouldShowDropdown =
-      isFocused && showDropdown && (items.length > 0 || loading);
+      isFocused &&
+      showDropdown &&
+      (items.length > 0 || loading || hasDropdownInput);
     const dismissDropdown = useCallback(() => {
       textInputRef.current?.blur();
+      dropdownInputRef.current?.blur();
       setIsFocused(false);
       Keyboard.dismiss();
-    }, []);
+      onDropdownDismiss?.();
+    }, [onDropdownDismiss]);
     const expectedDropdownHeight = useMemo(() => {
+      const inputHeight = hasDropdownInput ? DROPDOWN_INPUT_HEIGHT : 0;
+
       if (loading || items.length === 0) {
-        return Math.min(dropdownMaxHeight, DROPDOWN_EMPTY_HEIGHT);
+        return Math.min(dropdownMaxHeight, inputHeight + DROPDOWN_EMPTY_HEIGHT);
       }
 
-      return Math.min(dropdownMaxHeight, items.length * DROPDOWN_ITEM_HEIGHT);
-    }, [dropdownMaxHeight, items.length, loading]);
+      return Math.min(
+        dropdownMaxHeight,
+        inputHeight + items.length * DROPDOWN_ITEM_HEIGHT,
+      );
+    }, [dropdownMaxHeight, hasDropdownInput, items.length, loading]);
 
     const updateDropdownPlacement = useCallback(
       (viewportBottom = visibleViewportBottomRef.current) => {
@@ -343,7 +373,7 @@ export const AutocompleteInput = forwardRef<
       }
 
       return items.map((item, index) => {
-        const isFirstItem = index === 0;
+        const isFirstItem = index === 0 && !hasDropdownInput;
         const isLastItem = index === items.length - 1;
         const isSelected = item.value === value;
 
@@ -412,6 +442,7 @@ export const AutocompleteInput = forwardRef<
       items,
       emptyMessage,
       dropdownColors,
+      hasDropdownInput,
       handleSelectItem,
       theme.colors.field.icon,
       value,
@@ -471,10 +502,34 @@ export const AutocompleteInput = forwardRef<
             ]}
           >
             <ScrollView
+              testID="autocomplete-dropdown-scroll"
               keyboardShouldPersistTaps="handled"
               nestedScrollEnabled={true}
               showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
             >
+              {hasDropdownInput ? (
+                <View
+                  testID="autocomplete-dropdown-input-item"
+                  style={[
+                    styles.dropdownInputItem,
+                    {
+                      backgroundColor: dropdownColors.background,
+                      borderBottomColor: dropdownColors.divider,
+                    },
+                  ]}
+                >
+                  <Input
+                    ref={dropdownInputRef}
+                    variant="filled"
+                    value={dropdownInput.value}
+                    placeholder={dropdownInput.placeholder}
+                    onChangeText={dropdownInput.onChangeText}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType="search"
+                  />
+                </View>
+              ) : null}
               {renderDropdownContent()}
             </ScrollView>
           </ThemeView>
@@ -520,6 +575,13 @@ const styles = StyleSheet.create({
     paddingLeft: baseFoundation.spacing[4],
     paddingRight: baseFoundation.spacing[3],
     paddingVertical: baseFoundation.spacing[3],
+  },
+  dropdownInputItem: {
+    height: DROPDOWN_INPUT_HEIGHT,
+    padding: baseFoundation.spacing[1],
+    borderBottomWidth: 1,
+    borderTopLeftRadius: baseFoundation.dimension.x8,
+    borderTopRightRadius: baseFoundation.dimension.x8,
   },
   dropdownItemContent: {
     flex: 1,

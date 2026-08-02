@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/react-native';
+import { fireEvent, render, within } from '@testing-library/react-native';
 import { Keyboard, StyleSheet, TextInput } from 'react-native';
 
 import {
@@ -175,8 +175,11 @@ describe('AutocompleteInput', () => {
 
     const dropdownScroll = getByTestId('autocomplete-dropdown-scroll');
     const dropdownInput = getByPlaceholderText('친구를 검색하세요');
+    const dropdownItems = within(dropdownScroll).getAllByTestId(
+      /^(autocomplete-dropdown-input-item|autocomplete-option)$/,
+    );
 
-    expect(dropdownScroll.props.children[0].props.testID).toBe(
+    expect(dropdownItems[0].props.testID).toBe(
       'autocomplete-dropdown-input-item',
     );
 

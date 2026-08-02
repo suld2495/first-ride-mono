@@ -29,6 +29,7 @@ import {
 } from '@/constants/ROUTINE_COLORS';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
 import { useRoutineDelete } from '@/hooks/useRoutineDelete';
 import { useRoutineFormSubmission } from '@/hooks/useRoutineFormSubmission';
@@ -230,6 +231,7 @@ const RoutineFormModal = () => {
   }, [defaultStartDate, isDirectRoutine, isRoutineAdd, sourceRoutineForm]);
   const initialMateNickname = String(normalizedRoutineForm.mateNickname ?? '');
 
+  const [mateKeyword, setMateKeyword] = useState('');
   const [showHiddenRoutineInfo, setShowHiddenRoutineInfo] = useState(false);
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
   const {
@@ -248,9 +250,10 @@ const RoutineFormModal = () => {
         : null,
   });
 
+  const debouncedMateKeyword = useDebounce(mateKeyword, 300);
   const { data: friendList = [], isLoading: isFriendListLoading } =
     useFetchFriendsQuery({
-      keyword: '',
+      keyword: debouncedMateKeyword,
       page: 1,
     });
 
@@ -433,6 +436,7 @@ const RoutineFormModal = () => {
 
                       if (!checked) {
                         setValue('mateNickname', '');
+                        setMateKeyword('');
                       }
                     }}
                   />
@@ -450,6 +454,12 @@ const RoutineFormModal = () => {
                           variant="filled"
                           value={value !== undefined ? String(value) : value}
                           placeholder="친구를 선택하세요"
+                          dropdownInput={{
+                            value: mateKeyword,
+                            placeholder: '친구를 검색하세요',
+                            onChangeText: setMateKeyword,
+                          }}
+                          onDropdownDismiss={() => setMateKeyword('')}
                           editable
                           items={friendAutocompleteItems}
                           loading={isFriendListLoading}

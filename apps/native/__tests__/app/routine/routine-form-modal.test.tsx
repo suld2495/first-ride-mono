@@ -633,8 +633,11 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       const dropdownScroll = getByTestId('autocomplete-dropdown-scroll');
       const dropdownInput = getByPlaceholderText('친구를 검색하세요');
+      const dropdownItems = within(dropdownScroll).getAllByTestId(
+        /^(autocomplete-dropdown-input-item|autocomplete-option)$/,
+      );
 
-      expect(dropdownScroll.props.children[0].props.testID).toBe(
+      expect(dropdownItems[0].props.testID).toBe(
         'autocomplete-dropdown-input-item',
       );
 
