@@ -78,9 +78,9 @@ describe('AutocompleteInput', () => {
   });
 
   it('버튼 모드는 열린 뒤 목록과 viewport가 변해도 드롭다운 배치를 다시 계산하지 않는다', () => {
-    expect(
-      shouldUpdateAutocompleteDropdownPlacement('button', 'open'),
-    ).toBe(true);
+    expect(shouldUpdateAutocompleteDropdownPlacement('button', 'open')).toBe(
+      true,
+    );
     expect(
       shouldUpdateAutocompleteDropdownPlacement('button', 'content-change'),
     ).toBe(false);

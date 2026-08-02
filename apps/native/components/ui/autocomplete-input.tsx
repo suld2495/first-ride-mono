@@ -37,6 +37,16 @@ const DROPDOWN_INPUT_HEIGHT = baseFoundation.dimension.x52;
 const DROPDOWN_GAP = baseFoundation.spacing[1];
 
 type DropdownPlacement = 'above' | 'below';
+type AutocompleteInteractionMode = 'input' | 'button';
+type DropdownPlacementUpdateTrigger =
+  | 'open'
+  | 'content-change'
+  | 'viewport-change';
+
+export const shouldUpdateAutocompleteDropdownPlacement = (
+  interactionMode: AutocompleteInteractionMode,
+  trigger: DropdownPlacementUpdateTrigger,
+) => interactionMode === 'input' || trigger === 'open';
 
 interface ResolveDropdownLayoutParams {
   anchorY: number;
@@ -91,7 +101,7 @@ export interface AutocompleteInputProps
    * 입력창을 직접 편집하거나 버튼으로 사용할지 여부
    * @default 'input'
    */
-  interactionMode?: 'input' | 'button';
+  interactionMode?: AutocompleteInteractionMode;
 
   /**
    * 버튼 드롭다운의 첫 번째 항목에 표시할 입력창
@@ -273,10 +283,14 @@ export const AutocompleteInput = forwardRef<
     const handleFocus = useCallback(
       (e: Parameters<NonNullable<InputProps['onFocus']>>[0]): void => {
         setIsFocused(true);
-        updateDropdownPlacement();
+        if (
+          shouldUpdateAutocompleteDropdownPlacement(interactionMode, 'open')
+        ) {
+          updateDropdownPlacement();
+        }
         inputProps.onFocus?.(e);
       },
-      [inputProps, updateDropdownPlacement],
+      [inputProps, interactionMode, updateDropdownPlacement],
     );
 
     const handleBlur = useCallback(
@@ -302,19 +316,28 @@ export const AutocompleteInput = forwardRef<
       }
 
       setIsFocused(true);
-      updateDropdownPlacement();
+      if (shouldUpdateAutocompleteDropdownPlacement(interactionMode, 'open')) {
+        updateDropdownPlacement();
+      }
     }, [
       dismissDropdown,
       inputProps.editable,
+      interactionMode,
       isFocused,
       updateDropdownPlacement,
     ]);
 
     useEffect(() => {
-      if (isFocused) {
+      if (
+        isFocused &&
+        shouldUpdateAutocompleteDropdownPlacement(
+          interactionMode,
+          'content-change',
+        )
+      ) {
         updateDropdownPlacement();
       }
-    }, [isFocused, updateDropdownPlacement]);
+    }, [interactionMode, isFocused, updateDropdownPlacement]);
 
     useEffect(() => {
       const keyboardShowSubscription = Keyboard.addListener(
@@ -322,7 +345,13 @@ export const AutocompleteInput = forwardRef<
         (event) => {
           visibleViewportBottomRef.current = event.endCoordinates.screenY;
 
-          if (isFocused) {
+          if (
+            isFocused &&
+            shouldUpdateAutocompleteDropdownPlacement(
+              interactionMode,
+              'viewport-change',
+            )
+          ) {
             updateDropdownPlacement(event.endCoordinates.screenY);
           }
         },
@@ -332,7 +361,13 @@ export const AutocompleteInput = forwardRef<
         () => {
           visibleViewportBottomRef.current = null;
 
-          if (isFocused) {
+          if (
+            isFocused &&
+            shouldUpdateAutocompleteDropdownPlacement(
+              interactionMode,
+              'viewport-change',
+            )
+          ) {
             updateDropdownPlacement(Dimensions.get('window').height);
           }
         },
@@ -342,7 +377,7 @@ export const AutocompleteInput = forwardRef<
         keyboardShowSubscription.remove();
         keyboardHideSubscription.remove();
       };
-    }, [isFocused, updateDropdownPlacement]);
+    }, [interactionMode, isFocused, updateDropdownPlacement]);
 
     const renderDropdownContent = useCallback(() => {
       if (loading) {
