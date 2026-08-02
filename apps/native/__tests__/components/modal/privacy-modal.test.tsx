@@ -5,6 +5,10 @@ import {
   getClarityAnalyticsEnabled,
   setClarityAnalyticsEnabled,
 } from '@/utils/clarity';
+import {
+  getFirebaseAnalyticsEnabled,
+  setFirebaseAnalyticsEnabled,
+} from '@/utils/firebase-analytics';
 
 import { render } from '../../setup/test-utils';
 
@@ -15,90 +19,92 @@ jest.mock('@/utils/clarity', () => ({
   setClarityAnalyticsEnabled: jest.fn(),
 }));
 
+jest.mock('@/utils/firebase-analytics', () => ({
+  getFirebaseAnalyticsEnabled: jest.fn(),
+  setFirebaseAnalyticsEnabled: jest.fn(),
+}));
+
 describe('개인정보 처리방침', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (getClarityAnalyticsEnabled as jest.Mock).mockResolvedValue(false);
+    (getClarityAnalyticsEnabled as jest.Mock).mockResolvedValue(true);
     (setClarityAnalyticsEnabled as jest.Mock).mockResolvedValue(undefined);
+    (getFirebaseAnalyticsEnabled as jest.Mock).mockResolvedValue(true);
+    (setFirebaseAnalyticsEnabled as jest.Mock).mockResolvedValue(undefined);
   });
 
-  it('처리방침과 사용 데이터 분석 설정을 한 화면에 표시한다', async () => {
-    const { getAllByText, getByLabelText, getByText } = render(
-      <PrivacyModal />,
-    );
+  it('Clarity와 Firebase 설정을 각각 기본 켜짐으로 표시한다', async () => {
+    const { getByLabelText, getByText } = render(<PrivacyModal />);
 
     expect(getByText('개인정보 처리방침')).toBeOnTheScreen();
     expect(getByText('1. 총칙')).toBeOnTheScreen();
-    expect(getAllByText('사용 데이터 분석').length).toBeGreaterThan(0);
-    expect(
-      await waitFor(() =>
-        expect(
-          getByLabelText('사용 데이터 분석').props.accessibilityState,
-        ).toEqual(expect.objectContaining({ checked: false })),
-      ),
-    ).toBeUndefined();
-  });
-
-  it('사용자가 동의하면 분석 수집 설정을 저장한다', async () => {
-    const { getByLabelText } = render(<PrivacyModal />);
-    const analyticsSwitch = await waitFor(() =>
-      getByLabelText('사용 데이터 분석'),
-    );
-
-    await act(async () => {
-      fireEvent(analyticsSwitch, 'valueChange', true);
-    });
-
     await waitFor(() => {
-      expect(setClarityAnalyticsEnabled).toHaveBeenCalledWith(true);
-      expect(mockShowToast).toHaveBeenCalledWith(
-        '사용 데이터 분석을 켰습니다.',
-        'success',
-      );
+      expect(
+        getByLabelText('Microsoft Clarity 분석').props.accessibilityState,
+      ).toEqual(expect.objectContaining({ checked: true }));
+      expect(
+        getByLabelText('Firebase Analytics 분석').props.accessibilityState,
+      ).toEqual(expect.objectContaining({ checked: true }));
     });
   });
 
-  it('사용자가 동의를 철회하면 분석 수집 중지 설정을 저장한다', async () => {
-    (getClarityAnalyticsEnabled as jest.Mock).mockResolvedValue(true);
+  it('Clarity만 꺼도 Firebase 설정은 변경하지 않는다', async () => {
     const { getByLabelText } = render(<PrivacyModal />);
-    const analyticsSwitch = await waitFor(() =>
-      getByLabelText('사용 데이터 분석'),
+    const claritySwitch = await waitFor(() =>
+      getByLabelText('Microsoft Clarity 분석'),
     );
 
-    await waitFor(() => {
-      expect(analyticsSwitch.props.accessibilityState.checked).toBe(true);
-    });
-
     await act(async () => {
-      fireEvent(analyticsSwitch, 'valueChange', false);
+      fireEvent(claritySwitch, 'valueChange', false);
     });
 
     await waitFor(() => {
       expect(setClarityAnalyticsEnabled).toHaveBeenCalledWith(false);
+      expect(setFirebaseAnalyticsEnabled).not.toHaveBeenCalled();
       expect(mockShowToast).toHaveBeenCalledWith(
-        '사용 데이터 분석을 껐습니다.',
+        'Microsoft Clarity 분석을 껐습니다.',
         'success',
       );
     });
   });
 
-  it('설정 변경에 실패하면 저장된 선택을 복원하고 오류를 알린다', async () => {
-    (setClarityAnalyticsEnabled as jest.Mock).mockRejectedValue(
-      new Error('native sdk unavailable'),
-    );
+  it('Firebase만 꺼도 Clarity 설정은 변경하지 않는다', async () => {
     const { getByLabelText } = render(<PrivacyModal />);
-    const analyticsSwitch = await waitFor(() =>
-      getByLabelText('사용 데이터 분석'),
+    const firebaseSwitch = await waitFor(() =>
+      getByLabelText('Firebase Analytics 분석'),
     );
 
     await act(async () => {
-      fireEvent(analyticsSwitch, 'valueChange', true);
+      fireEvent(firebaseSwitch, 'valueChange', false);
     });
 
     await waitFor(() => {
-      expect(analyticsSwitch.props.accessibilityState.checked).toBe(false);
+      expect(setFirebaseAnalyticsEnabled).toHaveBeenCalledWith(false);
+      expect(setClarityAnalyticsEnabled).not.toHaveBeenCalled();
       expect(mockShowToast).toHaveBeenCalledWith(
-        '분석 수집 설정을 변경하지 못했습니다.',
+        'Firebase Analytics 분석을 껐습니다.',
+        'success',
+      );
+    });
+  });
+
+  it('Firebase 설정 변경에 실패하면 저장된 선택을 복원한다', async () => {
+    (setFirebaseAnalyticsEnabled as jest.Mock).mockRejectedValue(
+      new Error('native sdk unavailable'),
+    );
+    const { getByLabelText } = render(<PrivacyModal />);
+    const firebaseSwitch = await waitFor(() =>
+      getByLabelText('Firebase Analytics 분석'),
+    );
+
+    await act(async () => {
+      fireEvent(firebaseSwitch, 'valueChange', false);
+    });
+
+    await waitFor(() => {
+      expect(firebaseSwitch.props.accessibilityState.checked).toBe(true);
+      expect(mockShowToast).toHaveBeenCalledWith(
+        'Firebase Analytics 설정을 변경하지 못했습니다.',
         'error',
       );
     });

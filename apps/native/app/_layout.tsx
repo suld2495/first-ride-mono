@@ -51,6 +51,7 @@ import {
   getNotificationResponseHandlingMode,
 } from '@/utils/auth-stack-route';
 import { initializeClarityWithStoredConsent } from '@/utils/clarity';
+import { initializeFirebaseAnalyticsWithStoredPreference } from '@/utils/firebase-analytics';
 import { initializeKakao } from '@/utils/initialize-kakao';
 import { getNavigationAction } from '@/utils/navigation-stack';
 import {
@@ -176,10 +177,19 @@ function AppShell({ isFontReady }: AppShellProps) {
   const setColorScheme = useSetAppColorScheme();
   const syncWithTamagui = useSyncAppColorScheme();
   const handledShareSessionIdRef = useRef<string | null>(null);
+  const hasInitializedAnalyticsRef = useRef(false);
   const { showToast } = useToast();
 
   useEffect(() => {
-    void initializeClarityWithStoredConsent().catch(() => undefined);
+    if (hasInitializedAnalyticsRef.current) {
+      return;
+    }
+
+    hasInitializedAnalyticsRef.current = true;
+    void Promise.allSettled([
+      initializeClarityWithStoredConsent(),
+      initializeFirebaseAnalyticsWithStoredPreference(),
+    ]).then(() => undefined);
   }, []);
 
   /**

@@ -2,8 +2,13 @@ import type * as ClaritySdkModule from '@microsoft/react-native-clarity';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
+import {
+  CLARITY_ANALYTICS_PREFERENCE_KEY,
+  DISABLED_ANALYTICS_PREFERENCE,
+  ENABLED_ANALYTICS_PREFERENCE,
+  resolveAnalyticsPreference,
+} from '@/utils/analytics-preferences';
 import { getClarityProjectId } from '@/utils/env';
-import { setFirebaseAnalyticsEnabled } from '@/utils/firebase-analytics';
 
 type ClaritySdk = typeof ClaritySdkModule;
 
@@ -16,11 +21,7 @@ interface InitializeClarityOptions {
 
 const SUPPORTED_PLATFORMS = new Set(['android', 'ios']);
 
-export const CLARITY_ANALYTICS_PREFERENCE_KEY =
-  'clarityAnalyticsCollectionPreference:v1';
-
-const ENABLED_PREFERENCE = 'enabled';
-const DISABLED_PREFERENCE = 'disabled';
+export { CLARITY_ANALYTICS_PREFERENCE_KEY };
 
 const loadClaritySdk = (): ClaritySdk =>
   require('@microsoft/react-native-clarity') as ClaritySdk;
@@ -59,10 +60,11 @@ export function initializeClarity({
 
 export async function getClarityAnalyticsEnabled(): Promise<boolean> {
   try {
-    return (
-      (await AsyncStorage.getItem(CLARITY_ANALYTICS_PREFERENCE_KEY)) ===
-      ENABLED_PREFERENCE
+    const storedPreference = resolveAnalyticsPreference(
+      await AsyncStorage.getItem(CLARITY_ANALYTICS_PREFERENCE_KEY),
     );
+
+    return storedPreference ?? true;
   } catch {
     return false;
   }
@@ -74,8 +76,6 @@ export async function initializeClarityWithStoredConsent(
   if (!(await getClarityAnalyticsEnabled())) {
     return false;
   }
-
-  await setFirebaseAnalyticsEnabled(true, { platform: options.platform });
 
   const wasInitialized = isClarityInitialized;
   const initialized = initializeClarity(options);
@@ -115,7 +115,7 @@ async function rollBackClarityEnablement(): Promise<void> {
     try {
       await AsyncStorage.setItem(
         CLARITY_ANALYTICS_PREFERENCE_KEY,
-        DISABLED_PREFERENCE,
+        DISABLED_ANALYTICS_PREFERENCE,
       );
     } catch {
       await AsyncStorage.removeItem(CLARITY_ANALYTICS_PREFERENCE_KEY);
@@ -131,14 +131,13 @@ export async function setClarityAnalyticsEnabled(
 ): Promise<void> {
   await AsyncStorage.setItem(
     CLARITY_ANALYTICS_PREFERENCE_KEY,
-    enabled ? ENABLED_PREFERENCE : DISABLED_PREFERENCE,
+    enabled ? ENABLED_ANALYTICS_PREFERENCE : DISABLED_ANALYTICS_PREFERENCE,
   );
 
   if (enabled) {
     const wasInitialized = isClarityInitialized;
 
     try {
-      await setFirebaseAnalyticsEnabled(true, { platform: options.platform });
       initializeClarity(options);
 
       if (!activeClaritySdk) {
@@ -158,13 +157,5 @@ export async function setClarityAnalyticsEnabled(
     return;
   }
 
-  const results = await Promise.allSettled([
-    setFirebaseAnalyticsEnabled(false, { platform: options.platform }),
-    stopActiveClarity(),
-  ]);
-  const failedResult = results.find((result) => result.status === 'rejected');
-
-  if (failedResult?.status === 'rejected') {
-    throw failedResult.reason;
-  }
+  await stopActiveClarity();
 }

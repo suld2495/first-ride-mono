@@ -24,6 +24,9 @@ describe('개인정보 처리 안내', () => {
     expect(PRIVACY_POLICY_MARKDOWN).toContain(
       '개인정보 처리방침 상단의 사용 데이터 분석',
     );
+    expect(PRIVACY_POLICY_MARKDOWN).toContain('각각 켜거나 끌 수');
+    expect(PRIVACY_POLICY_MARKDOWN).toContain('기본적으로 켜져');
+    expect(TERMS_POLICY_MARKDOWN).toContain('각각 켜거나 끌 수');
   });
 
   it('실제 앱과 다른 이전 서비스명과 수집 설명을 제거한다', () => {

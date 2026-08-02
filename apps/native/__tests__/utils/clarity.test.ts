@@ -26,10 +26,6 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
 }));
 
-jest.mock('@/utils/firebase-analytics', () => ({
-  setFirebaseAnalyticsEnabled: jest.fn(() => Promise.resolve()),
-}));
-
 const getMockedStorage = () =>
   jest.requireMock('@react-native-async-storage/async-storage') as {
     getItem: jest.Mock;
@@ -129,16 +125,35 @@ describe('initializeClarity', () => {
     expect(loadSdk).not.toHaveBeenCalled();
   });
 
-  it('저장된 동의가 없는 신규 설치에서는 Clarity를 초기화하지 않는다', async () => {
+  it('저장된 선택이 없는 신규 설치에서는 Clarity를 기본으로 시작한다', async () => {
     const mockedStorage = getMockedStorage();
 
     mockedStorage.getItem.mockResolvedValue(null);
-    const loadSdk = jest.fn(() => createSdkMock());
+    const claritySdk = createSdkMock();
     const { initializeClarityWithStoredConsent } = require('@/utils/clarity');
 
     await expect(
       initializeClarityWithStoredConsent({
         isDevelopment: false,
+        loadSdk: () => claritySdk,
+        platform: 'ios',
+        projectId: 'clarity-project-id',
+      }),
+    ).resolves.toBe(true);
+
+    expect(claritySdk.initialize).toHaveBeenCalledTimes(1);
+    expect(claritySdk.consent).toHaveBeenCalledWith(false, true);
+  });
+
+  it('Clarity를 끈 기존 사용자는 다음 실행에서도 시작하지 않는다', async () => {
+    const mockedStorage = getMockedStorage();
+
+    mockedStorage.getItem.mockResolvedValue('disabled');
+    const loadSdk = jest.fn(() => createSdkMock());
+    const { initializeClarityWithStoredConsent } = require('@/utils/clarity');
+
+    await expect(
+      initializeClarityWithStoredConsent({
         loadSdk,
         platform: 'ios',
         projectId: 'clarity-project-id',
@@ -164,12 +179,6 @@ describe('initializeClarity', () => {
       }),
     ).resolves.toBe(true);
 
-    const {
-      setFirebaseAnalyticsEnabled,
-    } = require('@/utils/firebase-analytics');
-    expect(setFirebaseAnalyticsEnabled).toHaveBeenCalledWith(true, {
-      platform: 'android',
-    });
     expect(claritySdk.initialize).toHaveBeenCalledTimes(1);
     expect(claritySdk.consent).toHaveBeenCalledWith(false, true);
   });
@@ -202,12 +211,6 @@ describe('initializeClarity', () => {
       CLARITY_ANALYTICS_PREFERENCE_KEY,
       'disabled',
     );
-    const {
-      setFirebaseAnalyticsEnabled,
-    } = require('@/utils/firebase-analytics');
-    expect(setFirebaseAnalyticsEnabled).toHaveBeenLastCalledWith(false, {
-      platform: 'ios',
-    });
     expect(claritySdk.consent).toHaveBeenLastCalledWith(false, false);
     expect(claritySdk.pause).toHaveBeenCalledTimes(1);
   });

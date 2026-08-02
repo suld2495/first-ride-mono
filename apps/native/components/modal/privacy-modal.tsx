@@ -5,11 +5,14 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
-import { useClarityAnalyticsSetting } from '@/hooks/useClarityAnalyticsSetting';
+import {
+  useClarityAnalyticsSetting,
+  useFirebaseAnalyticsSetting,
+} from '@/hooks/useClarityAnalyticsSetting';
 
 const PrivacyModal = () => {
-  const { analyticsEnabled, isReady, isSaving, setAnalyticsConsent } =
-    useClarityAnalyticsSetting();
+  const claritySetting = useClarityAnalyticsSetting();
+  const firebaseSetting = useFirebaseAnalyticsSetting();
 
   return (
     <ThemeView style={styles.container}>
@@ -25,50 +28,73 @@ const PrivacyModal = () => {
             어떤 정보를 수집하고 보호하는지 안내해 드려요.
           </Typography>
           <Typography color="tertiary" variant="caption1">
-            시행일 2026.07.22
+            시행일 2026.08.02
           </Typography>
         </ThemeView>
         <View style={styles.analyticsSection}>
           <View style={styles.analyticsHeading}>
             <Typography variant="h3" weight="bold">
-              분석 데이터는 직접 선택해 주세요
+              사용 데이터 분석 설정
             </Typography>
             <Typography color="secondary" variant="body2">
-              선택하지 않으면 Microsoft Clarity와 Firebase Analytics가 시작되지
-              않습니다. 언제든 이 화면에서 다시 끌 수 있습니다.
+              두 분석 도구는 기본적으로 켜져 있으며, 아래에서 각각 언제든 끌 수
+              있습니다.
             </Typography>
           </View>
 
           <View style={styles.settingCard}>
             <View style={styles.settingText}>
               <Typography variant="body1" weight="semibold">
-                사용 데이터 분석
+                Microsoft Clarity
               </Typography>
               <Typography color="secondary" variant="caption1">
-                화면 이용 흐름과 오류·성능 정보를 수집해 서비스 개선에
-                사용합니다. 입력한 비밀번호와 인증 토큰은 분석 목적으로 전송하지
-                않습니다.
+                화면 이용 흐름, 탭·스크롤과 세션 정보를 수집해 사용성을
+                개선합니다.
               </Typography>
             </View>
             <Switch
-              accessibilityLabel="사용 데이터 분석"
+              accessibilityLabel="Microsoft Clarity 분석"
               accessibilityState={{
-                checked: analyticsEnabled,
-                disabled: !isReady || isSaving,
+                checked: claritySetting.analyticsEnabled,
+                disabled: !claritySetting.isReady || claritySetting.isSaving,
               }}
-              disabled={!isReady || isSaving}
+              disabled={!claritySetting.isReady || claritySetting.isSaving}
               onValueChange={(enabled) => {
-                void setAnalyticsConsent(enabled);
+                void claritySetting.setAnalyticsConsent(enabled);
               }}
-              testID="privacy-policy-analytics-switch"
-              value={analyticsEnabled}
+              testID="privacy-policy-clarity-switch"
+              value={claritySetting.analyticsEnabled}
+            />
+          </View>
+
+          <View style={styles.settingCard}>
+            <View style={styles.settingText}>
+              <Typography variant="body1" weight="semibold">
+                Firebase Analytics
+              </Typography>
+              <Typography color="secondary" variant="caption1">
+                앱 실행, 세션과 기기·앱 기술 정보를 수집해 이용 현황을
+                분석합니다.
+              </Typography>
+            </View>
+            <Switch
+              accessibilityLabel="Firebase Analytics 분석"
+              accessibilityState={{
+                checked: firebaseSetting.analyticsEnabled,
+                disabled: !firebaseSetting.isReady || firebaseSetting.isSaving,
+              }}
+              disabled={!firebaseSetting.isReady || firebaseSetting.isSaving}
+              onValueChange={(enabled) => {
+                void firebaseSetting.setAnalyticsConsent(enabled);
+              }}
+              testID="privacy-policy-firebase-switch"
+              value={firebaseSetting.analyticsEnabled}
             />
           </View>
 
           <Typography color="secondary" variant="caption1">
-            이 설정을 끄면 현재 분석 세션을 중지하고, 다음 앱 실행에서도
-            사용자가 다시 켤 때까지 Clarity와 Firebase Analytics를 초기화하지
-            않습니다.
+            끈 분석 도구는 즉시 수집을 중지하며 다음 앱 실행에서도 꺼진 상태를
+            유지합니다. 비밀번호와 인증 토큰은 분석 목적으로 전송하지 않습니다.
           </Typography>
         </View>
         <Markdown
@@ -203,13 +229,15 @@ export const PRIVACY_POLICY_MARKDOWN = `
 - 문의 시 답변 받을 이메일, 문의 제목과 내용
 
 ## 2-3. 선택적 분석 데이터
-- 사용자가 **사용 데이터 분석**에 동의한 경우에만 화면 방문, 탭·스크롤 등 앱 이용 흐름, 세션 및 기기·앱의 기술 정보를 Microsoft Clarity와 Firebase Analytics로 수집합니다.
+- Microsoft Clarity는 화면 이용 흐름, 탭·스크롤, 세션 및 기기·앱의 기술 정보를 수집합니다.
+- Firebase Analytics는 앱 실행, 세션, 자동 수집 이벤트 및 기기·앱의 기술 정보를 수집합니다.
+- 두 분석 도구는 신규 설치에서 기본적으로 켜져 있으며, 사용자는 **개인정보 처리방침 상단의 사용 데이터 분석 설정**에서 각각 켜거나 끌 수 있습니다.
 - 서비스는 Clarity와 Firebase Analytics에 이메일, 사용자 ID, 닉네임, 비밀번호, 인증 토큰 등 직접 식별정보를 전송하지 않습니다.
 
 ## 2-4. 수집 방법
 - 회원가입·로그인 및 서비스 이용 중 사용자가 직접 입력하거나 이미지 선택·공유 기능으로 제출
 - 알림 권한 허용 후 푸시 토큰 생성, 앱 실행과 API 요청 과정에서 기기 정보 생성
-- 개인정보 처리방침 상단에서 분석 수집에 동의한 이후 Clarity SDK와 Firebase Analytics SDK를 통한 자동 수집
+- 앱 실행 후 Clarity SDK와 Firebase Analytics SDK를 통한 자동 수집. 사용자가 각 분석 도구를 끄면 해당 SDK의 수집을 중지
 
 # 3. 개인정보 이용 목적
 - 회원가입, 로그인, 계정 관리와 부정 이용 방지
@@ -217,7 +245,7 @@ export const PRIVACY_POLICY_MARKDOWN = `
 - 인증 요청 이미지 처리와 사용자 맞춤 화면 제공
 - 푸시 알림 발송과 알림 설정 관리
 - 문의 접수, 답변과 운영 공지
-- 동의한 이용자에 한해 사용성·오류·성능 분석 및 서비스 개선
+- 앱 사용성·오류·성능 분석 및 서비스 개선
 
 # 4. 개인정보 제3자 제공
 - 운영자는 이용자의 개인정보를 별도 동의 없이 제3자에게 판매하거나 광고 목적으로 제공하지 않습니다.
@@ -228,8 +256,8 @@ export const PRIVACY_POLICY_MARKDOWN = `
 | 제공자 | 이용 목적 | 처리되는 정보 |
 |---|---|---|
 | Cloudtype | 서버 호스팅과 서비스 데이터 처리 | 계정, 인증, 서비스 이용 및 문의 정보 |
-| Microsoft Clarity | 동의한 이용자의 앱 사용성·오류·성능 분석 | 화면 이용 흐름, 세션, 기기·앱 기술 정보 |
-| Google Firebase Analytics | 동의한 이용자의 앱 이용 및 서비스 개선 분석 | 화면 이용 흐름, 이벤트, 세션, 기기·앱 기술 정보 |
+| Microsoft Clarity | 앱 사용성·오류·성능 분석 | 화면 이용 흐름, 탭·스크롤, 세션, 기기·앱 기술 정보 |
+| Google Firebase Analytics | 앱 이용 및 서비스 개선 분석 | 앱 실행, 자동 수집 이벤트, 세션, 기기·앱 기술 정보 |
 | 카카오 | 카카오 계정 로그인 | 카카오 사용자 식별정보와 일회성 인증 정보 |
 | Apple | Apple 계정 로그인 및 iOS 푸시 알림 | Apple 사용자 식별정보·인증 정보, 푸시 토큰 |
 | Expo Push Service | 기기별 푸시 알림 중계 | 푸시 토큰, 기기 유형, 알림 내용 |
@@ -249,13 +277,13 @@ export const PRIVACY_POLICY_MARKDOWN = `
 
 # 7. 이용자 권리 및 행사 방법
 - 앱 설정에서 계정 정보를 확인하고 회원 탈퇴를 요청할 수 있습니다.
-- 분석 수집은 **개인정보 처리방침 상단의 사용 데이터 분석**에서 언제든 켜거나 끌 수 있습니다. 끄면 현재 Clarity와 Firebase Analytics 세션을 중지하고 다음 실행부터 두 SDK를 시작하지 않습니다.
+- Microsoft Clarity와 Firebase Analytics는 **개인정보 처리방침 상단의 사용 데이터 분석 설정**에서 각각 언제든 켜거나 끌 수 있습니다. 끈 분석 도구는 현재 수집을 중지하고 다음 실행에서도 꺼진 상태를 유지합니다.
 - 개인정보 열람·정정·삭제·처리정지는 아래 이메일로 요청할 수 있습니다.
 
 # 8. 개인정보 자동수집 장치
-- 신규 설치에서는 Clarity와 Firebase Analytics를 초기화하지 않습니다.
-- 이용자가 사용 데이터 분석을 직접 켠 경우에만 Clarity와 Firebase Analytics가 시작됩니다.
-- 분석 수집을 끄면 이후 세션 데이터 수집을 중지합니다.
+- 신규 설치에서는 Clarity와 Firebase Analytics가 기본적으로 켜져 있습니다.
+- 두 분석 도구는 각각 켜거나 끌 수 있으며, 한쪽 설정은 다른 쪽에 영향을 주지 않습니다.
+- 사용자가 분석 도구를 끄면 해당 도구의 이후 데이터 수집을 중지합니다.
 
 # 9. 개인정보 보호조치
 - 인증 토큰은 기기의 보안 저장소에 보관합니다.
@@ -267,6 +295,6 @@ export const PRIVACY_POLICY_MARKDOWN = `
 - 이메일: irura@gmail.com
 
 # 11. 고지 의무
-- 본 방침은 2026-07-22부터 시행합니다.
+- 본 방침은 2026-08-02부터 시행합니다.
 - 내용 변경 시 적용일과 변경 내용을 앱 내에서 안내합니다.
 `;

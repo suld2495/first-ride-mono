@@ -5,10 +5,24 @@ import {
   getClarityAnalyticsEnabled,
   setClarityAnalyticsEnabled,
 } from '@/utils/clarity';
+import {
+  getFirebaseAnalyticsEnabled,
+  setFirebaseAnalyticsEnabled,
+} from '@/utils/firebase-analytics';
 
-export const useClarityAnalyticsSetting = () => {
+interface UseAnalyticsSettingOptions {
+  displayName: string;
+  getEnabled: () => Promise<boolean>;
+  setEnabled: (enabled: boolean) => Promise<void>;
+}
+
+const useAnalyticsSetting = ({
+  displayName,
+  getEnabled,
+  setEnabled,
+}: UseAnalyticsSettingOptions) => {
   const { showToast } = useToast();
-  const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -16,7 +30,7 @@ export const useClarityAnalyticsSetting = () => {
     let isMounted = true;
 
     void (async () => {
-      const enabled = await getClarityAnalyticsEnabled();
+      const enabled = await getEnabled();
 
       if (isMounted) {
         setAnalyticsEnabled(enabled);
@@ -27,31 +41,31 @@ export const useClarityAnalyticsSetting = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [getEnabled]);
 
   const setAnalyticsConsent = useCallback(
     async (enabled: boolean) => {
       setIsSaving(true);
 
       try {
-        await setClarityAnalyticsEnabled(enabled);
+        await setEnabled(enabled);
         setAnalyticsEnabled(enabled);
         showToast(
           enabled
-            ? '사용 데이터 분석을 켰습니다.'
-            : '사용 데이터 분석을 껐습니다.',
+            ? `${displayName} 분석을 켰습니다.`
+            : `${displayName} 분석을 껐습니다.`,
           'success',
         );
       } catch {
-        const storedValue = await getClarityAnalyticsEnabled();
+        const storedValue = await getEnabled();
 
         setAnalyticsEnabled(storedValue);
-        showToast('분석 수집 설정을 변경하지 못했습니다.', 'error');
+        showToast(`${displayName} 설정을 변경하지 못했습니다.`, 'error');
       } finally {
         setIsSaving(false);
       }
     },
-    [showToast],
+    [displayName, getEnabled, setEnabled, showToast],
   );
 
   return {
@@ -61,3 +75,17 @@ export const useClarityAnalyticsSetting = () => {
     setAnalyticsConsent,
   };
 };
+
+export const useClarityAnalyticsSetting = () =>
+  useAnalyticsSetting({
+    displayName: 'Microsoft Clarity',
+    getEnabled: getClarityAnalyticsEnabled,
+    setEnabled: setClarityAnalyticsEnabled,
+  });
+
+export const useFirebaseAnalyticsSetting = () =>
+  useAnalyticsSetting({
+    displayName: 'Firebase Analytics',
+    getEnabled: getFirebaseAnalyticsEnabled,
+    setEnabled: setFirebaseAnalyticsEnabled,
+  });
