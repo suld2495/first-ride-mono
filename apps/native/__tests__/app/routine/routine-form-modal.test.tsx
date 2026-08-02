@@ -631,14 +631,15 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         fireEvent.press(getByLabelText('친구를 선택하세요'));
       });
 
-      const dropdownScroll = getByTestId('autocomplete-dropdown-scroll');
       const dropdownInput = getByPlaceholderText('검색');
       expect(
         getByTestId('autocomplete-dropdown-search-icon', {
           includeHiddenElements: true,
         }),
       ).toBeOnTheScreen();
-      const dropdownItems = within(dropdownScroll).getAllByTestId(
+      const dropdownItems = within(
+        getByTestId('autocomplete-dropdown'),
+      ).getAllByTestId(
         /^(autocomplete-dropdown-input-item|autocomplete-option)$/,
       );
 
@@ -655,6 +656,41 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         expect(queryByText('friend1')).not.toBeOnTheScreen();
         expect(queryByText('friend3')).not.toBeOnTheScreen();
       });
+    });
+
+    it('친구 검색 포커스 중에는 폼 전체를 친구 선택 버튼 한 줄 높이만큼 추가 스크롤한다', async () => {
+      const {
+        getAllByTestId,
+        getByLabelText,
+        getByPlaceholderText,
+        getByTestId,
+      } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
+      });
+
+      await waitFor(() => {
+        expect(
+          mockAxios.history.get.some(({ url }) => url === '/friends'),
+        ).toBe(true);
+      });
+
+      await act(async () => {
+        fireEvent.press(getByLabelText('친구를 선택하세요'));
+      });
+
+      expect(getByTestId('routine-form-scroll').props.extraScrollHeight).toBe(
+        0,
+      );
+
+      await act(async () => {
+        fireEvent(getByPlaceholderText('검색'), 'focus');
+      });
+
+      expect(getByTestId('routine-form-scroll').props.extraScrollHeight).toBe(
+        baseFoundation.dimension.x48 + baseFoundation.spacing[1],
+      );
     });
 
     it('10개 컬러 중 하나를 선택한다', async () => {

@@ -93,6 +93,8 @@ export interface AutocompleteDropdownInput {
   value: string;
   placeholder?: string;
   onChangeText: (text: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export interface AutocompleteInputProps
@@ -409,8 +411,11 @@ export const AutocompleteInput = forwardRef<
       }
 
       return items.map((item, index) => {
-        const isFirstItem = index === 0 && !hasDropdownInput;
-        const isLastItem = index === items.length - 1;
+        const isFirstItem =
+          index === 0 && (!hasDropdownInput || dropdownPlacement === 'above');
+        const isLastItem =
+          index === items.length - 1 &&
+          (!hasDropdownInput || dropdownPlacement === 'below');
         const isSelected = item.value === value;
 
         return (
@@ -478,6 +483,7 @@ export const AutocompleteInput = forwardRef<
       items,
       emptyMessage,
       dropdownColors,
+      dropdownPlacement,
       hasDropdownInput,
       handleSelectItem,
       theme.colors.field.icon,
@@ -495,6 +501,53 @@ export const AutocompleteInput = forwardRef<
         editable={isButtonMode ? false : inputProps.editable}
         accessible={isButtonMode ? false : inputProps.accessible}
       />
+    );
+    const dropdownSearchInput = hasDropdownInput ? (
+      <View
+        testID="autocomplete-dropdown-input-item"
+        style={[
+          styles.dropdownInputItem,
+          dropdownPlacement === 'above'
+            ? styles.dropdownInputAbove
+            : styles.dropdownInputBelow,
+          {
+            backgroundColor: dropdownColors.background,
+            borderBottomColor: dropdownColors.divider,
+            borderTopColor: dropdownColors.divider,
+          },
+        ]}
+      >
+        <View style={styles.dropdownSearchField}>
+          <Input
+            ref={dropdownInputRef}
+            variant="filled"
+            fullWidth
+            value={dropdownInput.value}
+            placeholder={dropdownInput.placeholder}
+            inputStyle={styles.dropdownSearchInput}
+            onChangeText={dropdownInput.onChangeText}
+            onFocus={dropdownInput.onFocus}
+            onBlur={dropdownInput.onBlur}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="search"
+          />
+          <View pointerEvents="none" style={styles.dropdownSearchIcon}>
+            <SearchIcon testID="autocomplete-dropdown-search-icon" />
+          </View>
+        </View>
+      </View>
+    ) : null;
+    const dropdownOptions = (
+      <ScrollView
+        testID="autocomplete-dropdown-scroll"
+        style={styles.dropdownOptionsScroll}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+      >
+        {renderDropdownContent()}
+      </ScrollView>
     );
 
     return (
@@ -537,47 +590,17 @@ export const AutocompleteInput = forwardRef<
               },
             ]}
           >
-            <ScrollView
-              testID="autocomplete-dropdown-scroll"
-              keyboardShouldPersistTaps="handled"
-              nestedScrollEnabled={true}
-              showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
-            >
-              {hasDropdownInput ? (
-                <View
-                  testID="autocomplete-dropdown-input-item"
-                  style={[
-                    styles.dropdownInputItem,
-                    {
-                      backgroundColor: dropdownColors.background,
-                      borderBottomColor: dropdownColors.divider,
-                    },
-                  ]}
-                >
-                  <View style={styles.dropdownSearchField}>
-                    <Input
-                      ref={dropdownInputRef}
-                      variant="filled"
-                      fullWidth
-                      value={dropdownInput.value}
-                      placeholder={dropdownInput.placeholder}
-                      inputStyle={styles.dropdownSearchInput}
-                      onChangeText={dropdownInput.onChangeText}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      returnKeyType="search"
-                    />
-                    <View
-                      pointerEvents="none"
-                      style={styles.dropdownSearchIcon}
-                    >
-                      <SearchIcon testID="autocomplete-dropdown-search-icon" />
-                    </View>
-                  </View>
-                </View>
-              ) : null}
-              {renderDropdownContent()}
-            </ScrollView>
+            {dropdownPlacement === 'above' ? (
+              <>
+                {dropdownOptions}
+                {dropdownSearchInput}
+              </>
+            ) : (
+              <>
+                {dropdownSearchInput}
+                {dropdownOptions}
+              </>
+            )}
           </ThemeView>
         )}
       </View>
@@ -607,6 +630,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     zIndex: 1001,
+    overflow: 'hidden',
   },
   dropdownBelow: {
     top: '100%',
@@ -625,9 +649,19 @@ const styles = StyleSheet.create({
   dropdownInputItem: {
     height: DROPDOWN_INPUT_HEIGHT,
     padding: baseFoundation.spacing[1],
+  },
+  dropdownInputBelow: {
     borderBottomWidth: 1,
     borderTopLeftRadius: baseFoundation.dimension.x8,
     borderTopRightRadius: baseFoundation.dimension.x8,
+  },
+  dropdownInputAbove: {
+    borderTopWidth: 1,
+    borderBottomLeftRadius: baseFoundation.dimension.x8,
+    borderBottomRightRadius: baseFoundation.dimension.x8,
+  },
+  dropdownOptionsScroll: {
+    flexShrink: 1,
   },
   dropdownSearchField: {
     flex: 1,

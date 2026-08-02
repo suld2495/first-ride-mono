@@ -1,5 +1,11 @@
 import { fireEvent, render, within } from '@testing-library/react-native';
-import { Keyboard, StyleSheet, TextInput } from 'react-native';
+import {
+  Dimensions,
+  Keyboard,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 
 import {
   AutocompleteInput,
@@ -201,7 +207,12 @@ describe('AutocompleteInput', () => {
       'autocomplete-dropdown-search-icon-path',
       { includeHiddenElements: true },
     );
-    const dropdownItems = within(dropdownScroll).getAllByTestId(
+    expect(
+      within(dropdownScroll).queryByTestId('autocomplete-dropdown-input-item'),
+    ).toBeNull();
+    const dropdownItems = within(
+      getByTestId('autocomplete-dropdown'),
+    ).getAllByTestId(
       /^(autocomplete-dropdown-input-item|autocomplete-option)$/,
     );
 
@@ -221,6 +232,63 @@ describe('AutocompleteInput', () => {
     fireEvent.changeText(dropdownInput, 'friend2');
 
     expect(onChangeText).toHaveBeenCalledWith('friend2');
+  });
+
+  it('버튼 드롭다운이 위에 열리면 검색 입력창을 친구 옵션 아래에 표시한다', () => {
+    const windowHeight = Dimensions.get('window').height;
+
+    jest
+      .spyOn(View.prototype, 'measureInWindow')
+      .mockImplementation((callback) => {
+        callback(0, windowHeight - 44, 320, 44);
+      });
+
+    const { getByLabelText, getByTestId } = render(
+      <AppTamaguiProvider>
+        <AutocompleteInput
+          interactionMode="button"
+          placeholder="친구를 선택하세요"
+          dropdownInput={{
+            value: '',
+            placeholder: '검색',
+            onChangeText: jest.fn(),
+          }}
+          items={[
+            { label: 'friend1', value: 'friend1' },
+            { label: 'friend2', value: 'friend2' },
+          ]}
+        />
+      </AppTamaguiProvider>,
+    );
+
+    fireEvent.press(getByLabelText('친구를 선택하세요'));
+
+    expect(
+      within(getByTestId('autocomplete-dropdown-scroll')).queryByTestId(
+        'autocomplete-dropdown-input-item',
+      ),
+    ).toBeNull();
+
+    const dropdownItems = within(
+      getByTestId('autocomplete-dropdown'),
+    ).getAllByTestId(
+      /^(autocomplete-dropdown-input-item|autocomplete-option)$/,
+    );
+
+    expect(dropdownItems.map(({ props }) => props.testID)).toEqual([
+      'autocomplete-option',
+      'autocomplete-option',
+      'autocomplete-dropdown-input-item',
+    ]);
+    expect(StyleSheet.flatten(dropdownItems[0].props.style)).toMatchObject({
+      borderTopLeftRadius: baseFoundation.dimension.x8,
+      borderTopRightRadius: baseFoundation.dimension.x8,
+    });
+    expect(StyleSheet.flatten(dropdownItems[2].props.style)).toMatchObject({
+      borderTopWidth: 1,
+      borderBottomLeftRadius: baseFoundation.dimension.x8,
+      borderBottomRightRadius: baseFoundation.dimension.x8,
+    });
   });
 
   it('선택된 옵션 우측 12 여백에 현재 테마 50 색상의 체크 아이콘을 표시한다', () => {

@@ -58,6 +58,8 @@ const ROUTINE_COLOR_ROWS = [
 ];
 
 const MAX_PENALTY = 100_000_000;
+const MATE_DROPDOWN_KEYBOARD_EXTRA_SCROLL_HEIGHT =
+  baseFoundation.dimension.x48 + baseFoundation.spacing[1];
 
 const getPenaltyDigits = (text: string) => text.replace(/[^0-9]/g, '');
 
@@ -232,6 +234,7 @@ const RoutineFormModal = () => {
   const initialMateNickname = String(normalizedRoutineForm.mateNickname ?? '');
 
   const [mateKeyword, setMateKeyword] = useState('');
+  const [isMateSearchFocused, setIsMateSearchFocused] = useState(false);
   const [showHiddenRoutineInfo, setShowHiddenRoutineInfo] = useState(false);
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
   const {
@@ -329,6 +332,9 @@ const RoutineFormModal = () => {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         enableOnAndroid={true}
+        extraScrollHeight={
+          isMateSearchFocused ? MATE_DROPDOWN_KEYBOARD_EXTRA_SCROLL_HEIGHT : 0
+        }
         keyboardShouldPersistTaps="handled"
         enableResetScrollToCoords={false}
         showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
@@ -437,6 +443,7 @@ const RoutineFormModal = () => {
                       if (!checked) {
                         setValue('mateNickname', '');
                         setMateKeyword('');
+                        setIsMateSearchFocused(false);
                       }
                     }}
                   />
@@ -458,8 +465,13 @@ const RoutineFormModal = () => {
                             value: mateKeyword,
                             placeholder: '검색',
                             onChangeText: setMateKeyword,
+                            onFocus: () => setIsMateSearchFocused(true),
+                            onBlur: () => setIsMateSearchFocused(false),
                           }}
-                          onDropdownDismiss={() => setMateKeyword('')}
+                          onDropdownDismiss={() => {
+                            setMateKeyword('');
+                            setIsMateSearchFocused(false);
+                          }}
                           editable
                           items={friendAutocompleteItems}
                           loading={isFriendListLoading}
