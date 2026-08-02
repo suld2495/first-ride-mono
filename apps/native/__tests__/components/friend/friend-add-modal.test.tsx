@@ -339,16 +339,13 @@ describe('친구 추가 모달', () => {
         mockAxios
           .onGet(/\/users\/search/)
           .reply(200, wrapResponse(createMockUsers(1)));
-        mockAxios.onPost('/friends/requests').reply(
-          200,
-          wrapResponse({
-            id: 1,
-            senderNickname: 'testuser',
-            receiverNickname: 'user1',
-            status: 'PENDING',
-            createdAt: new Date().toISOString(),
-          }),
-        );
+        mockAxios.onPost('/friends/requests').reply(201, {
+          id: 1,
+          senderNickname: 'testuser',
+          receiverNickname: 'user1',
+          status: 'PENDING',
+          createdAt: '2026-08-01T21:39:15',
+        });
       });
 
       it('성공 토스트가 표시되고 모달이 닫힌다', async () => {
@@ -369,7 +366,9 @@ describe('친구 추가 모달', () => {
         const pressables = UNSAFE_getAllByType(Pressable);
         const addButton = pressables[pressables.length - 1];
 
-        fireEvent.press(addButton);
+        await act(async () => {
+          fireEvent.press(addButton);
+        });
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith(
@@ -407,7 +406,9 @@ describe('친구 추가 모달', () => {
         const pressables = UNSAFE_getAllByType(Pressable);
         const addButton = pressables[pressables.length - 1];
 
-        fireEvent.press(addButton);
+        await act(async () => {
+          fireEvent.press(addButton);
+        });
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith(
@@ -444,7 +445,9 @@ describe('친구 추가 모달', () => {
         const pressables = UNSAFE_getAllByType(Pressable);
         const addButton = pressables[pressables.length - 1];
 
-        fireEvent.press(addButton);
+        await act(async () => {
+          fireEvent.press(addButton);
+        });
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith(
@@ -477,7 +480,9 @@ describe('친구 추가 모달', () => {
         const pressables = UNSAFE_getAllByType(Pressable);
         const addButton = pressables[pressables.length - 1];
 
-        fireEvent.press(addButton);
+        await act(async () => {
+          fireEvent.press(addButton);
+        });
 
         await waitFor(() => {
           expect(mockShowToast).toHaveBeenCalledWith(
@@ -485,6 +490,102 @@ describe('친구 추가 모달', () => {
             'error',
           );
         });
+      });
+    });
+
+    describe('서버가 바쁜 경우', () => {
+      beforeEach(() => {
+        mockAxios
+          .onGet(/\/users\/search/)
+          .reply(200, wrapResponse(createMockUsers(1)));
+        mockAxios.onPost('/friends/requests').reply(429, {
+          success: false,
+          error: {
+            message: '서버 내부 메시지',
+            code: 'SERVER_BUSY_RETRY',
+          },
+          timestamp: '2026-08-01T21:39:15',
+          path: '/api/friends/requests',
+        });
+      });
+
+      it('SERVER_BUSY_RETRY 전용 안내 토스트를 표시한다', async () => {
+        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
+          render(<FriendAddModal {...defaultProps} />);
+
+        const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
+
+        fireEvent.changeText(searchInput, 'user');
+        fireEvent(searchInput, 'submitEditing');
+
+        expect((await findAllByText('user1')).length).toBeGreaterThan(0);
+
+        const pressables = UNSAFE_getAllByType(Pressable);
+        const addButton = pressables[pressables.length - 1];
+
+        await act(async () => {
+          fireEvent.press(addButton);
+        });
+
+        await waitFor(() => {
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '요청이 몰려 처리 중입니다. 잠시 후 다시 시도해주세요.',
+            'error',
+          );
+        });
+      });
+    });
+
+    it('요청 처리 중에는 친구 신청 버튼을 비활성화하고 중복 요청을 보내지 않는다', async () => {
+      let resolveRequest: ((value: [number, object]) => void) | undefined;
+
+      mockAxios
+        .onGet(/\/users\/search/)
+        .reply(200, wrapResponse(createMockUsers(1)));
+      mockAxios.onPost('/friends/requests').reply(
+        () =>
+          new Promise((resolve) => {
+            resolveRequest = resolve;
+          }),
+      );
+
+      const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
+        render(<FriendAddModal {...defaultProps} />);
+
+      const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
+
+      fireEvent.changeText(searchInput, 'user');
+      fireEvent(searchInput, 'submitEditing');
+
+      expect((await findAllByText('user1')).length).toBeGreaterThan(0);
+
+      const pressables = UNSAFE_getAllByType(Pressable);
+      const addButton = pressables[pressables.length - 1];
+
+      await act(async () => {
+        fireEvent.press(addButton);
+        fireEvent.press(addButton);
+      });
+
+      await waitFor(() => {
+        const latestPressables = UNSAFE_getAllByType(Pressable);
+        const latestAddButton = latestPressables[latestPressables.length - 1];
+
+        expect(latestAddButton.props.disabled).toBe(true);
+        expect(mockAxios.history.post).toHaveLength(1);
+      });
+
+      await act(async () => {
+        resolveRequest?.([
+          201,
+          {
+            id: 1,
+            senderNickname: 'testuser',
+            receiverNickname: 'user1',
+            status: 'PENDING',
+            createdAt: '2026-08-01T21:39:15',
+          },
+        ]);
       });
     });
   });

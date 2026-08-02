@@ -152,9 +152,14 @@ export const addFriend = async (
   friendNickname: User['nickname'],
 ): Promise<FriendRequestResponse> => {
   try {
-    return await http.post(`${baseURL}/requests`, {
+    const response = await axiosInstance.post<
+      FriendRequestResponse | { data: FriendRequestResponse }
+    >(`${baseURL}/requests`, {
       receiverNickname: friendNickname,
     });
+    const body = response.data;
+
+    return 'data' in body ? body.data : body;
   } catch (error) {
     throw toAppError(error);
   }

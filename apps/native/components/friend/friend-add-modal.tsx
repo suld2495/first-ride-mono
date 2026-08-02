@@ -1,5 +1,6 @@
 /* eslint-disable local-rules/no-flatlist-missing-get-item-layout, local-rules/no-flatlist-missing-perf-props -- FlashList v1은 FlatList 전용 getItemLayout, maxToRenderPerBatch, windowSize를 지원하지 않는다. */
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { ApiError } from '@repo/shared/api/AppError';
 import { useAddFriendMutation } from '@repo/shared/hooks/useFriend';
 import { useFetchUserListQuery } from '@repo/shared/hooks/useUser';
 import type { SearchOption, User } from '@repo/types';
@@ -50,6 +51,9 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
 const FRIEND_ADD_RESULT_ITEM_ESTIMATED_HEIGHT = 59;
 const MODAL_ANIMATION_DURATION = baseFoundation.motion.duration.normal;
 const MIN_SEARCH_KEYWORD_LENGTH = 2;
+const SERVER_BUSY_RETRY_CODE = 'SERVER_BUSY_RETRY';
+const SERVER_BUSY_RETRY_MESSAGE =
+  '요청이 몰려 처리 중입니다. 잠시 후 다시 시도해주세요.';
 
 const getCharacterImageSource = (
   characterImageUrl: SearchResultUser['characterImageUrl'],
@@ -97,20 +101,38 @@ const UserItem = ({
   const addMutation = useAddFriendMutation();
   const { showToast } = useToast();
   const characterImageSource = getCharacterImageSource(characterImageUrl);
+  const [isFriendRequestLoading, setFriendRequestLoading] = useState(false);
+  const friendRequestLoadingRef = useRef(false);
 
   const handleAdd = () => {
+    if (friendRequestLoadingRef.current) {
+      return;
+    }
+
+    friendRequestLoadingRef.current = true;
+    setFriendRequestLoading(true);
+
     addMutation.mutate(nickname, {
       onSuccess: () => {
         showToast('친구 요청을 보냈습니다.', 'success');
         close();
       },
       onError: (err) => {
+        if (err instanceof ApiError && err.code === SERVER_BUSY_RETRY_CODE) {
+          showToast(SERVER_BUSY_RETRY_MESSAGE, 'error');
+          return;
+        }
+
         const errorMessage = getApiErrorMessage(
           err,
           '친구 추가에 실패했습니다. 다시 시도해주세요.',
         );
 
         showToast(errorMessage, 'error');
+      },
+      onSettled: () => {
+        friendRequestLoadingRef.current = false;
+        setFriendRequestLoading(false);
       },
     });
   };
@@ -160,6 +182,7 @@ const UserItem = ({
         size="sm"
         textColor={theme.colors.text.gray}
         onPress={handleAdd}
+        disabled={isFriendRequestLoading}
         style={styles.addButton}
         textStyle={styles.addButtonText}
       />

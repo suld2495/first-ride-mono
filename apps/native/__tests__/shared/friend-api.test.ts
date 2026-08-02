@@ -1,5 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import {
+  addFriend,
   fetchFriendProfile,
   fetchFriends,
   sendFriendCheer,
@@ -169,6 +170,44 @@ describe('friend.api', () => {
 
       await expect(sendFriendCheer(2)).rejects.toMatchObject({
         message: '같은 친구에게는 1시간에 한 번만 응원 콕을 보낼 수 있습니다.',
+      });
+    });
+  });
+
+  describe('addFriend', () => {
+    const friendRequest = {
+      id: 1,
+      senderNickname: '윤윤',
+      receiverNickname: '맨날12',
+      status: 'PENDING' as const,
+      createdAt: '2026-08-01T21:39:15',
+    };
+
+    it('201 direct 응답을 친구 요청으로 반환하고 receiverNickname을 전송한다', async () => {
+      mockAxios.onPost('/friends/requests').reply((config) => {
+        expect(config.data).toBe(
+          JSON.stringify({ receiverNickname: '맨날12' }),
+        );
+        return [201, friendRequest];
+      });
+
+      await expect(addFriend('맨날12')).resolves.toEqual(friendRequest);
+    });
+
+    it('SERVER_BUSY_RETRY 에러 코드를 보존한다', async () => {
+      mockAxios.onPost('/friends/requests').reply(429, {
+        success: false,
+        error: {
+          message: '요청이 몰려 처리 중입니다.',
+          code: 'SERVER_BUSY_RETRY',
+        },
+        timestamp: '2026-08-01T21:39:15',
+        path: '/api/friends/requests',
+      });
+
+      await expect(addFriend('맨날12')).rejects.toMatchObject({
+        code: 'SERVER_BUSY_RETRY',
+        message: '요청이 몰려 처리 중입니다.',
       });
     });
   });
