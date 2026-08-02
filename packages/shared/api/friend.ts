@@ -213,6 +213,7 @@ const toFriendRoutine = (
   hasPendingConfirmation: false,
   pendingConfirmationCount: 0,
   pendingConfirmationIds: [],
+  pendingConfirmations: routine.pendingConfirmations ?? [],
   todayConfirmStatus: routine.todayConfirmStatus,
   todayConfirmId: routine.todayConfirmId,
   canRequestToday: routine.canRequestToday,

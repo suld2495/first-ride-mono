@@ -58,6 +58,7 @@ export interface FriendRoutineItem {
   todayConfirmStatus: Routine['todayConfirmStatus'];
   todayConfirmId: Routine['todayConfirmId'];
   canRequestToday: Routine['canRequestToday'];
+  pendingConfirmations?: Routine['pendingConfirmations'] | null;
   displayOrder: number;
   paused: boolean;
   hidden: boolean;

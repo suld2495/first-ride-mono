@@ -42,7 +42,6 @@ interface RoutineWeekListProps {
 
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 const DAYS_PER_WEEK = 7;
-const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 const CHECKBOX_DAY_TEXT_COLOR = '#000306';
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
@@ -63,22 +62,102 @@ const createWeekDateKeys = (startDate: string) => {
 
     weekDate.setDate(weekDate.getDate() + index);
 
-    const year = weekDate.getFullYear() - SHORT_YEAR_OFFSET;
+    const year = weekDate.getFullYear();
     const month = (weekDate.getMonth() + 1)
       .toString()
       .padStart(PAD_LENGTH, '0');
     const day = weekDate.getDate().toString().padStart(PAD_LENGTH, '0');
 
-    return `${year}${month}${day}`;
+    return `${year}-${month}-${day}`;
   });
 };
 
 const createRoutineDateKey = (date: Date) => {
-  const year = date.getFullYear() - SHORT_YEAR_OFFSET;
+  const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
   const day = date.getDate().toString().padStart(PAD_LENGTH, '0');
 
-  return `${year}${month}${day}`;
+  return `${year}-${month}-${day}`;
+};
+
+const getPendingConfirmationDates = (
+  pendingConfirmations: Routine['pendingConfirmations'],
+) => {
+  const dates = new Set<string>();
+
+  for (const confirmation of pendingConfirmations ?? []) {
+    if (confirmation.status === 'WAIT') {
+      dates.add(confirmation.date);
+    }
+  }
+
+  return dates;
+};
+
+const isPendingConfirmationForDate = ({
+  check,
+  dateKey,
+  hasPendingConfirmation,
+  pendingConfirmationDates,
+  todayDateKey,
+}: {
+  check: boolean;
+  dateKey: string;
+  hasPendingConfirmation: boolean;
+  pendingConfirmationDates: Set<string>;
+  todayDateKey: string;
+}) => {
+  if (check) {
+    return false;
+  }
+
+  if (pendingConfirmationDates.size > 0) {
+    return pendingConfirmationDates.has(dateKey);
+  }
+
+  return hasPendingConfirmation && dateKey === todayDateKey;
+};
+
+const getRoutineDayState = ({
+  check,
+  dateKey,
+  hasPendingConfirmation,
+  pendingConfirmationDates,
+  todayDateKey,
+}: {
+  check: boolean;
+  dateKey: string;
+  hasPendingConfirmation: boolean;
+  pendingConfirmationDates: Set<string>;
+  todayDateKey: string;
+}) => {
+  const isPastDay = dateKey < todayDateKey;
+  const isToday = dateKey === todayDateKey;
+  const isTodaySuccess = check && isToday;
+  const isPendingConfirmation = isPendingConfirmationForDate({
+    check,
+    dateKey,
+    hasPendingConfirmation,
+    pendingConfirmationDates,
+    todayDateKey,
+  });
+  const isMissedPastDay = isPastDay && !check && !isPendingConfirmation;
+  const isUpcomingDay = !isPastDay && !check && !isPendingConfirmation;
+  const statusLabel = check
+    ? isTodaySuccess
+      ? '오늘 완료'
+      : '달성'
+    : isPendingConfirmation
+      ? '요청 중'
+      : '미달성';
+
+  return {
+    isMissedPastDay,
+    isPendingConfirmation,
+    isToday,
+    isUpcomingDay,
+    statusLabel,
+  };
 };
 
 const getUpcomingCheckBoxStyle = (isUpcoming: boolean, borderColor: string) =>
@@ -141,6 +220,9 @@ const RoutineWeekList = ({
         routine;
       const routineColor = symbolColor ?? routineColorFallback;
       const canRequestWithCheckBox = canRequestRoutine;
+      const pendingConfirmationDates = getPendingConfirmationDates(
+        routine.pendingConfirmations,
+      );
 
       return (
         <View
@@ -207,17 +289,19 @@ const RoutineWeekList = ({
             <View style={styles.checkRow}>
               {weeklyData[routineId].map((check, index) => {
                 const dateKey = weekDateKeys[index];
-                const isPastDay = dateKey < todayDateKey;
-                const isToday = dateKey === todayDateKey;
-                const isTodaySuccess = check && dateKey === todayDateKey;
-                const isPendingConfirmation =
-                  !check &&
-                  routine.hasPendingConfirmation &&
-                  dateKey === todayDateKey;
-                const isMissedPastDay =
-                  isPastDay && !check && !isPendingConfirmation;
-                const isUpcomingDay =
-                  !isPastDay && !check && !isPendingConfirmation;
+                const {
+                  isMissedPastDay,
+                  isPendingConfirmation,
+                  isToday,
+                  isUpcomingDay,
+                  statusLabel,
+                } = getRoutineDayState({
+                  check,
+                  dateKey,
+                  hasPendingConfirmation: routine.hasPendingConfirmation,
+                  pendingConfirmationDates,
+                  todayDateKey,
+                });
                 const successCheckBoxStyle = check
                   ? {
                       backgroundColor: routineColor,
@@ -239,13 +323,6 @@ const RoutineWeekList = ({
                       backgroundColor: theme.colors.brand.routineMissedCheckbox,
                     }
                   : null;
-                const statusLabel = check
-                  ? isTodaySuccess
-                    ? '오늘 완료'
-                    : '달성'
-                  : isPendingConfirmation
-                    ? '요청 중'
-                    : '미달성';
                 const dayTextColor = isUpcomingDay
                   ? theme.colors.brand.routineProgressText
                   : CHECKBOX_DAY_TEXT_COLOR;
@@ -313,6 +390,7 @@ const RoutineWeekList = ({
       readOnly,
       routineColorFallback,
       theme.colors.brand.pendingConfirmationCheckbox,
+      theme.colors.brand.routineMissedCheckbox,
       theme.colors.brand.routineUpcomingCheckboxBorder,
       theme.colors.brand.routineProgressText,
       todayDateKey,

@@ -61,6 +61,14 @@ const formatRoutineDateKey = (date: Date) => {
   return `${year}${month}${day}`;
 };
 
+const formatRoutineApiDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
 const getRoutineWeekIndex = (date: Date) => (date.getDay() + 6) % 7;
 
 const flattenStyles = (styles: unknown): Record<string, unknown>[] => {
@@ -1975,6 +1983,54 @@ describe('루틴 조회 페이지', () => {
             expect.objectContaining({ backgroundColor: symbolColor }),
           ]),
         );
+        expect(flattenStyles(pendingCheck.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ backgroundColor: '#F57F17' }),
+          ]),
+        );
+      });
+
+      it('pendingConfirmations의 요청 날짜에 해당하는 요일만 대기 컬러로 표시한다', async () => {
+        const today = new Date();
+        const monday = new Date(getWeekMonday(today));
+        const todayIndex = getRoutineWeekIndex(today);
+        const pendingIndex = todayIndex === 0 ? 1 : 0;
+        const pendingDate = new Date(monday);
+
+        pendingDate.setDate(pendingDate.getDate() + pendingIndex);
+
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: [
+            {
+              ...createMockRoutine(0, {
+                weeklyCount: 0,
+                routineCount: 5,
+                successDate: [],
+              }),
+              hasPendingConfirmation: true,
+              pendingConfirmationCount: 1,
+              pendingConfirmationIds: [207],
+              pendingConfirmations: [
+                {
+                  confirmId: 207,
+                  date: formatRoutineApiDate(pendingDate),
+                  status: 'WAIT',
+                },
+              ],
+            },
+          ],
+        });
+
+        const { findByLabelText, findByTestId } = render(<Index />);
+        const pendingCheck = await findByTestId(
+          `routine-week-check-1-${pendingIndex}`,
+        );
+
+        expect(
+          await findByLabelText(
+            `${['월', '화', '수', '목', '금', '토', '일'][pendingIndex]}요일 요청 중`,
+          ),
+        ).toBeOnTheScreen();
         expect(flattenStyles(pendingCheck.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({ backgroundColor: '#F57F17' }),

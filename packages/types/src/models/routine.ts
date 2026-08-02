@@ -1,5 +1,11 @@
 import { Request } from './request';
 
+export interface PendingConfirmation {
+  confirmId: number;
+  date: string;
+  status: 'WAIT';
+}
+
 export interface Routine {
   routineId: number;
   nickname: string;
@@ -19,6 +25,7 @@ export interface Routine {
   hasPendingConfirmation: boolean;
   pendingConfirmationCount: number;
   pendingConfirmationIds: number[];
+  pendingConfirmations?: PendingConfirmation[];
   todayConfirmStatus: 'WAIT' | 'PASS' | 'DENY' | null;
   todayConfirmId: number | null;
   canRequestToday: boolean;
@@ -37,6 +44,7 @@ export type RoutineForm = Omit<
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
+  | 'pendingConfirmations'
   | 'todayConfirmStatus'
   | 'todayConfirmId'
   | 'canRequestToday'
@@ -58,6 +66,7 @@ export type WeeklyRoutine = Pick<
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
+  | 'pendingConfirmations'
 > & {
   successDate: string[];
 };

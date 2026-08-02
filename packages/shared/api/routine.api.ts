@@ -24,6 +24,7 @@ type RoutineResponse = Omit<
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
+  | 'pendingConfirmations'
   | 'todayConfirmStatus'
   | 'todayConfirmId'
   | 'canRequestToday'
@@ -35,6 +36,7 @@ type RoutineResponse = Omit<
   hasPendingConfirmation?: Routine['hasPendingConfirmation'] | null;
   pendingConfirmationCount?: Routine['pendingConfirmationCount'] | null;
   pendingConfirmationIds?: Routine['pendingConfirmationIds'] | null;
+  pendingConfirmations?: Routine['pendingConfirmations'] | null;
   todayConfirmStatus?: Routine['todayConfirmStatus'];
   todayConfirmId?: Routine['todayConfirmId'];
   canRequestToday?: Routine['canRequestToday'] | null;
@@ -50,6 +52,9 @@ const normalizeRoutine = (routine: RoutineResponse): Routine => ({
   pendingConfirmationCount: routine.pendingConfirmationCount ?? 0,
   pendingConfirmationIds: Array.isArray(routine.pendingConfirmationIds)
     ? routine.pendingConfirmationIds
+    : [],
+  pendingConfirmations: Array.isArray(routine.pendingConfirmations)
+    ? routine.pendingConfirmations
     : [],
   todayConfirmStatus: routine.todayConfirmStatus ?? null,
   todayConfirmId: routine.todayConfirmId ?? null,
