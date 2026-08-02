@@ -461,6 +461,7 @@ global.mockReplace = jest.fn();
 global.mockDismissTo = jest.fn();
 global.mockBack = jest.fn();
 global.mockSearchParams = {};
+global.mockPathname = '/';
 global.mockFocusEffectCleanup = null;
 
 jest.mock('expo-router', () => {
@@ -476,6 +477,8 @@ jest.mock('expo-router', () => {
       dismissTo: global.mockDismissTo,
       back: global.mockBack,
     }),
+    usePathname: () => global.mockPathname,
+    useGlobalSearchParams: () => global.mockSearchParams,
     useLocalSearchParams: () => global.mockSearchParams,
     useFocusEffect: (effect) => {
       React.useEffect(() => {

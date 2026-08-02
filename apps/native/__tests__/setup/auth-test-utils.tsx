@@ -94,6 +94,8 @@ export const resetAuthMocks = () => {
       mockFocusEffectCleanup: null | (() => void);
     }
   ).mockFocusEffectCleanup = null;
+  (globalThis as typeof globalThis & { mockPathname: string }).mockPathname =
+    '/';
   for (const key of Object.keys(mockSearchParams)) delete mockSearchParams[key];
   mockAuthStore.user = mockUser;
   mockAuthStore.lastUserId = null;

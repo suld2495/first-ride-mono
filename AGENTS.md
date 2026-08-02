@@ -3,6 +3,7 @@
 ## 문서 목차
 
 - 개발 환경 및 테스트 구동: `docs/develop/first-clone-test-run-guide.md`
+- 네비게이션 스택 규칙: `docs/develop/navigation-stack-rules.md`
 - 디자인 시스템 가이드: `docs/design/design-system.md`
 
 - 디자인 토큰 수정 가이드는 `docs/design/design-system.md`를 기준으로 본다.

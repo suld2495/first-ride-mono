@@ -5,7 +5,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { FontSource } from 'expo-font';
 import { useFonts } from 'expo-font';
 import type { Href } from 'expo-router';
-import { Stack, useRouter } from 'expo-router';
+import {
+  Stack,
+  useGlobalSearchParams,
+  usePathname,
+  useRouter,
+} from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
@@ -47,6 +52,7 @@ import {
 } from '@/utils/auth-stack-route';
 import { initializeClarityWithStoredConsent } from '@/utils/clarity';
 import { initializeKakao } from '@/utils/initialize-kakao';
+import { getNavigationAction } from '@/utils/navigation-stack';
 import {
   extractDeepLinkData,
   getNotificationNavigationIntent,
@@ -157,6 +163,10 @@ interface AppShellProps {
 function AppShell({ isFontReady }: AppShellProps) {
   useInitialAndroidBarSync();
   const router = useRouter();
+  const pathname = usePathname();
+  const { type: currentModalType } = useGlobalSearchParams<{
+    type?: string | string[];
+  }>();
   const queryClient = useQueryClient();
   const user = useAuthUser();
   const isAuthLoading = useAuthIsLoading();
@@ -210,8 +220,20 @@ function AppShell({ isFontReady }: AppShellProps) {
           setRoutineId(data.routineId);
         }
 
-        // 해당 화면으로 이동
-        router.push(intent.path as Href);
+        // 현재 화면과 같은 페이지 유형이면 교체하고, 다른 페이지 유형이면 쌓는다.
+        const navigationAction = getNavigationAction(
+          {
+            pathname,
+            searchParams: { type: currentModalType },
+          },
+          intent.path,
+        );
+
+        if (navigationAction === 'replace') {
+          router.replace(intent.path as Href);
+        } else {
+          router.push(intent.path as Href);
+        }
       } catch {
         showToast('알림을 처리하지 못했습니다. 다시 시도해주세요.', 'error');
       }
@@ -222,6 +244,8 @@ function AppShell({ isFontReady }: AppShellProps) {
       queryClient,
       showToast,
       router,
+      pathname,
+      currentModalType,
       setRequestId,
       setRoutineId,
     ],
