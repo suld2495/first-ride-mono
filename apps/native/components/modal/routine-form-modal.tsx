@@ -29,7 +29,6 @@ import {
 } from '@/constants/ROUTINE_COLORS';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
-import { useDebounce } from '@/hooks/useDebounce';
 import { useCreateForm } from '@/hooks/useForm';
 import { useRoutineDelete } from '@/hooks/useRoutineDelete';
 import { useRoutineFormSubmission } from '@/hooks/useRoutineFormSubmission';
@@ -231,13 +230,7 @@ const RoutineFormModal = () => {
   }, [defaultStartDate, isDirectRoutine, isRoutineAdd, sourceRoutineForm]);
   const initialMateNickname = String(normalizedRoutineForm.mateNickname ?? '');
 
-  const [mateKeyword, setMateKeyword] = useState(() =>
-    normalizedRoutineForm.isMe ? '' : initialMateNickname,
-  );
   const [showHiddenRoutineInfo, setShowHiddenRoutineInfo] = useState(false);
-  useEffect(() => {
-    setMateKeyword(normalizedRoutineForm.isMe ? '' : initialMateNickname);
-  }, [initialMateNickname, normalizedRoutineForm.isMe]);
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
   const {
     handleCreate,
@@ -255,13 +248,9 @@ const RoutineFormModal = () => {
         : null,
   });
 
-  // Debounce keyword for friend search
-  const debouncedKeyword = useDebounce(mateKeyword, 300);
-
-  // Fetch friends with debounced keyword
   const { data: friendList = [], isLoading: isFriendListLoading } =
     useFetchFriendsQuery({
-      keyword: debouncedKeyword,
+      keyword: '',
       page: 1,
     });
 
@@ -444,7 +433,6 @@ const RoutineFormModal = () => {
 
                       if (!checked) {
                         setValue('mateNickname', '');
-                        setMateKeyword('');
                       }
                     }}
                   />
@@ -458,19 +446,15 @@ const RoutineFormModal = () => {
                       item={({ value, onChange }) => (
                         <AutocompleteInput
                           ref={mateAutocompleteRef}
+                          interactionMode="button"
                           variant="filled"
                           value={value !== undefined ? String(value) : value}
                           placeholder="친구를 선택하세요"
-                          onChangeText={(text) => {
-                            onChange(text);
-                            setMateKeyword(text);
-                          }}
                           editable
                           items={friendAutocompleteItems}
                           loading={isFriendListLoading}
                           onSelectItem={(item) => {
                             onChange(item.value);
-                            setMateKeyword('');
                           }}
                           showDropdown
                           emptyMessage="친구를 찾을 수 없습니다."

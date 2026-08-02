@@ -11,6 +11,7 @@ import {
   Dimensions,
   Image,
   Keyboard,
+  Pressable,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -79,6 +80,12 @@ export interface AutocompleteItem {
 export interface AutocompleteInputProps
   extends Omit<InputProps, 'onChangeText'> {
   /**
+   * 입력창을 직접 편집하거나 버튼으로 사용할지 여부
+   * @default 'input'
+   */
+  interactionMode?: 'input' | 'button';
+
+  /**
    * 자동완성 항목 목록
    */
   items?: AutocompleteItem[];
@@ -145,6 +152,7 @@ export const AutocompleteInput = forwardRef<
     {
       items = [],
       loading = false,
+      interactionMode = 'input',
       onChangeText,
       onSelectItem,
       showDropdown = true,
@@ -160,6 +168,7 @@ export const AutocompleteInput = forwardRef<
     const containerRef = useRef<View>(null);
     const textInputRef = useRef<TextInput>(null);
     const visibleViewportBottomRef = useRef<number | null>(null);
+    const isButtonMode = interactionMode === 'button';
     const [isFocused, setIsFocused] = useState(false);
     const [dropdownPlacement, setDropdownPlacement] =
       useState<DropdownPlacement>('below');
@@ -249,6 +258,26 @@ export const AutocompleteInput = forwardRef<
       },
       [inputProps],
     );
+
+    const handleButtonPress = useCallback(() => {
+      if (inputProps.editable === false) {
+        return;
+      }
+
+      if (isFocused) {
+        dismissDropdown();
+
+        return;
+      }
+
+      setIsFocused(true);
+      updateDropdownPlacement();
+    }, [
+      dismissDropdown,
+      inputProps.editable,
+      isFocused,
+      updateDropdownPlacement,
+    ]);
 
     useEffect(() => {
       if (isFocused) {
@@ -388,20 +417,43 @@ export const AutocompleteInput = forwardRef<
       value,
     ]);
 
+    const input = (
+      <Input
+        ref={textInputRef}
+        {...inputProps}
+        value={value}
+        onChangeText={isButtonMode ? undefined : onChangeText}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        editable={isButtonMode ? false : inputProps.editable}
+        accessible={isButtonMode ? false : inputProps.accessible}
+      />
+    );
+
     return (
       <View
         ref={containerRef}
         style={[styles.container, containerStyle]}
         onTouchStart={(event) => event.stopPropagation()}
       >
-        <Input
-          ref={textInputRef}
-          {...inputProps}
-          value={value}
-          onChangeText={onChangeText}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-        />
+        {isButtonMode ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              inputProps.accessibilityLabel ?? inputProps.placeholder
+            }
+            accessibilityState={{
+              disabled: inputProps.editable === false,
+              expanded: isFocused,
+            }}
+            disabled={inputProps.editable === false}
+            onPress={handleButtonPress}
+          >
+            <View pointerEvents="none">{input}</View>
+          </Pressable>
+        ) : (
+          input
+        )}
 
         {shouldShowDropdown && (
           <ThemeView

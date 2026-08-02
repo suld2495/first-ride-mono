@@ -305,7 +305,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         1,
       );
       expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
-        '2026-07-31',
+        getFormatDate(getStartOfToday()),
         null,
       );
       expect(mockPush).toHaveBeenCalledWith('/routine-date-select');
@@ -346,7 +346,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       expect(getByText('매일 반복')).toBeOnTheScreen();
-      expect(getByText('2026-07-31')).toBeOnTheScreen();
+      expect(getByText(getFormatDate(getStartOfToday()))).toBeOnTheScreen();
       expect(getByTestId('routine-daily-repeat-date-button')).toBeDisabled();
 
       await act(async () => {
@@ -812,12 +812,9 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       it('숨김 체크 시 생성 요청에 hidden true를 보낸다', async () => {
         setInitialStartDate();
-        const {
-          getAllByTestId,
-          getByLabelText,
-          getByPlaceholderText,
-          getByText,
-        } = render(<RoutineFormModal />);
+        const { getAllByTestId, getByPlaceholderText, getByText } = render(
+          <RoutineFormModal />,
+        );
 
         await act(async () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[2]);
@@ -845,9 +842,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
         setInitialStartDate();
-        const { getAllByTestId, getByPlaceholderText, getByText } = render(
-          <RoutineFormModal />,
-        );
+        const {
+          getAllByTestId,
+          getByLabelText,
+          getByPlaceholderText,
+          getByText,
+        } = render(<RoutineFormModal />);
 
         await act(async () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
