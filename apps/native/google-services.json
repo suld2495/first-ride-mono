@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:9337011609:android:bb86abdc95380999586708",
+        "mobilesdk_app_id": "1:9337011609:android:0b153d0de24d7fa1586708",
         "android_client_info": {
-          "package_name": "com.mannal.firstride"
+          "package_name": "com.firstride.irura"
         }
       },
       "oauth_client": [],

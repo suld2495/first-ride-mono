@@ -7,9 +7,9 @@ const path = require('path');
 
 const SHARE_ACTIVITY_NAME = '.RoutineShareReceiverActivity';
 const SHARE_TARGETS_RESOURCE = '@xml/routine_share_targets';
-const SHARE_TARGET_CATEGORY = 'com.mannal.firstride.category.ROUTINE_SHARE';
+const SHARE_TARGET_CATEGORY = 'com.firstride.irura.category.ROUTINE_SHARE';
 
-const routineShareStoreSource = `package com.mannal.firstride
+const routineShareStoreSource = `package com.firstride.irura
 
 import android.content.Context
 import org.json.JSONObject
@@ -54,7 +54,7 @@ object RoutineShareStore {
 }
 `;
 
-const routineSharePackageSource = `package com.mannal.firstride
+const routineSharePackageSource = `package com.firstride.irura
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
@@ -72,7 +72,7 @@ class RoutineSharePackage : ReactPackage {
 }
 `;
 
-const routineShareModuleSource = `package com.mannal.firstride
+const routineShareModuleSource = `package com.firstride.irura
 
 import android.content.Context
 import android.content.Intent
@@ -178,7 +178,7 @@ class RoutineShareModule(
 }
 `;
 
-const routineShareReceiverSource = `package com.mannal.firstride
+const routineShareReceiverSource = `package com.firstride.irura
 
 import android.app.Activity
 import android.content.Intent
@@ -462,7 +462,7 @@ class RoutineShareReceiverActivity : Activity() {
   }
 
   companion object {
-    const val EXTRA_ROUTINE_ID = "com.mannal.firstride.extra.ROUTINE_ID"
+    const val EXTRA_ROUTINE_ID = "com.firstride.irura.extra.ROUTINE_ID"
     const val SHARE_TARGET_CATEGORY = "${SHARE_TARGET_CATEGORY}"
     private const val MAX_SHARED_IMAGE_COUNT = 3
     private const val MAX_SHARED_IMAGE_BYTES = 10L * 1024 * 1024
@@ -489,7 +489,7 @@ data class ValidatedSharedImage(
 
 const shareTargetsXml = `<?xml version="1.0" encoding="utf-8"?>
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
-  <share-target android:targetClass="com.mannal.firstride.RoutineShareReceiverActivity">
+  <share-target android:targetClass="com.firstride.irura.RoutineShareReceiverActivity">
     <data android:mimeType="image/*" />
     <category android:name="${SHARE_TARGET_CATEGORY}" />
   </share-target>
@@ -603,7 +603,7 @@ const withRoutineShareAndroid = (config) => {
     (dangerousConfig) => {
       const androidRoot = dangerousConfig.modRequest.platformProjectRoot;
       const packageName =
-        dangerousConfig.android?.package ?? 'com.mannal.firstride';
+        dangerousConfig.android?.package ?? 'com.firstride.irura';
       const packagePath = packageName.replace(/\./g, '/');
       const sourceRoot = path.join(
         androidRoot,

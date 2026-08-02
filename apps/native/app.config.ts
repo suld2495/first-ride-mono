@@ -132,9 +132,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#76dcd1',
     },
-    package: 'com.mannal.firstride',
+    package: 'com.firstride.irura',
     jsEngine: 'hermes',
-    scheme: ['com.mannal.firstride'],
+    scheme: ['com.firstride.irura'],
   },
   extra: {
     router: {},
