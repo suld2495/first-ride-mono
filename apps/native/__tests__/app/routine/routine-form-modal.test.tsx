@@ -518,9 +518,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
   });
 
   describe('사용자 인풋 유효성 검사 테스트', () => {
-    it('메이트 input에 포커스하면 전체 친구 목록을 바로 표시한다', async () => {
-      const { getAllByTestId, getByPlaceholderText, getByTestId, getByText } =
-        render(<RoutineFormModal />);
+    it('메이트 선택 버튼을 누르면 전체 친구 목록을 바로 표시한다', async () => {
+      const { getAllByTestId, getByLabelText, getByTestId, getByText } = render(
+        <RoutineFormModal />,
+      );
 
       await act(async () => {
         fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
@@ -533,7 +534,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       await act(async () => {
-        fireEvent(getByPlaceholderText('친구를 선택하세요'), 'focus');
+        fireEvent.press(getByLabelText('친구를 선택하세요'));
       });
 
       expect(getByText('friend1')).toBeOnTheScreen();
@@ -551,7 +552,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     it('메이트 드롭다운 외부를 누르면 친구 목록을 닫는다', async () => {
       const {
         getAllByTestId,
-        getByPlaceholderText,
+        getByLabelText,
         getByTestId,
         getByText,
         queryByText,
@@ -568,7 +569,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       await act(async () => {
-        fireEvent(getByPlaceholderText('친구를 선택하세요'), 'focus');
+        fireEvent.press(getByLabelText('친구를 선택하세요'));
       });
 
       expect(getByText('friend1')).toBeOnTheScreen();
@@ -580,26 +581,30 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(queryByText('friend1')).not.toBeOnTheScreen();
     });
 
-    it('메이트 input 입력값으로 친구 목록을 필터링한다', async () => {
-      const { getAllByTestId, getByPlaceholderText, getByText, queryByText } =
-        render(<RoutineFormModal />);
+    it('메이트 버튼의 친구를 선택하면 선택값을 표시하고 목록을 닫는다', async () => {
+      const {
+        getAllByTestId,
+        getByDisplayValue,
+        getByLabelText,
+        getByText,
+        queryByText,
+      } = render(<RoutineFormModal />);
 
       await act(async () => {
         fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
-      const mateInput = getByPlaceholderText('친구를 선택하세요');
+      await act(async () => {
+        fireEvent.press(getByLabelText('친구를 선택하세요'));
+      });
 
       await act(async () => {
-        fireEvent(mateInput, 'focus');
-        fireEvent.changeText(mateInput, 'friend2');
+        fireEvent.press(getByText('friend2'));
       });
 
-      await waitFor(() => {
-        expect(getByText('friend2')).toBeOnTheScreen();
-        expect(queryByText('friend1')).not.toBeOnTheScreen();
-        expect(queryByText('friend3')).not.toBeOnTheScreen();
-      });
+      expect(getByDisplayValue('friend2')).toBeOnTheScreen();
+      expect(queryByText('friend1')).not.toBeOnTheScreen();
+      expect(queryByText('friend3')).not.toBeOnTheScreen();
     });
 
     it('10개 컬러 중 하나를 선택한다', async () => {
@@ -807,9 +812,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       it('숨김 체크 시 생성 요청에 hidden true를 보낸다', async () => {
         setInitialStartDate();
-        const { getAllByTestId, getByPlaceholderText, getByText } = render(
-          <RoutineFormModal />,
-        );
+        const {
+          getAllByTestId,
+          getByLabelText,
+          getByPlaceholderText,
+          getByText,
+        } = render(<RoutineFormModal />);
 
         await act(async () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[2]);
@@ -845,14 +853,16 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
         });
 
-        const mateInput = getByPlaceholderText('친구를 선택하세요');
+        await act(async () => {
+          fireEvent.press(getByLabelText('친구를 선택하세요'));
+        });
 
         await waitFor(() => {
-          expect(mateInput.props.editable).toBe(true);
+          expect(getByText('friend1')).toBeOnTheScreen();
         });
 
         await act(async () => {
-          fireEvent.changeText(mateInput, 'friend1');
+          fireEvent.press(getByText('friend1'));
         });
 
         await fillForm(getByPlaceholderText, getByText, {
@@ -895,22 +905,27 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           data: { message: '메이트 루틴이 성공적으로 등록되었습니다.' },
         });
         setInitialStartDate();
-        const { getAllByTestId, getByPlaceholderText, getByText } = render(
-          <RoutineFormModal />,
-        );
+        const {
+          getAllByTestId,
+          getByLabelText,
+          getByPlaceholderText,
+          getByText,
+        } = render(<RoutineFormModal />);
 
         await act(async () => {
           fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
         });
 
-        const mateInput = getByPlaceholderText('친구를 선택하세요');
+        await act(async () => {
+          fireEvent.press(getByLabelText('친구를 선택하세요'));
+        });
 
         await waitFor(() => {
-          expect(mateInput.props.editable).toBe(true);
+          expect(getByText('friend1')).toBeOnTheScreen();
         });
 
         await act(async () => {
-          fireEvent.changeText(mateInput, 'friend1');
+          fireEvent.press(getByText('friend1'));
         });
 
         await fillForm(getByPlaceholderText, getByText, {
