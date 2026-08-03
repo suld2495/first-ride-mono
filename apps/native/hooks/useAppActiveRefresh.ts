@@ -7,7 +7,10 @@ import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import type { ThemeName } from '@/theme/themes';
-import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
+import {
+  refreshCharacterWidgetSnapshot,
+  refreshRoutineWidgetSnapshot,
+} from '@/utils/routine-widget-refresh';
 
 const wasInactive = (appState: AppStateStatus) =>
   appState === 'inactive' || appState === 'background';
@@ -15,6 +18,7 @@ const wasInactive = (appState: AppStateStatus) =>
 export const useAppActiveRefresh = (
   nickname: string,
   themeName?: ThemeName,
+  userId?: string,
 ) => {
   const queryClient = useQueryClient();
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
@@ -22,6 +26,14 @@ export const useAppActiveRefresh = (
   useEffect(() => {
     if (!nickname) {
       return;
+    }
+
+    if (userId) {
+      void refreshCharacterWidgetSnapshot({
+        userId,
+        themeName,
+        queryClient,
+      });
     }
 
     const subscription = AppState.addEventListener('change', (nextState) => {
@@ -47,6 +59,14 @@ export const useAppActiveRefresh = (
           themeName,
           queryClient,
         });
+
+        if (userId) {
+          void refreshCharacterWidgetSnapshot({
+            userId,
+            themeName,
+            queryClient,
+          });
+        }
       }
 
       appStateRef.current = nextState;
@@ -55,5 +75,5 @@ export const useAppActiveRefresh = (
     return () => {
       subscription.remove();
     };
-  }, [nickname, queryClient, themeName]);
+  }, [nickname, queryClient, themeName, userId]);
 };

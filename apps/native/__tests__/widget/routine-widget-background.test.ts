@@ -5,6 +5,10 @@ const routineWidgetSwiftPath = path.join(
   __dirname,
   '../../targets/routine-widget/RoutineWidget.swift',
 );
+const routineWidgetNativePath = path.join(
+  __dirname,
+  '../../widget/routine-widget-native.ts',
+);
 
 const readNumberConstant = (source: string, name: string) => {
   const match = source.match(
@@ -29,6 +33,18 @@ const readIntConstant = (source: string, name: string) => {
 };
 
 describe('routine widget background', () => {
+  it('downsamples remote character images before WidgetKit archives the timeline', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(source).toContain('import ImageIO');
+    expect(source).toContain(
+      'private let characterWidgetImageMaxPixelSize: CGFloat = 512',
+    );
+    expect(source).toContain('CGImageSourceCreateThumbnailAtIndex');
+    expect(source).toContain('return UIImage(cgImage: thumbnail).pngData()');
+    expect(source).toContain('return downsampledImageData(data)');
+  });
+
   it('uses the iOS system background color', () => {
     const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
 
@@ -253,6 +269,69 @@ describe('routine widget background', () => {
     );
     expect(source).not.toContain(
       '.foregroundStyle(Color(red: 0.26, green: 0.26, blue: 0.26))',
+    );
+  });
+
+  it('exposes the routine and character widgets from one widget bundle', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(source).toContain('@main');
+    expect(source).toContain('struct FirstRideWidgetBundle: WidgetBundle');
+    expect(source).toContain('RoutineWidget()');
+    expect(source).toContain('CharacterStatusWidget()');
+    expect(source).toContain('let kind = "CharacterStatusWidget"');
+    expect(source).toContain('.supportedFamilies([.systemSmall])');
+  });
+
+  it('renders the character URL over the background URL in the character widget', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(source).toContain('struct CharacterWidgetSnapshot: Codable');
+    expect(source).toContain('let characterImageUrl: String?');
+    expect(source).toContain('let backgroundImageUrl: String?');
+    expect(source).toContain('struct CharacterStatusWidgetEntryView: View');
+    expect(source).toContain('CharacterWidgetRemoteImage');
+    expect(source).toContain('.interpolation(.none)');
+    expect(source).toContain('.scaledToFill()');
+    expect(source).toContain('.scaledToFit()');
+  });
+
+  it('lays out the experience bubble, lower-centered character, and friend-style level pill', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(source).toContain('CharacterExperienceBubble');
+    expect(source).toContain('CharacterExperienceProgressBar');
+    expect(source).toContain('CharacterLevelBadge');
+    expect(source).toContain('.frame(minWidth: 40, minHeight: 20)');
+    expect(source).toContain('.clipShape(Capsule())');
+    expect(source).toContain('.padding(.trailing, 6)');
+    expect(source).toContain('.padding(.bottom, 6)');
+    expect(source).toContain('characterVerticalOffset');
+  });
+
+  it('places the speech bubble tail behind the bubble body', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+    const bubbleSource = source.slice(
+      source.indexOf('struct CharacterExperienceBubble: View'),
+      source.indexOf('struct CharacterExperienceProgressBar: View'),
+    );
+
+    expect(bubbleSource).toContain('.background(alignment: .bottom)');
+    expect(bubbleSource).not.toContain('.overlay(alignment: .bottom)');
+  });
+
+  it('stores and reloads the character widget independently', () => {
+    const source = fs.readFileSync(routineWidgetNativePath, 'utf8');
+
+    expect(source).toContain(
+      "const CHARACTER_SNAPSHOT_KEY = 'characterSnapshot'",
+    );
+    expect(source).toContain(
+      "const IOS_CHARACTER_WIDGET_KIND = 'CharacterStatusWidget'",
+    );
+    expect(source).toContain('saveCharacterWidgetSnapshot');
+    expect(source).toContain(
+      'ExtensionStorage.reloadWidget(IOS_CHARACTER_WIDGET_KIND)',
     );
   });
 });

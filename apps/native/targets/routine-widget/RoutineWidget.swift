@@ -1,8 +1,12 @@
+import Foundation
+import ImageIO
 import SwiftUI
+import UIKit
 import WidgetKit
 
 private let groupIdentifier = "group.com.mannal.firstride"
 private let snapshotKey = "snapshot"
+private let characterSnapshotKey = "characterSnapshot"
 private let widgetPadding: CGFloat = 20
 private let titleHeight: CGFloat = 18
 private let titleSpacing: CGFloat = 6
@@ -31,6 +35,14 @@ private let fallbackRoutineAccentColors = [
   Color(red: 0.78, green: 0.65, blue: 1.00),
   Color(red: 0.49, green: 0.85, blue: 0.83),
 ]
+private let characterWidgetFallbackBackgroundColor = Color(red: 0.82, green: 0.92, blue: 0.99)
+private let characterWidgetExperienceColor = Color(red: 0.04, green: 0.48, blue: 0.86)
+private let characterWidgetExperienceTrackColor = Color(red: 0.59, green: 0.80, blue: 0.94)
+private let characterWidgetTextColor = Color(red: 0.08, green: 0.31, blue: 0.48)
+private let characterWidgetRefreshInterval: TimeInterval = 6 * 60 * 60
+private let characterWidgetImageRequestTimeout: TimeInterval = 8
+private let characterWidgetImageMaxPixelSize: CGFloat = 512
+private let characterVerticalOffset: CGFloat = 10
 
 struct RoutineWidgetItem: Codable, Identifiable {
   let id: Int
@@ -67,6 +79,44 @@ struct RoutineWidgetSnapshot: Codable {
     smallItems: nil,
     remainingCount: 0,
     countLabelStyle: nil
+  )
+}
+
+struct CharacterWidgetLevelBadgeStyle: Codable {
+  let backgroundColor: String
+  let textColor: String
+}
+
+struct CharacterWidgetSnapshot: Codable {
+  let status: String
+  let level: Int
+  let currentExp: Int
+  let expForNextLevel: Int
+  let characterImageUrl: String?
+  let backgroundImageUrl: String?
+  let levelBadgeStyle: CharacterWidgetLevelBadgeStyle?
+
+  static let signedOut = CharacterWidgetSnapshot(
+    status: "signedOut",
+    level: 1,
+    currentExp: 0,
+    expForNextLevel: 1,
+    characterImageUrl: nil,
+    backgroundImageUrl: nil,
+    levelBadgeStyle: nil
+  )
+
+  static let preview = CharacterWidgetSnapshot(
+    status: "ready",
+    level: 4,
+    currentExp: 6,
+    expForNextLevel: 10,
+    characterImageUrl: nil,
+    backgroundImageUrl: nil,
+    levelBadgeStyle: CharacterWidgetLevelBadgeStyle(
+      backgroundColor: "#D2EBFF",
+      textColor: "#145A92"
+    )
   )
 }
 
@@ -126,6 +176,318 @@ struct RoutineProvider: TimelineProvider {
       matching: DateComponents(hour: 0, minute: 0, second: 0),
       matchingPolicy: .nextTime
     ) ?? date.addingTimeInterval(24 * 60 * 60)
+  }
+}
+
+struct CharacterWidgetEntry: TimelineEntry {
+  let date: Date
+  let snapshot: CharacterWidgetSnapshot
+  let characterImageData: Data?
+  let backgroundImageData: Data?
+}
+
+struct CharacterWidgetProvider: TimelineProvider {
+  func placeholder(in context: Context) -> CharacterWidgetEntry {
+    CharacterWidgetEntry(
+      date: Date(),
+      snapshot: .preview,
+      characterImageData: nil,
+      backgroundImageData: nil
+    )
+  }
+
+  func getSnapshot(in context: Context, completion: @escaping (CharacterWidgetEntry) -> Void) {
+    if context.isPreview {
+      completion(placeholder(in: context))
+      return
+    }
+
+    Task {
+      completion(await makeEntry(date: Date(), snapshot: readSnapshot()))
+    }
+  }
+
+  func getTimeline(in context: Context, completion: @escaping (Timeline<CharacterWidgetEntry>) -> Void) {
+    Task {
+      let now = Date()
+      let entry = await makeEntry(date: now, snapshot: readSnapshot())
+      let refreshDate = now.addingTimeInterval(characterWidgetRefreshInterval)
+
+      completion(Timeline(entries: [entry], policy: .after(refreshDate)))
+    }
+  }
+
+  private func readSnapshot() -> CharacterWidgetSnapshot {
+    guard
+      let userDefaults = UserDefaults(suiteName: groupIdentifier),
+      let snapshotJson = userDefaults.string(forKey: characterSnapshotKey),
+      let snapshotData = snapshotJson.data(using: .utf8),
+      let snapshot = try? JSONDecoder().decode(CharacterWidgetSnapshot.self, from: snapshotData)
+    else {
+      return .signedOut
+    }
+
+    return snapshot
+  }
+
+  private func makeEntry(date: Date, snapshot: CharacterWidgetSnapshot) async -> CharacterWidgetEntry {
+    async let characterImageData = loadImageData(from: snapshot.characterImageUrl)
+    async let backgroundImageData = loadImageData(from: snapshot.backgroundImageUrl)
+
+    return await CharacterWidgetEntry(
+      date: date,
+      snapshot: snapshot,
+      characterImageData: characterImageData,
+      backgroundImageData: backgroundImageData
+    )
+  }
+
+  private func loadImageData(from urlString: String?) async -> Data? {
+    guard
+      let urlString,
+      let url = URL(string: urlString),
+      let scheme = url.scheme?.lowercased(),
+      scheme == "https" || scheme == "http"
+    else {
+      return nil
+    }
+
+    var request = URLRequest(
+      url: url,
+      cachePolicy: .returnCacheDataElseLoad,
+      timeoutInterval: characterWidgetImageRequestTimeout
+    )
+    request.setValue("image/*", forHTTPHeaderField: "Accept")
+
+    do {
+      let (data, response) = try await URLSession.shared.data(for: request)
+
+      if let httpResponse = response as? HTTPURLResponse,
+         !(200..<300).contains(httpResponse.statusCode) {
+        return nil
+      }
+
+      return downsampledImageData(data)
+    } catch {
+      return nil
+    }
+  }
+
+  private func downsampledImageData(_ data: Data) -> Data? {
+    guard
+      let source = CGImageSourceCreateWithData(data as CFData, nil),
+      let thumbnail = CGImageSourceCreateThumbnailAtIndex(
+        source,
+        0,
+        [
+          kCGImageSourceCreateThumbnailFromImageAlways: true,
+          kCGImageSourceCreateThumbnailWithTransform: true,
+          kCGImageSourceThumbnailMaxPixelSize: characterWidgetImageMaxPixelSize,
+        ] as CFDictionary
+      )
+    else {
+      return nil
+    }
+
+    return UIImage(cgImage: thumbnail).pngData()
+  }
+}
+
+struct CharacterStatusWidgetEntryView: View {
+  let entry: CharacterWidgetEntry
+
+  var body: some View {
+    ZStack {
+      characterBackground
+
+      if entry.snapshot.status == "signedOut" {
+        Text("로그인 해주세요")
+          .font(.system(size: 13, weight: .semibold))
+          .foregroundStyle(characterWidgetTextColor)
+      } else {
+        characterContent
+      }
+    }
+    .characterWidgetBackground()
+    .widgetURL(URL(string: "first-ride://"))
+  }
+
+  @ViewBuilder
+  private var characterBackground: some View {
+    if let data = entry.backgroundImageData {
+      GeometryReader { geometry in
+        CharacterWidgetRemoteImage(data: data, layout: .fill)
+          .frame(width: geometry.size.width, height: geometry.size.height)
+          .clipped()
+      }
+      Color.white.opacity(0.16)
+    } else {
+      characterWidgetFallbackBackgroundColor
+    }
+  }
+
+  private var characterContent: some View {
+    GeometryReader { geometry in
+      let characterSize = min(geometry.size.width, geometry.size.height) * 0.55
+
+      ZStack {
+        if let data = entry.characterImageData {
+          CharacterWidgetRemoteImage(data: data, layout: .fit)
+            .frame(width: characterSize, height: characterSize)
+            .position(
+              x: geometry.size.width / 2,
+              y: geometry.size.height * 0.56 + characterVerticalOffset
+            )
+        }
+
+        CharacterExperienceBubble(
+          currentExp: entry.snapshot.currentExp,
+          expForNextLevel: entry.snapshot.expForNextLevel
+        )
+        .padding(.horizontal, 10)
+        .padding(.top, 8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+
+        CharacterLevelBadge(
+          level: entry.snapshot.level,
+          style: entry.snapshot.levelBadgeStyle
+        )
+        .padding(.trailing, 6)
+        .padding(.bottom, 6)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+      }
+    }
+  }
+}
+
+enum CharacterWidgetRemoteImageLayout {
+  case fill
+  case fit
+}
+
+struct CharacterWidgetRemoteImage: View {
+  let data: Data
+  let layout: CharacterWidgetRemoteImageLayout
+
+  @ViewBuilder
+  var body: some View {
+    if let image = UIImage(data: data) {
+      if layout == .fill {
+        Image(uiImage: image)
+          .resizable()
+          .interpolation(.none)
+          .scaledToFill()
+      } else {
+        Image(uiImage: image)
+          .resizable()
+          .interpolation(.none)
+          .scaledToFit()
+      }
+    } else {
+      Color.clear
+    }
+  }
+}
+
+struct CharacterExperienceBubble: View {
+  let currentExp: Int
+  let expForNextLevel: Int
+
+  var body: some View {
+    VStack(spacing: 3) {
+      HStack(alignment: .firstTextBaseline, spacing: 4) {
+        Text("경험치")
+          .font(.system(size: 9, weight: .bold))
+
+        Text("EXP \(currentExp) / \(expForNextLevel)")
+          .font(.system(size: 9, weight: .semibold))
+
+        Spacer(minLength: 0)
+      }
+      .foregroundStyle(characterWidgetTextColor)
+
+      CharacterExperienceProgressBar(
+        currentExp: currentExp,
+        expForNextLevel: expForNextLevel
+      )
+      .frame(height: 7)
+    }
+    .padding(.horizontal, 8)
+    .padding(.top, 6)
+    .padding(.bottom, 7)
+    .background(Color.white.opacity(0.92))
+    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    .overlay(
+      RoundedRectangle(cornerRadius: 12, style: .continuous)
+        .stroke(characterWidgetExperienceColor, lineWidth: 2)
+    )
+    .background(alignment: .bottom) {
+      CharacterExperienceBubbleTail()
+        .fill(Color.white.opacity(0.92))
+        .frame(width: 12, height: 7)
+        .overlay(
+          CharacterExperienceBubbleTail()
+            .stroke(characterWidgetExperienceColor, lineWidth: 2)
+        )
+        .offset(y: 5)
+    }
+    .padding(.bottom, 5)
+  }
+}
+
+struct CharacterExperienceProgressBar: View {
+  let currentExp: Int
+  let expForNextLevel: Int
+
+  private var progress: CGFloat {
+    let maximum = max(1, expForNextLevel)
+    return min(1, max(0, CGFloat(currentExp) / CGFloat(maximum)))
+  }
+
+  var body: some View {
+    GeometryReader { geometry in
+      ZStack(alignment: .leading) {
+        Capsule()
+          .fill(characterWidgetExperienceTrackColor)
+
+        Capsule()
+          .fill(characterWidgetExperienceColor)
+          .frame(width: geometry.size.width * progress)
+      }
+    }
+  }
+}
+
+struct CharacterLevelBadge: View {
+  let level: Int
+  let style: CharacterWidgetLevelBadgeStyle?
+
+  var body: some View {
+    Text("Lv. \(level)")
+      .font(.system(size: 10, weight: .semibold))
+      .foregroundStyle(
+        Color(hex: style?.textColor, fallback: characterWidgetTextColor)
+      )
+      .padding(.horizontal, 6)
+      .frame(minWidth: 40, minHeight: 20)
+      .background(
+        Color(
+          hex: style?.backgroundColor,
+          fallback: characterWidgetFallbackBackgroundColor
+        )
+      )
+      .clipShape(Capsule())
+  }
+}
+
+struct CharacterExperienceBubbleTail: Shape {
+  func path(in rect: CGRect) -> Path {
+    var path = Path()
+    path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+    path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+    path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+    path.closeSubpath()
+    return path
   }
 }
 
@@ -488,9 +850,17 @@ extension View {
       self.background(Color(uiColor: .systemBackground))
     }
   }
+
+  @ViewBuilder
+  func characterWidgetBackground() -> some View {
+    if #available(iOSApplicationExtension 17.0, *) {
+      self.containerBackground(characterWidgetFallbackBackgroundColor, for: .widget)
+    } else {
+      self.background(characterWidgetFallbackBackgroundColor)
+    }
+  }
 }
 
-@main
 struct RoutineWidget: Widget {
   let kind = "RoutineWidget"
 
@@ -502,5 +872,27 @@ struct RoutineWidget: Widget {
     .description("이번 주 루틴 달성 상태를 확인합니다.")
     .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     .contentMarginsDisabled()
+  }
+}
+
+struct CharacterStatusWidget: Widget {
+  let kind = "CharacterStatusWidget"
+
+  var body: some WidgetConfiguration {
+    StaticConfiguration(kind: kind, provider: CharacterWidgetProvider()) { entry in
+      CharacterStatusWidgetEntryView(entry: entry)
+    }
+    .configurationDisplayName("내 캐릭터")
+    .description("캐릭터, 레벨, 경험치를 한눈에 확인합니다.")
+    .supportedFamilies([.systemSmall])
+    .contentMarginsDisabled()
+  }
+}
+
+@main
+struct FirstRideWidgetBundle: WidgetBundle {
+  var body: some Widget {
+    RoutineWidget()
+    CharacterStatusWidget()
   }
 }

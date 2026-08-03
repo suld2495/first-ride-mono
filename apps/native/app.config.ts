@@ -69,6 +69,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
             'https://devrepo.kakao.com/nexus/content/groups/public/',
           ],
         },
+        ios: {
+          useFrameworks: 'static',
+        },
       },
     ],
     [

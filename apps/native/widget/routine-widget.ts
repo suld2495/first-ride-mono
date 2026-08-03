@@ -1,4 +1,4 @@
-import type { Routine } from '@repo/types';
+import type { Routine, StatResponse, User } from '@repo/types';
 
 import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { appThemes, type ThemeName } from '@/theme/themes';
@@ -6,6 +6,9 @@ import { appThemes, type ThemeName } from '@/theme/themes';
 const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 const DEFAULT_THEME_NAME: ThemeName = 'dark';
+const DEFAULT_ASSET_HOST = (
+  process.env.EXPO_PUBLIC_VITE_BASE_URL ?? ''
+).replace(/\/$/, '');
 
 export interface RoutineWidgetItem {
   id: number;
@@ -24,6 +27,22 @@ export interface RoutineWidgetCountLabelStyle {
   textColor: string;
   darkBackgroundColor: string;
   darkTextColor: string;
+}
+
+export interface CharacterWidgetLevelBadgeStyle {
+  backgroundColor: string;
+  textColor: string;
+}
+
+export interface CharacterWidgetSnapshot {
+  status: 'ready';
+  level: number;
+  currentExp: number;
+  expForNextLevel: number;
+  characterImageUrl: null | string;
+  backgroundImageUrl: null | string;
+  generatedAt: string;
+  levelBadgeStyle: CharacterWidgetLevelBadgeStyle;
 }
 
 export type RoutineWidgetSnapshot =
@@ -47,6 +66,12 @@ export type RoutineWidgetSnapshot =
 
 interface CreateRoutineWidgetSnapshotOptions {
   today?: Date;
+  themeName?: ThemeName;
+}
+
+interface CreateCharacterWidgetSnapshotOptions {
+  assetHost?: string;
+  now?: Date;
   themeName?: ThemeName;
 }
 
@@ -124,6 +149,29 @@ const createSmallRoutineWidgetItems = (
   return [...pendingItems, ...doneTodayItems];
 };
 
+const resolveWidgetAssetUrl = (
+  value: null | string | undefined,
+  assetHost: string,
+): null | string => {
+  const normalizedValue = value?.trim();
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  if (/^https?:\/\//.test(normalizedValue)) {
+    return normalizedValue;
+  }
+
+  const normalizedHost = assetHost.replace(/\/$/, '');
+
+  if (!normalizedHost || !normalizedValue.startsWith('/')) {
+    return null;
+  }
+
+  return `${normalizedHost}${normalizedValue}`;
+};
+
 export const createSignedOutRoutineWidgetSnapshot =
   (): RoutineWidgetSnapshot => ({
     status: 'signedOut',
@@ -168,5 +216,42 @@ export const createRoutineWidgetSnapshot = (
     remainingCount: 0,
     generatedAt: today.toISOString(),
     countLabelStyle: createRoutineWidgetCountLabelStyle(options.themeName),
+  };
+};
+
+export const createCharacterWidgetSnapshot = (
+  user: User,
+  stats: StatResponse,
+  options: CreateCharacterWidgetSnapshotOptions = {},
+): CharacterWidgetSnapshot => {
+  const themeName = options.themeName ?? DEFAULT_THEME_NAME;
+  const theme = appThemes[themeName] ?? appThemes.dark;
+  const expForNextLevel = Math.max(1, Math.floor(stats.expForNextLevel));
+  const currentExp = Math.min(
+    expForNextLevel,
+    Math.max(0, Math.floor(stats.currentLevelProgress)),
+  );
+  const assetHost = options.assetHost ?? DEFAULT_ASSET_HOST;
+  const usesDarkTheme = theme.name === 'dark';
+
+  return {
+    status: 'ready',
+    level: Math.max(1, Math.floor(stats.currentLevel)),
+    currentExp,
+    expForNextLevel,
+    characterImageUrl: resolveWidgetAssetUrl(user.characterImageUrl, assetHost),
+    backgroundImageUrl: resolveWidgetAssetUrl(
+      user.backgroundImageUrl,
+      assetHost,
+    ),
+    generatedAt: (options.now ?? new Date()).toISOString(),
+    levelBadgeStyle: {
+      backgroundColor: usesDarkTheme
+        ? theme.colors.brand.background
+        : theme.colors.brand.text,
+      textColor: usesDarkTheme
+        ? theme.colors.brand.text
+        : theme.colors.brand.background,
+    },
   };
 };

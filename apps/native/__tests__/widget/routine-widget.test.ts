@@ -1,8 +1,9 @@
-import type { Routine } from '@repo/types';
+import type { Routine, StatResponse, User } from '@repo/types';
 
 import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { appThemes } from '@/theme/themes';
 import {
+  createCharacterWidgetSnapshot,
   createRoutineWidgetSnapshot,
   createSignedOutRoutineWidgetSnapshot,
 } from '@/widget/routine-widget';
@@ -280,6 +281,83 @@ describe('routine widget snapshot', () => {
     expect(snapshot.items[0]).toMatchObject({
       accentColor: DEFAULT_ROUTINE_COLOR,
       darkAccentColor: DEFAULT_ROUTINE_COLOR,
+    });
+  });
+});
+
+describe('character widget snapshot', () => {
+  it('캐릭터와 배경 URL, 레벨, 경험치를 위젯 데이터로 변환한다', () => {
+    const user: User = {
+      userId: 'tester',
+      nickname: '테스터',
+      role: 'USER',
+      motto: null,
+      mottos: [],
+      characterImageUrl: '/assets/characters/mage_female_beginner.png',
+      backgroundImageUrl: 'https://cdn.example.com/background.png',
+    };
+    const stats: StatResponse = {
+      userId: 1,
+      nickname: '테스터',
+      currentLevel: 4,
+      currentTotalExp: 26,
+      currentLevelProgress: 6,
+      expForNextLevel: 10,
+      stats: {
+        strength: 1,
+        agility: 1,
+        intelligence: 1,
+        luck: 1,
+        vitality: 1,
+        mana: 1,
+      },
+      availablePoints: 0,
+      totalPointsEarned: 0,
+      totalPointsUsed: 0,
+    };
+
+    expect(
+      createCharacterWidgetSnapshot(user, stats, {
+        assetHost: 'https://api.irura.uk/',
+        now: new Date('2026-08-03T10:00:00.000Z'),
+        themeName: 'blue',
+      }),
+    ).toEqual({
+      status: 'ready',
+      level: 4,
+      currentExp: 6,
+      expForNextLevel: 10,
+      characterImageUrl:
+        'https://api.irura.uk/assets/characters/mage_female_beginner.png',
+      backgroundImageUrl: 'https://cdn.example.com/background.png',
+      generatedAt: '2026-08-03T10:00:00.000Z',
+      levelBadgeStyle: {
+        backgroundColor: appThemes.blue.colors.brand.text,
+        textColor: appThemes.blue.colors.brand.background,
+      },
+    });
+  });
+
+  it('경험치 범위를 벗어난 API 값은 위젯에서 안전한 범위로 보정한다', () => {
+    const user = {
+      userId: 'tester',
+      nickname: '테스터',
+      role: 'USER',
+      motto: null,
+      mottos: [],
+    } satisfies User;
+    const stats = {
+      currentLevel: 0,
+      currentLevelProgress: 15,
+      expForNextLevel: 10,
+    } as StatResponse;
+
+    expect(createCharacterWidgetSnapshot(user, stats)).toMatchObject({
+      level: 1,
+      currentExp: 10,
+      expForNextLevel: 10,
+      characterImageUrl: null,
+      backgroundImageUrl: null,
     });
   });
 });

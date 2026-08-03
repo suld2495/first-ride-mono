@@ -1,5 +1,7 @@
 import * as requestApi from '@repo/shared/api/request.api';
 import * as routineApi from '@repo/shared/api/routine.api';
+import * as statApi from '@repo/shared/api/stat.api';
+import * as userApi from '@repo/shared/api/user.api';
 import { requestKey } from '@repo/shared/types/query-keys/request';
 import { routineKey } from '@repo/shared/types/query-keys/routine';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -63,6 +65,37 @@ describe('useAppActiveRefresh', () => {
     jest.spyOn(routineApi, 'fetchRoutines').mockResolvedValue([routine]);
     jest
       .spyOn(routineWidgetNative, 'saveRoutineWidgetSnapshot')
+      .mockResolvedValue();
+    jest.spyOn(userApi, 'fetchMe').mockResolvedValue({
+      userId: 'tester-id',
+      nickname: 'tester',
+      role: 'USER',
+      motto: null,
+      mottos: [],
+      characterImageUrl: '/character.png',
+      backgroundImageUrl: '/background.png',
+    });
+    jest.spyOn(statApi, 'fetchMyStats').mockResolvedValue({
+      userId: 1,
+      nickname: 'tester',
+      currentLevel: 4,
+      currentTotalExp: 26,
+      currentLevelProgress: 6,
+      expForNextLevel: 10,
+      stats: {
+        strength: 1,
+        agility: 1,
+        intelligence: 1,
+        luck: 1,
+        vitality: 1,
+        mana: 1,
+      },
+      availablePoints: 0,
+      totalPointsEarned: 0,
+      totalPointsUsed: 0,
+    });
+    jest
+      .spyOn(routineWidgetNative, 'saveCharacterWidgetSnapshot')
       .mockResolvedValue();
     jest
       .spyOn(AppState, 'addEventListener')
@@ -149,6 +182,29 @@ describe('useAppActiveRefresh', () => {
           items: [expect.objectContaining({ title: '물 마시기' })],
         }),
       );
+    });
+  });
+
+  it('iOS 사용자 ID가 있으면 진입 시 캐릭터 위젯을 저장하고 active 복귀 시 갱신한다', async () => {
+    const queryClient = createTestQueryClient();
+
+    renderHook(() => useAppActiveRefresh('tester', 'blue', 'tester-id'), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    await waitFor(() => {
+      expect(
+        routineWidgetNative.saveCharacterWidgetSnapshot,
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    appStateChangeHandler?.('background');
+    appStateChangeHandler?.('active');
+
+    await waitFor(() => {
+      expect(
+        routineWidgetNative.saveCharacterWidgetSnapshot,
+      ).toHaveBeenCalledTimes(2);
     });
   });
 });

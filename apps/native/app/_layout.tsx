@@ -297,7 +297,11 @@ function AppShell({ isFontReady }: AppShellProps) {
     responseHandlingMode,
   });
 
-  useAppActiveRefresh(user?.nickname || '', themeName);
+  useAppActiveRefresh(
+    user?.nickname || '',
+    themeName,
+    Platform.OS === 'ios' ? user?.userId : undefined,
+  );
 
   const openPendingRoutineShare = useCallback(async () => {
     if (!user) {

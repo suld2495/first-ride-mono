@@ -578,6 +578,7 @@ jest.mock('./store/request.store', () => ({
 
 jest.mock('@/widget/routine-widget-native', () => ({
   saveRoutineWidgetSnapshot: jest.fn(),
+  saveCharacterWidgetSnapshot: jest.fn(),
   clearRoutineWidgetSnapshot: jest.fn(),
 }));
 
