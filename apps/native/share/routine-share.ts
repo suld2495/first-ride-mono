@@ -9,7 +9,6 @@ export const LEGACY_ROUTINE_SHARE_TARGETS_KEY = 'routineShareTargets';
 export const PENDING_ROUTINE_SHARE_KEY = 'pendingRoutineShare';
 
 const ROUTINE_SHARE_SCHEME = 'first-ride';
-const MAX_SHARE_TARGET_COUNT = 8;
 const MAX_SHARED_IMAGE_COUNT = 3;
 
 export interface RoutineShareTarget {
@@ -78,7 +77,7 @@ const createTargetSubtitle = (routine: Routine): string =>
 export const createRoutineShareTargets = (
   routines: Routine[],
 ): RoutineShareTarget[] =>
-  routines.slice(0, MAX_SHARE_TARGET_COUNT).map((routine) => ({
+  routines.map((routine) => ({
     id: routine.routineId,
     title: routine.routineName,
     subtitle: createTargetSubtitle(routine),

@@ -98,6 +98,7 @@ class RoutineShareModule(
         val shortcutManager =
           reactContext.getSystemService(Context.SHORTCUT_SERVICE) as ShortcutManager
         val shortcuts = createShortcuts(targetsJson)
+          .take(shortcutManager.maxShortcutCountPerActivity)
 
         shortcutManager.dynamicShortcuts = shortcuts
       }

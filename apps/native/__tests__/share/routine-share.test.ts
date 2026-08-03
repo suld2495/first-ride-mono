@@ -72,6 +72,19 @@ describe('routine share', () => {
     ]);
   });
 
+  it('keeps every share target when there are more than eight routines', () => {
+    const routines = Array.from({ length: 12 }, (_, index) =>
+      createRoutine(index + 1),
+    );
+
+    const targets = createRoutineShareTargets(routines);
+
+    expect(targets).toHaveLength(12);
+    expect(targets.map(({ id }) => id)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+    ]);
+  });
+
   it('builds the certification request path with routine and share session ids', () => {
     expect(buildRoutineSharePath(12, 'session-1')).toBe(
       '/modal?type=request&routineId=12&shareSessionId=session-1',
@@ -129,5 +142,51 @@ describe('routine share', () => {
       images: [{ uri: 'file:///shared.heic' }],
     });
     expect(parsePendingRoutineSharePayload(raw, 'other-session')).toBeNull();
+  });
+
+  it('rejects empty, malformed, and image-less pending share payloads', () => {
+    expect(parsePendingRoutineSharePayload(null)).toBeNull();
+    expect(parsePendingRoutineSharePayload('{invalid-json')).toBeNull();
+    expect(parsePendingRoutineSharePayload(JSON.stringify({}))).toBeNull();
+    expect(
+      parsePendingRoutineSharePayload(
+        JSON.stringify({
+          sessionId: 'session-1',
+          routineId: '1',
+          createdAt: '2026-08-03T00:00:00.000Z',
+          images: [],
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      parsePendingRoutineSharePayload(
+        JSON.stringify({
+          sessionId: 'session-1',
+          routineId: 1,
+          createdAt: null,
+          images: [],
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      parsePendingRoutineSharePayload(
+        JSON.stringify({
+          sessionId: 'session-1',
+          routineId: 1,
+          createdAt: '2026-08-03T00:00:00.000Z',
+          images: null,
+        }),
+      ),
+    ).toBeNull();
+    expect(
+      parsePendingRoutineSharePayload(
+        JSON.stringify({
+          sessionId: 'session-1',
+          routineId: 1,
+          createdAt: '2026-08-03T00:00:00.000Z',
+          images: ['invalid', null, {}, { uri: '' }],
+        }),
+      ),
+    ).toBeNull();
   });
 });
