@@ -42,6 +42,7 @@ private let characterWidgetTextColor = Color(red: 0.08, green: 0.31, blue: 0.48)
 private let characterWidgetRefreshInterval: TimeInterval = 6 * 60 * 60
 private let characterWidgetImageRequestTimeout: TimeInterval = 8
 private let characterWidgetImageMaxPixelSize: CGFloat = 512
+private let characterWidgetPreviewCharacterAssetName = "WidgetPreviewCharacter"
 private let characterVerticalOffset: CGFloat = 10
 
 struct RoutineWidgetItem: Codable, Identifiable {
@@ -191,7 +192,7 @@ struct CharacterWidgetProvider: TimelineProvider {
     CharacterWidgetEntry(
       date: Date(),
       snapshot: .preview,
-      characterImageData: nil,
+      characterImageData: previewImageData(named: characterWidgetPreviewCharacterAssetName),
       backgroundImageData: nil
     )
   }
@@ -271,6 +272,14 @@ struct CharacterWidgetProvider: TimelineProvider {
     } catch {
       return nil
     }
+  }
+
+  private func previewImageData(named assetName: String) -> Data? {
+    guard let data = NSDataAsset(name: assetName)?.data else {
+      return nil
+    }
+
+    return downsampledImageData(data)
   }
 
   private func downsampledImageData(_ data: Data) -> Data? {
