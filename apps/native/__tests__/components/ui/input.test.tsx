@@ -113,4 +113,27 @@ describe('Input', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChangeText).not.toHaveBeenCalled();
   });
+
+  it('공백 차단 입력은 모든 공백을 제거하고 네이티브 미지원 prop을 전달하지 않는다', () => {
+    const setNativeProps = jest.spyOn(TextInput.prototype, 'setNativeProps');
+    const onChangeText = jest.fn();
+    const { getByTestId } = render(
+      <AppTamaguiProvider>
+        <Input
+          testID="input"
+          disallowWhitespace
+          onChangeText={onChangeText}
+        />
+      </AppTamaguiProvider>,
+    );
+    const input = getByTestId('input');
+
+    fireEvent.changeText(input, 'first ride\tapp\n');
+
+    expect(input.props.disallowWhitespace).toBeUndefined();
+    expect(setNativeProps).toHaveBeenCalledWith({ text: 'firstrideapp' });
+    expect(onChangeText).toHaveBeenCalledWith('firstrideapp');
+
+    setNativeProps.mockRestore();
+  });
 });
