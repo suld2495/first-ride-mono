@@ -459,10 +459,10 @@ struct CharacterExperienceBubble: View {
       CharacterExperienceBubbleTail()
         .fill(Color.white.opacity(0.92))
         .frame(width: 12, height: 7)
-          .overlay(
-            CharacterExperienceBubbleTail()
-              .stroke(primaryColor, lineWidth: 2)
-          )
+        .overlay(
+          CharacterExperienceBubbleTail()
+            .stroke(primaryColor, lineWidth: 2)
+        )
         .offset(y: 5)
     }
     .padding(.bottom, 5)
@@ -489,12 +489,12 @@ struct CharacterExperienceProgressBar: View {
 
   var body: some View {
     GeometryReader { geometry in
-        ZStack(alignment: .leading) {
-          Capsule()
-            .fill(trackColor)
+      ZStack(alignment: .leading) {
+        Capsule()
+          .fill(trackColor)
 
-          Capsule()
-            .fill(primaryColor)
+        Capsule()
+          .fill(primaryColor)
           .frame(width: geometry.size.width * progress)
       }
     }
