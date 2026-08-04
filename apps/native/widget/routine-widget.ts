@@ -1,6 +1,7 @@
 import type { Routine, StatResponse, User } from '@repo/types';
 
 import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
+import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes, type ThemeName } from '@/theme/themes';
 
 const SHORT_YEAR_OFFSET = 2000;
@@ -34,6 +35,12 @@ export interface CharacterWidgetLevelBadgeStyle {
   textColor: string;
 }
 
+export interface CharacterWidgetExperienceStyle {
+  primaryColor: string;
+  trackColor: string;
+  textColor: string;
+}
+
 export interface CharacterWidgetSnapshot {
   status: 'ready';
   level: number;
@@ -43,6 +50,7 @@ export interface CharacterWidgetSnapshot {
   backgroundImageUrl: null | string;
   generatedAt: string;
   levelBadgeStyle: CharacterWidgetLevelBadgeStyle;
+  experienceStyle: CharacterWidgetExperienceStyle;
 }
 
 export type RoutineWidgetSnapshot =
@@ -233,6 +241,7 @@ export const createCharacterWidgetSnapshot = (
   );
   const assetHost = options.assetHost ?? DEFAULT_ASSET_HOST;
   const usesDarkTheme = theme.name === 'dark';
+  const experienceTheme = appThemes[getThemeNameFromUserJob(user)];
 
   return {
     status: 'ready',
@@ -252,6 +261,11 @@ export const createCharacterWidgetSnapshot = (
       textColor: usesDarkTheme
         ? theme.colors.brand.text
         : theme.colors.brand.background,
+    },
+    experienceStyle: {
+      primaryColor: experienceTheme.colors.brand.icon,
+      trackColor: experienceTheme.colors.brand.secondary,
+      textColor: experienceTheme.colors.brand.routineBorder,
     },
   };
 };

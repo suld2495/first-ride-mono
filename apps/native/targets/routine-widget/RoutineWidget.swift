@@ -43,6 +43,7 @@ private let characterWidgetRefreshInterval: TimeInterval = 6 * 60 * 60
 private let characterWidgetImageRequestTimeout: TimeInterval = 8
 private let characterWidgetImageMaxPixelSize: CGFloat = 512
 private let characterWidgetPreviewCharacterAssetName = "WidgetPreviewCharacter"
+private let characterWidgetPreviewBackgroundAssetName = "WidgetPreviewBackground"
 private let characterVerticalOffset: CGFloat = 10
 
 struct RoutineWidgetItem: Codable, Identifiable {
@@ -88,6 +89,12 @@ struct CharacterWidgetLevelBadgeStyle: Codable {
   let textColor: String
 }
 
+struct CharacterWidgetExperienceStyle: Codable {
+  let primaryColor: String
+  let trackColor: String
+  let textColor: String
+}
+
 struct CharacterWidgetSnapshot: Codable {
   let status: String
   let level: Int
@@ -96,6 +103,7 @@ struct CharacterWidgetSnapshot: Codable {
   let characterImageUrl: String?
   let backgroundImageUrl: String?
   let levelBadgeStyle: CharacterWidgetLevelBadgeStyle?
+  let experienceStyle: CharacterWidgetExperienceStyle?
 
   static let signedOut = CharacterWidgetSnapshot(
     status: "signedOut",
@@ -104,7 +112,8 @@ struct CharacterWidgetSnapshot: Codable {
     expForNextLevel: 1,
     characterImageUrl: nil,
     backgroundImageUrl: nil,
-    levelBadgeStyle: nil
+    levelBadgeStyle: nil,
+    experienceStyle: nil
   )
 
   static let preview = CharacterWidgetSnapshot(
@@ -117,6 +126,11 @@ struct CharacterWidgetSnapshot: Codable {
     levelBadgeStyle: CharacterWidgetLevelBadgeStyle(
       backgroundColor: "#D2EBFF",
       textColor: "#145A92"
+    ),
+    experienceStyle: CharacterWidgetExperienceStyle(
+      primaryColor: "#107AD6",
+      trackColor: "#A3D4FF",
+      textColor: "#2C5171"
     )
   )
 }
@@ -193,7 +207,7 @@ struct CharacterWidgetProvider: TimelineProvider {
       date: Date(),
       snapshot: .preview,
       characterImageData: previewImageData(named: characterWidgetPreviewCharacterAssetName),
-      backgroundImageData: nil
+      backgroundImageData: previewImageData(named: characterWidgetPreviewBackgroundAssetName)
     )
   }
 
@@ -349,10 +363,11 @@ struct CharacterStatusWidgetEntryView: View {
             )
         }
 
-        CharacterExperienceBubble(
-          currentExp: entry.snapshot.currentExp,
-          expForNextLevel: entry.snapshot.expForNextLevel
-        )
+            CharacterExperienceBubble(
+              currentExp: entry.snapshot.currentExp,
+              expForNextLevel: entry.snapshot.expForNextLevel,
+              style: entry.snapshot.experienceStyle
+            )
         .padding(.horizontal, 10)
         .padding(.top, 8)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -401,6 +416,15 @@ struct CharacterWidgetRemoteImage: View {
 struct CharacterExperienceBubble: View {
   let currentExp: Int
   let expForNextLevel: Int
+  let style: CharacterWidgetExperienceStyle?
+
+  private var primaryColor: Color {
+    Color(hex: style?.primaryColor, fallback: characterWidgetExperienceColor)
+  }
+
+  private var textColor: Color {
+    Color(hex: style?.textColor, fallback: characterWidgetTextColor)
+  }
 
   var body: some View {
     VStack(spacing: 3) {
@@ -413,11 +437,12 @@ struct CharacterExperienceBubble: View {
 
         Spacer(minLength: 0)
       }
-      .foregroundStyle(characterWidgetTextColor)
+      .foregroundStyle(textColor)
 
       CharacterExperienceProgressBar(
         currentExp: currentExp,
-        expForNextLevel: expForNextLevel
+        expForNextLevel: expForNextLevel,
+        style: style
       )
       .frame(height: 7)
     }
@@ -428,16 +453,16 @@ struct CharacterExperienceBubble: View {
     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     .overlay(
       RoundedRectangle(cornerRadius: 12, style: .continuous)
-        .stroke(characterWidgetExperienceColor, lineWidth: 2)
+        .stroke(primaryColor, lineWidth: 2)
     )
     .background(alignment: .bottom) {
       CharacterExperienceBubbleTail()
         .fill(Color.white.opacity(0.92))
         .frame(width: 12, height: 7)
-        .overlay(
-          CharacterExperienceBubbleTail()
-            .stroke(characterWidgetExperienceColor, lineWidth: 2)
-        )
+          .overlay(
+            CharacterExperienceBubbleTail()
+              .stroke(primaryColor, lineWidth: 2)
+          )
         .offset(y: 5)
     }
     .padding(.bottom, 5)
@@ -447,6 +472,15 @@ struct CharacterExperienceBubble: View {
 struct CharacterExperienceProgressBar: View {
   let currentExp: Int
   let expForNextLevel: Int
+  let style: CharacterWidgetExperienceStyle?
+
+  private var primaryColor: Color {
+    Color(hex: style?.primaryColor, fallback: characterWidgetExperienceColor)
+  }
+
+  private var trackColor: Color {
+    Color(hex: style?.trackColor, fallback: characterWidgetExperienceTrackColor)
+  }
 
   private var progress: CGFloat {
     let maximum = max(1, expForNextLevel)
@@ -455,12 +489,12 @@ struct CharacterExperienceProgressBar: View {
 
   var body: some View {
     GeometryReader { geometry in
-      ZStack(alignment: .leading) {
-        Capsule()
-          .fill(characterWidgetExperienceTrackColor)
+        ZStack(alignment: .leading) {
+          Capsule()
+            .fill(trackColor)
 
-        Capsule()
-          .fill(characterWidgetExperienceColor)
+          Capsule()
+            .fill(primaryColor)
           .frame(width: geometry.size.width * progress)
       }
     }
