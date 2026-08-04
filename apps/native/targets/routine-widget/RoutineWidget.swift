@@ -892,7 +892,7 @@ struct CharacterStatusWidget: Widget {
 @main
 struct FirstRideWidgetBundle: WidgetBundle {
   var body: some Widget {
-    RoutineWidget()
     CharacterStatusWidget()
+    RoutineWidget()
   }
 }
