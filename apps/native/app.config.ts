@@ -65,6 +65,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-build-properties',
       {
         android: {
+          buildArchs: ['armeabi-v7a', 'arm64-v8a'],
           buildReactNativeFromSource: true,
           extraMavenRepos: [
             'https://devrepo.kakao.com/nexus/content/groups/public/',
