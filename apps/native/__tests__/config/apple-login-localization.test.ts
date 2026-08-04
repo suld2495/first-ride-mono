@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import appConfig from '../../app.config';
 
 describe('Apple 로그인 버튼 로컬라이제이션', () => {
@@ -15,5 +18,16 @@ describe('Apple 로그인 버튼 로컬라이제이션', () => {
         CFBundleDevelopmentRegion: 'ko',
       }),
     );
+  });
+
+  it('앱 이름 로컬라이제이션 키를 플랫폼별 네이티브 키로 구분한다', () => {
+    const koreanLocale = JSON.parse(
+      readFileSync(resolve(__dirname, '../../locales/ko.json'), 'utf8'),
+    );
+
+    expect(koreanLocale).toEqual({
+      ios: { CFBundleDisplayName: '이루라' },
+      android: { app_name: '이루라' },
+    });
   });
 });
