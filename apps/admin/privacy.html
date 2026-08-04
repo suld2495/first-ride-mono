@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="이루라 앱의 개인정보 처리 항목, 이용 목적, 보유기간과 이용자 권리를 안내합니다."
+    />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#a8d8fb" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%230984e3%22/><path d=%22M20 33l8 8 17-19%22 fill=%22none%22 stroke=%22white%22 stroke-width=%227%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>"
+    />
+    <title>개인정보 처리방침 | 이루라</title>
+    <style>
+      :root {
+        --brand: #0984e3;
+        --brand-dark: #075f9f;
+        --ink: #183046;
+        --muted: #5e7284;
+        --line: #d6e6f2;
+        --paper: #ffffff;
+        --surface: #f3f9fd;
+        --sky: #a8d8fb;
+        --navy: #00243c;
+        --radius: 20px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.8) 0 5rem, transparent 5.1rem),
+          linear-gradient(180deg, var(--sky) 0 25rem, #edf7fd 25rem 100%);
+        font-family:
+          Pretendard,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Apple SD Gothic Neo",
+          "Noto Sans KR",
+          "Malgun Gothic",
+          sans-serif;
+        font-size: 16px;
+        line-height: 1.75;
+        word-break: keep-all;
+      }
+
+      a {
+        color: var(--brand-dark);
+        text-underline-offset: 3px;
+      }
+
+      .page {
+        width: min(100% - 32px, 880px);
+        margin: 0 auto;
+        padding: 72px 0 80px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: clamp(32px, 7vw, 64px);
+        color: #ffffff;
+        background: var(--navy);
+        border: 3px solid rgba(255, 255, 255, 0.75);
+        border-radius: 28px;
+        box-shadow: 0 18px 0 rgba(9, 132, 227, 0.16);
+      }
+
+      .hero::after {
+        position: absolute;
+        right: -48px;
+        bottom: -68px;
+        width: 220px;
+        height: 220px;
+        content: "";
+        background:
+          linear-gradient(90deg, transparent 44%, rgba(168, 216, 251, 0.22) 44% 56%, transparent 56%),
+          linear-gradient(transparent 44%, rgba(168, 216, 251, 0.22) 44% 56%, transparent 56%);
+        transform: rotate(12deg);
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: #9ed7ff;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+      }
+
+      h1 {
+        max-width: 12ch;
+        margin: 0;
+        font-size: clamp(2.1rem, 7vw, 4.2rem);
+        line-height: 1.08;
+        letter-spacing: -0.055em;
+      }
+
+      .summary {
+        max-width: 38rem;
+        margin: 24px 0 0;
+        color: #d7efff;
+        font-size: clamp(1rem, 2vw, 1.1rem);
+      }
+
+      .effective-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 28px;
+        padding: 8px 14px;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.11);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      main {
+        margin-top: 32px;
+        padding: clamp(24px, 6vw, 64px);
+        background: var(--paper);
+        border: 1px solid rgba(214, 230, 242, 0.9);
+        border-radius: 28px;
+        box-shadow: 0 24px 80px rgba(24, 48, 70, 0.1);
+      }
+
+      .notice {
+        margin-bottom: 48px;
+        padding: 20px 22px;
+        background: var(--surface);
+        border-left: 5px solid var(--brand);
+        border-radius: 4px var(--radius) var(--radius) 4px;
+      }
+
+      .notice strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--navy);
+      }
+
+      section + section {
+        margin-top: 52px;
+        padding-top: 48px;
+        border-top: 1px solid var(--line);
+      }
+
+      h2 {
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+        margin: 0 0 20px;
+        color: var(--navy);
+        font-size: clamp(1.35rem, 4vw, 1.75rem);
+        line-height: 1.3;
+        letter-spacing: -0.035em;
+      }
+
+      h2 .number {
+        color: var(--brand-dark);
+        font-size: 0.78em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      h3 {
+        margin: 28px 0 10px;
+        color: var(--ink);
+        font-size: 1.05rem;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      ul {
+        margin: 12px 0 0;
+        padding-left: 1.25rem;
+      }
+
+      li + li {
+        margin-top: 7px;
+      }
+
+      li::marker {
+        color: var(--brand);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        margin-top: 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+      }
+
+      table {
+        width: 100%;
+        min-width: 680px;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+
+      th,
+      td {
+        padding: 14px 16px;
+        text-align: left;
+        vertical-align: top;
+        border-bottom: 1px solid var(--line);
+      }
+
+      th {
+        color: var(--navy);
+        background: var(--surface);
+        font-size: 0.82rem;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .contact {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .contact div {
+        padding: 18px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+      }
+
+      .contact span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .contact strong,
+      .contact a {
+        display: block;
+        margin-top: 4px;
+        font-weight: 800;
+      }
+
+      footer {
+        padding: 30px 12px 0;
+        color: var(--muted);
+        text-align: center;
+        font-size: 0.84rem;
+      }
+
+      @media (max-width: 640px) {
+        body {
+          font-size: 15px;
+          word-break: normal;
+        }
+
+        .page {
+          width: min(100% - 20px, 880px);
+          padding: 18px 0 40px;
+        }
+
+        .hero,
+        main {
+          border-radius: 22px;
+        }
+
+        .contact {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <p class="eyebrow">IRURA · PRIVACY</p>
+        <h1>개인정보 처리방침</h1>
+        <p class="summary">
+          이루라가 어떤 정보를 수집하고, 어디에 사용하며, 어떻게 보호하는지 안내합니다.
+        </p>
+        <p class="effective-date">시행일 2026.08.02</p>
+      </header>
+
+      <main>
+        <aside class="notice" aria-label="분석 설정 안내">
+          <strong>사용 데이터 분석 설정</strong>
+          Microsoft Clarity와 Firebase Analytics는 이루라 앱의 개인정보 처리방침 화면에서 각각 언제든
+          끌 수 있습니다. 끈 분석 도구는 이후 데이터 수집을 중지합니다.
+        </aside>
+
+        <section>
+          <h2><span class="number">01</span> 총칙</h2>
+          <p>
+            이 방침은 개인 운영자(이하 “운영자”)가 모바일 애플리케이션 <strong>‘이루라’</strong>(이하
+            “서비스”)를 제공하면서 처리하는 개인정보의 항목, 목적, 보유기간과 이용자의 권리를 안내하기
+            위해 마련되었습니다.
+          </p>
+        </section>
+
+        <section>
+          <h2><span class="number">02</span> 수집하는 개인정보 항목 및 방법</h2>
+
+          <h3>2-1. 회원가입 및 인증</h3>
+          <ul>
+            <li>일반 회원: 이메일 주소(사용자 ID), 비밀번호, 닉네임, 직업</li>
+            <li>소셜 회원: 로그인 제공자, 제공자가 발급한 사용자 식별정보와 인증 정보, 닉네임, 직업</li>
+            <li>
+              비밀번호는 인증을 위해 서버로 전송되며 복원할 수 없는 형태로 처리합니다. 소셜 access
+              token은 로그인·가입 처리 중에만 사용합니다.
+            </li>
+          </ul>
+
+          <h3>2-2. 서비스 이용</h3>
+          <ul>
+            <li>설치 기기 ID, 기기 유형과 OS, 푸시 토큰 및 알림 설정</li>
+            <li>루틴, 목표, 수행 기록, 친구 관계와 요청, 퀘스트, 통계·보상 정보</li>
+            <li>사용자가 등록한 한마디, 사용자 이미지, 인증 요청 이미지</li>
+            <li>문의 시 답변 받을 이메일, 문의 제목과 내용</li>
+          </ul>
+
+          <h3>2-3. 선택적 분석 데이터</h3>
+          <ul>
+            <li>Microsoft Clarity는 화면 이용 흐름, 탭·스크롤, 세션 및 기기·앱의 기술 정보를 수집합니다.</li>
+            <li>
+              Firebase Analytics는 앱 실행, 세션, 자동 수집 이벤트 및 기기·앱의 기술 정보를 수집합니다.
+            </li>
+            <li>
+              두 분석 도구는 신규 설치에서 기본적으로 켜져 있으며, 사용자는 앱 내 개인정보 처리방침
+              상단의 사용 데이터 분석 설정에서 각각 켜거나 끌 수 있습니다.
+            </li>
+            <li>
+              서비스는 Clarity와 Firebase Analytics에 이메일, 사용자 ID, 닉네임, 비밀번호, 인증 토큰 등
+              직접 식별정보를 전송하지 않습니다.
+            </li>
+          </ul>
+
+          <h3>2-4. 수집 방법</h3>
+          <ul>
+            <li>
+              회원가입·로그인 및 서비스 이용 중 사용자가 직접 입력하거나 이미지 선택·공유 기능으로 제출
+            </li>
+            <li>알림 권한 허용 후 푸시 토큰 생성, 앱 실행과 API 요청 과정에서 기기 정보 생성</li>
+            <li>
+              앱 실행 후 Clarity SDK와 Firebase Analytics SDK를 통한 자동 수집. 사용자가 각 분석 도구를
+              끄면 해당 SDK의 수집을 중지
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="number">03</span> 개인정보 이용 목적</h2>
+          <ul>
+            <li>회원가입, 로그인, 계정 관리와 부정 이용 방지</li>
+            <li>루틴·친구·퀘스트·통계·보상 등 서비스 기능 제공</li>
+            <li>인증 요청 이미지 처리와 사용자 맞춤 화면 제공</li>
+            <li>푸시 알림 발송과 알림 설정 관리</li>
+            <li>문의 접수, 답변과 운영 공지</li>
+            <li>앱 사용성·오류·성능 분석 및 서비스 개선</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="number">04</span> 개인정보 제3자 제공</h2>
+          <ul>
+            <li>
+              운영자는 이용자의 개인정보를 별도 동의 없이 제3자에게 판매하거나 광고 목적으로 제공하지
+              않습니다.
+            </li>
+            <li>
+              소셜 로그인, 푸시 알림, 분석 기능을 이용할 때에는 이용자가 선택한 기능 수행에 필요한 정보가
+              해당 서비스 제공자에게 전송될 수 있습니다.
+            </li>
+            <li>
+              법령에 근거가 있거나 적법한 절차에 따른 요청이 있는 경우에는 관계 법령에 따라 제공할 수
+              있습니다.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="number">05</span> 외부 서비스 및 개인정보 처리위탁</h2>
+          <div class="table-wrap" role="region" aria-label="외부 서비스 목록" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">제공자</th>
+                  <th scope="col">이용 목적</th>
+                  <th scope="col">처리되는 정보</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Cloudtype</td>
+                  <td>서버 호스팅과 서비스 데이터 처리</td>
+                  <td>계정, 인증, 서비스 이용 및 문의 정보</td>
+                </tr>
+                <tr>
+                  <td>Microsoft Clarity</td>
+                  <td>앱 사용성·오류·성능 분석</td>
+                  <td>화면 이용 흐름, 탭·스크롤, 세션, 기기·앱 기술 정보</td>
+                </tr>
+                <tr>
+                  <td>Google Firebase Analytics</td>
+                  <td>앱 이용 및 서비스 개선 분석</td>
+                  <td>앱 실행, 자동 수집 이벤트, 세션, 기기·앱 기술 정보</td>
+                </tr>
+                <tr>
+                  <td>카카오</td>
+                  <td>카카오 계정 로그인</td>
+                  <td>카카오 사용자 식별정보와 일회성 인증 정보</td>
+                </tr>
+                <tr>
+                  <td>Apple</td>
+                  <td>Apple 계정 로그인 및 iOS 푸시 알림</td>
+                  <td>Apple 사용자 식별정보·인증 정보, 푸시 토큰</td>
+                </tr>
+                <tr>
+                  <td>Expo Push Service</td>
+                  <td>기기별 푸시 알림 중계</td>
+                  <td>푸시 토큰, 기기 유형, 알림 내용</td>
+                </tr>
+                <tr>
+                  <td>Google Firebase Cloud Messaging</td>
+                  <td>Android 푸시 알림 전달</td>
+                  <td>푸시 토큰과 알림 내용</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top: 18px">
+            각 외부 서비스는 기능 제공에 필요한 범위에서만 사용합니다. 국외 사업자의 서비스 이용 과정에서
+            정보가 국외 서버에서 처리될 수 있으며, 이용자는 해당 선택 기능을 사용하지 않거나 앱 설정에서
+            중지할 수 있습니다.
+          </p>
+        </section>
+
+        <section>
+          <h2><span class="number">06</span> 보유 및 파기</h2>
+          <ul>
+            <li>계정 및 서비스 이용 정보: 회원 탈퇴 시까지</li>
+            <li>access token·refresh token: 로그아웃, 회원 탈퇴 또는 토큰 만료 시까지</li>
+            <li>푸시 토큰: 알림 해제, 로그아웃 또는 회원 탈퇴 시까지</li>
+            <li>문의 정보: 문의 처리 목적 달성 시까지</li>
+            <li>Clarity 분석 정보: Microsoft Clarity 프로젝트에 설정된 보유기간 동안</li>
+            <li>Firebase Analytics 분석 정보: Google Firebase Analytics 정책과 프로젝트 설정에 따른 보유기간 동안</li>
+            <li>관계 법령상 보존 의무가 있는 경우에는 해당 기간 동안 분리 보관한 뒤 파기합니다.</li>
+            <li>전자파일은 복구하기 어려운 방법으로 삭제합니다.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="number">07</span> 이용자 권리 및 행사 방법</h2>
+          <ul>
+            <li>앱 설정에서 계정 정보를 확인하고 회원 탈퇴를 요청할 수 있습니다.</li>
+            <li>
+              Microsoft Clarity와 Firebase Analytics는 앱 내 개인정보 처리방침 상단의 사용 데이터 분석
+              설정에서 각각 언제든 켜거나 끌 수 있습니다. 끈 분석 도구는 현재 수집을 중지하고 다음
+              실행에서도 꺼진 상태를 유지합니다.
+            </li>
+            <li>
+              개인정보 열람·정정·삭제·처리정지는
+              <a href="mailto:irura@gmail.com">irura@gmail.com</a>으로 요청할 수 있습니다.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="number">08</span> 개인정보 자동수집 장치</h2>
+          <ul>
+            <li>신규 설치에서는 Clarity와 Firebase Analytics가 기본적으로 켜져 있습니다.</li>
+            <li>두 분석 도구는 각각 켜거나 끌 수 있으며, 한쪽 설정은 다른 쪽에 영향을 주지 않습니다.</li>
+            <li>사용자가 분석 도구를 끄면 해당 도구의 이후 데이터 수집을 중지합니다.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="number">09</span> 개인정보 보호조치</h2>
+          <ul>
+            <li>인증 토큰은 기기의 보안 저장소에 보관합니다.</li>
+            <li>통신 구간을 보호하고, 개인정보 접근 범위를 서비스 제공에 필요한 수준으로 제한합니다.</li>
+            <li>비밀번호와 인증 토큰을 분석 이벤트나 로그의 사용자 식별값으로 사용하지 않습니다.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="number">10</span> 개인정보 보호책임자</h2>
+          <div class="contact">
+            <div>
+              <span>책임자</span>
+              <strong>김문성(운영자)</strong>
+            </div>
+            <div>
+              <span>이메일</span>
+              <a href="mailto:irura@gmail.com">irura@gmail.com</a>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2><span class="number">11</span> 고지 의무</h2>
+          <ul>
+            <li>본 방침은 2026-08-02부터 시행합니다.</li>
+            <li>내용 변경 시 적용일과 변경 내용을 앱 내에서 안내합니다.</li>
+          </ul>
+        </section>
+      </main>
+
+      <footer>© 2026 이루라 · 개인정보 문의 <a href="mailto:irura@gmail.com">irura@gmail.com</a></footer>
+    </div>
+  </body>
+</html>

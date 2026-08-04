@@ -176,6 +176,7 @@ const UserItem = ({
         </View>
       </View>
       <Button
+        testID={`friend-add-request-button-${userId}`}
         title="친구 신청"
         variant="outline"
         size="sm"

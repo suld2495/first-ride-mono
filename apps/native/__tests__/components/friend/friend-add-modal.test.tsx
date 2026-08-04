@@ -1,6 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
-import { FlatList, Keyboard, Modal, Pressable } from 'react-native';
+import { FlatList, Keyboard, Modal } from 'react-native';
 import { KeyboardAwareFlatList } from 'react-native-keyboard-aware-scroll-view';
 
 import FriendAddModal from '../../../components/friend/friend-add-modal';
@@ -349,8 +349,9 @@ describe('친구 추가 모달', () => {
       });
 
       it('성공 토스트가 표시되고 모달이 닫힌다', async () => {
-        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
-          render(<FriendAddModal {...defaultProps} />);
+        const { findAllByText, getByPlaceholderText, getByTestId } = render(
+          <FriendAddModal {...defaultProps} />,
+        );
 
         // 검색 실행
         const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
@@ -361,10 +362,7 @@ describe('친구 추가 모달', () => {
         // 유저가 표시될 때까지 대기
         expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
-        // 추가 버튼 클릭 (+ 아이콘 버튼)
-        // Pressable 중 마지막이 추가 버튼 (overlay, modal container, close button, add button 순서)
-        const pressables = UNSAFE_getAllByType(Pressable);
-        const addButton = pressables[pressables.length - 1];
+        const addButton = getByTestId('friend-add-request-button-user1');
 
         await act(async () => {
           fireEvent.press(addButton);
@@ -393,8 +391,9 @@ describe('친구 추가 모달', () => {
       });
 
       it('에러 토스트가 표시된다', async () => {
-        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
-          render(<FriendAddModal {...defaultProps} />);
+        const { findAllByText, getByPlaceholderText, getByTestId } = render(
+          <FriendAddModal {...defaultProps} />,
+        );
 
         const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
 
@@ -403,8 +402,7 @@ describe('친구 추가 모달', () => {
 
         expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
-        const pressables = UNSAFE_getAllByType(Pressable);
-        const addButton = pressables[pressables.length - 1];
+        const addButton = getByTestId('friend-add-request-button-user1');
 
         await act(async () => {
           fireEvent.press(addButton);
@@ -432,8 +430,9 @@ describe('친구 추가 모달', () => {
       });
 
       it('에러 토스트가 표시된다', async () => {
-        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
-          render(<FriendAddModal {...defaultProps} />);
+        const { findAllByText, getByPlaceholderText, getByTestId } = render(
+          <FriendAddModal {...defaultProps} />,
+        );
 
         const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
 
@@ -442,8 +441,7 @@ describe('친구 추가 모달', () => {
 
         expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
-        const pressables = UNSAFE_getAllByType(Pressable);
-        const addButton = pressables[pressables.length - 1];
+        const addButton = getByTestId('friend-add-request-button-user1');
 
         await act(async () => {
           fireEvent.press(addButton);
@@ -467,8 +465,9 @@ describe('친구 추가 모달', () => {
       });
 
       it('기본 에러 메시지가 표시된다', async () => {
-        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
-          render(<FriendAddModal {...defaultProps} />);
+        const { findAllByText, getByPlaceholderText, getByTestId } = render(
+          <FriendAddModal {...defaultProps} />,
+        );
 
         const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
 
@@ -477,8 +476,7 @@ describe('친구 추가 모달', () => {
 
         expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
-        const pressables = UNSAFE_getAllByType(Pressable);
-        const addButton = pressables[pressables.length - 1];
+        const addButton = getByTestId('friend-add-request-button-user1');
 
         await act(async () => {
           fireEvent.press(addButton);
@@ -510,8 +508,9 @@ describe('친구 추가 모달', () => {
       });
 
       it('SERVER_BUSY_RETRY 전용 안내 토스트를 표시한다', async () => {
-        const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
-          render(<FriendAddModal {...defaultProps} />);
+        const { findAllByText, getByPlaceholderText, getByTestId } = render(
+          <FriendAddModal {...defaultProps} />,
+        );
 
         const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
 
@@ -520,8 +519,7 @@ describe('친구 추가 모달', () => {
 
         expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
-        const pressables = UNSAFE_getAllByType(Pressable);
-        const addButton = pressables[pressables.length - 1];
+        const addButton = getByTestId('friend-add-request-button-user1');
 
         await act(async () => {
           fireEvent.press(addButton);
@@ -549,8 +547,9 @@ describe('친구 추가 모달', () => {
           }),
       );
 
-      const { findAllByText, getByPlaceholderText, UNSAFE_getAllByType } =
-        render(<FriendAddModal {...defaultProps} />);
+      const { findAllByText, getByPlaceholderText, getByTestId } = render(
+        <FriendAddModal {...defaultProps} />,
+      );
 
       const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
 
@@ -559,8 +558,7 @@ describe('친구 추가 모달', () => {
 
       expect((await findAllByText('user1')).length).toBeGreaterThan(0);
 
-      const pressables = UNSAFE_getAllByType(Pressable);
-      const addButton = pressables[pressables.length - 1];
+      const addButton = getByTestId('friend-add-request-button-user1');
 
       await act(async () => {
         fireEvent.press(addButton);
@@ -568,10 +566,11 @@ describe('친구 추가 모달', () => {
       });
 
       await waitFor(() => {
-        const latestPressables = UNSAFE_getAllByType(Pressable);
-        const latestAddButton = latestPressables[latestPressables.length - 1];
+        const latestAddButton = getByTestId(
+          'friend-add-request-button-user1',
+        );
 
-        expect(latestAddButton.props.disabled).toBe(true);
+        expect(latestAddButton).toBeDisabled();
         expect(mockAxios.history.post).toHaveLength(1);
       });
 

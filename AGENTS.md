@@ -12,7 +12,19 @@
 - `docs/design/design-system.md`에는 어떤 값을 어디서 바꾸는지와 수정 시 영향 범위가 정리되어 있다.
 
 ## 배포 명령어
-
+---
+### IOS
 - iOS production build: `cd apps/native && eas build --platform ios --profile production`
 - iOS production submit: `cd apps/native && eas submit --platform ios --latest --profile production`
 - 한번에 : `cd apps/native && eas build --platform ios --profile production --auto-submit`
+
+### 라이브러리 설치 되었다면 아래 실행해보자
+```
+cd apps/native
+npx expo prebuild --clean --platform ios --no-install
+cd ios && pod install
+```
+
+---
+### 안드로이드
+cd apps/native && eas build --platform android --profile production --auto-submit

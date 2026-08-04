@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import QuestStatusTabs from '@/components/quest/quest-status-tabs';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ describe('QuestStatusTabs', () => {
   });
 
   it('uses the quest filter row and badge style tokens', () => {
-    const { getByText, UNSAFE_getAllByType } = render(
+    const { getByText, getByTestId, UNSAFE_getAllByType } = render(
       <QuestStatusTabs selected="ALL" onSelect={jest.fn()} />,
     );
 
@@ -52,14 +52,10 @@ describe('QuestStatusTabs', () => {
       gap: 4,
     });
 
-    const badges = UNSAFE_getAllByType(Pressable).slice(0, 3);
-    const [activeBadge, inactiveBadge] = badges;
-    const activeStyle = StyleSheet.flatten(
-      activeBadge.props.style({ pressed: false }),
-    );
-    const inactiveStyle = StyleSheet.flatten(
-      inactiveBadge.props.style({ pressed: false }),
-    );
+    const activeBadge = getByTestId('quest-status-tab-ALL');
+    const inactiveBadge = getByTestId('quest-status-tab-ACTIVE');
+    const activeStyle = StyleSheet.flatten(activeBadge.props.style);
+    const inactiveStyle = StyleSheet.flatten(inactiveBadge.props.style);
 
     expect(activeStyle).toMatchObject({
       height: 32,
