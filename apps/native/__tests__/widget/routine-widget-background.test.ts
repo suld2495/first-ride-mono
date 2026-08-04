@@ -13,6 +13,10 @@ const characterWidgetPreviewAssetPath = path.join(
   __dirname,
   '../../targets/routine-widget/Assets.xcassets/WidgetPreviewCharacter.dataset/Contents.json',
 );
+const characterWidgetPreviewBackgroundAssetPath = path.join(
+  __dirname,
+  '../../targets/routine-widget/Assets.xcassets/WidgetPreviewBackground.dataset/Contents.json',
+);
 
 const readNumberConstant = (source: string, name: string) => {
   const match = source.match(
@@ -66,6 +70,36 @@ describe('routine widget background', () => {
       filename: 'character.png',
       idiom: 'universal',
     });
+  });
+
+  it('shows the bundled background in the widget gallery preview', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(source).toContain(
+      'private let characterWidgetPreviewBackgroundAssetName = "WidgetPreviewBackground"',
+    );
+    expect(source).toContain(
+      'backgroundImageData: previewImageData(named: characterWidgetPreviewBackgroundAssetName)',
+    );
+
+    const asset = JSON.parse(
+      fs.readFileSync(characterWidgetPreviewBackgroundAssetPath, 'utf8'),
+    );
+    expect(asset.data).toContainEqual({
+      filename: 'background.png',
+      idiom: 'universal',
+    });
+  });
+
+  it('renders the experience bubble with the character job style', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(source).toContain('struct CharacterWidgetExperienceStyle: Codable');
+    expect(source).toContain('let experienceStyle: CharacterWidgetExperienceStyle?');
+    expect(source).toContain('style: entry.snapshot.experienceStyle');
+    expect(source).toContain('Color(hex: style?.primaryColor');
+    expect(source).toContain('Color(hex: style?.trackColor');
+    expect(source).toContain('Color(hex: style?.textColor');
   });
 
   it('uses the iOS system background color', () => {

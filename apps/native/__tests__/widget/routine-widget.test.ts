@@ -293,6 +293,7 @@ describe('character widget snapshot', () => {
       role: 'USER',
       motto: null,
       mottos: [],
+      jobType: 'MAGE',
       characterImageUrl: '/assets/characters/mage_female_beginner.png',
       backgroundImageUrl: 'https://cdn.example.com/background.png',
     };
@@ -335,8 +336,45 @@ describe('character widget snapshot', () => {
         backgroundColor: appThemes.blue.colors.brand.text,
         textColor: appThemes.blue.colors.brand.background,
       },
+      experienceStyle: {
+        primaryColor: appThemes.red.colors.brand.icon,
+        trackColor: appThemes.red.colors.brand.secondary,
+        textColor: appThemes.red.colors.brand.routineBorder,
+      },
     });
   });
+
+  it.each([
+    ['MAGE', 'red'],
+    ['WARRIOR', 'blue'],
+    ['ARCHER', 'green'],
+  ] as const)(
+    '%s 캐릭터의 경험치 말풍선에 %s 계열 컬러를 전달한다',
+    (jobType, themeName) => {
+      const user = {
+        userId: 'tester',
+        nickname: '테스터',
+        role: 'USER',
+        motto: null,
+        mottos: [],
+        jobType,
+      } satisfies User;
+      const stats = {
+        currentLevel: 4,
+        currentLevelProgress: 6,
+        expForNextLevel: 10,
+      } as StatResponse;
+      const theme = appThemes[themeName];
+
+      expect(createCharacterWidgetSnapshot(user, stats)).toMatchObject({
+        experienceStyle: {
+          primaryColor: theme.colors.brand.icon,
+          trackColor: theme.colors.brand.secondary,
+          textColor: theme.colors.brand.routineBorder,
+        },
+      });
+    },
+  );
 
   it('경험치 범위를 벗어난 API 값은 위젯에서 안전한 범위로 보정한다', () => {
     const user = {
