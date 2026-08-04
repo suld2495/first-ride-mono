@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const workspaceRoot = resolve(__dirname, '../../../..');
@@ -44,13 +44,11 @@ describe('Expo SDK 54 migration', () => {
     expect(sdkOwnedOverrides).toEqual([]);
   });
 
-  it('React Native 공백 필터 패치가 설치 버전과 연결된다', () => {
+  it('React Native는 Expo 사전 빌드 바이너리를 사용할 수 있는 상태다', () => {
     const reactNativeVersion = nativePackage.dependencies['react-native'];
     const patchKey = `react-native@${reactNativeVersion}`;
-    const patchPath = rootPackage.pnpm?.patchedDependencies?.[patchKey];
 
-    expect(patchPath).toBeDefined();
-    expect(existsSync(resolve(workspaceRoot, patchPath!))).toBe(true);
+    expect(rootPackage.pnpm?.patchedDependencies).not.toHaveProperty(patchKey);
   });
 
   it('SDK 54에서도 기존 파일 정보 API를 legacy 진입점으로 사용한다', () => {

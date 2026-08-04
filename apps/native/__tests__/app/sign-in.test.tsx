@@ -113,17 +113,16 @@ describe('SignIn 페이지', () => {
       expect(queryByText('비밀번호를 입력해주세요.')).not.toBeOnTheScreen();
     });
 
-    it('이메일과 비밀번호는 네이티브 입력 단계에서 공백을 차단한다', () => {
+    it('이메일과 비밀번호 입력값에서 공백을 제거한다', () => {
       const { getByPlaceholderText } = render(<SignIn />);
+      const emailInput = getByPlaceholderText('이메일을 입력하세요');
+      const passwordInput = getByPlaceholderText('비밀번호를 입력하세요');
 
-      expect(getByPlaceholderText('이메일을 입력하세요')).toHaveProp(
-        'disallowWhitespace',
-        true,
-      );
-      expect(getByPlaceholderText('비밀번호를 입력하세요')).toHaveProp(
-        'disallowWhitespace',
-        true,
-      );
+      fireEvent.changeText(emailInput, 'test @example.com');
+      fireEvent.changeText(passwordInput, 'pass word\t123');
+
+      expect(emailInput).toHaveProp('value', 'test@example.com');
+      expect(passwordInput).toHaveProp('value', 'password123');
     });
 
     it('마지막 로그인 아이디가 있으면 이메일 입력칸에 자동으로 채운다', () => {

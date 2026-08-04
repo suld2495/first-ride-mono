@@ -66,13 +66,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         android: {
           buildArchs: ['armeabi-v7a', 'arm64-v8a'],
-          buildReactNativeFromSource: true,
           extraMavenRepos: [
             'https://devrepo.kakao.com/nexus/content/groups/public/',
           ],
         },
         ios: {
-          buildReactNativeFromSource: true,
           useFrameworks: 'static',
         },
       },

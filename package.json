@@ -25,8 +25,7 @@
   "version": "1.0.0",
   "pnpm": {
     "patchedDependencies": {
-      "react-native-exit-app@2.0.0": "patches/react-native-exit-app@2.0.0.patch",
-      "react-native@0.81.5": "patches/react-native@0.81.5.patch"
+      "react-native-exit-app@2.0.0": "patches/react-native-exit-app@2.0.0.patch"
     },
     "overrides": {
       "query-string": "^7.1.3",

@@ -94,6 +94,9 @@ const getSelectionAfterFormatting = (
 };
 
 export interface InputProps extends Omit<TextInputProps, 'style'> {
+  /** 입력값에서 공백 문자를 제거합니다. */
+  disallowWhitespace?: boolean;
+
   /**
    * Input size
    * @default 'md'
@@ -213,6 +216,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(
       displayValueTestID,
       suffixTestID,
       color = 'input',
+      disallowWhitespace = false,
       onChange,
       onChangeText,
       onFocus,
@@ -298,16 +302,22 @@ export const Input = React.forwardRef<TextInput, InputProps>(
       onChange?.(event);
     };
     const handleChangeText = (text: string) => {
+      const nextText = disallowWhitespace ? text.replace(/\s/gu, '') : text;
+
+      if (nextText !== text) {
+        inputRef.current?.setNativeProps({ text: nextText });
+      }
+
       if (displayFormatter) {
-        const formattedText = displayFormatter(text);
+        const formattedText = displayFormatter(nextText);
         const nextSelection = getSelectionAfterFormatting(
           formattedInputValueRef.current,
-          text,
+          nextText,
           formattedText,
           selectionRef.current,
         );
 
-        lastInputTextRef.current = text;
+        lastInputTextRef.current = nextText;
         formattedInputValueRef.current = formattedText;
         selectionRef.current = nextSelection;
         inputRef.current?.setNativeProps({
@@ -318,7 +328,7 @@ export const Input = React.forwardRef<TextInput, InputProps>(
         setDisplayValue(formattedText);
       }
 
-      onChangeText?.(text);
+      onChangeText?.(nextText);
     };
     const handleFocus: NonNullable<TextInputProps['onFocus']> = (event) => {
       onFocus?.(event);
