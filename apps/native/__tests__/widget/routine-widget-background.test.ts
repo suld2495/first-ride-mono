@@ -283,6 +283,20 @@ describe('routine widget background', () => {
     expect(source).toContain('.supportedFamilies([.systemSmall])');
   });
 
+  it('orders the widget gallery with the character first and routine sizes from small to large', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(source).toContain(`struct FirstRideWidgetBundle: WidgetBundle {
+  var body: some Widget {
+    CharacterStatusWidget()
+    RoutineWidget()
+  }
+}`);
+    expect(source).toContain(
+      '.supportedFamilies([.systemSmall, .systemMedium, .systemLarge])',
+    );
+  });
+
   it('renders the character URL over the background URL in the character widget', () => {
     const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
 
