@@ -1,5 +1,6 @@
 import {
   FlashList as BaseFlashList,
+  type FlashListRef as NativeFlashListRef,
   type FlashListProps,
   type ListRenderItem,
 } from '@shopify/flash-list';
@@ -29,7 +30,7 @@ type CompatFlashListProps<T> = BaseCompatFlashListProps<T> & {
 
 function FlashListInner<T>(
   props: CompatFlashListProps<T>,
-  ref: React.ForwardedRef<BaseFlashList<T>>,
+  ref: React.ForwardedRef<NativeFlashListRef<T>>,
 ) {
   return (
     <BaseFlashList
@@ -43,7 +44,7 @@ function FlashListInner<T>(
 
 const FlashList = React.forwardRef(FlashListInner) as <T>(
   props: CompatFlashListProps<T> & {
-    ref?: React.ForwardedRef<BaseFlashList<T>>;
+    ref?: React.ForwardedRef<NativeFlashListRef<T>>;
   },
 ) => React.ReactElement;
 
@@ -53,4 +54,4 @@ export type {
   ListRenderItem,
   FlashListProps as NativeFlashListProps,
 };
-export type FlashListRef<T> = BaseFlashList<T>;
+export type FlashListRef<T> = NativeFlashListRef<T>;

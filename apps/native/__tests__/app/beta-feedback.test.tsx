@@ -21,7 +21,7 @@ jest.mock('expo-image-picker', () => ({
     mockLaunchImageLibraryAsync(options),
 }));
 
-jest.mock('expo-file-system', () => ({
+jest.mock('expo-file-system/legacy', () => ({
   getInfoAsync: (...args: unknown[]) => mockGetInfoAsync(...args),
 }));
 

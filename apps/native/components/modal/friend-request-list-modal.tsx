@@ -151,7 +151,6 @@ const FriendRequestListModal = () => {
         ItemSeparatorComponent={() => (
           <Divider spacing={baseFoundation.spacing[3]} />
         )}
-        estimatedItemSize={72}
         removeClippedSubviews
         maxToRenderPerBatch={10}
         windowSize={5}

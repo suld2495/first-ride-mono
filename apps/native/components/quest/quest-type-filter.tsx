@@ -76,7 +76,6 @@ const QuestTypeFilter = ({ selected, onSelect }: QuestTypeFilterProps) => {
         renderItem={renderFilterItem}
         showsHorizontalScrollIndicator={SHOW_SCROLL_INDICATOR}
         contentContainerStyle={styles.scrollContent}
-        estimatedItemSize={FILTER_ITEM_WIDTH}
         getItemLayout={getFilterItemLayout}
         removeClippedSubviews
         maxToRenderPerBatch={10}

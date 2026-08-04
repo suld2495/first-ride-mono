@@ -20,6 +20,8 @@
       "environment": "preview"
     },
     "production": {
+      "node": "22.14.0",
+      "pnpm": "10.11.1",
       "autoIncrement": true,
       "environment": "production",
       "ios": {

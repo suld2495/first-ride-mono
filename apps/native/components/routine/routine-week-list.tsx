@@ -407,7 +407,6 @@ const RoutineWeekList = ({
       style={{ height: listHeight }}
       contentContainerStyle={styles.list}
       drawDistance={0}
-      estimatedItemSize={itemHeight}
       extraData={openMenuRoutineId}
       getItemLayout={getRoutineItemLayout}
       removeClippedSubviews={true}

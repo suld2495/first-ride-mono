@@ -65,11 +65,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-build-properties',
       {
         android: {
+          buildReactNativeFromSource: true,
           extraMavenRepos: [
             'https://devrepo.kakao.com/nexus/content/groups/public/',
           ],
         },
         ios: {
+          buildReactNativeFromSource: true,
           useFrameworks: 'static',
         },
       },

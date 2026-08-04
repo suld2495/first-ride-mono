@@ -182,7 +182,6 @@ const RankingList = ({
         renderItem={renderItem}
         ItemSeparatorComponent={RankingItemSeparator}
         contentContainerStyle={styles.content}
-        estimatedItemSize={RANKING_ITEM_HEIGHT}
         removeClippedSubviews
         maxToRenderPerBatch={10}
         windowSize={5}

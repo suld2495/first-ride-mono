@@ -324,7 +324,6 @@ export function Select<T = string | number>({
         keyExtractor={(item) => String(item.value)}
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled={true}
-        estimatedItemSize={DROPDOWN_ITEM_HEIGHT}
         getItemLayout={(_, index) => ({
           length: DROPDOWN_ITEM_HEIGHT,
           offset: DROPDOWN_ITEM_HEIGHT * index,

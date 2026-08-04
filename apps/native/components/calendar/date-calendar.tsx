@@ -343,7 +343,6 @@ const DateCalendar = ({
             initialScrollIndex={yearInitialIndex}
             onMomentumScrollEnd={handleYearScrollEnd}
             contentContainerStyle={styles.wheelContent}
-            estimatedItemSize={PICKER_ITEM_HEIGHT}
             removeClippedSubviews
             maxToRenderPerBatch={10}
             windowSize={5}
@@ -366,7 +365,6 @@ const DateCalendar = ({
             initialScrollIndex={monthInitialIndex}
             onMomentumScrollEnd={handleMonthScrollEnd}
             contentContainerStyle={styles.wheelContent}
-            estimatedItemSize={PICKER_ITEM_HEIGHT}
             removeClippedSubviews
             maxToRenderPerBatch={10}
             windowSize={5}

@@ -208,7 +208,6 @@ export default function StatsPage() {
           ListHeaderComponent={renderMonthHeader}
           ItemSeparatorComponent={renderRoutineCalendarSeparator}
           contentContainerStyle={styles.content}
-          estimatedItemSize={ROUTINE_STATS_CALENDAR_ESTIMATED_SIZE}
           getItemLayout={getRoutineCalendarItemLayout}
           removeClippedSubviews
           maxToRenderPerBatch={4}

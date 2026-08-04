@@ -20,7 +20,13 @@ describe('iOS CocoaPods linkage configuration', () => {
     expect(buildPropertiesPlugin).toEqual([
       'expo-build-properties',
       expect.objectContaining({
-        ios: expect.objectContaining({ useFrameworks: 'static' }),
+        android: expect.objectContaining({
+          buildReactNativeFromSource: true,
+        }),
+        ios: expect.objectContaining({
+          buildReactNativeFromSource: true,
+          useFrameworks: 'static',
+        }),
       }),
     ]);
     if (existsSync(podfilePropertiesPath)) {
@@ -29,6 +35,7 @@ describe('iOS CocoaPods linkage configuration', () => {
       ) as Record<string, unknown>;
 
       expect(podfileProperties['ios.useFrameworks']).toBe('static');
+      expect(podfileProperties['ios.buildReactNativeFromSource']).toBe('true');
     }
   });
 });

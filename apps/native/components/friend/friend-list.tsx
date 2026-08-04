@@ -327,7 +327,6 @@ const FriendList = ({
       refreshing={refreshing}
       onRefresh={onRefresh}
       getItemLayout={getFriendItemLayout}
-      estimatedItemSize={baseFoundation.dimension.x180}
       removeClippedSubviews
       maxToRenderPerBatch={8}
       windowSize={5}

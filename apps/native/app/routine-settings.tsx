@@ -512,7 +512,6 @@ export default function RoutineSettingsPage() {
               keyExtractor={(item) => `${item.routineId}`}
               renderItem={renderRoutineItem}
               contentContainerStyle={styles.routineListContent}
-              estimatedItemSize={ROUTINE_ROW_HEIGHT}
               extraData={openMenuRoutineId}
               getItemLayout={getRoutineItemLayout}
               ListEmptyComponent={

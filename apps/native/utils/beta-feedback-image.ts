@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 export const MAX_BETA_FEEDBACK_IMAGE_BYTES = 10 * 1024 * 1024;

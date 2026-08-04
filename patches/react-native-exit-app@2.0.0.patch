@@ -24,3 +24,26 @@ index c52429bbfa8c9247cdd9e8ee95811051d52f8f78..80c10eab4e97f81a2614ad0125b581dd
  #endif
 
  @implementation RNExitApp
+diff --git a/RNExitApp.podspec b/RNExitApp.podspec
+--- a/RNExitApp.podspec
++++ b/RNExitApp.podspec
+@@ -25 +25 @@ Pod::Spec.new do |s|
+-	s.dependency 'React-Core'
++	install_modules_dependencies(s)
+@@ -27,8 +26,0 @@ Pod::Spec.new do |s|
+-	# Don't install the dependencies when we run `pod install` in the old architecture.
+-	if ENV["RCT_NEW_ARCH_ENABLED"] == "1"
+-	  s.compiler_flags = folly_flags + " -DRCT_NEW_ARCH_ENABLED=1"
+-	  s.pod_target_xcconfig    = {
+-		"HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost\"",
+-		"OTHER_CPLUSPLUSFLAGS" => "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
+-		"CLANG_CXX_LANGUAGE_STANDARD" => "c++17"
+-	  }
+@@ -36,7 +27,0 @@ Pod::Spec.new do |s|
+-	  s.dependency "React-Codegen"
+-	  s.dependency "React-RCTFabric"
+-	  s.dependency "RCT-Folly"
+-	  s.dependency "RCTRequired"
+-	  s.dependency "RCTTypeSafety"
+-	  s.dependency "ReactCommon/turbomodule/core"
+-	end

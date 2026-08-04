@@ -131,7 +131,6 @@ const RequestListSurface = ({
           <ThemeView style={styles.listSeparator} />
         )}
         contentContainerStyle={styles.list}
-        estimatedItemSize={72}
         removeClippedSubviews
         maxToRenderPerBatch={10}
         windowSize={5}
@@ -179,7 +178,6 @@ const RequestListSurface = ({
     // eslint-disable-next-line local-rules/no-flatlist-missing-get-item-layout
     <FlashList
       data={routineChangeRequests}
-      estimatedItemSize={168}
       extraData={expandedRoutineChangeRequestId}
       keyExtractor={({ id }) => `routine-change-${id}`}
       renderItem={renderRoutineChangeRequest}

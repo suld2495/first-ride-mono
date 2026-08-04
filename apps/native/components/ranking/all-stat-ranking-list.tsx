@@ -155,7 +155,6 @@ const AllStatRankingList = ({
         renderItem={renderItem}
         ItemSeparatorComponent={AllStatItemSeparator}
         contentContainerStyle={styles.content}
-        estimatedItemSize={ALL_STAT_ITEM_HEIGHT + ALL_STAT_HEADER_HEIGHT}
         removeClippedSubviews
         maxToRenderPerBatch={10}
         windowSize={5}

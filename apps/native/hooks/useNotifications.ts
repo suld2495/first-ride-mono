@@ -166,7 +166,6 @@ export function useNotifications(
 export function setNotificationHandler() {
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldShowAlert: true, // 알림 배너 표시 (deprecated, use shouldShowBanner)
       shouldPlaySound: true, // 소리 재생
       shouldSetBadge: true, // 배지 설정 (iOS)
       shouldShowBanner: true, // 알림 배너 표시 (Android 12+)

@@ -48,7 +48,6 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   /\/$/,
   '',
 );
-const FRIEND_ADD_RESULT_ITEM_ESTIMATED_HEIGHT = 59;
 const MODAL_ANIMATION_DURATION = baseFoundation.motion.duration.normal;
 const MIN_SEARCH_KEYWORD_LENGTH = 2;
 const SERVER_BUSY_RETRY_CODE = 'SERVER_BUSY_RETRY';
@@ -386,7 +385,6 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                         onRefresh={handleRefresh}
                       />
                     }
-                    estimatedItemSize={FRIEND_ADD_RESULT_ITEM_ESTIMATED_HEIGHT}
                     removeClippedSubviews={false}
                     scrollEnabled
                     showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}

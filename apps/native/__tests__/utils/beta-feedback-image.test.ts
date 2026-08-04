@@ -1,7 +1,7 @@
 const mockGetInfoAsync = jest.fn();
 const mockManipulateAsync = jest.fn();
 
-jest.mock('expo-file-system', () => ({
+jest.mock('expo-file-system/legacy', () => ({
   getInfoAsync: (...args: unknown[]) => mockGetInfoAsync(...args),
 }));
 

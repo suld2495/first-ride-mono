@@ -904,9 +904,6 @@ describe('루틴 조회 페이지', () => {
           ]),
         );
         expect(routineListScroll.props.scrollEnabled).toBe(true);
-        expect(routineListScroll.props.estimatedItemSize).toBe(
-          ROUTINE_ITEM_HEIGHT,
-        );
 
         fireEvent(getByTestId('routine-list-area'), 'layout', {
           nativeEvent: { layout: { height: 620 } },
@@ -916,9 +913,6 @@ describe('루틴 조회 페이지', () => {
           expect.arrayContaining([
             expect.objectContaining({ height: ROUTINE_ITEM_HEIGHT * 4 }),
           ]),
-        );
-        expect(routineListScroll.props.estimatedItemSize).toBe(
-          ROUTINE_ITEM_HEIGHT,
         );
       });
 
@@ -978,9 +972,6 @@ describe('루틴 조회 페이지', () => {
           expect.arrayContaining([
             expect.objectContaining({ height: maxListHeight }),
           ]),
-        );
-        expect(routineListScroll.props.estimatedItemSize).toBe(
-          ROUTINE_ITEM_HEIGHT,
         );
         expect(routineListScroll.props.scrollEnabled).toBe(true);
       });

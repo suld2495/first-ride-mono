@@ -137,7 +137,6 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
       contentContainerStyle={styles.scrollContent}
       ItemSeparatorComponent={QuestItemSeparator}
       showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
-      estimatedItemSize={QUEST_ITEM_HEIGHT}
       removeClippedSubviews
       maxToRenderPerBatch={10}
       windowSize={5}

@@ -28,24 +28,14 @@
   "pnpm": {
     "patchedDependencies": {
       "react-native-exit-app@2.0.0": "patches/react-native-exit-app@2.0.0.patch",
-      "react-native@0.79.6": "patches/react-native@0.79.6.patch"
+      "react-native@0.81.5": "patches/react-native@0.81.5.patch"
     },
     "overrides": {
       "query-string": "^7.1.3",
-      "expo": "~53.0.24",
-      "react": "19.0.0",
-      "react-dom": "19.0.0",
-      "react-native": "0.79.6",
-      "metro": "^0.82.0",
-      "metro-config": "^0.82.0",
-      "metro-runtime": "^0.82.0",
-      "metro-resolver": "^0.82.0",
-      "metro-source-map": "^0.82.0",
       "zustand": "5.0.7",
       "axios": "^1.18.1",
       "@tanstack/react-query": "5.85.3",
       "@tanstack/react-query-devtools": "5.85.3",
-      "expo-secure-store": "^14.2.3",
       "markdown-it@<12.3.2": "12.3.2",
       "glob@>=10.2.0 <10.5.0": "10.5.0",
       "undici@<6.23.0": "6.23.0",

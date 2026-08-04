@@ -131,7 +131,6 @@ const WhatsNewModalContent = ({ onDismiss }: WhatsNewModalContentProps) => {
           <FlashList
             contentContainerStyle={styles.listContent}
             data={WHATS_NEW_ITEMS}
-            estimatedItemSize={104}
             keyExtractor={(item) => item.title}
             maxToRenderPerBatch={6}
             removeClippedSubviews
