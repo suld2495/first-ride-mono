@@ -9,6 +9,10 @@ const routineWidgetNativePath = path.join(
   __dirname,
   '../../widget/routine-widget-native.ts',
 );
+const characterWidgetPreviewAssetPath = path.join(
+  __dirname,
+  '../../targets/routine-widget/Assets.xcassets/WidgetPreviewCharacter.dataset/Contents.json',
+);
 
 const readNumberConstant = (source: string, name: string) => {
   const match = source.match(
@@ -43,6 +47,25 @@ describe('routine widget background', () => {
     expect(source).toContain('CGImageSourceCreateThumbnailAtIndex');
     expect(source).toContain('return UIImage(cgImage: thumbnail).pngData()');
     expect(source).toContain('return downsampledImageData(data)');
+  });
+
+  it('shows the bundled current character in the widget gallery preview', () => {
+    const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
+
+    expect(source).toContain(
+      'private let characterWidgetPreviewCharacterAssetName = "WidgetPreviewCharacter"',
+    );
+    expect(source).toContain(
+      'characterImageData: previewImageData(named: characterWidgetPreviewCharacterAssetName)',
+    );
+
+    const asset = JSON.parse(
+      fs.readFileSync(characterWidgetPreviewAssetPath, 'utf8'),
+    );
+    expect(asset.data).toContainEqual({
+      filename: 'character.png',
+      idiom: 'universal',
+    });
   });
 
   it('uses the iOS system background color', () => {
