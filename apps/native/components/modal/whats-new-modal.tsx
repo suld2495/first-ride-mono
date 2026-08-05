@@ -1,6 +1,7 @@
 import { Image, type ImageSourcePropType, Modal, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { UpdateNotice } from '@/api/update-notices.api';
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet } from '@/components/ui/tamagui';
@@ -8,49 +9,12 @@ import { Typography } from '@/components/ui/typography';
 import { useWhatsNewModal } from '@/hooks/useWhatsNewModal';
 import { baseFoundation, palette } from '@/theme/tokens';
 
-interface WhatsNewItem {
-  title: string;
-  description: string;
-}
-
-const WHATS_NEW_ITEMS: WhatsNewItem[] = [
-  {
-    title: '더 편리해진 루틴 만들기',
-    description:
-      '루틴을 더욱 쉽고 편하게 만들 수 있도록 생성 과정을 다듬었어요.',
-  },
-  {
-    title: '나만 보는 비공개 루틴',
-    description:
-      '다른 사람에게 공개하지 않고 혼자 관리할 수 있는 루틴을 만들 수 있어요.',
-  },
-  {
-    title: '인증 사진에 한 줄 메시지',
-    description:
-      '루틴을 인증할 때 메이트에게 전하고 싶은 메시지를 함께 남겨보세요.',
-  },
-  {
-    title: '메이트에게 ‘응원 콕’ 보내기',
-    description: '메이트에게 응원과 동기부여가 필요할 때 가볍게 콕 보내보세요!',
-  },
-  {
-    title: '사진과 함께 피드백 보내기',
-    description:
-      '설명하기 어려운 불편함도 사진을 첨부해 쉽게 알려줄 수 있어요.',
-  },
-  {
-    title: '작지만 중요한 개선들',
-    description:
-      '화면 곳곳의 불편함을 개선하고 다양한 오류와 디테일을 수정했어요.',
-  },
-];
-
 const UPDATE_NUMBER_WIDTH = baseFoundation.dimension.x48;
 const MINIMUM_FOOTER_BOTTOM_PADDING = baseFoundation.spacing[3];
 const CHARACTER_IMAGE =
   require('../../assets/routine/character.png') as ImageSourcePropType;
 
-const renderUpdateItem: ListRenderItem<WhatsNewItem> = ({ item, index }) => (
+const renderUpdateItem: ListRenderItem<UpdateNotice> = ({ item, index }) => (
   <View style={styles.updateItem} testID={`whats-new-item-${index + 1}`}>
     <Typography variant="h3" weight="medium" style={styles.updateNumber}>
       {(index + 1).toString().padStart(2, '0')}
@@ -72,9 +36,13 @@ const renderUpdateItem: ListRenderItem<WhatsNewItem> = ({ item, index }) => (
 
 interface WhatsNewModalContentProps {
   onDismiss: () => void;
+  updates: readonly UpdateNotice[];
 }
 
-const WhatsNewModalContent = ({ onDismiss }: WhatsNewModalContentProps) => {
+const WhatsNewModalContent = ({
+  onDismiss,
+  updates,
+}: WhatsNewModalContentProps) => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -130,8 +98,8 @@ const WhatsNewModalContent = ({ onDismiss }: WhatsNewModalContentProps) => {
           {/* eslint-disable-next-line local-rules/no-flatlist-missing-get-item-layout */}
           <FlashList
             contentContainerStyle={styles.listContent}
-            data={WHATS_NEW_ITEMS}
-            keyExtractor={(item) => item.title}
+            data={updates}
+            keyExtractor={(item) => item.id.toString()}
             maxToRenderPerBatch={6}
             removeClippedSubviews
             renderItem={renderUpdateItem}
@@ -171,16 +139,17 @@ const WhatsNewModalContent = ({ onDismiss }: WhatsNewModalContentProps) => {
 
 interface WhatsNewModalProps {
   buildNumber: number | null;
+  updates: readonly UpdateNotice[];
 }
 
-const WhatsNewModal = ({ buildNumber }: WhatsNewModalProps) => {
+const WhatsNewModal = ({ buildNumber, updates }: WhatsNewModalProps) => {
   const { dismiss, isVisible } = useWhatsNewModal(buildNumber);
 
-  if (!isVisible) {
+  if (!isVisible || updates.length === 0) {
     return null;
   }
 
-  return <WhatsNewModalContent onDismiss={dismiss} />;
+  return <WhatsNewModalContent onDismiss={dismiss} updates={updates} />;
 };
 
 export default WhatsNewModal;

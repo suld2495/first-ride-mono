@@ -13,6 +13,7 @@ import {
   TESTFLIGHT_UPDATE_URL,
   fetchRequiredAppVersion,
 } from '@/api/app-version.api';
+import { fetchUpdateNotices } from '@/api/update-notices.api';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
 import * as routineSceneArt from '../../../components/routine/routine-scene-art';
@@ -41,8 +42,27 @@ jest.mock('@/api/app-version.api', () => ({
   fetchRequiredAppVersion: jest.fn(),
 }));
 
+jest.mock('@/api/update-notices.api', () => ({
+  fetchUpdateNotices: jest.fn(),
+}));
+
 const mockedFetchRequiredAppVersion = jest.mocked(fetchRequiredAppVersion);
+const mockedFetchUpdateNotices = jest.mocked(fetchUpdateNotices);
 const WHATS_NEW_DISMISSED_BUILD_43_KEY = 'whats-new-dismissed-build:43';
+const UPDATE_NOTICES = [
+  {
+    id: 1,
+    displayOrder: 1,
+    title: '서버에서 받은 첫 번째 업데이트',
+    description: '첫 번째 업데이트 설명입니다.',
+  },
+  {
+    id: 2,
+    displayOrder: 2,
+    title: '서버에서 받은 두 번째 업데이트',
+    description: '두 번째 업데이트 설명입니다.',
+  },
+];
 
 const formatRoutineHeaderDate = (date: Date) => {
   const year = date.getFullYear();
@@ -205,6 +225,8 @@ describe('루틴 조회 페이지', () => {
       minimumBuildNumber: 43,
       updateUrl: TESTFLIGHT_UPDATE_URL,
     });
+    mockedFetchUpdateNotices.mockReset();
+    mockedFetchUpdateNotices.mockResolvedValue(UPDATE_NOTICES);
     useColorSchemeStore.getState().clearColorSchemeOverride();
     useColorSchemeStore.getState().setColorScheme('blue');
     mockAxios = new MockAdapter(axiosInstance);
@@ -248,11 +270,10 @@ describe('루틴 조회 페이지', () => {
   // 공통 인증 테스트
   describeAuthRedirect(() => render(<Index />));
 
-  it('새로워진 이루라 안내에 공개 API의 여자 전사 캐릭터를 표시한다', async () => {
+  it('새로워진 이루라 안내에 서버가 내려준 업데이트 내용을 표시한다', async () => {
     const {
       findByTestId,
       findByText,
-      getByTestId,
       getByText,
       queryByText,
       UNSAFE_getAllByType,
@@ -269,31 +290,15 @@ describe('루틴 조회 페이지', () => {
       ]),
     );
 
-    const updateTitles = [
-      '더 편리해진 루틴 만들기',
-      '나만 보는 비공개 루틴',
-      '인증 사진에 한 줄 메시지',
-      '메이트에게 ‘응원 콕’ 보내기',
-      '사진과 함께 피드백 보내기',
-      '작지만 중요한 개선들',
-    ];
-
-    for (const title of updateTitles) {
-      expect(getByText(title)).toBeOnTheScreen();
+    for (const update of UPDATE_NOTICES) {
+      expect(getByText(update.title)).toBeOnTheScreen();
+      expect(getByText(update.description)).toBeOnTheScreen();
     }
+    expect(queryByText('더 편리해진 루틴 만들기')).not.toBeOnTheScreen();
 
     await waitFor(() => {
       expect(getByText('이루라 시작하기')).toBeOnTheScreen();
-      expect(
-        mockAxios.history.get.some(
-          (request) =>
-            request.url === '/auth/job-options' &&
-            request.params?.gender === 'FEMALE',
-        ),
-      ).toBe(true);
-      expect(getByTestId('whats-new-character').props.source).toEqual({
-        uri: PUBLIC_CHARACTER_IMAGE_URL,
-      });
+      expect(mockedFetchUpdateNotices).toHaveBeenCalledTimes(1);
     });
 
     expect(getByText('이루라 시작하기')).toBeOnTheScreen();
@@ -356,6 +361,32 @@ describe('루틴 조회 페이지', () => {
 
     await waitFor(() => {
       expect(mockedFetchRequiredAppVersion).toHaveBeenCalledTimes(1);
+    });
+    expect(queryByText('새로워진 이루라')).not.toBeOnTheScreen();
+    expect(getByLabelText('루틴 추가')).toBeOnTheScreen();
+  });
+
+  it('업데이트 안내 API 조회에 실패하면 공지를 표시하지 않고 루틴 화면을 사용한다', async () => {
+    mockedFetchUpdateNotices.mockRejectedValue(
+      new Error('update notices lookup failed'),
+    );
+
+    const { getByLabelText, queryByText } = render(<Index />);
+
+    await waitFor(() => {
+      expect(mockedFetchUpdateNotices).toHaveBeenCalledTimes(1);
+    });
+    expect(queryByText('새로워진 이루라')).not.toBeOnTheScreen();
+    expect(getByLabelText('루틴 추가')).toBeOnTheScreen();
+  });
+
+  it('활성화된 업데이트 안내가 없으면 빈 공지를 표시하지 않는다', async () => {
+    mockedFetchUpdateNotices.mockResolvedValue([]);
+
+    const { getByLabelText, queryByText } = render(<Index />);
+
+    await waitFor(() => {
+      expect(mockedFetchUpdateNotices).toHaveBeenCalledTimes(1);
     });
     expect(queryByText('새로워진 이루라')).not.toBeOnTheScreen();
     expect(getByLabelText('루틴 추가')).toBeOnTheScreen();

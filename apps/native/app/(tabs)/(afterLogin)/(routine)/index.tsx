@@ -15,6 +15,7 @@ import {
 import { type LayoutChangeEvent, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { UpdateNotice } from '@/api/update-notices.api';
 import WhatsNewModal from '@/components/modal/whats-new-modal';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
@@ -33,6 +34,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useRequiredAppVersionQuery } from '@/hooks/useRequiredAppVersionQuery';
 import { useResetRoutineFormState } from '@/hooks/useRoutineFormState';
+import { useUpdateNoticesQuery } from '@/hooks/useUpdateNoticesQuery';
 import {
   clearRoutineShareTargets,
   syncRoutineShareTargets,
@@ -48,6 +50,7 @@ import { saveRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
 const SPEECH_BUBBLE_BOTTOM_OFFSET =
   baseFoundation.dimension.x100 + baseFoundation.spacing[1];
 const ROUTINE_CHARACTER_BOTTOM_OFFSET = baseFoundation.dimension.x48;
+const EMPTY_UPDATE_NOTICES: readonly UpdateNotice[] = [];
 const normalizeMottoText = (value: unknown): string[] => {
   if (Array.isArray(value)) {
     return value.flatMap(normalizeMottoText);
@@ -88,9 +91,13 @@ export default function Index() {
   const routineDateRef = useRef(date);
   const user = useAuthUser();
   const requiredAppVersionQuery = useRequiredAppVersionQuery(user?.userId);
+  const updateNoticesQuery = useUpdateNoticesQuery(user?.userId);
   const whatsNewBuildNumber = requiredAppVersionQuery.isSuccess
     ? (requiredAppVersionQuery.data?.minimumBuildNumber ?? null)
     : null;
+  const updateNotices = updateNoticesQuery.isSuccess
+    ? updateNoticesQuery.data
+    : EMPTY_UPDATE_NOTICES;
   const { data: currentUser } = useFetchMeQuery(user?.userId);
   const themeName = useColorScheme();
   const userThemeName = currentUser
@@ -298,7 +305,10 @@ export default function Index() {
         testID="routine-add-fab"
         style={styles.fab}
       />
-      <WhatsNewModal buildNumber={whatsNewBuildNumber} />
+      <WhatsNewModal
+        buildNumber={whatsNewBuildNumber}
+        updates={updateNotices}
+      />
     </SafeAreaView>
   );
 }
