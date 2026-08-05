@@ -2,6 +2,7 @@ import {
   useFetchMeQuery,
   useUpdateMottoMutation,
 } from '@repo/shared/hooks/useUser';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
@@ -46,6 +47,7 @@ const getMottoCharacterCountLabel = (value: string) =>
   `${Array.from(value).length}/${MAX_MOTTO_CHARACTERS}자`;
 
 const Account = () => {
+  const router = useRouter();
   const user = useAuthUser();
   const signIn = useAuthSignIn();
   const { showToast } = useToast();
@@ -89,6 +91,7 @@ const Account = () => {
             signIn(updatedUser);
 
             showToast('한마디가 수정되었습니다.', 'success');
+            router.dismissTo('/(tabs)/(afterLogin)/(routine)');
           },
           onError: (error) => {
             const message =
@@ -104,7 +107,7 @@ const Account = () => {
 
       setSavedMotto(nextPrimaryMotto);
     },
-    [showToast, signIn, updateMotto],
+    [router, showToast, signIn, updateMotto],
   );
 
   const handlePrimaryMottoSubmit = useCallback(() => {
