@@ -35,6 +35,7 @@ declare const mockRoutineStore: {
     initialEndDate: string | null;
     confirmedStartDate: string | null;
     confirmedEndDate: string | null;
+    isStartDateFixed?: boolean;
   };
   beginRoutineDateSelection: jest.Mock;
   confirmRoutineDateSelection: jest.Mock;
@@ -307,6 +308,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
         getFormatDate(getStartOfToday()),
         null,
+        false,
       );
       expect(mockPush).toHaveBeenCalledWith('/routine-date-select');
       expect(queryByLabelText('날짜 선택 바텀 시트')).not.toBeOnTheScreen();
@@ -1248,6 +1250,32 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
   });
 
   describe('초기 렌더링 테스트', () => {
+    it('과거에 시작한 루틴의 날짜 선택은 시작일 고정 상태로 연다', async () => {
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        startDate: '2025-01-06',
+        endDate: getFormatDate(today),
+      });
+
+      const { findByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(await findByTestId('routine-date-button'));
+      });
+
+      expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
+        '2025-01-06',
+        getFormatDate(today),
+        true,
+      );
+      expect(mockPush).toHaveBeenCalledWith('/routine-date-select');
+    });
+
     it('기존 루틴 데이터가 폼에 표시된다', async () => {
       const { findByPlaceholderText, findByTestId, findByText } = render(
         <RoutineFormModal />,

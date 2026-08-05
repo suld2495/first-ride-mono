@@ -11,6 +11,7 @@ declare const mockRoutineStore: {
     initialEndDate: string | null;
     confirmedStartDate: string | null;
     confirmedEndDate: string | null;
+    isStartDateFixed?: boolean;
   };
   beginRoutineDateSelection: jest.Mock;
   confirmRoutineDateSelection: jest.Mock;
@@ -60,6 +61,30 @@ describe('RoutineDateSelectPage', () => {
       getFormatDate(tomorrow),
     );
     expect(mockBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('과거에 시작한 루틴 수정은 시작일을 고정하고 선택한 날짜만 종료일로 전달한다', () => {
+    const today = getStartOfToday();
+    const pastStartDate = new Date(today);
+
+    pastStartDate.setDate(today.getDate() - 1);
+    mockRoutineStore.routineDateSelection = {
+      initialStartDate: getFormatDate(pastStartDate),
+      initialEndDate: getFormatDate(today),
+      confirmedStartDate: null,
+      confirmedEndDate: null,
+      isStartDateFixed: true,
+    };
+
+    const { getByLabelText, getByText } = render(<RoutineDateSelectPage />);
+
+    fireEvent.press(getByLabelText(`${getFormatDate(today)} 선택 가능`));
+    fireEvent.press(getByText('선택완료'));
+
+    expect(mockRoutineStore.confirmRoutineDateSelection).toHaveBeenCalledWith(
+      getFormatDate(pastStartDate),
+      getFormatDate(today),
+    );
   });
 
   it('취소하면 선택 상태를 비우고 이전 페이지로 돌아간다', () => {
