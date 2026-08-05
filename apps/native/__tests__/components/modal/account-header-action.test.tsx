@@ -12,6 +12,8 @@ import { baseFoundation, palette } from '@/theme/tokens';
 
 import { render } from '../../setup/test-utils';
 
+declare const mockDismissTo: jest.Mock;
+
 jest.mock('@repo/shared/hooks/useUser', () => ({
   useFetchMeQuery: jest.fn(),
   useUpdateMottoMutation: jest.fn(),
@@ -25,7 +27,7 @@ jest.mock('expo-router', () => ({
   },
   useRouter: () => ({
     back: jest.fn(),
-    dismissTo: global.mockDismissTo,
+    dismissTo: mockDismissTo,
     replace: jest.fn(),
   }),
 }));
@@ -117,7 +119,7 @@ describe('Account modal header action', () => {
         onSuccess: expect.any(Function),
       }),
     );
-    expect(global.mockDismissTo).toHaveBeenCalledWith(
+    expect(mockDismissTo).toHaveBeenCalledWith(
       '/(tabs)/(afterLogin)/(routine)',
     );
   });
@@ -146,7 +148,7 @@ describe('Account modal header action', () => {
     fireEvent.changeText(getByTestId('account-motto-input'), '새 한마디');
     fireEvent.press(getByLabelText('한마디 상단 저장'));
 
-    expect(global.mockDismissTo).not.toHaveBeenCalled();
+    expect(mockDismissTo).not.toHaveBeenCalled();
   });
 
   it('한마디 값에 변경사항이 없으면 헤더 저장 버튼을 비활성화한다', async () => {
