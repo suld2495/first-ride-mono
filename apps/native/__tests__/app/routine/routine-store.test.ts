@@ -25,6 +25,7 @@ describe('routine store', () => {
       initialEndDate: '2026-08-01',
       confirmedStartDate: null,
       confirmedEndDate: null,
+      isStartDateFixed: false,
     });
 
     useRoutineStore
@@ -36,10 +37,25 @@ describe('routine store', () => {
       initialEndDate: '2026-08-01',
       confirmedStartDate: '2026-08-02',
       confirmedEndDate: '2026-08-03',
+      isStartDateFixed: false,
     });
 
     useRoutineStore.getState().clearRoutineDateSelection();
 
     expect(useRoutineStore.getState().routineDateSelection).toBeNull();
+  });
+
+  it('시작일 고정 여부를 날짜 선택 페이지에 전달한다', () => {
+    useRoutineStore
+      .getState()
+      .beginRoutineDateSelection('2026-07-31', '2026-08-01', true);
+
+    expect(useRoutineStore.getState().routineDateSelection).toEqual({
+      initialStartDate: '2026-07-31',
+      initialEndDate: '2026-08-01',
+      confirmedStartDate: null,
+      confirmedEndDate: null,
+      isStartDateFixed: true,
+    });
   });
 });
