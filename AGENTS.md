@@ -27,4 +27,5 @@ cd ios && pod install
 
 ---
 ### 안드로이드
+cd apps/native && eas build --platform android --profile production
 cd apps/native && eas build --platform android --profile production --auto-submit
