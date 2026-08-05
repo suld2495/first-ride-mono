@@ -75,40 +75,56 @@ describe('JobOptionSelector', () => {
     }
   });
 
-  it('API 응답의 성별별 imageUrl을 큰 캐릭터와 레벨 1에 표시한다', () => {
-    const femaleImageUrl =
-      'https://api.irura.uk/assets/characters/warrior_female_beginner.png';
-    const maleImageUrl =
-      'https://api.irura.uk/assets/characters/warrior_male_beginner.png';
-    const femaleOptions = options.map((option) =>
-      option.jobType === 'WARRIOR'
-        ? { ...option, imageUrl: femaleImageUrl }
-        : option,
-    );
-    const maleOptions = options.map((option) =>
-      option.jobType === 'WARRIOR'
-        ? { ...option, imageUrl: maleImageUrl }
-        : option,
-    );
+  it.each([
+    ['검사', 'warrior'],
+    ['마법사', 'mage'],
+    ['궁수', 'archer'],
+  ] as const)(
+    '선택한 직업의 여자 진화 이미지를 표시한다',
+    (jobName, jobType) => {
+      const screen = render(
+        <JobOptionSelector
+          options={options}
+          value={jobName}
+          gender="FEMALE"
+          onSelect={jest.fn()}
+        />,
+      );
+
+      expect(
+        screen
+          .UNSAFE_getAllByType(Image)
+          .slice(0, 4)
+          .map((image) => image.props.source),
+      ).toEqual([
+        expect.objectContaining({
+          testUri: expect.stringContaining(
+            `evolution/${jobType}_female_beginner.png`,
+          ),
+        }),
+        expect.objectContaining({
+          testUri: expect.stringContaining(
+            `evolution/${jobType}_female_beginner.png`,
+          ),
+        }),
+        expect.objectContaining({
+          testUri: expect.stringContaining(
+            `evolution/${jobType}_female_intermediate.png`,
+          ),
+        }),
+        expect.objectContaining({
+          testUri: expect.stringContaining(
+            `evolution/${jobType}_female_advanced.png`,
+          ),
+        }),
+      ]);
+    },
+  );
+
+  it('성별을 남자로 바꾸면 선택한 직업의 남자 진화 이미지를 표시한다', () => {
     const screen = render(
       <JobOptionSelector
-        options={femaleOptions}
-        value="검사"
-        gender="FEMALE"
-        onSelect={jest.fn()}
-      />,
-    );
-
-    expect(
-      screen
-        .UNSAFE_getAllByType(Image)
-        .slice(0, 2)
-        .map((image) => image.props.source),
-    ).toEqual([{ uri: femaleImageUrl }, { uri: femaleImageUrl }]);
-
-    screen.rerender(
-      <JobOptionSelector
-        options={maleOptions}
+        options={options}
         value="검사"
         gender="MALE"
         onSelect={jest.fn()}
@@ -118,26 +134,34 @@ describe('JobOptionSelector', () => {
     expect(
       screen
         .UNSAFE_getAllByType(Image)
-        .slice(0, 2)
+        .slice(0, 4)
         .map((image) => image.props.source),
-    ).toEqual([{ uri: maleImageUrl }, { uri: maleImageUrl }]);
+    ).toEqual([
+      expect.objectContaining({
+        testUri: expect.stringContaining('evolution/warrior_male_beginner.png'),
+      }),
+      expect.objectContaining({
+        testUri: expect.stringContaining('evolution/warrior_male_beginner.png'),
+      }),
+      expect.objectContaining({
+        testUri: expect.stringContaining(
+          'evolution/warrior_male_intermediate.png',
+        ),
+      }),
+      expect.objectContaining({
+        testUri: expect.stringContaining('evolution/warrior_male_advanced.png'),
+      }),
+    ]);
   });
 
-  it('레벨 1 이미지만 기존보다 1/3 큰 72 크기로 표시한다', () => {
+  it('세 단계 진화 이미지를 같은 크기와 기준선으로 표시한다', () => {
     const screen = render(
       <JobOptionSelector options={options} value="" onSelect={jest.fn()} />,
     );
     const [, level1Image, level2Image, level3Image] =
       screen.UNSAFE_getAllByType(Image);
 
-    expect(StyleSheet.flatten(level1Image.props.style)).toEqual(
-      expect.objectContaining({
-        width: 72,
-        height: 72,
-      }),
-    );
-
-    for (const image of [level2Image, level3Image]) {
+    for (const image of [level1Image, level2Image, level3Image]) {
       expect(StyleSheet.flatten(image.props.style)).toEqual(
         expect.objectContaining({
           width: 54,

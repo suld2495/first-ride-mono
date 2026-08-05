@@ -20,16 +20,9 @@ interface JobOptionSelectorProps {
 }
 
 type JobRole = 'WARRIOR' | 'MAGE' | 'ARCHER';
+type EvolutionStage = 'beginner' | 'intermediate' | 'advanced';
 
 const JOB_ORDER: JobRole[] = ['WARRIOR', 'MAGE', 'ARCHER'];
-
-const CHARACTER_IMAGES: Record<JobRole, ImageSourcePropType> = {
-  WARRIOR:
-    require('../../assets/routine/character-blue.png') as ImageSourcePropType,
-  MAGE: require('../../assets/routine/character-red.png') as ImageSourcePropType,
-  ARCHER:
-    require('../../assets/routine/character-green.png') as ImageSourcePropType,
-};
 
 const JOB_THEME: Record<
   JobRole,
@@ -70,6 +63,66 @@ const JOB_DESCRIPTION: Record<JobRole, string> = {
   MAGE: '마법사는 꾸준한 노력이 특별한 힘을 만든다고 믿는 캐릭터예요. 루틴을 반복할수록 마력이 쌓이고, 더 강력한 마법을 펼칠 수 있는 모습으로 성장해요.',
   ARCHER:
     '궁수는 한 걸음씩 목표를 향해 나아가는 사람에게 어울리는 캐릭터예요. 루틴을 반복할수록 집중력과 실력이 쌓여, 더욱 정확한 한 발을 쏘는 궁수로 성장해요.',
+};
+
+const EVOLUTION_CHARACTER_IMAGES: Record<
+  JobRole,
+  Record<Gender, Record<EvolutionStage, ImageSourcePropType>>
+> = {
+  WARRIOR: {
+    FEMALE: {
+      beginner:
+        require('../../assets/characters/evolution/warrior_female_beginner.png') as ImageSourcePropType,
+      intermediate:
+        require('../../assets/characters/evolution/warrior_female_intermediate.png') as ImageSourcePropType,
+      advanced:
+        require('../../assets/characters/evolution/warrior_female_advanced.png') as ImageSourcePropType,
+    },
+    MALE: {
+      beginner:
+        require('../../assets/characters/evolution/warrior_male_beginner.png') as ImageSourcePropType,
+      intermediate:
+        require('../../assets/characters/evolution/warrior_male_intermediate.png') as ImageSourcePropType,
+      advanced:
+        require('../../assets/characters/evolution/warrior_male_advanced.png') as ImageSourcePropType,
+    },
+  },
+  MAGE: {
+    FEMALE: {
+      beginner:
+        require('../../assets/characters/evolution/mage_female_beginner.png') as ImageSourcePropType,
+      intermediate:
+        require('../../assets/characters/evolution/mage_female_intermediate.png') as ImageSourcePropType,
+      advanced:
+        require('../../assets/characters/evolution/mage_female_advanced.png') as ImageSourcePropType,
+    },
+    MALE: {
+      beginner:
+        require('../../assets/characters/evolution/mage_male_beginner.png') as ImageSourcePropType,
+      intermediate:
+        require('../../assets/characters/evolution/mage_male_intermediate.png') as ImageSourcePropType,
+      advanced:
+        require('../../assets/characters/evolution/mage_male_advanced.png') as ImageSourcePropType,
+    },
+  },
+  ARCHER: {
+    FEMALE: {
+      beginner:
+        require('../../assets/characters/evolution/archer_female_beginner.png') as ImageSourcePropType,
+      intermediate:
+        require('../../assets/characters/evolution/archer_female_intermediate.png') as ImageSourcePropType,
+      advanced:
+        require('../../assets/characters/evolution/archer_female_advanced.png') as ImageSourcePropType,
+    },
+    MALE: {
+      beginner:
+        require('../../assets/characters/evolution/archer_male_beginner.png') as ImageSourcePropType,
+      intermediate:
+        require('../../assets/characters/evolution/archer_male_intermediate.png') as ImageSourcePropType,
+      advanced:
+        require('../../assets/characters/evolution/archer_male_advanced.png') as ImageSourcePropType,
+    },
+  },
 };
 
 export const getJobRole = (option?: JobOption): JobRole => {
@@ -138,15 +191,6 @@ const getSortedOptions = (options: JobOption[]) =>
     options.filter((option) => getJobRole(option) === role),
   );
 
-const getFallbackCharacterImage = (option?: JobOption) =>
-  CHARACTER_IMAGES[getJobRole(option)];
-
-const getApiCharacterImage = (option?: JobOption): ImageSourcePropType => {
-  const imageUrl = option?.imageUrl.trim();
-
-  return imageUrl ? { uri: imageUrl } : getFallbackCharacterImage(option);
-};
-
 const JobOptionSelector = ({
   options,
   value,
@@ -167,6 +211,8 @@ const JobOptionSelector = ({
   const activeIndex = selectedIndex >= 0 ? selectedIndex : 0;
   const activeOption = sortedOptions[activeIndex];
   const activeTheme = getJobTheme(activeOption);
+  const evolutionImages =
+    EVOLUTION_CHARACTER_IMAGES[getJobRole(activeOption)][gender];
   const statusText = isLoading
     ? '직업을 불러오는 중입니다.'
     : helperText || undefined;
@@ -274,7 +320,7 @@ const JobOptionSelector = ({
           style={[styles.card, { backgroundColor: activeTheme.card }]}
         >
           <Image
-            source={getApiCharacterImage(activeOption)}
+            source={evolutionImages.beginner}
             resizeMode="contain"
             style={styles.heroImage}
           />
@@ -291,50 +337,46 @@ const JobOptionSelector = ({
           </Typography>
 
           <View style={styles.levelPanel}>
-            {[0, 1, 2].map((index) => {
-              const isUnlocked = index === 0;
+            {(['beginner', 'intermediate', 'advanced'] as const).map(
+              (stage, index) => {
+                const isUnlocked = index === 0;
 
-              return (
-                <View key={index} style={styles.levelItem}>
-                  <View style={styles.levelImageWrap}>
-                    <Image
-                      source={
-                        isUnlocked
-                          ? getApiCharacterImage(activeOption)
-                          : getFallbackCharacterImage(activeOption)
-                      }
-                      resizeMode="contain"
-                      tintColor={
-                        isUnlocked ? undefined : activeTheme.accentDark
-                      }
-                      style={[
-                        styles.levelImage,
-                        isUnlocked
-                          ? styles.unlockedLevelImage
-                          : styles.lockedLevelImage,
-                      ]}
-                    />
-                    {isUnlocked ? null : (
-                      <Typography
-                        variant="title"
-                        weight="semibold"
-                        color={palette.white}
-                        style={styles.questionMark}
-                      >
-                        ?
-                      </Typography>
-                    )}
+                return (
+                  <View key={stage} style={styles.levelItem}>
+                    <View style={styles.levelImageWrap}>
+                      <Image
+                        source={evolutionImages[stage]}
+                        resizeMode="contain"
+                        tintColor={
+                          isUnlocked ? undefined : activeTheme.accentDark
+                        }
+                        style={[
+                          styles.levelImage,
+                          !isUnlocked && styles.lockedLevelImage,
+                        ]}
+                      />
+                      {isUnlocked ? null : (
+                        <Typography
+                          variant="title"
+                          weight="semibold"
+                          color={palette.white}
+                          style={styles.questionMark}
+                        >
+                          ?
+                        </Typography>
+                      )}
+                    </View>
+                    <Typography
+                      variant="caption2"
+                      weight="semibold"
+                      color={theme.colors.text.label}
+                    >
+                      레벨 {index + 1}
+                    </Typography>
                   </View>
-                  <Typography
-                    variant="caption2"
-                    weight="semibold"
-                    color={theme.colors.text.label}
-                  >
-                    레벨 {index + 1}
-                  </Typography>
-                </View>
-              );
-            })}
+                );
+              },
+            )}
           </View>
         </View>
 
@@ -485,10 +527,6 @@ const styles = StyleSheet.create((theme) => ({
   levelImage: {
     width: 54,
     height: 54,
-  },
-  unlockedLevelImage: {
-    width: 72,
-    height: 72,
   },
   lockedLevelImage: {
     opacity: 0.95,
