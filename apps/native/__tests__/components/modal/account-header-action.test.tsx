@@ -25,6 +25,7 @@ jest.mock('expo-router', () => ({
   },
   useRouter: () => ({
     back: jest.fn(),
+    dismissTo: global.mockDismissTo,
     replace: jest.fn(),
   }),
 }));
@@ -116,6 +117,36 @@ describe('Account modal header action', () => {
         onSuccess: expect.any(Function),
       }),
     );
+    expect(global.mockDismissTo).toHaveBeenCalledWith(
+      '/(tabs)/(afterLogin)/(routine)',
+    );
+  });
+
+  it('한마디 수정에 실패하면 루틴 리스트로 이동하지 않는다', async () => {
+    const mutate = jest.fn((_request, options) => {
+      options?.onError?.(new Error('한마디 수정 실패'));
+    });
+
+    (useUpdateMottoMutation as jest.Mock).mockReturnValue({
+      isPending: false,
+      mutate,
+    });
+
+    const { getByLabelText, getByTestId } = render(
+      <ModalHeaderActionProvider>
+        <ModalHeader title="한마디" />
+        <Account />
+      </ModalHeaderActionProvider>,
+    );
+
+    await waitFor(() => {
+      expect(getByLabelText('한마디 상단 저장')).toBeOnTheScreen();
+    });
+
+    fireEvent.changeText(getByTestId('account-motto-input'), '새 한마디');
+    fireEvent.press(getByLabelText('한마디 상단 저장'));
+
+    expect(global.mockDismissTo).not.toHaveBeenCalled();
   });
 
   it('한마디 값에 변경사항이 없으면 헤더 저장 버튼을 비활성화한다', async () => {
