@@ -12,6 +12,7 @@ interface State {
     initialEndDate: string | null;
     confirmedStartDate: string | null;
     confirmedEndDate: string | null;
+    isStartDateFixed: boolean;
   } | null;
   type: 'number' | 'week';
 }
@@ -23,6 +24,7 @@ interface Action {
   beginRoutineDateSelection: (
     initialStartDate: string | null,
     initialEndDate: string | null,
+    isStartDateFixed?: boolean,
   ) => void;
   confirmRoutineDateSelection: (
     confirmedStartDate: string,
@@ -61,13 +63,18 @@ export const useRoutineStore = create<State & Action>()(
         routineForm: { ...initialState.routineForm },
         routineDateSelection: null,
       }),
-    beginRoutineDateSelection: (initialStartDate, initialEndDate) =>
+    beginRoutineDateSelection: (
+      initialStartDate,
+      initialEndDate,
+      isStartDateFixed = false,
+    ) =>
       set({
         routineDateSelection: {
           initialStartDate,
           initialEndDate,
           confirmedStartDate: null,
           confirmedEndDate: null,
+          isStartDateFixed,
         },
       }),
     confirmRoutineDateSelection: (confirmedStartDate, confirmedEndDate) =>
@@ -79,6 +86,8 @@ export const useRoutineStore = create<State & Action>()(
             state.routineDateSelection?.initialEndDate ?? confirmedEndDate,
           confirmedStartDate,
           confirmedEndDate,
+          isStartDateFixed:
+            state.routineDateSelection?.isStartDateFixed ?? false,
         },
       })),
     clearRoutineDateSelection: () => set({ routineDateSelection: null }),

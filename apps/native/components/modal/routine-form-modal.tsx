@@ -101,7 +101,15 @@ type RoutineStatusForm = RoutineForm & {
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RoutineStatusForm>();
 
-const RoutineDateFormItem = () => {
+interface RoutineDateFormItemProps {
+  isRoutineAdd: boolean;
+  today: string;
+}
+
+const RoutineDateFormItem = ({
+  isRoutineAdd,
+  today,
+}: RoutineDateFormItemProps) => {
   const router = useRouter();
   const { setValue } = useForm();
   const routineDateSelection = useRoutineDateSelection();
@@ -177,7 +185,14 @@ const RoutineDateFormItem = () => {
               variant="outlined"
               disabled={Boolean(form.isDailyRepeat)}
               onPress={() => {
-                beginRoutineDateSelection(value || null, form.endDate || null);
+                const isStartDateFixed =
+                  !isRoutineAdd && Boolean(value && value < today);
+
+                beginRoutineDateSelection(
+                  value || null,
+                  form.endDate || null,
+                  isStartDateFixed,
+                );
                 router.push('/routine-date-select');
               }}
               buttonStyle={[
@@ -393,7 +408,10 @@ const RoutineFormModal = () => {
           )}
           required
         />
-        <RoutineDateFormItem />
+        <RoutineDateFormItem
+          isRoutineAdd={isRoutineAdd}
+          today={defaultStartDate}
+        />
         <FormItem
           name="routineCount"
           label="루틴 횟수"

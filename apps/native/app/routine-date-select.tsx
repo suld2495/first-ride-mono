@@ -49,6 +49,11 @@ export default function RoutineDateSelectPage() {
   };
 
   const handleSelectDate = (date: Date) => {
+    if (routineDateSelection?.isStartDateFixed && selectedStartDate) {
+      setSelectedEndDate(date);
+      return;
+    }
+
     if (!selectedStartDate || selectedEndDate) {
       setSelectedStartDate(date);
       setSelectedEndDate(null);
