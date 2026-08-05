@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect } from 'react';
-import { Animated, Pressable, Text, View } from 'react-native';
+import { Animated, Platform, Pressable, Text, View } from 'react-native';
+import { FullWindowOverlay } from 'react-native-screens';
 
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { type Toast, type ToastType, useToast } from '@/contexts/ToastContext';
@@ -109,13 +110,26 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
 
 const ToastContainer: React.FC = () => {
   const { toasts, hideToast } = useToast();
-
-  return (
-    <View style={styles.container} pointerEvents="box-none">
+  const content = (
+    <View
+      testID="toast-container"
+      style={styles.container}
+      pointerEvents="box-none"
+    >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onHide={hideToast} />
       ))}
     </View>
+  );
+
+  if (Platform.OS !== 'ios') {
+    return content;
+  }
+
+  return (
+    <FullWindowOverlay unstable_accessibilityContainerViewIsModal={false}>
+      {content}
+    </FullWindowOverlay>
   );
 };
 

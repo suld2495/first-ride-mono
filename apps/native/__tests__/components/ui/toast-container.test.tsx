@@ -1,11 +1,34 @@
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import React from 'react';
-import { Pressable, Text } from 'react-native';
+import { Platform, Pressable, Text } from 'react-native';
 
 import ToastContainer from '@/components/ui/toast-container';
 import { ToastProvider, useToast } from '@/contexts/ToastContext';
 
 jest.unmock('@/contexts/ToastContext');
+
+jest.mock('react-native-screens', () => {
+  const ReactModule = require('react') as typeof React;
+  const { View } = require('react-native') as typeof import('react-native');
+
+  return {
+    FullWindowOverlay: ({
+      children,
+      unstable_accessibilityContainerViewIsModal,
+    }: {
+      children: React.ReactNode;
+      unstable_accessibilityContainerViewIsModal?: boolean;
+    }) =>
+      ReactModule.createElement(
+        View,
+        {
+          accessibilityViewIsModal: unstable_accessibilityContainerViewIsModal,
+          testID: 'full-window-overlay',
+        },
+        children,
+      ),
+  };
+});
 
 jest.mock('@/components/ui/typography', () => {
   const ReactModule = require('react') as typeof React;
@@ -38,6 +61,12 @@ const ShowToastButton = () => {
 };
 
 describe('ToastContainer', () => {
+  const originalPlatform = Platform.OS;
+
+  afterEach(() => {
+    jest.replaceProperty(Platform, 'OS', originalPlatform);
+  });
+
   it('동적으로 토스트를 표시할 때 insertion effect에서 갱신하지 않는다', async () => {
     const consoleErrorSpy = jest
       .spyOn(console, 'error')
@@ -86,5 +115,21 @@ describe('ToastContainer', () => {
     await waitFor(() => {
       expect(screen.queryByText('업로드할 수 없는 이미지입니다.')).toBeNull();
     });
+  });
+
+  it('iOS에서는 UIWindow 전역 오버레이에 토스트를 렌더링한다', () => {
+    jest.replaceProperty(Platform, 'OS', 'ios');
+
+    const screen = render(
+      <ToastProvider>
+        <ToastContainer />
+      </ToastProvider>,
+    );
+
+    expect(screen.getByTestId('full-window-overlay')).toHaveProp(
+      'accessibilityViewIsModal',
+      false,
+    );
+    expect(screen.getByTestId('toast-container')).toBeOnTheScreen();
   });
 });

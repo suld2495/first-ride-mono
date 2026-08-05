@@ -80,6 +80,12 @@ describe('친구 추가 모달', () => {
       expect(backdrop.props.exiting.constructor.presetName).toBe('FadeOut');
     });
 
+    it('공통 토스트 컨테이너를 모달 내부에서 렌더링하지 않는다', () => {
+      const screen = render(<FriendAddModal {...defaultProps} />);
+
+      expect(screen.queryByTestId('modal-toast-container')).toBeNull();
+    });
+
     it('검색 결과 리스트에 안정적인 스크롤 뷰포트를 제공한다', () => {
       const screen = render(<FriendAddModal {...defaultProps} />);
 
