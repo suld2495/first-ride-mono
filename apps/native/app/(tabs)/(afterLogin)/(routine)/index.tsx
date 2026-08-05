@@ -76,6 +76,7 @@ const normalizeMottoText = (value: unknown): string[] => {
 
 export default function Index() {
   const router = useRouter();
+  const replaceRoutineRoute = router.replace;
   const resetRoutineForm = useResetRoutineFormState();
   const isFirstLoadRef = useRef(true);
   const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
@@ -145,6 +146,20 @@ export default function Index() {
       setIsManualRefreshing(false);
     }
   }, [refetch]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const currentWeekDate = getWeekMonday(new Date());
+
+      if (routineDateRef.current === currentWeekDate) {
+        return;
+      }
+
+      replaceRoutineRoute(
+        `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
+      );
+    }, [replaceRoutineRoute]),
+  );
 
   useFocusEffect(
     useCallback(() => {

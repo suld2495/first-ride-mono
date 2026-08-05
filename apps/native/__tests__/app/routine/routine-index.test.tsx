@@ -164,6 +164,7 @@ const renderWithSharedQueryClient = (ui: React.ReactElement) => {
 
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
+declare const mockReplace: jest.Mock;
 declare const mockShowToast: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockUser: {
@@ -603,6 +604,18 @@ describe('루틴 조회 페이지', () => {
         expect(refetch).toHaveBeenCalledTimes(1);
 
         routinesSpy.mockRestore();
+      });
+
+      it('루틴 페이지가 포커스되면 오늘이 속한 주로 날짜를 초기화한다', () => {
+        const currentWeekDate = getWeekMonday(new Date());
+
+        mockSearchParams.date = beforeWeek(new Date(currentWeekDate));
+
+        render(<Index />);
+
+        expect(mockReplace).toHaveBeenCalledWith(
+          `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
+        );
       });
 
       it('루틴 순서 변경 버튼을 누르면 정렬 모달로 이동한다', async () => {
