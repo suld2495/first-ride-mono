@@ -1276,6 +1276,33 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(mockPush).toHaveBeenCalledWith('/routine-date-select');
     });
 
+    it('오늘 시작하는 루틴 수정은 시작일을 고정하지 않는다', async () => {
+      const today = new Date();
+      const tomorrow = new Date(today);
+
+      today.setHours(0, 0, 0, 0);
+      tomorrow.setHours(0, 0, 0, 0);
+      tomorrow.setDate(today.getDate() + 1);
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        startDate: getFormatDate(today),
+        endDate: getFormatDate(tomorrow),
+      });
+
+      const { findByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(await findByTestId('routine-date-button'));
+      });
+
+      expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
+        getFormatDate(today),
+        getFormatDate(tomorrow),
+        false,
+      );
+    });
+
     it('기존 루틴 데이터가 폼에 표시된다', async () => {
       const { findByPlaceholderText, findByTestId, findByText } = render(
         <RoutineFormModal />,
