@@ -1,12 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMyStatsQuery } from '@repo/shared/hooks/useStat';
 import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
-import type { Gender, UserLoginType } from '@repo/types';
+import type { Gender } from '@repo/types';
 import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, View } from 'react-native';
 
+import LoginTypeBadge from '@/components/auth/login-type-badge';
 import Container from '@/components/layout/container';
 import Header from '@/components/layout/header';
 import {
@@ -26,26 +27,6 @@ const FALLBACK_EXP = 0;
 const FALLBACK_NEXT_LEVEL_EXP = 10;
 const SETTINGS_LEVEL_TEXT_SIZE = baseFoundation.typography.size.h3 - 6;
 const CHARACTER_EVOLUTION_EXP_PER_LEVEL = 10;
-
-const SOCIAL_LOGIN_TYPE_LABELS: Record<
-  Exclude<UserLoginType, 'PLAIN'>,
-  string
-> = {
-  KAKAO: '카카오',
-  APPLE: 'Apple',
-  GOOGLE: 'Google',
-  NAVER: '네이버',
-};
-
-const SOCIAL_LOGIN_TYPE_COLORS: Partial<
-  Record<
-    Exclude<UserLoginType, 'PLAIN'>,
-    { backgroundColor: string; textColor: string }
-  >
-> = {
-  KAKAO: { backgroundColor: '#FEE500', textColor: '#000000' },
-  APPLE: { backgroundColor: '#000000', textColor: '#FFFFFF' },
-};
 
 const SETTING_ITEMS: Array<{
   title: string;
@@ -180,15 +161,6 @@ const MyInfo = () => {
   const characterAsset = getRoutineSceneRemoteAsset(
     currentUser?.characterImageUrl,
   );
-  const socialLoginType =
-    currentUser?.loginType && currentUser.loginType !== 'PLAIN'
-      ? SOCIAL_LOGIN_TYPE_LABELS[currentUser.loginType]
-      : null;
-  const socialLoginTypeColors =
-    currentUser?.loginType && currentUser.loginType !== 'PLAIN'
-      ? SOCIAL_LOGIN_TYPE_COLORS[currentUser.loginType]
-      : null;
-
   useFocusEffect(
     useCallback(() => {
       void refetchMyStats();
@@ -256,28 +228,13 @@ const MyInfo = () => {
                 >
                   {currentUser.userId}
                 </Typography>
-              ) : socialLoginType ? (
-                <View
+              ) : (
+                <LoginTypeBadge
+                  loginType={currentUser?.loginType}
                   testID="settings-profile-login-type-badge"
-                  style={[
-                    styles.loginTypeBadge,
-                    {
-                      backgroundColor:
-                        socialLoginTypeColors?.backgroundColor ??
-                        softThemeColor[20],
-                    },
-                  ]}
-                >
-                  <Typography
-                    color={socialLoginTypeColors?.textColor ?? themeColor[80]}
-                    testID="settings-profile-login-type-text"
-                    variant="caption2"
-                    weight="semibold"
-                  >
-                    {socialLoginType}
-                  </Typography>
-                </View>
-              ) : null}
+                  textTestID="settings-profile-login-type-text"
+                />
+              )}
             </View>
           </View>
 
@@ -624,14 +581,6 @@ const styles = StyleSheet.create((theme) => ({
   profileText: {
     marginLeft: theme.foundation.spacing[3],
     gap: 7,
-  },
-  loginTypeBadge: {
-    alignSelf: 'flex-start',
-    height: baseFoundation.dimension.x20,
-    paddingHorizontal: theme.foundation.spacing[2],
-    borderRadius: baseFoundation.dimension.x99,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   levelRow: {
     marginTop: theme.foundation.spacing[5],

@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
+import LoginTypeBadge from '@/components/auth/login-type-badge';
 import { Button } from '@/components/ui/button';
 import { FlashList } from '@/components/ui/flash-list';
 import { Input } from '@/components/ui/input';
@@ -91,6 +92,7 @@ const getCharacterBackgroundStyle = (
 const UserItem = ({
   nickname,
   userId,
+  loginType,
   characterCode,
   characterImageUrl,
   close,
@@ -166,13 +168,20 @@ const UserItem = ({
           >
             {nickname}
           </Typography>
-          <Typography
-            variant="caption1"
-            style={styles.userId}
-            numberOfLines={1}
-          >
-            {userId}
-          </Typography>
+          {loginType && loginType !== 'PLAIN' ? (
+            <LoginTypeBadge
+              loginType={loginType}
+              testID={`friend-search-login-type-badge-${nickname}`}
+            />
+          ) : (
+            <Typography
+              variant="caption1"
+              style={styles.userId}
+              numberOfLines={1}
+            >
+              {userId}
+            </Typography>
+          )}
         </View>
       </View>
       <Button

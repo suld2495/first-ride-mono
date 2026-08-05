@@ -288,6 +288,47 @@ describe('친구 추가 모달', () => {
         });
       });
 
+      it.each([
+        ['KAKAO', '카카오', '#FEE500', '#000000'],
+        ['APPLE', 'Apple', '#000000', '#FFFFFF'],
+      ] as const)(
+        '%s 회원은 아이디 대신 설정 화면과 같은 로그인 유형 배지를 표시한다',
+        async (loginType, loginTypeLabel, backgroundColor, textColor) => {
+          const socialUserId = `${loginType.toLowerCase()}-generated-id-that-should-not-be-shown`;
+
+          mockAxios.onGet(/\/users\/search/).reply(
+            200,
+            wrapResponse([
+              {
+                ...createMockUsers(1)[0],
+                userId: socialUserId,
+                loginType,
+              },
+            ]),
+          );
+
+          const {
+            findByTestId,
+            findByText,
+            getByPlaceholderText,
+            queryByText,
+          } = render(<FriendAddModal {...defaultProps} />);
+          const searchInput = getByPlaceholderText('유저이름을 입력해주세요.');
+
+          fireEvent.changeText(searchInput, 'user');
+          fireEvent(searchInput, 'submitEditing');
+
+          expect(await findByText(loginTypeLabel)).toBeOnTheScreen();
+          expect(
+            await findByTestId(`friend-search-login-type-badge-user1`),
+          ).toHaveStyle({ backgroundColor });
+          expect(
+            await findByTestId(`friend-search-login-type-badge-user1-text`),
+          ).toHaveStyle({ color: textColor });
+          expect(queryByText(socialUserId)).toBeNull();
+        },
+      );
+
       it('검색 결과가 없으면 빈 상태 메시지가 표시된다', async () => {
         const { findByText, getByPlaceholderText } = render(
           <FriendAddModal {...defaultProps} />,
@@ -566,9 +607,7 @@ describe('친구 추가 모달', () => {
       });
 
       await waitFor(() => {
-        const latestAddButton = getByTestId(
-          'friend-add-request-button-user1',
-        );
+        const latestAddButton = getByTestId('friend-add-request-button-user1');
 
         expect(latestAddButton).toBeDisabled();
         expect(mockAxios.history.post).toHaveLength(1);
