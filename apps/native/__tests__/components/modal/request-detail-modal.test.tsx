@@ -2,7 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import * as Notifications from 'expo-notifications';
-import { Alert, type AlertButton } from 'react-native';
+import { Alert, Image, type AlertButton } from 'react-native';
 
 import RequestDetailModal from '../../../components/modal/request-detail-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
@@ -98,7 +98,7 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
     it('인증 이미지 경로가 없어도 상세 정보를 표시한다', async () => {
       const mockDetail = {
         ...createMockRoutineDetail(0),
-        imagePath: '',
+        imagePaths: [],
       };
       mockAxios.resetHandlers();
       mockAxios
@@ -149,6 +149,31 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
       await findByText('테스트 루틴 1');
       expect(queryByTestId('request-detail-message')).toBeNull();
+    });
+
+    it('인증 요청 이미지 경로 배열의 이미지를 모두 표시한다', async () => {
+      const imagePaths = [
+        'https://example.com/image-1.jpg',
+        'https://example.com/image-2.jpg',
+        'https://example.com/image-3.jpg',
+        'https://example.com/image-4.jpg',
+      ];
+      const mockDetail = {
+        ...createMockRoutineDetail(0),
+        imagePaths,
+      };
+      mockAxios.resetHandlers();
+      mockAxios
+        .onGet(/\/routine\/confirm\/detail/)
+        .reply(200, { data: mockDetail });
+
+      const screen = render(<RequestDetailModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      expect(
+        screen.UNSAFE_getAllByType(Image).map((image) => image.props.source),
+      ).toEqual(imagePaths.slice(0, 3).map((uri) => ({ uri })));
     });
   });
 

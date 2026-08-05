@@ -9,6 +9,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
 import { useToast } from '@/contexts/ToastContext';
+import { MAX_REQUEST_IMAGE_COUNT } from '@/constants/REQUEST_IMAGE';
 import { getApiErrorMessage } from '@/utils/error-utils';
 import {
   normalizeRequestImages,
@@ -22,7 +23,7 @@ interface RoutineDetailInfo {
   paused: boolean;
 }
 
-export const MAX_REQUEST_IMAGE_COUNT = 3;
+export { MAX_REQUEST_IMAGE_COUNT };
 
 export type { RequestImage } from '@/utils/request-image';
 

@@ -223,7 +223,7 @@ describe('getNotificationNavigationIntent', () => {
     requesterNickname: '메이트',
     routineName: '아침 운동',
     routineDetail: '30분 걷기',
-    imagePath: 'https://example.com/confirm.png',
+    imagePaths: ['https://example.com/confirm.png'],
     createdAt: '2026-06-30T18:30:00',
     message: null,
   };

@@ -74,7 +74,7 @@ export interface CreateMockRoutineDetailOptions {
   requesterNickname?: string;
   routineName?: string;
   routineDetail?: string;
-  imagePath?: string;
+  imagePaths?: string[];
   createdAt?: string;
   checkStatus?: RoutineDetail['checkStatus'];
   message?: string | null;
@@ -89,7 +89,7 @@ export const createMockRoutineDetail = (
   requesterNickname: options.requesterNickname ?? 'requester',
   routineName: options.routineName ?? `테스트 루틴 ${index + 1}`,
   routineDetail: options.routineDetail ?? `테스트 루틴 ${index + 1} 상세`,
-  imagePath: options.imagePath ?? 'https://example.com/image.jpg',
+  imagePaths: options.imagePaths ?? ['https://example.com/image.jpg'],
   createdAt: options.createdAt ?? new Date().toISOString(),
   checkStatus: options.checkStatus ?? 'WAIT',
   message: options.message ?? null,

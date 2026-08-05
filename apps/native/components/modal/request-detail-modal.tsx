@@ -11,6 +11,7 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
+import { MAX_REQUEST_IMAGE_COUNT } from '@/constants/REQUEST_IMAGE';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useCreateForm } from '@/hooks/useForm';
 import { useRequestReply } from '@/hooks/useRequestReply';
@@ -19,13 +20,18 @@ import { baseFoundation } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<{ comment: string }>();
+const REQUEST_IMAGE_RATIO_FALLBACK = 1;
 
 const RequestDetailModal = () => {
   const requestId = useRequestId();
   const { data: detail, isLoading } = useFetchRequestDetailQuery(requestId);
 
   const user = useAuthUser();
-  const [ratio, setRatio] = useState(1);
+  const imagePaths = useMemo(
+    () => detail?.imagePaths?.slice(0, MAX_REQUEST_IMAGE_COUNT) ?? [],
+    [detail?.imagePaths],
+  );
+  const [ratios, setRatios] = useState<Record<string, number>>({});
   const initialForm = useMemo(() => ({ comment: '' }), []);
   const { handleSubmit, isPending, pendingStatus } = useRequestReply({
     confirmId: detail?.id,
@@ -33,12 +39,38 @@ const RequestDetailModal = () => {
   });
 
   useEffect(() => {
-    if (!detail?.imagePath) return;
+    let isActive = true;
 
-    Image.getSize(detail?.imagePath).then(({ width, height }) =>
-      setRatio(width / height),
-    );
-  }, [detail?.imagePath]);
+    if (!imagePaths.length) {
+      setRatios({});
+      return () => {
+        isActive = false;
+      };
+    }
+
+    void Promise.all(
+      imagePaths.map(async (imagePath) => {
+        try {
+          const { width, height } = await Image.getSize(imagePath);
+
+          return [
+            imagePath,
+            height > 0 ? width / height : REQUEST_IMAGE_RATIO_FALLBACK,
+          ] as const;
+        } catch {
+          return [imagePath, REQUEST_IMAGE_RATIO_FALLBACK] as const;
+        }
+      }),
+    ).then((entries) => {
+      if (!isActive) return;
+
+      setRatios(Object.fromEntries(entries));
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [imagePaths]);
 
   if (isLoading) {
     return null;
@@ -101,20 +133,38 @@ const RequestDetailModal = () => {
             </Typography>
           </ThemeView>
         ) : null}
-        <ThemeView transparent>
-          {detail?.imagePath?.endsWith('svg') ? (
-            <Svg.SvgUri
-              uri={detail?.imagePath}
-              style={[styles.image, { aspectRatio: ratio }]}
-            />
-          ) : (
-            <Image
-              source={{ uri: detail?.imagePath }}
-              style={[styles.image, { aspectRatio: ratio }]}
-            />
-          )}
-          <ThemeView style={styles.separator} />
-        </ThemeView>
+        {imagePaths.length ? (
+          <ThemeView transparent>
+            {imagePaths.map((imagePath, index) => (
+              <ThemeView key={`${imagePath}-${index}`} transparent>
+                {imagePath.endsWith('svg') ? (
+                  <Svg.SvgUri
+                    uri={imagePath}
+                    style={[
+                      styles.image,
+                      {
+                        aspectRatio:
+                          ratios[imagePath] ?? REQUEST_IMAGE_RATIO_FALLBACK,
+                      },
+                    ]}
+                  />
+                ) : (
+                  <Image
+                    source={{ uri: imagePath }}
+                    style={[
+                      styles.image,
+                      {
+                        aspectRatio:
+                          ratios[imagePath] ?? REQUEST_IMAGE_RATIO_FALLBACK,
+                      },
+                    ]}
+                  />
+                )}
+              </ThemeView>
+            ))}
+            <ThemeView style={styles.separator} />
+          </ThemeView>
+        ) : null}
         <Form form={initialForm}>
           <FormItem
             name="comment"

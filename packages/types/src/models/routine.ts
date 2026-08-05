@@ -77,7 +77,7 @@ export interface RoutineDetail {
   requesterNickname: string;
   routineName: Routine['routineName'];
   routineDetail: Routine['routineDetail'];
-  imagePath: Request['image'];
+  imagePaths: Request['image'][];
   createdAt: Request['createdAt'];
   checkStatus: Request['checkStatus'];
   message: Request['message'];
