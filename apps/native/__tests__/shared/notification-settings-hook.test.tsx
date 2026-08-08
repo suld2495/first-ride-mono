@@ -39,6 +39,8 @@ const createNotificationSettings = (enabled = true): NotificationSettings => ({
   subtypes: Object.fromEntries(
     NOTIFICATION_SUBTYPES.map((subtype) => [subtype, enabled]),
   ) as NotificationSettings['subtypes'],
+  dailyRoutineReminderCount: 1,
+  dailyRoutineReminderTimes: ['18:00:00'],
 });
 
 describe('useUpdateNotificationSettingsMutation', () => {

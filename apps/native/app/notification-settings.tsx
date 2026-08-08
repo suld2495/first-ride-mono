@@ -13,6 +13,7 @@ import { Animated, Easing, Pressable, ScrollView, View } from 'react-native';
 
 import Container from '@/components/layout/container';
 import PageHeader from '@/components/layout/page-header';
+import DailyRoutineReminderSettings from '@/components/notification/daily-routine-reminder-settings';
 import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
@@ -115,6 +116,11 @@ const applyNotificationSettingsUpdate = (
     ...settings.subtypes,
     ...update.subtypes,
   },
+  dailyRoutineReminderCount: update.dailyRoutineReminderTimes
+    ? update.dailyRoutineReminderTimes.length
+    : settings.dailyRoutineReminderCount,
+  dailyRoutineReminderTimes:
+    update.dailyRoutineReminderTimes ?? settings.dailyRoutineReminderTimes,
 });
 
 const createNotificationSettingsUpdate = (
@@ -127,6 +133,9 @@ const createNotificationSettingsUpdate = (
         confirmedSettings.subtypes[subtype] !== draftSettings.subtypes[subtype],
     ).map((subtype) => [subtype, draftSettings.subtypes[subtype]]),
   ) as Partial<Record<NotificationSubtype, boolean>>;
+  const changedDailyRoutineReminderTimes =
+    confirmedSettings.dailyRoutineReminderTimes.join('|') !==
+    draftSettings.dailyRoutineReminderTimes.join('|');
 
   return {
     ...(confirmedSettings.allEnabled !== draftSettings.allEnabled
@@ -135,12 +144,18 @@ const createNotificationSettingsUpdate = (
     ...(Object.keys(changedSubtypes).length > 0
       ? { subtypes: changedSubtypes }
       : {}),
+    ...(changedDailyRoutineReminderTimes
+      ? { dailyRoutineReminderTimes: draftSettings.dailyRoutineReminderTimes }
+      : {}),
   };
 };
 
 const hasNotificationSettingsUpdate = (
   update: UpdateNotificationSettingsRequest,
-): boolean => update.allEnabled !== undefined || update.subtypes !== undefined;
+): boolean =>
+  update.allEnabled !== undefined ||
+  update.subtypes !== undefined ||
+  update.dailyRoutineReminderTimes !== undefined;
 
 type SettingsErrorStateProps = {
   onRetry: () => void;
@@ -238,7 +253,7 @@ function AllNotificationSection({
   onToggle,
 }: AllNotificationSectionProps) {
   return (
-    <View style={styles.section}>
+    <View style={styles.section} testID="notification-settings-all-section">
       <View style={styles.primaryRow}>
         <View style={styles.rowText}>
           <Typography variant="body1" weight="semibold">
@@ -380,7 +395,7 @@ function NotificationGroupsSection({
   settings,
 }: NotificationGroupsSectionProps) {
   return (
-    <View style={styles.section}>
+    <View style={styles.section} testID="notification-settings-types-section">
       <Typography style={styles.sectionTitle} variant="body2" weight="semibold">
         알림 유형
       </Typography>
@@ -401,6 +416,8 @@ function NotificationGroupsSection({
 }
 
 type NotificationSettingsContentProps = {
+  dailyRoutineReminderTimes: string[];
+  onChangeDailyRoutineReminderTimes: (times: string[]) => void;
   onToggleAll: (allEnabled: boolean) => void;
   onToggleGroup: (group: NotificationGroup, enabled: boolean) => void;
   onToggleSubtype: (subtype: NotificationSubtype, enabled: boolean) => void;
@@ -408,6 +425,8 @@ type NotificationSettingsContentProps = {
 };
 
 function NotificationSettingsContent({
+  dailyRoutineReminderTimes,
+  onChangeDailyRoutineReminderTimes,
   onToggleAll,
   onToggleGroup,
   onToggleSubtype,
@@ -430,6 +449,12 @@ function NotificationSettingsContent({
         allEnabled={settings.allEnabled}
         onToggle={onToggleAll}
       />
+      {settings.allEnabled && settings.subtypes.DAILY_ROUTINE_REMINDER ? (
+        <DailyRoutineReminderSettings
+          onChange={onChangeDailyRoutineReminderTimes}
+          times={dailyRoutineReminderTimes}
+        />
+      ) : null}
       <NotificationGroupsSection
         onToggleGroup={onToggleGroup}
         onToggleSubtype={onToggleSubtype}
@@ -585,6 +610,11 @@ export default function NotificationSettingsPage() {
       subtypes: createSubtypeUpdate(group.subtypes, enabled),
     });
   };
+  const handleChangeDailyRoutineReminderTimes = (times: string[]) => {
+    queueSettingsUpdate({
+      dailyRoutineReminderTimes: times,
+    });
+  };
 
   const displayedSettings = draftSettings ?? settings;
 
@@ -601,6 +631,12 @@ export default function NotificationSettingsPage() {
       ) : null}
       {displayedSettings ? (
         <NotificationSettingsContent
+          dailyRoutineReminderTimes={
+            displayedSettings.dailyRoutineReminderTimes
+          }
+          onChangeDailyRoutineReminderTimes={
+            handleChangeDailyRoutineReminderTimes
+          }
           onToggleAll={handleToggleAll}
           onToggleGroup={handleToggleGroup}
           onToggleSubtype={handleToggleSubtype}

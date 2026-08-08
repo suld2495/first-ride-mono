@@ -38,6 +38,8 @@ describe('notification-settings.api', () => {
         FRIEND_REQUEST: true,
         QUEST_COMPLETE: false,
       },
+      dailyRoutineReminderCount: 1,
+      dailyRoutineReminderTimes: ['18:00:00'],
     });
   });
 
@@ -76,6 +78,8 @@ describe('notification-settings.api', () => {
         FRIEND_REQUEST: false,
         QUEST_COMPLETE: true,
       },
+      dailyRoutineReminderCount: 1,
+      dailyRoutineReminderTimes: ['18:00:00'],
     });
   });
 
@@ -105,6 +109,53 @@ describe('notification-settings.api', () => {
         SYSTEM: true,
         RANKING: true,
       },
+    });
+  });
+
+  it('오늘의 이루라 알림 시간 설정을 조회하고 시간 배열만 PATCH body로 전송한다', async () => {
+    mockAxios.onGet('/notifications/settings').reply(200, {
+      data: {
+        allEnabled: true,
+        settings: {
+          DAILY_ROUTINE_REMINDER: true,
+        },
+        dailyRoutineReminderCount: 2,
+        dailyRoutineReminderTimes: ['08:00:00', '18:00:00'],
+      },
+    });
+
+    await expect(fetchNotificationSettings()).resolves.toMatchObject({
+      dailyRoutineReminderCount: 2,
+      dailyRoutineReminderTimes: ['08:00:00', '18:00:00'],
+    });
+
+    mockAxios.onPatch('/notifications/settings').reply((config) => {
+      expect(JSON.parse(config.data ?? '{}')).toEqual({
+        dailyRoutineReminderTimes: ['08:00:00', '20:00:00'],
+      });
+
+      return [
+        200,
+        {
+          data: {
+            allEnabled: true,
+            settings: {
+              DAILY_ROUTINE_REMINDER: true,
+            },
+            dailyRoutineReminderCount: 2,
+            dailyRoutineReminderTimes: ['08:00:00', '20:00:00'],
+          },
+        },
+      ];
+    });
+
+    await expect(
+      updateNotificationSettings({
+        dailyRoutineReminderTimes: ['08:00:00', '20:00:00'],
+      }),
+    ).resolves.toMatchObject({
+      dailyRoutineReminderCount: 2,
+      dailyRoutineReminderTimes: ['08:00:00', '20:00:00'],
     });
   });
 });

@@ -17,6 +17,12 @@ declare const mockBack: jest.Mock;
 declare const mockPush: jest.Mock;
 declare const mockShowToast: jest.Mock;
 
+type TestInstanceWithTestId = {
+  props: {
+    testID: string;
+  };
+};
+
 describe('설정 하위 페이지', () => {
   let mockAxios: MockAdapter;
 
@@ -600,6 +606,115 @@ describe('설정 하위 페이지', () => {
     await act(async () => Promise.resolve());
   });
 
+  it('알림 설정 페이지는 오늘의 이루라 알림 시간을 표시하고 추가 시간을 저장한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/notifications/settings').reply(200, {
+      data: {
+        allEnabled: true,
+        settings: {
+          ROUTINE_CONFIRM_REQUEST: true,
+          ROUTINE_CONFIRM_APPROVED: true,
+          ROUTINE_CONFIRM_REJECTED: true,
+          ROUTINE_CHANGE_REQUEST: true,
+          ROUTINE_CHANGE_APPROVED: true,
+          ROUTINE_CHANGE_REJECTED: true,
+          DAILY_ROUTINE_REMINDER: true,
+          LEVEL_UP: true,
+          FRIEND_REQUEST: true,
+          FRIEND_ACCEPTED: true,
+          FRIEND_CHEER: true,
+          QUEST_COMPLETE: true,
+          QUEST_REWARD: true,
+          SYSTEM: true,
+          RANKING: true,
+        },
+        dailyRoutineReminderCount: 1,
+        dailyRoutineReminderTimes: ['18:00:00'],
+      },
+    });
+    mockAxios.onPatch('/notifications/settings').reply((config) => {
+      expect(JSON.parse(config.data ?? '{}')).toEqual({
+        dailyRoutineReminderTimes: ['08:00:00', '18:00:00'],
+      });
+
+      return [
+        200,
+        {
+          data: {
+            allEnabled: true,
+            settings: {
+              DAILY_ROUTINE_REMINDER: true,
+            },
+            dailyRoutineReminderCount: 2,
+            dailyRoutineReminderTimes: ['08:00:00', '18:00:00'],
+          },
+        },
+      ];
+    });
+
+    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+
+    expect(await findByText('오늘의 이루라 알림')).toBeOnTheScreen();
+    expect(await findByText('하루 1회')).toBeOnTheScreen();
+    expect(
+      getByTestId('notification-settings-reminder-time-0'),
+    ).toHaveTextContent('18:00');
+
+    fireEvent.press(getByTestId('notification-settings-reminder-add'));
+
+    await waitFor(() => {
+      expect(mockAxios.history.patch).toHaveLength(1);
+    });
+  });
+
+  it('알림 시간 추가와 삭제 텍스트는 흰색으로 표시한다', async () => {
+    const { findByText } = render(<NotificationSettingsPage />);
+
+    const addText = await findByText('시간 추가');
+    const removeText = await findByText('삭제');
+
+    expect(StyleSheet.flatten(addText.props.style)).toEqual(
+      expect.objectContaining({ color: '#FFFFFF' }),
+    );
+    expect(StyleSheet.flatten(removeText.props.style)).toEqual(
+      expect.objectContaining({ color: '#FFFFFF' }),
+    );
+  });
+
+  it('알림 설정 페이지는 이루라 알림 시간을 전체 알림과 알림 유형 사이의 독립 영역으로 표시한다', async () => {
+    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+
+    expect(await findByText('오늘의 이루라 알림')).toBeOnTheScreen();
+
+    const allSection = getByTestId('notification-settings-all-section');
+    const reminderSection = getByTestId(
+      'notification-settings-reminder-section',
+    );
+    const typesSection = getByTestId('notification-settings-types-section');
+
+    const content = reminderSection.parent?.parent?.parent;
+    const sectionOrder = content
+      ?.findAll(
+        (node: TestInstanceWithTestId) =>
+          [
+            'notification-settings-all-section',
+            'notification-settings-reminder-section',
+            'notification-settings-types-section',
+          ].includes(node.props.testID),
+        { matchDeepestOnly: true },
+      )
+      .map((section: TestInstanceWithTestId) => section.props.testID);
+
+    expect(content).toBeDefined();
+    expect(sectionOrder).toEqual([
+      'notification-settings-all-section',
+      'notification-settings-reminder-section',
+      'notification-settings-types-section',
+    ]);
+    expect(allSection.parent?.parent?.parent?.type).toBe(content?.type);
+    expect(typesSection.parent?.parent?.parent?.type).toBe(content?.type);
+  });
+
   it('알림 설정 페이지를 떠나기 전 대기 중인 변경을 저장한다', async () => {
     mockAxios.onPatch('/notifications/settings').reply(200, {
       data: {
@@ -736,7 +851,9 @@ describe('설정 하위 페이지', () => {
       },
     });
 
-    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+    const { findByText, getByTestId, queryByTestId } = render(
+      <NotificationSettingsPage />,
+    );
 
     expect(await findByText('모든 알림이 차단됩니다.')).toBeOnTheScreen();
     expect(
@@ -751,6 +868,7 @@ describe('설정 하위 페이지', () => {
       getByTestId('notification-settings-toggle-group-friend').props
         .accessibilityState.checked,
     ).toBe(false);
+    expect(queryByTestId('notification-settings-reminder-section')).toBeNull();
   });
 
   it('문의 페이지는 앱 안에서 작성한 내용을 이메일 문의로 전송한다', async () => {

@@ -20,25 +20,33 @@ export const NOTIFICATION_SUBTYPES = [
 
 export type NotificationSubtype = (typeof NOTIFICATION_SUBTYPES)[number];
 
+export const DEFAULT_DAILY_ROUTINE_REMINDER_TIMES = ['18:00:00'] as const;
+
 export type NotificationSettings = {
   allEnabled: boolean;
   subtypes: Record<NotificationSubtype, boolean>;
+  dailyRoutineReminderCount: number;
+  dailyRoutineReminderTimes: string[];
 };
 
 type NotificationSettingsResponse = Partial<{
   allEnabled: boolean;
   settings: Partial<Record<NotificationSubtype, boolean>>;
   subtypes: Partial<Record<NotificationSubtype, boolean>>;
+  dailyRoutineReminderCount: number;
+  dailyRoutineReminderTimes: string[];
 }>;
 
 export type UpdateNotificationSettingsRequest = Partial<{
   allEnabled: boolean;
   subtypes: Partial<Record<NotificationSubtype, boolean>>;
+  dailyRoutineReminderTimes: string[];
 }>;
 
 type NotificationSettingsUpdatePayload = Partial<{
   allEnabled: boolean;
   settings: Partial<Record<NotificationSubtype, boolean>>;
+  dailyRoutineReminderTimes: string[];
 }>;
 
 const baseURL = '/notifications/settings';
@@ -47,6 +55,9 @@ const normalizeNotificationSettings = (
   settings: NotificationSettingsResponse,
 ): NotificationSettings => {
   const responseSubtypeSettings = settings.settings ?? settings.subtypes ?? {};
+  const dailyRoutineReminderTimes = settings.dailyRoutineReminderTimes?.length
+    ? [...settings.dailyRoutineReminderTimes]
+    : [...DEFAULT_DAILY_ROUTINE_REMINDER_TIMES];
   const subtypeSettings = new Map(
     Object.entries(responseSubtypeSettings) as Array<
       [NotificationSubtype, boolean]
@@ -61,14 +72,19 @@ const normalizeNotificationSettings = (
         subtypeSettings.get(subtype) ?? true,
       ]),
     ) as Record<NotificationSubtype, boolean>,
+    dailyRoutineReminderCount: dailyRoutineReminderTimes.length,
+    dailyRoutineReminderTimes,
   };
 };
 
 const toNotificationSettingsUpdatePayload = (
   form: UpdateNotificationSettingsRequest,
 ): NotificationSettingsUpdatePayload => ({
-  allEnabled: form.allEnabled,
-  settings: form.subtypes,
+  ...(form.allEnabled !== undefined ? { allEnabled: form.allEnabled } : {}),
+  ...(form.subtypes !== undefined ? { settings: form.subtypes } : {}),
+  ...(form.dailyRoutineReminderTimes !== undefined
+    ? { dailyRoutineReminderTimes: form.dailyRoutineReminderTimes }
+    : {}),
 });
 
 export const fetchNotificationSettings =

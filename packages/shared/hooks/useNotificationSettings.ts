@@ -36,6 +36,12 @@ export const useUpdateNotificationSettingsMutation = (
         ...currentSettings.subtypes,
         ...form.subtypes,
       },
+      dailyRoutineReminderCount: form.dailyRoutineReminderTimes
+        ? form.dailyRoutineReminderTimes.length
+        : currentSettings.dailyRoutineReminderCount,
+      dailyRoutineReminderTimes:
+        form.dailyRoutineReminderTimes ??
+        currentSettings.dailyRoutineReminderTimes,
     };
   };
 
