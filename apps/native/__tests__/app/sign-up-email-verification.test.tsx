@@ -1,8 +1,8 @@
 import axiosInstance from '@repo/shared/api';
 import { act, fireEvent } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { ActivityIndicator } from 'react-native';
 
+import LoadingSpinner from '@/components/ui/loading-spinner';
 import SignUpEmailVerification from '../../app/sign-up-email-verification';
 import { usePendingSignUpStore } from '../../store/pending-sign-up.store';
 import { render } from '../setup/test-utils';
@@ -75,7 +75,7 @@ describe('SignUpEmailVerification 페이지', () => {
     ).toBeOnTheScreen();
     expect(getByText('a@b.co')).toBeOnTheScreen();
     expect(getByText('로그인하기')).toBeOnTheScreen();
-    expect(UNSAFE_queryByType(ActivityIndicator)).toBeNull();
+    expect(UNSAFE_queryByType(LoadingSpinner)).toBeNull();
   });
 
   it('인증 완료가 확인되면 회원가입 후 로그인 페이지로 이동한다', async () => {

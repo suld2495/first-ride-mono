@@ -6,6 +6,12 @@ export interface PendingConfirmation {
   status: 'WAIT';
 }
 
+export interface RoutineConfirmation {
+  confirmId: number;
+  date: string;
+  status: 'WAIT' | 'PASS' | 'DENY';
+}
+
 export interface Routine {
   routineId: number;
   nickname: string;
@@ -26,6 +32,7 @@ export interface Routine {
   pendingConfirmationCount: number;
   pendingConfirmationIds: number[];
   pendingConfirmations?: PendingConfirmation[];
+  confirmations?: RoutineConfirmation[];
   todayConfirmStatus: 'WAIT' | 'PASS' | 'DENY' | null;
   todayConfirmId: number | null;
   canRequestToday: boolean;
@@ -45,6 +52,7 @@ export type RoutineForm = Omit<
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
   | 'pendingConfirmations'
+  | 'confirmations'
   | 'todayConfirmStatus'
   | 'todayConfirmId'
   | 'canRequestToday'
@@ -67,6 +75,7 @@ export type WeeklyRoutine = Pick<
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
   | 'pendingConfirmations'
+  | 'confirmations'
 > & {
   successDate: string[];
 };
@@ -75,10 +84,14 @@ export interface RoutineDetail {
   id: Request['id'];
   nickname: Routine['nickname'];
   requesterNickname: string;
+  requesterCharacterImageUrl?: null | string;
+  responderCharacterImageUrl?: null | string;
   routineName: Routine['routineName'];
   routineDetail: Routine['routineDetail'];
   imagePaths: Request['image'][];
   createdAt: Request['createdAt'];
+  checkedAt?: Request['createdAt'] | null;
   checkStatus: Request['checkStatus'];
   message: Request['message'];
+  checkComment?: Request['checkComment'] | null;
 }

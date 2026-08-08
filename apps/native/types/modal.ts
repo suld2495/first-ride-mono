@@ -10,6 +10,7 @@ export type ModalType =
   | 'request'
   | 'request-list'
   | 'request-detail'
+  | 'routine-proof-detail'
   | 'friend-request-list'
   | 'friend-routines'
   | 'stat'
@@ -29,6 +30,7 @@ const MODAL_TYPES: readonly ModalType[] = [
   'request',
   'request-list',
   'request-detail',
+  'routine-proof-detail',
   'friend-request-list',
   'friend-routines',
   'stat',

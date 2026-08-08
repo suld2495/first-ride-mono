@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import React from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import type {
   GestureResponderEvent,
   PressableProps,
@@ -9,6 +9,7 @@ import type {
   ViewStyle,
 } from 'react-native';
 
+import LoadingSpinner from '@/components/ui/loading-spinner';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -188,7 +189,12 @@ export const Button: React.FC<ButtonProps> = ({
   // 텍스트 렌더링 (children 우선, 없으면 title)
   const renderContent = () => {
     if (loading) {
-      return <ActivityIndicator size="small" color={iconColor} />;
+      return (
+        <View style={internalStyles.contentWrapper}>
+          <LoadingSpinner />
+          {title ? <Text style={internalStyles.loadingText}>{title}</Text> : null}
+        </View>
+      );
     }
 
     const content = children || title;
@@ -342,6 +348,11 @@ const internalStyles = {
   },
   fullWidth: {
     width: '100%' as const,
+  },
+  loadingText: {
+    width: 0,
+    height: 0,
+    opacity: 0,
   },
   pressed: {
     opacity: 0.8,

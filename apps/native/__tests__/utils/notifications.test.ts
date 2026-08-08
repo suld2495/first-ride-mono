@@ -7,7 +7,6 @@ import { DEEP_LINK_SCREENS } from '../../constants/NOTIFICATIONS';
 import type { NotificationDeepLinkData } from '../../types/notification-types';
 import {
   clearBadgeCount,
-  getCompletedRoutineRequestToastMessage,
   getBadgeCount,
   getDeepLinkPath,
   getNotificationNavigationIntent,
@@ -247,7 +246,7 @@ describe('getNotificationNavigationIntent', () => {
     expect(requestApi.fetchRequestDetail).toHaveBeenCalledWith(123);
   });
 
-  it('routine-request가 WAIT 상태가 아니면 완료 안내 toast를 띄운다', async () => {
+  it('routine-request가 WAIT 상태가 아니면 완료된 인증 상세로 이동한다', async () => {
     jest.spyOn(requestApi, 'fetchRequestDetail').mockResolvedValue({
       ...requestDetail,
       checkStatus: 'PASS',
@@ -259,8 +258,8 @@ describe('getNotificationNavigationIntent', () => {
         requestId: 123,
       }),
     ).resolves.toEqual({
-      kind: 'toast',
-      message: getCompletedRoutineRequestToastMessage(),
+      kind: 'navigate',
+      path: '/modal?type=routine-proof-detail',
     });
   });
 

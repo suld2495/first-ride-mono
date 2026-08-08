@@ -1,8 +1,9 @@
 import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 
+import LoadingSpinner from '@/components/ui/loading-spinner';
 import RequestModal from '../../../components/modal/request-modal';
 import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
@@ -864,7 +865,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         });
 
         await waitFor(() => {
-          expect(screen.UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+          expect(screen.UNSAFE_getByType(LoadingSpinner)).toBeTruthy();
           expect(screen.getByText('취소')).toBeDisabled();
           expect(screen.getByTestId('request-submit-button')).toBeDisabled();
           expect(screen.getByTestId('gallery-button')).toBeDisabled();

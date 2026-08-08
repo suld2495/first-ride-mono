@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   type PressableProps,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
 
+import LoadingSpinner from '@/components/ui/loading-spinner';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 
 export type IconButtonSize = 'sm' | 'md' | 'lg';
@@ -130,7 +130,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
 
   const renderIcon = () => {
     if (loading) {
-      return <ActivityIndicator size="small" color={iconColor} />;
+      return <LoadingSpinner />;
     }
 
     if (typeof icon === 'function') {

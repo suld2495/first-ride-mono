@@ -10,6 +10,7 @@ module.exports = function (api) {
           config: './theme/tamagui.config.ts',
         },
       ],
+      'react-native-worklets/plugin',
     ],
   };
 };

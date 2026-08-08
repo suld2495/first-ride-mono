@@ -30,6 +30,7 @@ import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useSetRequestId } from '@/hooks/useRequestSelection';
 import {
   useRoutineType,
   useSetRoutineForm,
@@ -59,6 +60,13 @@ const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing[2];
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
 
+interface RoutineCheckPressMeta {
+  completed?: boolean;
+  confirmId?: number | null;
+  confirmationStatus?: Routine['todayConfirmStatus'];
+  isToday?: boolean;
+}
+
 if (
   Platform.OS === 'android' &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -76,6 +84,7 @@ const RoutineList = ({
   routineColorFallback,
 }: RoutineListProps) => {
   const setRoutineId = useSetRoutineId();
+  const setRequestId = useSetRequestId();
   const setRoutineForm = useSetRoutineForm();
   const type = useRoutineType();
   const router = useRouter();
@@ -163,13 +172,67 @@ const RoutineList = ({
     [router, setRoutineId],
   );
 
+  const handleShowRoutineProofDetailModal = useCallback(
+    (confirmId: number) => {
+      setOpenMenuRoutineId(null);
+      setRequestId(confirmId);
+      router.push('/modal?type=routine-proof-detail');
+    },
+    [router, setRequestId],
+  );
+
+  const handleShowReceivedRequestDetailModal = useCallback(
+    (confirmId: number) => {
+      setOpenMenuRoutineId(null);
+      setRequestId(confirmId);
+      router.push('/modal?type=request-detail');
+    },
+    [router, setRequestId],
+  );
+
   const handlePressRoutineCheck = useCallback(
-    (routine: Routine) => {
+    (routine: Routine, meta: RoutineCheckPressMeta = {}) => {
       if (!showsRequestMenuItem) {
         return;
       }
 
+      if (meta.confirmId) {
+        if (meta.confirmationStatus === 'WAIT' && !routine.isMe) {
+          handleShowReceivedRequestDetailModal(meta.confirmId);
+
+          return;
+        }
+
+        handleShowRoutineProofDetailModal(meta.confirmId);
+
+        return;
+      }
+
+      if (meta.completed) {
+        const confirmId =
+          meta.confirmId ?? (meta.isToday ? routine.todayConfirmId : null);
+
+        if (confirmId) {
+          handleShowRoutineProofDetailModal(confirmId);
+
+          return;
+        }
+
+        showToast('인증 상세 정보를 불러올 수 없어요.', 'error');
+
+        return;
+      }
+
       if (!routine.canRequestToday) {
+        if (
+          routine.todayConfirmStatus === 'PASS' &&
+          typeof routine.todayConfirmId === 'number'
+        ) {
+          handleShowRoutineProofDetailModal(routine.todayConfirmId);
+
+          return;
+        }
+
         showToast('오늘 이미 인증을 완료하였습니다.', 'error');
 
         return;
@@ -177,7 +240,13 @@ const RoutineList = ({
 
       handleShowRequestModal(routine.routineId);
     },
-    [handleShowRequestModal, showToast, showsRequestMenuItem],
+    [
+      handleShowRequestModal,
+      handleShowReceivedRequestDetailModal,
+      handleShowRoutineProofDetailModal,
+      showToast,
+      showsRequestMenuItem,
+    ],
   );
 
   const handleBlockPastRoutineRequest = useCallback(() => {

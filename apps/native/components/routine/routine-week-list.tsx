@@ -31,7 +31,15 @@ interface RoutineWeekListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
-  onRequestRoutine: (routine: Routine) => void;
+  onRequestRoutine: (
+    routine: Routine,
+    meta?: {
+      completed?: boolean;
+      confirmId?: number | null;
+      confirmationStatus?: Routine['todayConfirmStatus'];
+      isToday?: boolean;
+    },
+  ) => void;
   onBlockPastRoutineRequest: () => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
@@ -78,6 +86,56 @@ const createRoutineDateKey = (date: Date) => {
   const day = date.getDate().toString().padStart(PAD_LENGTH, '0');
 
   return `${year}-${month}-${day}`;
+};
+
+const createRoutineShortDateKey = (date: Date) => {
+  const year = date.getFullYear() - 2000;
+  const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
+  const day = date.getDate().toString().padStart(PAD_LENGTH, '0');
+
+  return `${year}${month}${day}`;
+};
+
+const createWeekShortDateKeys = (startDate: string) => {
+  const date = new Date(startDate);
+
+  return Array.from({ length: DAYS_PER_WEEK }, (_, index) => {
+    const weekDate = new Date(date);
+
+    weekDate.setDate(weekDate.getDate() + index);
+
+    return createRoutineShortDateKey(weekDate);
+  });
+};
+
+const normalizeConfirmationDate = (date: string) => {
+  const compactDate = date.split('-').join('');
+
+  return compactDate.length === 8 ? compactDate.slice(2) : compactDate;
+};
+
+const getConfirmationForDate = (
+  routine: Routine,
+  dateKey: string,
+): { confirmId: number; status: Routine['todayConfirmStatus'] } | null => {
+  const confirmation = routine.confirmations?.find(
+    (item) => normalizeConfirmationDate(item.date) === dateKey,
+  );
+
+  if (confirmation) {
+    return {
+      confirmId: confirmation.confirmId,
+      status: confirmation.status,
+    };
+  }
+
+  const pendingConfirmation = routine.pendingConfirmations?.find(
+    (item) => normalizeConfirmationDate(item.date) === dateKey,
+  );
+
+  return pendingConfirmation
+    ? { confirmId: pendingConfirmation.confirmId, status: 'WAIT' }
+    : null;
 };
 
 const getPendingConfirmationDates = (
@@ -198,7 +256,9 @@ const RoutineWeekList = ({
   const { theme } = useAppTheme();
   const weeklyData = useWeeklyData(routines, date);
   const weekDateKeys = useMemo(() => createWeekDateKeys(date), [date]);
+  const weekShortDateKeys = useMemo(() => createWeekShortDateKeys(date), [date]);
   const todayDateKey = createRoutineDateKey(new Date());
+  const todayShortDateKey = createRoutineShortDateKey(new Date());
   const getRoutineItemLayout = useCallback(
     (_: Routine[] | null, index: number) => ({
       length: itemHeight,
@@ -289,6 +349,7 @@ const RoutineWeekList = ({
             <View style={styles.checkRow}>
               {weeklyData[routineId].map((check, index) => {
                 const dateKey = weekDateKeys[index];
+                const shortDateKey = weekShortDateKeys[index];
                 const {
                   isMissedPastDay,
                   isPendingConfirmation,
@@ -326,10 +387,27 @@ const RoutineWeekList = ({
                 const dayTextColor = isUpcomingDay
                   ? theme.colors.brand.routineProgressText
                   : CHECKBOX_DAY_TEXT_COLOR;
+                const datedConfirmation = getConfirmationForDate(
+                  routine,
+                  shortDateKey,
+                );
+                const confirmation =
+                  shortDateKey === todayShortDateKey && routine.todayConfirmId
+                    ? {
+                        confirmId: routine.todayConfirmId,
+                        status: routine.todayConfirmStatus,
+                      }
+                    : datedConfirmation;
                 const handlePressCheckBox = canRequestWithCheckBox
                   ? isMissedPastDay
                     ? onBlockPastRoutineRequest
-                    : () => onRequestRoutine(routine)
+                    : () =>
+                        onRequestRoutine(routine, {
+                          completed: check,
+                          confirmId: confirmation?.confirmId,
+                          confirmationStatus: confirmation?.status,
+                          isToday: isToday,
+                        })
                   : undefined;
 
                 return (
@@ -394,7 +472,9 @@ const RoutineWeekList = ({
       theme.colors.brand.routineUpcomingCheckboxBorder,
       theme.colors.brand.routineProgressText,
       todayDateKey,
+      todayShortDateKey,
       weekDateKeys,
+      weekShortDateKeys,
       weeklyData,
     ],
   );

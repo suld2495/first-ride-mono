@@ -7,7 +7,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
 import { memo, useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, type LayoutChangeEvent, View } from 'react-native';
+import { type LayoutChangeEvent, View } from 'react-native';
 
 import FriendCheerIcon from '@/components/icons/friend-cheer-icon';
 import ModalHeaderAction from '@/components/modal/modal-header-action';
@@ -22,6 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import EmptyState from '@/components/ui/empty-state';
 import Loading from '@/components/ui/loading';
+import LoadingSpinner from '@/components/ui/loading-spinner';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
@@ -224,9 +225,9 @@ const FriendRoutinesModal = () => {
         disabled={isCheerPending}
         leftIcon={
           isCheerPending ? (
-            <ActivityIndicator
-              color={palette.theme.blue[50]}
+            <LoadingSpinner
               size={baseFoundation.iconSize.xs}
+              strokeWidth={3}
               testID="friend-cheer-loading-icon"
             />
           ) : (

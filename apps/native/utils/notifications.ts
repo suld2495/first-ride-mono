@@ -21,7 +21,6 @@ import type {
 
 export {
   extractDeepLinkData,
-  getCompletedRoutineRequestToastMessage,
   getDeepLinkPath,
   getNotificationNavigationIntent,
   type NotificationNavigationIntent,

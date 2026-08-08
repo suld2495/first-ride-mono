@@ -31,7 +31,15 @@ interface RoutineCountListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
-  onRequestRoutine: (routine: Routine) => void;
+  onRequestRoutine: (
+    routine: Routine,
+    meta?: {
+      completed?: boolean;
+      confirmId?: number | null;
+      confirmationStatus?: Routine['todayConfirmStatus'];
+      isToday?: boolean;
+    },
+  ) => void;
   onBlockPastRoutineRequest: () => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
@@ -277,7 +285,23 @@ const RoutineCountList = ({
                   const handlePressCheckBox = canRequestWithCheckBox
                     ? isMissedPastGoal
                       ? onBlockPastRoutineRequest
-                      : () => onRequestRoutine(routine)
+                      : () =>
+                          onRequestRoutine(routine, {
+                            completed: isTodaySuccess,
+                            confirmId: isTodaySuccess
+                              ? routine.todayConfirmId
+                              : isPendingConfirmation
+                                ? routine.pendingConfirmationIds[
+                                    countIndex - weeklyCount - 1
+                                  ] ?? null
+                                : null,
+                            confirmationStatus: isTodaySuccess
+                              ? routine.todayConfirmStatus
+                              : isPendingConfirmation
+                                ? 'WAIT'
+                                : null,
+                            isToday: isTodaySuccess,
+                          })
                     : undefined;
 
                   return (
