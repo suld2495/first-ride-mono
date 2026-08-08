@@ -444,7 +444,11 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text.primary,
     textAlign: 'center',
   },
-  chatAvatarImage: { width: '115%', height: '115%' },
+  chatAvatarImage: {
+    width: '115%',
+    height: '115%',
+    transform: [{ translateY: -4 }],
+  },
   chatBubble: {
     maxWidth: '68%',
     paddingHorizontal: baseFoundation.spacing[3],
