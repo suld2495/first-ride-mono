@@ -237,22 +237,34 @@ const RoutineProofDetailModal = ({
               인증 사진
             </Typography>
             <View style={styles.imageRow}>
-              {imagePaths.map((imagePath, index) => (
-                <Pressable
-                  key={`${imagePath}-${index}`}
-                  accessibilityRole="imagebutton"
-                  accessibilityLabel={`인증 사진 ${index + 1} 확대`}
-                  onPress={() => setExpandedImagePath(imagePath)}
-                  style={styles.imageButton}
-                  testID={`routine-proof-image-${index}`}
-                >
-                  <DetailImage
-                    imagePath={imagePath}
-                    imageRatio={ratios[imagePath]}
-                    style={styles.thumbnailImage}
-                  />
-                </Pressable>
-              ))}
+              {Array.from({ length: DETAIL_IMAGE_THUMBNAIL_COUNT }).map(
+                (_, index) => {
+                  const imagePath = imagePaths[index];
+
+                  return imagePath ? (
+                    <Pressable
+                      key={`${imagePath}-${index}`}
+                      accessibilityRole="imagebutton"
+                      accessibilityLabel={`인증 사진 ${index + 1} 확대`}
+                      onPress={() => setExpandedImagePath(imagePath)}
+                      style={styles.imageButton}
+                      testID={`routine-proof-image-${index}`}
+                    >
+                      <DetailImage
+                        imagePath={imagePath}
+                        imageRatio={ratios[imagePath]}
+                        style={styles.thumbnailImage}
+                      />
+                    </Pressable>
+                  ) : (
+                    <View
+                      key={`empty-image-slot-${index}`}
+                      pointerEvents="none"
+                      style={[styles.imageButton, styles.emptyImageSlot]}
+                    />
+                  );
+                },
+              )}
             </View>
           </ThemeView>
         ) : null}
@@ -387,6 +399,7 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: baseFoundation.radii.s,
     backgroundColor: theme.colors.brand.card,
   },
+  emptyImageSlot: { opacity: 0 },
   thumbnailImage: {
     width: '100%',
     height: '100%',

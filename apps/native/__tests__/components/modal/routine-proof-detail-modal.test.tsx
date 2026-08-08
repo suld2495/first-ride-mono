@@ -74,4 +74,22 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     expect(screen.queryByText('인증 시간')).toBeNull();
     expect(screen.queryByText('주고받은 메시지')).toBeNull();
   });
+
+  it('인증 사진이 한 장이면 빈 슬롯은 노출하지 않는다', async () => {
+    const mockDetail = createMockRoutineDetail(0, {
+      imagePaths: ['https://example.com/image-1.jpg'],
+    });
+
+    mockAxios.onGet(/\/routine\/confirm\/detail/).reply(200, {
+      data: mockDetail,
+    });
+
+    const screen = render(<RoutineProofDetailModal />);
+
+    expect(
+      await screen.findByTestId('routine-proof-image-0'),
+    ).toBeOnTheScreen();
+    expect(screen.queryByTestId('routine-proof-image-1')).toBeNull();
+    expect(screen.queryByTestId('routine-proof-image-2')).toBeNull();
+  });
 });

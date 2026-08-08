@@ -5,8 +5,6 @@ import RoutineProofDetailModal from '@/components/modal/routine-proof-detail-mod
 
 const previewImages = [
   Asset.fromModule(require('../assets/hall-of-heroes/ale-wooden-stein.png')).uri,
-  Asset.fromModule(require('../assets/hall-of-heroes/moon-archer.png')).uri,
-  Asset.fromModule(require('../assets/hall-of-heroes/hye-mage.png')).uri,
 ];
 
 const previewDetail: RoutineDetail = {
