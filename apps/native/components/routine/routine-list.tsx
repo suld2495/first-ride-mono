@@ -30,6 +30,7 @@ import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useSetRequestId } from '@/hooks/useRequestSelection';
 import {
   useRoutineType,
   useSetRoutineForm,
@@ -60,6 +61,14 @@ const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing[2];
 const ROUTINE_SCROLL_INDICATOR_BOTTOM_SPACING = baseFoundation.spacing[2];
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
 
+interface RoutineCheckPressMeta {
+  completed?: boolean;
+  confirmId?: number | null;
+  confirmationStatus?: Routine['todayConfirmStatus'];
+  isMissedPast?: boolean;
+  isToday?: boolean;
+}
+
 if (
   Platform.OS === 'android' &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -77,6 +86,7 @@ const RoutineList = ({
   routineColorFallback,
 }: RoutineListProps) => {
   const setRoutineId = useSetRoutineId();
+  const setRequestId = useSetRequestId();
   const setRoutineForm = useSetRoutineForm();
   const type = useRoutineType();
   const router = useRouter();
@@ -165,13 +175,73 @@ const RoutineList = ({
     [router, setRoutineId],
   );
 
+  const handleShowRoutineProofDetailModal = useCallback(
+    (confirmId: number) => {
+      setOpenMenuRoutineId(null);
+      setRequestId(confirmId);
+      router.push('/modal?type=routine-proof-detail');
+    },
+    [router, setRequestId],
+  );
+
+  const handleShowReceivedRequestDetailModal = useCallback(
+    (confirmId: number) => {
+      setOpenMenuRoutineId(null);
+      setRequestId(confirmId);
+      router.push('/modal?type=request-detail');
+    },
+    [router, setRequestId],
+  );
+
   const handlePressRoutineCheck = useCallback(
-    (routine: Routine) => {
+    (routine: Routine, meta: RoutineCheckPressMeta = {}) => {
       if (!showsRequestMenuItem) {
         return;
       }
 
+      if (meta.isMissedPast) {
+        showToast('지난 기간의 루틴은 인증할 수 없어요.', 'error');
+
+        return;
+      }
+
+      if (meta.confirmId) {
+        if (meta.confirmationStatus === 'WAIT' && !routine.isMe) {
+          handleShowReceivedRequestDetailModal(meta.confirmId);
+
+          return;
+        }
+
+        handleShowRoutineProofDetailModal(meta.confirmId);
+
+        return;
+      }
+
+      if (meta.completed) {
+        const confirmId =
+          meta.confirmId ?? (meta.isToday ? routine.todayConfirmId : null);
+
+        if (confirmId) {
+          handleShowRoutineProofDetailModal(confirmId);
+
+          return;
+        }
+
+        showToast('인증 상세 정보를 불러올 수 없어요.', 'error');
+
+        return;
+      }
+
       if (!routine.canRequestToday) {
+        if (
+          routine.todayConfirmStatus !== null &&
+          typeof routine.todayConfirmId === 'number'
+        ) {
+          handleShowRoutineProofDetailModal(routine.todayConfirmId);
+
+          return;
+        }
+
         showToast('오늘 이미 인증을 완료하였습니다.', 'error');
 
         return;
@@ -179,12 +249,14 @@ const RoutineList = ({
 
       handleShowRequestModal(routine.routineId);
     },
-    [handleShowRequestModal, showToast, showsRequestMenuItem],
+    [
+      handleShowRequestModal,
+      handleShowReceivedRequestDetailModal,
+      handleShowRoutineProofDetailModal,
+      showToast,
+      showsRequestMenuItem,
+    ],
   );
-
-  const handleBlockPastRoutineRequest = useCallback(() => {
-    showToast('지난 기간의 루틴은 인증할 수 없어요.', 'error');
-  }, [showToast]);
 
   const handleShowUpdateModal = useCallback(
     (routine: Routine) => {
@@ -325,7 +397,6 @@ const RoutineList = ({
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
               onRequestRoutine={handlePressRoutineCheck}
-              onBlockPastRoutineRequest={handleBlockPastRoutineRequest}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
@@ -344,7 +415,6 @@ const RoutineList = ({
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
               onRequestRoutine={handlePressRoutineCheck}
-              onBlockPastRoutineRequest={handleBlockPastRoutineRequest}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}

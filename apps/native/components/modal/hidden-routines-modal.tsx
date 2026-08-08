@@ -3,17 +3,12 @@ import {
   useUpdateRoutinePauseMutation,
 } from '@repo/shared/hooks/useRoutine';
 import type { Routine } from '@repo/types';
-import { useEffect, useRef, useState } from 'react';
-import {
-  Animated,
-  Easing,
-  type LayoutChangeEvent,
-  Pressable,
-  View,
-} from 'react-native';
+import { useState } from 'react';
+import { type LayoutChangeEvent, Pressable, View } from 'react-native';
 
 import EmptyState from '@/components/ui/empty-state';
 import Loading from '@/components/ui/loading';
+import LoadingSpinner from '@/components/ui/loading-spinner';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
@@ -138,7 +133,9 @@ const HiddenRoutinesModal = () => {
                 testID={`hidden-routine-release-button-${routine.routineId}`}
               >
                 {isReleasePending ? (
-                  <ReleaseSpinner
+                  <LoadingSpinner
+                    size={baseFoundation.dimension.x12}
+                    strokeWidth={2}
                     testID={`hidden-routine-release-spinner-${routine.routineId}`}
                   />
                 ) : (
@@ -167,43 +164,6 @@ const HiddenRoutinesModal = () => {
 
 export default HiddenRoutinesModal;
 
-type ReleaseSpinnerProps = {
-  testID: string;
-};
-
-const ReleaseSpinner = ({ testID }: ReleaseSpinnerProps) => {
-  const rotateValue = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.timing(rotateValue, {
-        toValue: 1,
-        duration: 800,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    );
-
-    animation.start();
-
-    return () => {
-      animation.stop();
-    };
-  }, [rotateValue]);
-
-  const rotate = rotateValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
-  return (
-    <Animated.View
-      style={[styles.releaseSpinner, { transform: [{ rotate }] }]}
-      testID={testID}
-    />
-  );
-};
-
 const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
@@ -227,13 +187,5 @@ const styles = StyleSheet.create((theme) => ({
   },
   releaseButtonPressed: {
     transform: [{ scale: 0.96 }],
-  },
-  releaseSpinner: {
-    width: baseFoundation.dimension.x12,
-    height: baseFoundation.dimension.x12,
-    borderRadius: baseFoundation.dimension.x99,
-    borderWidth: baseFoundation.dimension.x2,
-    borderColor: theme.colors.text.gray,
-    borderTopColor: 'transparent',
   },
 }));

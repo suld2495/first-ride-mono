@@ -15,6 +15,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'first-ride',
   version: '1.0.0',
   scheme: 'first-ride',
+  newArchEnabled: true,
   web: {
     bundler: 'metro',
     output: webOutput,

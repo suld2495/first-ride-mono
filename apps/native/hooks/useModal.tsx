@@ -10,6 +10,7 @@ import RequestListModal from '@/components/modal/request-list-modal';
 import RequestModal from '@/components/modal/request-modal';
 import RoutineDetailModal from '@/components/modal/routine-detail-modal';
 import RoutineFormModal from '@/components/modal/routine-form-modal';
+import RoutineProofDetailModal from '@/components/modal/routine-proof-detail-modal';
 import RoutineReorderModal from '@/components/modal/routine-reorder-modal';
 import StatModal from '@/components/modal/stat-modal';
 import TermsPolicyModal from '@/components/modal/terms-policy-modal';
@@ -63,6 +64,12 @@ export const useModal = (
       ];
     case 'request-detail':
       return ['인증 상세', RequestDetailModal, { contentPaddingHorizontal: 0 }];
+    case 'routine-proof-detail':
+      return [
+        '루틴 상세',
+        RoutineProofDetailModal,
+        { contentPaddingHorizontal: 0 },
+      ];
     case 'friend-request-list':
       return ['친구 요청', FriendRequestListModal, {}];
     case 'friend-routines':

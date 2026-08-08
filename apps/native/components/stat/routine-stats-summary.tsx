@@ -1,6 +1,6 @@
 import type { RoutineMonthlySummary } from '@repo/types';
 import React from 'react';
-import type { ImageSourcePropType } from 'react-native';
+import type { ImageSourcePropType, LayoutChangeEvent } from 'react-native';
 import { Image, View } from 'react-native';
 
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
@@ -40,7 +40,7 @@ const DOT_SIZE = baseFoundation.dimension.x36;
 const DOT_GAP = baseFoundation.spacing[2];
 const ROW_GAP = baseFoundation.spacing[2];
 const TRACK_LINE_WIDTH = 1;
-const ROW_WIDTH = DOTS_PER_ROW * DOT_SIZE + (DOTS_PER_ROW - 1) * DOT_GAP;
+const MIN_ROW_WIDTH = DOTS_PER_ROW * DOT_SIZE + (DOTS_PER_ROW - 1) * DOT_GAP;
 const ROUTINE_COMPLETION_FIREWORKS =
   require('@/assets/stat/routine-completion-fireworks.png') as ImageSourcePropType;
 
@@ -98,6 +98,7 @@ const Dot = ({
 const SummaryItem = ({ item }: SummaryItemProps) => {
   const { theme } = useAppTheme();
   const trackColor = theme.colors.text.soft;
+  const [trackWidth, setTrackWidth] = React.useState(MIN_ROW_WIDTH);
   const completedSet = React.useMemo(
     () => new Set(item.completedIndexes),
     [item.completedIndexes],
@@ -106,6 +107,14 @@ const SummaryItem = ({ item }: SummaryItemProps) => {
     () => getDotRows(item.totalDotCount),
     [item.totalDotCount],
   );
+  const dotGap = Math.max(
+    DOT_GAP,
+    (trackWidth - DOTS_PER_ROW * DOT_SIZE) / (DOTS_PER_ROW - 1),
+  );
+
+  const handleTrackLayout = React.useCallback((event: LayoutChangeEvent) => {
+    setTrackWidth(Math.max(MIN_ROW_WIDTH, event.nativeEvent.layout.width));
+  }, []);
 
   return (
     <ThemeView
@@ -127,14 +136,14 @@ const SummaryItem = ({ item }: SummaryItemProps) => {
         style={styles.progressPanel}
         testID={`routine-stats-summary-track-${item.id}`}
       >
-        <View style={styles.track}>
+        <View style={styles.track} onLayout={handleTrackLayout}>
           {dotRows.map((row, rowIndex) => {
             const isLastRow = rowIndex === dotRows.length - 1;
             const isReverseRow = rowIndex % 2 === 1;
             const displayRow = isReverseRow ? [...row].reverse() : row;
             const rowLineWidth = Math.max(
               0,
-              (row.length - 1) * (DOT_SIZE + DOT_GAP),
+              (row.length - 1) * (DOT_SIZE + dotGap),
             );
             const terminalDotIndex =
               rowIndex % 2 === 0 ? row[row.length - 1] : row[0];
@@ -149,6 +158,7 @@ const SummaryItem = ({ item }: SummaryItemProps) => {
                 style={[
                   styles.trackRow,
                   isReverseRow && styles.trackRowReverse,
+                  { gap: dotGap },
                 ]}
                 testID={`routine-stats-summary-track-row-${item.id}-${rowIndex}`}
               >
@@ -278,13 +288,14 @@ const styles = StyleSheet.create((theme) => {
       paddingBottom: 0,
     },
     track: {
-      width: ROW_WIDTH,
+      width: '100%',
+      minWidth: MIN_ROW_WIDTH,
       alignSelf: 'center',
       gap: ROW_GAP,
     },
     trackRow: {
       position: 'relative',
-      width: ROW_WIDTH,
+      width: '100%',
       minHeight: baseFoundation.dimension.x36,
       flexDirection: 'row',
       alignItems: 'center',

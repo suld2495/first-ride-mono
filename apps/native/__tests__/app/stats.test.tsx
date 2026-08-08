@@ -1,8 +1,9 @@
 import axiosInstance from '@repo/shared/api';
 import { act, fireEvent, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
-import { ActivityIndicator, processColor } from 'react-native';
+import { processColor } from 'react-native';
 
+import LoadingSpinner from '@/components/ui/loading-spinner';
 import { palette } from '@/theme/tokens';
 
 import StatsPage from '../../app/(tabs)/(afterLogin)/(stats)/index';
@@ -137,7 +138,7 @@ describe('StatsPage', () => {
 
     expect(getByText('9월')).toBeOnTheScreen();
     expect(mockAxios.history.get).toHaveLength(1);
-    expect(UNSAFE_queryByType(ActivityIndicator)).toBeNull();
+    expect(UNSAFE_queryByType(LoadingSpinner)).toBeNull();
     expect(getByText('등록된 루틴이 없습니다.')).toBeOnTheScreen();
 
     await act(() => new Promise((resolve) => setTimeout(resolve, 350)));
@@ -149,7 +150,7 @@ describe('StatsPage', () => {
       year: 2026,
       month: 9,
     });
-    expect(UNSAFE_queryByType(ActivityIndicator)).not.toBeNull();
+    expect(UNSAFE_queryByType(LoadingSpinner)).not.toBeNull();
 
     await act(async () => {
       resolveFinalRequest?.();

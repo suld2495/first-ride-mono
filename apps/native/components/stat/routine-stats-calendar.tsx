@@ -196,12 +196,14 @@ export default RoutineStatsCalendar;
 
 const styles = StyleSheet.create((theme: AppThemes['light']) => ({
   container: {
+    width: '100%',
     gap: theme.foundation.spacing[2],
   },
   routineTitle: {
     paddingVertical: ROUTINE_TITLE_VERTICAL_PADDING,
   },
   calendar: {
+    width: '100%',
     gap: theme.foundation.spacing[3],
     paddingHorizontal: theme.foundation.spacing[3],
   },
@@ -210,7 +212,7 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     justifyContent: 'space-between',
   },
   weekCell: {
-    width: baseFoundation.dimension.x36,
+    flex: 1,
     alignItems: 'center',
   },
   grid: {
@@ -221,7 +223,7 @@ const styles = StyleSheet.create((theme: AppThemes['light']) => ({
     justifyContent: 'space-between',
   },
   dayCell: {
-    width: baseFoundation.dimension.x36,
+    flex: 1,
     height: baseFoundation.dimension.x40,
     alignItems: 'center',
     justifyContent: 'center',

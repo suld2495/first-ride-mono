@@ -205,6 +205,7 @@ declare const mockRoutineStore: {
   setType: jest.Mock;
   routineId: number;
   setRoutineId: jest.Mock;
+  setRoutineForm: jest.Mock;
   resetRoutineForm: jest.Mock;
 };
 declare const mockRequestStore: {
@@ -2397,6 +2398,31 @@ describe('루틴 조회 페이지', () => {
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
     });
 
+    it('메이트가 보낸 인증이 승인 대기 중이면 승인/거절 요청 페이지로 이동한다', async () => {
+      mockRoutineStore.type = 'week';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          isMe: false,
+          todayConfirmStatus: 'WAIT',
+          todayConfirmId: 781,
+          canRequestToday: false,
+        }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(
+        await findByTestId(
+          `routine-week-check-1-${getRoutineWeekIndex(new Date())}`,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/modal?type=request-detail');
+      });
+      expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(781);
+    });
+
     it('지난 날짜의 미달성 week 타입 체크박스를 누르면 에러 토스트로 막는다', async () => {
       mockRoutineStore.type = 'week';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
@@ -2417,6 +2443,9 @@ describe('루틴 조회 페이지', () => {
           'error',
         );
       });
+      expect(mockPush).not.toHaveBeenCalledWith(
+        '/modal?type=routine-proof-detail',
+      );
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
       expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
     });

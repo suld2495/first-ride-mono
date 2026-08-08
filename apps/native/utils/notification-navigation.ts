@@ -40,10 +40,6 @@ export type NotificationNavigationIntent =
       message: string;
     };
 
-export function getCompletedRoutineRequestToastMessage(): string {
-  return '이미 완료된 인증 요청입니다.';
-}
-
 export async function getNotificationNavigationIntent(
   data: NotificationDeepLinkData | undefined,
 ): Promise<NotificationNavigationIntent> {
@@ -66,8 +62,8 @@ export async function getNotificationNavigationIntent(
   }
 
   return {
-    kind: 'toast',
-    message: getCompletedRoutineRequestToastMessage(),
+    kind: 'navigate',
+    path: '/modal?type=routine-proof-detail',
   };
 }
 

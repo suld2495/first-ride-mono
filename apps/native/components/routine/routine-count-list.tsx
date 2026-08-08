@@ -31,8 +31,16 @@ interface RoutineCountListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
-  onRequestRoutine: (routine: Routine) => void;
-  onBlockPastRoutineRequest: () => void;
+  onRequestRoutine: (
+    routine: Routine,
+    meta?: {
+      completed?: boolean;
+      confirmId?: number | null;
+      confirmationStatus?: Routine['todayConfirmStatus'];
+      isMissedPast?: boolean;
+      isToday?: boolean;
+    },
+  ) => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
@@ -130,7 +138,6 @@ const RoutineCountList = ({
   onRefresh,
   canRequestRoutine = false,
   onRequestRoutine,
-  onBlockPastRoutineRequest,
   openMenuRoutineId,
   onToggleRoutineMenu,
   onScrollOffsetChange,
@@ -275,9 +282,24 @@ const RoutineCountList = ({
                     isGoalRange,
                   });
                   const handlePressCheckBox = canRequestWithCheckBox
-                    ? isMissedPastGoal
-                      ? onBlockPastRoutineRequest
-                      : () => onRequestRoutine(routine)
+                    ? () =>
+                        onRequestRoutine(routine, {
+                          completed: isTodaySuccess,
+                          confirmId: isTodaySuccess
+                            ? routine.todayConfirmId
+                            : isPendingConfirmation
+                              ? routine.pendingConfirmationIds[
+                                  countIndex - weeklyCount - 1
+                                ] ?? null
+                              : null,
+                          confirmationStatus: isTodaySuccess
+                            ? routine.todayConfirmStatus
+                            : isPendingConfirmation
+                              ? 'WAIT'
+                              : null,
+                          isMissedPast: isMissedPastGoal,
+                          isToday: isTodaySuccess,
+                        })
                     : undefined;
 
                   return (
@@ -340,7 +362,6 @@ const RoutineCountList = ({
       date,
       canRequestRoutine,
       itemHeight,
-      onBlockPastRoutineRequest,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
