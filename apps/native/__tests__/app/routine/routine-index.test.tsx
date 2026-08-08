@@ -17,7 +17,6 @@ import { fetchUpdateNotices } from '@/api/update-notices.api';
 
 import Index from '../../../app/(tabs)/(afterLogin)/(routine)/index';
 import * as routineSceneArt from '../../../components/routine/routine-scene-art';
-import { routineSceneBackgroundAssets } from '../../../components/routine/routine-scene-art';
 import { useColorSchemeStore } from '../../../store/color-scheme.store';
 import { baseFoundation, palette } from '../../../theme/tokens';
 import {
@@ -826,19 +825,21 @@ describe('루틴 조회 페이지', () => {
         },
       );
 
-      it('마법사 유저는 서버 배경 URL 대신 핑크 테마 배경을 사용한다', async () => {
+      it('마법사 유저도 me API의 배경 URL을 사용한다', async () => {
         mockAxios.resetHandlers();
         mockAxios
           .onGet(/\/routine\/list/)
           .reply(200, { data: createMockRoutines(2) });
         mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
+        const backgroundImageUrl =
+          'https://cdn.example.com/backgrounds/mage.png';
         mockAxios.onGet('/users/me').reply(200, {
           data: {
             ...mockUser,
             job: '마법사',
             characterCode: 'MAGE_INTERMEDIATE',
             characterImageUrl: 'https://cdn.example.com/characters/mage.png',
-            backgroundImageUrl: 'https://cdn.example.com/backgrounds/mage.png',
+            backgroundImageUrl,
           },
         });
 
@@ -847,7 +848,7 @@ describe('루틴 조회 페이지', () => {
         await findByText('테스트 루틴 1');
         expect(await findByTestId('routine-scene-background')).toHaveProp(
           'source',
-          routineSceneBackgroundAssets.red.source,
+          { uri: backgroundImageUrl },
         );
       });
 

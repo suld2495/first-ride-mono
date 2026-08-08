@@ -163,10 +163,8 @@ export default function Index() {
   );
   const routineBackgroundAsset = useMemo(
     () =>
-      userThemeName === 'red'
-        ? getRoutineSceneBackgroundAsset(userThemeName)
-        : (getRoutineSceneRemoteAsset(currentUser?.backgroundImageUrl) ??
-          getRoutineSceneBackgroundAsset(userThemeName)),
+      getRoutineSceneRemoteAsset(currentUser?.backgroundImageUrl) ??
+      getRoutineSceneBackgroundAsset(userThemeName),
     [currentUser?.backgroundImageUrl, userThemeName],
   );
   const mottos = useMemo(() => {
