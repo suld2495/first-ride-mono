@@ -110,6 +110,12 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
           screenOptions={{ headerShown: false }}
         >
           <Stack.Screen name="modal" options={{ headerShown: false }} />
+          {__DEV__ ? (
+            <Stack.Screen
+              name="routine-proof-preview"
+              options={{ headerShown: false }}
+            />
+          ) : null}
           <Stack.Protected guard={!!user}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="account" options={{ headerShown: false }} />

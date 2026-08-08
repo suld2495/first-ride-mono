@@ -1,4 +1,5 @@
 import { useFetchRequestDetailQuery } from '@repo/shared/hooks/useRequest';
+import type { RoutineDetail } from '@repo/types';
 import { getFormatDateTime } from '@repo/shared/utils';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -6,6 +7,7 @@ import {
   type ImageSourcePropType,
   type ImageStyle,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   type StyleProp,
@@ -83,10 +85,20 @@ const DetailImage = ({ imagePath, imageRatio, style }: DetailImageProps) => {
   return <Image source={{ uri: imagePath }} style={imageStyle} />;
 };
 
-const RoutineProofDetailModal = () => {
+type RoutineProofDetailModalProps = {
+  previewCurrentNickname?: string;
+  previewDetail?: RoutineDetail;
+};
+
+const RoutineProofDetailModal = ({
+  previewCurrentNickname,
+  previewDetail,
+}: RoutineProofDetailModalProps = {}) => {
   const requestId = useRequestId();
-  const { data: detail, isLoading } = useFetchRequestDetailQuery(requestId);
+  const { data: fetchedDetail, isLoading } =
+    useFetchRequestDetailQuery(requestId);
   const user = useAuthUser();
+  const detail = previewDetail ?? fetchedDetail;
   const imagePaths = useMemo(
     () => detail?.imagePaths?.slice(0, DETAIL_IMAGE_THUMBNAIL_COUNT) ?? [],
     [detail?.imagePaths],
@@ -101,6 +113,20 @@ const RoutineProofDetailModal = () => {
 
     if (!imagePaths.length) {
       setRatios({});
+      return () => {
+        isActive = false;
+      };
+    }
+
+    if (Platform.OS === 'web') {
+      setRatios(
+        Object.fromEntries(
+          imagePaths.map((imagePath) => [
+            imagePath,
+            REQUEST_IMAGE_RATIO_FALLBACK,
+          ]),
+        ),
+      );
       return () => {
         isActive = false;
       };
@@ -128,13 +154,14 @@ const RoutineProofDetailModal = () => {
     };
   }, [imagePaths]);
 
-  if (isLoading) return null;
+  if (isLoading && !previewDetail) return null;
 
   const routineDescription = detail?.routineDetail?.trim();
   const requestMessage = detail?.message?.trim();
   const replyMessage = detail?.checkComment?.trim();
   const isRequesterMe =
-    Boolean(user?.nickname) && detail?.requesterNickname === user?.nickname;
+    Boolean(previewCurrentNickname ?? user?.nickname) &&
+    detail?.requesterNickname === (previewCurrentNickname ?? user?.nickname);
   const requesterAvatarSource = getRoutineSceneRemoteAsset(
     detail?.requesterCharacterImageUrl,
   )?.source;

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Alert, AppState, Linking, Platform } from 'react-native';
-import RNExitApp from 'react-native-exit-app';
 
 import { type RequiredAppVersion } from '@/api/app-version.api';
 import { useRequiredAppVersionQuery } from '@/hooks/useRequiredAppVersionQuery';
 import { isBuildNumberLower } from '@/utils/app-version';
+import { exitApp } from '@/utils/exit-app';
 
 const UPDATE_ALERT_TITLE = '업데이트가 필요해요';
 
@@ -40,7 +40,7 @@ export const useForceUpdate = (
         {
           text: '취소',
           style: 'cancel',
-          onPress: () => RNExitApp.exitApp(),
+          onPress: exitApp,
         },
         {
           text: '업데이트 하러가기',
