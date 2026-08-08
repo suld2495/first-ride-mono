@@ -3,7 +3,8 @@ import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { createRequestFormValidators } from '@repo/shared/service/validatorMessage';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
-import { Image, Pressable, ScrollView } from 'react-native';
+import { Image, Pressable } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import RequetButtonGroup from '@/components/request/request-button-group';
 import { Button } from '@/components/ui/button';
@@ -68,9 +69,13 @@ const RequestModal = () => {
 
   return (
     <ThemeView testID="request-form-content" style={styles.container}>
-      <ScrollView
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
         contentContainerStyle={styles.scroll}
+        enableResetScrollToCoords={false}
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
+        testID="request-form-scroll"
       >
         <ThemeView testID="request-summary" style={styles.summary} transparent>
           <ThemeView
@@ -347,7 +352,7 @@ const RequestModal = () => {
 
           <RequetButtonGroup useForm={useForm} loading={isPending} />
         </Form>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </ThemeView>
   );
 };
