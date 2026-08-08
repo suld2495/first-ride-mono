@@ -418,19 +418,20 @@ describe('루틴 조회 페이지', () => {
         expect(routineListScroll.props.refreshControl).toBeTruthy();
       });
 
-      it('빈 상태 캐릭터는 하단 기준으로 고정 배치한다', async () => {
+      it('빈 상태 캐릭터와 말풍선은 하단 영역에 포함된다', async () => {
         const { findByText, getByTestId } = render(<Index />);
 
         await findByText('등록된 루틴이 없습니다.');
 
+        const routineBottomArea = getByTestId('routine-bottom-area');
+        const bottomAreaQueries = within(routineBottomArea);
+
         expect(
-          flattenStyles(getByTestId('routine-character-area').props.style),
-        ).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ bottom: 48 }),
-            expect.objectContaining({ position: 'absolute' }),
-          ]),
-        );
+          bottomAreaQueries.getByTestId('routine-character-area'),
+        ).toBeOnTheScreen();
+        expect(
+          bottomAreaQueries.getByTestId('routine-character-speech-bubble'),
+        ).toBeOnTheScreen();
       });
 
       it('빈 상태에서도 한마디 말풍선이 항상 표시된다', async () => {
@@ -1090,28 +1091,27 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('루틴이 있어도 캐릭터는 빈 상태와 같은 하단 기준으로 고정 배치한다', async () => {
+      it('루틴 영역과 캐릭터를 포함한 하단 영역을 7:3으로 배치한다', async () => {
         const { findByText, getByTestId } = render(<Index />);
 
         await findByText('테스트 루틴 1');
 
         const routineListArea = getByTestId('routine-list-area');
-        const routineCharacterArea = getByTestId('routine-character-area');
-        const routineBottomSpacer = getByTestId('routine-bottom-spacer');
+        const routineBottomArea = getByTestId('routine-bottom-area');
+        const bottomAreaQueries = within(routineBottomArea);
 
-        expect(routineBottomSpacer.props.pointerEvents).toBe('none');
         expect(flattenStyles(routineListArea.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ flex: 7 })]),
         );
-        expect(flattenStyles(routineBottomSpacer.props.style)).toEqual(
+        expect(flattenStyles(routineBottomArea.props.style)).toEqual(
           expect.arrayContaining([expect.objectContaining({ flex: 3 })]),
         );
-        expect(flattenStyles(routineCharacterArea.props.style)).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ bottom: 48 }),
-            expect.objectContaining({ position: 'absolute' }),
-          ]),
-        );
+        expect(
+          bottomAreaQueries.getByTestId('routine-character-area'),
+        ).toBeOnTheScreen();
+        expect(
+          bottomAreaQueries.getByTestId('routine-character-speech-bubble'),
+        ).toBeOnTheScreen();
       });
 
       it('루틴이 4개 이하면 하단 화살표가 표시되지 않는다', async () => {
