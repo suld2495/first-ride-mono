@@ -423,15 +423,30 @@ describe('루틴 조회 페이지', () => {
 
         await findByText('등록된 루틴이 없습니다.');
 
+        const emptyStateArea = getByTestId('routine-empty-state-area');
         const routineBottomArea = getByTestId('routine-bottom-area');
         const bottomAreaQueries = within(routineBottomArea);
+        const speechBubble = bottomAreaQueries.getByTestId(
+          'routine-character-speech-bubble',
+        );
 
+        expect(flattenStyles(emptyStateArea.props.style)).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ flex: 1, minHeight: 0 }),
+          ]),
+        );
+        expect(flattenStyles(routineBottomArea.props.style)).toEqual(
+          expect.arrayContaining([expect.objectContaining({ flexShrink: 0 })]),
+        );
         expect(
           bottomAreaQueries.getByTestId('routine-character-area'),
         ).toBeOnTheScreen();
-        expect(
-          bottomAreaQueries.getByTestId('routine-character-speech-bubble'),
-        ).toBeOnTheScreen();
+        expect(speechBubble).toBeOnTheScreen();
+        expect(flattenStyles(speechBubble.props.style)).not.toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ position: 'absolute' }),
+          ]),
+        );
       });
 
       it('빈 상태에서도 한마디 말풍선이 항상 표시된다', async () => {
@@ -1091,7 +1106,7 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('루틴 영역과 캐릭터를 포함한 하단 영역을 7:3으로 배치한다', async () => {
+      it('하단 콘텐츠 높이를 우선 확보하고 루틴 영역이 남은 높이를 사용한다', async () => {
         const { findByText, getByTestId } = render(<Index />);
 
         await findByText('테스트 루틴 1');
@@ -1101,10 +1116,12 @@ describe('루틴 조회 페이지', () => {
         const bottomAreaQueries = within(routineBottomArea);
 
         expect(flattenStyles(routineListArea.props.style)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ flex: 7 })]),
+          expect.arrayContaining([
+            expect.objectContaining({ flex: 1, minHeight: 0 }),
+          ]),
         );
         expect(flattenStyles(routineBottomArea.props.style)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ flex: 3 })]),
+          expect.arrayContaining([expect.objectContaining({ flexShrink: 0 })]),
         );
         expect(
           bottomAreaQueries.getByTestId('routine-character-area'),
