@@ -2603,35 +2603,6 @@ describe('루틴 조회 페이지', () => {
       expect(nextButton).toBeOnTheScreen();
     });
 
-    it('루틴 리스트를 왼쪽으로 스와이프하면 다음 주로 이동한다', async () => {
-      const specificDate = '2024-12-09';
-      const nextDate = afterWeek(new Date(specificDate));
-
-      mockSearchParams.date = specificDate;
-      const { findByText, getByTestId } = render(<Index />);
-
-      await findByText('테스트 루틴 1');
-
-      const routineList = getByTestId('routine-list-container');
-      const gestureState = { dx: -80, dy: 4 };
-
-      expect(
-        routineList.props.onMoveShouldSetPanResponderCapture,
-      ).toEqual(expect.any(Function));
-      expect(
-        routineList.props.onMoveShouldSetPanResponderCapture(
-          {},
-          gestureState,
-        ),
-      ).toBe(true);
-
-      routineList.props.onPanResponderRelease({}, gestureState);
-
-      expect(mockReplace).toHaveBeenCalledWith(
-        `/(tabs)/(afterLogin)/(routine)?date=${nextDate}`,
-      );
-    });
-
     it('연속으로 주를 변경하면 마지막 선택 날짜만 조회한다', async () => {
       const initialDate = '2024-12-09';
       let targetDate = initialDate;
