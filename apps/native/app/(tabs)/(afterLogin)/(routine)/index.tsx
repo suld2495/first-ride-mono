@@ -129,7 +129,6 @@ export default function Index() {
       ? normalizedMotto
       : normalizeMottoText(user?.mottos);
   }, [user?.motto, user?.mottos]);
-  const routineCharacterBottomOffset = ROUTINE_CHARACTER_BOTTOM_OFFSET;
   const speechBubbleMessage = mottos[0] ?? '안녕?';
 
   useLayoutEffect(() => {
@@ -240,49 +239,22 @@ export default function Index() {
           </View>
         ) : (
           <View style={styles.content} testID="routine-content">
-            <View
-              style={[
-                styles.routineCharacterArea,
-                { bottom: routineCharacterBottomOffset },
-              ]}
-              testID="routine-character-area"
-            >
-              <View style={styles.characterStage}>
-                {routineCharacterAsset ? (
-                  <RoutineCharacter asset={routineCharacterAsset} />
-                ) : null}
-                <CharacterMottoSpeechBubble
-                  isMine
-                  message={speechBubbleMessage}
-                  onEdit={handleOpenAccountMotto}
-                  testID="routine-character-speech-bubble"
-                  style={styles.speechBubble}
+            {hasRoutines ? (
+              <View
+                style={styles.routineListArea}
+                onLayout={handleRoutineListAreaLayout}
+                testID="routine-list-area"
+              >
+                <RoutineList
+                  routines={routines}
+                  date={date}
+                  listAreaHeight={routineListAreaHeight || undefined}
+                  refreshing={isManualRefreshing}
+                  onRefresh={handleRefresh}
                 />
               </View>
-            </View>
-            {hasRoutines ? (
-              <>
-                <View
-                  style={styles.routineListArea}
-                  onLayout={handleRoutineListAreaLayout}
-                  testID="routine-list-area"
-                >
-                  <RoutineList
-                    routines={routines}
-                    date={date}
-                    listAreaHeight={routineListAreaHeight || undefined}
-                    refreshing={isManualRefreshing}
-                    onRefresh={handleRefresh}
-                  />
-                </View>
-                <View
-                  style={styles.routineBottomSpacer}
-                  pointerEvents="none"
-                  testID="routine-bottom-spacer"
-                />
-              </>
             ) : (
-              <View style={styles.emptyStateOverlay}>
+              <View style={styles.emptyStateArea}>
                 <RoutineList
                   routines={routines}
                   date={date}
@@ -291,6 +263,25 @@ export default function Index() {
                 />
               </View>
             )}
+            <View style={styles.routineBottomArea} testID="routine-bottom-area">
+              <View
+                style={styles.routineCharacterArea}
+                testID="routine-character-area"
+              >
+                <View style={styles.characterStage}>
+                  {routineCharacterAsset ? (
+                    <RoutineCharacter asset={routineCharacterAsset} />
+                  ) : null}
+                  <CharacterMottoSpeechBubble
+                    isMine
+                    message={speechBubbleMessage}
+                    onEdit={handleOpenAccountMotto}
+                    testID="routine-character-speech-bubble"
+                    style={styles.speechBubble}
+                  />
+                </View>
+              </View>
+            </View>
           </View>
         )}
       </View>
@@ -351,22 +342,20 @@ const styles = StyleSheet.create((theme) => ({
   routineListArea: {
     flex: 7,
   },
-  routineBottomSpacer: {
+  routineBottomArea: {
     flex: 3,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: ROUTINE_CHARACTER_BOTTOM_OFFSET,
   },
   routineCharacterArea: {
-    position: 'absolute',
-    right: theme.foundation.spacing[4],
-    left: theme.foundation.spacing[4],
+    alignSelf: 'stretch',
     alignItems: 'center',
     zIndex: 1,
   },
-  emptyStateOverlay: {
-    position: 'absolute',
-    top: baseFoundation.spacing[0],
-    right: theme.foundation.spacing[4],
-    left: theme.foundation.spacing[4],
-    height: '48%',
+  emptyStateArea: {
+    flex: 7,
+    marginHorizontal: theme.foundation.spacing[4],
   },
   characterStage: {
     alignItems: 'center',
