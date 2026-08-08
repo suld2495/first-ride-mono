@@ -25,6 +25,7 @@ export interface CreateMockRoutineOptions {
   hasPendingChangeRequest?: boolean;
   pendingChangeRequestId?: number | null;
   pendingChangeRequestStatus?: Routine['pendingChangeRequestStatus'];
+  photoRequired?: boolean;
 }
 
 export const createMockRoutine = (
@@ -55,6 +56,7 @@ export const createMockRoutine = (
   hasPendingChangeRequest: options.hasPendingChangeRequest ?? false,
   pendingChangeRequestId: options.pendingChangeRequestId ?? null,
   pendingChangeRequestStatus: options.pendingChangeRequestStatus ?? null,
+  photoRequired: options.photoRequired ?? true,
 });
 
 export const createMockRoutines = (

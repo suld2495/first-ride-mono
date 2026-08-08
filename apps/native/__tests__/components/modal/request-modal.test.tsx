@@ -644,6 +644,49 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
   });
 
   describe('API 통합 테스트', () => {
+    describe('사진이 선택사항인 셀프 루틴', () => {
+      beforeEach(() => {
+        const mockRoutine = createMockRoutine(0, {
+          isMe: true,
+          photoRequired: false,
+        });
+
+        mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
+        mockAxios.onPost('/routine/confirm').reply(200, { data: null });
+      });
+
+      it('이미지 없이 인증 버튼을 활성화하고 요청을 전송한다', async () => {
+        const appendSpy = jest.spyOn(FormData.prototype, 'append');
+        const screen = render(<RequestModal />);
+
+        await screen.findByText('테스트 루틴 1');
+
+        expect(screen.getByTestId('request-photo-optional-label')).toHaveTextContent(
+          '선택',
+        );
+        expect(screen.getByText('인증')).toBeEnabled();
+
+        await act(async () => {
+          fireEvent.press(screen.getByText('인증'));
+        });
+
+        await waitFor(() => {
+          expect(mockAxios.history.post).toHaveLength(1);
+          expect(appendSpy).toHaveBeenCalledWith('routineId', '1');
+          expect(appendSpy).not.toHaveBeenCalledWith(
+            'images',
+            expect.anything(),
+          );
+          expect(mockShowToast).toHaveBeenCalledWith(
+            '인증이 완료되었습니다.',
+            'success',
+          );
+        });
+
+        appendSpy.mockRestore();
+      });
+    });
+
     describe('인증 요청 성공 시 (나에게 인증하는 루틴)', () => {
       beforeEach(() => {
         const mockRoutine = createMockRoutine(0, { isMe: true });

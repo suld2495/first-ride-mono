@@ -120,6 +120,7 @@ const DEFAULT_UPDATE_ROUTINE_DETAIL = {
   successDate: [],
   paused: false,
   hidden: false,
+  photoRequired: false,
 };
 const APPLIED_UPDATE_RESPONSE = {
   mode: 'APPLIED',
@@ -203,6 +204,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       startDate: '',
       endDate: '',
       symbolColor: '#3C9FFF',
+      photoRequired: false,
     };
     mockRoutineStore.routineId = 0;
     mockRoutineStore.routineDateSelection = null;
@@ -385,6 +387,28 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       });
 
       expect(getByPlaceholderText('친구를 선택하세요')).toBeOnTheScreen();
+    });
+
+    it('셀프 루틴에서는 비공개 루틴 바로 위에 사진 인증 필수 항목을 표시한다', () => {
+      const { getByTestId, getByText } = render(<RoutineFormModal />);
+      const statusOptions = getByTestId('routine-status-options');
+      const photoOption = getByTestId('photo-required-status-option');
+      const hiddenOption = getByTestId('hidden-routine-status-option');
+
+      expect(getByText('사진 인증 필수')).toBeOnTheScreen();
+      expect(statusOptions.children.indexOf(photoOption)).toBeLessThan(
+        statusOptions.children.indexOf(hiddenOption),
+      );
+    });
+
+    it('메이트에게 루틴 인증 요청을 선택하면 사진 인증 필수 항목을 숨긴다', async () => {
+      const { getAllByTestId, queryByText } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
+      });
+
+      expect(queryByText('사진 인증 필수')).not.toBeOnTheScreen();
     });
 
     it('메이트 루틴 입력에서는 체크해줄 친구를 필수로, 벌금을 선택항목으로 표시한다', async () => {
@@ -889,6 +913,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
             routineCount: 3,
             symbolColor: '#3C9FFF',
             hidden: false,
+            photoRequired: false,
           });
           expect(payload).not.toHaveProperty('nickname');
           expect(payload).not.toHaveProperty('isMe');
@@ -905,7 +930,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         );
 
         await act(async () => {
-          fireEvent.press(getAllByTestId('bouncy-checkbox')[2]);
+          fireEvent.press(getAllByTestId('bouncy-checkbox')[3]);
         });
 
         await fillAllRequiredFields(getByPlaceholderText, getByText);
@@ -922,6 +947,28 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           const payload = JSON.parse(mockAxios.history.post[0]?.data ?? '{}');
 
           expect(payload.hidden).toBe(true);
+        });
+      });
+
+      it('사진 인증 필수를 선택하면 내 루틴 생성 요청에 photoRequired true를 보낸다', async () => {
+        setInitialStartDate();
+        const { getByPlaceholderText, getByText } = render(
+          <RoutineFormModal />,
+        );
+
+        await act(async () => {
+          fireEvent.press(getByText('사진 인증 필수'));
+        });
+        await fillAllRequiredFields(getByPlaceholderText, getByText);
+
+        await act(async () => {
+          fireEvent.press(getByText('생성'));
+        });
+
+        await waitFor(() => {
+          const payload = JSON.parse(mockAxios.history.post[0]?.data ?? '{}');
+
+          expect(payload.photoRequired).toBe(true);
         });
       });
 
@@ -985,6 +1032,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           expect(payload).not.toHaveProperty('nickname');
           expect(payload).not.toHaveProperty('isMe');
           expect(payload).not.toHaveProperty('endDate');
+          expect(payload).not.toHaveProperty('photoRequired');
         });
       });
 
@@ -1142,14 +1190,14 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(queryByText('루틴 일시정지')).not.toBeOnTheScreen();
       expect(getByText('비공개 루틴')).toBeOnTheScreen();
       expect(queryByText('메이트에게는 공개됩니다')).not.toBeOnTheScreen();
-      expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(false);
+      expect(getAllByTestId('bouncy-checkbox')[3].props.isChecked).toBe(false);
     });
 
     it('비공개 루틴 라벨 오른쪽에 원형 물음표 아이콘을 표시한다', () => {
       const { getAllByTestId, getByLabelText, getByTestId, queryByTestId } =
         render(<RoutineFormModal />);
       const labelRow = getByTestId('hidden-routine-label-row');
-      const hiddenCheckbox = getAllByTestId('bouncy-checkbox')[2];
+      const hiddenCheckbox = getAllByTestId('bouncy-checkbox')[3];
       const hiddenLabel = getByTestId('hidden-routine-label');
       const helpButton = getByLabelText('비공개 루틴 안내 보기');
       const helpIcon = getByTestId('hidden-routine-help-icon', {
@@ -1212,7 +1260,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         fireEvent.press(getByText('비공개 루틴'));
       });
 
-      expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(true);
+      expect(getAllByTestId('bouncy-checkbox')[3].props.isChecked).toBe(true);
     });
   });
 });
@@ -1234,6 +1282,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       isMe: true,
       startDate: '2025-01-06',
       endDate: '',
+      photoRequired: false,
     };
     mockRoutineStore.routineId = 1;
     (global as any).mockCheckboxChecked = true; // isMe가 true이므로
@@ -1327,6 +1376,30 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(
         await findByTestId('routine-daily-repeat-date-button'),
       ).toBeDisabled();
+    });
+
+    it('셀프 루틴 수정에서는 저장된 사진 인증 필수 값을 표시한다', async () => {
+      mockRoutineDetail({ photoRequired: true });
+      const { findByText, getAllByTestId } = render(<RoutineFormModal />);
+
+      await findByText('사진 인증 필수');
+
+      expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(true);
+    });
+
+    it('메이트가 있는 루틴 수정에서는 사진 인증 필수 항목을 숨긴다', async () => {
+      mockRoutineDetail({
+        isMe: false,
+        mateNickname: '메이트닉네임',
+        photoRequired: true,
+      });
+      const { findByPlaceholderText, queryByText } = render(
+        <RoutineFormModal />,
+      );
+
+      await findByPlaceholderText('루틴 이름을 입력하세요.');
+
+      expect(queryByText('사진 인증 필수')).not.toBeOnTheScreen();
     });
 
     it('수정 모달은 routineId로 상세 조회한 값을 폼에 표시한다', async () => {
@@ -1780,6 +1853,23 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
       });
 
+      it('셀프 루틴의 사진 인증 필수 값이 바뀌면 수정 요청에 포함한다', async () => {
+        const { findByText } = render(<RoutineFormModal />);
+
+        await act(async () => {
+          fireEvent.press(await findByText('사진 인증 필수'));
+        });
+        await act(async () => {
+          fireEvent.press(await findByText('저장'));
+        });
+
+        await waitFor(() => {
+          const payload = JSON.parse(mockAxios.history.put[0]?.data ?? '{}');
+
+          expect(payload).toEqual({ photoRequired: true });
+        });
+      });
+
       it('메이트 루틴 수정 시 변경 필드 외 사용자 정보를 전송하지 않는다', async () => {
         mockAxios.resetHandlers();
         mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
@@ -1857,7 +1947,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
         const { findAllByTestId, findByText } = render(<RoutineFormModal />);
 
-        const [, pausedCheckbox, hiddenCheckbox] =
+        const [, pausedCheckbox, , hiddenCheckbox] =
           await findAllByTestId('bouncy-checkbox');
 
         (global as any).mockCheckboxChecked = false;
