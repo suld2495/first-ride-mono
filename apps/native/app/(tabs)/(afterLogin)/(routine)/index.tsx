@@ -47,9 +47,8 @@ import {
 } from '@/widget/routine-widget';
 import { saveRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
 
-const SPEECH_BUBBLE_BOTTOM_OFFSET =
-  baseFoundation.dimension.x100 + baseFoundation.spacing[1];
 const ROUTINE_CHARACTER_BOTTOM_OFFSET = baseFoundation.dimension.x48;
+const ROUTINE_SPEECH_BUBBLE_OVERLAP = baseFoundation.dimension.x44;
 const EMPTY_UPDATE_NOTICES: readonly UpdateNotice[] = [];
 const normalizeMottoText = (value: unknown): string[] => {
   if (Array.isArray(value)) {
@@ -254,7 +253,10 @@ export default function Index() {
                 />
               </View>
             ) : (
-              <View style={styles.emptyStateArea}>
+              <View
+                style={styles.emptyStateArea}
+                testID="routine-empty-state-area"
+              >
                 <RoutineList
                   routines={routines}
                   date={date}
@@ -269,16 +271,18 @@ export default function Index() {
                 testID="routine-character-area"
               >
                 <View style={styles.characterStage}>
-                  {routineCharacterAsset ? (
-                    <RoutineCharacter asset={routineCharacterAsset} />
-                  ) : null}
                   <CharacterMottoSpeechBubble
                     isMine
                     message={speechBubbleMessage}
                     onEdit={handleOpenAccountMotto}
                     testID="routine-character-speech-bubble"
-                    style={styles.speechBubble}
+                    style={
+                      routineCharacterAsset ? styles.speechBubble : undefined
+                    }
                   />
+                  {routineCharacterAsset ? (
+                    <RoutineCharacter asset={routineCharacterAsset} />
+                  ) : null}
                 </View>
               </View>
             </View>
@@ -340,12 +344,12 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
   },
   routineListArea: {
-    flex: 7,
+    flex: 1,
+    minHeight: 0,
   },
   routineBottomArea: {
-    flex: 3,
+    flexShrink: 0,
     alignItems: 'center',
-    justifyContent: 'flex-end',
     paddingBottom: ROUTINE_CHARACTER_BOTTOM_OFFSET,
   },
   routineCharacterArea: {
@@ -354,17 +358,16 @@ const styles = StyleSheet.create((theme) => ({
     zIndex: 1,
   },
   emptyStateArea: {
-    flex: 7,
+    flex: 1,
+    minHeight: 0,
     marginHorizontal: theme.foundation.spacing[4],
   },
   characterStage: {
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
   },
   speechBubble: {
-    bottom: SPEECH_BUBBLE_BOTTOM_OFFSET,
-    position: 'absolute',
+    marginBottom: -ROUTINE_SPEECH_BUBBLE_OVERLAP,
   },
   fab: {
     position: 'absolute',

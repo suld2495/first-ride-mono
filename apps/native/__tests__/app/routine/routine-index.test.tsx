@@ -814,7 +814,9 @@ describe('루틴 조회 페이지', () => {
         expect(motto.props.numberOfLines).toBe(2);
         expect(motto.props.ellipsizeMode).toBe('tail');
         expect(flattenStyles(speechBubble.props.style)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ bottom: 104 })]),
+          expect.arrayContaining([
+            expect.objectContaining({ marginBottom: -44 }),
+          ]),
         );
       });
 
