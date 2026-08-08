@@ -120,6 +120,40 @@ describe('이루라 길드 페이지', () => {
     expect(getByText('윤')).toBeOnTheScreen();
   });
 
+  it('카드를 좌우로 스와이프하면 해당 영웅 페이지로 전환한다', async () => {
+    const { getByTestId, getByText } = await renderHallOfHeroes();
+    const carousel = getByTestId('hall-of-heroes-carousel');
+
+    fireEvent(carousel, 'momentumScrollEnd', {
+      nativeEvent: {
+        contentOffset: { x: 360, y: 0 },
+        layoutMeasurement: { width: 360, height: 600 },
+      },
+    });
+
+    expect(getByText('연')).toBeOnTheScreen();
+    expect(
+      getByTestId('hall-of-heroes-dot-1').props.accessibilityState,
+    ).toEqual({ selected: true });
+    expect(
+      StyleSheet.flatten(getByTestId('hall-of-heroes-screen').props.style),
+    ).toEqual(
+      expect.objectContaining({ backgroundColor: palette.theme.red[10] }),
+    );
+
+    fireEvent(carousel, 'momentumScrollEnd', {
+      nativeEvent: {
+        contentOffset: { x: 720, y: 0 },
+        layoutMeasurement: { width: 360, height: 600 },
+      },
+    });
+
+    expect(getByText('문')).toBeOnTheScreen();
+    expect(
+      getByTestId('hall-of-heroes-dot-2').props.accessibilityState,
+    ).toEqual({ selected: true });
+  });
+
   it('직업을 변경하면 페이지와 카드 배경색을 부드럽게 전환한다', async () => {
     const { getByLabelText } = await renderHallOfHeroes();
 
