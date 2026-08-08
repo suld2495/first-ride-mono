@@ -441,12 +441,12 @@ const styles = StyleSheet.create((theme) => ({
   chatAvatarText: { color: theme.colors.text.secondary },
   chatAvatarNickname: {
     maxWidth: baseFoundation.dimension.x52,
-    color: theme.colors.text.primary,
+    color: theme.colors.text.tertiary,
     textAlign: 'center',
   },
   chatAvatarImage: {
-    width: '115%',
-    height: '115%',
+    width: '104%',
+    height: '104%',
     transform: [{ translateY: -4 }],
   },
   chatBubble: {
