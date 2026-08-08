@@ -10,7 +10,7 @@ import type { RoutineChangeRequest } from '@repo/types';
 import { useRouter } from 'expo-router';
 import type { ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable } from 'react-native';
+import { Alert, PanResponder, Pressable } from 'react-native';
 
 import RoutineChangeRequestRow, {
   toRoutineChangeRequestListItem,
@@ -47,6 +47,8 @@ interface RequestRenderItemProps {
 }
 
 type RequestTab = 'confirmation' | 'routine-change';
+
+const REQUEST_TAB_SWIPE_TRIGGER_DISTANCE = 48;
 
 interface RoutineChangeRequestRenderItemProps {
   item: RoutineChangeRequest;
@@ -255,6 +257,50 @@ const RequestListModal = () => {
       },
     ],
     [requests.length, routineChangeRequests.length],
+  );
+  const handleSelectTab = useCallback((tab: RequestTab) => {
+    setActiveTab(tab);
+  }, []);
+  const requestTabSwipeResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponderCapture: (_, gestureState) => {
+          const horizontalDistance = Math.abs(gestureState.dx);
+          const verticalDistance = Math.abs(gestureState.dy);
+
+          if (
+            horizontalDistance < REQUEST_TAB_SWIPE_TRIGGER_DISTANCE ||
+            horizontalDistance <= verticalDistance
+          ) {
+            return false;
+          }
+
+          const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+          const nextTabIndex = activeTabIndex + (gestureState.dx < 0 ? 1 : -1);
+
+          return nextTabIndex >= 0 && nextTabIndex < tabs.length;
+        },
+        onPanResponderRelease: (_, gestureState) => {
+          const horizontalDistance = Math.abs(gestureState.dx);
+          const verticalDistance = Math.abs(gestureState.dy);
+
+          if (
+            horizontalDistance < REQUEST_TAB_SWIPE_TRIGGER_DISTANCE ||
+            horizontalDistance <= verticalDistance
+          ) {
+            return;
+          }
+
+          const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+          const nextTabIndex = activeTabIndex + (gestureState.dx < 0 ? 1 : -1);
+          const nextTab = tabs[nextTabIndex];
+
+          if (nextTab) {
+            handleSelectTab(nextTab.id);
+          }
+        },
+      }),
+    [activeTab, handleSelectTab, tabs],
   );
   const listEntries = useMemo<RequestListEntry[]>(() => {
     const today: RequestListItem[] = [];
@@ -522,7 +568,7 @@ const RequestListModal = () => {
               accessibilityLabel={`${tab.label} ${tab.count}건`}
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive }}
-              onPress={() => setActiveTab(tab.id)}
+              onPress={() => handleSelectTab(tab.id)}
               style={({ pressed }) => [
                 styles.tab,
                 pressed && styles.tabPressed,
@@ -558,7 +604,11 @@ const RequestListModal = () => {
           );
         })}
       </ThemeView>
-      <ThemeView style={styles.listSurface}>
+      <ThemeView
+        {...requestTabSwipeResponder.panHandlers}
+        style={styles.listSurface}
+        testID="request-list-surface"
+      >
         <RequestListSurface
           activeTab={activeTab}
           expandedRoutineChangeRequestId={expandedRoutineChangeRequestId}
