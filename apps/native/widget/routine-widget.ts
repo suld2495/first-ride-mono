@@ -4,7 +4,6 @@ import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes, type ThemeName } from '@/theme/themes';
 
-const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 const DEFAULT_THEME_NAME: ThemeName = 'dark';
 const DEFAULT_ASSET_HOST = (
@@ -17,7 +16,7 @@ export interface RoutineWidgetItem {
   weeklyCount: number;
   routineCount: number;
   achievementRate: number;
-  successDate: string[];
+  completedDates: string[];
   isTodayDone: boolean;
   accentColor: string;
   darkAccentColor: string;
@@ -118,11 +117,11 @@ const DARK_COUNT_LABEL_STYLES: Record<ThemeName, RoutineWidgetCountLabelStyle> =
   };
 
 const createRoutineDateKey = (date: Date): string => {
-  const year = date.getFullYear() - SHORT_YEAR_OFFSET;
+  const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
   const day = date.getDate().toString().padStart(PAD_LENGTH, '0');
 
-  return `${year}${month}${day}`;
+  return `${year}-${month}-${day}`;
 };
 
 const getAchievementRate = (routine: Routine): number => {
@@ -198,7 +197,10 @@ export const createRoutineWidgetSnapshot = (
 
   const widgetItems = routines
     .map<RoutineWidgetItem>((routine) => {
-      const successDateSet = new Set(routine.successDate);
+      const completedDates = routine.confirmations
+        .filter((confirmation) => confirmation.status === 'PASS')
+        .map((confirmation) => confirmation.date);
+      const completedDateSet = new Set(completedDates);
       const accentColor = routine.symbolColor ?? DEFAULT_ROUTINE_COLOR;
 
       return {
@@ -207,8 +209,8 @@ export const createRoutineWidgetSnapshot = (
         weeklyCount: routine.weeklyCount,
         routineCount: routine.routineCount,
         achievementRate: getAchievementRate(routine),
-        successDate: routine.successDate,
-        isTodayDone: successDateSet.has(todayKey),
+        completedDates,
+        isTodayDone: completedDateSet.has(todayKey),
         accentColor,
         darkAccentColor: accentColor,
       };

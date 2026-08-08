@@ -37,7 +37,7 @@ const createRoutine = (id: number): Routine => ({
   mateNickname: 'mate',
   isMe: false,
   startDate: '2026-05-25',
-  successDate: [],
+  confirmations: [],
   paused: false,
   hidden: false,
   hasPendingConfirmation: false,

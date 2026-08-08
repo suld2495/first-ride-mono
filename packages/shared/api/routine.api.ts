@@ -20,11 +20,9 @@ import http from './client';
 
 type RoutineResponse = Omit<
   Routine,
-  | 'successDate'
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
-  | 'pendingConfirmations'
   | 'confirmations'
   | 'todayConfirmStatus'
   | 'todayConfirmId'
@@ -34,11 +32,9 @@ type RoutineResponse = Omit<
   | 'pendingChangeRequestStatus'
   | 'photoRequired'
 > & {
-  successDate?: Routine['successDate'] | null;
   hasPendingConfirmation?: Routine['hasPendingConfirmation'] | null;
   pendingConfirmationCount?: Routine['pendingConfirmationCount'] | null;
   pendingConfirmationIds?: Routine['pendingConfirmationIds'] | null;
-  pendingConfirmations?: Routine['pendingConfirmations'] | null;
   confirmations?: Routine['confirmations'] | null;
   todayConfirmStatus?: Routine['todayConfirmStatus'];
   todayConfirmId?: Routine['todayConfirmId'];
@@ -51,14 +47,10 @@ type RoutineResponse = Omit<
 
 const normalizeRoutine = (routine: RoutineResponse): Routine => ({
   ...routine,
-  successDate: Array.isArray(routine.successDate) ? routine.successDate : [],
   hasPendingConfirmation: Boolean(routine.hasPendingConfirmation),
   pendingConfirmationCount: routine.pendingConfirmationCount ?? 0,
   pendingConfirmationIds: Array.isArray(routine.pendingConfirmationIds)
     ? routine.pendingConfirmationIds
-    : [],
-  pendingConfirmations: Array.isArray(routine.pendingConfirmations)
-    ? routine.pendingConfirmations
     : [],
   confirmations: Array.isArray(routine.confirmations)
     ? routine.confirmations

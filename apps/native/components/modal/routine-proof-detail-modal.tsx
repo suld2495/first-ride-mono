@@ -1,13 +1,12 @@
 import { useFetchRequestDetailQuery } from '@repo/shared/hooks/useRequest';
 import type { RoutineDetail } from '@repo/types';
 import { getFormatDateTime } from '@repo/shared/utils';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Image,
   type ImageSourcePropType,
   type ImageStyle,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   type StyleProp,
@@ -25,7 +24,6 @@ import { useRequestId } from '@/hooks/useRequestSelection';
 import { useRoutineForm } from '@/hooks/useRoutineSelection';
 import { baseFoundation } from '@/theme/tokens';
 
-const REQUEST_IMAGE_RATIO_FALLBACK = 1;
 const DETAIL_IMAGE_THUMBNAIL_COUNT = 3;
 
 const getMessageTime = (dateInput?: null | string) => {
@@ -43,7 +41,6 @@ const getMessageTime = (dateInput?: null | string) => {
 
 type DetailImageProps = {
   imagePath: string;
-  imageRatio?: number;
   style: StyleProp<ImageStyle>;
 };
 
@@ -89,17 +86,18 @@ const DetailAvatar = ({
   </View>
 );
 
-const DetailImage = ({ imagePath, imageRatio, style }: DetailImageProps) => {
-  const imageStyle = [
-    style,
-    { aspectRatio: imageRatio ?? REQUEST_IMAGE_RATIO_FALLBACK },
-  ];
-
+const DetailImage = ({ imagePath, style }: DetailImageProps) => {
   if (imagePath.endsWith('svg')) {
-    return <Svg.SvgUri uri={imagePath} style={imageStyle} />;
+    return <Svg.SvgUri uri={imagePath} style={style} />;
   }
 
-  return <Image source={{ uri: imagePath }} style={imageStyle} />;
+  return (
+    <Image
+      source={{ uri: imagePath }}
+      style={style}
+      resizeMode="contain"
+    />
+  );
 };
 
 type RoutineProofDetailModalProps = {
@@ -121,56 +119,9 @@ const RoutineProofDetailModal = ({
     () => detail?.imagePaths?.slice(0, DETAIL_IMAGE_THUMBNAIL_COUNT) ?? [],
     [detail?.imagePaths],
   );
-  const [ratios, setRatios] = useState<Record<string, number>>({});
   const [expandedImagePath, setExpandedImagePath] = useState<null | string>(
     null,
   );
-
-  useEffect(() => {
-    let isActive = true;
-
-    if (!imagePaths.length) {
-      setRatios({});
-      return () => {
-        isActive = false;
-      };
-    }
-
-    if (Platform.OS === 'web') {
-      setRatios(
-        Object.fromEntries(
-          imagePaths.map((imagePath) => [
-            imagePath,
-            REQUEST_IMAGE_RATIO_FALLBACK,
-          ]),
-        ),
-      );
-      return () => {
-        isActive = false;
-      };
-    }
-
-    void Promise.all(
-      imagePaths.map(async (imagePath) => {
-        try {
-          const { width, height } = await Image.getSize(imagePath);
-
-          return [
-            imagePath,
-            height > 0 ? width / height : REQUEST_IMAGE_RATIO_FALLBACK,
-          ] as const;
-        } catch {
-          return [imagePath, REQUEST_IMAGE_RATIO_FALLBACK] as const;
-        }
-      }),
-    ).then((entries) => {
-      if (isActive) setRatios(Object.fromEntries(entries));
-    });
-
-    return () => {
-      isActive = false;
-    };
-  }, [imagePaths]);
 
   if (isLoading && !previewDetail) return null;
 
@@ -214,7 +165,7 @@ const RoutineProofDetailModal = ({
           text: replyMessage,
           time: getMessageTime(detail?.checkedAt),
           mine: !isRequesterMe,
-          nickname: detail?.nickname ?? '',
+          nickname: detail?.responderNickname ?? '',
         }
       : null,
   ].filter(Boolean) as Array<{
@@ -268,7 +219,6 @@ const RoutineProofDetailModal = ({
                     >
                       <DetailImage
                         imagePath={imagePath}
-                        imageRatio={ratios[imagePath]}
                         style={styles.thumbnailImage}
                       />
                     </Pressable>

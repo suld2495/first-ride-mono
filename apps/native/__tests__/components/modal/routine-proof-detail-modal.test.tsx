@@ -1,5 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
+import { Image, StyleSheet as NativeStyleSheet } from 'react-native';
 
 import RoutineProofDetailModal from '../../../components/modal/routine-proof-detail-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
@@ -101,5 +102,65 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     ).toBeOnTheScreen();
     expect(screen.queryByTestId('routine-proof-image-1')).toBeNull();
     expect(screen.queryByTestId('routine-proof-image-2')).toBeNull();
+  });
+
+  it('인증 사진을 원본 비율이 유지되는 contain 방식으로 표시한다', async () => {
+    const mockDetail = createMockRoutineDetail(0, {
+      imagePaths: ['https://example.com/image-1.jpg'],
+    });
+
+    mockAxios.onGet(/\/routine\/confirm\/detail/).reply(200, {
+      data: mockDetail,
+    });
+
+    const screen = render(<RoutineProofDetailModal />);
+
+    expect(
+      (await screen.findByTestId('routine-proof-image-0'))
+        .findByType(Image).props.resizeMode,
+    ).toBe('contain');
+  });
+
+  it('인증 사진을 썸네일 영역 전체에서 중앙 정렬한다', async () => {
+    const mockDetail = createMockRoutineDetail(0, {
+      imagePaths: ['https://example.com/image-1.jpg'],
+    });
+
+    mockAxios.onGet(/\/routine\/confirm\/detail/).reply(200, {
+      data: mockDetail,
+    });
+
+    const screen = render(<RoutineProofDetailModal />);
+    const image = (await screen.findByTestId('routine-proof-image-0')).findByType(
+      Image,
+    );
+    const imageStyle = NativeStyleSheet.flatten(image.props.style);
+
+    expect(imageStyle).toMatchObject({ width: '100%', height: '100%' });
+    expect(imageStyle.aspectRatio).toBeUndefined();
+  });
+
+  it('인증 응답 메시지에 응답자 닉네임을 표시한다', () => {
+    mockRequestStore.requestId = 0;
+    const previewDetail = {
+      ...createMockRoutineDetail(0, {
+        nickname: '요청자',
+        requesterNickname: '요청자',
+      }),
+      responderNickname: '메이트',
+      checkComment: '잘했어!',
+      checkedAt: '2026-08-08T12:10:00',
+    };
+
+    const screen = render(
+      <RoutineProofDetailModal
+        previewCurrentNickname="요청자"
+        previewDetail={previewDetail}
+      />,
+    );
+
+    expect(
+      screen.getByTestId('routine-proof-chat-nickname-메이트'),
+    ).toHaveTextContent('메이트');
   });
 });

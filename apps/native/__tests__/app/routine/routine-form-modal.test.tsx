@@ -121,7 +121,7 @@ const DEFAULT_UPDATE_ROUTINE_DETAIL = {
   isMe: true,
   startDate: '2025-01-06',
   endDate: '',
-  successDate: [],
+  confirmations: [],
   paused: false,
   hidden: false,
   photoRequired: false,

@@ -1,11 +1,5 @@
 import { Request } from './request';
 
-export interface PendingConfirmation {
-  confirmId: number;
-  date: string;
-  status: 'WAIT';
-}
-
 export interface RoutineConfirmation {
   confirmId: number;
   date: string;
@@ -25,15 +19,13 @@ export interface Routine {
   isMe: boolean;
   startDate: string;
   endDate?: string;
-  successDate: string[];
   paused: boolean;
   hidden: boolean;
   photoRequired: boolean;
   hasPendingConfirmation: boolean;
   pendingConfirmationCount: number;
   pendingConfirmationIds: number[];
-  pendingConfirmations?: PendingConfirmation[];
-  confirmations?: RoutineConfirmation[];
+  confirmations: RoutineConfirmation[];
   todayConfirmStatus: 'WAIT' | 'PASS' | 'DENY' | null;
   todayConfirmId: number | null;
   canRequestToday: boolean;
@@ -46,13 +38,11 @@ export type RoutineForm = Omit<
   Routine,
   | 'routineId'
   | 'weeklyCount'
-  | 'successDate'
   | 'paused'
   | 'hidden'
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
-  | 'pendingConfirmations'
   | 'confirmations'
   | 'todayConfirmStatus'
   | 'todayConfirmId'
@@ -75,16 +65,14 @@ export type WeeklyRoutine = Pick<
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
-  | 'pendingConfirmations'
   | 'confirmations'
-> & {
-  successDate: string[];
-};
+>;
 
 export interface RoutineDetail {
   id: Request['id'];
   nickname: Routine['nickname'];
   requesterNickname: string;
+  responderNickname: string;
   requesterCharacterImageUrl?: null | string;
   responderCharacterImageUrl?: null | string;
   routineName: Routine['routineName'];

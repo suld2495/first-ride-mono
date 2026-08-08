@@ -62,11 +62,8 @@ const ROUTINE_SCROLL_INDICATOR_BOTTOM_SPACING = baseFoundation.spacing[2];
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
 
 interface RoutineCheckPressMeta {
-  completed?: boolean;
   confirmId?: number | null;
-  confirmationStatus?: Routine['todayConfirmStatus'];
   isMissedPast?: boolean;
-  isToday?: boolean;
 }
 
 if (
@@ -184,15 +181,6 @@ const RoutineList = ({
     [router, setRequestId],
   );
 
-  const handleShowReceivedRequestDetailModal = useCallback(
-    (confirmId: number) => {
-      setOpenMenuRoutineId(null);
-      setRequestId(confirmId);
-      router.push('/modal?type=request-detail');
-    },
-    [router, setRequestId],
-  );
-
   const handlePressRoutineCheck = useCallback(
     (routine: Routine, meta: RoutineCheckPressMeta = {}) => {
       if (!showsRequestMenuItem) {
@@ -205,44 +193,10 @@ const RoutineList = ({
         return;
       }
 
-      if (meta.confirmId) {
-        if (meta.confirmationStatus === 'WAIT' && !routine.isMe) {
-          handleShowReceivedRequestDetailModal(meta.confirmId);
+      const confirmId = meta.confirmId ?? routine.todayConfirmId;
 
-          return;
-        }
-
-        handleShowRoutineProofDetailModal(meta.confirmId);
-
-        return;
-      }
-
-      if (meta.completed) {
-        const confirmId =
-          meta.confirmId ?? (meta.isToday ? routine.todayConfirmId : null);
-
-        if (confirmId) {
-          handleShowRoutineProofDetailModal(confirmId);
-
-          return;
-        }
-
-        showToast('인증 상세 정보를 불러올 수 없어요.', 'error');
-
-        return;
-      }
-
-      if (!routine.canRequestToday) {
-        if (
-          routine.todayConfirmStatus !== null &&
-          typeof routine.todayConfirmId === 'number'
-        ) {
-          handleShowRoutineProofDetailModal(routine.todayConfirmId);
-
-          return;
-        }
-
-        showToast('오늘 이미 인증을 완료하였습니다.', 'error');
+      if (confirmId) {
+        handleShowRoutineProofDetailModal(confirmId);
 
         return;
       }
@@ -251,7 +205,6 @@ const RoutineList = ({
     },
     [
       handleShowRequestModal,
-      handleShowReceivedRequestDetailModal,
       handleShowRoutineProofDetailModal,
       showToast,
       showsRequestMenuItem,

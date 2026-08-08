@@ -95,7 +95,9 @@ describe('routine widget background', () => {
     const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
 
     expect(source).toContain('struct CharacterWidgetExperienceStyle: Codable');
-    expect(source).toContain('let experienceStyle: CharacterWidgetExperienceStyle?');
+    expect(source).toContain(
+      'let experienceStyle: CharacterWidgetExperienceStyle?',
+    );
     expect(source).toContain('style: entry.snapshot.experienceStyle');
     expect(source).toContain('Color(hex: style?.primaryColor');
     expect(source).toContain('Color(hex: style?.trackColor');
@@ -163,16 +165,16 @@ describe('routine widget background', () => {
       'let monday = calendar.date(byAdding: .day, value: -daysFromMonday, to: startOfDay) ?? startOfDay',
     );
     expect(source).toContain(
-      'item.successDate?.contains(dateKey) ?? (dateKey == currentDateKey && item.isTodayDone)',
+      'item.completedDates?.contains(dateKey) ?? (dateKey == currentDateKey && item.isTodayDone)',
     );
     expect(source).toContain('RoutineWidgetWeeklyStatusDot');
   });
 
-  it('formats widget date keys as the API 6 digit YYMMDD value', () => {
+  it('formats widget date keys as the API YYYY-MM-DD value', () => {
     const source = fs.readFileSync(routineWidgetSwiftPath, 'utf8');
 
     expect(source).toContain(
-      'return String(format: "%02d%02d%02d", year - shortYearOffset, month, day)',
+      'return String(format: "%04d-%02d-%02d", year, month, day)',
     );
   });
 

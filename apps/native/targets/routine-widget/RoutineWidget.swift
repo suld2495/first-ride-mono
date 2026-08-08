@@ -23,7 +23,6 @@ private let weeklyStatusDotSize: CGFloat = 10
 private let mediumWeeklyStatusMaximumVisibleItemCount = 4
 private let largeWeeklyStatusMaximumVisibleItemCount = 10
 private let weeklyStatusDayLabels = ["월", "화", "수", "목", "금", "토", "일"]
-private let shortYearOffset = 2000
 private let dailyRefreshEntryCount = 8
 private let fallbackCountLabelBackgroundColor = Color(red: 0.89, green: 0.95, blue: 0.99)
 private let fallbackCountLabelTextColor = Color(red: 0.08, green: 0.40, blue: 0.75)
@@ -51,7 +50,7 @@ struct RoutineWidgetItem: Codable, Identifiable {
   let title: String
   let weeklyCount: Int
   let routineCount: Int
-  let successDate: [String]?
+  let completedDates: [String]?
   let isTodayDone: Bool
   let accentColor: String?
   let darkAccentColor: String?
@@ -742,7 +741,7 @@ struct RoutineWidgetWeeklyStatusRow: View {
         .frame(width: weeklyStatusNameColumnWidth, height: weeklyStatusRowHeight, alignment: .leading)
 
       ForEach(Array(weekDateKeys.enumerated()), id: \.offset) { _, dateKey in
-        let isCompleted = item.successDate?.contains(dateKey) ?? (dateKey == currentDateKey && item.isTodayDone)
+        let isCompleted = item.completedDates?.contains(dateKey) ?? (dateKey == currentDateKey && item.isTodayDone)
         RoutineWidgetWeeklyStatusDot(isCompleted: isCompleted, accentColor: accentColor)
           .frame(maxWidth: .infinity, minHeight: weeklyStatusRowHeight)
       }
@@ -798,11 +797,11 @@ struct RoutineWidgetRow: View {
   }
 
   private var isDoneToday: Bool {
-    guard let successDate = item.successDate else {
+    guard let completedDates = item.completedDates else {
       return item.isTodayDone
     }
 
-    return successDate.contains(routineDateKey(for: currentDate))
+    return completedDates.contains(routineDateKey(for: currentDate))
   }
 
   var body: some View {
@@ -841,7 +840,7 @@ private func routineDateKey(for date: Date) -> String {
     return ""
   }
 
-  return String(format: "%02d%02d%02d", year - shortYearOffset, month, day)
+  return String(format: "%04d-%02d-%02d", year, month, day)
 }
 
 private func weekDateKeys(for currentDate: Date) -> [String] {

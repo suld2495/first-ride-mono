@@ -34,11 +34,8 @@ interface RoutineWeekListProps {
   onRequestRoutine: (
     routine: Routine,
     meta?: {
-      completed?: boolean;
       confirmId?: number | null;
-      confirmationStatus?: Routine['todayConfirmStatus'];
       isMissedPast?: boolean;
-      isToday?: boolean;
     },
   ) => void;
   openMenuRoutineId: number | null;
@@ -88,62 +85,23 @@ const createRoutineDateKey = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const createRoutineShortDateKey = (date: Date) => {
-  const year = date.getFullYear() - 2000;
-  const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
-  const day = date.getDate().toString().padStart(PAD_LENGTH, '0');
-
-  return `${year}${month}${day}`;
-};
-
-const createWeekShortDateKeys = (startDate: string) => {
-  const date = new Date(startDate);
-
-  return Array.from({ length: DAYS_PER_WEEK }, (_, index) => {
-    const weekDate = new Date(date);
-
-    weekDate.setDate(weekDate.getDate() + index);
-
-    return createRoutineShortDateKey(weekDate);
-  });
-};
-
-const normalizeConfirmationDate = (date: string) => {
-  const compactDate = date.split('-').join('');
-
-  return compactDate.length === 8 ? compactDate.slice(2) : compactDate;
-};
-
 const getConfirmationForDate = (
   routine: Routine,
   dateKey: string,
-): { confirmId: number; status: Routine['todayConfirmStatus'] } | null => {
-  const confirmation = routine.confirmations?.find(
-    (item) => normalizeConfirmationDate(item.date) === dateKey,
+): number | null => {
+  const confirmation = routine.confirmations.find(
+    (item) => item.date === dateKey,
   );
 
-  if (confirmation) {
-    return {
-      confirmId: confirmation.confirmId,
-      status: confirmation.status,
-    };
-  }
-
-  const pendingConfirmation = routine.pendingConfirmations?.find(
-    (item) => normalizeConfirmationDate(item.date) === dateKey,
-  );
-
-  return pendingConfirmation
-    ? { confirmId: pendingConfirmation.confirmId, status: 'WAIT' }
-    : null;
+  return confirmation?.confirmId ?? null;
 };
 
 const getPendingConfirmationDates = (
-  pendingConfirmations: Routine['pendingConfirmations'],
+  confirmations: Routine['confirmations'],
 ) => {
   const dates = new Set<string>();
 
-  for (const confirmation of pendingConfirmations ?? []) {
+  for (const confirmation of confirmations) {
     if (confirmation.status === 'WAIT') {
       dates.add(confirmation.date);
     }
@@ -255,9 +213,7 @@ const RoutineWeekList = ({
   const { theme } = useAppTheme();
   const weeklyData = useWeeklyData(routines, date);
   const weekDateKeys = useMemo(() => createWeekDateKeys(date), [date]);
-  const weekShortDateKeys = useMemo(() => createWeekShortDateKeys(date), [date]);
   const todayDateKey = createRoutineDateKey(new Date());
-  const todayShortDateKey = createRoutineShortDateKey(new Date());
   const getRoutineItemLayout = useCallback(
     (_: Routine[] | null, index: number) => ({
       length: itemHeight,
@@ -280,7 +236,7 @@ const RoutineWeekList = ({
       const routineColor = symbolColor ?? routineColorFallback;
       const canRequestWithCheckBox = canRequestRoutine;
       const pendingConfirmationDates = getPendingConfirmationDates(
-        routine.pendingConfirmations,
+        routine.confirmations,
       );
 
       return (
@@ -348,7 +304,6 @@ const RoutineWeekList = ({
             <View style={styles.checkRow}>
               {weeklyData[routineId].map((check, index) => {
                 const dateKey = weekDateKeys[index];
-                const shortDateKey = weekShortDateKeys[index];
                 const {
                   isMissedPastDay,
                   isPendingConfirmation,
@@ -386,25 +341,16 @@ const RoutineWeekList = ({
                 const dayTextColor = isUpcomingDay
                   ? theme.colors.brand.routineProgressText
                   : CHECKBOX_DAY_TEXT_COLOR;
-                const datedConfirmation = getConfirmationForDate(
-                  routine,
-                  shortDateKey,
-                );
-                const confirmation =
-                  shortDateKey === todayShortDateKey && routine.todayConfirmId
-                    ? {
-                        confirmId: routine.todayConfirmId,
-                        status: routine.todayConfirmStatus,
-                      }
-                    : datedConfirmation;
+                const datedConfirmId = getConfirmationForDate(routine, dateKey);
+                const confirmId =
+                  dateKey === todayDateKey && routine.todayConfirmId
+                    ? routine.todayConfirmId
+                    : datedConfirmId;
                 const handlePressCheckBox = canRequestWithCheckBox
                   ? () =>
                       onRequestRoutine(routine, {
-                        completed: check,
-                        confirmId: confirmation?.confirmId,
-                        confirmationStatus: confirmation?.status,
+                        confirmId,
                         isMissedPast: isMissedPastDay,
-                        isToday: isToday,
                       })
                   : undefined;
 
@@ -469,9 +415,7 @@ const RoutineWeekList = ({
       theme.colors.brand.routineUpcomingCheckboxBorder,
       theme.colors.brand.routineProgressText,
       todayDateKey,
-      todayShortDateKey,
       weekDateKeys,
-      weekShortDateKeys,
       weeklyData,
     ],
   );

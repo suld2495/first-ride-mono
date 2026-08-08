@@ -34,11 +34,8 @@ interface RoutineCountListProps {
   onRequestRoutine: (
     routine: Routine,
     meta?: {
-      completed?: boolean;
       confirmId?: number | null;
-      confirmationStatus?: Routine['todayConfirmStatus'];
       isMissedPast?: boolean;
-      isToday?: boolean;
     },
   ) => void;
   openMenuRoutineId: number | null;
@@ -49,7 +46,6 @@ interface RoutineCountListProps {
 }
 
 const MAX_ROUTINE_COUNT = 7;
-const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 const CHECKED_ICON_COLOR = palette.theme.gray[95];
 const UNCHECKED_BACKGROUND_COLOR = palette.theme.gray[95];
@@ -65,11 +61,11 @@ const ROUTINE_COUNT_CARD_SURFACE_RADIUS = baseFoundation.dimension.x12;
 const ROUTINE_HEADER_ITEM_HEIGHT = baseFoundation.dimension.x20;
 
 const createRoutineDateKey = (date: Date) => {
-  const year = date.getFullYear() - SHORT_YEAR_OFFSET;
+  const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
   const day = date.getDate().toString().padStart(PAD_LENGTH, '0');
 
-  return `${year}${month}${day}`;
+  return `${year}-${month}-${day}`;
 };
 
 const getTodaySuccessFrameStyle = (isTodaySuccess: boolean) =>
@@ -173,8 +169,11 @@ const RoutineCountList = ({
       const currentWeekStartDate = getWeekMonday(new Date());
       const isCurrentWeek = date === currentWeekStartDate;
       const isPastWeek = date < currentWeekStartDate;
-      const hasTodaySuccess =
-        isCurrentWeek && routine.successDate.includes(todayDateKey);
+      const todayPassedConfirmation = routine.confirmations.find(
+        (confirmation) =>
+          confirmation.date === todayDateKey && confirmation.status === 'PASS',
+      );
+      const hasTodaySuccess = isCurrentWeek && Boolean(todayPassedConfirmation);
 
       const countLabels = Array.from(
         { length: MAX_ROUTINE_COUNT },
@@ -284,21 +283,15 @@ const RoutineCountList = ({
                   const handlePressCheckBox = canRequestWithCheckBox
                     ? () =>
                         onRequestRoutine(routine, {
-                          completed: isTodaySuccess,
                           confirmId: isTodaySuccess
-                            ? routine.todayConfirmId
+                            ? (routine.todayConfirmId ??
+                              todayPassedConfirmation?.confirmId)
                             : isPendingConfirmation
-                              ? routine.pendingConfirmationIds[
+                              ? (routine.pendingConfirmationIds[
                                   countIndex - weeklyCount - 1
-                                ] ?? null
-                              : null,
-                          confirmationStatus: isTodaySuccess
-                            ? routine.todayConfirmStatus
-                            : isPendingConfirmation
-                              ? 'WAIT'
+                                ] ?? null)
                               : null,
                           isMissedPast: isMissedPastGoal,
-                          isToday: isTodaySuccess,
                         })
                     : undefined;
 

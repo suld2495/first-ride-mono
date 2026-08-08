@@ -247,6 +247,7 @@ describe('getNotificationNavigationIntent', () => {
     id: 123,
     nickname: '윤윤',
     requesterNickname: '메이트',
+    responderNickname: '윤윤',
     routineName: '아침 운동',
     routineDetail: '30분 걷기',
     imagePaths: ['https://example.com/confirm.png'],

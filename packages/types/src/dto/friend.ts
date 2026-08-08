@@ -54,11 +54,10 @@ export interface FriendRoutineItem {
   endDate: Routine['endDate'] | null;
   confirmCount: number;
   weeklyCount: Routine['weeklyCount'];
-  successDate: Routine['successDate'] | null;
+  confirmations?: Routine['confirmations'] | null;
   todayConfirmStatus: Routine['todayConfirmStatus'];
   todayConfirmId: Routine['todayConfirmId'];
   canRequestToday: Routine['canRequestToday'];
-  pendingConfirmations?: Routine['pendingConfirmations'] | null;
   displayOrder: number;
   paused: boolean;
   hidden: boolean;

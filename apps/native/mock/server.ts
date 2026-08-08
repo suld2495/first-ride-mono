@@ -106,7 +106,12 @@ export function makeServer() {
               routineCount: 3,
               weeklyCount: 4,
               mateNickname: 'moon',
-              successDate: ['250826', '250827', '250829', '250830'],
+              confirmations: [
+                { confirmId: 1, date: '2025-08-26', status: 'PASS' },
+                { confirmId: 2, date: '2025-08-27', status: 'PASS' },
+                { confirmId: 3, date: '2025-08-29', status: 'PASS' },
+                { confirmId: 4, date: '2025-08-30', status: 'PASS' },
+              ],
             },
           ],
         };

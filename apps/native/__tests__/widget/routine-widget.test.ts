@@ -8,6 +8,12 @@ import {
   createSignedOutRoutineWidgetSnapshot,
 } from '@/widget/routine-widget';
 
+const createPassConfirmation = (date: string, confirmId = 1) => ({
+  confirmId,
+  date,
+  status: 'PASS' as const,
+});
+
 const createRoutine = (overrides: Partial<Routine>): Routine => ({
   routineId: 1,
   nickname: 'manna',
@@ -19,7 +25,7 @@ const createRoutine = (overrides: Partial<Routine>): Routine => ({
   mateNickname: '',
   isMe: true,
   startDate: '2026-05-18',
-  successDate: [],
+  confirmations: [],
   paused: false,
   hidden: false,
   hasPendingConfirmation: false,
@@ -57,7 +63,7 @@ describe('routine widget snapshot', () => {
           routineName: '산책',
           weeklyCount: 1,
           routineCount: 2,
-          successDate: ['260521'],
+          confirmations: [createPassConfirmation('2026-05-21')],
         }),
         createRoutine({
           routineId: 3,
@@ -71,7 +77,7 @@ describe('routine widget snapshot', () => {
           routineName: '물 마시기',
           weeklyCount: 1,
           routineCount: 1,
-          successDate: ['260521'],
+          confirmations: [createPassConfirmation('2026-05-21')],
           hidden: true,
         }),
       ],
@@ -101,7 +107,7 @@ describe('routine widget snapshot', () => {
           routineName: '산책',
           weeklyCount: 1,
           routineCount: 2,
-          successDate: ['260521'],
+          confirmations: [createPassConfirmation('2026-05-21')],
         }),
         createRoutine({
           routineId: 3,
@@ -114,7 +120,7 @@ describe('routine widget snapshot', () => {
           routineName: '물 마시기',
           weeklyCount: 1,
           routineCount: 1,
-          successDate: ['260521'],
+          confirmations: [createPassConfirmation('2026-05-21')],
         }),
       ],
       { today: new Date('2026-05-21T09:00:00+09:00') },
@@ -157,7 +163,7 @@ describe('routine widget snapshot', () => {
         createRoutine({
           routineId: 1,
           routineName: '명상',
-          successDate: ['260521'],
+          confirmations: [createPassConfirmation('2026-05-21')],
         }),
       ],
       { today: new Date('2026-05-21T09:00:00+09:00') },
@@ -165,18 +171,18 @@ describe('routine widget snapshot', () => {
 
     expect(snapshot.items[0]).toMatchObject({
       title: '명상',
-      successDate: ['260521'],
+      completedDates: ['2026-05-21'],
       isTodayDone: true,
     });
   });
 
-  it('API의 6자리 날짜 키로 한 자리 일자 완료 여부를 계산한다', () => {
+  it('API의 YYYY-MM-DD 날짜로 한 자리 일자 완료 여부를 계산한다', () => {
     const snapshot = createRoutineWidgetSnapshot(
       [
         createRoutine({
           routineId: 1,
           routineName: '독서하기',
-          successDate: ['260604'],
+          confirmations: [createPassConfirmation('2026-06-04')],
         }),
       ],
       { today: new Date('2026-06-04T09:00:00+09:00') },
@@ -184,7 +190,7 @@ describe('routine widget snapshot', () => {
 
     expect(snapshot.items[0]).toMatchObject({
       title: '독서하기',
-      successDate: ['260604'],
+      completedDates: ['2026-06-04'],
       isTodayDone: true,
     });
   });

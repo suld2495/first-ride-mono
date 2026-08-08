@@ -11,14 +11,12 @@ export interface CreateMockRoutineOptions {
   isMe?: boolean;
   startDate?: string;
   endDate?: string;
-  successDate?: string[];
   mateNickname?: string;
   paused?: boolean;
   hidden?: boolean;
   hasPendingConfirmation?: boolean;
   pendingConfirmationCount?: number;
   pendingConfirmationIds?: number[];
-  pendingConfirmations?: Routine['pendingConfirmations'];
   confirmations?: Routine['confirmations'];
   todayConfirmStatus?: Routine['todayConfirmStatus'];
   todayConfirmId?: number | null;
@@ -44,13 +42,11 @@ export const createMockRoutine = (
   isMe: options.isMe ?? true,
   startDate: options.startDate ?? getWeekMonday(new Date()),
   endDate: options.endDate,
-  successDate: options.successDate ?? ['251201', '251202', '251203'],
   paused: options.paused ?? false,
   hidden: options.hidden ?? false,
   hasPendingConfirmation: options.hasPendingConfirmation ?? false,
   pendingConfirmationCount: options.pendingConfirmationCount ?? 0,
   pendingConfirmationIds: options.pendingConfirmationIds ?? [],
-  pendingConfirmations: options.pendingConfirmations ?? [],
   confirmations: options.confirmations ?? [],
   todayConfirmStatus: options.todayConfirmStatus ?? null,
   todayConfirmId: options.todayConfirmId ?? null,
@@ -76,6 +72,7 @@ export const createMockRoutines = (
 export interface CreateMockRoutineDetailOptions {
   nickname?: string;
   requesterNickname?: string;
+  responderNickname?: string;
   routineName?: string;
   routineDetail?: string;
   imagePaths?: string[];
@@ -91,6 +88,7 @@ export const createMockRoutineDetail = (
   id: index + 1,
   nickname: options.nickname ?? 'testuser',
   requesterNickname: options.requesterNickname ?? 'requester',
+  responderNickname: options.responderNickname ?? 'responder',
   routineName: options.routineName ?? `테스트 루틴 ${index + 1}`,
   routineDetail: options.routineDetail ?? `테스트 루틴 ${index + 1} 상세`,
   imagePaths: options.imagePaths ?? ['https://example.com/image.jpg'],

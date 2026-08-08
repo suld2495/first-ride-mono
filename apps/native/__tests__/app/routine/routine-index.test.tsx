@@ -72,14 +72,6 @@ const formatRoutineHeaderDate = (date: Date) => {
   return `${year}. ${month}. ${day} ${dayOfWeek}`;
 };
 
-const formatRoutineDateKey = (date: Date) => {
-  const year = date.getFullYear() - 2000;
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-
-  return `${year}${month}${day}`;
-};
-
 const formatRoutineApiDate = (date: Date) => {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -87,6 +79,13 @@ const formatRoutineApiDate = (date: Date) => {
 
   return `${year}-${month}-${day}`;
 };
+
+const createPassConfirmations = (dates: Date[]) =>
+  dates.map((date, index) => ({
+    confirmId: 1000 + index,
+    date: formatRoutineApiDate(date),
+    status: 'PASS' as const,
+  }));
 
 const getRoutineWeekIndex = (date: Date) => (date.getDay() + 6) % 7;
 
@@ -1323,21 +1322,38 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('오늘 완료한 회차를 successDate의 오늘 날짜로 구분한다', async () => {
+      it('오늘 완료한 회차를 confirmations의 PASS 상태로 구분한다', async () => {
         const today = new Date();
 
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
             weeklyCount: weeklyCount + 1,
             routineCount,
-            successDate: [formatRoutineDateKey(today)],
+            confirmations: [
+              {
+                confirmId: 206,
+                date: formatRoutineApiDate(today),
+                status: 'PASS',
+              },
+            ],
           }),
         });
 
         const { findByLabelText, findByTestId } = render(<Index />);
 
         expect(await findByLabelText('4회 오늘 완료')).toBeOnTheScreen();
-        expect(await findByTestId('routine-count-check-1-4')).toBeOnTheScreen();
+        const todayCompletedCheck = await findByTestId(
+          'routine-count-check-1-4',
+        );
+
+        fireEvent.press(todayCompletedCheck);
+
+        await waitFor(() => {
+          expect(mockPush).toHaveBeenCalledWith(
+            '/modal?type=routine-proof-detail',
+          );
+        });
+        expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(206);
       });
 
       it('완료는 symbolColor, 오늘 완료는 white 1px 테두리, 요청 중은 대기 컬러로 표시한다', async () => {
@@ -1347,7 +1363,7 @@ describe('루틴 조회 페이지', () => {
           ...createMockRoutine(0, {
             weeklyCount: 2,
             routineCount: 5,
-            successDate: [formatRoutineDateKey(today)],
+            confirmations: createPassConfirmations([today]),
           }),
           hasPendingConfirmation: true,
           pendingConfirmationCount: 2,
@@ -1797,7 +1813,6 @@ describe('루틴 조회 페이지', () => {
           data: createMockRoutines(1, {
             weeklyCount: 0,
             routineCount: 5,
-            successDate: [],
           }),
         });
 
@@ -1840,10 +1855,10 @@ describe('루틴 조회 페이지', () => {
               ...createMockRoutine(0, {
                 weeklyCount: 2,
                 routineCount: 5,
-                successDate: [
-                  formatRoutineDateKey(today),
-                  formatRoutineDateKey(otherCompletedDate),
-                ],
+                confirmations: createPassConfirmations([
+                  today,
+                  otherCompletedDate,
+                ]),
               }),
               symbolColor,
             },
@@ -1878,7 +1893,7 @@ describe('루틴 조회 페이지', () => {
 
         wedDate.setDate(wedDate.getDate() + 2);
         const getSuccessLabel = (date: Date, dayName: string) =>
-          formatRoutineDateKey(date) === formatRoutineDateKey(today)
+          formatRoutineApiDate(date) === formatRoutineApiDate(today)
             ? `${dayName}요일 오늘 완료`
             : `${dayName}요일 달성`;
 
@@ -1886,11 +1901,7 @@ describe('루틴 조회 페이지', () => {
           data: createMockRoutines(1, {
             weeklyCount: 3,
             routineCount: 5,
-            successDate: [
-              formatRoutineDateKey(monDate),
-              formatRoutineDateKey(tueDate),
-              formatRoutineDateKey(wedDate),
-            ],
+            confirmations: createPassConfirmations([monDate, tueDate, wedDate]),
           }),
         });
 
@@ -1920,7 +1931,6 @@ describe('루틴 조회 페이지', () => {
           data: createMockRoutines(1, {
             weeklyCount: 0,
             routineCount: 5,
-            successDate: [],
           }),
         });
 
@@ -1952,7 +1962,6 @@ describe('루틴 조회 페이지', () => {
             data: createMockRoutines(1, {
               weeklyCount: 0,
               routineCount: 5,
-              successDate: [],
             }),
           });
 
@@ -1982,7 +1991,6 @@ describe('루틴 조회 페이지', () => {
           data: createMockRoutines(1, {
             weeklyCount: 0,
             routineCount: 5,
-            successDate: [],
           }),
         });
 
@@ -2018,7 +2026,6 @@ describe('루틴 조회 페이지', () => {
             data: createMockRoutines(1, {
               weeklyCount: 0,
               routineCount: 5,
-              successDate: [],
             }),
           });
 
@@ -2033,7 +2040,7 @@ describe('루틴 조회 페이지', () => {
         },
       );
 
-      it('오늘 완료한 요일을 successDate의 오늘 날짜로 구분한다', async () => {
+      it('오늘 완료한 요일을 confirmations의 PASS 상태로 구분한다', async () => {
         const today = new Date();
         const dayName = ['일', '월', '화', '수', '목', '금', '토'][
           today.getDay()
@@ -2043,7 +2050,13 @@ describe('루틴 조회 페이지', () => {
           data: createMockRoutines(1, {
             weeklyCount: 1,
             routineCount: 5,
-            successDate: [formatRoutineDateKey(today)],
+            confirmations: [
+              {
+                confirmId: 206,
+                date: formatRoutineApiDate(today),
+                status: 'PASS',
+              },
+            ],
           }),
         });
 
@@ -2081,7 +2094,7 @@ describe('루틴 조회 페이지', () => {
           ...createMockRoutine(0, {
             weeklyCount: 1,
             routineCount: 5,
-            successDate: [formatRoutineDateKey(completedDate)],
+            confirmations: createPassConfirmations([completedDate]),
           }),
           hasPendingConfirmation: true,
           pendingConfirmationCount: 1,
@@ -2124,7 +2137,7 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('pendingConfirmations의 요청 날짜에 해당하는 요일만 대기 컬러로 표시한다', async () => {
+      it('confirmations의 WAIT 요청 날짜를 대기 상태로 표시하고 인증 상세로 이동한다', async () => {
         const today = new Date();
         const monday = new Date(getWeekMonday(today));
         const todayIndex = getRoutineWeekIndex(today);
@@ -2139,12 +2152,11 @@ describe('루틴 조회 페이지', () => {
               ...createMockRoutine(0, {
                 weeklyCount: 0,
                 routineCount: 5,
-                successDate: [],
               }),
               hasPendingConfirmation: true,
               pendingConfirmationCount: 1,
               pendingConfirmationIds: [207],
-              pendingConfirmations: [
+              confirmations: [
                 {
                   confirmId: 207,
                   date: formatRoutineApiDate(pendingDate),
@@ -2170,6 +2182,15 @@ describe('루틴 조회 페이지', () => {
             expect.objectContaining({ backgroundColor: '#F57F17' }),
           ]),
         );
+
+        fireEvent.press(pendingCheck);
+
+        await waitFor(() => {
+          expect(mockPush).toHaveBeenCalledWith(
+            '/modal?type=routine-proof-detail',
+          );
+        });
+        expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(207);
       });
 
       it('symbolColor가 없으면 성공 요일을 첫 번째 팔레트 컬러로 표시한다', async () => {
@@ -2179,7 +2200,7 @@ describe('루틴 조회 페이지', () => {
           data: createMockRoutines(1, {
             weeklyCount: 1,
             routineCount: 5,
-            successDate: [formatRoutineDateKey(monday)],
+            confirmations: createPassConfirmations([monday]),
           }),
         });
 
@@ -2196,7 +2217,6 @@ describe('루틴 조회 페이지', () => {
           data: createMockRoutines(1, {
             weeklyCount: 0,
             routineCount: 5,
-            successDate: [],
           }),
         });
 
@@ -2226,7 +2246,6 @@ describe('루틴 조회 페이지', () => {
             data: createMockRoutines(1, {
               weeklyCount: 0,
               routineCount: 5,
-              successDate: [],
             }),
           });
 
@@ -2399,7 +2418,7 @@ describe('루틴 조회 페이지', () => {
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
     });
 
-    it('메이트가 보낸 인증이 승인 대기 중이면 승인/거절 요청 페이지로 이동한다', async () => {
+    it('메이트에게 보낸 인증이 승인 대기 중이어도 루틴 인증 상세로 이동한다', async () => {
       mockRoutineStore.type = 'week';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
         data: createMockRoutines(1, {
@@ -2419,9 +2438,12 @@ describe('루틴 조회 페이지', () => {
       );
 
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/modal?type=request-detail');
+        expect(mockPush).toHaveBeenCalledWith(
+          '/modal?type=routine-proof-detail',
+        );
       });
       expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(781);
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request-detail');
     });
 
     it('지난 날짜의 미달성 week 타입 체크박스를 누르면 에러 토스트로 막는다', async () => {
@@ -2430,7 +2452,6 @@ describe('루틴 조회 페이지', () => {
         data: createMockRoutines(1, {
           weeklyCount: 0,
           routineCount: 5,
-          successDate: [],
         }),
       });
 

@@ -8,7 +8,7 @@ import MockAdapter from 'axios-mock-adapter';
 
 let mockAxios: MockAdapter;
 
-const pendingConfirmation = {
+const confirmation = {
   confirmId: 781,
   date: '2026-08-02',
   status: 'WAIT' as const,
@@ -23,24 +23,24 @@ describe('routine api', () => {
     mockAxios.restore();
   });
 
-  it('루틴 목록의 pendingConfirmations를 날짜 정보와 함께 반환한다', async () => {
+  it('루틴 목록의 confirmations를 날짜 정보와 함께 반환한다', async () => {
     mockAxios.onGet('/routine/list?date=2026-08-02').reply(200, {
       data: [
         {
           routineId: 1,
-          pendingConfirmations: [pendingConfirmation],
+          confirmations: [confirmation],
         },
       ],
     });
 
     await expect(fetchRoutines('2026-08-02')).resolves.toEqual([
       expect.objectContaining({
-        pendingConfirmations: [pendingConfirmation],
+        confirmations: [confirmation],
       }),
     ]);
   });
 
-  it('친구 루틴 목록의 pendingConfirmations를 루틴에 매핑한다', async () => {
+  it('친구 루틴 목록의 confirmations를 루틴에 매핑한다', async () => {
     mockAxios.onGet('/friends/42/routines?date=2026-08-02').reply(200, {
       data: {
         friend: { nickname: '친구' },
@@ -48,7 +48,7 @@ describe('routine api', () => {
           {
             routineId: 1,
             routineName: '친구 루틴',
-            pendingConfirmations: [pendingConfirmation],
+            confirmations: [confirmation],
           },
         ],
       },
@@ -58,7 +58,7 @@ describe('routine api', () => {
       expect.objectContaining({
         routines: [
           expect.objectContaining({
-            pendingConfirmations: [pendingConfirmation],
+            confirmations: [confirmation],
           }),
         ],
       }),

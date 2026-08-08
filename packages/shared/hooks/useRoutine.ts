@@ -22,7 +22,6 @@ import { routineKey } from '../types/query-keys/routine';
 import { getWeekMonday } from '../utils/date-utils';
 
 const DAYS_PER_WEEK = 7;
-const SHORT_YEAR_OFFSET = 2000;
 const PAD_LENGTH = 2;
 
 type RoutineVisibilitySnapshot = Array<[QueryKey, unknown]>;
@@ -315,11 +314,11 @@ const createWeeklyData = (startDate: string): string[] => {
 
     newDate.setDate(newDate.getDate() + i);
 
-    const year = newDate.getFullYear() - SHORT_YEAR_OFFSET;
+    const year = newDate.getFullYear();
     const month = (newDate.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
     const day = newDate.getDate().toString().padStart(PAD_LENGTH, '0');
 
-    return `${year}${month}${day}`;
+    return `${year}-${month}-${day}`;
   });
 };
 
@@ -333,9 +332,13 @@ export const useWeeklyData = (
   >;
   const weekDates = createWeeklyData(date);
 
-  return routines.reduce((acc, { routineId, successDate }) => {
-    const successDateSet = new Set(successDate);
-    const data = weekDates.map((weekDate) => successDateSet.has(weekDate));
+  return routines.reduce((acc, { confirmations, routineId }) => {
+    const completedDateSet = new Set(
+      confirmations
+        .filter((confirmation) => confirmation.status === 'PASS')
+        .map((confirmation) => confirmation.date),
+    );
+    const data = weekDates.map((weekDate) => completedDateSet.has(weekDate));
 
     acc[routineId] = data;
     return acc;

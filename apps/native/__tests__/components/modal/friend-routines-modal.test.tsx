@@ -69,7 +69,7 @@ const createFriendRoutineResponse = () => ({
       endDate: null,
       confirmCount: 0,
       weeklyCount: 3,
-      successDate: [],
+      confirmations: [],
       displayOrder: 1,
       paused: false,
       hidden: false,
