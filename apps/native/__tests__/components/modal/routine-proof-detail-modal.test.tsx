@@ -9,6 +9,12 @@ declare const mockRequestStore: {
   requestId: number;
   setRequestId: jest.Mock;
 };
+declare const mockRoutineStore: {
+  routineForm: {
+    routineDetail: string;
+    routineName: string;
+  };
+};
 
 describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () => {
   let mockAxios: MockAdapter;
