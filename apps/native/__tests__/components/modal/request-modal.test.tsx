@@ -296,6 +296,18 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         SHOW_SCROLL_INDICATOR,
       );
     });
+
+    it('메시지 입력 시 키보드에 맞춰 입력 영역을 자동으로 스크롤한다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      const scrollView = screen.getByTestId('request-form-scroll');
+
+      expect(scrollView.props.enableOnAndroid).toBe(true);
+      expect(scrollView.props.keyboardShouldPersistTaps).toBe('handled');
+      expect(scrollView.props.enableResetScrollToCoords).toBe(false);
+    });
   });
 
   describe('인증 대상 표시 테스트', () => {
