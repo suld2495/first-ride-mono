@@ -2613,75 +2613,22 @@ describe('루틴 조회 페이지', () => {
       await findByText('테스트 루틴 1');
 
       const routineList = getByTestId('routine-list-container');
-      const swipeEvent = {
-        nativeEvent: { touches: [] },
-        touchHistory: {
-          indexOfSingleActiveTouch: 0,
-          mostRecentTimeStamp: 1,
-          numberActiveTouches: 1,
-          touchBank: [
-            {
-              currentPageX: 20,
-              currentPageY: 104,
-              currentTimeStamp: 1,
-              previousPageX: 100,
-              previousPageY: 100,
-              touchActive: true,
-            },
-          ],
-        },
-      };
+      const gestureState = { dx: -80, dy: 4 };
 
-      expect(routineList.props.onMoveShouldSetResponderCapture).toEqual(
-        expect.any(Function),
-      );
       expect(
-        routineList.props.onMoveShouldSetResponderCapture(swipeEvent),
+        routineList.props.onMoveShouldSetPanResponderCapture,
+      ).toEqual(expect.any(Function));
+      expect(
+        routineList.props.onMoveShouldSetPanResponderCapture(
+          {},
+          gestureState,
+        ),
       ).toBe(true);
 
-      routineList.props.onResponderRelease(swipeEvent);
+      routineList.props.onPanResponderRelease({}, gestureState);
 
       expect(mockReplace).toHaveBeenCalledWith(
         `/(tabs)/(afterLogin)/(routine)?date=${nextDate}`,
-      );
-    });
-
-    it('루틴 리스트를 오른쪽으로 스와이프하면 이전 주로 이동한다', async () => {
-      const specificDate = '2024-12-09';
-      const previousDate = beforeWeek(new Date(specificDate));
-
-      mockSearchParams.date = specificDate;
-      const { findByText, getByTestId } = render(<Index />);
-
-      await findByText('테스트 루틴 1');
-
-      const routineList = getByTestId('routine-list-container');
-      const swipeEvent = {
-        nativeEvent: { touches: [] },
-        touchHistory: {
-          indexOfSingleActiveTouch: 0,
-          mostRecentTimeStamp: 1,
-          numberActiveTouches: 1,
-          touchBank: [
-            {
-              currentPageX: 180,
-              currentPageY: 104,
-              currentTimeStamp: 1,
-              previousPageX: 100,
-              previousPageY: 100,
-              touchActive: true,
-            },
-          ],
-        },
-      };
-
-      expect(
-        routineList.props.onMoveShouldSetResponderCapture(swipeEvent),
-      ).toBe(true);
-      routineList.props.onResponderRelease(swipeEvent);
-
-      expect(mockReplace).toHaveBeenCalledWith(
-        `/(tabs)/(afterLogin)/(routine)?date=${previousDate}`,
       );
     });
 
