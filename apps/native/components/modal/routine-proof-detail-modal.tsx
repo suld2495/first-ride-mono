@@ -22,6 +22,7 @@ import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useRequestId } from '@/hooks/useRequestSelection';
+import { useRoutineForm } from '@/hooks/useRoutineSelection';
 import { baseFoundation } from '@/theme/tokens';
 
 const REQUEST_IMAGE_RATIO_FALLBACK = 1;
@@ -98,6 +99,7 @@ const RoutineProofDetailModal = ({
   const { data: fetchedDetail, isLoading } =
     useFetchRequestDetailQuery(requestId);
   const user = useAuthUser();
+  const selectedRoutine = useRoutineForm();
   const detail = previewDetail ?? fetchedDetail;
   const imagePaths = useMemo(
     () => detail?.imagePaths?.slice(0, DETAIL_IMAGE_THUMBNAIL_COUNT) ?? [],
@@ -157,6 +159,10 @@ const RoutineProofDetailModal = ({
   if (isLoading && !previewDetail) return null;
 
   const routineDescription = detail?.routineDetail?.trim();
+  const fallbackRoutineDescription = selectedRoutine.routineDetail?.trim();
+  const visibleRoutineDescription =
+    routineDescription ?? fallbackRoutineDescription;
+  const routineName = detail?.routineName ?? selectedRoutine.routineName;
   const requestMessage = detail?.message?.trim();
   const replyMessage = detail?.checkComment?.trim();
   const isRequesterMe =
@@ -212,11 +218,11 @@ const RoutineProofDetailModal = ({
       >
         <ThemeView transparent style={styles.header}>
           <Typography variant="h2" weight="bold" style={styles.title}>
-            {detail?.routineName}
+            {routineName}
           </Typography>
-          {routineDescription ? (
+          {visibleRoutineDescription ? (
             <Typography variant="body2" style={styles.description}>
-              {routineDescription}
+              {visibleRoutineDescription}
             </Typography>
           ) : null}
         </ThemeView>
@@ -228,7 +234,7 @@ const RoutineProofDetailModal = ({
               weight="semibold"
               style={styles.sectionTitle}
             >
-              이번 주 인증 사진
+              인증 사진
             </Typography>
             <View style={styles.imageRow}>
               {imagePaths.map((imagePath, index) => (
@@ -251,21 +257,32 @@ const RoutineProofDetailModal = ({
           </ThemeView>
         ) : null}
 
-        <ThemeView transparent style={styles.section}>
-          <Typography
-            variant="caption1"
-            weight="semibold"
-            style={styles.sectionTitle}
+        {detail?.createdAt ? (
+          <ThemeView
+            transparent
+            style={[
+              styles.section,
+              imagePaths.length ? styles.proofSectionSpacing : null,
+            ]}
           >
-            인증 시간
-          </Typography>
-          <Typography variant="body2" style={styles.detailText}>
-            {detail?.createdAt ? getFormatDateTime(detail.createdAt) : ''}
-          </Typography>
-        </ThemeView>
+            <Typography
+              variant="caption1"
+              weight="semibold"
+              style={styles.sectionTitle}
+            >
+              인증 시간
+            </Typography>
+            <Typography variant="body2" style={styles.detailText}>
+              {getFormatDateTime(detail.createdAt)}
+            </Typography>
+          </ThemeView>
+        ) : null}
 
         {messages.length ? (
-          <ThemeView transparent style={styles.section}>
+          <ThemeView
+            transparent
+            style={[styles.section, styles.proofSectionSpacing]}
+          >
             <Typography
               variant="caption1"
               weight="semibold"
@@ -359,6 +376,7 @@ const styles = StyleSheet.create((theme) => ({
   title: { color: theme.colors.brand.text },
   description: { color: theme.colors.text.secondary },
   section: { gap: baseFoundation.spacing[2] },
+  proofSectionSpacing: { marginTop: 12 },
   sectionTitle: { color: theme.colors.text.muted },
   detailText: { color: theme.colors.brand.text },
   imageRow: { flexDirection: 'row', gap: baseFoundation.spacing[2] },

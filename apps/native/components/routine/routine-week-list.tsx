@@ -40,7 +40,6 @@ interface RoutineWeekListProps {
       isToday?: boolean;
     },
   ) => void;
-  onBlockPastRoutineRequest: () => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
@@ -246,7 +245,6 @@ const RoutineWeekList = ({
   onRefresh,
   canRequestRoutine = false,
   onRequestRoutine,
-  onBlockPastRoutineRequest,
   openMenuRoutineId,
   onToggleRoutineMenu,
   onScrollOffsetChange,
@@ -399,15 +397,13 @@ const RoutineWeekList = ({
                       }
                     : datedConfirmation;
                 const handlePressCheckBox = canRequestWithCheckBox
-                  ? isMissedPastDay
-                    ? onBlockPastRoutineRequest
-                    : () =>
-                        onRequestRoutine(routine, {
-                          completed: check,
-                          confirmId: confirmation?.confirmId,
-                          confirmationStatus: confirmation?.status,
-                          isToday: isToday,
-                        })
+                  ? () =>
+                      onRequestRoutine(routine, {
+                        completed: check,
+                        confirmId: confirmation?.confirmId,
+                        confirmationStatus: confirmation?.status,
+                        isToday: isToday,
+                      })
                   : undefined;
 
                 return (
@@ -462,7 +458,6 @@ const RoutineWeekList = ({
     [
       canRequestRoutine,
       itemHeight,
-      onBlockPastRoutineRequest,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,

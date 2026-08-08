@@ -40,7 +40,6 @@ interface RoutineCountListProps {
       isToday?: boolean;
     },
   ) => void;
-  onBlockPastRoutineRequest: () => void;
   openMenuRoutineId: number | null;
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
@@ -138,7 +137,6 @@ const RoutineCountList = ({
   onRefresh,
   canRequestRoutine = false,
   onRequestRoutine,
-  onBlockPastRoutineRequest,
   openMenuRoutineId,
   onToggleRoutineMenu,
   onScrollOffsetChange,
@@ -283,25 +281,23 @@ const RoutineCountList = ({
                     isGoalRange,
                   });
                   const handlePressCheckBox = canRequestWithCheckBox
-                    ? isMissedPastGoal
-                      ? onBlockPastRoutineRequest
-                      : () =>
-                          onRequestRoutine(routine, {
-                            completed: isTodaySuccess,
-                            confirmId: isTodaySuccess
-                              ? routine.todayConfirmId
-                              : isPendingConfirmation
-                                ? routine.pendingConfirmationIds[
-                                    countIndex - weeklyCount - 1
-                                  ] ?? null
-                                : null,
-                            confirmationStatus: isTodaySuccess
-                              ? routine.todayConfirmStatus
-                              : isPendingConfirmation
-                                ? 'WAIT'
-                                : null,
-                            isToday: isTodaySuccess,
-                          })
+                    ? () =>
+                        onRequestRoutine(routine, {
+                          completed: isTodaySuccess,
+                          confirmId: isTodaySuccess
+                            ? routine.todayConfirmId
+                            : isPendingConfirmation
+                              ? routine.pendingConfirmationIds[
+                                  countIndex - weeklyCount - 1
+                                ] ?? null
+                              : null,
+                          confirmationStatus: isTodaySuccess
+                            ? routine.todayConfirmStatus
+                            : isPendingConfirmation
+                              ? 'WAIT'
+                              : null,
+                          isToday: isTodaySuccess,
+                        })
                     : undefined;
 
                   return (
@@ -364,7 +360,6 @@ const RoutineCountList = ({
       date,
       canRequestRoutine,
       itemHeight,
-      onBlockPastRoutineRequest,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,

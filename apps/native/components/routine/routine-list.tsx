@@ -181,6 +181,16 @@ const RoutineList = ({
     [router, setRequestId],
   );
 
+  const handleShowRoutineDescriptionDetailModal = useCallback(
+    (routine: Routine) => {
+      setOpenMenuRoutineId(null);
+      setRequestId(0);
+      setRoutineForm(routine);
+      router.push('/modal?type=routine-proof-detail');
+    },
+    [router, setRequestId, setRoutineForm],
+  );
+
   const handleShowReceivedRequestDetailModal = useCallback(
     (confirmId: number) => {
       setOpenMenuRoutineId(null);
@@ -223,6 +233,12 @@ const RoutineList = ({
         return;
       }
 
+      if (!meta.isToday) {
+        handleShowRoutineDescriptionDetailModal(routine);
+
+        return;
+      }
+
       if (!routine.canRequestToday) {
         if (
           routine.todayConfirmStatus === 'PASS' &&
@@ -242,16 +258,13 @@ const RoutineList = ({
     },
     [
       handleShowRequestModal,
+      handleShowRoutineDescriptionDetailModal,
       handleShowReceivedRequestDetailModal,
       handleShowRoutineProofDetailModal,
       showToast,
       showsRequestMenuItem,
     ],
   );
-
-  const handleBlockPastRoutineRequest = useCallback(() => {
-    showToast('지난 기간의 루틴은 인증할 수 없어요.', 'error');
-  }, [showToast]);
 
   const handleShowUpdateModal = useCallback(
     (routine: Routine) => {
@@ -392,7 +405,6 @@ const RoutineList = ({
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
               onRequestRoutine={handlePressRoutineCheck}
-              onBlockPastRoutineRequest={handleBlockPastRoutineRequest}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
@@ -411,7 +423,6 @@ const RoutineList = ({
               onRefresh={onRefresh}
               canRequestRoutine={showsRequestMenuItem && !readOnly}
               onRequestRoutine={handlePressRoutineCheck}
-              onBlockPastRoutineRequest={handleBlockPastRoutineRequest}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}

@@ -48,7 +48,7 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
 
     expect(await screen.findByText('물 마시기')).toBeOnTheScreen();
     expect(await screen.findByText('하루 2L 마시기')).toBeOnTheScreen();
-    expect(await screen.findByText('이번 주 인증 사진')).toBeOnTheScreen();
+    expect(await screen.findByText('인증 사진')).toBeOnTheScreen();
     expect(await screen.findByText('인증 시간')).toBeOnTheScreen();
     expect(await screen.findByText('오늘도 완료했어!')).toBeOnTheScreen();
     expect(await screen.findByText('잘했어!')).toBeOnTheScreen();
@@ -58,5 +58,20 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     fireEvent.press(screen.getByTestId('routine-proof-image-0'));
 
     expect(screen.getByTestId('routine-proof-expanded-image')).toBeOnTheScreen();
+  });
+
+  it('설명과 인증 데이터가 없으면 관련 영역을 표시하지 않는다', () => {
+    mockRequestStore.requestId = 0;
+    mockRoutineStore.routineForm = {
+      routineName: '저녁 스트레칭',
+      routineDetail: '   ',
+    };
+
+    const screen = render(<RoutineProofDetailModal />);
+
+    expect(screen.getByText('저녁 스트레칭')).toBeOnTheScreen();
+    expect(screen.queryByText('인증 사진')).toBeNull();
+    expect(screen.queryByText('인증 시간')).toBeNull();
+    expect(screen.queryByText('주고받은 메시지')).toBeNull();
   });
 });

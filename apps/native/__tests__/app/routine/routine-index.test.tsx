@@ -204,6 +204,7 @@ declare const mockRoutineStore: {
   setType: jest.Mock;
   routineId: number;
   setRoutineId: jest.Mock;
+  setRoutineForm: jest.Mock;
   resetRoutineForm: jest.Mock;
 };
 declare const mockRequestStore: {
@@ -2329,7 +2330,7 @@ describe('루틴 조회 페이지', () => {
       expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(781);
     });
 
-    it('지난 날짜의 미달성 week 타입 체크박스를 누르면 에러 토스트로 막는다', async () => {
+    it('지난 날짜의 미달성 week 타입 체크박스를 누르면 설명 상세를 연다', async () => {
       mockRoutineStore.type = 'week';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
         data: createMockRoutines(1, {
@@ -2344,11 +2345,12 @@ describe('루틴 조회 페이지', () => {
       fireEvent.press(await findByTestId('routine-week-check-1-0'));
 
       await waitFor(() => {
-        expect(mockShowToast).toHaveBeenCalledWith(
-          '지난 기간의 루틴은 인증할 수 없어요.',
-          'error',
+        expect(mockPush).toHaveBeenCalledWith(
+          '/modal?type=routine-proof-detail',
         );
       });
+      expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(0);
+      expect(mockRoutineStore.setRoutineForm).toHaveBeenCalled();
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
       expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
     });
