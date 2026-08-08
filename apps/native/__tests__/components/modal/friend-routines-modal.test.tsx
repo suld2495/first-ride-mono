@@ -98,6 +98,7 @@ describe('FriendRoutinesModal', () => {
   });
 
   it('친구 프로필 조회 결과로 테마 컬러, 캐릭터, 배경을 적용한다', async () => {
+    const backgroundImageUrl = 'https://cdn.example.com/backgrounds/mage.png';
     mockAxios.onGet('/friends/42/profile').reply(
       200,
       wrapResponse({
@@ -108,7 +109,7 @@ describe('FriendRoutinesModal', () => {
         level: 7,
         characterCode: 'MAGE_INTERMEDIATE',
         characterImageUrl: 'https://cdn.example.com/characters/mage.png',
-        backgroundImageUrl: 'https://cdn.example.com/backgrounds/mage.png',
+        backgroundImageUrl,
       }),
     );
     mockAxios
@@ -148,10 +149,7 @@ describe('FriendRoutinesModal', () => {
     );
     expect(
       await screen.findByTestId('friend-routine-scene-background'),
-    ).toHaveProp(
-      'source',
-      routineSceneArt.routineSceneBackgroundAssets.red.source,
-    );
+    ).toHaveProp('source', { uri: backgroundImageUrl });
     expect(
       await screen.findByTestId('friend-routine-character-speech-bubble'),
     ).toBeOnTheScreen();

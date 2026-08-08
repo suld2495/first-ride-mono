@@ -14,7 +14,6 @@ import ModalHeaderAction from '@/components/modal/modal-header-action';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
 import {
-  getRoutineSceneBackgroundAsset,
   getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
   type RoutineSceneAsset,
@@ -187,11 +186,8 @@ const FriendRoutinesModal = () => {
   const backgroundImageUrl = profile?.backgroundImageUrl;
   const characterImageUrl = profile?.characterImageUrl;
   const backgroundAsset = useMemo(
-    () =>
-      appliedProfileThemeName === 'red'
-        ? getRoutineSceneBackgroundAsset(appliedProfileThemeName)
-        : getRoutineSceneRemoteAsset(backgroundImageUrl),
-    [appliedProfileThemeName, backgroundImageUrl],
+    () => getRoutineSceneRemoteAsset(backgroundImageUrl),
+    [backgroundImageUrl],
   );
   const characterAsset = useMemo(
     () => getRoutineSceneRemoteAsset(characterImageUrl),
