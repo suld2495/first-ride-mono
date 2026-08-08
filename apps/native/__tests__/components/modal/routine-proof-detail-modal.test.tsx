@@ -52,6 +52,10 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     expect(await screen.findByText('인증 시간')).toBeOnTheScreen();
     expect(await screen.findByText('오늘도 완료했어!')).toBeOnTheScreen();
     expect(await screen.findByText('잘했어!')).toBeOnTheScreen();
+    expect(
+      screen.getByTestId('routine-proof-chat-nickname-requester'),
+    ).toHaveTextContent('requester');
+    expect(screen.getByText('나')).toBeOnTheScreen();
     expect(screen.queryByText('응원의 한마디')).toBeNull();
     expect(screen.queryByText('승인')).toBeNull();
 

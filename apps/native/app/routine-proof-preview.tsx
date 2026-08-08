@@ -11,6 +11,8 @@ const previewDetail: RoutineDetail = {
   id: 1,
   nickname: '메이트',
   requesterNickname: '나',
+  responderCharacterImageUrl:
+    '/assets/characters/warrior_female_beginner.png',
   routineName: '아침 물 한 잔 마시기',
   routineDetail: '하루를 시작하기 전에 물 한 잔을 마셔요.',
   imagePaths: previewImages,

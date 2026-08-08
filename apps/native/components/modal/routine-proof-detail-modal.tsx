@@ -50,26 +50,42 @@ type DetailImageProps = {
 type DetailAvatarProps = {
   imageSource?: ImageSourcePropType;
   nickname: string;
+  showNickname?: boolean;
 };
 
-const DetailAvatar = ({ imageSource, nickname }: DetailAvatarProps) => (
-  <View style={styles.chatAvatar}>
-    {imageSource ? (
-      <Image
-        source={imageSource}
-        style={styles.chatAvatarImage}
-        resizeMode="contain"
-        accessibilityLabel={`${nickname} 캐릭터`}
-      />
-    ) : (
+const DetailAvatar = ({
+  imageSource,
+  nickname,
+  showNickname = false,
+}: DetailAvatarProps) => (
+  <View style={styles.chatAvatarGroup}>
+    <View style={styles.chatAvatar}>
+      {imageSource ? (
+        <Image
+          source={imageSource}
+          style={styles.chatAvatarImage}
+          resizeMode="contain"
+          accessibilityLabel={`${nickname} 캐릭터`}
+        />
+      ) : (
+        <Typography
+          variant="caption2"
+          weight="semibold"
+          style={styles.chatAvatarText}
+        >
+          {showNickname ? nickname.slice(0, 1) : nickname}
+        </Typography>
+      )}
+    </View>
+    {showNickname ? (
       <Typography
         variant="caption2"
-        weight="semibold"
-        style={styles.chatAvatarText}
+        style={styles.chatAvatarNickname}
+        testID={`routine-proof-chat-nickname-${nickname}`}
       >
-        {nickname.slice(0, 1)}
+        {nickname}
       </Typography>
-    )}
+    ) : null}
   </View>
 );
 
@@ -316,6 +332,7 @@ const RoutineProofDetailModal = ({
                     <DetailAvatar
                       imageSource={message.avatarSource}
                       nickname={message.nickname}
+                      showNickname
                     />
                   ) : null}
                   <View
@@ -334,10 +351,7 @@ const RoutineProofDetailModal = ({
                     </Typography>
                   ) : null}
                   {message.mine ? (
-                    <DetailAvatar
-                      imageSource={message.avatarSource}
-                      nickname={message.nickname}
-                    />
+                    <DetailAvatar nickname="나" />
                   ) : null}
                 </View>
               ))}
@@ -420,7 +434,16 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     backgroundColor: theme.colors.brand.card,
   },
+  chatAvatarGroup: {
+    alignItems: 'center',
+    gap: baseFoundation.spacing[1],
+  },
   chatAvatarText: { color: theme.colors.text.secondary },
+  chatAvatarNickname: {
+    maxWidth: baseFoundation.dimension.x52,
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+  },
   chatAvatarImage: { width: '115%', height: '115%' },
   chatBubble: {
     maxWidth: '68%',
