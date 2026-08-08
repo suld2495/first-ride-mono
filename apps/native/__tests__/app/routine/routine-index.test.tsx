@@ -207,6 +207,10 @@ declare const mockRoutineStore: {
   setRoutineId: jest.Mock;
   resetRoutineForm: jest.Mock;
 };
+declare const mockRequestStore: {
+  requestId: number;
+  setRequestId: jest.Mock;
+};
 const getMockFocusEffectCleanup = () =>
   (
     globalThis as typeof globalThis & {
@@ -2343,7 +2347,7 @@ describe('루틴 조회 페이지', () => {
       expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
     });
 
-    it('canRequestToday가 false인 number 타입 루틴 체크박스를 누르면 오늘 인증 완료 안내를 표시한다', async () => {
+    it('오늘 인증이 완료된 number 타입 루틴 체크박스를 누르면 인증 상세로 이동한다', async () => {
       mockRoutineStore.type = 'number';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
         data: createMockRoutines(1, {
@@ -2358,16 +2362,15 @@ describe('루틴 조회 페이지', () => {
       fireEvent.press(await findByTestId('routine-count-check-1-4'));
 
       await waitFor(() => {
-        expect(mockShowToast).toHaveBeenCalledWith(
-          '오늘 이미 인증을 완료하였습니다.',
-          'error',
+        expect(mockPush).toHaveBeenCalledWith(
+          '/modal?type=routine-proof-detail',
         );
       });
+      expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(781);
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
-      expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
     });
 
-    it('canRequestToday가 false인 week 타입 루틴 체크박스를 누르면 오늘 인증 완료 안내를 표시한다', async () => {
+    it('내가 보낸 인증이 승인 대기 중인 week 타입 루틴 체크박스를 누르면 인증 상세로 이동한다', async () => {
       mockRoutineStore.type = 'week';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
         data: createMockRoutines(1, {
@@ -2386,13 +2389,12 @@ describe('루틴 조회 페이지', () => {
       );
 
       await waitFor(() => {
-        expect(mockShowToast).toHaveBeenCalledWith(
-          '오늘 이미 인증을 완료하였습니다.',
-          'error',
+        expect(mockPush).toHaveBeenCalledWith(
+          '/modal?type=routine-proof-detail',
         );
       });
+      expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(781);
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
-      expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
     });
 
     it('지난 날짜의 미달성 week 타입 체크박스를 누르면 에러 토스트로 막는다', async () => {
