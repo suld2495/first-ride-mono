@@ -31,6 +31,7 @@ type RoutineResponse = Omit<
   | 'hasPendingChangeRequest'
   | 'pendingChangeRequestId'
   | 'pendingChangeRequestStatus'
+  | 'photoRequired'
 > & {
   successDate?: Routine['successDate'] | null;
   hasPendingConfirmation?: Routine['hasPendingConfirmation'] | null;
@@ -43,6 +44,7 @@ type RoutineResponse = Omit<
   hasPendingChangeRequest?: Routine['hasPendingChangeRequest'] | null;
   pendingChangeRequestId?: Routine['pendingChangeRequestId'];
   pendingChangeRequestStatus?: Routine['pendingChangeRequestStatus'];
+  photoRequired?: Routine['photoRequired'] | null;
 };
 
 const normalizeRoutine = (routine: RoutineResponse): Routine => ({
@@ -62,6 +64,7 @@ const normalizeRoutine = (routine: RoutineResponse): Routine => ({
   hasPendingChangeRequest: Boolean(routine.hasPendingChangeRequest),
   pendingChangeRequestId: routine.pendingChangeRequestId ?? null,
   pendingChangeRequestStatus: routine.pendingChangeRequestStatus ?? null,
+  photoRequired: routine.photoRequired ?? !routine.isMe,
 });
 
 const MONTHLY_ROUTINE_STATUSES = new Set<MonthlyRoutineStatus>([
@@ -133,6 +136,10 @@ const normalizeMonthlyRoutine = (
       0,
       Math.floor(getNumber(routine.monthlyAchievedCount, achievedDates.length)),
     ),
+    photoRequired:
+      typeof routine.photoRequired === 'boolean'
+        ? routine.photoRequired
+        : Boolean(routine.mateNickname),
   };
 };
 

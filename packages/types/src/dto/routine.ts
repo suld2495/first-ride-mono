@@ -13,14 +13,16 @@ type CreateRoutinePayload = Pick<
 
 export type CreateMyRoutineRequest = {
   target: 'me';
-  payload: CreateRoutinePayload;
+  payload: CreateRoutinePayload & Pick<RoutineForm, 'photoRequired'>;
 };
 
 export type CreateMateRoutineRequest = {
   target: 'mate';
   payload: CreateRoutinePayload &
     Pick<RoutineForm, 'mateNickname'> &
-    Partial<Pick<RoutineForm, 'penalty'>>;
+    Partial<Pick<RoutineForm, 'penalty'>> & {
+      photoRequired?: never;
+    };
 };
 
 export type CreateRoutineRequest =
@@ -38,6 +40,7 @@ export type UpdateRoutinePayload = Partial<
     | 'startDate'
     | 'endDate'
     | 'symbolColor'
+    | 'photoRequired'
   > &
     Pick<Routine, 'hidden' | 'paused'> & {
       category: string;
@@ -166,6 +169,7 @@ export type RoutineMonthlySummary = {
   status: MonthlyRoutineStatus;
   achievedDates: string[];
   monthlyAchievedCount: number;
+  photoRequired: boolean;
 };
 
 export type MonthlyRoutineListResponse = {

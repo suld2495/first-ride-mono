@@ -22,6 +22,7 @@ export interface Routine {
   successDate: string[];
   paused: boolean;
   hidden: boolean;
+  photoRequired: boolean;
   hasPendingConfirmation: boolean;
   pendingConfirmationCount: number;
   pendingConfirmationIds: number[];

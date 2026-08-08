@@ -217,6 +217,7 @@ const toFriendRoutine = (
   todayConfirmStatus: routine.todayConfirmStatus,
   todayConfirmId: routine.todayConfirmId,
   canRequestToday: routine.canRequestToday,
+  photoRequired: routine.photoRequired ?? true,
 });
 
 const unwrapFriendRoutinesResponse = (

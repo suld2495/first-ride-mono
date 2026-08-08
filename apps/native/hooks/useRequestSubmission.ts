@@ -21,6 +21,7 @@ interface RoutineDetailInfo {
   nickname: string;
   isMe: boolean;
   paused: boolean;
+  photoRequired: boolean;
 }
 
 export { MAX_REQUEST_IMAGE_COUNT };
@@ -73,7 +74,11 @@ export const useRequestSubmission = (
         return;
       }
 
-      if (!submittedForm.images.length || !detail) {
+      if (!detail) {
+        return;
+      }
+
+      if (detail.photoRequired && !submittedForm.images.length) {
         return;
       }
 

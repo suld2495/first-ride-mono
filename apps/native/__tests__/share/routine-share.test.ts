@@ -30,6 +30,7 @@ const createRoutine = (
   pendingConfirmationCount: 0,
   pendingConfirmationIds: [],
   ...overrides,
+  photoRequired: overrides.photoRequired ?? true,
   todayConfirmStatus: overrides.todayConfirmStatus ?? null,
   todayConfirmId: overrides.todayConfirmId ?? null,
   canRequestToday: overrides.canRequestToday ?? true,

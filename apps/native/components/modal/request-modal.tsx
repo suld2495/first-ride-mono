@@ -1,7 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { Validators } from '@repo/shared/components';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
-import { requestFormValidators } from '@repo/shared/service/validatorMessage';
+import { createRequestFormValidators } from '@repo/shared/service/validatorMessage';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { Image, Pressable, ScrollView } from 'react-native';
@@ -18,6 +17,7 @@ import { usePendingRoutineShareImages } from '@/hooks/usePendingRoutineShareImag
 import {
   MAX_REQUEST_IMAGE_COUNT,
   type RequestForm,
+  type RequestImage,
   useRequestSubmission,
 } from '@/hooks/useRequestSubmission';
 import { useRoutineId } from '@/hooks/useRoutineSelection';
@@ -25,8 +25,6 @@ import { baseFoundation, palette } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RequestForm>();
-const requestImageValidators =
-  requestFormValidators as unknown as Validators<RequestForm>;
 const requestImageSlots = Array.from(
   { length: MAX_REQUEST_IMAGE_COUNT },
   (_, index) => index,
@@ -42,6 +40,11 @@ const RequestModal = () => {
   const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
   const sharedImages = usePendingRoutineShareImages(routineId, shareSessionId);
   const hasMateTarget = detail?.isMe === false && !!detail?.mateNickname;
+  const photoRequired = detail?.photoRequired ?? true;
+  const requestImageValidators = useMemo(
+    () => createRequestFormValidators<RequestImage>(photoRequired),
+    [photoRequired],
+  );
   const initialForm = useMemo<RequestForm>(
     () => ({ images: sharedImages, message: '' }),
     [sharedImages],
@@ -54,6 +57,7 @@ const RequestModal = () => {
             nickname: detail.nickname,
             isMe: detail.isMe,
             paused: detail.paused,
+            photoRequired: detail.photoRequired,
           }
         : undefined,
     );
@@ -76,7 +80,7 @@ const RequestModal = () => {
               !hasMateTarget && styles.routineSummaryFull,
             ]}
             transparent
-            >
+          >
             <ThemeView style={styles.infoGroup} transparent>
               <Typography variant="body2" style={styles.infoLabel}>
                 루틴 이름
@@ -150,6 +154,15 @@ const RequestModal = () => {
                   >
                     인증 사진
                   </Typography>
+                  {!photoRequired && (
+                    <Typography
+                      testID="request-photo-optional-label"
+                      variant="caption2"
+                      style={styles.photoOptionalLabel}
+                    >
+                      선택
+                    </Typography>
+                  )}
                 </ThemeView>
 
                 <ThemeView style={styles.uploadFrame} transparent>
@@ -430,6 +443,10 @@ const styles = StyleSheet.create((theme) => ({
 
   mediaTitle: {
     color: theme.colors.brand.text,
+  },
+
+  photoOptionalLabel: {
+    color: theme.colors.text.muted,
   },
 
   imageCount: {

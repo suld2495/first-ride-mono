@@ -47,6 +47,7 @@ const initialState: State = {
     symbolColor: DEFAULT_ROUTINE_COLOR,
     mateNickname: '',
     isMe: true,
+    photoRequired: false,
   },
   routineDateSelection: null,
   type: 'week',

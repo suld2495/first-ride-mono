@@ -18,6 +18,7 @@ interface UseRoutineFormSubmissionParams {
   routineId: number;
   originalForm?: RoutineStatusSubmitForm;
   initialPendingChangeRequestId?: number | null;
+  canUpdatePhotoRequired?: boolean;
 }
 
 type RoutineStatusSubmitForm = RoutineForm & {
@@ -37,6 +38,7 @@ type EditableRoutineUpdateValues = Pick<
   | 'symbolColor'
   | 'hidden'
   | 'paused'
+  | 'photoRequired'
 >;
 
 const normalizePenalty = (penalty: RoutineForm['penalty'] | string): number => {
@@ -68,7 +70,10 @@ const normalizeRoutineCreateRequest = (
   if (data.isMe) {
     return {
       target: 'me',
-      payload,
+      payload: {
+        ...payload,
+        photoRequired: data.photoRequired,
+      },
     };
   }
 
@@ -84,6 +89,7 @@ const normalizeRoutineCreateRequest = (
 
 const normalizeRoutineUpdateValues = (
   data: RoutineStatusSubmitForm,
+  canUpdatePhotoRequired: boolean,
 ): EditableRoutineUpdateValues => {
   const values: EditableRoutineUpdateValues = {
     routineName: data.routineName,
@@ -103,20 +109,28 @@ const normalizeRoutineUpdateValues = (
     values.hidden = data.hidden;
   }
 
+  if (canUpdatePhotoRequired) {
+    values.photoRequired = data.photoRequired;
+  }
+
   return values;
 };
 
 const buildChangedRoutinePayload = (
   data: RoutineStatusSubmitForm,
   originalForm?: RoutineStatusSubmitForm,
+  canUpdatePhotoRequired = false,
 ): UpdateRoutinePayload => {
-  const values = normalizeRoutineUpdateValues(data);
+  const values = normalizeRoutineUpdateValues(data, canUpdatePhotoRequired);
 
   if (!originalForm) {
     return values;
   }
 
-  const originalValues = normalizeRoutineUpdateValues(originalForm);
+  const originalValues = normalizeRoutineUpdateValues(
+    originalForm,
+    canUpdatePhotoRequired,
+  );
 
   return {
     ...(values.routineName !== originalValues.routineName
@@ -146,6 +160,9 @@ const buildChangedRoutinePayload = (
     ...(values.paused !== originalValues.paused
       ? { paused: values.paused }
       : {}),
+    ...(values.photoRequired !== originalValues.photoRequired
+      ? { photoRequired: values.photoRequired }
+      : {}),
   };
 };
 
@@ -154,6 +171,7 @@ export const useRoutineFormSubmission = ({
   routineId,
   originalForm,
   initialPendingChangeRequestId = null,
+  canUpdatePhotoRequired = false,
 }: UseRoutineFormSubmissionParams) => {
   const router = useRouter();
   const toast = useToast();
@@ -187,7 +205,11 @@ export const useRoutineFormSubmission = ({
     (data: RoutineStatusSubmitForm) => {
       updateMutation.mutate(
         {
-          ...buildChangedRoutinePayload(data, originalForm),
+          ...buildChangedRoutinePayload(
+            data,
+            originalForm,
+            canUpdatePhotoRequired,
+          ),
           routineId,
         },
         {
@@ -214,7 +236,14 @@ export const useRoutineFormSubmission = ({
         },
       );
     },
-    [originalForm, routineId, router, toast, updateMutation],
+    [
+      canUpdatePhotoRequired,
+      originalForm,
+      routineId,
+      router,
+      toast,
+      updateMutation,
+    ],
   );
 
   const handleCancelChangeRequest = useCallback(() => {

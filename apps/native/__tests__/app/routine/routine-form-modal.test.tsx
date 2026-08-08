@@ -43,6 +43,10 @@ declare const mockRoutineStore: {
 };
 declare const mockShowToast: jest.Mock;
 
+interface TestInstance {
+  props: Record<string, unknown>;
+}
+
 // BouncyCheckbox mock - global 변수 사용
 (global as any).mockCheckboxChecked = false;
 
@@ -392,13 +396,26 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     it('셀프 루틴에서는 비공개 루틴 바로 위에 사진 인증 필수 항목을 표시한다', () => {
       const { getByTestId, getByText } = render(<RoutineFormModal />);
       const statusOptions = getByTestId('routine-status-options');
-      const photoOption = getByTestId('photo-required-status-option');
-      const hiddenOption = getByTestId('hidden-routine-status-option');
+      getByTestId('photo-required-status-option');
+      getByTestId('hidden-routine-status-option');
+      const optionTestIds = statusOptions
+        .findAll((node: TestInstance) =>
+          [
+            'photo-required-status-option',
+            'hidden-routine-status-option',
+          ].includes(String(node.props.testID)),
+        )
+        .map((node: TestInstance) => String(node.props.testID))
+        .filter(
+          (testID: string, index: number, testIDs: string[]) =>
+            testID !== testIDs[index - 1],
+        );
 
       expect(getByText('사진 인증 필수')).toBeOnTheScreen();
-      expect(statusOptions.children.indexOf(photoOption)).toBeLessThan(
-        statusOptions.children.indexOf(hiddenOption),
-      );
+      expect(optionTestIds).toEqual([
+        'photo-required-status-option',
+        'hidden-routine-status-option',
+      ]);
     });
 
     it('메이트에게 루틴 인증 요청을 선택하면 사진 인증 필수 항목을 숨긴다', async () => {
@@ -2100,7 +2117,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       ).toBeOnTheScreen();
       expect(pausedLabel).toHaveStyle({ color: palette.theme.gray[90] });
       expect(hiddenLabel).toHaveStyle({ color: palette.theme.gray[90] });
-      expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(3);
+      expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(4);
       expect(statusSectionStyle).toEqual(
         expect.objectContaining({
           gap: 40,
@@ -2125,7 +2142,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       });
       const { findAllByTestId } = render(<RoutineFormModal />);
 
-      const [, pausedCheckbox, hiddenCheckbox] =
+      const [, pausedCheckbox, , hiddenCheckbox] =
         await findAllByTestId('bouncy-checkbox');
 
       expect(pausedCheckbox.props.isChecked).toBe(true);
@@ -2153,7 +2170,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         fireEvent.press(await findByText('비공개 루틴'));
       });
 
-      const [, , hiddenCheckbox] = await findAllByTestId('bouncy-checkbox');
+      const [, , , hiddenCheckbox] = await findAllByTestId('bouncy-checkbox');
 
       expect(hiddenCheckbox.props.isChecked).toBe(true);
     });

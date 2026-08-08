@@ -101,6 +101,70 @@ type RoutineStatusForm = RoutineForm & {
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RoutineStatusForm>();
 
+interface RoutinePhotoRequiredOptionProps {
+  canShow: boolean;
+}
+
+const RoutinePhotoRequiredOption = ({
+  canShow,
+}: RoutinePhotoRequiredOptionProps) => {
+  const { form } = useForm();
+  const { theme } = useAppTheme();
+
+  if (!canShow || !form.isMe) {
+    return null;
+  }
+
+  return (
+    <ThemeView
+      testID="photo-required-status-option"
+      style={styles.statusOption}
+      transparent
+    >
+      <FormItem
+        name="photoRequired"
+        showErrors={false}
+        item={({ value, setValue }) => (
+          <ThemeView style={styles.hiddenStatusControl} transparent>
+            <ThemeView
+              testID="photo-required-label-row"
+              style={styles.hiddenRoutineLabelRow}
+              transparent
+            >
+              <Checkbox
+                size="md"
+                disableText
+                isChecked={Boolean(value)}
+                onPress={(checked) => {
+                  setValue('photoRequired', checked);
+                }}
+              />
+              <Pressable
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: Boolean(value) }}
+                hitSlop={theme.foundation.spacing[1]}
+                onPress={() => {
+                  setValue('photoRequired', !value);
+                }}
+              >
+                <Typography
+                  testID="photo-required-label"
+                  variant="body2"
+                  weight="semibold"
+                  color={theme.colors.text.gray}
+                  style={styles.hiddenRoutineLabel}
+                >
+                  사진 인증 필수
+                </Typography>
+              </Pressable>
+            </ThemeView>
+          </ThemeView>
+        )}
+      />
+    </ThemeView>
+  );
+};
+
 interface RoutineDateFormItemProps {
   isRoutineAdd: boolean;
   today: string;
@@ -224,6 +288,7 @@ const RoutineFormModal = () => {
   const sourceRoutineForm = !isRoutineAdd
     ? (routineDetail ?? routineForm)
     : routineForm;
+  const sourceHasMate = Boolean(sourceRoutineForm.mateNickname);
   const isDirectRoutine =
     sourceRoutineForm.isMe ||
     (!!sourceRoutineForm.mateNickname &&
@@ -262,6 +327,7 @@ const RoutineFormModal = () => {
     nickname: user!.nickname,
     routineId,
     originalForm: isRoutineAdd ? undefined : normalizedRoutineForm,
+    canUpdatePhotoRequired: !sourceHasMate,
     initialPendingChangeRequestId:
       routineDetail?.hasPendingChangeRequest === true
         ? routineDetail.pendingChangeRequestId
@@ -592,7 +658,14 @@ const RoutineFormModal = () => {
                 />
               </ThemeView>
             )}
-            <ThemeView style={styles.statusOption} transparent>
+            <RoutinePhotoRequiredOption
+              canShow={isRoutineAdd || !sourceHasMate}
+            />
+            <ThemeView
+              testID="hidden-routine-status-option"
+              style={styles.statusOption}
+              transparent
+            >
               <FormItem
                 name="hidden"
                 showErrors={false}

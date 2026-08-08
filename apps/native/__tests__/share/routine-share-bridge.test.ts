@@ -46,6 +46,7 @@ const createRoutine = (id: number): Routine => ({
   todayConfirmStatus: null,
   todayConfirmId: null,
   canRequestToday: true,
+  photoRequired: true,
 });
 
 describe('routine share native bridge', () => {

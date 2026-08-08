@@ -28,6 +28,7 @@ const createRoutine = (achievedCount: number): RoutineMonthlySummary => ({
     (_, index) => `2026-07-${String(index + 1).padStart(2, '0')}`,
   ),
   monthlyAchievedCount: achievedCount,
+  photoRequired: false,
 });
 
 const flattenStyles = (styles: unknown): object[] => {

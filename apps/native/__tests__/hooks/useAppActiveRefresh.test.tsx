@@ -34,6 +34,7 @@ const routine = {
   todayConfirmStatus: null,
   todayConfirmId: null,
   canRequestToday: true,
+  photoRequired: false,
 };
 
 const createTestQueryClient = () =>

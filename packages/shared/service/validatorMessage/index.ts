@@ -44,10 +44,12 @@ export const routineFormValidators: Validators<InternalFormType> = {
   },
 };
 
-export const requestFormValidators: Validators<{ images: string[] }> = {
+export const createRequestFormValidators = <TImage>(
+  photoRequired: boolean,
+): Validators<{ images: TImage[] }> => ({
   images: (value) => {
-    if (!value.length) {
+    if (photoRequired && !value.length) {
       return '이미지를 추가해주세요.';
     }
   },
-};
+});

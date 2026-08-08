@@ -62,6 +62,7 @@ export interface FriendRoutineItem {
   displayOrder: number;
   paused: boolean;
   hidden: boolean;
+  photoRequired: Routine['photoRequired'];
 }
 
 export interface FriendRoutinesResponse {
