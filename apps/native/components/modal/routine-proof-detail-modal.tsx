@@ -427,9 +427,9 @@ const styles = StyleSheet.create((theme) => ({
   },
   chatRowMine: { justifyContent: 'flex-end' },
   chatAvatar: {
-    width: baseFoundation.dimension.x28,
-    height: baseFoundation.dimension.x28,
-    borderRadius: baseFoundation.dimension.x14,
+    width: baseFoundation.dimension.x36,
+    height: baseFoundation.dimension.x36,
+    borderRadius: baseFoundation.dimension.x18,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.brand.card,
@@ -441,7 +441,7 @@ const styles = StyleSheet.create((theme) => ({
   chatAvatarText: { color: theme.colors.text.secondary },
   chatAvatarNickname: {
     maxWidth: baseFoundation.dimension.x52,
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.primary,
     textAlign: 'center',
   },
   chatAvatarImage: { width: '115%', height: '115%' },
