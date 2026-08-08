@@ -88,20 +88,49 @@ describe('badge helpers', () => {
     expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(5);
   });
 
-  it('알림 payload에 badge가 없으면 현재 badge에서 1 증가시킨다', async () => {
-    mockNotifications.getBadgeCountAsync.mockResolvedValue(2);
+  it('알림 payload의 badge가 0이면 badge를 0으로 동기화한다', async () => {
     mockNotifications.setBadgeCountAsync.mockResolvedValue(true);
 
+    const notification = {
+      request: {
+        content: {
+          badge: 0,
+        },
+      },
+    } as Notifications.Notification;
+
+    await expect(syncBadgeCountFromNotification(notification)).resolves.toBe(0);
+
+    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(0);
+  });
+
+  it('알림 payload에 badge가 없으면 현재 badge를 변경하지 않는다', async () => {
     const notification = {
       request: {
         content: {},
       },
     } as Notifications.Notification;
 
-    await expect(syncBadgeCountFromNotification(notification)).resolves.toBe(3);
+    await syncBadgeCountFromNotification(notification);
 
-    expect(mockNotifications.getBadgeCountAsync).toHaveBeenCalledTimes(1);
-    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(3);
+    expect(mockNotifications.getBadgeCountAsync).not.toHaveBeenCalled();
+    expect(mockNotifications.setBadgeCountAsync).not.toHaveBeenCalled();
+  });
+
+  it('payload badge 적용에 실패하면 0을 반환한다', async () => {
+    mockNotifications.setBadgeCountAsync.mockResolvedValue(false);
+
+    const notification = {
+      request: {
+        content: {
+          badge: 4,
+        },
+      },
+    } as Notifications.Notification;
+
+    await expect(syncBadgeCountFromNotification(notification)).resolves.toBe(0);
+
+    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(4);
   });
 
   it('clearBadgeCount는 0으로 초기화한다', async () => {

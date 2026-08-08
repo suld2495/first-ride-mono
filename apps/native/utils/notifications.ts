@@ -385,21 +385,20 @@ export async function syncBadgeCountWithReceivedRequests(): Promise<number> {
 /**
  * 알림 수신 시 앱 아이콘 배지를 동기화한다.
  *
- * payload에 badge가 있으면 그 값을 우선 사용하고,
- * 없으면 현재 배지 값에서 1 증가시킨다.
+ * payload에 전달된 badge 절대값만 사용한다.
  */
 export async function syncBadgeCountFromNotification(
   notification: Notifications.Notification,
 ): Promise<number> {
   const badgeFromPayload = notification.request.content.badge;
-  const nextCount =
-    typeof badgeFromPayload === 'number'
-      ? badgeFromPayload
-      : (await getBadgeCount()) + 1;
 
-  const didSetBadge = await setBadgeCount(nextCount);
+  if (typeof badgeFromPayload !== 'number') {
+    return 0;
+  }
 
-  return didSetBadge ? nextCount : 0;
+  const didSetBadge = await setBadgeCount(badgeFromPayload);
+
+  return didSetBadge ? badgeFromPayload : 0;
 }
 
 /**
