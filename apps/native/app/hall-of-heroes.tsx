@@ -1,8 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import type { ComponentType } from 'react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
-import type { ImageSourcePropType } from 'react-native';
+import type {
+  ImageSourcePropType,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+} from 'react-native';
 import Animated, {
   useAnimatedStyle,
   withTiming,
@@ -96,12 +100,28 @@ const AnimatedSafeAreaView = Animated.createAnimatedComponent(SafeAreaView);
 const getNextHeroIndex = (index: number, direction: -1 | 1) =>
   (index + direction + HEROES.length) % HEROES.length;
 
+const getHeroIndexFromScroll = (
+  event: NativeSyntheticEvent<NativeScrollEvent>,
+) => {
+  const { contentOffset, layoutMeasurement } = event.nativeEvent;
+
+  if (layoutMeasurement.width <= 0) {
+    return 0;
+  }
+
+  return Math.min(
+    HEROES.length - 1,
+    Math.max(0, Math.round(contentOffset.x / layoutMeasurement.width)),
+  );
+};
+
 export default function HallOfHeroesPage() {
   const { theme } = useAppTheme();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [carouselWidth, setCarouselWidth] = useState(0);
+  const carouselRef = useRef<ScrollView | null>(null);
   const selectedHero = HEROES[selectedIndex];
   const colors = HERO_TONES[selectedHero.tone];
-  const SelectedCharacter = selectedHero.Character;
   const pageBackgroundStyle = useAnimatedStyle(
     () => ({
       backgroundColor: withTiming(colors.page, BACKGROUND_TRANSITION_CONFIG),
@@ -115,10 +135,25 @@ export default function HallOfHeroesPage() {
     [colors.card],
   );
 
+  const selectHero = (index: number) => {
+    setSelectedIndex(index);
+
+    if (carouselWidth > 0) {
+      carouselRef.current?.scrollTo({
+        animated: true,
+        x: index * carouselWidth,
+      });
+    }
+  };
+
   const selectRelativeHero = (direction: -1 | 1) => {
-    setSelectedIndex((currentIndex) =>
-      getNextHeroIndex(currentIndex, direction),
-    );
+    selectHero(getNextHeroIndex(selectedIndex, direction));
+  };
+
+  const handleCarouselMomentumScrollEnd = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+  ) => {
+    setSelectedIndex(getHeroIndexFromScroll(event));
   };
 
   return (
@@ -138,44 +173,86 @@ export default function HallOfHeroesPage() {
           testID="hall-of-heroes-scroll-view"
         >
           <View style={styles.heroStage}>
-            <Animated.View
-              testID="hall-of-heroes-card"
-              style={[styles.heroCard, cardBackgroundStyle]}
+            <ScrollView
+              ref={carouselRef}
+              directionalLockEnabled
+              horizontal
+              nestedScrollEnabled
+              onLayout={(event) =>
+                setCarouselWidth(event.nativeEvent.layout.width)
+              }
+              onMomentumScrollEnd={handleCarouselMomentumScrollEnd}
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              style={styles.heroCarousel}
+              testID="hall-of-heroes-carousel"
             >
-              <View style={styles.characterArea}>
-                {selectedHero.imageSource ? (
-                  <Image
-                    accessibilityIgnoresInvertColors
-                    resizeMode="contain"
-                    source={selectedHero.imageSource}
-                    style={styles.characterImage}
-                    testID="hall-of-heroes-character"
-                  />
-                ) : (
-                  <SelectedCharacter
-                    height={baseFoundation.dimension.x140}
-                    testID="hall-of-heroes-character"
-                    width={baseFoundation.dimension.x140}
-                  />
-                )}
-              </View>
+              {HEROES.map((hero) => {
+                const HeroCharacter = hero.Character;
+                const isSelected = hero.id === selectedHero.id;
 
-              <Typography
-                color={theme.colors.text.gray}
-                variant="h3"
-                weight="semibold"
-                style={styles.className}
-              >
-                {selectedHero.className}
-              </Typography>
-              <Typography
-                color={palette.theme.gray[15]}
-                variant="body1"
-                style={styles.description}
-              >
-                {selectedHero.description}
-              </Typography>
-            </Animated.View>
+                return (
+                  <View
+                    key={hero.id}
+                    style={[
+                      styles.heroPage,
+                      { width: carouselWidth || '100%' },
+                    ]}
+                  >
+                    <Animated.View
+                      testID={
+                        isSelected
+                          ? 'hall-of-heroes-card'
+                          : `hall-of-heroes-card-${hero.id}`
+                      }
+                      style={[styles.heroCard, cardBackgroundStyle]}
+                    >
+                      <View style={styles.characterArea}>
+                        {hero.imageSource ? (
+                          <Image
+                            accessibilityIgnoresInvertColors
+                            resizeMode="contain"
+                            source={hero.imageSource}
+                            style={styles.characterImage}
+                            testID={
+                              isSelected
+                                ? 'hall-of-heroes-character'
+                                : `hall-of-heroes-character-${hero.id}`
+                            }
+                          />
+                        ) : (
+                          <HeroCharacter
+                            height={baseFoundation.dimension.x140}
+                            testID={
+                              isSelected
+                                ? 'hall-of-heroes-character'
+                                : `hall-of-heroes-character-${hero.id}`
+                            }
+                            width={baseFoundation.dimension.x140}
+                          />
+                        )}
+                      </View>
+
+                      <Typography
+                        color={theme.colors.text.gray}
+                        variant="h3"
+                        weight="semibold"
+                        style={styles.className}
+                      >
+                        {hero.className}
+                      </Typography>
+                      <Typography
+                        color={palette.theme.gray[15]}
+                        variant="body1"
+                        style={styles.description}
+                      >
+                        {hero.description}
+                      </Typography>
+                    </Animated.View>
+                  </View>
+                );
+              })}
+            </ScrollView>
 
             <Pressable
               accessibilityLabel="이전 영웅"
@@ -222,7 +299,7 @@ export default function HallOfHeroesPage() {
                   accessibilityRole="tab"
                   accessibilityState={{ selected: isSelected }}
                   hitSlop={8}
-                  onPress={() => setSelectedIndex(index)}
+                  onPress={() => selectHero(index)}
                   testID={`hall-of-heroes-dot-${index}`}
                   style={[
                     styles.paginationDot,
@@ -300,6 +377,13 @@ const styles = StyleSheet.create((theme) => ({
   heroStage: {
     position: 'relative',
     width: '100%',
+    alignItems: 'center',
+  },
+  heroCarousel: {
+    width: '100%',
+    maxWidth: 430,
+  },
+  heroPage: {
     alignItems: 'center',
   },
   heroCard: {
