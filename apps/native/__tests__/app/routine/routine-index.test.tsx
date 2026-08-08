@@ -776,6 +776,51 @@ describe('루틴 조회 페이지', () => {
         ).toHaveLength(1);
       });
 
+      it.each([
+        ['WARRIOR', 0, '#A3D4FF'],
+        ['WARRIOR', 1, '#81BDF3'],
+        ['WARRIOR', 2, '#CDE8FF'],
+        ['ARCHER', 0, '#AFEACB'],
+        ['ARCHER', 1, '#9FDA88'],
+        ['ARCHER', 2, '#C9F7B7'],
+        ['MAGE', 0, '#EFB9E2'],
+        ['MAGE', 1, '#EF91D9'],
+        ['MAGE', 2, '#F6D8F2'],
+      ])(
+        'me API의 %s evolutionCount=%s에 맞는 배경 컬러를 표시한다',
+        async (jobType, evolutionCount, expectedBackgroundColor) => {
+          mockAxios.resetHandlers();
+          mockAxios.onGet(/\/routine\/list/).reply(200, {
+            data: createMockRoutines(2),
+          });
+          mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, {
+            data: [],
+          });
+          mockAxios.onGet('/users/me').reply(200, {
+            data: {
+              ...mockUser,
+              characterCode: `${jobType}_FEMALE_INTERMEDIATE`,
+              evolutionCount,
+              job: jobType,
+              jobType,
+            },
+          });
+
+          const { findByTestId } = render(<Index />);
+          const routineContent = await findByTestId('routine-content');
+
+          expect(
+            findAncestorStyleWith(routineContent, 'backgroundColor'),
+          ).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                backgroundColor: expectedBackgroundColor,
+              }),
+            ]),
+          );
+        },
+      );
+
       it('마법사 유저는 서버 배경 URL 대신 핑크 테마 배경을 사용한다', async () => {
         mockAxios.resetHandlers();
         mockAxios
