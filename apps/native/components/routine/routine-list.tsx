@@ -4,15 +4,16 @@ import {
   useUpdateRoutinePauseMutation,
   useUpdateRoutineVisibilityMutation,
 } from '@repo/shared/hooks/useRoutine';
-import { getWeekMonday } from '@repo/shared/utils';
+import { afterWeek, beforeWeek, getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Alert,
   Image,
   LayoutAnimation,
+  PanResponder,
   Platform,
   Pressable,
   RefreshControl,
@@ -47,6 +48,7 @@ interface RoutineListProps {
   listAreaHeight?: number;
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
+  onDateChange?: (date: string) => void;
   readOnly?: boolean;
   routineColorFallback?: string;
 }
@@ -60,6 +62,7 @@ const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing[2];
 const ROUTINE_SCROLL_INDICATOR_BOTTOM_SPACING = baseFoundation.spacing[2];
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
+const ROUTINE_DATE_SWIPE_TRIGGER_DISTANCE = 48;
 
 interface RoutineCheckPressMeta {
   confirmId?: number | null;
@@ -79,6 +82,7 @@ const RoutineList = ({
   listAreaHeight,
   refreshing = false,
   onRefresh,
+  onDateChange,
   readOnly = false,
   routineColorFallback,
 }: RoutineListProps) => {
@@ -104,6 +108,56 @@ const RoutineList = ({
   const updateVisibility = useUpdateRoutineVisibilityMutation();
   const deleteRoutine = useDeleteRoutineMutation(nickname);
   const showsRequestMenuItem = date === getWeekMonday(new Date());
+
+  const handleRoutineDateSwipe = useCallback(
+    (direction: -1 | 1) => {
+      if (!onDateChange) {
+        return;
+      }
+
+      const targetDate =
+        direction === -1
+          ? beforeWeek(new Date(date))
+          : afterWeek(new Date(date));
+
+      onDateChange(targetDate);
+    },
+    [date, onDateChange],
+  );
+
+  const routineDateSwipeResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponderCapture: (_, gestureState) => {
+          if (!onDateChange || openMenuRoutineId !== null) {
+            return false;
+          }
+
+          const horizontalDistance = Math.abs(gestureState.dx);
+          const verticalDistance = Math.abs(gestureState.dy);
+
+          return (
+            horizontalDistance >= ROUTINE_DATE_SWIPE_TRIGGER_DISTANCE &&
+            horizontalDistance > verticalDistance
+          );
+        },
+        onPanResponderRelease: (_, gestureState) => {
+          const horizontalDistance = Math.abs(gestureState.dx);
+          const verticalDistance = Math.abs(gestureState.dy);
+
+          if (
+            !onDateChange ||
+            horizontalDistance < ROUTINE_DATE_SWIPE_TRIGGER_DISTANCE ||
+            horizontalDistance <= verticalDistance
+          ) {
+            return;
+          }
+
+          handleRoutineDateSwipe(gestureState.dx < 0 ? 1 : -1);
+        },
+      }),
+    [handleRoutineDateSwipe, onDateChange, openMenuRoutineId],
+  );
 
   const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
   const hasPreviewLayer = canExpandList;
@@ -335,7 +389,11 @@ const RoutineList = ({
   }, []);
 
   return (
-    <ThemeView style={styles.container} testID="routine-list-container">
+    <ThemeView
+      {...routineDateSwipeResponder.panHandlers}
+      style={styles.container}
+      testID="routine-list-container"
+    >
       {routines.length ? (
         <ThemeView
           style={[

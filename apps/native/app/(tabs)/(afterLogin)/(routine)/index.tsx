@@ -198,6 +198,13 @@ export default function Index() {
     }
   }, [refetch]);
 
+  const handleRoutineDateChange = useCallback(
+    (targetDate: string) => {
+      replaceRoutineRoute(`/(tabs)/(afterLogin)/(routine)?date=${targetDate}`);
+    },
+    [replaceRoutineRoute],
+  );
+
   useEffect(() => {
     if (!user) {
       return;
@@ -293,6 +300,7 @@ export default function Index() {
       <View style={styles.contentWrapper}>
         <RoutineHeader
           date={date}
+          onDateChange={handleRoutineDateChange}
           onPressReorder={
             hasRoutines ? handleOpenRoutineReorderModal : undefined
           }
@@ -312,6 +320,7 @@ export default function Index() {
                 <RoutineList
                   routines={routines}
                   date={date}
+                  onDateChange={handleRoutineDateChange}
                   listAreaHeight={routineListAreaHeight || undefined}
                   refreshing={isManualRefreshing}
                   onRefresh={handleRefresh}
@@ -325,6 +334,7 @@ export default function Index() {
                 <RoutineList
                   routines={routines}
                   date={date}
+                  onDateChange={handleRoutineDateChange}
                   refreshing={isManualRefreshing}
                   onRefresh={handleRefresh}
                 />
