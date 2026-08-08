@@ -57,6 +57,7 @@ const ROUTINE_CONTEXT_MENU_TOP_OFFSET = 15;
 const ROUTINE_CONTEXT_MENU_BACKDROP_OVERFLOW = 1000;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = baseFoundation.spacing[2];
+const ROUTINE_SCROLL_INDICATOR_BOTTOM_SPACING = baseFoundation.spacing[2];
 const ROUTINE_LIST_ANIMATION_DURATION = 220;
 
 if (
@@ -118,7 +119,8 @@ const RoutineList = ({
           listAreaHeight -
             (canExpandList
               ? ROUTINE_SCROLL_INDICATOR_HEIGHT +
-                ROUTINE_SCROLL_INDICATOR_TOP_SPACING
+                ROUTINE_SCROLL_INDICATOR_TOP_SPACING +
+                ROUTINE_SCROLL_INDICATOR_BOTTOM_SPACING
               : 0),
           0,
         )
