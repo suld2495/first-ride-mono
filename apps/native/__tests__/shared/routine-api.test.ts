@@ -1,6 +1,9 @@
 import axiosInstance from '@repo/shared/api';
 import { fetchFriendRoutines } from '@repo/shared/api/friend';
-import { fetchRoutines } from '@repo/shared/api/routine.api';
+import {
+  fetchMonthlyRoutines,
+  fetchRoutines,
+} from '@repo/shared/api/routine.api';
 import MockAdapter from 'axios-mock-adapter';
 
 let mockAxios: MockAdapter;
@@ -56,6 +59,63 @@ describe('routine api', () => {
         routines: [
           expect.objectContaining({
             pendingConfirmations: [pendingConfirmation],
+          }),
+        ],
+      }),
+    );
+  });
+
+  it('친구 루틴 목록의 photoRequired를 루틴에 매핑한다', async () => {
+    mockAxios.onGet('/friends/42/routines?date=2026-08-02').reply(200, {
+      data: {
+        friend: { nickname: '친구' },
+        routines: [
+          {
+            routineId: 1,
+            routineName: '친구 루틴',
+            photoRequired: true,
+          },
+        ],
+      },
+    });
+
+    await expect(fetchFriendRoutines(42, '2026-08-02')).resolves.toEqual(
+      expect.objectContaining({
+        routines: [
+          expect.objectContaining({
+            photoRequired: true,
+          }),
+        ],
+      }),
+    );
+  });
+
+  it('월간 루틴 목록의 photoRequired를 정규화한다', async () => {
+    mockAxios
+      .onGet('/routine/list/monthly', {
+        params: { year: 2026, month: 8 },
+      })
+      .reply(200, {
+        data: {
+          year: 2026,
+          month: 8,
+          routines: [
+            {
+              routineId: 1,
+              routineName: '월간 루틴',
+              photoRequired: true,
+            },
+          ],
+        },
+      });
+
+    await expect(
+      fetchMonthlyRoutines({ year: 2026, month: 8 }),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        routines: [
+          expect.objectContaining({
+            photoRequired: true,
           }),
         ],
       }),
