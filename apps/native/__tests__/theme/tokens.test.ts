@@ -219,6 +219,10 @@ describe('theme/tokens', () => {
           activeBottomTab: '#111',
           routineBorder: '#222',
           routineBackground: '#111',
+          routineEvolutionBackground: {
+            stage1: '#0af',
+            stage2: '#0af',
+          },
           routineMissedCheckbox: '#333',
           routineUpcomingCheckboxBorder: '#444',
           routineProgressText: '#555',

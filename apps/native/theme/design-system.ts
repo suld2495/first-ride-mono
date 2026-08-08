@@ -73,6 +73,21 @@ export const designSystem = {
         100: '#05261D',
       },
 
+      routineEvolution: {
+        blue: {
+          stage1: '#81BDF3',
+          stage2: '#CDE8FF',
+        },
+        green: {
+          stage1: '#9FDA88',
+          stage2: '#C9F7B7',
+        },
+        red: {
+          stage1: '#EF91D9',
+          stage2: '#F6D8F2',
+        },
+      },
+
       gray: {
         5: '#EDEEF0',
         8: '#DBDEE2',

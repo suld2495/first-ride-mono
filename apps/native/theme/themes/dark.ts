@@ -142,6 +142,10 @@ export const darkTheme: ThemeContract = {
       activeBottomTab: '#2f3640',
       routineBorder: palette.theme.blue[80],
       routineBackground: '#2f3640',
+      routineEvolutionBackground: {
+        stage1: palette.retro.primary,
+        stage2: palette.retro.primary,
+      },
       routineMissedCheckbox: palette.theme.blue[90],
       routineUpcomingCheckboxBorder: palette.theme.softBlue[60],
       routineProgressText: palette.theme.softBlue[80],

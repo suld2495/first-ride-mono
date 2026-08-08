@@ -136,6 +136,10 @@ export type ThemeContract = {
       activeBottomTab: string;
       routineBorder: string;
       routineBackground: string;
+      routineEvolutionBackground: {
+        stage1: string;
+        stage2: string;
+      };
       routineMissedCheckbox: string;
       routineUpcomingCheckboxBorder: string;
       routineProgressText: string;
@@ -283,6 +287,10 @@ export const baseTheme: ThemeContract = {
       activeBottomTab: '#2f3640',
       routineBorder: palette.theme.blue[80],
       routineBackground: '#2f3640',
+      routineEvolutionBackground: {
+        stage1: palette.retro.primary,
+        stage2: palette.retro.primary,
+      },
       routineMissedCheckbox: palette.theme.blue[90],
       routineUpcomingCheckboxBorder: palette.theme.softBlue[60],
       routineProgressText: palette.theme.softBlue[60],

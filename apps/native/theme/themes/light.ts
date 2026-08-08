@@ -142,6 +142,10 @@ export const lightTheme: ThemeContract = {
       activeBottomTab: '#FFFFFF',
       routineBorder: palette.theme.blue[80],
       routineBackground: '#FFFFFF',
+      routineEvolutionBackground: {
+        stage1: palette.retro.primary,
+        stage2: palette.retro.primary,
+      },
       routineMissedCheckbox: palette.theme.blue[90],
       routineUpcomingCheckboxBorder: palette.theme.softBlue[60],
       routineProgressText: palette.theme.softBlue[80],

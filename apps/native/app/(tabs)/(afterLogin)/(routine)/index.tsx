@@ -41,6 +41,7 @@ import {
 } from '@/share/routine-share';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { baseFoundation } from '@/theme/tokens';
+import { appThemes, type ThemeName } from '@/theme/themes';
 import {
   createRoutineWidgetSnapshot,
   createSignedOutRoutineWidgetSnapshot,
@@ -55,6 +56,23 @@ const WEEKLY_ROLLOVER_HOUR = 12;
 const WEEKLY_ROLLOVER_MINUTE = 0;
 const WEEKLY_ROLLOVER_SECOND = 0;
 const EMPTY_UPDATE_NOTICES: readonly UpdateNotice[] = [];
+
+const getRoutineBackgroundColor = (
+  themeName: ThemeName,
+  evolutionCount?: number,
+) => {
+  const theme = appThemes[themeName] ?? appThemes.blue;
+
+  if (evolutionCount === 1) {
+    return theme.colors.brand.routineEvolutionBackground.stage1;
+  }
+
+  if (evolutionCount === 2) {
+    return theme.colors.brand.routineEvolutionBackground.stage2;
+  }
+
+  return theme.colors.brand.secondary;
+};
 
 const getNextWeeklyRollover = (now: Date) => {
   const rollover = new Date(now);
@@ -128,6 +146,10 @@ export default function Index() {
   const userThemeName = currentUser
     ? getThemeNameFromUserJob(currentUser)
     : themeName;
+  const routineBackgroundColor = getRoutineBackgroundColor(
+    userThemeName,
+    currentUser?.evolutionCount,
+  );
 
   const {
     data: routines = [],
@@ -254,7 +276,10 @@ export default function Index() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: routineBackgroundColor }]}
+      edges={['top', 'left', 'right']}
+    >
       <StatusBar style="dark" />
       <View style={styles.scene} pointerEvents="none">
         <View style={styles.backgroundArt} testID="routine-background-art">
