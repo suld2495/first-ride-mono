@@ -127,6 +127,7 @@ const findAncestorStyleWith = (
 };
 
 const ROUTINE_SCROLL_INDICATOR_TOP_SPACING = 8;
+const ROUTINE_SCROLL_INDICATOR_BOTTOM_SPACING = 8;
 const ROUTINE_SCROLL_INDICATOR_HEIGHT = 24;
 const ROUTINE_ITEM_HEIGHT = 96;
 const UPCOMING_DAY_TEXT_COLOR = palette.theme.softBlue[80];
@@ -1028,7 +1029,8 @@ describe('루틴 조회 페이지', () => {
         const maxListHeight =
           360 -
           ROUTINE_SCROLL_INDICATOR_HEIGHT -
-          ROUTINE_SCROLL_INDICATOR_TOP_SPACING;
+          ROUTINE_SCROLL_INDICATOR_TOP_SPACING -
+          ROUTINE_SCROLL_INDICATOR_BOTTOM_SPACING;
 
         expect(flattenStyles(routineListViewport.props.style)).toEqual(
           expect.arrayContaining([
