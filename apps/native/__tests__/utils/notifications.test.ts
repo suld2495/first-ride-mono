@@ -1,5 +1,5 @@
-import * as requestApi from '@repo/shared/api/request.api';
-import * as routineApi from '@repo/shared/api/routine.api';
+import * as notificationApi from '@repo/shared/api/notification.api';
+import { QueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
@@ -13,7 +13,7 @@ import {
   getNotificationNavigationIntent,
   setBadgeCount,
   syncBadgeCountFromNotification,
-  syncBadgeCountWithReceivedRequests,
+  syncBadgeCountWithPendingConfirmations,
 } from '../../utils/notifications';
 
 const mockNotifications = jest.mocked(Notifications);
@@ -32,26 +32,23 @@ afterEach(() => {
 });
 
 describe('badge helpers', () => {
-  it('받은 인증 요청과 루틴 수정 요청 개수의 합으로 badge count를 동기화한다', async () => {
+  it('서버의 대기 중 인증 요청 수로 badge count를 동기화한다', async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
     jest
-      .spyOn(requestApi, 'fetchReceivedRequests')
-      .mockResolvedValue([{ id: 1 }, { id: 2 }, { id: 3 }] as Awaited<
-        ReturnType<typeof requestApi.fetchReceivedRequests>
-      >);
-    jest
-      .spyOn(routineApi, 'fetchReceivedRoutineChangeRequests')
-      .mockResolvedValue([{ id: 10 }, { id: 11 }] as Awaited<
-        ReturnType<typeof routineApi.fetchReceivedRoutineChangeRequests>
-      >);
+      .spyOn(notificationApi, 'fetchPendingConfirmationCount')
+      .mockResolvedValue(3);
     mockNotifications.setBadgeCountAsync.mockResolvedValue(true);
 
-    await expect(syncBadgeCountWithReceivedRequests()).resolves.toBe(5);
+    await expect(
+      syncBadgeCountWithPendingConfirmations(queryClient, 'tester'),
+    ).resolves.toBe(3);
 
-    expect(requestApi.fetchReceivedRequests).toHaveBeenCalledTimes(1);
-    expect(routineApi.fetchReceivedRoutineChangeRequests).toHaveBeenCalledTimes(
+    expect(notificationApi.fetchPendingConfirmationCount).toHaveBeenCalledTimes(
       1,
     );
-    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(5);
+    expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(3);
   });
 
   it('android에서도 badge count 설정을 시도한다', async () => {

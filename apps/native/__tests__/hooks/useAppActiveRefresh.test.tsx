@@ -1,3 +1,4 @@
+import * as notificationApi from '@repo/shared/api/notification.api';
 import * as requestApi from '@repo/shared/api/request.api';
 import * as routineApi from '@repo/shared/api/routine.api';
 import * as statApi from '@repo/shared/api/stat.api';
@@ -6,6 +7,7 @@ import { requestKey } from '@repo/shared/types/query-keys/request';
 import { routineKey } from '@repo/shared/types/query-keys/routine';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react-native';
+import * as Notifications from 'expo-notifications';
 import React from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
@@ -58,6 +60,9 @@ describe('useAppActiveRefresh', () => {
 
   beforeEach(() => {
     appStateChangeHandler = undefined;
+    jest
+      .spyOn(notificationApi, 'fetchPendingConfirmationCount')
+      .mockResolvedValue(2);
     jest.spyOn(requestApi, 'fetchReceivedRequests').mockResolvedValue([]);
     jest
       .spyOn(routineApi, 'fetchReceivedRoutineChangeRequests')
@@ -113,7 +118,7 @@ describe('useAppActiveRefresh', () => {
     jest.clearAllMocks();
   });
 
-  it('앱이 다시 active가 되면 인증 요청, 루틴 수정 요청, 루틴 목록을 갱신한다', async () => {
+  it('앱이 다시 active가 되면 배지 카운트, 인증 요청, 루틴 수정 요청, 루틴 목록을 갱신한다', async () => {
     const queryClient = createTestQueryClient();
     const invalidateSpy = jest.spyOn(queryClient, 'invalidateQueries');
 
@@ -125,6 +130,9 @@ describe('useAppActiveRefresh', () => {
     appStateChangeHandler?.('active');
 
     await waitFor(() => {
+      expect(
+        notificationApi.fetchPendingConfirmationCount,
+      ).toHaveBeenCalledTimes(1);
       expect(requestApi.fetchReceivedRequests).toHaveBeenCalledTimes(1);
       expect(
         routineApi.fetchReceivedRoutineChangeRequests,
@@ -139,6 +147,7 @@ describe('useAppActiveRefresh', () => {
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: routineKey.list('tester'),
     });
+    expect(Notifications.setBadgeCountAsync).toHaveBeenCalledWith(2);
   });
 
   it('pathname에 routine이 없어도 앱이 다시 active가 되면 루틴 목록을 갱신한다', async () => {

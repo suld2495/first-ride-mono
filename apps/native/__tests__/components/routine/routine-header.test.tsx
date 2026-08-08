@@ -30,7 +30,7 @@ describe('RoutineHeader', () => {
     });
   });
 
-  it('인증 요청과 루틴 수정 요청을 합한 알림 수를 벨에 표시한다', () => {
+  it('서버의 대기 중 인증 요청 수를 벨에 표시한다', () => {
     const { getByLabelText } = render(<RoutineHeader date="2026-07-19" />);
 
     expect(getByLabelText('인증 요청 알림 3건')).toBeOnTheScreen();

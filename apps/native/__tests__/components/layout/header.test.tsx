@@ -4,7 +4,6 @@ import { baseFoundation } from '@/theme/tokens';
 
 import Header from '../../../components/layout/header';
 import { render, resetAuthMocks } from '../../setup/auth-test-utils';
-import { createMockRequestList } from '../../setup/request/mock';
 
 const mockUseReceivedRequests = jest.fn();
 
@@ -26,6 +25,7 @@ describe('Header 컴포넌트', () => {
       beforeEach(() => {
         mockUseReceivedRequests.mockReturnValue({
           data: [],
+          notificationCount: 0,
         });
       });
 
@@ -43,7 +43,8 @@ describe('Header 컴포넌트', () => {
 
       beforeEach(() => {
         mockUseReceivedRequests.mockReturnValue({
-          data: createMockRequestList(requestCount),
+          data: [],
+          notificationCount: requestCount,
         });
       });
 
@@ -60,7 +61,8 @@ describe('Header 컴포넌트', () => {
     describe('인증 요청이 1건인 경우', () => {
       beforeEach(() => {
         mockUseReceivedRequests.mockReturnValue({
-          data: createMockRequestList(1),
+          data: [],
+          notificationCount: 1,
         });
       });
 
@@ -76,6 +78,7 @@ describe('Header 컴포넌트', () => {
   it('공통 헤더 높이를 사용한다', () => {
     mockUseReceivedRequests.mockReturnValue({
       data: [],
+      notificationCount: 0,
     });
 
     const screen = render(<Header />);
