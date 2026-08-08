@@ -1,11 +1,10 @@
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { DEFAULT_DAILY_ROUTINE_REMINDER_TIMES } from '@repo/shared/api/notification-settings.api';
 import { useState } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -96,9 +95,9 @@ export default function DailyRoutineReminderSettings({
   onChange,
   times,
 }: DailyRoutineReminderSettingsProps) {
+  const { theme } = useAppTheme();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const displayedTimes =
-    times.length > 0 ? times : [...DEFAULT_DAILY_ROUTINE_REMINDER_TIMES];
+  const displayedTimes = times;
   const editingTime =
     editingIndex === null ? undefined : displayedTimes[editingIndex];
 
@@ -160,14 +159,6 @@ export default function DailyRoutineReminderSettings({
         ) : null}
       </View>
 
-      <Typography
-        color="secondary"
-        style={styles.description}
-        variant="caption1"
-      >
-        한국시간 기준 · 08:00~21:59 · 시간 간격은 최소 2시간
-      </Typography>
-
       <View style={styles.timeList}>
         {displayedTimes.map((time, index) => (
           <View key={time} style={styles.timeRow}>
@@ -187,15 +178,12 @@ export default function DailyRoutineReminderSettings({
             <Pressable
               accessibilityLabel={`발송 시간 ${index + 1} 삭제`}
               accessibilityRole="button"
-              disabled={displayedTimes.length <= 1}
               onPress={() => {
-                if (displayedTimes.length > 1) {
-                  onChange(
-                    displayedTimes.filter(
-                      (_time, timeIndex) => timeIndex !== index,
-                    ),
-                  );
-                }
+                onChange(
+                  displayedTimes.filter(
+                    (_time, timeIndex) => timeIndex !== index,
+                  ),
+                );
               }}
               style={styles.removeButton}
               testID={`notification-settings-reminder-remove-${index}`}
@@ -215,6 +203,8 @@ export default function DailyRoutineReminderSettings({
             is24Hour
             mode="time"
             onChange={handlePickerChange}
+            testID="notification-settings-reminder-time-picker"
+            textColor={theme.colors.action.primary.label}
             timeZoneName="Asia/Seoul"
             value={createDateForReminderTime(editingTime)}
           />
@@ -227,7 +217,11 @@ export default function DailyRoutineReminderSettings({
               style={styles.doneButton}
               testID="notification-settings-reminder-time-done"
             >
-              <Typography color="brand" variant="caption1" weight="semibold">
+              <Typography
+                style={styles.actionLabel}
+                variant="caption1"
+                weight="semibold"
+              >
                 선택 완료
               </Typography>
             </Pressable>
@@ -254,9 +248,6 @@ const styles = StyleSheet.create((theme) => ({
   textColumn: {
     flex: 1,
     gap: theme.foundation.spacing[1],
-  },
-  description: {
-    marginTop: theme.foundation.spacing[2],
   },
   actionLabel: {
     color: theme.colors.action.primary.label,

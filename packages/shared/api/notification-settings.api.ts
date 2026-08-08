@@ -20,8 +20,6 @@ export const NOTIFICATION_SUBTYPES = [
 
 export type NotificationSubtype = (typeof NOTIFICATION_SUBTYPES)[number];
 
-export const DEFAULT_DAILY_ROUTINE_REMINDER_TIMES = ['18:00:00'] as const;
-
 export type NotificationSettings = {
   allEnabled: boolean;
   subtypes: Record<NotificationSubtype, boolean>;
@@ -55,9 +53,9 @@ const normalizeNotificationSettings = (
   settings: NotificationSettingsResponse,
 ): NotificationSettings => {
   const responseSubtypeSettings = settings.settings ?? settings.subtypes ?? {};
-  const dailyRoutineReminderTimes = settings.dailyRoutineReminderTimes?.length
-    ? [...settings.dailyRoutineReminderTimes]
-    : [...DEFAULT_DAILY_ROUTINE_REMINDER_TIMES];
+  const dailyRoutineReminderTimes = [
+    ...(settings.dailyRoutineReminderTimes ?? []),
+  ];
   const subtypeSettings = new Map(
     Object.entries(responseSubtypeSettings) as Array<
       [NotificationSubtype, boolean]

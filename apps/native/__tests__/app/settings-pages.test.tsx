@@ -667,7 +667,126 @@ describe('설정 하위 페이지', () => {
     });
   });
 
+  it('알림 설정 페이지는 서버 시간이 없을 때 기본 시간을 표시하지 않고 추가 시 저장한다', async () => {
+    mockAxios.onPatch('/notifications/settings').reply((config) => {
+      expect(JSON.parse(config.data ?? '{}')).toEqual({
+        dailyRoutineReminderTimes: ['08:00:00'],
+      });
+
+      return [
+        200,
+        {
+          data: {
+            allEnabled: true,
+            settings: {
+              DAILY_ROUTINE_REMINDER: true,
+            },
+            dailyRoutineReminderTimes: ['08:00:00'],
+          },
+        },
+      ];
+    });
+
+    const { findByText, getByTestId, queryByTestId, queryByText } = render(
+      <NotificationSettingsPage />,
+    );
+
+    expect(await findByText('하루 0회')).toBeOnTheScreen();
+    expect(queryByTestId('notification-settings-reminder-time-0')).toBeNull();
+    expect(
+      queryByText('한국시간 기준 · 08:00~21:59 · 시간 간격은 최소 2시간'),
+    ).toBeNull();
+
+    fireEvent.press(getByTestId('notification-settings-reminder-add'));
+
+    await waitFor(() => {
+      expect(mockAxios.history.patch).toHaveLength(1);
+    });
+  });
+
+  it('알림 설정 페이지는 마지막 알림 시간도 삭제할 수 있다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/notifications/settings').reply(200, {
+      data: {
+        allEnabled: true,
+        settings: {
+          DAILY_ROUTINE_REMINDER: true,
+        },
+        dailyRoutineReminderTimes: ['08:00:00'],
+      },
+    });
+    mockAxios.onPatch('/notifications/settings').reply((config) => {
+      expect(JSON.parse(config.data ?? '{}')).toEqual({
+        dailyRoutineReminderTimes: [],
+      });
+
+      return [
+        200,
+        {
+          data: {
+            allEnabled: true,
+            settings: {
+              DAILY_ROUTINE_REMINDER: true,
+            },
+            dailyRoutineReminderTimes: [],
+          },
+        },
+      ];
+    });
+
+    const { findByText, getByTestId, queryByTestId } = render(
+      <NotificationSettingsPage />,
+    );
+
+    expect(await findByText('08:00')).toBeOnTheScreen();
+    fireEvent.press(getByTestId('notification-settings-reminder-remove-0'));
+
+    await waitFor(() => {
+      expect(mockAxios.history.patch).toHaveLength(1);
+    });
+    expect(queryByTestId('notification-settings-reminder-time-0')).toBeNull();
+  });
+
+  it('알림 시간 선택기는 흰색 텍스트를 사용한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/notifications/settings').reply(200, {
+      data: {
+        allEnabled: true,
+        settings: {
+          DAILY_ROUTINE_REMINDER: true,
+        },
+        dailyRoutineReminderTimes: ['08:00:00'],
+      },
+    });
+
+    const { findByTestId, getByTestId, getByText } = render(
+      <NotificationSettingsPage />,
+    );
+
+    fireEvent.press(
+      await findByTestId('notification-settings-reminder-time-0'),
+    );
+
+    expect(
+      getByTestId('notification-settings-reminder-time-picker').props.textColor,
+    ).toBe('#FFFFFF');
+    expect(StyleSheet.flatten(getByText('선택 완료').props.style)).toEqual(
+      expect.objectContaining({ color: '#FFFFFF' }),
+    );
+  });
+
   it('알림 시간 추가와 삭제 텍스트는 흰색으로 표시한다', async () => {
+    mockAxios.resetHandlers();
+    mockAxios.onGet('/notifications/settings').reply(200, {
+      data: {
+        allEnabled: true,
+        settings: {
+          DAILY_ROUTINE_REMINDER: true,
+        },
+        dailyRoutineReminderTimes: ['18:00:00'],
+      },
+    });
+
     const { findByText } = render(<NotificationSettingsPage />);
 
     const addText = await findByText('시간 추가');

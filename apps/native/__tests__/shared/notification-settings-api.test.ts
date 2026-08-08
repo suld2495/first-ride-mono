@@ -38,8 +38,8 @@ describe('notification-settings.api', () => {
         FRIEND_REQUEST: true,
         QUEST_COMPLETE: false,
       },
-      dailyRoutineReminderCount: 1,
-      dailyRoutineReminderTimes: ['18:00:00'],
+      dailyRoutineReminderCount: 0,
+      dailyRoutineReminderTimes: [],
     });
   });
 
@@ -78,8 +78,8 @@ describe('notification-settings.api', () => {
         FRIEND_REQUEST: false,
         QUEST_COMPLETE: true,
       },
-      dailyRoutineReminderCount: 1,
-      dailyRoutineReminderTimes: ['18:00:00'],
+      dailyRoutineReminderCount: 0,
+      dailyRoutineReminderTimes: [],
     });
   });
 
@@ -92,6 +92,8 @@ describe('notification-settings.api', () => {
 
     await expect(fetchNotificationSettings()).resolves.toMatchObject({
       allEnabled: true,
+      dailyRoutineReminderCount: 0,
+      dailyRoutineReminderTimes: [],
       subtypes: {
         ROUTINE_CONFIRM_REQUEST: true,
         ROUTINE_CONFIRM_APPROVED: true,
