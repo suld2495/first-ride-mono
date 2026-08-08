@@ -88,9 +88,10 @@ const createRoutineDateKey = (date: Date) => {
 const getConfirmationForDate = (
   routine: Routine,
   dateKey: string,
+  status: 'PASS' | 'WAIT',
 ): number | null => {
   const confirmation = routine.confirmations.find(
-    (item) => item.date === dateKey,
+    (item) => item.date === dateKey && item.status === status,
   );
 
   return confirmation?.confirmId ?? null;
@@ -341,11 +342,20 @@ const RoutineWeekList = ({
                 const dayTextColor = isUpcomingDay
                   ? theme.colors.brand.routineProgressText
                   : CHECKBOX_DAY_TEXT_COLOR;
-                const datedConfirmId = getConfirmationForDate(routine, dateKey);
-                const confirmId =
-                  dateKey === todayDateKey && routine.todayConfirmId
+                const confirmationStatus = check
+                  ? 'PASS'
+                  : isPendingConfirmation
+                    ? 'WAIT'
+                    : null;
+                const datedConfirmId = confirmationStatus
+                  ? getConfirmationForDate(routine, dateKey, confirmationStatus)
+                  : null;
+                const todayConfirmId =
+                  dateKey === todayDateKey &&
+                  routine.todayConfirmStatus === confirmationStatus
                     ? routine.todayConfirmId
-                    : datedConfirmId;
+                    : null;
+                const confirmId = datedConfirmId ?? todayConfirmId;
                 const handlePressCheckBox = canRequestWithCheckBox
                   ? () =>
                       onRequestRoutine(routine, {

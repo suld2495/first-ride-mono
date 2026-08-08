@@ -193,7 +193,12 @@ const RoutineList = ({
         return;
       }
 
-      const confirmId = meta.confirmId ?? routine.todayConfirmId;
+      const todayConfirmId =
+        routine.todayConfirmStatus === 'PASS' ||
+        routine.todayConfirmStatus === 'WAIT'
+          ? routine.todayConfirmId
+          : null;
+      const confirmId = meta.confirmId ?? todayConfirmId;
 
       if (confirmId) {
         handleShowRoutineProofDetailModal(confirmId);

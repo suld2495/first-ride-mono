@@ -1322,14 +1322,21 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('오늘 완료한 회차를 confirmations의 PASS 상태로 구분한다', async () => {
+      it('오늘 완료한 회차에서 DENY를 제외하고 PASS 인증 상세로 이동한다', async () => {
         const today = new Date();
 
         mockAxios.onGet(/\/routine\/list/).reply(200, {
           data: createMockRoutines(1, {
             weeklyCount: weeklyCount + 1,
             routineCount,
+            todayConfirmStatus: 'DENY',
+            todayConfirmId: 999,
             confirmations: [
+              {
+                confirmId: 999,
+                date: formatRoutineApiDate(today),
+                status: 'DENY',
+              },
               {
                 confirmId: 206,
                 date: formatRoutineApiDate(today),
@@ -1354,6 +1361,7 @@ describe('루틴 조회 페이지', () => {
           );
         });
         expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(206);
+        expect(mockRequestStore.setRequestId).not.toHaveBeenCalledWith(999);
       });
 
       it('완료는 symbolColor, 오늘 완료는 white 1px 테두리, 요청 중은 대기 컬러로 표시한다', async () => {
@@ -2080,6 +2088,49 @@ describe('루틴 조회 페이지', () => {
         });
       });
 
+      it('같은 날짜의 DENY를 제외하고 PASS 인증 상세로 이동한다', async () => {
+        const today = new Date();
+        const monday = new Date(getWeekMonday(today));
+        const todayIndex = getRoutineWeekIndex(today);
+        const completedIndex = todayIndex === 0 ? 1 : 0;
+        const completedDate = new Date(monday);
+
+        completedDate.setDate(completedDate.getDate() + completedIndex);
+
+        mockAxios.onGet(/\/routine\/list/).reply(200, {
+          data: createMockRoutines(1, {
+            weeklyCount: 1,
+            routineCount: 5,
+            confirmations: [
+              {
+                confirmId: 999,
+                date: formatRoutineApiDate(completedDate),
+                status: 'DENY',
+              },
+              {
+                confirmId: 206,
+                date: formatRoutineApiDate(completedDate),
+                status: 'PASS',
+              },
+            ],
+          }),
+        });
+
+        const { findByTestId } = render(<Index />);
+
+        fireEvent.press(
+          await findByTestId(`routine-week-check-1-${completedIndex}`),
+        );
+
+        await waitFor(() => {
+          expect(mockPush).toHaveBeenCalledWith(
+            '/modal?type=routine-proof-detail',
+          );
+        });
+        expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(206);
+        expect(mockRequestStore.setRequestId).not.toHaveBeenCalledWith(999);
+      });
+
       it('완료는 symbolColor, 요청 중은 대기 컬러로 표시한다', async () => {
         const today = new Date();
         const monday = new Date(getWeekMonday(today));
@@ -2157,6 +2208,11 @@ describe('루틴 조회 페이지', () => {
               pendingConfirmationCount: 1,
               pendingConfirmationIds: [207],
               confirmations: [
+                {
+                  confirmId: 999,
+                  date: formatRoutineApiDate(pendingDate),
+                  status: 'DENY',
+                },
                 {
                   confirmId: 207,
                   date: formatRoutineApiDate(pendingDate),
@@ -2366,6 +2422,42 @@ describe('루틴 조회 페이지', () => {
         expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
       });
       expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
+    });
+
+    it('DENY 인증 ID는 상세 이동에서 제외한다', async () => {
+      const today = new Date();
+
+      mockRoutineStore.type = 'week';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          todayConfirmStatus: 'DENY',
+          todayConfirmId: 999,
+          canRequestToday: true,
+          confirmations: [
+            {
+              confirmId: 999,
+              date: formatRoutineApiDate(today),
+              status: 'DENY',
+            },
+          ],
+        }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(
+        await findByTestId(
+          `routine-week-check-1-${getRoutineWeekIndex(today)}`,
+        ),
+      );
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
+      });
+      expect(mockRequestStore.setRequestId).not.toHaveBeenCalledWith(999);
+      expect(mockPush).not.toHaveBeenCalledWith(
+        '/modal?type=routine-proof-detail',
+      );
     });
 
     it('오늘 인증이 완료된 number 타입 루틴 체크박스를 누르면 인증 상세로 이동한다', async () => {

@@ -284,8 +284,10 @@ const RoutineCountList = ({
                     ? () =>
                         onRequestRoutine(routine, {
                           confirmId: isTodaySuccess
-                            ? (routine.todayConfirmId ??
-                              todayPassedConfirmation?.confirmId)
+                            ? (todayPassedConfirmation?.confirmId ??
+                              (routine.todayConfirmStatus === 'PASS'
+                                ? routine.todayConfirmId
+                                : null))
                             : isPendingConfirmation
                               ? (routine.pendingConfirmationIds[
                                   countIndex - weeklyCount - 1
