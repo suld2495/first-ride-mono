@@ -40,6 +40,7 @@ export interface FriendProfileResponse {
   characterCode: string;
   characterImageUrl: null | string;
   backgroundImageUrl: null | string;
+  evolutionCount?: number;
 }
 
 export interface FriendRoutineItem {

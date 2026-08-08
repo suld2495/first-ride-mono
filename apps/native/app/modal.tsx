@@ -1,3 +1,4 @@
+import { useFriendProfileQuery } from '@repo/shared/hooks/useFriend';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
@@ -13,6 +14,8 @@ import ThemeView from '@/components/ui/theme-view';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useModal } from '@/hooks/useModal';
 import { useSetRoutineId } from '@/hooks/useRoutineSelection';
+import { getThemeNameFromUserJob } from '@/theme/job-theme';
+import { getRoutineBackgroundColor } from '@/theme/routine-theme';
 import { normalizeModalType, type ModalType } from '@/types/modal';
 
 const MODAL_ANIMATION_DURATION = 250;
@@ -20,13 +23,15 @@ const MODAL_ANIMATION_DURATION = 250;
 export default function Modal() {
   const router = useRouter();
   const user = useAuthUser();
-  const { type, friendNickname, routineId } = useLocalSearchParams<{
+  const { type, friendId, friendNickname, routineId } = useLocalSearchParams<{
     type: ModalType;
+    friendId?: string;
     friendNickname?: string;
     routineId?: string;
   }>();
   const modalType = normalizeModalType(type);
   const safeModalType = modalType ?? 'routine-add';
+  const isFriendRoutinesModal = modalType === 'friend-routines';
   const [title, ModalComponent, modalOptions] = useModal(safeModalType);
   const setRoutineId = useSetRoutineId();
   const { theme } = useAppTheme();
@@ -38,6 +43,15 @@ export default function Modal() {
     modalOptions.contentPadding === false
       ? 0
       : (modalOptions.contentPaddingHorizontal ?? theme.foundation.spacing[6]);
+  const { data: friendProfile } = useFriendProfileQuery(
+    isFriendRoutinesModal ? friendId : undefined,
+  );
+  const fullBleedBackgroundColor = friendProfile
+    ? getRoutineBackgroundColor(
+        getThemeNameFromUserJob(friendProfile),
+        friendProfile.evolutionCount,
+      )
+    : theme.colors.brand.secondary;
 
   useEffect(() => {
     if (!modalType) {
@@ -75,7 +89,7 @@ export default function Modal() {
       style={[
         styles.wrapper,
         modalOptions.fullBleedBackground && {
-          backgroundColor: theme.colors.brand.secondary,
+          backgroundColor: fullBleedBackgroundColor,
         },
         {
           paddingTop: Platform.select({

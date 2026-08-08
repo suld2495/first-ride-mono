@@ -1,6 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { useFriendProfileQuery } from '@repo/shared/hooks/useFriend';
+import { StyleSheet, View } from 'react-native';
 
 import ModalScreen from '../../app/modal';
+import { appThemes } from '../../theme/themes';
 import { render } from '../setup/test-utils';
 
 declare const mockReplace: jest.Mock;
@@ -19,6 +21,10 @@ const createMockUseModalResult = (type: unknown) => {
   return ['테스트 모달', () => null, mockModalOptions];
 };
 const mockUseModal = jest.fn(createMockUseModalResult);
+
+jest.mock('@repo/shared/hooks/useFriend', () => ({
+  useFriendProfileQuery: jest.fn(),
+}));
 
 jest.mock('@/components/modal/modal-header', () => {
   const { Text } = require('react-native');
@@ -59,7 +65,37 @@ describe('ModalScreen', () => {
     mockPush.mockClear();
     mockUseModal.mockClear();
     mockUseModal.mockImplementation(createMockUseModalResult);
+    jest.mocked(useFriendProfileQuery).mockReset();
+    jest.mocked(useFriendProfileQuery).mockReturnValue({
+      data: undefined,
+    } as ReturnType<typeof useFriendProfileQuery>);
     mockRoutineStore.setRoutineId.mockClear();
+  });
+
+  it('친구 루틴 모달의 상단 full-bleed 배경에도 evolutionCount 색상을 적용한다', () => {
+    mockSearchParams.type = 'friend-routines';
+    mockSearchParams.friendId = '42';
+    mockModalOptions = { fullBleedBackground: true };
+    jest.mocked(useFriendProfileQuery).mockReturnValue({
+      data: {
+        characterCode: 'MAGE_INTERMEDIATE',
+        evolutionCount: 1,
+        job: '마법사',
+      },
+    } as ReturnType<typeof useFriendProfileQuery>);
+
+    const screen = render(<ModalScreen />);
+    const expectedBackgroundColor =
+      appThemes.red.colors.brand.routineEvolutionBackground.stage1;
+    const matchingViews = screen
+      .UNSAFE_getAllByType(View)
+      .filter(
+        (node) =>
+          StyleSheet.flatten(node.props.style)?.backgroundColor ===
+          expectedBackgroundColor,
+      );
+
+    expect(matchingViews).toHaveLength(1);
   });
 
   it('does not add extra top padding above the shared page header', () => {

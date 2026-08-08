@@ -29,6 +29,7 @@ import CharacterMottoSpeechBubble from '@/feature/character/character-motto-spee
 import RoutineCharacter from '@/feature/character/routine-character';
 import { useScopedColorSchemeOverride } from '@/hooks/useScopedColorSchemeOverride';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
+import { getRoutineBackgroundColor } from '@/theme/routine-theme';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation, palette } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
@@ -257,13 +258,14 @@ const FriendRoutinesModal = () => {
   }
 
   const profileTheme = appThemes[appliedProfileThemeName];
+  const routineBackgroundColor = getRoutineBackgroundColor(
+    appliedProfileThemeName,
+    profile?.evolutionCount,
+  );
 
   return (
     <ThemeView
-      style={[
-        styles.container,
-        { backgroundColor: profileTheme.colors.brand.secondary },
-      ]}
+      style={[styles.container, { backgroundColor: routineBackgroundColor }]}
     >
       <ModalHeaderAction>{cheerHeaderAction}</ModalHeaderAction>
 

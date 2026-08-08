@@ -171,6 +171,54 @@ describe('FriendRoutinesModal', () => {
     expect(screen.UNSAFE_queryAllByType(Image)).toHaveLength(2);
   });
 
+  it.each([
+    [
+      'WARRIOR',
+      1,
+      appThemes.blue.colors.brand.routineEvolutionBackground.stage1,
+    ],
+    [
+      'ARCHER',
+      2,
+      appThemes.green.colors.brand.routineEvolutionBackground.stage2,
+    ],
+  ])(
+    '친구 프로필의 %s evolutionCount=%s에 맞는 배경 컬러를 표시한다',
+    async (jobType, evolutionCount, expectedBackgroundColor) => {
+      mockAxios.onGet('/friends/42/profile').reply(
+        200,
+        wrapResponse({
+          friendId: 42,
+          nickname: '혜연',
+          job: jobType,
+          motto: '오늘도 전진',
+          level: 7,
+          characterCode: `${jobType}_INTERMEDIATE`,
+          characterImageUrl: null,
+          backgroundImageUrl: null,
+          evolutionCount,
+        }),
+      );
+      mockAxios
+        .onGet('/friends/42/routines?date=2026-05-25')
+        .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
+
+      const screen = renderFriendRoutinesModal();
+
+      await screen.findByText('오늘도 전진');
+
+      const evolutionBackgroundViews = screen
+        .UNSAFE_getAllByType(View)
+        .filter(
+          (node) =>
+            StyleSheet.flatten(node.props.style)?.backgroundColor ===
+            expectedBackgroundColor,
+        );
+
+      expect(evolutionBackgroundViews).toHaveLength(1);
+    },
+  );
+
   it('내 테마가 달라도 루틴 카드 영역은 친구 프로필 테마를 사용한다', async () => {
     useColorSchemeStore.getState().setColorScheme('red');
     mockAxios.onGet('/friends/42/profile').reply(

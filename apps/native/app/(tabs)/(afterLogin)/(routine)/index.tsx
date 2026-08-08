@@ -40,8 +40,8 @@ import {
   syncRoutineShareTargets,
 } from '@/share/routine-share';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
+import { getRoutineBackgroundColor } from '@/theme/routine-theme';
 import { baseFoundation } from '@/theme/tokens';
-import { appThemes, type ThemeName } from '@/theme/themes';
 import {
   createRoutineWidgetSnapshot,
   createSignedOutRoutineWidgetSnapshot,
@@ -56,23 +56,6 @@ const WEEKLY_ROLLOVER_HOUR = 12;
 const WEEKLY_ROLLOVER_MINUTE = 0;
 const WEEKLY_ROLLOVER_SECOND = 0;
 const EMPTY_UPDATE_NOTICES: readonly UpdateNotice[] = [];
-
-const getRoutineBackgroundColor = (
-  themeName: ThemeName,
-  evolutionCount?: number,
-) => {
-  const theme = appThemes[themeName] ?? appThemes.blue;
-
-  if (evolutionCount === 1) {
-    return theme.colors.brand.routineEvolutionBackground.stage1;
-  }
-
-  if (evolutionCount === 2) {
-    return theme.colors.brand.routineEvolutionBackground.stage2;
-  }
-
-  return theme.colors.brand.secondary;
-};
 
 const getNextWeeklyRollover = (now: Date) => {
   const rollover = new Date(now);
