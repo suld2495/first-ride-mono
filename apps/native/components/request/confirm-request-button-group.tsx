@@ -45,19 +45,19 @@ const ConfirmRequestButtonGroup = ({
   return (
     <ThemeView style={styles.buttonContainer}>
       <Button
-        title="승인"
-        variant="primary"
-        disabled={disabled}
-        loading={loadingStatus === 'PASS'}
-        onPress={() => requestConfirmation('PASS')}
-        style={styles.button}
-      />
-      <Button
         title="거절"
         variant="secondary"
         disabled={disabled}
         loading={loadingStatus === 'DENY'}
         onPress={() => requestConfirmation('DENY')}
+        style={styles.button}
+      />
+      <Button
+        title="승인"
+        variant="primary"
+        disabled={disabled}
+        loading={loadingStatus === 'PASS'}
+        onPress={() => requestConfirmation('PASS')}
         style={styles.button}
       />
     </ThemeView>
