@@ -11,14 +11,14 @@ interface HeaderProps {
 
 const Header = ({ title }: HeaderProps) => {
   const user = useAuthUser();
-  const { data: requests } = useReceivedRequests(user?.nickname || '');
+  const { notificationCount } = useReceivedRequests(user?.nickname || '');
 
   return (
     <PageHeader
       title={title ?? user?.nickname}
       right={
         <NotificationBell
-          count={requests.length}
+          count={notificationCount}
           size="md"
           style={styles.actionButton}
           url="/modal?type=request-list"

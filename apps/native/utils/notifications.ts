@@ -1,5 +1,6 @@
-import { fetchReceivedRequests } from '@repo/shared/api/request.api';
-import { fetchReceivedRoutineChangeRequests } from '@repo/shared/api/routine.api';
+import { fetchPendingConfirmationCount } from '@repo/shared/api/notification.api';
+import { notificationBadgeKeys } from '@repo/shared/types/query-keys/notification-badge';
+import type { QueryClient } from '@tanstack/react-query';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
@@ -365,15 +366,21 @@ export async function getBadgeCount(): Promise<number> {
 }
 
 /**
- * 받은 인증 요청과 루틴 수정 요청 개수로 앱 아이콘 배지를 동기화한다.
+ * 서버 기준 대기 중 인증 요청 수로 앱 아이콘 배지를 동기화한다.
  */
-export async function syncBadgeCountWithReceivedRequests(): Promise<number> {
+export async function syncBadgeCountWithPendingConfirmations(
+  queryClient: QueryClient,
+  userScope: string,
+): Promise<number> {
+  if (!userScope) {
+    return 0;
+  }
+
   try {
-    const [requests, routineChangeRequests] = await Promise.all([
-      fetchReceivedRequests(),
-      fetchReceivedRoutineChangeRequests(),
-    ]);
-    const nextCount = requests.length + routineChangeRequests.length;
+    const nextCount = await queryClient.fetchQuery({
+      queryKey: notificationBadgeKeys.pendingConfirmationCount(userScope),
+      queryFn: fetchPendingConfirmationCount,
+    });
     const didSetBadge = await setBadgeCount(nextCount);
 
     return didSetBadge ? nextCount : 0;

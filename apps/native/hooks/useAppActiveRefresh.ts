@@ -7,6 +7,7 @@ import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
 import type { ThemeName } from '@/theme/themes';
+import { syncBadgeCountWithPendingConfirmations } from '@/utils/notifications';
 import {
   refreshCharacterWidgetSnapshot,
   refreshRoutineWidgetSnapshot,
@@ -40,6 +41,8 @@ export const useAppActiveRefresh = (
       const previousState = appStateRef.current;
 
       if (wasInactive(previousState) && nextState === 'active') {
+        void syncBadgeCountWithPendingConfirmations(queryClient, nickname);
+
         void queryClient.fetchQuery({
           queryKey: requestKey.receivedList(nickname),
           queryFn: requestApi.fetchReceivedRequests,

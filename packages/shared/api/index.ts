@@ -416,3 +416,4 @@ export {
   fetchNotificationSettings,
   updateNotificationSettings,
 } from './notification-settings.api';
+export { fetchPendingConfirmationCount } from './notification.api';

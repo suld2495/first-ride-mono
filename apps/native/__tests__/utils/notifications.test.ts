@@ -1,4 +1,5 @@
 import * as notificationApi from '@repo/shared/api/notification.api';
+import * as requestApi from '@repo/shared/api/request.api';
 import { QueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';

@@ -79,7 +79,10 @@ export function getBadgeCount(): Promise<number> {
   return Promise.resolve(0);
 }
 
-export function syncBadgeCountWithReceivedRequests(): Promise<number> {
+export function syncBadgeCountWithPendingConfirmations(
+  _queryClient: unknown,
+  _userScope: string,
+): Promise<number> {
   return Promise.resolve(0);
 }
 

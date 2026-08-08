@@ -2,7 +2,7 @@ import axiosInstance from '@repo/shared/api';
 import { act, waitFor } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import * as Notifications from 'expo-notifications';
-import { Alert, Image, type AlertButton } from 'react-native';
+import { Alert, Image, type AlertButton, View } from 'react-native';
 
 import RequestDetailModal from '../../../components/modal/request-detail-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
@@ -312,8 +312,15 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
 
       await waitFor(() => {
         expect(mockAxios.history.post).toHaveLength(1);
-        expect(screen.getByText('승인')).toBeDisabled();
-        expect(screen.getByText('거절')).toBeDisabled();
+        expect(
+          screen
+            .UNSAFE_getAllByType(View)
+            .filter(
+              (button) =>
+                button.props.accessible &&
+                button.props.accessibilityState?.disabled,
+            ),
+        ).toHaveLength(2);
       });
 
       await act(async () => {
@@ -425,13 +432,12 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
         });
       });
 
-      it('승인 후 받은 인증 요청 목록 개수로 앱 아이콘 배지를 다시 설정한다', async () => {
-        mockAxios.onGet('/routine/confirm/list').reply(200, {
-          data: [{ id: 1 }, { id: 2 }],
-        });
+      it('승인 후 서버의 대기 중 인증 요청 수로 앱 아이콘 배지를 다시 설정한다', async () => {
         mockAxios
-          .onGet('/routine/change-requests/received')
-          .reply(200, { data: [] });
+          .onGet('/notifications/pending-confirmation-count')
+          .reply(200, {
+            data: { pendingConfirmationCount: 2 },
+          });
 
         const { findByText, getByText } = render(<RequestDetailModal />);
 
@@ -542,13 +548,12 @@ describe('RequestDetailModal (루틴 인증 요청 상세 모달)', () => {
         });
       });
 
-      it('거절 후 받은 인증 요청 목록 개수로 앱 아이콘 배지를 다시 설정한다', async () => {
-        mockAxios.onGet('/routine/confirm/list').reply(200, {
-          data: [{ id: 1 }],
-        });
+      it('거절 후 서버의 대기 중 인증 요청 수로 앱 아이콘 배지를 다시 설정한다', async () => {
         mockAxios
-          .onGet('/routine/change-requests/received')
-          .reply(200, { data: [] });
+          .onGet('/notifications/pending-confirmation-count')
+          .reply(200, {
+            data: { pendingConfirmationCount: 1 },
+          });
 
         const { findByText, getByText } = render(<RequestDetailModal />);
 

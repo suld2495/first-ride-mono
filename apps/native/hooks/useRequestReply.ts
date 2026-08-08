@@ -1,10 +1,11 @@
 import { useReplyRequestMutation } from '@repo/shared/hooks/useRequest';
 import type { RequestResponseStatus } from '@repo/types';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useCallback, useRef } from 'react';
 
 import { useToast } from '@/contexts/ToastContext';
-import { syncBadgeCountWithReceivedRequests } from '@/utils/notifications';
+import { syncBadgeCountWithPendingConfirmations } from '@/utils/notifications';
 
 interface UseRequestReplyParams {
   confirmId: number | undefined;
@@ -16,6 +17,7 @@ export const useRequestReply = ({
   nickname,
 }: UseRequestReplyParams) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { showToast } = useToast();
   const replyRequest = useReplyRequestMutation(nickname);
   const isReplyingRef = useRef(false);
@@ -36,7 +38,7 @@ export const useRequestReply = ({
         },
         {
           onSuccess: async () => {
-            await syncBadgeCountWithReceivedRequests();
+            await syncBadgeCountWithPendingConfirmations(queryClient, nickname);
             showToast(
               status === 'PASS' ? '승인되었습니다.' : '거절되었습니다.',
               'success',
@@ -52,7 +54,7 @@ export const useRequestReply = ({
         },
       );
     },
-    [confirmId, replyRequest, router, showToast],
+    [confirmId, nickname, queryClient, replyRequest, router, showToast],
   );
 
   return {

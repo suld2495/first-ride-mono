@@ -84,4 +84,23 @@ describe('useReceivedRequests', () => {
     expect(fetchBadgeCountSpy).not.toHaveBeenCalled();
     expect(Notifications.setBadgeCountAsync).not.toHaveBeenCalled();
   });
+
+  it('배지 API 조회에 실패하면 기존 앱 아이콘 배지를 변경하지 않는다', async () => {
+    const queryClient = createTestQueryClient();
+    jest.spyOn(requestApi, 'fetchReceivedRequests').mockResolvedValue([]);
+    jest
+      .spyOn(notificationApi, 'fetchPendingConfirmationCount')
+      .mockRejectedValue(new Error('network error'));
+
+    const { result } = renderHook(() => useReceivedRequests('tester'), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    await waitFor(() => {
+      expect(result.current.notificationCount).toBe(0);
+      expect(result.current.isFetched).toBe(true);
+    });
+
+    expect(Notifications.setBadgeCountAsync).not.toHaveBeenCalled();
+  });
 });

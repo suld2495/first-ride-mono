@@ -7,14 +7,14 @@ import { baseFoundation } from '@/theme/tokens';
 
 const QuestHeader = () => {
   const user = useAuthUser();
-  const { data: requests } = useReceivedRequests(user?.nickname || '');
+  const { notificationCount } = useReceivedRequests(user?.nickname || '');
 
   return (
     <PageHeader
       title="퀘스트 목록"
       right={
         <NotificationBell
-          count={requests.length}
+          count={notificationCount}
           size="md"
           style={styles.actionButton}
           url="/modal?type=request-list"

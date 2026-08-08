@@ -58,7 +58,7 @@ import {
   extractDeepLinkData,
   getNotificationNavigationIntent,
   syncBadgeCountFromNotification,
-  syncBadgeCountWithReceivedRequests,
+  syncBadgeCountWithPendingConfirmations,
 } from '@/utils/notifications';
 import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
 
@@ -356,14 +356,14 @@ function AppShell({ isFontReady }: AppShellProps) {
     setNotificationHandler();
   }, []);
 
-  // 앱 진입 시 받은 인증 요청 목록 개수로 홈 화면 아이콘 배지를 동기화
+  // 앱 진입 시 서버 기준 대기 중 인증 요청 수로 홈 화면 아이콘 배지를 동기화
   useEffect(() => {
-    if (!user) {
+    if (!user?.nickname) {
       return;
     }
 
-    void syncBadgeCountWithReceivedRequests();
-  }, [user]);
+    void syncBadgeCountWithPendingConfirmations(queryClient, user.nickname);
+  }, [queryClient, user?.nickname]);
 
   // 출석 체크
   useVisitCheck(user?.userId ?? null);
