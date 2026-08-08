@@ -266,6 +266,7 @@ describe('루틴 조회 페이지', () => {
 
   afterEach(() => {
     mockAxios.restore();
+    jest.useRealTimers();
   });
 
   // 공통 인증 테스트
@@ -654,12 +655,38 @@ describe('루틴 조회 페이지', () => {
         routinesSpy.mockRestore();
       });
 
-      it('루틴 페이지가 포커스되면 오늘이 속한 주로 날짜를 초기화한다', () => {
-        const currentWeekDate = getWeekMonday(new Date());
+      it('월요일 12시 전에는 다른 주의 날짜를 유지한다', () => {
+        jest.useFakeTimers();
+        const now = new Date('2026-08-10T11:59:59.000');
+        jest.setSystemTime(now);
+        const currentWeekDate = getWeekMonday(now);
 
         mockSearchParams.date = beforeWeek(new Date(currentWeekDate));
 
         render(<Index />);
+
+        expect(mockReplace).not.toHaveBeenCalled();
+
+        act(() => {
+          jest.advanceTimersByTime(999);
+        });
+
+        expect(mockReplace).not.toHaveBeenCalled();
+      });
+
+      it('월요일 12시가 되면 현재 주의 날짜로 전환한다', () => {
+        jest.useFakeTimers();
+        const now = new Date('2026-08-10T11:59:59.000');
+        jest.setSystemTime(now);
+        const currentWeekDate = getWeekMonday(now);
+
+        mockSearchParams.date = beforeWeek(new Date(currentWeekDate));
+
+        render(<Index />);
+
+        act(() => {
+          jest.advanceTimersByTime(1000);
+        });
 
         expect(mockReplace).toHaveBeenCalledWith(
           `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,

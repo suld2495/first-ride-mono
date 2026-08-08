@@ -49,7 +49,33 @@ import { saveRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
 
 const ROUTINE_CHARACTER_BOTTOM_OFFSET = baseFoundation.dimension.x48;
 const ROUTINE_SPEECH_BUBBLE_OVERLAP = baseFoundation.dimension.x44;
+const DAYS_PER_WEEK = 7;
+const MONDAY = 1;
+const WEEKLY_ROLLOVER_HOUR = 12;
+const WEEKLY_ROLLOVER_MINUTE = 0;
+const WEEKLY_ROLLOVER_SECOND = 0;
 const EMPTY_UPDATE_NOTICES: readonly UpdateNotice[] = [];
+
+const getNextWeeklyRollover = (now: Date) => {
+  const rollover = new Date(now);
+  const daysUntilMonday =
+    (MONDAY - rollover.getDay() + DAYS_PER_WEEK) % DAYS_PER_WEEK;
+
+  rollover.setDate(rollover.getDate() + daysUntilMonday);
+  rollover.setHours(
+    WEEKLY_ROLLOVER_HOUR,
+    WEEKLY_ROLLOVER_MINUTE,
+    WEEKLY_ROLLOVER_SECOND,
+    0,
+  );
+
+  if (rollover.getTime() <= now.getTime()) {
+    rollover.setDate(rollover.getDate() + DAYS_PER_WEEK);
+  }
+
+  return rollover;
+};
+
 const normalizeMottoText = (value: unknown): string[] => {
   if (Array.isArray(value)) {
     return value.flatMap(normalizeMottoText);
@@ -152,19 +178,35 @@ export default function Index() {
     }
   }, [refetch]);
 
-  useFocusEffect(
-    useCallback(() => {
-      const currentWeekDate = getWeekMonday(new Date());
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
 
-      if (routineDateRef.current === currentWeekDate) {
-        return;
-      }
+    let rolloverTimer: ReturnType<typeof setTimeout>;
 
-      replaceRoutineRoute(
-        `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
-      );
-    }, [replaceRoutineRoute]),
-  );
+    const scheduleWeeklyRollover = () => {
+      const now = new Date();
+      const nextRollover = getNextWeeklyRollover(now);
+      const delay = nextRollover.getTime() - now.getTime();
+
+      rolloverTimer = setTimeout(() => {
+        scheduleWeeklyRollover();
+
+        const currentWeekDate = getWeekMonday(new Date());
+
+        if (routineDateRef.current !== currentWeekDate) {
+          replaceRoutineRoute(
+            `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
+          );
+        }
+      }, delay);
+    };
+
+    scheduleWeeklyRollover();
+
+    return () => clearTimeout(rolloverTimer);
+  }, [replaceRoutineRoute, user]);
 
   useFocusEffect(
     useCallback(() => {
