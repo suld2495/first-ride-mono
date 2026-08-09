@@ -6,10 +6,11 @@ import {
 import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
 
 import FriendCheerIcon from '@/components/icons/friend-cheer-icon';
+import { useSetModalBackgroundColor } from '@/components/modal/modal-background-color-context';
 import ModalHeaderAction from '@/components/modal/modal-header-action';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
@@ -184,6 +185,11 @@ const FriendRoutinesModal = () => {
     : undefined;
   const isProfileThemeApplied = useScopedColorSchemeOverride(profileThemeName);
   const appliedProfileThemeName = profileThemeName ?? 'blue';
+  const routineBackgroundColor = getRoutineBackgroundColor(
+    appliedProfileThemeName,
+    profile?.evolutionCount,
+  );
+  const setModalBackgroundColor = useSetModalBackgroundColor();
   const backgroundImageUrl = profile?.backgroundImageUrl;
   const characterImageUrl = profile?.characterImageUrl;
   const backgroundAsset = useMemo(
@@ -244,6 +250,12 @@ const FriendRoutinesModal = () => {
     [handleCheer, isCheerPending],
   );
 
+  useEffect(() => {
+    setModalBackgroundColor?.(routineBackgroundColor);
+
+    return () => setModalBackgroundColor?.(undefined);
+  }, [routineBackgroundColor, setModalBackgroundColor]);
+
   if (!friendId) {
     return (
       <EmptyState
@@ -258,10 +270,6 @@ const FriendRoutinesModal = () => {
   }
 
   const profileTheme = appThemes[appliedProfileThemeName];
-  const routineBackgroundColor = getRoutineBackgroundColor(
-    appliedProfileThemeName,
-    profile?.evolutionCount,
-  );
 
   return (
     <ThemeView

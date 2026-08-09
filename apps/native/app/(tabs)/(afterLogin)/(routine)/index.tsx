@@ -217,18 +217,8 @@ export default function Index() {
         return;
       }
 
-      const currentWeekDate = getWeekMonday(new Date());
-
-      if (routineDateRef.current !== currentWeekDate) {
-        replaceRoutineRoute(
-          `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
-        );
-
-        return;
-      }
-
       void refetch();
-    }, [refetch, replaceRoutineRoute, user]),
+    }, [refetch, user]),
   );
 
   const handleRoutineListAreaLayout = useCallback(

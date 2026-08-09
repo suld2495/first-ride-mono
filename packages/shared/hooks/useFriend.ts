@@ -1,5 +1,10 @@
 import type { FriendRequestResponse, SearchOption, User } from '@repo/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import {
   acceptFriendRequest,
@@ -52,7 +57,7 @@ export const useFriendProfileQuery = (
 ) => {
   return useQuery({
     queryKey: friendKey.profile(friendId ?? ''),
-    queryFn: friendId ? () => fetchFriendProfile(friendId) : undefined,
+    queryFn: friendId ? () => fetchFriendProfile(friendId) : skipToken,
     enabled: !!friendId,
     refetchOnMount: 'always',
   });

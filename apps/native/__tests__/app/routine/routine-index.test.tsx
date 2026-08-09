@@ -659,9 +659,8 @@ describe('루틴 조회 페이지', () => {
         routinesSpy.mockRestore();
       });
 
-      it('다른 하단 탭에 갔다가 돌아오면 오늘이 포함된 주로 전환한다', async () => {
-        const todayWeekDate = getWeekMonday(new Date());
-        const selectedDate = beforeWeek(new Date(todayWeekDate));
+      it('모달에서 돌아오면 선택한 주를 유지한다', async () => {
+        const selectedDate = beforeWeek(new Date(getWeekMonday(new Date())));
         mockSearchParams.date = selectedDate;
 
         const { findByTestId, findByText } = render(<Index />);
@@ -676,11 +675,7 @@ describe('루틴 조회 페이지', () => {
           mockFocus();
         });
 
-        await waitFor(() => {
-          expect(mockReplace).toHaveBeenCalledWith(
-            `/(tabs)/(afterLogin)/(routine)?date=${todayWeekDate}`,
-          );
-        });
+        expect(mockReplace).not.toHaveBeenCalled();
       });
 
       it('월요일 12시 전에는 다른 주의 날짜를 유지한다', () => {
