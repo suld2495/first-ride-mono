@@ -183,16 +183,6 @@ const RoutineList = ({
 
   const handlePressRoutineCheck = useCallback(
     (routine: Routine, meta: RoutineCheckPressMeta = {}) => {
-      if (!showsRequestMenuItem) {
-        return;
-      }
-
-      if (meta.isMissedPast) {
-        showToast('지난 기간의 루틴은 인증할 수 없어요.', 'error');
-
-        return;
-      }
-
       const todayConfirmId =
         routine.todayConfirmStatus === 'PASS' ||
         routine.todayConfirmStatus === 'WAIT'
@@ -202,6 +192,16 @@ const RoutineList = ({
 
       if (confirmId) {
         handleShowRoutineProofDetailModal(confirmId);
+
+        return;
+      }
+
+      if (!showsRequestMenuItem) {
+        return;
+      }
+
+      if (meta.isMissedPast) {
+        showToast('지난 기간의 루틴은 인증할 수 없어요.', 'error');
 
         return;
       }
@@ -353,7 +353,7 @@ const RoutineList = ({
               scrollEnabled={isListGestureEnabled}
               refreshing={refreshing}
               onRefresh={onRefresh}
-              canRequestRoutine={showsRequestMenuItem && !readOnly}
+              canRequestRoutine={!readOnly}
               onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
@@ -371,7 +371,7 @@ const RoutineList = ({
               scrollEnabled={isListGestureEnabled}
               refreshing={refreshing}
               onRefresh={onRefresh}
-              canRequestRoutine={showsRequestMenuItem && !readOnly}
+              canRequestRoutine={!readOnly}
               onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}

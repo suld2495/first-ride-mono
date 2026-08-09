@@ -68,6 +68,31 @@ const createRoutineDateKey = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+const addDaysToDateKey = (dateKey: string, days: number) => {
+  const date = new Date(dateKey);
+
+  date.setDate(date.getDate() + days);
+
+  return createRoutineDateKey(date);
+};
+
+const getPassedConfirmIdsInWeek = (
+  confirmations: Routine['confirmations'],
+  weekStartDate: string,
+) => {
+  const weekEndDate = addDaysToDateKey(weekStartDate, 7);
+
+  return confirmations
+    .filter(
+      (confirmation) =>
+        confirmation.status === 'PASS' &&
+        confirmation.date >= weekStartDate &&
+        confirmation.date < weekEndDate,
+    )
+    .sort((current, next) => current.date.localeCompare(next.date))
+    .map((confirmation) => confirmation.confirmId);
+};
+
 const getTodaySuccessFrameStyle = (isTodaySuccess: boolean) =>
   isTodaySuccess
     ? {
@@ -172,6 +197,10 @@ const RoutineCountList = ({
       const todayPassedConfirmation = routine.confirmations.find(
         (confirmation) =>
           confirmation.date === todayDateKey && confirmation.status === 'PASS',
+      );
+      const passedConfirmIds = getPassedConfirmIdsInWeek(
+        routine.confirmations,
+        date,
       );
       const hasTodaySuccess = isCurrentWeek && Boolean(todayPassedConfirmation);
 
@@ -283,10 +312,13 @@ const RoutineCountList = ({
                   const handlePressCheckBox = canRequestWithCheckBox
                     ? () =>
                         onRequestRoutine(routine, {
-                          confirmId: isTodaySuccess
-                            ? (todayPassedConfirmation?.confirmId ??
-                              (routine.todayConfirmStatus === 'PASS'
-                                ? routine.todayConfirmId
+                          confirmId: achieved
+                            ? (passedConfirmIds[countIndex - 1] ??
+                              (isTodaySuccess
+                                ? (todayPassedConfirmation?.confirmId ??
+                                  (routine.todayConfirmStatus === 'PASS'
+                                    ? routine.todayConfirmId
+                                    : null))
                                 : null))
                             : isPendingConfirmation
                               ? (routine.pendingConfirmationIds[
