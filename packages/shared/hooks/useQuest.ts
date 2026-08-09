@@ -5,6 +5,8 @@ import * as questApi from '../api/quest.api';
 import type { FetchQuestsParams } from '../api/quest.api';
 import * as rewardApi from '../api/reward.api';
 import { questKeys, rewardKeys } from '../types/query-keys/quest';
+import { statKey } from '../types/query-keys/stat';
+import { userKey } from '../types/query-keys/user';
 
 // 목록 조회
 export const useFetchQuestsQuery = (
@@ -96,12 +98,20 @@ export const useCompleteQuestMutation = (userId: User['userId']) => {
   return useMutation({
     mutationFn: questApi.completeQuest,
     onSuccess: async (_, questId) => {
-      await queryClient.invalidateQueries({
-        queryKey: questKeys.lists(userId),
-      });
-      await queryClient.invalidateQueries({
-        queryKey: questKeys.detail(userId, questId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: questKeys.lists(userId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: questKeys.detail(userId, questId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: statKey.me(userId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: userKey.me(userId),
+        }),
+      ]);
     },
   });
 };
