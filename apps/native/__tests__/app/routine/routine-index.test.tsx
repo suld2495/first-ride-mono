@@ -184,6 +184,7 @@ const renderWithSharedQueryClient = (ui: React.ReactElement) => {
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockPush: jest.Mock;
 declare const mockReplace: jest.Mock;
+declare const mockFocus: jest.Mock;
 declare const mockShowToast: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockUser: {
@@ -656,6 +657,30 @@ describe('루틴 조회 페이지', () => {
         expect(refetch).toHaveBeenCalledTimes(1);
 
         routinesSpy.mockRestore();
+      });
+
+      it('다른 하단 탭에 갔다가 돌아오면 오늘이 포함된 주로 전환한다', async () => {
+        const todayWeekDate = getWeekMonday(new Date());
+        const selectedDate = beforeWeek(new Date(todayWeekDate));
+        mockSearchParams.date = selectedDate;
+
+        const { findByTestId, findByText } = render(<Index />);
+
+        expect(
+          await findByText(formatRoutineHeaderDate(new Date(selectedDate))),
+        ).toBeOnTheScreen();
+        expect(await findByTestId('routine-content')).toBeOnTheScreen();
+
+        mockReplace.mockClear();
+        act(() => {
+          mockFocus();
+        });
+
+        await waitFor(() => {
+          expect(mockReplace).toHaveBeenCalledWith(
+            `/(tabs)/(afterLogin)/(routine)?date=${todayWeekDate}`,
+          );
+        });
       });
 
       it('월요일 12시 전에는 다른 주의 날짜를 유지한다', () => {
