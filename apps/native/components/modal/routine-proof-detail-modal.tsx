@@ -350,7 +350,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   header: { gap: baseFoundation.spacing[2] },
   title: { color: theme.colors.brand.text },
-  description: { color: theme.colors.text.secondary },
+  description: { color: theme.colors.text.muted },
   section: { gap: baseFoundation.spacing[2] },
   proofSectionSpacing: { marginTop: 20 },
   sectionTitle: { color: theme.colors.text.muted },
