@@ -373,13 +373,13 @@ const styles = StyleSheet.create((theme) => ({
     zIndex: 2,
   },
   characterPanelBlue: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.theme.gray[5],
   },
   characterPanelGreen: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.theme.gray[5],
   },
   characterPanelRed: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.theme.gray[5],
   },
   levelBadge: {
     position: 'absolute',
