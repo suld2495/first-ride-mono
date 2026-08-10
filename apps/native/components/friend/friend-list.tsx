@@ -55,10 +55,17 @@ const FRIEND_MOTTO_BUBBLE_DISPLAY_TOP =
   FRIEND_MOTTO_BUBBLE_TOP_MARGIN + FRIEND_MOTTO_LINE_HEIGHT;
 const FRIEND_MOTTO_BUBBLE_BORDER_WIDTH = 2;
 const FRIEND_MOTTO_BUBBLE_TAIL_SPACE = baseFoundation.spacing[2];
-const FRIEND_MOTTO_MAX_BUBBLE_HEIGHT =
+const FRIEND_MOTTO_BUBBLE_SINGLE_LINE_MAX_WIDTH = 118;
+const FRIEND_MOTTO_BUBBLE_SINGLE_LINE_HEIGHT =
+  FRIEND_MOTTO_LINE_HEIGHT +
+  FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING * 2 +
+  FRIEND_MOTTO_BUBBLE_BORDER_WIDTH * 2;
+const FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT =
   FRIEND_MOTTO_MAX_LINE_COUNT * FRIEND_MOTTO_LINE_HEIGHT +
   FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING * 2 +
-  FRIEND_MOTTO_BUBBLE_BORDER_WIDTH * 2 +
+  FRIEND_MOTTO_BUBBLE_BORDER_WIDTH * 2;
+const FRIEND_MOTTO_MAX_BUBBLE_HEIGHT =
+  FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT +
   FRIEND_MOTTO_BUBBLE_TAIL_SPACE;
 const FRIEND_ITEM_TEXT_BLOCK_HEIGHT =
   baseFoundation.spacing[2] +
@@ -214,9 +221,14 @@ const FriendItem = ({
             containerMinHeight={null}
             containerMinWidth={FRIEND_MOTTO_BUBBLE_MIN_WIDTH}
             containerPaddingVertical={FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING}
-            maxWidth={itemWidth - FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN * 2}
+            multiLineContainerHeight={FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT}
+            multiLineMaxWidth={
+              itemWidth - FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN * 2
+            }
             message={motto}
             numberOfLines={2}
+            singleLineContainerHeight={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_HEIGHT}
+            singleLineMaxWidth={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_MAX_WIDTH}
             style={styles.speechBubble}
             testID={`friend-character-speech-bubble-${testIdSuffix}`}
             textVariant="caption2"
