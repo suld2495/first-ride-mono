@@ -14,6 +14,7 @@ const IOS_CHARACTER_WIDGET_KIND = 'CharacterStatusWidget';
 
 interface RoutineWidgetNativeModule {
   saveSnapshot: (snapshotJson: string) => Promise<void>;
+  saveCharacterSnapshot: (snapshotJson: string) => Promise<void>;
   clearSnapshot: () => Promise<void>;
 }
 
@@ -42,14 +43,19 @@ export const saveRoutineWidgetSnapshot = async (
 export const saveCharacterWidgetSnapshot = async (
   snapshot: CharacterWidgetSnapshot,
 ): Promise<void> => {
-  if (process.env.EXPO_OS !== 'ios') {
+  if (process.env.EXPO_OS === 'ios') {
+    const storage = new ExtensionStorage(APP_GROUP_IDENTIFIER);
+
+    storage.set(CHARACTER_SNAPSHOT_KEY, JSON.stringify(snapshot));
+    ExtensionStorage.reloadWidget(IOS_CHARACTER_WIDGET_KIND);
     return;
   }
 
-  const storage = new ExtensionStorage(APP_GROUP_IDENTIFIER);
+  if (!nativeModule) {
+    return;
+  }
 
-  storage.set(CHARACTER_SNAPSHOT_KEY, JSON.stringify(snapshot));
-  ExtensionStorage.reloadWidget(IOS_CHARACTER_WIDGET_KIND);
+  await nativeModule.saveCharacterSnapshot(JSON.stringify(snapshot));
 };
 
 export const clearRoutineWidgetSnapshot = async (): Promise<void> => {

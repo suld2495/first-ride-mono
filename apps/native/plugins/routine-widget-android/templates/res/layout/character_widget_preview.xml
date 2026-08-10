@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/character_widget_background">
+
+  <ImageView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:contentDescription="@null"
+    android:scaleType="centerCrop"
+    android:src="@drawable/routine_widget_preview_background" />
+
+  <ImageView
+    android:layout_width="88dp"
+    android:layout_height="88dp"
+    android:layout_gravity="center"
+    android:layout_marginTop="26dp"
+    android:contentDescription="@null"
+    android:scaleType="fitCenter"
+    android:src="@drawable/routine_widget_preview_character" />
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:layout_gravity="top"
+    android:layout_marginHorizontal="10dp"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/character_experience_bubble"
+    android:orientation="vertical"
+    android:paddingHorizontal="8dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="6dp">
+
+    <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:fontFamily="sans-serif"
+      android:text="경험치    EXP 6 / 10"
+      android:textColor="#2C5171"
+      android:textSize="9sp"
+      android:textStyle="bold" />
+
+    <ProgressBar
+      style="?android:attr/progressBarStyleHorizontal"
+      android:layout_width="match_parent"
+      android:layout_height="7dp"
+      android:layout_marginTop="3dp"
+      android:max="10"
+      android:progress="6"
+      android:progressDrawable="@drawable/character_experience_progress" />
+  </LinearLayout>
+
+  <TextView
+    android:layout_width="40dp"
+    android:layout_height="20dp"
+    android:layout_gravity="bottom|end"
+    android:layout_marginEnd="6dp"
+    android:layout_marginBottom="6dp"
+    android:background="@drawable/character_level_badge"
+    android:fontFamily="sans-serif"
+    android:gravity="center"
+    android:text="Lv. 4"
+    android:textColor="#145A92"
+    android:textSize="10sp"
+    android:textStyle="bold" />
+</FrameLayout>

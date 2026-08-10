@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="20dp"
+  android:orientation="horizontal">
+
+  <Space
+    android:layout_width="150dp"
+    android:layout_height="20dp" />
+
+  <TextView
+    android:id="@+id/weekly_day_monday"
+    style="@style/RoutineWidgetDayLabel"
+    android:text="월" />
+  <TextView
+    android:id="@+id/weekly_day_tuesday"
+    style="@style/RoutineWidgetDayLabel"
+    android:text="화" />
+  <TextView
+    android:id="@+id/weekly_day_wednesday"
+    style="@style/RoutineWidgetDayLabel"
+    android:text="수" />
+  <TextView
+    android:id="@+id/weekly_day_thursday"
+    style="@style/RoutineWidgetDayLabel"
+    android:text="목" />
+  <TextView
+    android:id="@+id/weekly_day_friday"
+    style="@style/RoutineWidgetDayLabel"
+    android:text="금" />
+  <TextView
+    android:id="@+id/weekly_day_saturday"
+    style="@style/RoutineWidgetDayLabel"
+    android:text="토" />
+  <TextView
+    android:id="@+id/weekly_day_sunday"
+    style="@style/RoutineWidgetDayLabel"
+    android:text="일" />
+</LinearLayout>

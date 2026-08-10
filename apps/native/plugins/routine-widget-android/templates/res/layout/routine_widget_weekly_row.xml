@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="24dp"
+  android:gravity="center_vertical"
+  android:orientation="horizontal">
+
+  <TextView
+    android:id="@+id/weekly_routine_title"
+    android:layout_width="150dp"
+    android:layout_height="22dp"
+    android:ellipsize="end"
+    android:fontFamily="sans-serif"
+    android:gravity="center_vertical"
+    android:maxLines="1"
+    android:text="루틴"
+    android:textColor="?android:attr/textColorPrimary"
+    android:textSize="13sp"
+    android:textStyle="bold" />
+
+  <ImageView
+    android:id="@+id/weekly_dot_monday"
+    style="@style/RoutineWidgetStatusDot" />
+  <ImageView
+    android:id="@+id/weekly_dot_tuesday"
+    style="@style/RoutineWidgetStatusDot" />
+  <ImageView
+    android:id="@+id/weekly_dot_wednesday"
+    style="@style/RoutineWidgetStatusDot" />
+  <ImageView
+    android:id="@+id/weekly_dot_thursday"
+    style="@style/RoutineWidgetStatusDot" />
+  <ImageView
+    android:id="@+id/weekly_dot_friday"
+    style="@style/RoutineWidgetStatusDot" />
+  <ImageView
+    android:id="@+id/weekly_dot_saturday"
+    style="@style/RoutineWidgetStatusDot" />
+  <ImageView
+    android:id="@+id/weekly_dot_sunday"
+    style="@style/RoutineWidgetStatusDot" />
+</LinearLayout>

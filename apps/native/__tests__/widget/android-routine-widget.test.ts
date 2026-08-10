@@ -5,14 +5,37 @@ const androidPluginPath = path.join(
   __dirname,
   '../../plugins/with-routine-share-android.js',
 );
+const androidWidgetPluginPath = path.join(
+  __dirname,
+  '../../plugins/routine-widget-android',
+);
 const widgetNativePath = path.join(
   __dirname,
   '../../widget/routine-widget-native.ts',
 );
 
 describe('Android routine widgets', () => {
+  const readAndroidWidgetSource = (): string => {
+    const sources = [fs.readFileSync(androidPluginPath, 'utf8')];
+
+    for (const entry of fs.readdirSync(androidWidgetPluginPath, {
+      recursive: true,
+      withFileTypes: true,
+    })) {
+      if (!entry.isFile()) {
+        continue;
+      }
+
+      sources.push(
+        fs.readFileSync(path.join(entry.parentPath, entry.name), 'utf8'),
+      );
+    }
+
+    return sources.join('\n');
+  };
+
   it('registers separate routine and character widget providers', () => {
-    const source = fs.readFileSync(androidPluginPath, 'utf8');
+    const source = readAndroidWidgetSource();
 
     expect(source).toContain('RoutineWidgetProvider');
     expect(source).toContain('CharacterWidgetProvider');
@@ -22,7 +45,7 @@ describe('Android routine widgets', () => {
   });
 
   it('generates a responsive routine widget matching the iOS size families', () => {
-    const source = fs.readFileSync(androidPluginPath, 'utf8');
+    const source = readAndroidWidgetSource();
 
     expect(source).toContain('android:resizeMode="horizontal|vertical"');
     expect(source).toContain('android:targetCellWidth="2"');
@@ -36,7 +59,7 @@ describe('Android routine widgets', () => {
   });
 
   it('renders routine completion dates and opens the app when tapped', () => {
-    const source = fs.readFileSync(androidPluginPath, 'utf8');
+    const source = readAndroidWidgetSource();
 
     expect(source).toContain('completedDates');
     expect(source).toContain('first-ride://');
@@ -46,7 +69,7 @@ describe('Android routine widgets', () => {
   });
 
   it('renders the character image, level, and experience from cached data', () => {
-    const source = fs.readFileSync(androidPluginPath, 'utf8');
+    const source = readAndroidWidgetSource();
 
     expect(source).toContain('characterImageUrl');
     expect(source).toContain('backgroundImageUrl');
@@ -67,11 +90,11 @@ describe('Android routine widgets', () => {
   });
 
   it('generates the native module and registers its React package', () => {
-    const source = fs.readFileSync(androidPluginPath, 'utf8');
+    const source = readAndroidWidgetSource();
 
     expect(source).toContain('class RoutineWidgetModule');
     expect(source).toContain('class RoutineWidgetPackage');
-    expect(source).toContain('packages.add(RoutineWidgetPackage())');
+    expect(source).toContain('add(RoutineWidgetPackage())');
     expect(source).toContain('fun saveSnapshot');
     expect(source).toContain('fun saveCharacterSnapshot');
     expect(source).toContain('fun clearSnapshot');

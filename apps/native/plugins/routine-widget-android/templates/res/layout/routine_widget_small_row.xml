@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="21dp"
+  android:gravity="center_vertical"
+  android:orientation="horizontal">
+
+  <FrameLayout
+    android:layout_width="36dp"
+    android:layout_height="18dp">
+
+    <ImageView
+      android:id="@+id/routine_count_background"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:contentDescription="@null" />
+
+    <TextView
+      android:id="@+id/routine_count_text"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:fontFamily="sans-serif"
+      android:gravity="center"
+      android:text="0/3"
+      android:textColor="#1565C0"
+      android:textSize="10sp"
+      android:textStyle="bold" />
+  </FrameLayout>
+
+  <TextView
+    android:id="@+id/routine_title"
+    android:layout_width="0dp"
+    android:layout_height="18dp"
+    android:layout_marginStart="6dp"
+    android:layout_weight="1"
+    android:ellipsize="end"
+    android:fontFamily="sans-serif"
+    android:gravity="center_vertical"
+    android:maxLines="1"
+    android:text="루틴"
+    android:textColor="?android:attr/textColorPrimary"
+    android:textSize="12sp" />
+</LinearLayout>
