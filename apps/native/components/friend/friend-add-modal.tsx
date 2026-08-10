@@ -8,7 +8,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
   Keyboard,
-  Modal,
   Pressable,
   RefreshControl,
   type StyleProp,
@@ -21,6 +20,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import LoginTypeBadge from '@/components/auth/login-type-badge';
 import { Button } from '@/components/ui/button';
 import { FlashList } from '@/components/ui/flash-list';
+import FullscreenModal from '@/components/ui/fullscreen-modal';
 import { Input } from '@/components/ui/input';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
@@ -288,7 +288,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
   }, [refetch, searchOption.keyword]);
 
   return (
-    <Modal
+    <FullscreenModal
       visible={isModalVisible}
       animationType="none"
       transparent={true}
@@ -406,7 +406,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
           </>
         )}
       </View>
-    </Modal>
+    </FullscreenModal>
   );
 };
 

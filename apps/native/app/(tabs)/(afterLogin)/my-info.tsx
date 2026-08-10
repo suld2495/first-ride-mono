@@ -5,7 +5,7 @@ import type { Gender } from '@repo/types';
 import { router, useFocusEffect } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 
 import LoginTypeBadge from '@/components/auth/login-type-badge';
 import Container from '@/components/layout/container';
@@ -14,6 +14,7 @@ import {
   getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
+import FullscreenModal from '@/components/ui/fullscreen-modal';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
@@ -428,7 +429,7 @@ const MyInfo = () => {
           </Pressable>
         </View>
       </ScrollView>
-      <Modal
+      <FullscreenModal
         animationType="fade"
         onRequestClose={closeEvolutionModal}
         transparent
@@ -537,7 +538,7 @@ const MyInfo = () => {
             </View>
           </View>
         </View>
-      </Modal>
+      </FullscreenModal>
     </Container>
   );
 };

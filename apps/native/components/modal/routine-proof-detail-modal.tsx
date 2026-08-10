@@ -6,7 +6,6 @@ import {
   Image,
   type ImageSourcePropType,
   type ImageStyle,
-  Modal,
   Pressable,
   ScrollView,
   type StyleProp,
@@ -15,6 +14,7 @@ import {
 import * as Svg from 'react-native-svg';
 
 import { getRoutineSceneRemoteAsset } from '@/components/routine/routine-scene-art';
+import FullscreenModal from '@/components/ui/fullscreen-modal';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
@@ -309,7 +309,7 @@ const RoutineProofDetailModal = ({
           </ThemeView>
         ) : null}
       </ScrollView>
-      <Modal
+      <FullscreenModal
         animationType="fade"
         transparent
         visible={Boolean(expandedImagePath)}
@@ -331,7 +331,7 @@ const RoutineProofDetailModal = ({
             />
           ) : null}
         </Pressable>
-      </Modal>
+      </FullscreenModal>
     </ThemeView>
   );
 };
