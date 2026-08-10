@@ -24,7 +24,7 @@ export const LoadingSpinner = ({
   const spinValue = React.useRef(new Animated.Value(0)).current;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const spinnerColor = color ?? theme.colors.text.muted;
+  const spinnerColor = color ?? theme.colors.text.soft;
 
   React.useEffect(() => {
     const animation = Animated.loop(

@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { StyleSheet } from 'react-native';
 
 import HiddenRoutinesModal from '../../../components/modal/hidden-routines-modal';
+import { appThemes } from '../../../theme/themes';
 import { palette } from '../../../theme/tokens';
 import { render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockRoutine } from '../../setup/routine/mock';
@@ -189,7 +190,7 @@ describe('HiddenRoutinesModal', () => {
     );
     expect(getByTestId('hidden-routine-release-spinner-1-circle')).toHaveProp(
       'color',
-      palette.theme.blue[80],
+      appThemes.blue.colors.text.soft,
     );
     expect(getByTestId('hidden-routine-release-spinner-1-circle')).toHaveProp(
       'strokeWidth',

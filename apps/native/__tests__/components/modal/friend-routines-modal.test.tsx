@@ -503,7 +503,7 @@ describe('FriendRoutinesModal', () => {
     );
     expect(screen.getByTestId('friend-cheer-loading-icon-circle')).toHaveProp(
       'color',
-      appThemes.blue.colors.text.muted,
+      appThemes.blue.colors.text.soft,
     );
     expect(screen.getByText('응원')).toBeOnTheScreen();
     expect(screen.queryByTestId('friend-cheer-icon')).toBeNull();
