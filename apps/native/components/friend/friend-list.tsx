@@ -37,7 +37,7 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   '',
 );
 const FRIEND_CHARACTER_HORIZONTAL_PADDING = 35;
-const FRIEND_CHARACTER_SIZE_INCREMENT = 34;
+const FRIEND_CHARACTER_SIZE_INCREMENT = 46;
 const FRIEND_LIST_HORIZONTAL_PADDING = baseFoundation.spacing[6];
 const FRIEND_GRID_COLUMN_GAP = baseFoundation.spacing[4];
 const FRIEND_GRID_ROW_GAP = baseFoundation.spacing[2];
