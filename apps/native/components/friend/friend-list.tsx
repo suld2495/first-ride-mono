@@ -46,7 +46,8 @@ const FRIEND_MOTTO_CHARACTER_OFFSET_Y = 13;
 const FRIEND_MOTTO_BUBBLE_MIN_WIDTH = 80;
 const FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN = baseFoundation.spacing[2];
 const FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING = 5;
-const FRIEND_MOTTO_BUBBLE_TOP_MARGIN = baseFoundation.spacing[1.5];
+const FRIEND_MOTTO_BUBBLE_TOP_MARGIN =
+  baseFoundation.spacing[1.5] + baseFoundation.spacing[2];
 const FRIEND_MOTTO_BUBBLE_CHARACTER_GAP = baseFoundation.dimension.x2;
 const FRIEND_MOTTO_MAX_LINE_COUNT = 2;
 const FRIEND_MOTTO_LINE_HEIGHT = 16;
