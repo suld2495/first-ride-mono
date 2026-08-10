@@ -184,7 +184,7 @@ const RoutineProofDetailModal = ({
         showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       >
         <ThemeView transparent style={styles.header}>
-          <Typography variant="h2" weight="bold" style={styles.title}>
+          <Typography variant="subtitle1" weight="bold" style={styles.title}>
             {routineName}
           </Typography>
           {visibleRoutineDescription ? (
