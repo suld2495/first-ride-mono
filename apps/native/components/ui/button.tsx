@@ -187,36 +187,38 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   // 텍스트 렌더링 (children 우선, 없으면 title)
+  const content = children || title;
+  const renderButtonContent = () =>
+    typeof content === 'string' ? (
+      <Text
+        style={[
+          styles.text,
+          textSizeStyle,
+          textVariantStyle,
+          textStyle,
+          { color: iconColor },
+        ]}
+      >
+        {content}
+      </Text>
+    ) : (
+      content
+    );
+
   const renderContent = () => {
     if (loading) {
       return (
-        <View style={internalStyles.contentWrapper}>
-          <LoadingSpinner />
-          {title ? <Text style={internalStyles.loadingText}>{title}</Text> : null}
+        <View style={[internalStyles.contentWrapper, contentStyle]}>
+          <LoadingSpinner size={baseFoundation.iconSize.xs} strokeWidth={3} />
+          {renderButtonContent()}
         </View>
       );
     }
 
-    const content = children || title;
-
     return (
       <View style={[internalStyles.contentWrapper, contentStyle]}>
         {renderIcon(leftIcon)}
-        {typeof content === 'string' ? (
-          <Text
-            style={[
-              styles.text,
-              textSizeStyle,
-              textVariantStyle,
-              textStyle,
-              { color: iconColor },
-            ]}
-          >
-            {content}
-          </Text>
-        ) : (
-          content
-        )}
+        {renderButtonContent()}
         {renderIcon(rightIcon)}
       </View>
     );
@@ -348,11 +350,6 @@ const internalStyles = {
   },
   fullWidth: {
     width: '100%' as const,
-  },
-  loadingText: {
-    width: 0,
-    height: 0,
-    opacity: 0,
   },
   pressed: {
     opacity: 0.8,
