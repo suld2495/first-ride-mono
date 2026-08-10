@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { createRequestFormValidators } from '@repo/shared/service/validatorMessage';
+import type { Routine } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { Image, Pressable } from 'react-native';
@@ -32,13 +33,29 @@ const requestImageSlots = Array.from(
 );
 const REQUEST_IMAGE_ACTION_HEIGHT = baseFoundation.dimension.x60;
 
-const RequestModal = () => {
+type RequestModalPreviewDetail = Pick<
+  Routine,
+  | 'isMe'
+  | 'mateNickname'
+  | 'nickname'
+  | 'paused'
+  | 'photoRequired'
+  | 'routineDetail'
+  | 'routineName'
+>;
+
+interface RequestModalProps {
+  previewDetail?: RequestModalPreviewDetail;
+}
+
+const RequestModal = ({ previewDetail }: RequestModalProps) => {
   const { theme } = useAppTheme();
   const { shareSessionId } = useLocalSearchParams<{
     shareSessionId?: string;
   }>();
   const routineId = useRoutineId();
-  const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
+  const { data: fetchedDetail, isLoading } = useRoutineDetailQuery(routineId);
+  const detail = previewDetail ?? fetchedDetail;
   const sharedImages = usePendingRoutineShareImages(routineId, shareSessionId);
   const hasMateTarget = detail?.isMe === false && !!detail?.mateNickname;
   const photoRequired = detail?.photoRequired ?? true;
@@ -63,7 +80,7 @@ const RequestModal = () => {
         : undefined,
     );
 
-  if (isLoading) {
+  if (isLoading && !previewDetail) {
     return null;
   }
 

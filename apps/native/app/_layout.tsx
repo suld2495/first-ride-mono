@@ -116,6 +116,12 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
           ) : null}
+          {__DEV__ ? (
+            <Stack.Screen
+              name="routine-request-preview"
+              options={{ headerShown: false }}
+            />
+          ) : null}
           <Stack.Protected guard={!!user}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="account" options={{ headerShown: false }} />
