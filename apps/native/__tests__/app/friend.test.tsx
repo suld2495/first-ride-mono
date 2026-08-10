@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { FlatList, Modal } from 'react-native';
 
 import { useColorSchemeStore } from '@/store/color-scheme.store';
+import { appThemes } from '@/theme/themes';
 import { palette } from '@/theme/tokens';
 
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
@@ -81,14 +82,26 @@ describe('친구 리스트 페이지', () => {
         expect(await findByLabelText('friend1 캐릭터')).toBeOnTheScreen();
       });
 
-      it('친구 목록 화면은 흰 배경을 적용한다', async () => {
+      it('친구 목록 화면은 현재 내 테마 배경을 적용한다', async () => {
         const screen = render(<FriendPage />);
 
         expect(await screen.findByText('friend1')).toBeOnTheScreen();
 
         expect(screen.getByTestId('friend-page')).toHaveStyle({
-          backgroundColor: palette.white,
+          backgroundColor: appThemes.blue.colors.background.base,
         });
+      });
+
+      it('친구 카드 배경은 친구 직업 테마의 밝은 톤을 적용한다', async () => {
+        const screen = render(<FriendPage />);
+
+        expect(await screen.findByText('friend1')).toBeOnTheScreen();
+
+        expect(screen.getByTestId('friend-character-panel-friend1')).toHaveStyle(
+          {
+            backgroundColor: palette.theme.softRed[20],
+          },
+        );
       });
 
       it('친구 목록 화면이 포커스되면 친구 테마 override를 즉시 해제한다', async () => {
@@ -104,7 +117,7 @@ describe('친구 리스트 페이지', () => {
         expect(useColorSchemeStore.getState().colorScheme).toBe('red');
       });
 
-      it('친구 테마 override가 남아 있어도 친구 목록 배경은 흰색으로 표시한다', async () => {
+      it('친구 테마 override가 남아 있어도 친구 목록 배경은 내 테마로 표시한다', async () => {
         useColorSchemeStore.getState().setColorScheme('blue');
         useColorSchemeStore.getState().setColorSchemeOverride('green');
 
@@ -112,7 +125,7 @@ describe('친구 리스트 페이지', () => {
 
         expect(await screen.findByText('friend1')).toBeOnTheScreen();
         expect(screen.getByTestId('friend-page')).toHaveStyle({
-          backgroundColor: palette.white,
+          backgroundColor: appThemes.blue.colors.background.base,
         });
         expect(useColorSchemeStore.getState().colorSchemeOverride).toBeNull();
       });

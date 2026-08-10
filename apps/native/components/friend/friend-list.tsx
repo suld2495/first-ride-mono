@@ -16,7 +16,7 @@ import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
 import { appThemes, type ThemeName } from '@/theme/themes';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 interface FriendItemProps {
   friend: Friend;
@@ -373,13 +373,13 @@ const styles = StyleSheet.create((theme) => ({
     zIndex: 2,
   },
   characterPanelBlue: {
-    backgroundColor: appThemes.blue.colors.text.soft,
+    backgroundColor: palette.theme.softBlue[20],
   },
   characterPanelGreen: {
-    backgroundColor: appThemes.green.colors.text.soft,
+    backgroundColor: palette.theme.softGreen[20],
   },
   characterPanelRed: {
-    backgroundColor: appThemes.red.colors.text.soft,
+    backgroundColor: palette.theme.softRed[20],
   },
   levelBadge: {
     position: 'absolute',

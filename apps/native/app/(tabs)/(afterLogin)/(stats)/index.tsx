@@ -156,12 +156,7 @@ export default function StatsPage() {
   const nextModeLabel = isSummaryMode ? '캘린더 보기' : '통계 보기';
 
   return (
-    <Container
-      noPadding
-      safeAreaStyle={styles.whitePageBackground}
-      style={styles.whitePageBackground}
-      testID="stats-page"
-    >
+    <Container noPadding testID="stats-page">
       <PageHeader
         title="통계"
         right={
@@ -233,9 +228,6 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.foundation.spacing[6],
     paddingTop: 0,
     paddingBottom: theme.foundation.spacing[10],
-  },
-  whitePageBackground: {
-    backgroundColor: palette.white,
   },
   screenContent: {
     flex: 1,
