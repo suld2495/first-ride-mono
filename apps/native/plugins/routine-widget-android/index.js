@@ -145,12 +145,7 @@ const withRoutineWidgetsAndroid = (config) => {
     );
     ROUTINE_WIDGET_PROVIDERS.forEach(
       ({ name, metadataResource, labelResource }) => {
-        addWidgetReceiver(
-          application,
-          name,
-          metadataResource,
-          labelResource,
-        );
+        addWidgetReceiver(application, name, metadataResource, labelResource);
       },
     );
     addWidgetReceiver(
