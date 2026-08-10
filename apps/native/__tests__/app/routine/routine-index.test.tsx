@@ -6,7 +6,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render as renderNative, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import type React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import {
+  AppState,
+  Pressable,
+  Text,
+  View,
+  type AppStateStatus,
+} from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import {
@@ -220,6 +226,7 @@ const getMockFocusEffectCleanup = () =>
 
 // axios mock adapter
 let mockAxios: MockAdapter;
+let appStateChangeHandler: ((state: AppStateStatus) => void) | undefined;
 
 describe('루틴 조회 페이지', () => {
   beforeEach(async () => {
@@ -266,11 +273,22 @@ describe('루틴 조회 페이지', () => {
     // 인증 요청 목록 API 기본 응답
     mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
     mockShowToast.mockClear();
+    appStateChangeHandler = undefined;
+    jest
+      .spyOn(AppState, 'addEventListener')
+      .mockImplementation((_event, callback) => {
+        appStateChangeHandler = callback;
+
+        return {
+          remove: jest.fn(),
+        };
+      });
   });
 
   afterEach(() => {
     mockAxios.restore();
     jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   // 공통 인증 테스트
@@ -689,11 +707,11 @@ describe('루틴 조회 페이지', () => {
         routinesSpy.mockRestore();
       });
 
-      it('월요일 12시 전에는 다른 주의 날짜를 유지한다', () => {
+      it('월요일 자정 전에는 다른 주의 날짜를 유지한다', () => {
         jest.useFakeTimers();
-        const now = new Date('2026-08-10T11:59:59.000');
+        const now = new Date('2026-08-09T23:59:59.000');
         jest.setSystemTime(now);
-        const currentWeekDate = getWeekMonday(now);
+        const currentWeekDate = afterWeek(new Date(getWeekMonday(now)));
 
         mockSearchParams.date = beforeWeek(new Date(currentWeekDate));
 
@@ -708,11 +726,11 @@ describe('루틴 조회 페이지', () => {
         expect(mockReplace).not.toHaveBeenCalled();
       });
 
-      it('월요일 12시가 되면 현재 주의 날짜로 전환한다', () => {
+      it('월요일 자정이 되면 현재 주의 날짜로 전환한다', () => {
         jest.useFakeTimers();
-        const now = new Date('2026-08-10T11:59:59.000');
+        const now = new Date('2026-08-09T23:59:59.000');
         jest.setSystemTime(now);
-        const currentWeekDate = getWeekMonday(now);
+        const currentWeekDate = afterWeek(new Date(getWeekMonday(now)));
 
         mockSearchParams.date = beforeWeek(new Date(currentWeekDate));
 
@@ -720,6 +738,28 @@ describe('루틴 조회 페이지', () => {
 
         act(() => {
           jest.advanceTimersByTime(1000);
+        });
+
+        expect(mockReplace).toHaveBeenCalledWith(
+          `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
+        );
+      });
+
+      it('백그라운드에서 active로 돌아오면 현재 주의 날짜를 확인한다', () => {
+        jest.useFakeTimers();
+        const now = new Date('2026-08-09T23:00:00.000');
+        jest.setSystemTime(now);
+        const currentWeekDate = afterWeek(new Date(getWeekMonday(now)));
+
+        mockSearchParams.date = beforeWeek(new Date(currentWeekDate));
+
+        render(<Index />);
+
+        mockReplace.mockClear();
+        act(() => {
+          appStateChangeHandler?.('background');
+          jest.setSystemTime(new Date('2026-08-10T00:01:00.000'));
+          appStateChangeHandler?.('active');
         });
 
         expect(mockReplace).toHaveBeenCalledWith(
