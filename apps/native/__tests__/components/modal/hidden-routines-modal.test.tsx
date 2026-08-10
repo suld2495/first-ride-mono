@@ -185,11 +185,15 @@ describe('HiddenRoutinesModal', () => {
       expect.objectContaining({
         width: 12,
         height: 12,
-        borderRadius: 99,
-        borderWidth: 2,
-        borderColor: palette.theme.gray[90],
-        borderTopColor: 'transparent',
       }),
+    );
+    expect(getByTestId('hidden-routine-release-spinner-1-circle')).toHaveProp(
+      'color',
+      palette.theme.blue[80],
+    );
+    expect(getByTestId('hidden-routine-release-spinner-1-circle')).toHaveProp(
+      'strokeWidth',
+      2,
     );
     expect(queryByText('숨기기 해제')).toBeNull();
     expect(spinner).toBeOnTheScreen();
