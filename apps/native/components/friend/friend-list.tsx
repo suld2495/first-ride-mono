@@ -51,6 +51,8 @@ const FRIEND_MOTTO_BUBBLE_TOP_MARGIN =
 const FRIEND_MOTTO_BUBBLE_CHARACTER_GAP = baseFoundation.dimension.x2;
 const FRIEND_MOTTO_MAX_LINE_COUNT = 2;
 const FRIEND_MOTTO_LINE_HEIGHT = 16;
+const FRIEND_MOTTO_BUBBLE_DISPLAY_TOP =
+  FRIEND_MOTTO_BUBBLE_TOP_MARGIN + FRIEND_MOTTO_LINE_HEIGHT;
 const FRIEND_MOTTO_BUBBLE_BORDER_WIDTH = 2;
 const FRIEND_MOTTO_BUBBLE_TAIL_SPACE = baseFoundation.spacing[2];
 const FRIEND_MOTTO_MAX_BUBBLE_HEIGHT =
@@ -219,7 +221,7 @@ const FriendItem = ({
             testID={`friend-character-speech-bubble-${testIdSuffix}`}
             textVariant="caption2"
             themeName={characterThemeName}
-            wrapperTop={FRIEND_MOTTO_BUBBLE_TOP_MARGIN}
+            wrapperTop={FRIEND_MOTTO_BUBBLE_DISPLAY_TOP}
           />
         )}
         {characterSource ? (
