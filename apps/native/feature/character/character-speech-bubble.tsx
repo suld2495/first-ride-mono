@@ -111,11 +111,19 @@ const CharacterSpeechBubble = ({
     isSingleLine && singleLineContainerHeight !== undefined
       ? singleLineContainerHeight
       : multiLineContainerHeight;
+  const hasFixedContainerHeight = containerHeight !== undefined;
   const defaultPaddingTop = containerPaddingTop ?? containerPaddingVertical;
-  const paddingTop =
-    isSingleLine && singleLinePaddingTop !== undefined
-      ? singleLinePaddingTop
-      : defaultPaddingTop;
+  const paddingTop = (() => {
+    if (hasFixedContainerHeight) return 0;
+    if (isSingleLine && singleLinePaddingTop !== undefined) {
+      return singleLinePaddingTop;
+    }
+
+    return defaultPaddingTop;
+  })();
+  const paddingBottom = hasFixedContainerHeight
+    ? 0
+    : (containerPaddingBottom ?? containerPaddingVertical);
   const top =
     isSingleLine && singleLineWrapperTop !== undefined
       ? singleLineWrapperTop
@@ -125,7 +133,7 @@ const CharacterSpeechBubble = ({
     borderColor,
     maxWidth,
     minWidth: containerMinWidth,
-    paddingBottom: containerPaddingBottom ?? containerPaddingVertical,
+    paddingBottom,
     paddingHorizontal: containerPaddingHorizontal,
     paddingTop,
     ...(containerHeight === undefined ? {} : { height: containerHeight }),
