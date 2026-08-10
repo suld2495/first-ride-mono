@@ -576,6 +576,10 @@ const injectRoutineSharePackage = (mainApplicationPath) => {
         'packages.add(RoutineSharePackage())\n            return packages',
       );
 
+  if (nextSource === source) {
+    throw new Error('Could not register RoutineSharePackage');
+  }
+
   fs.writeFileSync(mainApplicationPath, nextSource);
 };
 

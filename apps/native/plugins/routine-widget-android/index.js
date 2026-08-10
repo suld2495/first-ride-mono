@@ -107,6 +107,10 @@ const injectRoutineWidgetPackage = (mainApplicationPath) => {
         'packages.add(RoutineWidgetPackage())\n            return packages',
       );
 
+  if (nextSource === source) {
+    throw new Error('Could not register RoutineWidgetPackage');
+  }
+
   fs.writeFileSync(mainApplicationPath, nextSource);
 };
 

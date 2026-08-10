@@ -66,13 +66,15 @@ class RoutineWidgetModule(
 
   @ReactMethod
   fun clearSnapshot(promise: Promise) {
-    try {
-      RoutineWidgetStore.clear(reactContext)
-      RoutineWidgetProvider.updateAll(reactContext)
-      CharacterWidgetProvider.updateAll(reactContext)
-      promise.resolve(null)
-    } catch (error: Exception) {
-      promise.reject("ROUTINE_WIDGET_CLEAR_FAILED", error)
+    imageExecutor.execute {
+      try {
+        RoutineWidgetStore.clear(reactContext)
+        RoutineWidgetProvider.updateAll(reactContext)
+        CharacterWidgetProvider.updateAll(reactContext)
+        promise.resolve(null)
+      } catch (error: Exception) {
+        promise.reject("ROUTINE_WIDGET_CLEAR_FAILED", error)
+      }
     }
   }
 

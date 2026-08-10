@@ -99,4 +99,15 @@ describe('Android routine widgets', () => {
     expect(source).toContain('fun saveCharacterSnapshot');
     expect(source).toContain('fun clearSnapshot');
   });
+
+  it('serializes logout cleanup after character image writes', () => {
+    const source = readAndroidWidgetSource();
+    const clearSnapshotSource = source.slice(
+      source.indexOf('fun clearSnapshot(promise: Promise)'),
+      source.indexOf('override fun invalidate()'),
+    );
+
+    expect(clearSnapshotSource).toContain('imageExecutor.execute');
+    expect(clearSnapshotSource).toContain('RoutineWidgetStore.clear');
+  });
 });
