@@ -229,11 +229,12 @@ const FriendItem = ({
             numberOfLines={2}
             singleLineContainerHeight={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_HEIGHT}
             singleLineMaxWidth={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_MAX_WIDTH}
+            singleLineWrapperTop={FRIEND_MOTTO_BUBBLE_DISPLAY_TOP}
             style={styles.speechBubble}
             testID={`friend-character-speech-bubble-${testIdSuffix}`}
             textVariant="caption2"
             themeName={characterThemeName}
-            wrapperTop={FRIEND_MOTTO_BUBBLE_DISPLAY_TOP}
+            wrapperTop={FRIEND_MOTTO_BUBBLE_TOP_MARGIN}
           />
         )}
         {characterSource ? (
