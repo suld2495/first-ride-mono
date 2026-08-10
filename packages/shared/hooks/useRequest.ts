@@ -34,9 +34,17 @@ export const useCreateRequestMutation = () => {
     mutationFn: ({ data, onUploadProgress }: CreateRequestMutationVariables) =>
       requestApi.createRequest(data, { onUploadProgress }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: requestKey.all(),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: requestKey.all(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['stat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: userKey.all(),
+        }),
+      ]);
     },
   });
 };
