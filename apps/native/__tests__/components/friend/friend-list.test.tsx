@@ -346,7 +346,7 @@ describe('FriendList', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          backgroundColor: appThemes.blue.colors.brand.routineBackground,
+          backgroundColor: appThemes.blue.colors.brand.routineBorder,
         }),
       ]),
     );
@@ -381,7 +381,7 @@ describe('FriendList', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          backgroundColor: appThemes.red.colors.brand.routineBackground,
+          backgroundColor: appThemes.red.colors.brand.routineBorder,
         }),
       ]),
     );
@@ -414,7 +414,7 @@ describe('FriendList', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          backgroundColor: appThemes.green.colors.brand.routineBackground,
+          backgroundColor: appThemes.green.colors.brand.routineBorder,
         }),
       ]),
     );
