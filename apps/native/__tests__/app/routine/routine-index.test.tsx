@@ -659,23 +659,34 @@ describe('루틴 조회 페이지', () => {
         routinesSpy.mockRestore();
       });
 
-      it('모달에서 돌아오면 선택한 주를 유지한다', async () => {
-        const selectedDate = beforeWeek(new Date(getWeekMonday(new Date())));
+      it('화면에 다시 포커스되면 현재 주의 루틴으로 이동한다', () => {
+        const currentWeekDate = getWeekMonday(new Date());
+        const selectedDate = beforeWeek(new Date(currentWeekDate));
+        const refetch = jest.fn();
+        const routinesSpy = jest
+          .spyOn(routineHooks, 'useRoutinesQuery')
+          .mockReturnValue({
+            data: createMockRoutines(1),
+            isLoading: false,
+            isRefetching: false,
+            refetch,
+          } as unknown as ReturnType<typeof routineHooks.useRoutinesQuery>);
+
         mockSearchParams.date = selectedDate;
-
-        const { findByTestId, findByText } = render(<Index />);
-
-        expect(
-          await findByText(formatRoutineHeaderDate(new Date(selectedDate))),
-        ).toBeOnTheScreen();
-        expect(await findByTestId('routine-content')).toBeOnTheScreen();
+        render(<Index />);
 
         mockReplace.mockClear();
+        refetch.mockClear();
         act(() => {
           mockFocus();
         });
 
-        expect(mockReplace).not.toHaveBeenCalled();
+        expect(mockReplace).toHaveBeenCalledWith(
+          `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
+        );
+        expect(refetch).not.toHaveBeenCalled();
+
+        routinesSpy.mockRestore();
       });
 
       it('월요일 12시 전에는 다른 주의 날짜를 유지한다', () => {
