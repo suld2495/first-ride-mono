@@ -34,24 +34,34 @@ describe('Android routine widgets', () => {
     return sources.join('\n');
   };
 
-  it('registers separate routine and character widget providers', () => {
+  it('registers four picker entries matching the iOS widget families', () => {
     const source = readAndroidWidgetSource();
 
-    expect(source).toContain('RoutineWidgetProvider');
+    expect(source).toContain('RoutineSmallWidgetProvider');
+    expect(source).toContain('RoutineMediumWidgetProvider');
+    expect(source).toContain('RoutineLargeWidgetProvider');
     expect(source).toContain('CharacterWidgetProvider');
     expect(source).toContain('android.appwidget.action.APPWIDGET_UPDATE');
-    expect(source).toContain('@xml/routine_widget_info');
+    expect(source).toContain('@xml/routine_widget_small_info');
+    expect(source).toContain('@xml/routine_widget_medium_info');
+    expect(source).toContain('@xml/routine_widget_large_info');
     expect(source).toContain('@xml/character_widget_info');
+    expect(source).toContain('@string/routine_widget_small_name');
+    expect(source).toContain('@string/routine_widget_medium_name');
+    expect(source).toContain('@string/routine_widget_large_name');
+    expect(source).toContain('@string/character_widget_name');
   });
 
-  it('generates a responsive routine widget matching the iOS size families', () => {
+  it('generates fixed small, medium, and large routine widget families', () => {
     const source = readAndroidWidgetSource();
 
-    expect(source).toContain('android:resizeMode="horizontal|vertical"');
     expect(source).toContain('android:targetCellWidth="2"');
     expect(source).toContain('android:targetCellHeight="2"');
-    expect(source).toContain('ROUTINE_MEDIUM_WIDTH_DP = 250');
-    expect(source).toContain('ROUTINE_LARGE_HEIGHT_DP = 250');
+    expect(source).toContain('android:targetCellWidth="4"');
+    expect(source).toContain('android:targetCellHeight="4"');
+    expect(source).toContain('RoutineWidgetSize.SMALL');
+    expect(source).toContain('RoutineWidgetSize.MEDIUM');
+    expect(source).toContain('RoutineWidgetSize.LARGE');
     expect(source).toContain('routine_widget_small');
     expect(source).toContain('routine_widget_weekly');
     expect(source).not.toContain('<Space');
