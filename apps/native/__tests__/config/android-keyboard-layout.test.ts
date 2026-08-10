@@ -19,7 +19,9 @@ describe('Android keyboard layout', () => {
     );
 
     expect(source).toContain('extraHeight={');
-    expect(source).toContain('Platform.OS === \'android\'');
-    expect(source).toContain('ANDROID_FORM_KEYBOARD_EXTRA_HEIGHT');
+    expect(source).toContain("Platform.OS === 'android'");
+    expect(source).toContain(
+      'const ANDROID_FORM_KEYBOARD_EXTRA_HEIGHT = baseFoundation.dimension.x48;',
+    );
   });
 });

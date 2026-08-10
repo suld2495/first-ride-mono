@@ -141,6 +141,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: 'com.firstride.irura',
     jsEngine: 'hermes',
     scheme: ['com.firstride.irura'],
+    softwareKeyboardLayoutMode: 'pan',
   },
   extra: {
     router: {},
