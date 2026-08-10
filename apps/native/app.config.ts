@@ -13,6 +13,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: '이루라',
   slug: 'first-ride',
+  owner: 'firstride-irura',
   version: '1.0.0',
   scheme: 'first-ride',
   newArchEnabled: true,
