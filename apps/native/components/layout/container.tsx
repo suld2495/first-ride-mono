@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import type { ViewProps } from 'react-native';
+import type { StyleProp, ViewProps, ViewStyle } from 'react-native';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,16 +10,21 @@ import { baseFoundation } from '@/theme/tokens';
 interface ContainerProps extends ViewProps {
   children: React.ReactNode;
   noPadding?: boolean;
+  safeAreaStyle?: StyleProp<ViewStyle>;
 }
 
 const Container: React.FC<ContainerProps> = ({
   children,
+  safeAreaStyle,
   style,
   noPadding = false,
   ...props
 }) => {
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+    <SafeAreaView
+      style={[styles.safeArea, safeAreaStyle]}
+      edges={['top', 'left', 'right']}
+    >
       <StatusBar style="dark" />
       <View
         style={[styles.container, noPadding && styles.noPadding, style]}

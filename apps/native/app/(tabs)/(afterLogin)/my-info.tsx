@@ -188,7 +188,12 @@ const MyInfo = () => {
   };
 
   return (
-    <Container noPadding style={styles.container}>
+    <Container
+      noPadding
+      safeAreaStyle={styles.container}
+      style={styles.container}
+      testID="settings-page"
+    >
       <Header title="설정" />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -546,7 +551,7 @@ export default MyInfo;
 
 const styles = StyleSheet.create((theme) => ({
   container: {
-    backgroundColor: theme.colors.background.base,
+    backgroundColor: palette.white,
   },
   scrollContent: {
     flexGrow: 1,

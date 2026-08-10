@@ -17,12 +17,8 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
-import {
-  useBaseColorSchemeValue,
-  useClearAppColorSchemeOverride,
-} from '@/hooks/useThemePreference';
-import { appThemes } from '@/theme/themes';
-import { baseFoundation } from '@/theme/tokens';
+import { useClearAppColorSchemeOverride } from '@/hooks/useThemePreference';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 const FriendPage = () => {
   const router = useRouter();
@@ -30,9 +26,7 @@ const FriendPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const user = useAuthUser();
-  const baseThemeName = useBaseColorSchemeValue();
   const clearColorSchemeOverride = useClearAppColorSchemeOverride();
-  const pageBackgroundColor = appThemes[baseThemeName].colors.background.base;
 
   const { data: requests = [], refetch: refetchRequests } =
     useFetchFriendRequestsQuery(user?.userId ?? '', page);
@@ -75,7 +69,8 @@ const FriendPage = () => {
 
   return (
     <Container
-      style={[styles.container, { backgroundColor: pageBackgroundColor }]}
+      safeAreaStyle={styles.whitePageBackground}
+      style={[styles.container, styles.whitePageBackground]}
       noPadding
       testID="friend-page"
     >
@@ -132,6 +127,9 @@ const styles = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     width: '100%',
+  },
+  whitePageBackground: {
+    backgroundColor: palette.white,
   },
   innerContainer: {
     flex: 1,
