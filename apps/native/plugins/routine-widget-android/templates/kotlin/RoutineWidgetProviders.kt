@@ -30,7 +30,15 @@ import java.util.Locale
 import org.json.JSONArray
 import org.json.JSONObject
 
-class RoutineWidgetProvider : AppWidgetProvider() {
+enum class RoutineWidgetSize {
+  SMALL,
+  MEDIUM,
+  LARGE,
+}
+
+abstract class RoutineWidgetProvider(
+  private val size: RoutineWidgetSize,
+) : AppWidgetProvider() {
   override fun onUpdate(
     context: Context,
     appWidgetManager: AppWidgetManager,
@@ -66,39 +74,55 @@ class RoutineWidgetProvider : AppWidgetProvider() {
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int,
   ) {
-    val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
-    val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
-    val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
     val snapshot = RoutineWidgetRenderer.readSnapshot(context)
-    val views = if (width >= ROUTINE_MEDIUM_WIDTH_DP) {
-      RoutineWidgetRenderer.createWeeklyViews(
+    val views = when (size) {
+      RoutineWidgetSize.SMALL -> RoutineWidgetRenderer.createSmallViews(
         context,
         snapshot,
-        height >= ROUTINE_LARGE_HEIGHT_DP,
+        SMALL_WIDGET_HEIGHT_DP,
       )
-    } else {
-      RoutineWidgetRenderer.createSmallViews(context, snapshot, height)
+      RoutineWidgetSize.MEDIUM -> RoutineWidgetRenderer.createWeeklyViews(
+        context,
+        snapshot,
+        false,
+      )
+      RoutineWidgetSize.LARGE -> RoutineWidgetRenderer.createWeeklyViews(
+        context,
+        snapshot,
+        true,
+      )
     }
 
     appWidgetManager.updateAppWidget(appWidgetId, views)
   }
 
+  private fun updateInstances(context: Context) {
+    val manager = AppWidgetManager.getInstance(context)
+    val component = ComponentName(context, javaClass)
+
+    manager.getAppWidgetIds(component).forEach { appWidgetId ->
+      render(context, manager, appWidgetId)
+    }
+  }
+
   companion object {
-    const val ROUTINE_MEDIUM_WIDTH_DP = 250
-    const val ROUTINE_LARGE_HEIGHT_DP = 250
+    private const val SMALL_WIDGET_HEIGHT_DP = 110
 
     fun updateAll(context: Context) {
-      val manager = AppWidgetManager.getInstance(context)
-      val component = ComponentName(context, RoutineWidgetProvider::class.java)
-      val ids = manager.getAppWidgetIds(component)
-
-      ids.forEach { appWidgetId ->
-        val provider = RoutineWidgetProvider()
-        provider.render(context, manager, appWidgetId)
-      }
+      listOf(
+        RoutineSmallWidgetProvider(),
+        RoutineMediumWidgetProvider(),
+        RoutineLargeWidgetProvider(),
+      ).forEach { provider -> provider.updateInstances(context) }
     }
   }
 }
+
+class RoutineSmallWidgetProvider : RoutineWidgetProvider(RoutineWidgetSize.SMALL)
+
+class RoutineMediumWidgetProvider : RoutineWidgetProvider(RoutineWidgetSize.MEDIUM)
+
+class RoutineLargeWidgetProvider : RoutineWidgetProvider(RoutineWidgetSize.LARGE)
 
 class CharacterWidgetProvider : AppWidgetProvider() {
   override fun onUpdate(

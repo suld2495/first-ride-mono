@@ -7,8 +7,25 @@ const {
 const fs = require('fs');
 const path = require('path');
 
-const ROUTINE_WIDGET_PROVIDER = '.RoutineWidgetProvider';
+const ROUTINE_WIDGET_PROVIDERS = [
+  {
+    name: '.RoutineSmallWidgetProvider',
+    metadataResource: '@xml/routine_widget_small_info',
+    labelResource: '@string/routine_widget_small_name',
+  },
+  {
+    name: '.RoutineMediumWidgetProvider',
+    metadataResource: '@xml/routine_widget_medium_info',
+    labelResource: '@string/routine_widget_medium_name',
+  },
+  {
+    name: '.RoutineLargeWidgetProvider',
+    metadataResource: '@xml/routine_widget_large_info',
+    labelResource: '@string/routine_widget_large_name',
+  },
+];
 const CHARACTER_WIDGET_PROVIDER = '.CharacterWidgetProvider';
+const OBSOLETE_ROUTINE_WIDGET_PROVIDER = '.RoutineWidgetProvider';
 const TEMPLATE_ROOT = path.join(__dirname, 'templates');
 
 const ensureArray = (value) => {
@@ -122,11 +139,19 @@ const withRoutineWidgetsAndroid = (config) => {
       return manifestConfig;
     }
 
-    addWidgetReceiver(
-      application,
-      ROUTINE_WIDGET_PROVIDER,
-      '@xml/routine_widget_info',
-      '@string/routine_widget_name',
+    application.receiver = ensureArray(application.receiver).filter(
+      (receiver) =>
+        receiver.$?.['android:name'] !== OBSOLETE_ROUTINE_WIDGET_PROVIDER,
+    );
+    ROUTINE_WIDGET_PROVIDERS.forEach(
+      ({ name, metadataResource, labelResource }) => {
+        addWidgetReceiver(
+          application,
+          name,
+          metadataResource,
+          labelResource,
+        );
+      },
     );
     addWidgetReceiver(
       application,
@@ -151,6 +176,10 @@ const withRoutineWidgetsAndroid = (config) => {
         packagePath,
       );
       const resourceRoot = path.join(androidRoot, 'app/src/main/res');
+
+      fs.rmSync(path.join(resourceRoot, 'xml/routine_widget_info.xml'), {
+        force: true,
+      });
 
       copyDirectory(
         path.join(TEMPLATE_ROOT, 'kotlin'),
