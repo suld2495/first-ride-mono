@@ -41,7 +41,7 @@ export const useFriendRoutinesQuery = (
 ) => {
   return useQuery({
     queryKey: friendKey.routines(friendId ?? '', date),
-    queryFn: friendId ? () => fetchFriendRoutines(friendId, date) : undefined,
+    queryFn: () => fetchFriendRoutines(friendId ?? '', date),
     enabled: !!friendId && !!date,
     refetchOnMount: 'always',
   });
@@ -52,7 +52,7 @@ export const useFriendProfileQuery = (
 ) => {
   return useQuery({
     queryKey: friendKey.profile(friendId ?? ''),
-    queryFn: friendId ? () => fetchFriendProfile(friendId) : undefined,
+    queryFn: () => fetchFriendProfile(friendId ?? ''),
     enabled: !!friendId,
     refetchOnMount: 'always',
   });
