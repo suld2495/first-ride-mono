@@ -4,9 +4,10 @@
   android:layout_height="20dp"
   android:orientation="horizontal">
 
-  <Space
+  <TextView
     android:layout_width="150dp"
-    android:layout_height="20dp" />
+    android:layout_height="20dp"
+    android:text="" />
 
   <TextView
     android:id="@+id/weekly_day_monday"

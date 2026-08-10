@@ -54,6 +54,7 @@ describe('Android routine widgets', () => {
     expect(source).toContain('ROUTINE_LARGE_HEIGHT_DP = 250');
     expect(source).toContain('routine_widget_small');
     expect(source).toContain('routine_widget_weekly');
+    expect(source).not.toContain('<Space');
     expect(source).toContain('MAX_MEDIUM_ROUTINES = 4');
     expect(source).toContain('MAX_LARGE_ROUTINES = 10');
   });

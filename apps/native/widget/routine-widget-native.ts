@@ -1,5 +1,5 @@
 import { ExtensionStorage } from '@bacons/apple-targets';
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 import type {
   CharacterWidgetSnapshot,
@@ -25,7 +25,7 @@ const nativeModule = NativeModules.RoutineWidget as
 export const saveRoutineWidgetSnapshot = async (
   snapshot: RoutineWidgetSnapshot,
 ): Promise<void> => {
-  if (process.env.EXPO_OS === 'ios') {
+  if (Platform.OS === 'ios') {
     const storage = new ExtensionStorage(APP_GROUP_IDENTIFIER);
 
     storage.set(SNAPSHOT_KEY, JSON.stringify(snapshot));
@@ -43,7 +43,7 @@ export const saveRoutineWidgetSnapshot = async (
 export const saveCharacterWidgetSnapshot = async (
   snapshot: CharacterWidgetSnapshot,
 ): Promise<void> => {
-  if (process.env.EXPO_OS === 'ios') {
+  if (Platform.OS === 'ios') {
     const storage = new ExtensionStorage(APP_GROUP_IDENTIFIER);
 
     storage.set(CHARACTER_SNAPSHOT_KEY, JSON.stringify(snapshot));
@@ -59,7 +59,7 @@ export const saveCharacterWidgetSnapshot = async (
 };
 
 export const clearRoutineWidgetSnapshot = async (): Promise<void> => {
-  if (process.env.EXPO_OS === 'ios') {
+  if (Platform.OS === 'ios') {
     const storage = new ExtensionStorage(APP_GROUP_IDENTIFIER);
 
     storage.remove(SNAPSHOT_KEY);
