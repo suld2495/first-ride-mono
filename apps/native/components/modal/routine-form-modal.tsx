@@ -223,6 +223,7 @@ const RoutineDateFormItem = ({
               fillColor={palette.white}
               checkedColor={palette.theme.gray[95]}
               isChecked={Boolean(form.isDailyRepeat)}
+              showCheckIconWhenUnchecked={false}
               onPress={(checked) => {
                 setFieldValue('isDailyRepeat', checked);
               }}
@@ -310,9 +311,7 @@ const RoutineFormModal = () => {
       ...sourceRoutineForm,
       startDate: sourceRoutineForm.startDate || defaultStartDate,
       symbolColor: sourceRoutineForm.symbolColor || DEFAULT_ROUTINE_COLOR,
-      isDailyRepeat:
-        !isRoutineAdd &&
-        Boolean(sourceRoutineForm.startDate && !sourceRoutineForm.endDate),
+      isDailyRepeat: false,
     };
 
     return isDirectRoutine

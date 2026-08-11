@@ -81,6 +81,8 @@ export interface CheckboxProps {
   visualChecked?: boolean;
   /** Whether checked labels should use BouncyCheckbox strike-through */
   strikeThroughOnChecked?: boolean;
+  /** Keep the custom check icon visible when unchecked */
+  showCheckIconWhenUnchecked?: boolean;
   /** Callback when checkbox is pressed */
   onPress: (checked: boolean) => void;
 }
@@ -103,6 +105,7 @@ const Checkbox = ({
   isChecked,
   visualChecked,
   strikeThroughOnChecked = false,
+  showCheckIconWhenUnchecked = true,
   onPress,
 }: CheckboxProps) => {
   const { theme } = useAppTheme();
@@ -129,6 +132,8 @@ const Checkbox = ({
     justifyContent: 'center' as const,
     marginLeft: 7,
   };
+  const shouldRenderCheckIcon =
+    showCheckIconWhenUnchecked || Boolean(resolvedVisualChecked);
 
   return (
     <BouncyCheckbox
@@ -138,7 +143,11 @@ const Checkbox = ({
       isChecked={resolvedVisualChecked}
       fillColor={resolvedFillColor}
       unFillColor={DEFAULT_BACKGROUND_COLOR}
-      iconComponent={<CheckboxCheckIcon color={resolvedCheckedColor} />}
+      iconComponent={
+        shouldRenderCheckIcon ? (
+          <CheckboxCheckIcon color={resolvedCheckedColor} />
+        ) : undefined
+      }
       iconStyle={iconStyle}
       innerIconStyle={innerIconStyle}
       textContainerStyle={textContainerStyle}

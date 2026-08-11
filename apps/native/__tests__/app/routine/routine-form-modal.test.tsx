@@ -61,6 +61,7 @@ jest.mock('react-native-bouncy-checkbox', () => {
     default: ({
       fillColor,
       disableText,
+      iconComponent,
       isChecked,
       onPress,
       text,
@@ -68,6 +69,7 @@ jest.mock('react-native-bouncy-checkbox', () => {
     }: {
       disableText?: boolean;
       fillColor?: string;
+      iconComponent?: unknown;
       isChecked?: boolean;
       onPress: (checked: boolean) => void;
       text?: string;
@@ -79,6 +81,7 @@ jest.mock('react-native-bouncy-checkbox', () => {
           testID: 'bouncy-checkbox',
           disableText,
           fillColor,
+          iconComponent,
           isChecked,
           onPress: () => {
             (global as any).mockCheckboxChecked = !(global as any)
@@ -353,9 +356,13 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const { getAllByTestId, getByTestId, getByText } = render(
         <RoutineFormModal />,
       );
+      const dailyRepeatCheckbox = getAllByTestId('bouncy-checkbox')[0];
+
+      expect(dailyRepeatCheckbox.props.isChecked).toBe(false);
+      expect(dailyRepeatCheckbox.props.iconComponent).toBeUndefined();
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(dailyRepeatCheckbox);
       });
 
       expect(getByText('매일 반복')).toBeOnTheScreen();
@@ -368,6 +375,22 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       expect(mockRoutineStore.beginRoutineDateSelection).not.toHaveBeenCalled();
       expect(mockPush).not.toHaveBeenCalledWith('/routine-date-select');
+    });
+
+    it('매일 반복 체크를 풀면 날짜 선택 버튼을 다시 활성화한다', async () => {
+      const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      expect(getByTestId('routine-daily-repeat-date-button')).toBeDisabled();
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      expect(getByTestId('routine-date-button')).not.toBeDisabled();
     });
 
     it('메이트에게 루틴 인증 요청을 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
@@ -1412,9 +1435,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(await findByText('일주일에 3회')).toBeOnTheScreen();
 
       expect(await findByText('매일 반복')).toBeOnTheScreen();
-      expect(
-        await findByTestId('routine-daily-repeat-date-button'),
-      ).toBeDisabled();
+      expect(await findByTestId('routine-date-button')).not.toBeDisabled();
     });
 
     it('셀프 루틴 수정에서는 저장된 사진 인증 필수 값을 표시한다', async () => {
@@ -1480,8 +1501,8 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       );
       expect(getByText('일주일에 5회')).toBeOnTheScreen();
       expect(getByText('2026-05-26')).toBeOnTheScreen();
-      expect(getByTestId('routine-daily-repeat-date-button')).toBeDisabled();
-      expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(true);
+      expect(getByTestId('routine-date-button')).not.toBeDisabled();
+      expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(false);
     });
 
     it('수정 버튼이 화면에 표시된다', async () => {
