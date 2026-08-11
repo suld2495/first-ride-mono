@@ -13,7 +13,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { type LayoutChangeEvent, View } from 'react-native';
+import { AppState, type LayoutChangeEvent, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { UpdateNotice } from '@/api/update-notices.api';
@@ -59,7 +59,7 @@ const ROUTINE_CHARACTER_BOTTOM_OFFSET = baseFoundation.dimension.x48;
 const ROUTINE_SPEECH_BUBBLE_OVERLAP = baseFoundation.dimension.x44;
 const DAYS_PER_WEEK = 7;
 const MONDAY = 1;
-const WEEKLY_ROLLOVER_HOUR = 12;
+const WEEKLY_ROLLOVER_HOUR = 0;
 const WEEKLY_ROLLOVER_MINUTE = 0;
 const WEEKLY_ROLLOVER_SECOND = 0;
 const EMPTY_UPDATE_NOTICES: readonly UpdateNotice[] = [];
@@ -125,6 +125,7 @@ export default function Index() {
   const date = (searchParams.date as string) || getWeekMonday(new Date());
   const debouncedDate = useDebounce(date);
   const routineDateRef = useRef(date);
+  const appStateRef = useRef(AppState.currentState);
   const user = useAuthUser();
   const requiredAppVersionQuery = useRequiredAppVersionQuery(user?.userId);
   const updateNoticesQuery = useUpdateNoticesQuery(user?.userId);
@@ -217,6 +218,19 @@ export default function Index() {
     }
   }, [refetch]);
 
+  const resetRoutineDateIfNeeded = useCallback(() => {
+    const currentWeekDate = getWeekMonday(new Date());
+
+    if (routineDateRef.current === currentWeekDate) {
+      return false;
+    }
+
+    replaceRoutineRoute(
+      `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
+    );
+    return true;
+  }, [replaceRoutineRoute]);
+
   useEffect(() => {
     if (!user) {
       return;
@@ -231,21 +245,37 @@ export default function Index() {
 
       rolloverTimer = setTimeout(() => {
         scheduleWeeklyRollover();
-
-        const currentWeekDate = getWeekMonday(new Date());
-
-        if (routineDateRef.current !== currentWeekDate) {
-          replaceRoutineRoute(
-            `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
-          );
-        }
+        resetRoutineDateIfNeeded();
       }, delay);
     };
 
     scheduleWeeklyRollover();
 
     return () => clearTimeout(rolloverTimer);
-  }, [replaceRoutineRoute, user]);
+  }, [resetRoutineDateIfNeeded, user]);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    appStateRef.current = AppState.currentState;
+
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      const previousState = appStateRef.current;
+      const returnedToActive =
+        (previousState === 'inactive' || previousState === 'background') &&
+        nextState === 'active';
+
+      if (returnedToActive) {
+        resetRoutineDateIfNeeded();
+      }
+
+      appStateRef.current = nextState;
+    });
+
+    return () => subscription.remove();
+  }, [resetRoutineDateIfNeeded, user]);
 
   useFocusEffect(
     useCallback(() => {
@@ -253,8 +283,12 @@ export default function Index() {
         return;
       }
 
+      if (resetRoutineDateIfNeeded()) {
+        return;
+      }
+
       void refetch();
-    }, [refetch, user]),
+    }, [refetch, resetRoutineDateIfNeeded, user]),
   );
 
   const handleRoutineListAreaLayout = useCallback(

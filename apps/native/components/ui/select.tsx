@@ -4,7 +4,6 @@ import {
   Dimensions,
   type LayoutChangeEvent,
   type LayoutRectangle,
-  Modal,
   Pressable,
   type StyleProp,
   Text,
@@ -16,6 +15,7 @@ import {
 } from 'react-native';
 
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
+import FullscreenModal from '@/components/ui/fullscreen-modal';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
@@ -400,7 +400,7 @@ export function Select<T = string | number>({
         (isTestEnv ? (
           dropdownContent
         ) : (
-          <Modal
+          <FullscreenModal
             transparent
             animationType="fade"
             visible={isOpen}
@@ -410,7 +410,7 @@ export function Select<T = string | number>({
             <TouchableWithoutFeedback>
               {dropdownContent}
             </TouchableWithoutFeedback>
-          </Modal>
+          </FullscreenModal>
         ))}
     </View>
   );

@@ -1,5 +1,5 @@
 import { ExtensionStorage } from '@bacons/apple-targets';
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 import type {
   CharacterWidgetSnapshot,
@@ -14,6 +14,7 @@ const IOS_CHARACTER_WIDGET_KIND = 'CharacterStatusWidget';
 
 interface RoutineWidgetNativeModule {
   saveSnapshot: (snapshotJson: string) => Promise<void>;
+  saveCharacterSnapshot: (snapshotJson: string) => Promise<void>;
   clearSnapshot: () => Promise<void>;
 }
 
@@ -24,7 +25,7 @@ const nativeModule = NativeModules.RoutineWidget as
 export const saveRoutineWidgetSnapshot = async (
   snapshot: RoutineWidgetSnapshot,
 ): Promise<void> => {
-  if (process.env.EXPO_OS === 'ios') {
+  if (Platform.OS === 'ios') {
     const storage = new ExtensionStorage(APP_GROUP_IDENTIFIER);
 
     storage.set(SNAPSHOT_KEY, JSON.stringify(snapshot));
@@ -42,18 +43,23 @@ export const saveRoutineWidgetSnapshot = async (
 export const saveCharacterWidgetSnapshot = async (
   snapshot: CharacterWidgetSnapshot,
 ): Promise<void> => {
-  if (process.env.EXPO_OS !== 'ios') {
+  if (Platform.OS === 'ios') {
+    const storage = new ExtensionStorage(APP_GROUP_IDENTIFIER);
+
+    storage.set(CHARACTER_SNAPSHOT_KEY, JSON.stringify(snapshot));
+    ExtensionStorage.reloadWidget(IOS_CHARACTER_WIDGET_KIND);
     return;
   }
 
-  const storage = new ExtensionStorage(APP_GROUP_IDENTIFIER);
+  if (!nativeModule) {
+    return;
+  }
 
-  storage.set(CHARACTER_SNAPSHOT_KEY, JSON.stringify(snapshot));
-  ExtensionStorage.reloadWidget(IOS_CHARACTER_WIDGET_KIND);
+  await nativeModule.saveCharacterSnapshot(JSON.stringify(snapshot));
 };
 
 export const clearRoutineWidgetSnapshot = async (): Promise<void> => {
-  if (process.env.EXPO_OS === 'ios') {
+  if (Platform.OS === 'ios') {
     const storage = new ExtensionStorage(APP_GROUP_IDENTIFIER);
 
     storage.remove(SNAPSHOT_KEY);

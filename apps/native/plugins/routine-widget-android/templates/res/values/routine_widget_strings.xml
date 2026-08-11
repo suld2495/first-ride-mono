@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="routine_widget_small_name" translatable="false">이번 주 루틴 · 소형</string>
+  <string name="routine_widget_small_description" translatable="false">오늘의 루틴 목록을 확인합니다.</string>
+  <string name="routine_widget_medium_name" translatable="false">이번 주 루틴 · 중형</string>
+  <string name="routine_widget_medium_description" translatable="false">이번 주 루틴 4개의 달성 상태를 확인합니다.</string>
+  <string name="routine_widget_large_name" translatable="false">이번 주 루틴 · 대형</string>
+  <string name="routine_widget_large_description" translatable="false">이번 주 루틴 10개의 달성 상태를 확인합니다.</string>
+  <string name="character_widget_name" translatable="false">내 캐릭터</string>
+  <string name="character_widget_description" translatable="false">캐릭터, 레벨, 경험치를 한눈에 확인합니다.</string>
+</resources>

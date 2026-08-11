@@ -6,7 +6,7 @@ import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
@@ -58,6 +58,7 @@ const ROUTINE_COLOR_ROWS = [
 ];
 
 const MAX_PENALTY = 100_000_000;
+const ANDROID_FORM_KEYBOARD_EXTRA_HEIGHT = baseFoundation.dimension.x48;
 const MATE_DROPDOWN_KEYBOARD_EXTRA_SCROLL_HEIGHT =
   baseFoundation.dimension.x48 + baseFoundation.spacing[1];
 
@@ -413,6 +414,11 @@ const RoutineFormModal = () => {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         enableOnAndroid={true}
+        extraHeight={
+          Platform.OS === 'android'
+            ? ANDROID_FORM_KEYBOARD_EXTRA_HEIGHT
+            : undefined
+        }
         extraScrollHeight={
           isMateSearchFocused ? MATE_DROPDOWN_KEYBOARD_EXTRA_SCROLL_HEIGHT : 0
         }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Pressable, useWindowDimensions, View } from 'react-native';
+import { Pressable, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   cancelAnimation,
@@ -16,6 +16,7 @@ import Animated, {
 
 import { BottomSheetDragContext } from '@/components/ui/bottom-sheet/bottom-sheet-drag-context';
 import { getBottomSheetReleaseAction } from '@/components/ui/bottom-sheet/bottom-sheet-gesture';
+import FullscreenModal from '@/components/ui/fullscreen-modal';
 import { StyleSheet, type AppThemes } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { baseFoundation } from '@/theme/tokens';
@@ -150,7 +151,7 @@ const BottomSheet = ({
   }));
 
   return (
-    <Modal
+    <FullscreenModal
       visible={isModalVisible}
       animationType="none"
       transparent
@@ -200,7 +201,7 @@ const BottomSheet = ({
           )}
         </View>
       </GestureHandlerRootView>
-    </Modal>
+    </FullscreenModal>
   );
 };
 

@@ -1,4 +1,5 @@
 import { type BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { getWeekMonday } from '@repo/shared/utils';
 import React from 'react';
 import { View } from 'react-native';
 
@@ -11,8 +12,9 @@ const TAB_BAR_HORIZONTAL_PADDING = 8;
 const TAB_BAR_BACKGROUND = '#F7F4F4';
 const TAB_BAR_BOTTOM_PADDING = 6;
 const TAB_BAR_TOP_PADDING = 0;
+const ROUTINE_TAB_ROUTE_NAME = '(afterLogin)/(routine)/index';
 const TAB_ROUTE_NAMES = new Set([
-  '(afterLogin)/(routine)/index',
+  ROUTINE_TAB_ROUTE_NAME,
   '(afterLogin)/(quest)/index',
   '(afterLogin)/(stats)/index',
   '(afterLogin)/(friend)/index',
@@ -63,7 +65,15 @@ export const DockTabBar: React.FC<BottomTabBarProps> = ({
             });
 
             if (!focused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
+              navigation.navigate(
+                route.name,
+                route.name === ROUTINE_TAB_ROUTE_NAME
+                  ? {
+                      ...route.params,
+                      date: getWeekMonday(new Date()),
+                    }
+                  : route.params,
+              );
             }
           };
 

@@ -13,6 +13,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: '이루라',
   slug: 'first-ride',
+  owner: 'firstride-irura',
   version: '1.0.0',
   scheme: 'first-ride',
   newArchEnabled: true,
@@ -140,6 +141,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: 'com.firstride.irura',
     jsEngine: 'hermes',
     scheme: ['com.firstride.irura'],
+    softwareKeyboardLayoutMode: 'pan',
   },
   extra: {
     router: {},

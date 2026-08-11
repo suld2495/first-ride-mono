@@ -5,6 +5,8 @@ const {
 const fs = require('fs');
 const path = require('path');
 
+const withRoutineWidgetsAndroid = require('./routine-widget-android');
+
 const SHARE_ACTIVITY_NAME = '.RoutineShareReceiverActivity';
 const SHARE_TARGETS_RESOURCE = '@xml/routine_share_targets';
 const SHARE_TARGET_CATEGORY = 'com.firstride.irura.category.ROUTINE_SHARE';
@@ -563,15 +565,20 @@ const injectRoutineSharePackage = (mainApplicationPath) => {
     return;
   }
 
-  const nextSource = source.includes('packages.add(RoutineWidgetPackage())')
+  const applyMarker = 'PackageList(this).packages.apply {';
+  const nextSource = source.includes(applyMarker)
     ? source.replace(
-        'packages.add(RoutineWidgetPackage())',
-        'packages.add(RoutineWidgetPackage())\n            packages.add(RoutineSharePackage())',
+        applyMarker,
+        `${applyMarker}\n              add(RoutineSharePackage())`,
       )
     : source.replace(
         'return packages',
         'packages.add(RoutineSharePackage())\n            return packages',
       );
+
+  if (nextSource === source) {
+    throw new Error('Could not register RoutineSharePackage');
+  }
 
   fs.writeFileSync(mainApplicationPath, nextSource);
 };
@@ -598,6 +605,8 @@ const withRoutineShareAndroid = (config) => {
 
     return manifestConfig;
   });
+
+  config = withRoutineWidgetsAndroid(config);
 
   return withDangerousMod(config, [
     'android',

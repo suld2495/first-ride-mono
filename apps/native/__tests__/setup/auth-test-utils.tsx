@@ -10,6 +10,7 @@ declare const mockPush: jest.Mock;
 declare const mockReplace: jest.Mock;
 declare const mockDismissTo: jest.Mock;
 declare const mockBack: jest.Mock;
+declare const mockFocus: jest.Mock;
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockUser: { nickname: string; userId: string };
 declare const mockAuthStore: {
@@ -91,6 +92,7 @@ export const resetAuthMocks = () => {
   mockReplace.mockClear();
   mockDismissTo.mockClear();
   mockBack.mockClear();
+  mockFocus.mockClear();
   (
     globalThis as typeof globalThis & {
       mockFocusEffectCleanup: null | (() => void);

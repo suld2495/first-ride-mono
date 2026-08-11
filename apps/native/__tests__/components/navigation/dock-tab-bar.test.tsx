@@ -3,15 +3,20 @@ import type {
   NavigationHelpers,
   TabNavigationState,
 } from '@react-navigation/native';
+import { beforeWeek, getWeekMonday } from '@repo/shared/utils';
 
 import { DockTabBar } from '@/components/navigation/dock-tab-bar';
 
-import { render } from '../../setup/test-utils';
+import { fireEvent, render } from '../../setup/test-utils';
 
-const createRoute = (name: string, index: number) => ({
+const createRoute = (
+  name: string,
+  index: number,
+  params?: Record<string, string>,
+) => ({
   key: `${name}-${index}`,
   name,
-  params: undefined,
+  params,
 });
 
 describe('DockTabBar', () => {
@@ -64,5 +69,52 @@ describe('DockTabBar', () => {
     expect(queryByLabelText('랭킹')).toBeNull();
     expect(getByLabelText('친구')).toBeOnTheScreen();
     expect(getByLabelText('My')).toBeOnTheScreen();
+  });
+
+  it('다른 하단 탭에서 루틴 탭을 누르면 오늘이 포함된 주로 이동한다', () => {
+    const currentWeekDate = getWeekMonday(new Date());
+    const selectedDate = beforeWeek(new Date(currentWeekDate));
+    const routes = [
+      createRoute('(afterLogin)/(routine)/index', 0, { date: selectedDate }),
+      createRoute('(afterLogin)/(quest)/index', 1),
+    ];
+    const descriptors = Object.fromEntries(
+      routes.map((route, index) => [
+        route.key,
+        {
+          options: {
+            title: ['루틴', '퀘스트'][index],
+            tabBarIcon: () => null,
+          },
+        },
+      ]),
+    ) as unknown as BottomTabBarProps['descriptors'];
+    const navigate = jest.fn();
+    const props = {
+      state: {
+        key: 'tab-state',
+        index: 1,
+        routeNames: routes.map((route) => route.name),
+        routes,
+        type: 'tab',
+        stale: false,
+        history: [],
+        preloadedRouteKeys: [],
+      } as unknown as TabNavigationState<Record<string, object | undefined>>,
+      descriptors,
+      navigation: {
+        emit: jest.fn(() => ({ defaultPrevented: false })),
+        navigate,
+      } as unknown as NavigationHelpers<Record<string, object | undefined>>,
+      insets: { top: 0, right: 0, bottom: 0, left: 0 },
+    } as BottomTabBarProps;
+
+    const { getByLabelText } = render(<DockTabBar {...props} />);
+
+    fireEvent.press(getByLabelText('루틴'));
+
+    expect(navigate).toHaveBeenCalledWith('(afterLogin)/(routine)/index', {
+      date: currentWeekDate,
+    });
   });
 });

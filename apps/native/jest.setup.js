@@ -463,6 +463,12 @@ global.mockBack = jest.fn();
 global.mockSearchParams = {};
 global.mockPathname = '/';
 global.mockFocusEffectCleanup = null;
+global.mockFocusEffectCallbacks = new Set();
+global.mockFocus = jest.fn(() => {
+  for (const refocus of global.mockFocusEffectCallbacks) {
+    refocus();
+  }
+});
 
 jest.mock('expo-router', () => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -482,11 +488,24 @@ jest.mock('expo-router', () => {
     useLocalSearchParams: () => global.mockSearchParams,
     useFocusEffect: (effect) => {
       React.useEffect(() => {
-        global.mockFocusEffectCleanup = effect();
+        let cleanup = effect();
+        const refocus = () => {
+          if (typeof cleanup === 'function') {
+            cleanup();
+          }
+
+          cleanup = effect();
+          global.mockFocusEffectCleanup = cleanup;
+        };
+
+        global.mockFocusEffectCallbacks.add(refocus);
+        global.mockFocusEffectCleanup = cleanup;
 
         return () => {
-          if (typeof global.mockFocusEffectCleanup === 'function') {
-            global.mockFocusEffectCleanup();
+          global.mockFocusEffectCallbacks.delete(refocus);
+
+          if (typeof cleanup === 'function') {
+            cleanup();
           }
           global.mockFocusEffectCleanup = null;
         };

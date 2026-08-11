@@ -1,12 +1,12 @@
-import { useFriendProfileQuery } from '@repo/shared/hooks/useFriend';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import Animated, { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ModalFooterOutlet from '@/components/modal/modal-footer-outlet';
 import ModalFooterProvider from '@/components/modal/modal-footer-provider';
+import { ModalBackgroundColorProvider } from '@/components/modal/modal-background-color-context';
 import ModalHeader from '@/components/modal/modal-header';
 import ModalHeaderActionProvider from '@/components/modal/modal-header-action-provider';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
@@ -14,8 +14,6 @@ import ThemeView from '@/components/ui/theme-view';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useModal } from '@/hooks/useModal';
 import { useSetRoutineId } from '@/hooks/useRoutineSelection';
-import { getThemeNameFromUserJob } from '@/theme/job-theme';
-import { getRoutineBackgroundColor } from '@/theme/routine-theme';
 import { normalizeModalType, type ModalType } from '@/types/modal';
 
 const MODAL_ANIMATION_DURATION = 250;
@@ -23,16 +21,18 @@ const MODAL_ANIMATION_DURATION = 250;
 export default function Modal() {
   const router = useRouter();
   const user = useAuthUser();
-  const { type, friendId, friendNickname, routineId } = useLocalSearchParams<{
+  const { type, friendNickname, routineId } = useLocalSearchParams<{
     type: ModalType;
-    friendId?: string;
     friendNickname?: string;
     routineId?: string;
   }>();
   const modalType = normalizeModalType(type);
   const safeModalType = modalType ?? 'routine-add';
-  const isFriendRoutinesModal = modalType === 'friend-routines';
   const [title, ModalComponent, modalOptions] = useModal(safeModalType);
+  const [modalBackground, setModalBackground] = useState<{
+    color: string | undefined;
+    modalType: ModalType;
+  } | null>(null);
   const setRoutineId = useSetRoutineId();
   const { theme } = useAppTheme();
   const modalTitle =
@@ -43,15 +43,16 @@ export default function Modal() {
     modalOptions.contentPadding === false
       ? 0
       : (modalOptions.contentPaddingHorizontal ?? theme.foundation.spacing[6]);
-  const { data: friendProfile } = useFriendProfileQuery(
-    isFriendRoutinesModal ? friendId : undefined,
+  const handleBackgroundColorChange = useCallback(
+    (color: string | undefined) => {
+      setModalBackground({ color, modalType: safeModalType });
+    },
+    [safeModalType],
   );
-  const fullBleedBackgroundColor = friendProfile
-    ? getRoutineBackgroundColor(
-        getThemeNameFromUserJob(friendProfile),
-        friendProfile.evolutionCount,
-      )
-    : theme.colors.brand.secondary;
+  const fullBleedBackgroundColor =
+    modalBackground?.modalType === safeModalType
+      ? (modalBackground.color ?? theme.colors.brand.secondary)
+      : theme.colors.brand.secondary;
 
   useEffect(() => {
     if (!modalType) {
@@ -105,32 +106,36 @@ export default function Modal() {
         exiting={SlideOutRight.duration(MODAL_ANIMATION_DURATION)}
         style={styles.container}
       >
-        <ModalHeaderActionProvider>
-          <ModalFooterProvider>
-            <ModalHeader
-              title={modalTitle}
-              transparent={modalOptions.headerTransparent}
-              onBackPress={
-                !user && isPublicModal
-                  ? () => router.replace('/sign-in')
-                  : undefined
-              }
-            />
-            <ThemeView
-              testID="modal-screen-content"
-              style={[
-                styles.content,
-                {
-                  paddingHorizontal: contentPaddingHorizontal,
-                },
-              ]}
-              transparent={modalOptions.contentTransparent}
-            >
-              <ModalComponent />
-            </ThemeView>
-            <ModalFooterOutlet />
-          </ModalFooterProvider>
-        </ModalHeaderActionProvider>
+        <ModalBackgroundColorProvider
+          onBackgroundColorChange={handleBackgroundColorChange}
+        >
+          <ModalHeaderActionProvider>
+            <ModalFooterProvider>
+              <ModalHeader
+                title={modalTitle}
+                transparent={modalOptions.headerTransparent}
+                onBackPress={
+                  !user && isPublicModal
+                    ? () => router.replace('/sign-in')
+                    : undefined
+                }
+              />
+              <ThemeView
+                testID="modal-screen-content"
+                style={[
+                  styles.content,
+                  {
+                    paddingHorizontal: contentPaddingHorizontal,
+                  },
+                ]}
+                transparent={modalOptions.contentTransparent}
+              >
+                <ModalComponent />
+              </ThemeView>
+              <ModalFooterOutlet />
+            </ModalFooterProvider>
+          </ModalHeaderActionProvider>
+        </ModalBackgroundColorProvider>
       </Animated.View>
     </ThemeView>
   );

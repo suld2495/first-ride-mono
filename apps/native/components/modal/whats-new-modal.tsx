@@ -1,9 +1,10 @@
-import { Image, type ImageSourcePropType, Modal, View } from 'react-native';
+import { Image, type ImageSourcePropType, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { UpdateNotice } from '@/api/update-notices.api';
 import { Button } from '@/components/ui/button';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
+import FullscreenModal from '@/components/ui/fullscreen-modal';
 import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { useWhatsNewModal } from '@/hooks/useWhatsNewModal';
@@ -46,12 +47,11 @@ const WhatsNewModalContent = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <Modal
+    <FullscreenModal
       visible
       animationType="fade"
       transparent
       presentationStyle="overFullScreen"
-      statusBarTranslucent
     >
       <View style={styles.overlay} testID="whats-new-overlay">
         <View
@@ -133,7 +133,7 @@ const WhatsNewModalContent = ({
           </View>
         </View>
       </View>
-    </Modal>
+    </FullscreenModal>
   );
 };
 

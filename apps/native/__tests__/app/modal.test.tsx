@@ -1,7 +1,9 @@
 import { useFriendProfileQuery } from '@repo/shared/hooks/useFriend';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import ModalScreen from '../../app/modal';
+import { useSetModalBackgroundColor } from '../../components/modal/modal-background-color-context';
 import { appThemes } from '../../theme/themes';
 import { render } from '../setup/test-utils';
 
@@ -13,12 +15,26 @@ declare const mockRoutineStore: {
 };
 
 let mockModalOptions: Record<string, unknown> = {};
+let mockModalBackgroundColor: string | undefined;
+
+const MockModalComponent = () => {
+  const setModalBackgroundColor = useSetModalBackgroundColor();
+
+  useEffect(() => {
+    setModalBackgroundColor?.(mockModalBackgroundColor);
+
+    return () => setModalBackgroundColor?.(undefined);
+  }, [setModalBackgroundColor]);
+
+  return null;
+};
+
 const createMockUseModalResult = (type: unknown) => {
   if (type === 'unknown-modal') {
     throw new Error('존재하지 않은 모달입니다.');
   }
 
-  return ['테스트 모달', () => null, mockModalOptions];
+  return ['테스트 모달', MockModalComponent, mockModalOptions];
 };
 const mockUseModal = jest.fn(createMockUseModalResult);
 
@@ -61,6 +77,7 @@ describe('ModalScreen', () => {
     }
     mockSearchParams.type = 'routine-add';
     mockModalOptions = {};
+    mockModalBackgroundColor = undefined;
     mockReplace.mockClear();
     mockPush.mockClear();
     mockUseModal.mockClear();
@@ -72,21 +89,23 @@ describe('ModalScreen', () => {
     mockRoutineStore.setRoutineId.mockClear();
   });
 
-  it('친구 루틴 모달의 상단 full-bleed 배경에도 evolutionCount 색상을 적용한다', () => {
+  it('친구 루틴이 아닌 모달에서는 친구 프로필 쿼리를 사용하지 않는다', () => {
+    mockSearchParams.type = 'account';
+
+    render(<ModalScreen />);
+
+    expect(useFriendProfileQuery).not.toHaveBeenCalled();
+  });
+
+  it('친구 루틴 모달이 전달한 배경색을 상단 full-bleed 영역에 적용한다', () => {
     mockSearchParams.type = 'friend-routines';
     mockSearchParams.friendId = '42';
     mockModalOptions = { fullBleedBackground: true };
-    jest.mocked(useFriendProfileQuery).mockReturnValue({
-      data: {
-        characterCode: 'MAGE_INTERMEDIATE',
-        evolutionCount: 1,
-        job: '마법사',
-      },
-    } as ReturnType<typeof useFriendProfileQuery>);
-
-    const screen = render(<ModalScreen />);
     const expectedBackgroundColor =
       appThemes.red.colors.brand.routineEvolutionBackground.stage1;
+    mockModalBackgroundColor = expectedBackgroundColor;
+
+    const screen = render(<ModalScreen />);
     const matchingViews = screen
       .UNSAFE_getAllByType(View)
       .filter(
