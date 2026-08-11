@@ -76,7 +76,7 @@ describe('QuestList', () => {
     });
   });
 
-  it('renders quest content as an icon, remaining days, title, and progress', () => {
+  it('renders quest content as an icon, title, progress, and remaining days', () => {
     const quest = createMockQuest(0, {
       description: '기존 설명은 숨겨져야 합니다.',
       endDate: '2026-06-03T00:00:00.000Z',
@@ -99,12 +99,11 @@ describe('QuestList', () => {
     const contentRowStyle = StyleSheet.flatten(
       screen.getByTestId('quest-card-content').props.style,
     );
-    const textStackStyle = StyleSheet.flatten(
-      screen.getByTestId('quest-text-stack').props.style,
-    );
     const contentColumnStyle = StyleSheet.flatten(
       screen.getByTestId('quest-content-column').props.style,
     );
+    const contentColumnChildren = screen.getByTestId('quest-content-column')
+      .props.children as Array<{ props: { testID?: string } }>;
     const progressRowStyle = StyleSheet.flatten(
       screen.getByTestId('quest-progress-row').props.style,
     );
@@ -139,12 +138,14 @@ describe('QuestList', () => {
       alignItems: 'flex-start',
       gap: 12,
     });
-    expect(textStackStyle).toMatchObject({
-      gap: 6,
-    });
     expect(contentColumnStyle).toMatchObject({
       gap: 8,
     });
+    expect(contentColumnChildren.map((child) => child.props.testID)).toEqual([
+      'quest-title',
+      'quest-progress-row',
+      'quest-remaining-days',
+    ]);
     expect(remainingText.props.fontSize).toBe('$caption3');
     expect(remainingText.props.fontWeight).toBe('600');
     expect(remainingStyle).toMatchObject({

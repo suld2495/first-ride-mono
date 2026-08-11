@@ -62,22 +62,14 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
               <QuestPixelStar size={baseFoundation.dimension.x28} />
             </View>
             <View style={styles.contentColumn} testID="quest-content-column">
-              <View style={styles.titleStack} testID="quest-text-stack">
-                <Typography
-                  variant="caption3"
-                  weight="semibold"
-                  style={styles.remainingText}
-                >
-                  {formatRemainingDays(endDate)}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  weight="semibold"
-                  style={styles.questName}
-                >
-                  {questName}
-                </Typography>
-              </View>
+              <Typography
+                variant="body2"
+                weight="semibold"
+                style={styles.questName}
+                testID="quest-title"
+              >
+                {questName}
+              </Typography>
               <View style={styles.progressRow} testID="quest-progress-row">
                 <View
                   style={styles.progressTrack}
@@ -99,6 +91,14 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
                   {currentCount}/{targetCount}
                 </Typography>
               </View>
+              <Typography
+                variant="caption3"
+                weight="semibold"
+                style={styles.remainingText}
+                testID="quest-remaining-days"
+              >
+                {formatRemainingDays(endDate)}
+              </Typography>
             </View>
           </View>
         </View>
@@ -201,10 +201,6 @@ const styles = StyleSheet.create((theme) => ({
   contentColumn: {
     flex: 1,
     gap: baseFoundation.dimension.x8,
-  },
-
-  titleStack: {
-    gap: baseFoundation.dimension.x6,
   },
 
   remainingText: {
