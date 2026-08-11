@@ -386,13 +386,13 @@ const styles = StyleSheet.create((theme) => ({
     zIndex: 2,
   },
   characterPanelBlue: {
-    backgroundColor: palette.theme.softBlue[20],
+    backgroundColor: appThemes.blue.colors.brand.primary,
   },
   characterPanelGreen: {
-    backgroundColor: palette.theme.softGreen[20],
+    backgroundColor: appThemes.green.colors.brand.primary,
   },
   characterPanelRed: {
-    backgroundColor: palette.theme.softRed[20],
+    backgroundColor: appThemes.red.colors.brand.primary,
   },
   levelBadge: {
     position: 'absolute',
