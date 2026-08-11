@@ -791,6 +791,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(
         getByLabelText('컬러 파랑 선택됨').props.accessibilityState,
       ).toEqual({ selected: true });
+      expect(getByTestId('routine-color-option-B0B4BA')).toBeOnTheScreen();
+      expect(getByTestId('routine-color-option-F3BE00')).toBeOnTheScreen();
+      expect(getByTestId('routine-color-option-CBAD70')).toBeOnTheScreen();
+      expect(getByTestId('routine-color-option-36D72E')).toBeOnTheScreen();
 
       await act(async () => {
         fireEvent.press(getByLabelText('컬러 하늘 선택'));

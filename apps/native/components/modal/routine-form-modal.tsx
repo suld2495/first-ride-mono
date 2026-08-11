@@ -26,7 +26,6 @@ import { Typography } from '@/components/ui/typography';
 import {
   DEFAULT_ROUTINE_COLOR,
   ROUTINE_COLOR_OPTIONS,
-  ROUTINE_LEMON_COLOR,
 } from '@/constants/ROUTINE_COLORS';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
@@ -57,7 +56,6 @@ const getRoutineColorRows = (themeDefaultRoutineColor: string) => {
   const options = [
     { label: '기본', value: themeDefaultRoutineColor },
     ...ROUTINE_COLOR_OPTIONS.slice(0, 5),
-    { label: '레몬', value: ROUTINE_LEMON_COLOR },
     ...ROUTINE_COLOR_OPTIONS.slice(5),
   ];
 
