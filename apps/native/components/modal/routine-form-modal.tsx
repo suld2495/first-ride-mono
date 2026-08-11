@@ -26,6 +26,7 @@ import { Typography } from '@/components/ui/typography';
 import {
   DEFAULT_ROUTINE_COLOR,
   ROUTINE_COLOR_OPTIONS,
+  ROUTINE_LEMON_COLOR,
 } from '@/constants/ROUTINE_COLORS';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { useAuthUser } from '@/hooks/useAuthSession';
@@ -52,10 +53,16 @@ const ROUTINE_COUNT_OPTIONS = Array.from({ length: 7 }, (_, index) => {
   };
 });
 
-const ROUTINE_COLOR_ROWS = [
-  ROUTINE_COLOR_OPTIONS.slice(0, 5),
-  ROUTINE_COLOR_OPTIONS.slice(5),
-];
+const getRoutineColorRows = (themeDefaultRoutineColor: string) => {
+  const options = [
+    { label: '기본', value: themeDefaultRoutineColor },
+    ...ROUTINE_COLOR_OPTIONS.slice(0, 5),
+    { label: '레몬', value: ROUTINE_LEMON_COLOR },
+    ...ROUTINE_COLOR_OPTIONS.slice(5),
+  ];
+
+  return [options.slice(0, 6), options.slice(6)];
+};
 
 const MAX_PENALTY = 100_000_000;
 const ANDROID_FORM_KEYBOARD_EXTRA_HEIGHT = baseFoundation.dimension.x48;
@@ -279,6 +286,10 @@ const RoutineFormModal = () => {
   const mateAutocompleteRef = useRef<AutocompleteInputHandle>(null);
   const isRoutineAdd = type === 'routine-add';
   const defaultStartDate = useMemo(() => getFormatDate(getStartOfToday()), []);
+  const routineColorRows = useMemo(
+    () => getRoutineColorRows(theme.colors.brand.primary),
+    [theme.colors.brand.primary],
+  );
 
   const routineId = useRoutineId();
   const routineForm = useRoutineForm();
@@ -446,7 +457,7 @@ const RoutineFormModal = () => {
           label="컬러"
           item={({ value, setValue }) => (
             <View style={styles.colorGrid}>
-              {ROUTINE_COLOR_ROWS.map((row, rowIndex) => (
+              {routineColorRows.map((row, rowIndex) => (
                 <View
                   key={row[0].value}
                   testID={`routine-color-row-${rowIndex}`}

@@ -10,6 +10,7 @@ import ModalHeaderActionContext from '../../../components/modal/modal-header-act
 import ModalHeaderActionProvider from '../../../components/modal/modal-header-action-provider';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
 import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
+import { useColorSchemeStore } from '../../../store/color-scheme.store';
 import { baseFoundation, palette } from '../../../theme/tokens';
 import {
   fireEvent,
@@ -222,6 +223,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     // 친구 목록 API 기본 목킹 (/friends?nickname=...)
     // axios interceptor가 response.data.data를 반환하므로 { data: [...] } 형식으로 응답해야 함
     mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+    useColorSchemeStore.setState({
+      colorScheme: 'blue',
+      colorSchemeOverride: null,
+    });
   });
 
   afterEach(() => {
@@ -736,12 +741,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       );
     });
 
-    it('10개 컬러 중 하나를 선택한다', async () => {
+    it('12개 컬러 중 하나를 선택한다', async () => {
       const { getAllByTestId, getByLabelText, getByTestId } = render(
         <RoutineFormModal />,
       );
 
-      expect(getAllByTestId(/^routine-color-option-/)).toHaveLength(10);
+      expect(getAllByTestId(/^routine-color-option-/)).toHaveLength(12);
       expect(getAllByTestId(/^routine-color-row-/)).toHaveLength(2);
       expect(
         RNStyleSheet.flatten(getByTestId('routine-color-row-0').props.style),
@@ -771,6 +776,23 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(
         getByLabelText('컬러 하늘 선택됨').props.accessibilityState,
       ).toEqual({ selected: true });
+    });
+
+    it('첫 번째 컬러는 현재 테마의 기본 루틴 컬러로 표시한다', async () => {
+      useColorSchemeStore.setState({
+        colorScheme: 'red',
+        colorSchemeOverride: null,
+      });
+
+      const { getByTestId } = render(<RoutineFormModal />);
+
+      expect(
+        RNStyleSheet.flatten(
+          getByTestId('routine-color-option-FFA3E9').props.style,
+        ),
+      ).toMatchObject({
+        backgroundColor: palette.theme.red[30],
+      });
     });
 
     it('루틴 횟수는 1회부터 7회까지 Select 옵션으로 선택한다', async () => {
