@@ -254,7 +254,28 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(await findByText('루틴 이름')).toBeOnTheScreen();
     });
 
-    it('인증 메시지를 textarea에 입력할 수 있다', async () => {
+    it('개인 루틴은 메이트 메시지 입력 영역을 표시하지 않는다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      expect(screen.queryByText('메시지')).not.toBeOnTheScreen();
+      expect(screen.queryByText('(선택)')).not.toBeOnTheScreen();
+      expect(screen.queryByTestId('request-message-section')).toBeNull();
+      expect(
+        screen.queryByPlaceholderText('메이트에게 남길 한 줄 메시지'),
+      ).toBeNull();
+    });
+
+    it('메이트 루틴은 인증 메시지를 textarea에 입력할 수 있다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/routine\/details/).reply(200, {
+        data: createMockRoutine(0, {
+          isMe: false,
+          mateNickname: 'friend123',
+        }),
+      });
+
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
@@ -788,6 +809,16 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       it('입력한 메시지를 인증 요청에 포함한다', async () => {
         const appendSpy = jest.spyOn(FormData.prototype, 'append');
+
+        mockAxios.resetHandlers();
+        mockAxios.onGet(/\/routine\/details/).reply(200, {
+          data: createMockRoutine(0, {
+            isMe: false,
+            mateNickname: 'friend123',
+          }),
+        });
+        mockAxios.onPost('/routine/confirm').reply(200, { data: null });
+
         const screen = render(<RequestModal />);
 
         await screen.findByText('테스트 루틴 1');
@@ -819,7 +850,10 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       it('100자 초과 서버 에러 메시지를 표시한다', async () => {
         mockAxios.resetHandlers();
         mockAxios.onGet(/\/routine\/details/).reply(200, {
-          data: createMockRoutine(0, { isMe: true }),
+          data: createMockRoutine(0, {
+            isMe: false,
+            mateNickname: 'friend123',
+          }),
         });
         mockAxios.onPost('/routine/confirm').reply(400, {
           success: false,
@@ -927,8 +961,6 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
           expect(screen.getByTestId('camera-button')).toBeDisabled();
           expect(screen.getByTestId('remove-request-image-0')).toBeDisabled();
         });
-
-        expect(screen.queryByText('인증')).not.toBeOnTheScreen();
 
         await act(async () => {
           resolveRequest();

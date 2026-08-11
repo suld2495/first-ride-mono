@@ -340,32 +340,34 @@ const RequestModal = ({ previewDetail }: RequestModalProps) => {
             </ThemeView>
           )}
 
-          <ThemeView
-            testID="request-message-section"
-            style={styles.messageSection}
-            transparent
-          >
-            <FormItem
-              name="message"
-              label="메시지"
-              optionalLabel="(선택)"
-              item={({ value, onChange }) => (
-                <Input
-                  accessibilityLabel="메시지"
-                  editable={!isPending}
-                  fullWidth
-                  inputStyle={styles.messageInput}
-                  maxLength={100}
-                  multiline
-                  onChangeText={onChange}
-                  placeholder="메이트에게 남길 한 줄 메시지"
-                  style={styles.messageField}
-                  value={value}
-                  variant="filled"
-                />
-              )}
-            />
-          </ThemeView>
+          {hasMateTarget ? (
+            <ThemeView
+              testID="request-message-section"
+              style={styles.messageSection}
+              transparent
+            >
+              <FormItem
+                name="message"
+                label="메시지"
+                optionalLabel="(선택)"
+                item={({ value, onChange }) => (
+                  <Input
+                    accessibilityLabel="메시지"
+                    editable={!isPending}
+                    fullWidth
+                    inputStyle={styles.messageInput}
+                    maxLength={100}
+                    multiline
+                    onChangeText={onChange}
+                    placeholder="메이트에게 남길 한 줄 메시지"
+                    style={styles.messageField}
+                    value={value}
+                    variant="filled"
+                  />
+                )}
+              />
+            </ThemeView>
+          ) : null}
 
           <RequetButtonGroup useForm={useForm} loading={isPending} />
         </Form>
