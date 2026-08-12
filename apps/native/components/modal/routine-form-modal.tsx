@@ -52,10 +52,15 @@ const ROUTINE_COUNT_OPTIONS = Array.from({ length: 7 }, (_, index) => {
   };
 });
 
-const ROUTINE_COLOR_ROWS = [
-  ROUTINE_COLOR_OPTIONS.slice(0, 5),
-  ROUTINE_COLOR_OPTIONS.slice(5),
-];
+const getRoutineColorRows = (themeDefaultRoutineColor: string) => {
+  const options = [
+    { label: '기본', value: themeDefaultRoutineColor },
+    ...ROUTINE_COLOR_OPTIONS.slice(0, 5),
+    ...ROUTINE_COLOR_OPTIONS.slice(5),
+  ];
+
+  return [options.slice(0, 6), options.slice(6)];
+};
 
 const MAX_PENALTY = 100_000_000;
 const ANDROID_FORM_KEYBOARD_EXTRA_HEIGHT = baseFoundation.dimension.x48;
@@ -216,6 +221,7 @@ const RoutineDateFormItem = ({
               fillColor={palette.white}
               checkedColor={palette.theme.gray[95]}
               isChecked={Boolean(form.isDailyRepeat)}
+              showCheckIconWhenUnchecked={false}
               onPress={(checked) => {
                 setFieldValue('isDailyRepeat', checked);
               }}
@@ -279,6 +285,10 @@ const RoutineFormModal = () => {
   const mateAutocompleteRef = useRef<AutocompleteInputHandle>(null);
   const isRoutineAdd = type === 'routine-add';
   const defaultStartDate = useMemo(() => getFormatDate(getStartOfToday()), []);
+  const routineColorRows = useMemo(
+    () => getRoutineColorRows(theme.colors.brand.primary),
+    [theme.colors.brand.primary],
+  );
 
   const routineId = useRoutineId();
   const routineForm = useRoutineForm();
@@ -299,9 +309,7 @@ const RoutineFormModal = () => {
       ...sourceRoutineForm,
       startDate: sourceRoutineForm.startDate || defaultStartDate,
       symbolColor: sourceRoutineForm.symbolColor || DEFAULT_ROUTINE_COLOR,
-      isDailyRepeat:
-        !isRoutineAdd &&
-        Boolean(sourceRoutineForm.startDate && !sourceRoutineForm.endDate),
+      isDailyRepeat: false,
     };
 
     return isDirectRoutine
@@ -446,7 +454,7 @@ const RoutineFormModal = () => {
           label="컬러"
           item={({ value, setValue }) => (
             <View style={styles.colorGrid}>
-              {ROUTINE_COLOR_ROWS.map((row, rowIndex) => (
+              {routineColorRows.map((row, rowIndex) => (
                 <View
                   key={row[0].value}
                   testID={`routine-color-row-${rowIndex}`}

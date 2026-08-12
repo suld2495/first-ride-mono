@@ -2475,20 +2475,20 @@ describe('루틴 조회 페이지', () => {
       expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
     });
 
-    it('메이트가 없는 number 타입 루틴 체크박스를 눌러도 인증 요청 모달로 이동한다', async () => {
+    it('메이트가 없는 number 타입 루틴 체크박스를 누르면 완료 확인 모달을 표시한다', async () => {
       mockRoutineStore.type = 'number';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
         data: createMockRoutines(1, { mateNickname: '' }),
       });
 
-      const { findByTestId } = render(<Index />);
+      const { findByTestId, findByText } = render(<Index />);
 
       fireEvent.press(await findByTestId('routine-count-check-1-4'));
 
-      await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
-      });
-      expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
+      expect(await findByText('루틴을 완료하셨나요?')).toBeOnTheScreen();
+      expect(await findByText('사진 인증하기')).toBeOnTheScreen();
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
+      expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
     });
 
     it('메이트가 지정된 week 타입 루틴 체크박스를 누르면 인증 요청 모달로 이동한다', async () => {
@@ -2520,6 +2520,7 @@ describe('루틴 조회 페이지', () => {
           todayConfirmStatus: 'DENY',
           todayConfirmId: 999,
           canRequestToday: true,
+          mateNickname: '',
           confirmations: [
             {
               confirmId: 999,
@@ -2538,9 +2539,9 @@ describe('루틴 조회 페이지', () => {
         ),
       );
 
-      await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
-      });
+      expect(
+        await findByTestId('routine-complete-confirm-modal'),
+      ).toBeOnTheScreen();
       expect(mockRequestStore.setRequestId).not.toHaveBeenCalledWith(999);
       expect(mockPush).not.toHaveBeenCalledWith(
         '/modal?type=routine-proof-detail',

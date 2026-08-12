@@ -37,7 +37,7 @@ const REMOTE_ASSET_HOST = (process.env.EXPO_PUBLIC_VITE_BASE_URL ?? '').replace(
   '',
 );
 const FRIEND_CHARACTER_HORIZONTAL_PADDING = 35;
-const FRIEND_CHARACTER_SIZE_INCREMENT = 34;
+const FRIEND_CHARACTER_SIZE_INCREMENT = 46;
 const FRIEND_LIST_HORIZONTAL_PADDING = baseFoundation.spacing[6];
 const FRIEND_GRID_COLUMN_GAP = baseFoundation.spacing[4];
 const FRIEND_GRID_ROW_GAP = baseFoundation.spacing[2];
@@ -46,19 +46,26 @@ const FRIEND_MOTTO_CHARACTER_OFFSET_Y = 13;
 const FRIEND_MOTTO_BUBBLE_MIN_WIDTH = 80;
 const FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN = baseFoundation.spacing[2];
 const FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING = 5;
-const FRIEND_MOTTO_BUBBLE_TOP_MARGIN = baseFoundation.spacing[1.5];
+const FRIEND_MOTTO_BUBBLE_TOP_MARGIN =
+  baseFoundation.spacing[1.5] + baseFoundation.spacing[2];
 const FRIEND_MOTTO_BUBBLE_CHARACTER_GAP = baseFoundation.dimension.x2;
 const FRIEND_MOTTO_MAX_LINE_COUNT = 2;
 const FRIEND_MOTTO_LINE_HEIGHT = 16;
-const FRIEND_MOTTO_BUBBLE_SINGLE_LINE_TOP_MARGIN =
+const FRIEND_MOTTO_BUBBLE_DISPLAY_TOP =
   FRIEND_MOTTO_BUBBLE_TOP_MARGIN + FRIEND_MOTTO_LINE_HEIGHT;
 const FRIEND_MOTTO_BUBBLE_BORDER_WIDTH = 2;
 const FRIEND_MOTTO_BUBBLE_TAIL_SPACE = baseFoundation.spacing[2];
-const FRIEND_MOTTO_MAX_BUBBLE_HEIGHT =
+const FRIEND_MOTTO_BUBBLE_SINGLE_LINE_MAX_WIDTH = 118;
+const FRIEND_MOTTO_BUBBLE_SINGLE_LINE_HEIGHT =
+  FRIEND_MOTTO_LINE_HEIGHT +
+  FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING * 2 +
+  FRIEND_MOTTO_BUBBLE_BORDER_WIDTH * 2;
+const FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT =
   FRIEND_MOTTO_MAX_LINE_COUNT * FRIEND_MOTTO_LINE_HEIGHT +
   FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING * 2 +
-  FRIEND_MOTTO_BUBBLE_BORDER_WIDTH * 2 +
-  FRIEND_MOTTO_BUBBLE_TAIL_SPACE;
+  FRIEND_MOTTO_BUBBLE_BORDER_WIDTH * 2;
+const FRIEND_MOTTO_MAX_BUBBLE_HEIGHT =
+  FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT + FRIEND_MOTTO_BUBBLE_TAIL_SPACE;
 const FRIEND_ITEM_TEXT_BLOCK_HEIGHT =
   baseFoundation.spacing[2] +
   baseFoundation.dimension.x10 +
@@ -91,8 +98,10 @@ const getFriendCharacterImageSize = (itemWidth: number) => {
     itemWidth - (fixedTopSpace - FRIEND_MOTTO_CHARACTER_OFFSET_Y) * 2,
   );
 
-  return Math.min(widthBasedImageSize, heightBasedImageSize) +
-    FRIEND_CHARACTER_SIZE_INCREMENT;
+  return (
+    Math.min(widthBasedImageSize, heightBasedImageSize) +
+    FRIEND_CHARACTER_SIZE_INCREMENT
+  );
 };
 
 const getFriendCharacterSource = (
@@ -213,10 +222,15 @@ const FriendItem = ({
             containerMinHeight={null}
             containerMinWidth={FRIEND_MOTTO_BUBBLE_MIN_WIDTH}
             containerPaddingVertical={FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING}
-            maxWidth={itemWidth - FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN * 2}
+            multiLineContainerHeight={FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT}
+            multiLineMaxWidth={
+              itemWidth - FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN * 2
+            }
             message={motto}
             numberOfLines={2}
-            singleLineWrapperTop={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_TOP_MARGIN}
+            singleLineContainerHeight={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_HEIGHT}
+            singleLineMaxWidth={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_MAX_WIDTH}
+            singleLineWrapperTop={FRIEND_MOTTO_BUBBLE_DISPLAY_TOP}
             style={styles.speechBubble}
             testID={`friend-character-speech-bubble-${testIdSuffix}`}
             textVariant="caption2"
@@ -373,13 +387,13 @@ const styles = StyleSheet.create((theme) => ({
     zIndex: 2,
   },
   characterPanelBlue: {
-    backgroundColor: appThemes.blue.colors.brand.card,
+    backgroundColor: appThemes.blue.colors.brand.primary,
   },
   characterPanelGreen: {
-    backgroundColor: appThemes.green.colors.brand.card,
+    backgroundColor: appThemes.green.colors.brand.primary,
   },
   characterPanelRed: {
-    backgroundColor: appThemes.red.colors.brand.card,
+    backgroundColor: appThemes.red.colors.brand.primary,
   },
   levelBadge: {
     position: 'absolute',

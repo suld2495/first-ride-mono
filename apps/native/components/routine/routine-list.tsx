@@ -4,8 +4,11 @@ import {
   useUpdateRoutinePauseMutation,
   useUpdateRoutineVisibilityMutation,
 } from '@repo/shared/hooks/useRoutine';
+import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
+import { routineKeys } from '@repo/shared/types/query-keys/routine';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
+import { useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -22,6 +25,7 @@ import {
 } from 'react-native';
 
 import { RoutineMoreIndicatorIcon } from '@/components/icons/routine-icons';
+import RoutineCompleteConfirmModal from '@/components/modal/routine-complete-confirm-modal';
 import { RoutineContextMenuPanel } from '@/components/routine/routine-context-menu';
 import { getRoutineScenePreviewOverlayAsset } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
@@ -88,6 +92,7 @@ const RoutineList = ({
   const setRoutineForm = useSetRoutineForm();
   const type = useRoutineType();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { theme } = useAppTheme();
   const { showToast } = useToast();
   const user = useAuthUser();
@@ -104,6 +109,10 @@ const RoutineList = ({
   const updatePause = useUpdateRoutinePauseMutation(nickname);
   const updateVisibility = useUpdateRoutineVisibilityMutation();
   const deleteRoutine = useDeleteRoutineMutation(nickname);
+  const { isPending: isCompletingRoutine, mutate: completeRoutine } =
+    useCreateRequestMutation();
+  const [completeTargetRoutine, setCompleteTargetRoutine] =
+    useState<Routine | null>(null);
   const showsRequestMenuItem = date === getWeekMonday(new Date());
 
   const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
@@ -182,6 +191,63 @@ const RoutineList = ({
     [router, setRequestId],
   );
 
+  const handleCloseCompleteConfirmModal = useCallback(() => {
+    if (isCompletingRoutine) {
+      return;
+    }
+
+    setCompleteTargetRoutine(null);
+  }, [isCompletingRoutine]);
+
+  const handleConfirmRoutineComplete = useCallback(
+    (withPhoto: boolean) => {
+      const targetRoutine = completeTargetRoutine;
+
+      if (!targetRoutine || isCompletingRoutine) {
+        return;
+      }
+
+      if (withPhoto) {
+        setCompleteTargetRoutine(null);
+        handleShowRequestModal(targetRoutine.routineId);
+
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('routineId', targetRoutine.routineId.toString());
+      formData.append('message', '');
+
+      completeRoutine(
+        { data: formData },
+        {
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({
+              queryKey: routineKeys.list(nickname),
+            });
+            setCompleteTargetRoutine(null);
+            showToast('루틴이 완료되었습니다.', 'success');
+          },
+          onError: (error) => {
+            showToast(
+              getApiErrorMessage(error, '루틴 완료에 실패했습니다.'),
+              'error',
+            );
+          },
+        },
+      );
+    },
+    [
+      completeRoutine,
+      completeTargetRoutine,
+      handleShowRequestModal,
+      isCompletingRoutine,
+      nickname,
+      queryClient,
+      showToast,
+    ],
+  );
+
   const handlePressRoutineCheck = useCallback(
     (routine: Routine, meta: RoutineCheckPressMeta = {}) => {
       if (!showsRequestMenuItem) {
@@ -209,6 +275,12 @@ const RoutineList = ({
 
       if (confirmId) {
         handleShowRoutineProofDetailModal(confirmId);
+
+        return;
+      }
+
+      if (routine.isMe && !routine.mateNickname) {
+        setCompleteTargetRoutine(routine);
 
         return;
       }
@@ -360,7 +432,7 @@ const RoutineList = ({
               scrollEnabled={isListGestureEnabled}
               refreshing={refreshing}
               onRefresh={onRefresh}
-              canRequestRoutine={showsRequestMenuItem && !readOnly}
+              canRequestRoutine={!readOnly}
               onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
@@ -378,7 +450,7 @@ const RoutineList = ({
               scrollEnabled={isListGestureEnabled}
               refreshing={refreshing}
               onRefresh={onRefresh}
-              canRequestRoutine={showsRequestMenuItem && !readOnly}
+              canRequestRoutine={!readOnly}
               onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
@@ -485,6 +557,13 @@ const RoutineList = ({
           </Pressable>
         </View>
       ) : null}
+      <RoutineCompleteConfirmModal
+        isSubmitting={isCompletingRoutine}
+        onCancel={handleCloseCompleteConfirmModal}
+        onConfirm={handleConfirmRoutineComplete}
+        routineName={completeTargetRoutine?.routineName}
+        visible={Boolean(completeTargetRoutine)}
+      />
     </ThemeView>
   );
 };

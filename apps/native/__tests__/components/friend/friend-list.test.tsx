@@ -105,8 +105,8 @@ describe('FriendList', () => {
     expect(firstCardWidth).toBe(343);
     expect(firstCharacterStyle).toEqual(
       expect.objectContaining({
-        height: 279,
-        width: 279,
+        height: 275,
+        width: 275,
       }),
     );
   });
@@ -133,8 +133,8 @@ describe('FriendList', () => {
 
     expect(characterStyle).toEqual(
       expect.objectContaining({
-        height: 279,
-        width: 279,
+        height: 275,
+        width: 275,
       }),
     );
   });
@@ -184,15 +184,16 @@ describe('FriendList', () => {
     expect(StyleSheet.flatten(speechBubble.props.style)).toEqual(
       expect.objectContaining({
         position: 'absolute',
-        top: 6,
+        top: 14,
       }),
     );
     expect(StyleSheet.flatten(speechBubbleContainer.props.style)).toEqual(
       expect.objectContaining({
         maxWidth: 327,
         minWidth: 80,
-        paddingBottom: 5,
-        paddingTop: 5,
+        height: 46,
+        paddingBottom: 0,
+        paddingTop: 0,
       }),
     );
     expect(
@@ -239,7 +240,7 @@ describe('FriendList', () => {
       ),
     ).toEqual(
       expect.objectContaining({
-        top: 22,
+        top: 30,
       }),
     );
   });
@@ -346,7 +347,7 @@ describe('FriendList', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          backgroundColor: appThemes.blue.colors.brand.card,
+          backgroundColor: appThemes.blue.colors.brand.primary,
         }),
       ]),
     );
@@ -381,7 +382,7 @@ describe('FriendList', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          backgroundColor: appThemes.red.colors.brand.card,
+          backgroundColor: appThemes.red.colors.brand.primary,
         }),
       ]),
     );
@@ -414,7 +415,7 @@ describe('FriendList', () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          backgroundColor: appThemes.green.colors.brand.card,
+          backgroundColor: appThemes.green.colors.brand.primary,
         }),
       ]),
     );

@@ -2,9 +2,8 @@ import React from 'react';
 import { Animated, Easing } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
-import { palette } from '@/theme/tokens';
+import { useAppTheme } from '@/components/ui/tamagui';
 
-const DEFAULT_SPINNER_COLOR = palette.theme.gray[10];
 const DEFAULT_SPINNER_SIZE = 24;
 const DEFAULT_SPINNER_STROKE_WIDTH = 4;
 
@@ -16,14 +15,16 @@ export interface LoadingSpinnerProps {
 }
 
 export const LoadingSpinner = ({
-  color = DEFAULT_SPINNER_COLOR,
+  color,
   size = DEFAULT_SPINNER_SIZE,
   strokeWidth = DEFAULT_SPINNER_STROKE_WIDTH,
   testID,
 }: LoadingSpinnerProps) => {
+  const { theme } = useAppTheme();
   const spinValue = React.useRef(new Animated.Value(0)).current;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
+  const spinnerColor = color ?? theme.colors.text.soft;
 
   React.useEffect(() => {
     const animation = Animated.loop(
@@ -58,14 +59,16 @@ export const LoadingSpinner = ({
     >
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <Circle
+          color={spinnerColor}
           cx={size / 2}
           cy={size / 2}
           fill="none"
           r={radius}
-          stroke={color}
+          stroke={spinnerColor}
           strokeDasharray={`${circumference * 0.9} ${circumference * 0.1}`}
           strokeLinecap="butt"
           strokeWidth={strokeWidth}
+          testID={testID ? `${testID}-circle` : undefined}
         />
       </Svg>
     </Animated.View>

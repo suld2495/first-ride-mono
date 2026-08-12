@@ -359,7 +359,19 @@ describe('친구 리스트 페이지', () => {
         expect(await screen.findByText('friend1')).toBeOnTheScreen();
 
         expect(screen.getByTestId('friend-page')).toHaveStyle({
-          backgroundColor: appThemes.blue.colors.background.base,
+          backgroundColor: appThemes.blue.colors.brand.card,
+        });
+      });
+
+      it('친구 카드 배경은 친구 직업 테마의 30톤을 적용한다', async () => {
+        const screen = render(<FriendPage />);
+
+        expect(await screen.findByText('friend1')).toBeOnTheScreen();
+
+        expect(
+          screen.getByTestId('friend-character-panel-friend1'),
+        ).toHaveStyle({
+          backgroundColor: appThemes.red.colors.brand.primary,
         });
       });
 
@@ -384,7 +396,7 @@ describe('친구 리스트 페이지', () => {
 
         expect(await screen.findByText('friend1')).toBeOnTheScreen();
         expect(screen.getByTestId('friend-page')).toHaveStyle({
-          backgroundColor: appThemes.blue.colors.background.base,
+          backgroundColor: appThemes.blue.colors.brand.card,
         });
         expect(useColorSchemeStore.getState().colorSchemeOverride).toBeNull();
       });

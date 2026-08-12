@@ -10,6 +10,7 @@ import ModalHeaderActionContext from '../../../components/modal/modal-header-act
 import ModalHeaderActionProvider from '../../../components/modal/modal-header-action-provider';
 import RoutineFormModal from '../../../components/modal/routine-form-modal';
 import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
+import { useColorSchemeStore } from '../../../store/color-scheme.store';
 import { baseFoundation, palette } from '../../../theme/tokens';
 import {
   fireEvent,
@@ -60,6 +61,7 @@ jest.mock('react-native-bouncy-checkbox', () => {
     default: ({
       fillColor,
       disableText,
+      iconComponent,
       isChecked,
       onPress,
       text,
@@ -67,6 +69,7 @@ jest.mock('react-native-bouncy-checkbox', () => {
     }: {
       disableText?: boolean;
       fillColor?: string;
+      iconComponent?: unknown;
       isChecked?: boolean;
       onPress: (checked: boolean) => void;
       text?: string;
@@ -78,6 +81,7 @@ jest.mock('react-native-bouncy-checkbox', () => {
           testID: 'bouncy-checkbox',
           disableText,
           fillColor,
+          iconComponent,
           isChecked,
           onPress: () => {
             (global as any).mockCheckboxChecked = !(global as any)
@@ -222,6 +226,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     // 친구 목록 API 기본 목킹 (/friends?nickname=...)
     // axios interceptor가 response.data.data를 반환하므로 { data: [...] } 형식으로 응답해야 함
     mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+    useColorSchemeStore.setState({
+      colorScheme: 'blue',
+      colorSchemeOverride: null,
+    });
   });
 
   afterEach(() => {
@@ -348,9 +356,13 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       const { getAllByTestId, getByTestId, getByText } = render(
         <RoutineFormModal />,
       );
+      const dailyRepeatCheckbox = getAllByTestId('bouncy-checkbox')[0];
+
+      expect(dailyRepeatCheckbox.props.isChecked).toBe(false);
+      expect(dailyRepeatCheckbox.props.iconComponent).toBeUndefined();
 
       await act(async () => {
-        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+        fireEvent.press(dailyRepeatCheckbox);
       });
 
       expect(getByText('매일 반복')).toBeOnTheScreen();
@@ -363,6 +375,22 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       expect(mockRoutineStore.beginRoutineDateSelection).not.toHaveBeenCalled();
       expect(mockPush).not.toHaveBeenCalledWith('/routine-date-select');
+    });
+
+    it('매일 반복 체크를 풀면 날짜 선택 버튼을 다시 활성화한다', async () => {
+      const { getAllByTestId, getByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      expect(getByTestId('routine-daily-repeat-date-button')).toBeDisabled();
+
+      await act(async () => {
+        fireEvent.press(getAllByTestId('bouncy-checkbox')[0]);
+      });
+
+      expect(getByTestId('routine-date-button')).not.toBeDisabled();
     });
 
     it('메이트에게 루틴 인증 요청을 기본 해제하고 메이트와 벌금 입력을 숨긴다', () => {
@@ -736,12 +764,12 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       );
     });
 
-    it('10개 컬러 중 하나를 선택한다', async () => {
+    it('12개 컬러 중 하나를 선택한다', async () => {
       const { getAllByTestId, getByLabelText, getByTestId } = render(
         <RoutineFormModal />,
       );
 
-      expect(getAllByTestId(/^routine-color-option-/)).toHaveLength(10);
+      expect(getAllByTestId(/^routine-color-option-/)).toHaveLength(12);
       expect(getAllByTestId(/^routine-color-row-/)).toHaveLength(2);
       expect(
         RNStyleSheet.flatten(getByTestId('routine-color-row-0').props.style),
@@ -763,6 +791,10 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(
         getByLabelText('컬러 파랑 선택됨').props.accessibilityState,
       ).toEqual({ selected: true });
+      expect(getByTestId('routine-color-option-B0B4BA')).toBeOnTheScreen();
+      expect(getByTestId('routine-color-option-F3BE00')).toBeOnTheScreen();
+      expect(getByTestId('routine-color-option-CBAD70')).toBeOnTheScreen();
+      expect(getByTestId('routine-color-option-36D72E')).toBeOnTheScreen();
 
       await act(async () => {
         fireEvent.press(getByLabelText('컬러 하늘 선택'));
@@ -771,6 +803,23 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(
         getByLabelText('컬러 하늘 선택됨').props.accessibilityState,
       ).toEqual({ selected: true });
+    });
+
+    it('첫 번째 컬러는 현재 테마의 기본 루틴 컬러로 표시한다', async () => {
+      useColorSchemeStore.setState({
+        colorScheme: 'red',
+        colorSchemeOverride: null,
+      });
+
+      const { getByTestId } = render(<RoutineFormModal />);
+
+      expect(
+        RNStyleSheet.flatten(
+          getByTestId('routine-color-option-FFA3E9').props.style,
+        ),
+      ).toMatchObject({
+        backgroundColor: palette.theme.red[30],
+      });
     });
 
     it('루틴 횟수는 1회부터 7회까지 Select 옵션으로 선택한다', async () => {
@@ -1390,9 +1439,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(await findByText('일주일에 3회')).toBeOnTheScreen();
 
       expect(await findByText('매일 반복')).toBeOnTheScreen();
-      expect(
-        await findByTestId('routine-daily-repeat-date-button'),
-      ).toBeDisabled();
+      expect(await findByTestId('routine-date-button')).not.toBeDisabled();
     });
 
     it('셀프 루틴 수정에서는 저장된 사진 인증 필수 값을 표시한다', async () => {
@@ -1458,8 +1505,8 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       );
       expect(getByText('일주일에 5회')).toBeOnTheScreen();
       expect(getByText('2026-05-26')).toBeOnTheScreen();
-      expect(getByTestId('routine-daily-repeat-date-button')).toBeDisabled();
-      expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(true);
+      expect(getByTestId('routine-date-button')).not.toBeDisabled();
+      expect(getAllByTestId('bouncy-checkbox')[0].props.isChecked).toBe(false);
     });
 
     it('수정 버튼이 화면에 표시된다', async () => {

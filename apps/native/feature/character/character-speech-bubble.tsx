@@ -26,8 +26,12 @@ type CharacterSpeechBubbleProps = ViewProps & {
   containerPaddingTop?: number;
   containerPaddingVertical?: number;
   maxWidth?: number;
+  multiLineContainerHeight?: number;
+  multiLineMaxWidth?: number;
   numberOfLines?: number;
   message?: string;
+  singleLineContainerHeight?: number;
+  singleLineMaxWidth?: number;
   singleLinePaddingTop?: number;
   tailPosition?: SpeechBubbleTailPosition;
   textStyle?: StyleProp<TextStyle>;
@@ -71,8 +75,12 @@ const CharacterSpeechBubble = ({
   containerPaddingTop,
   containerPaddingVertical = BUBBLE_DEFAULT_PADDING_VERTICAL,
   maxWidth: maxWidthOverride,
+  multiLineContainerHeight,
+  multiLineMaxWidth,
   message,
   numberOfLines = 2,
+  singleLineContainerHeight,
+  singleLineMaxWidth,
   singleLinePaddingTop,
   style,
   tailPosition = 'bottom',
@@ -92,15 +100,32 @@ const CharacterSpeechBubble = ({
   const borderColor = getCharacterSpeechBubbleBorderColor(
     themeNameOverride ?? themeName,
   );
+  const isSingleLine = renderedLineCount <= 1;
   const maxWidth =
-    maxWidthOverride ?? getCharacterSpeechBubbleMaxWidth(windowWidth);
+    isSingleLine && singleLineMaxWidth !== undefined
+      ? singleLineMaxWidth
+      : (multiLineMaxWidth ??
+        maxWidthOverride ??
+        getCharacterSpeechBubbleMaxWidth(windowWidth));
+  const containerHeight =
+    isSingleLine && singleLineContainerHeight !== undefined
+      ? singleLineContainerHeight
+      : multiLineContainerHeight;
+  const hasFixedContainerHeight = containerHeight !== undefined;
   const defaultPaddingTop = containerPaddingTop ?? containerPaddingVertical;
-  const paddingTop =
-    renderedLineCount <= 1 && singleLinePaddingTop !== undefined
-      ? singleLinePaddingTop
-      : defaultPaddingTop;
+  const paddingTop = (() => {
+    if (hasFixedContainerHeight) return 0;
+    if (isSingleLine && singleLinePaddingTop !== undefined) {
+      return singleLinePaddingTop;
+    }
+
+    return defaultPaddingTop;
+  })();
+  const paddingBottom = hasFixedContainerHeight
+    ? 0
+    : (containerPaddingBottom ?? containerPaddingVertical);
   const top =
-    renderedLineCount <= 1 && singleLineWrapperTop !== undefined
+    isSingleLine && singleLineWrapperTop !== undefined
       ? singleLineWrapperTop
       : wrapperTop;
   const wrapperPositionStyle = top === undefined ? undefined : { top };
@@ -108,9 +133,10 @@ const CharacterSpeechBubble = ({
     borderColor,
     maxWidth,
     minWidth: containerMinWidth,
-    paddingBottom: containerPaddingBottom ?? containerPaddingVertical,
+    paddingBottom,
     paddingHorizontal: containerPaddingHorizontal,
     paddingTop,
+    ...(containerHeight === undefined ? {} : { height: containerHeight }),
     ...(containerMinHeight === null ? {} : { minHeight: containerMinHeight }),
   };
   const handleTextLayout = useCallback(

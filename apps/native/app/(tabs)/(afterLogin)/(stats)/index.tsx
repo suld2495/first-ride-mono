@@ -156,7 +156,7 @@ export default function StatsPage() {
   const nextModeLabel = isSummaryMode ? '캘린더 보기' : '통계 보기';
 
   return (
-    <Container noPadding>
+    <Container noPadding testID="stats-page">
       <PageHeader
         title="통계"
         right={

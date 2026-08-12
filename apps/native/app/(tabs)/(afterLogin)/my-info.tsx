@@ -189,7 +189,7 @@ const MyInfo = () => {
   };
 
   return (
-    <Container noPadding style={styles.container}>
+    <Container noPadding style={styles.container} testID="settings-page">
       <Header title="설정" />
       <ScrollView
         contentContainerStyle={styles.scrollContent}

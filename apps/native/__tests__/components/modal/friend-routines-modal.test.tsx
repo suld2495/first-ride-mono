@@ -495,8 +495,16 @@ describe('FriendRoutinesModal', () => {
 
     const loadingIcon = await screen.findByTestId('friend-cheer-loading-icon');
 
-    expect(loadingIcon).toHaveProp('color', palette.theme.blue[50]);
-    expect(loadingIcon).toHaveProp('size', baseFoundation.iconSize.xs);
+    expect(StyleSheet.flatten(loadingIcon.props.style)).toEqual(
+      expect.objectContaining({
+        width: baseFoundation.iconSize.xs,
+        height: baseFoundation.iconSize.xs,
+      }),
+    );
+    expect(screen.getByTestId('friend-cheer-loading-icon-circle')).toHaveProp(
+      'color',
+      appThemes.blue.colors.text.soft,
+    );
     expect(screen.getByText('응원')).toBeOnTheScreen();
     expect(screen.queryByTestId('friend-cheer-icon')).toBeNull();
     expect(cheerButton).toHaveStyle({

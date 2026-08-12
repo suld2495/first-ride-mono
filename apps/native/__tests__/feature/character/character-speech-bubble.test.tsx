@@ -115,4 +115,25 @@ describe('CharacterSpeechBubble', () => {
 
     expect(getByTestId('speech-bubble-trailing-icon')).toBeOnTheScreen();
   });
+
+  it('고정 높이 말풍선은 텍스트가 중앙 정렬되도록 세로 패딩을 제거한다', () => {
+    const { getByTestId } = render(
+      <CharacterSpeechBubble
+        message="ㅎㄴ"
+        numberOfLines={1}
+        singleLineContainerHeight={30}
+        singleLineMaxWidth={118}
+      />,
+    );
+    const bubbleContainer = getByTestId('character-speech-bubble-container');
+
+    expect(StyleSheet.flatten(bubbleContainer.props.style)).toEqual(
+      expect.objectContaining({
+        height: 30,
+        maxWidth: 118,
+        paddingBottom: 0,
+        paddingTop: 0,
+      }),
+    );
+  });
 });

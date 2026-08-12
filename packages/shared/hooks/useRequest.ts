@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as requestApi from '../api/request.api';
 import type { CreateRequestOptions } from '../api/request.api';
 import { requestKey } from '../types/query-keys/request';
+import { userKey } from '../types/query-keys/user';
 
 interface CreateRequestMutationVariables extends CreateRequestOptions {
   data: FormData;
@@ -33,9 +34,17 @@ export const useCreateRequestMutation = () => {
     mutationFn: ({ data, onUploadProgress }: CreateRequestMutationVariables) =>
       requestApi.createRequest(data, { onUploadProgress }),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: requestKey.all(),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: requestKey.all(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['stat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: userKey.all(),
+        }),
+      ]);
     },
   });
 };
@@ -48,9 +57,17 @@ export const useReplyRequestMutation = (user: string) => {
       requestApi.replyRequest(data),
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: requestKey.receivedList(user),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: requestKey.receivedList(user),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['stat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: userKey.all(),
+        }),
+      ]);
     },
   });
 };

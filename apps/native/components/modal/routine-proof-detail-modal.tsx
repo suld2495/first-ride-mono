@@ -92,11 +92,7 @@ const DetailImage = ({ imagePath, style }: DetailImageProps) => {
   }
 
   return (
-    <Image
-      source={{ uri: imagePath }}
-      style={style}
-      resizeMode="contain"
-    />
+    <Image source={{ uri: imagePath }} style={style} resizeMode="contain" />
   );
 };
 
@@ -184,7 +180,7 @@ const RoutineProofDetailModal = ({
         showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
       >
         <ThemeView transparent style={styles.header}>
-          <Typography variant="h2" weight="bold" style={styles.title}>
+          <Typography variant="subtitle1" weight="bold" style={styles.title}>
             {routineName}
           </Typography>
           {visibleRoutineDescription ? (
@@ -300,9 +296,7 @@ const RoutineProofDetailModal = ({
                       {message.time}
                     </Typography>
                   ) : null}
-                  {message.mine ? (
-                    <DetailAvatar nickname="나" />
-                  ) : null}
+                  {message.mine ? <DetailAvatar nickname="나" /> : null}
                 </View>
               ))}
             </ThemeView>
@@ -350,7 +344,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   header: { gap: baseFoundation.spacing[2] },
   title: { color: theme.colors.brand.text },
-  description: { color: theme.colors.text.secondary },
+  description: { color: theme.colors.text.muted },
   section: { gap: baseFoundation.spacing[2] },
   proofSectionSpacing: { marginTop: 20 },
   sectionTitle: { color: theme.colors.text.muted },
