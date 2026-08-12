@@ -135,7 +135,7 @@ describe('친구 리스트 페이지', () => {
       });
     });
 
-    it('랜덤 친구 추천 제목 우측에 자정까지 남은 시간을 초 단위로 표시한다', async () => {
+    it('랜덤 친구 추천 제목 아래에 자정까지 남은 시간을 초 단위로 표시한다', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-08-12T23:59:58.000'));
       setupMocks([]);
 
@@ -183,6 +183,46 @@ describe('친구 리스트 페이지', () => {
       expect(screen.getByTestId('random-friend-countdown')).toHaveStyle({
         color: appThemes.blue.colors.text.muted,
       });
+    });
+
+    it('제목 우측 스위치 아래에 타이머와 추천 프로필을 순서대로 표시한다', async () => {
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+
+      expect(
+        await screen.findByTestId('random-friend-recommendation-header-row'),
+      ).toHaveStyle({
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+      });
+      expect(screen.getByTestId('random-friend-countdown-row')).toHaveStyle({
+        alignItems: 'flex-end',
+      });
+      expect(
+        screen.getByLabelText('랜덤 친구 추천 받기').props.accessibilityState,
+      ).toEqual(expect.objectContaining({ checked: true }));
+      expect(screen.queryByText('추천 받기')).not.toBeOnTheScreen();
+      expect(await screen.findByTestId('random-friend-card')).toBeOnTheScreen();
+    });
+
+    it('스위치를 끄면 타이머와 추천 프로필을 숨긴다', async () => {
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+      const recommendationSwitch = screen.getByLabelText('랜덤 친구 추천 받기');
+
+      expect(await screen.findByTestId('random-friend-card')).toBeOnTheScreen();
+
+      fireEvent(recommendationSwitch, 'valueChange', false);
+
+      expect(
+        screen.queryByTestId('random-friend-countdown-row'),
+      ).not.toBeOnTheScreen();
+      expect(screen.queryByTestId('random-friend-card')).not.toBeOnTheScreen();
+      expect(recommendationSwitch.props.accessibilityState).toEqual(
+        expect.objectContaining({ checked: false }),
+      );
     });
 
     it('자정이 되면 랜덤 친구 추천 API를 다시 호출한다', async () => {

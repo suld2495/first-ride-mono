@@ -4,7 +4,7 @@ import {
 } from '@repo/shared/hooks/useFriend';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { Switch, View } from 'react-native';
 
 import {
   getRoutineSceneBackgroundAsset,
@@ -34,20 +34,19 @@ const RECOMMENDATION_ERROR_MESSAGE =
   '추천 친구를 불러오지 못했습니다.\n잠시 후 다시 시도해주세요.';
 
 interface RandomFriendRecommendationHeaderProps {
+  enabled: boolean;
+  onEnabledChange: (enabled: boolean) => void;
   refetch: () => unknown;
 }
 
-const RandomFriendRecommendationHeader = ({
+const RandomFriendRecommendationCountdown = ({
   refetch,
-}: RandomFriendRecommendationHeaderProps) => {
+}: Pick<RandomFriendRecommendationHeaderProps, 'refetch'>) => {
   const { theme } = useAppTheme();
   const remainingSeconds = useRandomFriendRecommendationRollover(refetch);
 
   return (
-    <View style={styles.sectionHeader}>
-      <Typography variant="body2" weight="semibold" style={styles.sectionTitle}>
-        랜덤 친구 추천
-      </Typography>
+    <View style={styles.countdownRow} testID="random-friend-countdown-row">
       <View
         style={styles.countdownContainer}
         testID="random-friend-countdown-container"
@@ -71,6 +70,46 @@ const RandomFriendRecommendationHeader = ({
   );
 };
 
+const RandomFriendRecommendationHeader = ({
+  enabled,
+  onEnabledChange,
+  refetch,
+}: RandomFriendRecommendationHeaderProps) => {
+  const { theme } = useAppTheme();
+
+  return (
+    <View style={styles.recommendationHeader}>
+      <View
+        style={styles.sectionHeader}
+        testID="random-friend-recommendation-header-row"
+      >
+        <Typography
+          variant="body2"
+          weight="semibold"
+          style={styles.sectionTitle}
+        >
+          랜덤 친구 추천
+        </Typography>
+        <Switch
+          accessibilityLabel="랜덤 친구 추천 받기"
+          accessibilityState={{ checked: enabled }}
+          ios_backgroundColor={theme.colors.border.strong}
+          onValueChange={onEnabledChange}
+          thumbColor={theme.colors.background.elevated}
+          trackColor={{
+            false: theme.colors.border.strong,
+            true: theme.colors.text.muted,
+          }}
+          value={enabled}
+        />
+      </View>
+      {enabled ? (
+        <RandomFriendRecommendationCountdown refetch={refetch} />
+      ) : null}
+    </View>
+  );
+};
+
 const RandomFriendRecommendation = () => {
   const {
     data: recommendation,
@@ -81,6 +120,7 @@ const RandomFriendRecommendation = () => {
   const addFriendMutation = useAddFriendMutation();
   const { showToast } = useToast();
   const requestInFlightRef = useRef(false);
+  const [isRecommendationEnabled, setIsRecommendationEnabled] = useState(true);
   const [requestedNickname, setRequestedNickname] = useState<string | null>(
     null,
   );
@@ -127,15 +167,27 @@ const RandomFriendRecommendation = () => {
     void refetch();
   };
 
+  const handleRecommendationEnabledChange = (enabled: boolean) => {
+    setIsRecommendationEnabled(enabled);
+
+    if (enabled) {
+      void refetch();
+    }
+  };
+
   const errorMessage = error
     ? getApiErrorMessage(error, RECOMMENDATION_ERROR_MESSAGE)
     : RECOMMENDATION_ERROR_MESSAGE;
 
   return (
     <View style={styles.section} testID="random-friend-recommendation">
-      <RandomFriendRecommendationHeader refetch={refetch} />
+      <RandomFriendRecommendationHeader
+        enabled={isRecommendationEnabled}
+        onEnabledChange={handleRecommendationEnabledChange}
+        refetch={refetch}
+      />
 
-      {isLoading ? (
+      {!isRecommendationEnabled ? null : isLoading ? (
         <View style={styles.stateCard} testID="random-friend-loading">
           <Loading />
         </View>
@@ -265,6 +317,9 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'space-between',
     gap: theme.foundation.spacing[2],
   },
+  recommendationHeader: {
+    gap: theme.foundation.spacing[2],
+  },
   sectionTitle: {
     color: theme.colors.text.muted,
     flexShrink: 1,
@@ -277,6 +332,9 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: theme.foundation.radii.xs,
     paddingHorizontal: theme.foundation.spacing[2],
     backgroundColor: 'rgba(255, 255, 255, 0.55)',
+  },
+  countdownRow: {
+    alignItems: 'flex-end',
   },
   countdown: {
     color: theme.colors.text.muted,
