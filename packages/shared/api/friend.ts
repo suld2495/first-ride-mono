@@ -134,15 +134,16 @@ export const fetchFriendProfile = async (
   }
 };
 
-export const fetchRandomFriendRecommendation = async (): Promise<RandomFriendRecommendationResponse> => {
-  try {
-    return await http.post<RandomFriendRecommendationResponse, undefined>(
-      `${baseURL}/random-recommendation`,
-    );
-  } catch (error) {
-    throw toAppError(error);
-  }
-};
+export const fetchRandomFriendRecommendation =
+  async (): Promise<RandomFriendRecommendationResponse> => {
+    try {
+      return await http.post<RandomFriendRecommendationResponse, undefined>(
+        `${baseURL}/random-recommendation`,
+      );
+    } catch (error) {
+      throw toAppError(error);
+    }
+  };
 
 export const sendFriendCheer = async (
   friendId: Friend['friendId'],
