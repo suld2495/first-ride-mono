@@ -115,6 +115,7 @@ const RandomFriendRecommendation = () => {
             {errorMessage}
           </Typography>
           <Button
+            accessibilityRole="button"
             title="다시 시도"
             variant="ghost"
             size="sm"
@@ -190,6 +191,7 @@ const RandomFriendRecommendation = () => {
             </View>
             <Button
               accessibilityLabel={`${recommendation.nickname}에게 친구 요청`}
+              accessibilityRole="button"
               title={isRequested ? '요청 완료' : '친구 요청'}
               variant="ghost"
               size="md"
