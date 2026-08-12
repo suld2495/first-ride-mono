@@ -2570,6 +2570,36 @@ describe('루틴 조회 페이지', () => {
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
     });
 
+    it('오늘 인증이 완료된 상태에서 미래 요일을 누르면 당일 인증 안내 토스트를 표시한다', async () => {
+      jest.useFakeTimers({ advanceTimers: true });
+      mockRoutineStore.type = 'week';
+      const today = new Date('2026-08-12T12:00:00.000');
+      jest.setSystemTime(today);
+      mockSearchParams.date = getWeekMonday(today);
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          todayConfirmStatus: 'PASS',
+          todayConfirmId: 781,
+          canRequestToday: false,
+        }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(await findByTestId('routine-week-check-1-3'));
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '당일에만 인증할 수 있어요.',
+          'error',
+        );
+      });
+      expect(mockPush).not.toHaveBeenCalledWith(
+        '/modal?type=routine-proof-detail',
+      );
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
+    });
+
     it('내가 보낸 인증이 승인 대기 중인 week 타입 루틴 체크박스를 누르면 인증 상세로 이동한다', async () => {
       mockRoutineStore.type = 'week';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
