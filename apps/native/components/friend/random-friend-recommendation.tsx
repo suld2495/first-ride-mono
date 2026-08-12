@@ -23,8 +23,8 @@ import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
-const CARD_HEIGHT = baseFoundation.dimension.x220;
-const CHARACTER_SIZE = baseFoundation.dimension.x120;
+const CARD_HEIGHT = baseFoundation.dimension.x250;
+const CHARACTER_SIZE = baseFoundation.dimension.x140;
 const PROFILE_HEIGHT = baseFoundation.dimension.x52;
 const FRIEND_REQUEST_ERROR_MESSAGE =
   '친구 요청을 보내지 못했습니다. 다시 시도해주세요.';
