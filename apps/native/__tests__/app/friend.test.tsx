@@ -4,6 +4,7 @@ import { FlatList, Modal } from 'react-native';
 
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
+import { baseFoundation } from '@/theme/tokens';
 
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
 import {
@@ -103,6 +104,26 @@ describe('친구 리스트 페이지', () => {
       expect(await screen.findByText('친구 요청')).toBeOnTheScreen();
       expect(screen.queryByText('2026-08-04')).not.toBeOnTheScreen();
       expect(screen.queryByText('아침 산책')).not.toBeOnTheScreen();
+    });
+
+    it('랜덤 친구 추천 제목과 카드를 낮은 위계의 크기로 표시한다', async () => {
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+
+      expect(await screen.findByText('랜덤 친구 추천')).toHaveStyle({
+        color: appThemes.blue.colors.text.muted,
+        fontSize: baseFoundation.typography.size.body2,
+      });
+      expect(await screen.findByTestId('random-friend-card')).toHaveStyle({
+        height: baseFoundation.dimension.x250,
+      });
+      expect(await screen.findByTestId('random-friend-character')).toHaveStyle(
+        {
+          width: baseFoundation.dimension.x140,
+          height: baseFoundation.dimension.x140,
+        },
+      );
     });
 
     it('추천 카드에서 친구 요청을 보낸다', async () => {
