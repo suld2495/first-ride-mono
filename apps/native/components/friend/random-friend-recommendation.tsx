@@ -22,9 +22,9 @@ import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
-const CARD_HEIGHT = baseFoundation.dimension.x320;
-const CHARACTER_SIZE = baseFoundation.dimension.x180;
-const PROFILE_HEIGHT = baseFoundation.dimension.x60;
+const CARD_HEIGHT = baseFoundation.dimension.x250;
+const CHARACTER_SIZE = baseFoundation.dimension.x140;
+const PROFILE_HEIGHT = baseFoundation.dimension.x52;
 const FRIEND_REQUEST_ERROR_MESSAGE =
   '친구 요청을 보내지 못했습니다. 다시 시도해주세요.';
 const RECOMMENDATION_ERROR_MESSAGE =
@@ -93,9 +93,9 @@ const RandomFriendRecommendation = () => {
   return (
     <View style={styles.section} testID="random-friend-recommendation">
       <Typography
-        variant="subtitle2"
+        variant="body2"
         weight="semibold"
-        color={appThemes.green.colors.brand.primary}
+        style={styles.sectionTitle}
       >
         랜덤 친구 추천
       </Typography>
@@ -140,13 +140,13 @@ const RandomFriendRecommendation = () => {
 
           {recommendation.motto?.trim() ? (
             <CharacterSpeechBubble
-              containerMinWidth={baseFoundation.dimension.x140}
-              maxWidth={baseFoundation.dimension.x220}
+              containerMinWidth={baseFoundation.dimension.x120}
+              maxWidth={baseFoundation.dimension.x180}
               message={recommendation.motto.trim()}
               numberOfLines={2}
               style={styles.speechBubble}
               testID="random-friend-speech-bubble"
-              textVariant="body2"
+              textVariant="body3"
               themeName={profileThemeName}
             />
           ) : null}
@@ -167,7 +167,7 @@ const RandomFriendRecommendation = () => {
           >
             <View style={styles.identity}>
               <Typography
-                variant="title"
+                variant="subtitle1"
                 weight="bold"
                 color={profileTheme.colors.brand.text}
                 numberOfLines={1}
@@ -181,7 +181,7 @@ const RandomFriendRecommendation = () => {
                 ]}
               />
               <Typography
-                variant="body2"
+                variant="body3"
                 color={profileTheme.colors.text.soft}
                 numberOfLines={1}
                 style={styles.profileMeta}
@@ -194,7 +194,7 @@ const RandomFriendRecommendation = () => {
               accessibilityRole="button"
               title={isRequested ? '요청 완료' : '친구 요청'}
               variant="ghost"
-              size="md"
+              size="sm"
               onPress={handleRequestFriend}
               backgroundColor={profileTheme.colors.brand.text}
               textColor={profileTheme.colors.action.primary.label}
@@ -213,8 +213,11 @@ export default RandomFriendRecommendation;
 
 const styles = StyleSheet.create((theme) => ({
   section: {
-    marginTop: theme.foundation.spacing[5],
-    gap: theme.foundation.spacing[3],
+    marginTop: theme.foundation.spacing[4],
+    gap: theme.foundation.spacing[2],
+  },
+  sectionTitle: {
+    color: theme.colors.text.muted,
   },
   card: {
     position: 'relative',
@@ -244,14 +247,14 @@ const styles = StyleSheet.create((theme) => ({
   },
   speechBubble: {
     position: 'absolute',
-    top: theme.foundation.spacing[7],
+    top: theme.foundation.spacing[5],
     zIndex: 2,
   },
   characterStage: {
     position: 'absolute',
     left: theme.foundation.spacing[0],
     right: theme.foundation.spacing[0],
-    bottom: theme.foundation.spacing[16],
+    bottom: theme.foundation.spacing[12],
     alignItems: 'center',
   },
   characterImage: {
@@ -260,15 +263,15 @@ const styles = StyleSheet.create((theme) => ({
   },
   profile: {
     position: 'absolute',
-    left: theme.foundation.spacing[4],
-    right: theme.foundation.spacing[4],
-    bottom: theme.foundation.spacing[4],
+    left: theme.foundation.spacing[3],
+    right: theme.foundation.spacing[3],
+    bottom: theme.foundation.spacing[3],
     height: PROFILE_HEIGHT,
     borderRadius: theme.foundation.radii.xs,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingLeft: theme.foundation.spacing[4],
+    paddingLeft: theme.foundation.spacing[3],
     paddingRight: theme.foundation.spacing[2],
   },
   identity: {
@@ -279,8 +282,8 @@ const styles = StyleSheet.create((theme) => ({
   },
   divider: {
     width: baseFoundation.dimension.x1,
-    height: baseFoundation.dimension.x24,
-    marginHorizontal: theme.foundation.spacing[3],
+    height: baseFoundation.dimension.x20,
+    marginHorizontal: theme.foundation.spacing[2],
     opacity: baseFoundation.opacity.disabled,
   },
   profileMeta: {
@@ -288,7 +291,7 @@ const styles = StyleSheet.create((theme) => ({
     flexShrink: 1,
   },
   requestButton: {
-    width: baseFoundation.dimension.x112,
+    width: baseFoundation.dimension.x96,
     borderRadius: theme.foundation.radii.xs,
   },
 }));
