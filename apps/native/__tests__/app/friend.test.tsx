@@ -118,15 +118,15 @@ describe('친구 리스트 페이지', () => {
         fontSize: baseFoundation.typography.size.body2,
       });
       expect(await screen.findByTestId('random-friend-card')).toHaveStyle({
-        height: baseFoundation.dimension.x250,
+        height: baseFoundation.dimension.x220,
       });
       expect(await screen.findByTestId('random-friend-background')).toHaveProp(
         'resizeMode',
         'cover',
       );
       expect(await screen.findByTestId('random-friend-character')).toHaveStyle({
-        width: baseFoundation.dimension.x140,
-        height: baseFoundation.dimension.x140,
+        width: baseFoundation.dimension.x120,
+        height: baseFoundation.dimension.x120,
       });
       expect(
         await screen.findByTestId('random-friend-character-stage'),
@@ -167,7 +167,7 @@ describe('친구 리스트 페이지', () => {
         screen.getByTestId('random-friend-request-icon'),
       ).toBeOnTheScreen();
       expect(screen.getByTestId('random-friend-card')).toHaveStyle({
-        height: baseFoundation.dimension.x250,
+        height: baseFoundation.dimension.x220,
       });
     });
 
