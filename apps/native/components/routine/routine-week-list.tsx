@@ -35,6 +35,7 @@ interface RoutineWeekListProps {
     routine: Routine,
     meta?: {
       confirmId?: number | null;
+      isFutureDay?: boolean;
       isMissedPast?: boolean;
     },
   ) => void;
@@ -150,6 +151,7 @@ const getRoutineDayState = ({
 }) => {
   const isPastDay = dateKey < todayDateKey;
   const isToday = dateKey === todayDateKey;
+  const isFutureDay = dateKey > todayDateKey;
   const isTodaySuccess = check && isToday;
   const isPendingConfirmation = isPendingConfirmationForDate({
     check,
@@ -172,6 +174,7 @@ const getRoutineDayState = ({
     isMissedPastDay,
     isPendingConfirmation,
     isToday,
+    isFutureDay,
     isUpcomingDay,
     statusLabel,
   };
@@ -309,6 +312,7 @@ const RoutineWeekList = ({
                   isMissedPastDay,
                   isPendingConfirmation,
                   isToday,
+                  isFutureDay,
                   isUpcomingDay,
                   statusLabel,
                 } = getRoutineDayState({
@@ -360,6 +364,7 @@ const RoutineWeekList = ({
                   ? () =>
                       onRequestRoutine(routine, {
                         confirmId,
+                        isFutureDay,
                         isMissedPast: isMissedPastDay,
                       })
                   : undefined;

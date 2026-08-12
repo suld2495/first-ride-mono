@@ -63,6 +63,7 @@ const ROUTINE_LIST_ANIMATION_DURATION = 220;
 
 interface RoutineCheckPressMeta {
   confirmId?: number | null;
+  isFutureDay?: boolean;
   isMissedPast?: boolean;
 }
 
@@ -189,6 +190,12 @@ const RoutineList = ({
 
       if (meta.isMissedPast) {
         showToast('지난 기간의 루틴은 인증할 수 없어요.', 'error');
+
+        return;
+      }
+
+      if (meta.isFutureDay) {
+        showToast('당일에만 인증할 수 있어요.', 'error');
 
         return;
       }
