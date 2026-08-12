@@ -92,11 +92,7 @@ const RandomFriendRecommendation = () => {
 
   return (
     <View style={styles.section} testID="random-friend-recommendation">
-      <Typography
-        variant="body2"
-        weight="semibold"
-        style={styles.sectionTitle}
-      >
+      <Typography variant="body2" weight="semibold" style={styles.sectionTitle}>
         랜덤 친구 추천
       </Typography>
 

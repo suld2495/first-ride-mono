@@ -118,12 +118,10 @@ describe('친구 리스트 페이지', () => {
       expect(await screen.findByTestId('random-friend-card')).toHaveStyle({
         height: baseFoundation.dimension.x250,
       });
-      expect(await screen.findByTestId('random-friend-character')).toHaveStyle(
-        {
-          width: baseFoundation.dimension.x140,
-          height: baseFoundation.dimension.x140,
-        },
-      );
+      expect(await screen.findByTestId('random-friend-character')).toHaveStyle({
+        width: baseFoundation.dimension.x140,
+        height: baseFoundation.dimension.x140,
+      });
     });
 
     it('추천 카드에서 친구 요청을 보낸다', async () => {
