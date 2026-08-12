@@ -2,6 +2,7 @@ import {
   useAddFriendMutation,
   useRandomFriendRecommendationQuery,
 } from '@repo/shared/hooks/useFriend';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 
@@ -165,21 +166,14 @@ const RandomFriendRecommendation = () => {
               { backgroundColor: profileTheme.colors.brand.background },
             ]}
           >
-            <View style={styles.identity}>
+            <View style={styles.identity} testID="random-friend-identity">
               <Typography
-                variant="subtitle1"
-                weight="bold"
+                variant="body2"
+                weight="semibold"
                 color={profileTheme.colors.brand.text}
-                numberOfLines={1}
               >
                 {recommendation.nickname}
               </Typography>
-              <View
-                style={[
-                  styles.divider,
-                  { backgroundColor: profileTheme.colors.text.soft },
-                ]}
-              />
               <Typography
                 variant="body3"
                 color={profileTheme.colors.text.soft}
@@ -190,11 +184,22 @@ const RandomFriendRecommendation = () => {
               </Typography>
             </View>
             <Button
-              accessibilityLabel={`${recommendation.nickname}에게 친구 요청`}
+              accessibilityLabel={
+                isRequested
+                  ? `${recommendation.nickname}에게 친구 요청 완료`
+                  : `${recommendation.nickname}에게 친구 요청`
+              }
               accessibilityRole="button"
-              title={isRequested ? '요청 완료' : '친구 요청'}
               variant="ghost"
-              size="sm"
+              size="md"
+              leftIcon={({ color }) => (
+                <Ionicons
+                  color={color}
+                  name={isRequested ? 'checkmark' : 'person-add'}
+                  size={baseFoundation.iconSize.m}
+                  testID="random-friend-request-icon"
+                />
+              )}
               onPress={handleRequestFriend}
               backgroundColor={profileTheme.colors.brand.text}
               textColor={profileTheme.colors.action.primary.label}
@@ -271,27 +276,25 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: theme.foundation.spacing[2],
     paddingLeft: theme.foundation.spacing[3],
     paddingRight: theme.foundation.spacing[2],
   },
   identity: {
     minWidth: baseFoundation.dimension.x0,
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  divider: {
-    width: baseFoundation.dimension.x1,
-    height: baseFoundation.dimension.x20,
-    marginHorizontal: theme.foundation.spacing[2],
-    opacity: baseFoundation.opacity.disabled,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   profileMeta: {
     minWidth: baseFoundation.dimension.x0,
     flexShrink: 1,
   },
   requestButton: {
-    width: baseFoundation.dimension.x96,
+    width: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x44,
+    paddingHorizontal: baseFoundation.spacing[0],
     borderRadius: theme.foundation.radii.xs,
   },
 }));
