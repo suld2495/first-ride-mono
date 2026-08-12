@@ -137,15 +137,13 @@ describe('친구 리스트 페이지', () => {
 
     it('긴 추천 닉네임을 컴팩트한 아이콘 액션과 함께 표시한다', async () => {
       const longNickname = '매일꾸준한루틴메이커';
-      mockAxios
-        .onPost('/friends/random-recommendation')
-        .reply(
-          200,
-          wrapResponse({
-            ...randomFriendRecommendation,
-            nickname: longNickname,
-          }),
-        );
+      mockAxios.onPost('/friends/random-recommendation').reply(
+        200,
+        wrapResponse({
+          ...randomFriendRecommendation,
+          nickname: longNickname,
+        }),
+      );
       setupMocks([]);
 
       const screen = render(<FriendPage />);
