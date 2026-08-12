@@ -101,7 +101,9 @@ describe('친구 리스트 페이지', () => {
       expect(await screen.findByText('젤리')).toBeOnTheScreen();
       expect(await screen.findByText('Lv. 6 · 궁수')).toBeOnTheScreen();
       expect(await screen.findByText('오늘도 한 걸음')).toBeOnTheScreen();
-      expect(await screen.findByText('친구 요청')).toBeOnTheScreen();
+      expect(
+        await screen.findByLabelText('젤리에게 친구 요청'),
+      ).toBeOnTheScreen();
       expect(screen.queryByText('2026-08-04')).not.toBeOnTheScreen();
       expect(screen.queryByText('아침 산책')).not.toBeOnTheScreen();
     });
@@ -133,6 +135,44 @@ describe('친구 리스트 페이지', () => {
       });
     });
 
+    it('긴 추천 닉네임을 컴팩트한 아이콘 액션과 함께 표시한다', async () => {
+      const longNickname = '매일꾸준한루틴메이커';
+      mockAxios
+        .onPost('/friends/random-recommendation')
+        .reply(
+          200,
+          wrapResponse({
+            ...randomFriendRecommendation,
+            nickname: longNickname,
+          }),
+        );
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+
+      const nickname = await screen.findByText(longNickname);
+
+      expect(nickname).toHaveStyle({
+        fontSize: baseFoundation.typography.size.body2,
+      });
+      expect(nickname).not.toHaveProp('numberOfLines');
+      expect(screen.getByTestId('random-friend-identity')).toHaveStyle({
+        flexDirection: 'column',
+      });
+      expect(
+        screen.getByLabelText(`${longNickname}에게 친구 요청`),
+      ).toHaveStyle({
+        width: baseFoundation.dimension.x44,
+        height: baseFoundation.dimension.x44,
+      });
+      expect(
+        screen.getByTestId('random-friend-request-icon'),
+      ).toBeOnTheScreen();
+      expect(screen.getByTestId('random-friend-card')).toHaveStyle({
+        height: baseFoundation.dimension.x250,
+      });
+    });
+
     it('추천 카드에서 친구 요청을 보낸다', async () => {
       setupMocks([]);
       mockAxios.onPost('/friends/requests').reply(201, {
@@ -145,7 +185,7 @@ describe('친구 리스트 페이지', () => {
 
       const screen = render(<FriendPage />);
 
-      fireEvent.press(await screen.findByText('친구 요청'));
+      fireEvent.press(await screen.findByLabelText('젤리에게 친구 요청'));
 
       await waitFor(() => {
         const friendRequest = mockAxios.history.post.find(
