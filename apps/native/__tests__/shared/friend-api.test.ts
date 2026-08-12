@@ -3,6 +3,7 @@ import {
   addFriend,
   fetchFriendProfile,
   fetchFriends,
+  fetchRandomFriendRecommendation,
   sendFriendCheer,
 } from '@repo/shared/api/friend';
 import MockAdapter from 'axios-mock-adapter';
@@ -136,6 +137,55 @@ describe('friend.api', () => {
       await expect(fetchFriendProfile('9007199254740991')).resolves.toEqual(
         profile,
       );
+    });
+  });
+
+  describe('fetchRandomFriendRecommendation', () => {
+    it('body 없이 랜덤 친구 추천을 요청하고 추천 프로필을 반환한다', async () => {
+      const recommendation = {
+        nickname: '젤리',
+        level: 6,
+        job: '궁수',
+        motto: '오늘도 한 걸음',
+        characterCode: 'ARCHER_BEGINNER',
+        characterImageUrl:
+          'https://api.irura.uk/assets/characters/archer_beginner.png',
+        backgroundImageUrl:
+          'https://api.irura.uk/assets/backgrounds/archer_background.webp',
+        recommendedDate: '2026-08-04',
+        routines: [
+          {
+            routineName: '아침 산책',
+            routineDetail: '30분 걷기',
+            category: '운동',
+            symbolColor: '#22CC88',
+            routineCount: 3,
+          },
+        ],
+      };
+
+      mockAxios.onPost('/friends/random-recommendation').reply((config) => {
+        expect(config.data).toBeUndefined();
+        return [200, { data: recommendation }];
+      });
+
+      await expect(fetchRandomFriendRecommendation()).resolves.toEqual(
+        recommendation,
+      );
+    });
+
+    it('추천 후보가 없으면 서버 안내 메시지를 보존한다', async () => {
+      mockAxios.onPost('/friends/random-recommendation').reply(400, {
+        success: false,
+        error: {
+          message: '추천할 사용자가 없습니다.\n잠시 후 다시 시도해주세요.',
+        },
+      });
+
+      await expect(fetchRandomFriendRecommendation()).rejects.toMatchObject({
+        status: 400,
+        message: '추천할 사용자가 없습니다.\n잠시 후 다시 시도해주세요.',
+      });
     });
   });
 

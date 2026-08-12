@@ -29,6 +29,28 @@ const createMockFriendRequestResponse = (count: number) =>
 
 let mockAxios: MockAdapter;
 
+const randomFriendRecommendation = {
+  nickname: '젤리',
+  level: 6,
+  job: '궁수',
+  motto: '오늘도 한 걸음',
+  characterCode: 'ARCHER_BEGINNER',
+  characterImageUrl:
+    'https://api.irura.uk/assets/characters/archer_beginner.png',
+  backgroundImageUrl:
+    'https://api.irura.uk/assets/backgrounds/archer_background.webp',
+  recommendedDate: '2026-08-04',
+  routines: [
+    {
+      routineName: '아침 산책',
+      routineDetail: '30분 걷기',
+      category: '운동',
+      symbolColor: '#22CC88',
+      routineCount: 3,
+    },
+  ],
+};
+
 // axios response interceptor가 response.data.data를 반환하므로
 // { data: [...] } 형태로 감싸야 함
 const wrapResponse = <T,>(data: T) => ({ data });
@@ -54,6 +76,9 @@ describe('친구 리스트 페이지', () => {
     useColorSchemeStore.getState().setColorScheme('blue');
     useColorSchemeStore.getState().clearColorSchemeOverride();
     mockAxios = new MockAdapter(axiosInstance);
+    mockAxios
+      .onPost('/friends/random-recommendation')
+      .reply(200, wrapResponse(randomFriendRecommendation));
   });
 
   afterEach(async () => {
@@ -66,6 +91,65 @@ describe('친구 리스트 페이지', () => {
   });
 
   describe('친구 리스트 표시 테스트', () => {
+    it('친구 목록 위에 랜덤 친구 추천 카드만 표시한다', async () => {
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+
+      expect(await screen.findByText('랜덤 친구 추천')).toBeOnTheScreen();
+      expect(await screen.findByText('젤리')).toBeOnTheScreen();
+      expect(await screen.findByText('Lv. 6 · 궁수')).toBeOnTheScreen();
+      expect(await screen.findByText('오늘도 한 걸음')).toBeOnTheScreen();
+      expect(await screen.findByText('친구 요청')).toBeOnTheScreen();
+      expect(screen.queryByText('2026-08-04')).not.toBeOnTheScreen();
+      expect(screen.queryByText('아침 산책')).not.toBeOnTheScreen();
+    });
+
+    it('추천 카드에서 친구 요청을 보낸다', async () => {
+      setupMocks([]);
+      mockAxios.onPost('/friends/requests').reply(201, {
+        id: 10,
+        senderNickname: 'testuser',
+        receiverNickname: '젤리',
+        status: 'PENDING',
+        createdAt: '2026-08-12T12:00:00',
+      });
+
+      const screen = render(<FriendPage />);
+
+      fireEvent.press(await screen.findByText('친구 요청'));
+
+      await waitFor(() => {
+        const friendRequest = mockAxios.history.post.find(
+          ({ url }) => url === '/friends/requests',
+        );
+
+        expect(friendRequest?.data).toBe(
+          JSON.stringify({ receiverNickname: '젤리' }),
+        );
+      });
+    });
+
+    it('추천 후보가 없으면 서버 안내 문구와 다시 시도 버튼을 표시한다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onPost('/friends/random-recommendation').reply(400, {
+        success: false,
+        error: {
+          message: '추천할 사용자가 없습니다.\n잠시 후 다시 시도해주세요.',
+        },
+      });
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+
+      expect(
+        await screen.findByText(
+          '추천할 사용자가 없습니다.\n잠시 후 다시 시도해주세요.',
+        ),
+      ).toBeOnTheScreen();
+      expect(await screen.findByText('다시 시도')).toBeOnTheScreen();
+    });
+
     describe('친구가 있는 경우', () => {
       beforeEach(() => {
         setupMocks(createMockFriends(3));
