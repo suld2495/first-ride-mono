@@ -11,6 +11,7 @@ import { useCallback, useLayoutEffect, useState } from 'react';
 import FriendAddModal from '@/components/friend/friend-add-modal';
 import FriendHeader from '@/components/friend/friend-header';
 import FriendList from '@/components/friend/friend-list';
+import RandomFriendRecommendation from '@/components/friend/random-friend-recommendation';
 import Container from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 import { StyleSheet } from '@/components/ui/tamagui';
@@ -86,6 +87,8 @@ const FriendPage = () => {
         transparent
         testID="friend-page-content"
       >
+        <RandomFriendRecommendation />
+
         <ThemeView style={styles.summaryRow} transparent>
           <Typography variant="caption1" style={styles.totalText}>
             전체 {friends?.length ?? 0}명
@@ -141,7 +144,7 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: theme.foundation.spacing[3],
+    marginTop: theme.foundation.spacing[4],
   },
   addButton: {
     height: baseFoundation.dimension.x28,

@@ -4,6 +4,7 @@ import type {
   FriendProfileResponse,
   FriendRoutinesResponse,
   FriendRequestResponse,
+  RandomFriendRecommendationResponse,
   Routine,
   SearchOption,
   User,
@@ -127,6 +128,16 @@ export const fetchFriendProfile = async (
   try {
     return await http.get(
       `${baseURL}/${encodeURIComponent(String(friendId))}/profile`,
+    );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const fetchRandomFriendRecommendation = async (): Promise<RandomFriendRecommendationResponse> => {
+  try {
+    return await http.post<RandomFriendRecommendationResponse, undefined>(
+      `${baseURL}/random-recommendation`,
     );
   } catch (error) {
     throw toAppError(error);

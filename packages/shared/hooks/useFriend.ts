@@ -14,6 +14,7 @@ import {
   fetchFriendRoutines,
   fetchFriendRequests,
   fetchFriends,
+  fetchRandomFriendRecommendation,
   rejectFriendRequest,
   sendFriendCheer,
 } from '../api/friend';
@@ -60,6 +61,15 @@ export const useFriendProfileQuery = (
     queryFn: friendId ? () => fetchFriendProfile(friendId) : skipToken,
     enabled: !!friendId,
     refetchOnMount: 'always',
+  });
+};
+
+export const useRandomFriendRecommendationQuery = () => {
+  return useQuery({
+    queryKey: friendKey.recommendation(),
+    queryFn: fetchRandomFriendRecommendation,
+    refetchOnMount: 'always',
+    retry: false,
   });
 };
 

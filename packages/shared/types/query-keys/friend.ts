@@ -11,6 +11,8 @@ export const friendKey = {
     [...friendKey.detail(friendId), 'routines', { date }] as const,
   cheer: (friendId: number | string) =>
     [...friendKey.detail(friendId), 'cheer'] as const,
+  recommendation: () =>
+    [...friendKey.all(), 'random-recommendation'] as const,
 };
 
 export const friendRequestKey = {

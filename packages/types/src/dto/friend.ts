@@ -43,6 +43,26 @@ export interface FriendProfileResponse {
   evolutionCount?: number;
 }
 
+export interface RandomFriendRecommendationRoutine {
+  routineName: string;
+  routineDetail: string;
+  category: string;
+  symbolColor: string;
+  routineCount: number;
+}
+
+export interface RandomFriendRecommendationResponse {
+  nickname: User['nickname'];
+  level: number;
+  job: string;
+  motto: null | string;
+  characterCode: string;
+  characterImageUrl: null | string;
+  backgroundImageUrl: null | string;
+  recommendedDate: string;
+  routines: RandomFriendRecommendationRoutine[];
+}
+
 export interface FriendRoutineItem {
   routineId: Routine['routineId'];
   routineName: Routine['routineName'];
