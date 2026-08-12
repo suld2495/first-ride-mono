@@ -122,6 +122,11 @@ describe('친구 리스트 페이지', () => {
         width: baseFoundation.dimension.x140,
         height: baseFoundation.dimension.x140,
       });
+      expect(
+        await screen.findByTestId('random-friend-character-stage'),
+      ).toHaveStyle({
+        bottom: baseFoundation.spacing[16],
+      });
     });
 
     it('추천 카드에서 친구 요청을 보낸다', async () => {
