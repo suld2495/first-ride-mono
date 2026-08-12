@@ -120,7 +120,7 @@ describe('친구 리스트 페이지', () => {
       });
       expect(await screen.findByTestId('random-friend-background')).toHaveProp(
         'resizeMode',
-        'contain',
+        'cover',
       );
       expect(await screen.findByTestId('random-friend-character')).toHaveStyle({
         width: baseFoundation.dimension.x140,
