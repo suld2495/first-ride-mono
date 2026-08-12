@@ -426,12 +426,14 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
   },
   routineListArea: {
-    flex: 1,
+    height: '50%',
+    flexShrink: 0,
     minHeight: 0,
   },
   routineBottomArea: {
-    flexShrink: 0,
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'flex-end',
     paddingBottom: ROUTINE_CHARACTER_BOTTOM_OFFSET,
   },
   routineCharacterArea: {
@@ -440,7 +442,8 @@ const styles = StyleSheet.create((theme) => ({
     zIndex: 1,
   },
   emptyStateArea: {
-    flex: 1,
+    height: '50%',
+    flexShrink: 0,
     minHeight: 0,
     marginHorizontal: theme.foundation.spacing[4],
   },
