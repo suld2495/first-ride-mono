@@ -456,11 +456,19 @@ describe('루틴 조회 페이지', () => {
 
         expect(flattenStyles(emptyStateArea.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ flex: 1, minHeight: 0 }),
+            expect.objectContaining({
+              height: '50%',
+              minHeight: 0,
+            }),
           ]),
         );
         expect(flattenStyles(routineBottomArea.props.style)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ flexShrink: 0 })]),
+          expect.arrayContaining([
+            expect.objectContaining({
+              flex: 1,
+              justifyContent: 'flex-end',
+            }),
+          ]),
         );
         expect(
           bottomAreaQueries.getByTestId('routine-character-area'),
@@ -1258,7 +1266,7 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('하단 콘텐츠 높이를 우선 확보하고 루틴 영역이 남은 높이를 사용한다', async () => {
+      it('루틴 리스트는 상단 50%를 사용하고 하단 콘텐츠는 남은 영역의 아래쪽에 배치된다', async () => {
         const { findByText, getByTestId } = render(<Index />);
 
         await findByText('테스트 루틴 1');
@@ -1269,11 +1277,19 @@ describe('루틴 조회 페이지', () => {
 
         expect(flattenStyles(routineListArea.props.style)).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ flex: 1, minHeight: 0 }),
+            expect.objectContaining({
+              height: '50%',
+              minHeight: 0,
+            }),
           ]),
         );
         expect(flattenStyles(routineBottomArea.props.style)).toEqual(
-          expect.arrayContaining([expect.objectContaining({ flexShrink: 0 })]),
+          expect.arrayContaining([
+            expect.objectContaining({
+              flex: 1,
+              justifyContent: 'flex-end',
+            }),
+          ]),
         );
         expect(
           bottomAreaQueries.getByTestId('routine-character-area'),
