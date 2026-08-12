@@ -130,7 +130,7 @@ const RandomFriendRecommendation = () => {
             {renderRoutineSceneAsset(backgroundAsset, {
               testID: 'random-friend-background',
               style: styles.backgroundImage,
-              resizeMode: 'contain',
+              resizeMode: 'cover',
             })}
           </View>
 
