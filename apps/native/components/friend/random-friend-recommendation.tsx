@@ -147,7 +147,11 @@ const RandomFriendRecommendation = () => {
             />
           ) : null}
 
-          <View style={styles.characterStage} pointerEvents="none">
+          <View
+            style={styles.characterStage}
+            pointerEvents="none"
+            testID="random-friend-character-stage"
+          >
             {renderRoutineSceneAsset(characterAsset, {
               testID: 'random-friend-character',
               style: styles.characterImage,
@@ -250,7 +254,7 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     left: theme.foundation.spacing[0],
     right: theme.foundation.spacing[0],
-    bottom: theme.foundation.spacing[12],
+    bottom: theme.foundation.spacing[16],
     alignItems: 'center',
   },
   characterImage: {
