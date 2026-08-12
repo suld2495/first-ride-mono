@@ -19,7 +19,7 @@ import { useToast } from '@/contexts/ToastContext';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes } from '@/theme/themes';
-import { baseFoundation, palette } from '@/theme/tokens';
+import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 const CARD_HEIGHT = baseFoundation.dimension.x320;
@@ -121,7 +121,7 @@ const RandomFriendRecommendation = () => {
             size="sm"
             onPress={handleRetry}
             backgroundColor={appThemes.green.colors.brand.text}
-            textColor={palette.white}
+            textColor={appThemes.green.colors.action.primary.label}
           />
         </View>
       ) : (
@@ -197,7 +197,7 @@ const RandomFriendRecommendation = () => {
               size="md"
               onPress={handleRequestFriend}
               backgroundColor={profileTheme.colors.brand.text}
-              textColor={palette.white}
+              textColor={profileTheme.colors.action.primary.label}
               loading={addFriendMutation.isPending}
               disabled={isRequested}
               style={styles.requestButton}
