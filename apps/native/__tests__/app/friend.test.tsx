@@ -135,6 +135,88 @@ describe('친구 리스트 페이지', () => {
       });
     });
 
+    it('랜덤 친구 추천 제목 우측에 자정까지 남은 시간을 초 단위로 표시한다', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-08-12T23:59:58.000'));
+      setupMocks([]);
+
+      try {
+        const screen = render(<FriendPage />);
+
+        const countdown = screen.getByTestId('random-friend-countdown');
+        expect(countdown).toHaveTextContent('00:00:02');
+
+        await act(async () => {
+          jest.advanceTimersByTime(1000);
+        });
+
+        expect(countdown).toHaveTextContent('00:00:01');
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('타이머를 시계 아이콘이 있는 반투명 캡슐로 표시한다', async () => {
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+
+      expect(
+        await screen.findByTestId('random-friend-countdown-container'),
+      ).toHaveStyle({
+        backgroundColor: 'rgba(255, 255, 255, 0.55)',
+        borderRadius: baseFoundation.radii.xs,
+        height: baseFoundation.dimension.x24,
+        paddingHorizontal: baseFoundation.spacing[2],
+      });
+      expect(screen.getByTestId('random-friend-countdown-icon')).toHaveProp(
+        'name',
+        'time-outline',
+      );
+      expect(screen.getByTestId('random-friend-countdown-icon')).toHaveProp(
+        'size',
+        baseFoundation.typography.size.caption1,
+      );
+      expect(screen.getByTestId('random-friend-countdown-icon')).toHaveProp(
+        'color',
+        appThemes.blue.colors.text.muted,
+      );
+      expect(screen.getByTestId('random-friend-countdown')).toHaveStyle({
+        color: appThemes.blue.colors.text.muted,
+      });
+    });
+
+    it('자정이 되면 랜덤 친구 추천 API를 다시 호출한다', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-08-12T23:59:59.000'));
+      setupMocks([]);
+
+      try {
+        render(<FriendPage />);
+
+        await act(async () => {
+          jest.advanceTimersByTime(999);
+          await Promise.resolve();
+        });
+
+        expect(
+          mockAxios.history.post.filter(
+            ({ url }) => url === '/friends/random-recommendation',
+          ),
+        ).toHaveLength(1);
+
+        await act(async () => {
+          jest.advanceTimersByTime(1000);
+        });
+
+        expect(
+          mockAxios.history.post.filter(
+            ({ url }) => url === '/friends/random-recommendation',
+          ),
+        ).toHaveLength(2);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
     it('긴 추천 닉네임을 컴팩트한 아이콘 액션과 함께 표시한다', async () => {
       const longNickname = '매일꾸준한루틴메이커';
       mockAxios.onPost('/friends/random-recommendation').reply(

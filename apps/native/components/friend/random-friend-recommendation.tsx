@@ -14,14 +14,16 @@ import {
 } from '@/components/routine/routine-scene-art';
 import { Button } from '@/components/ui/button';
 import Loading from '@/components/ui/loading';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
+import { useRandomFriendRecommendationRollover } from '@/hooks/useRandomFriendRecommendationRollover';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
+import { formatCountdown } from '@/utils/random-friend-recommendation-timer';
 
 const CARD_HEIGHT = baseFoundation.dimension.x250;
 const CHARACTER_SIZE = baseFoundation.dimension.x140;
@@ -30,6 +32,44 @@ const FRIEND_REQUEST_ERROR_MESSAGE =
   '친구 요청을 보내지 못했습니다. 다시 시도해주세요.';
 const RECOMMENDATION_ERROR_MESSAGE =
   '추천 친구를 불러오지 못했습니다.\n잠시 후 다시 시도해주세요.';
+
+interface RandomFriendRecommendationHeaderProps {
+  refetch: () => unknown;
+}
+
+const RandomFriendRecommendationHeader = ({
+  refetch,
+}: RandomFriendRecommendationHeaderProps) => {
+  const { theme } = useAppTheme();
+  const remainingSeconds = useRandomFriendRecommendationRollover(refetch);
+
+  return (
+    <View style={styles.sectionHeader}>
+      <Typography variant="body2" weight="semibold" style={styles.sectionTitle}>
+        랜덤 친구 추천
+      </Typography>
+      <View
+        style={styles.countdownContainer}
+        testID="random-friend-countdown-container"
+      >
+        <Ionicons
+          name="time-outline"
+          size={baseFoundation.typography.size.caption1}
+          color={theme.colors.text.muted}
+          testID="random-friend-countdown-icon"
+        />
+        <Typography
+          variant="caption1"
+          weight="medium"
+          style={styles.countdown}
+          testID="random-friend-countdown"
+        >
+          {formatCountdown(remainingSeconds)}
+        </Typography>
+      </View>
+    </View>
+  );
+};
 
 const RandomFriendRecommendation = () => {
   const {
@@ -93,9 +133,7 @@ const RandomFriendRecommendation = () => {
 
   return (
     <View style={styles.section} testID="random-friend-recommendation">
-      <Typography variant="body2" weight="semibold" style={styles.sectionTitle}>
-        랜덤 친구 추천
-      </Typography>
+      <RandomFriendRecommendationHeader refetch={refetch} />
 
       {isLoading ? (
         <View style={styles.stateCard} testID="random-friend-loading">
@@ -221,8 +259,28 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: theme.foundation.spacing[4],
     gap: theme.foundation.spacing[2],
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: theme.foundation.spacing[2],
+  },
   sectionTitle: {
     color: theme.colors.text.muted,
+    flexShrink: 1,
+  },
+  countdownContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: baseFoundation.dimension.x24,
+    gap: theme.foundation.spacing[1],
+    borderRadius: theme.foundation.radii.xs,
+    paddingHorizontal: theme.foundation.spacing[2],
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+  },
+  countdown: {
+    color: theme.colors.text.muted,
+    flexShrink: 0,
   },
   card: {
     position: 'relative',
