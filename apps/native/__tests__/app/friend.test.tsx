@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { FlatList, Modal } from 'react-native';
 
 import { useColorSchemeStore } from '@/store/color-scheme.store';
+import { FlashList } from '@/components/ui/flash-list';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 
@@ -341,6 +342,22 @@ describe('친구 리스트 페이지', () => {
     describe('친구가 있는 경우', () => {
       beforeEach(() => {
         setupMocks(createMockFriends(3));
+      });
+
+      it('랜덤 친구 추천을 친구 목록과 같은 스크롤 콘텐츠에 포함한다', async () => {
+        const screen = render(<FriendPage />);
+
+        expect(await screen.findByText('friend1')).toBeOnTheScreen();
+
+        const list = screen.UNSAFE_getByType(FlashList);
+
+        expect(list.props.ListHeaderComponent).toEqual(
+          expect.objectContaining({
+            props: expect.objectContaining({
+              testID: 'friend-list-header',
+            }),
+          }),
+        );
       });
 
       it('친구 수와 2열 캐릭터 카드가 표시된다', async () => {
