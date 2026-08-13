@@ -1,5 +1,6 @@
 import type { Friend } from '@repo/types';
 import { useCallback } from 'react';
+import type { ReactElement } from 'react';
 import {
   Image,
   Pressable,
@@ -286,6 +287,7 @@ interface FriendListProps {
   refreshing: boolean;
   onRefresh: () => Promise<void>;
   onOpenFriend: (friend: Friend) => void;
+  listHeaderComponent?: ReactElement;
 }
 
 const FriendList = ({
@@ -294,6 +296,7 @@ const FriendList = ({
   refreshing,
   onRefresh,
   onOpenFriend,
+  listHeaderComponent,
 }: FriendListProps) => {
   const { width: screenWidth } = useWindowDimensions();
   const { itemWidth } = getFriendItemLayoutSize(screenWidth);
@@ -320,26 +323,29 @@ const FriendList = ({
     [itemHeight],
   );
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (safeFriends.length === 0) {
-    return <EmptyState icon="people-outline" message="친구를 추가해보세요." />;
-  }
-
   return (
     <FlashList
-      data={safeFriends}
+      data={isLoading ? [] : safeFriends}
       keyExtractor={(item, index) =>
         `${String(item.friendId ?? item.nickname ?? 'friend')}-${index}`
       }
       renderItem={renderFriendItem}
-      contentContainerStyle={styles.listContent}
+      contentContainerStyle={[
+        styles.listContent,
+        listHeaderComponent ? styles.listContentWithHeader : null,
+      ]}
       columnWrapperStyle={styles.row}
       style={styles.list}
       refreshing={refreshing}
       onRefresh={onRefresh}
+      ListEmptyComponent={
+        isLoading ? (
+          <Loading />
+        ) : (
+          <EmptyState icon="people-outline" message="친구를 추가해보세요." />
+        )
+      }
+      ListHeaderComponent={listHeaderComponent}
       getItemLayout={getFriendItemLayout}
       removeClippedSubviews
       maxToRenderPerBatch={8}
@@ -358,6 +364,9 @@ const styles = StyleSheet.create((theme) => ({
   listContent: {
     paddingTop: theme.foundation.spacing[4],
     paddingBottom: theme.foundation.spacing[8],
+  },
+  listContentWithHeader: {
+    paddingTop: theme.foundation.spacing[0],
   },
   row: {
     justifyContent: 'space-between',

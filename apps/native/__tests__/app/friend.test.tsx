@@ -2,8 +2,8 @@ import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { FlatList, Modal } from 'react-native';
 
-import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { FlashList } from '@/components/ui/flash-list';
+import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 
