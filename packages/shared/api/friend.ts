@@ -15,6 +15,15 @@ import axiosInstance, { toAppError } from '.';
 import http from './client';
 
 const baseURL = '/friends';
+const randomFriendRecommendationSettingsURL =
+  '/users/me/random-friend-settings';
+
+export type RandomFriendRecommendationSettings = {
+  randomFriendRecommendationEnabled: boolean;
+};
+
+type RandomFriendRecommendationSettingsResponse =
+  Partial<RandomFriendRecommendationSettings>;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
@@ -144,6 +153,44 @@ export const fetchRandomFriendRecommendation =
       throw toAppError(error);
     }
   };
+
+const normalizeRandomFriendRecommendationSettings = (
+  settings: RandomFriendRecommendationSettingsResponse,
+): RandomFriendRecommendationSettings => ({
+  randomFriendRecommendationEnabled:
+    settings.randomFriendRecommendationEnabled ?? true,
+});
+
+export const fetchRandomFriendRecommendationSettings =
+  async (): Promise<RandomFriendRecommendationSettings> => {
+    try {
+      const settings = await http.get<
+        RandomFriendRecommendationSettingsResponse,
+        void
+      >(randomFriendRecommendationSettingsURL);
+
+      return normalizeRandomFriendRecommendationSettings(settings);
+    } catch (error) {
+      throw toAppError(error);
+    }
+  };
+
+export const updateRandomFriendRecommendationSettings = async (
+  randomFriendRecommendationEnabled: boolean,
+): Promise<RandomFriendRecommendationSettings> => {
+  try {
+    const settings = await http.patch<
+      RandomFriendRecommendationSettingsResponse,
+      RandomFriendRecommendationSettings
+    >(randomFriendRecommendationSettingsURL, {
+      randomFriendRecommendationEnabled,
+    });
+
+    return normalizeRandomFriendRecommendationSettings(settings);
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
 
 export const sendFriendCheer = async (
   friendId: Friend['friendId'],

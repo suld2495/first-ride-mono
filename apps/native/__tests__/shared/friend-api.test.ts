@@ -4,7 +4,9 @@ import {
   fetchFriendProfile,
   fetchFriends,
   fetchRandomFriendRecommendation,
+  fetchRandomFriendRecommendationSettings,
   sendFriendCheer,
+  updateRandomFriendRecommendationSettings,
 } from '@repo/shared/api/friend';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -185,6 +187,43 @@ describe('friend.api', () => {
       await expect(fetchRandomFriendRecommendation()).rejects.toMatchObject({
         status: 400,
         message: '추천할 사용자가 없습니다.\n잠시 후 다시 시도해주세요.',
+      });
+    });
+  });
+
+  describe('randomFriendRecommendationSettings', () => {
+    it('랜덤 친구 추천 노출 설정을 조회한다', async () => {
+      mockAxios.onGet('/users/me/random-friend-settings').reply(200, {
+        data: {
+          randomFriendRecommendationEnabled: false,
+        },
+      });
+
+      await expect(fetchRandomFriendRecommendationSettings()).resolves.toEqual({
+        randomFriendRecommendationEnabled: false,
+      });
+    });
+
+    it('랜덤 친구 추천 노출 설정 변경값을 PATCH body로 전송한다', async () => {
+      mockAxios.onPatch('/users/me/random-friend-settings').reply((config) => {
+        expect(JSON.parse(config.data ?? '{}')).toEqual({
+          randomFriendRecommendationEnabled: false,
+        });
+
+        return [
+          200,
+          {
+            data: {
+              randomFriendRecommendationEnabled: false,
+            },
+          },
+        ];
+      });
+
+      await expect(
+        updateRandomFriendRecommendationSettings(false),
+      ).resolves.toEqual({
+        randomFriendRecommendationEnabled: false,
       });
     });
   });

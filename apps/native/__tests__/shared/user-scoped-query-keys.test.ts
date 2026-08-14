@@ -1,4 +1,7 @@
-import { friendRequestKey } from '@repo/shared/types/query-keys/friend';
+import {
+  friendKey,
+  friendRequestKey,
+} from '@repo/shared/types/query-keys/friend';
 import { notificationSettingsKeys } from '@repo/shared/types/query-keys/notification-settings';
 import { questKeys, rewardKeys } from '@repo/shared/types/query-keys/quest';
 import { statKey } from '@repo/shared/types/query-keys/stat';
@@ -22,6 +25,12 @@ describe('사용자별 private query key', () => {
       friendRequestKey.list('account-a', 1),
       friendRequestKey.list('account-b', 1),
       ['friend-request', 'account-a', 1],
+    ],
+    [
+      '랜덤 친구 추천 노출 설정',
+      friendKey.recommendationSettings('account-a'),
+      friendKey.recommendationSettings('account-b'),
+      ['friend', 'account-a', 'random-recommendation-settings'],
     ],
     [
       '퀘스트 목록',

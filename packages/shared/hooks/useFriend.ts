@@ -10,13 +10,16 @@ import {
   acceptFriendRequest,
   addFriend,
   deleteFriend,
+  fetchRandomFriendRecommendationSettings,
   fetchFriendProfile,
   fetchFriendRoutines,
   fetchFriendRequests,
   fetchFriends,
   fetchRandomFriendRecommendation,
+  type RandomFriendRecommendationSettings,
   rejectFriendRequest,
   sendFriendCheer,
+  updateRandomFriendRecommendationSettings,
 } from '../api/friend';
 import { friendKey, friendRequestKey } from '../types/query-keys/friend';
 
@@ -70,6 +73,44 @@ export const useRandomFriendRecommendationQuery = () => {
     queryFn: fetchRandomFriendRecommendation,
     refetchOnMount: 'always',
     retry: false,
+  });
+};
+
+export const useRandomFriendRecommendationSettingsQuery = (
+  userId: User['userId'],
+) =>
+  useQuery({
+    queryKey: friendKey.recommendationSettings(userId),
+    queryFn: fetchRandomFriendRecommendationSettings,
+    enabled: !!userId,
+  });
+
+export const useUpdateRandomFriendRecommendationSettingsMutation = (
+  userId: User['userId'],
+) => {
+  const queryClient = useQueryClient();
+  const queryKey = friendKey.recommendationSettings(userId);
+
+  return useMutation({
+    mutationFn: updateRandomFriendRecommendationSettings,
+    onMutate: async (randomFriendRecommendationEnabled) => {
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousSettings =
+        queryClient.getQueryData<RandomFriendRecommendationSettings>(queryKey);
+
+      queryClient.setQueryData<RandomFriendRecommendationSettings>(queryKey, {
+        randomFriendRecommendationEnabled,
+      });
+
+      return { previousSettings };
+    },
+    onError: (_error, _enabled, context) => {
+      queryClient.setQueryData(queryKey, context?.previousSettings);
+    },
+    onSuccess: (settings) => {
+      queryClient.setQueryData(queryKey, settings);
+    },
   });
 };
 

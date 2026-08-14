@@ -8,6 +8,10 @@ import {
   useNotificationSettingsQuery,
   useUpdateNotificationSettingsMutation,
 } from '@repo/shared/hooks/useNotificationSettings';
+import {
+  useRandomFriendRecommendationSettingsQuery,
+  useUpdateRandomFriendRecommendationSettingsMutation,
+} from '@repo/shared/hooks/useFriend';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, ScrollView, View } from 'react-native';
 
@@ -106,6 +110,8 @@ const getEnabledSubtypeCount = (
 const SWITCH_THUMB_TRAVEL = baseFoundation.dimension.x20;
 const SWITCH_ANIMATION_DURATION_MS = 160;
 const NOTIFICATION_SETTINGS_UPDATE_DEBOUNCE_MS = 300;
+const RANDOM_FRIEND_SETTINGS_ERROR_MESSAGE =
+  '친구 추천 설정을 변경하지 못했습니다.';
 
 const applyNotificationSettingsUpdate = (
   settings: NotificationSettings,
@@ -285,6 +291,76 @@ function AllNotificationSection({
   );
 }
 
+type RandomFriendRecommendationSectionProps = {
+  isError: boolean;
+  isLoading: boolean;
+  isSaving: boolean;
+  onRetry: () => void;
+  onToggleOptOut: (shouldOptOut: boolean) => void;
+  recommendationEnabled: boolean;
+};
+
+function RandomFriendRecommendationSection({
+  isError,
+  isLoading,
+  isSaving,
+  onRetry,
+  onToggleOptOut,
+  recommendationEnabled,
+}: RandomFriendRecommendationSectionProps) {
+  const isDisabled = isLoading || isError || isSaving;
+
+  return (
+    <View
+      style={styles.section}
+      testID="notification-settings-random-friend-section"
+    >
+      <View style={styles.primaryRow}>
+        <View style={styles.rowText}>
+          <Typography variant="body1" weight="semibold">
+            친구 추천 안 하기
+          </Typography>
+          <Typography
+            color="secondary"
+            style={styles.description}
+            variant="caption1"
+          >
+            다른 사람의 랜덤 친구 추천 목록에 내 프로필을 노출하지 않습니다.
+          </Typography>
+        </View>
+        <NotificationSwitch
+          accessibilityLabel="친구 추천 안 하기"
+          disabled={isDisabled}
+          onValueChange={onToggleOptOut}
+          testID="notification-settings-toggle-random-friend-opt-out"
+          value={!recommendationEnabled}
+        />
+      </View>
+      {isLoading ? (
+        <Typography color="secondary" variant="caption1">
+          설정을 불러오는 중입니다.
+        </Typography>
+      ) : null}
+      {isError ? (
+        <View style={styles.notice}>
+          <Typography color="secondary" variant="caption1">
+            친구 추천 설정을 불러오지 못했습니다.
+          </Typography>
+          <Pressable
+            accessibilityRole="button"
+            onPress={onRetry}
+            style={styles.retryButton}
+          >
+            <Typography color="inverse" variant="body3" weight="semibold">
+              다시 시도
+            </Typography>
+          </Pressable>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 type NotificationSubtypeRowProps = {
   isEnabled: boolean;
   onToggle: (subtype: NotificationSubtype, enabled: boolean) => void;
@@ -417,19 +493,31 @@ function NotificationGroupsSection({
 
 type NotificationSettingsContentProps = {
   dailyRoutineReminderTimes: string[];
+  isRandomFriendRecommendationError: boolean;
+  isRandomFriendRecommendationLoading: boolean;
+  isRandomFriendRecommendationSaving: boolean;
   onChangeDailyRoutineReminderTimes: (times: string[]) => void;
+  onRetryRandomFriendRecommendation: () => void;
+  onToggleRandomFriendRecommendationOptOut: (shouldOptOut: boolean) => void;
   onToggleAll: (allEnabled: boolean) => void;
   onToggleGroup: (group: NotificationGroup, enabled: boolean) => void;
   onToggleSubtype: (subtype: NotificationSubtype, enabled: boolean) => void;
+  randomFriendRecommendationEnabled: boolean;
   settings: NotificationSettings;
 };
 
 function NotificationSettingsContent({
   dailyRoutineReminderTimes,
+  isRandomFriendRecommendationError,
+  isRandomFriendRecommendationLoading,
+  isRandomFriendRecommendationSaving,
   onChangeDailyRoutineReminderTimes,
+  onRetryRandomFriendRecommendation,
+  onToggleRandomFriendRecommendationOptOut,
   onToggleAll,
   onToggleGroup,
   onToggleSubtype,
+  randomFriendRecommendationEnabled,
   settings,
 }: NotificationSettingsContentProps) {
   return (
@@ -448,6 +536,14 @@ function NotificationSettingsContent({
       <AllNotificationSection
         allEnabled={settings.allEnabled}
         onToggle={onToggleAll}
+      />
+      <RandomFriendRecommendationSection
+        isError={isRandomFriendRecommendationError}
+        isLoading={isRandomFriendRecommendationLoading}
+        isSaving={isRandomFriendRecommendationSaving}
+        onRetry={onRetryRandomFriendRecommendation}
+        onToggleOptOut={onToggleRandomFriendRecommendationOptOut}
+        recommendationEnabled={randomFriendRecommendationEnabled}
       />
       {settings.allEnabled && settings.subtypes.DAILY_ROUTINE_REMINDER ? (
         <DailyRoutineReminderSettings
@@ -473,9 +569,17 @@ export default function NotificationSettingsPage() {
     isLoading,
     refetch,
   } = useNotificationSettingsQuery(user?.userId ?? '');
+  const {
+    data: randomFriendRecommendationSettings,
+    isError: isRandomFriendRecommendationError,
+    isLoading: isRandomFriendRecommendationLoading,
+    refetch: refetchRandomFriendRecommendationSettings,
+  } = useRandomFriendRecommendationSettingsQuery(user?.userId ?? '');
   const updateSettings = useUpdateNotificationSettingsMutation(
     user?.userId ?? '',
   );
+  const updateRandomFriendRecommendationSettings =
+    useUpdateRandomFriendRecommendationSettingsMutation(user?.userId ?? '');
   const [draftSettings, setDraftSettings] = useState<NotificationSettings>();
   const confirmedSettingsRef = useRef<NotificationSettings | undefined>(
     undefined,
@@ -494,6 +598,19 @@ export default function NotificationSettingsPage() {
       getApiErrorMessage(error, '알림 설정을 변경하지 못했습니다.'),
       'error',
     );
+  };
+
+  const handleToggleRandomFriendRecommendationOptOut = (
+    shouldOptOut: boolean,
+  ) => {
+    updateRandomFriendRecommendationSettings.mutate(!shouldOptOut, {
+      onError: (error) => {
+        showToast(
+          getApiErrorMessage(error, RANDOM_FRIEND_SETTINGS_ERROR_MESSAGE),
+          'error',
+        );
+      },
+    });
   };
 
   const flushSettingsUpdate = () => {
@@ -634,12 +751,29 @@ export default function NotificationSettingsPage() {
           dailyRoutineReminderTimes={
             displayedSettings.dailyRoutineReminderTimes
           }
+          isRandomFriendRecommendationError={isRandomFriendRecommendationError}
+          isRandomFriendRecommendationLoading={
+            isRandomFriendRecommendationLoading
+          }
+          isRandomFriendRecommendationSaving={
+            updateRandomFriendRecommendationSettings.isPending
+          }
           onChangeDailyRoutineReminderTimes={
             handleChangeDailyRoutineReminderTimes
+          }
+          onRetryRandomFriendRecommendation={() => {
+            void refetchRandomFriendRecommendationSettings();
+          }}
+          onToggleRandomFriendRecommendationOptOut={
+            handleToggleRandomFriendRecommendationOptOut
           }
           onToggleAll={handleToggleAll}
           onToggleGroup={handleToggleGroup}
           onToggleSubtype={handleToggleSubtype}
+          randomFriendRecommendationEnabled={
+            randomFriendRecommendationSettings?.randomFriendRecommendationEnabled ??
+            true
+          }
           settings={displayedSettings}
         />
       ) : null}
