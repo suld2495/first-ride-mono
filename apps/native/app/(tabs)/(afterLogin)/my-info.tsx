@@ -570,6 +570,7 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'center',
     overflow: 'hidden',
     backgroundColor: theme.colors.brand.card,
+    transform: [{ translateY: 4 }],
   },
   character: {
     width: baseFoundation.dimension.x56,
