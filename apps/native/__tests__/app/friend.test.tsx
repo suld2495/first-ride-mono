@@ -1,8 +1,10 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { FlatList, Modal } from 'react-native';
 
 import { FlashList } from '@/components/ui/flash-list';
+import { RANDOM_FRIEND_RECOMMENDATION_ENABLED_KEY_PREFIX } from '@/hooks/useRandomFriendRecommendationPreference';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
@@ -52,6 +54,7 @@ const randomFriendRecommendation = {
     },
   ],
 };
+const randomFriendRecommendationStorageKey = `${RANDOM_FRIEND_RECOMMENDATION_ENABLED_KEY_PREFIX}:test123`;
 
 // axios response interceptor가 response.data.data를 반환하므로
 // { data: [...] } 형태로 감싸야 함
@@ -73,8 +76,9 @@ const setupMocks = (friendsData: ReturnType<typeof createMockFriends> = []) => {
 };
 
 describe('친구 리스트 페이지', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     resetAuthMocks();
+    await AsyncStorage.removeItem(randomFriendRecommendationStorageKey);
     useColorSchemeStore.getState().setColorScheme('blue');
     useColorSchemeStore.getState().clearColorSchemeOverride();
     mockAxios = new MockAdapter(axiosInstance);
@@ -224,6 +228,39 @@ describe('친구 리스트 페이지', () => {
       expect(recommendationSwitch.props.accessibilityState).toEqual(
         expect.objectContaining({ checked: false }),
       );
+    });
+
+    it('스위치 상태를 기기에 저장하고 다시 진입했을 때 복원한다', async () => {
+      setupMocks([]);
+
+      const firstScreen = render(<FriendPage />);
+      const firstSwitch =
+        await firstScreen.findByLabelText('랜덤 친구 추천 받기');
+
+      fireEvent(firstSwitch, 'valueChange', false);
+
+      await waitFor(() => {
+        expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+          randomFriendRecommendationStorageKey,
+          'false',
+        );
+      });
+
+      firstScreen.unmount();
+
+      setupMocks([]);
+      const secondScreen = render(<FriendPage />);
+      const restoredSwitch =
+        await secondScreen.findByLabelText('랜덤 친구 추천 받기');
+
+      await waitFor(() => {
+        expect(restoredSwitch.props.accessibilityState).toEqual(
+          expect.objectContaining({ checked: false }),
+        );
+      });
+      expect(
+        secondScreen.queryByTestId('random-friend-card'),
+      ).not.toBeOnTheScreen();
     });
 
     it('자정이 되면 랜덤 친구 추천 API를 다시 호출한다', async () => {

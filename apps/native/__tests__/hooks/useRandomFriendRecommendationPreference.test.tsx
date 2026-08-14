@@ -53,4 +53,33 @@ describe('useRandomFriendRecommendationPreference', () => {
 
     expect(result.current.isEnabled).toBe(true);
   });
+
+  it('기기 저장소를 읽지 못해도 기본값을 활성화로 사용한다', async () => {
+    jest
+      .spyOn(AsyncStorage, 'getItem')
+      .mockRejectedValueOnce(new Error('storage unavailable'));
+
+    const { result } = renderHook(() =>
+      useRandomFriendRecommendationPreference(USER_ID),
+    );
+
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
+
+    expect(result.current.isEnabled).toBe(true);
+  });
+
+  it('로그인 사용자가 없으면 기기 저장소에 기록하지 않는다', async () => {
+    const { result } = renderHook(() =>
+      useRandomFriendRecommendationPreference(undefined),
+    );
+
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
+
+    act(() => {
+      result.current.setEnabled(false);
+    });
+
+    expect(result.current.isEnabled).toBe(false);
+    expect(AsyncStorage.setItem).not.toHaveBeenCalled();
+  });
 });

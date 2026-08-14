@@ -18,7 +18,9 @@ import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useRandomFriendRecommendationRollover } from '@/hooks/useRandomFriendRecommendationRollover';
+import { useRandomFriendRecommendationPreference } from '@/hooks/useRandomFriendRecommendationPreference';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
@@ -119,8 +121,12 @@ const RandomFriendRecommendation = () => {
   } = useRandomFriendRecommendationQuery();
   const addFriendMutation = useAddFriendMutation();
   const { showToast } = useToast();
+  const user = useAuthUser();
   const requestInFlightRef = useRef(false);
-  const [isRecommendationEnabled, setIsRecommendationEnabled] = useState(true);
+  const {
+    isEnabled: isRecommendationEnabled,
+    setEnabled: setRecommendationEnabled,
+  } = useRandomFriendRecommendationPreference(user?.userId);
   const [requestedNickname, setRequestedNickname] = useState<string | null>(
     null,
   );
@@ -168,7 +174,7 @@ const RandomFriendRecommendation = () => {
   };
 
   const handleRecommendationEnabledChange = (enabled: boolean) => {
-    setIsRecommendationEnabled(enabled);
+    setRecommendationEnabled(enabled);
 
     if (enabled) {
       void refetch();
