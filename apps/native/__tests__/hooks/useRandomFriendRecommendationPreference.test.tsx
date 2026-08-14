@@ -82,4 +82,44 @@ describe('useRandomFriendRecommendationPreference', () => {
     expect(result.current.isEnabled).toBe(false);
     expect(AsyncStorage.setItem).not.toHaveBeenCalled();
   });
+
+  it('기기 저장소에 쓰지 못해도 토글 상태는 유지한다', async () => {
+    jest
+      .spyOn(AsyncStorage, 'setItem')
+      .mockRejectedValueOnce(new Error('storage unavailable'));
+
+    const { result } = renderHook(() =>
+      useRandomFriendRecommendationPreference(USER_ID),
+    );
+
+    await waitFor(() => expect(result.current.isHydrated).toBe(true));
+
+    await act(async () => {
+      result.current.setEnabled(false);
+      await Promise.resolve();
+    });
+
+    expect(result.current.isEnabled).toBe(false);
+  });
+
+  it('훅이 해제된 뒤 저장값이 도착해도 상태를 업데이트하지 않는다', async () => {
+    let resolveGetItem: ((value: string | null) => void) | undefined;
+    jest.spyOn(AsyncStorage, 'getItem').mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveGetItem = resolve;
+        }),
+    );
+
+    const { unmount } = renderHook(() =>
+      useRandomFriendRecommendationPreference(USER_ID),
+    );
+
+    unmount();
+
+    await act(async () => {
+      resolveGetItem?.('false');
+      await Promise.resolve();
+    });
+  });
 });
