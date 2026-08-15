@@ -14,6 +14,8 @@ export const friendKey = {
   recommendation: () => [...friendKey.all(), 'random-recommendation'] as const,
   recommendationSettings: (userId: User['userId']) =>
     ['friend', userId, 'random-recommendation-settings'] as const,
+  confirmationImageVisibility: (userId: User['userId']) =>
+    ['friend', userId, 'confirmation-image-visibility'] as const,
 };
 
 export const friendRequestKey = {

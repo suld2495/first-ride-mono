@@ -9,6 +9,7 @@ import {
 import {
   acceptFriendRequest,
   addFriend,
+  fetchConfirmationImageVisibility,
   deleteFriend,
   fetchRandomFriendRecommendationSettings,
   fetchFriendProfile,
@@ -19,7 +20,9 @@ import {
   type RandomFriendRecommendationSettings,
   rejectFriendRequest,
   sendFriendCheer,
+  type ConfirmationImageVisibilitySettings,
   updateRandomFriendRecommendationSettings,
+  updateConfirmationImageVisibility,
 } from '../api/friend';
 import { friendKey, friendRequestKey } from '../types/query-keys/friend';
 
@@ -107,6 +110,44 @@ export const useUpdateRandomFriendRecommendationSettingsMutation = (
     },
     onError: (_error, _enabled, context) => {
       queryClient.setQueryData(queryKey, context?.previousSettings);
+    },
+    onSuccess: (settings) => {
+      queryClient.setQueryData(queryKey, settings);
+    },
+  });
+};
+
+export const useConfirmationImageVisibilityQuery = (userId: User['userId']) =>
+  useQuery({
+    queryKey: friendKey.confirmationImageVisibility(userId),
+    queryFn: fetchConfirmationImageVisibility,
+    enabled: !!userId,
+  });
+
+export const useUpdateConfirmationImageVisibilityMutation = (
+  userId: User['userId'],
+) => {
+  const queryClient = useQueryClient();
+  const queryKey = friendKey.confirmationImageVisibility(userId);
+
+  return useMutation({
+    mutationFn: updateConfirmationImageVisibility,
+    onMutate: async (confirmationImagesVisibleToFriends) => {
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousSettings =
+        queryClient.getQueryData<ConfirmationImageVisibilitySettings>(queryKey);
+
+      queryClient.setQueryData<ConfirmationImageVisibilitySettings>(queryKey, {
+        confirmationImagesVisibleToFriends,
+      });
+
+      return { previousSettings };
+    },
+    onError: (_error, _visible, context) => {
+      if (context?.previousSettings) {
+        queryClient.setQueryData(queryKey, context.previousSettings);
+      }
     },
     onSuccess: (settings) => {
       queryClient.setQueryData(queryKey, settings);

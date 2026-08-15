@@ -17,6 +17,8 @@ import http from './client';
 const baseURL = '/friends';
 const randomFriendRecommendationSettingsURL =
   '/users/me/random-friend-settings';
+const confirmationImageVisibilityURL =
+  '/users/me/confirmation-image-visibility';
 
 export type RandomFriendRecommendationSettings = {
   randomFriendRecommendationEnabled: boolean;
@@ -24,6 +26,13 @@ export type RandomFriendRecommendationSettings = {
 
 type RandomFriendRecommendationSettingsResponse =
   Partial<RandomFriendRecommendationSettings>;
+
+export type ConfirmationImageVisibilitySettings = {
+  confirmationImagesVisibleToFriends: boolean;
+};
+
+type ConfirmationImageVisibilitySettingsResponse =
+  Partial<ConfirmationImageVisibilitySettings>;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
@@ -187,6 +196,44 @@ export const updateRandomFriendRecommendationSettings = async (
     });
 
     return normalizeRandomFriendRecommendationSettings(settings);
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+const normalizeConfirmationImageVisibility = (
+  settings: ConfirmationImageVisibilitySettingsResponse,
+): ConfirmationImageVisibilitySettings => ({
+  confirmationImagesVisibleToFriends:
+    settings.confirmationImagesVisibleToFriends ?? false,
+});
+
+export const fetchConfirmationImageVisibility =
+  async (): Promise<ConfirmationImageVisibilitySettings> => {
+    try {
+      const settings = await http.get<
+        ConfirmationImageVisibilitySettingsResponse,
+        void
+      >(confirmationImageVisibilityURL);
+
+      return normalizeConfirmationImageVisibility(settings);
+    } catch (error) {
+      throw toAppError(error);
+    }
+  };
+
+export const updateConfirmationImageVisibility = async (
+  confirmationImagesVisibleToFriends: boolean,
+): Promise<ConfirmationImageVisibilitySettings> => {
+  try {
+    const settings = await http.patch<
+      ConfirmationImageVisibilitySettingsResponse,
+      ConfirmationImageVisibilitySettings
+    >(confirmationImageVisibilityURL, {
+      confirmationImagesVisibleToFriends,
+    });
+
+    return normalizeConfirmationImageVisibility(settings);
   } catch (error) {
     throw toAppError(error);
   }

@@ -3,6 +3,10 @@ import {
   NOTIFICATION_SUBTYPES,
   type NotificationSettings,
 } from '@repo/shared/api/notification-settings.api';
+import {
+  useConfirmationImageVisibilityQuery,
+  useUpdateConfirmationImageVisibilityMutation,
+} from '@repo/shared/hooks/useFriend';
 import { useUpdateNotificationSettingsMutation } from '@repo/shared/hooks/useNotificationSettings';
 import {
   useRandomFriendRecommendationSettingsQuery,
@@ -149,6 +153,74 @@ describe('useUpdateNotificationSettingsMutation', () => {
       expect(result.current.isError).toBe(true);
     });
     expect(queryClient.getQueryData(queryKey)).toEqual(initialSettings);
+  });
+});
+
+describe('confirmation image visibility hooks', () => {
+  const userId = 'account-a';
+
+  beforeEach(() => {
+    mockAxios = new MockAdapter(axiosInstance);
+  });
+
+  afterEach(() => {
+    mockAxios.restore();
+  });
+
+  it('친구 인증 사진 공개 설정을 조회해 캐시에 저장한다', async () => {
+    const queryClient = createTestQueryClient();
+    mockAxios.onGet('/users/me/confirmation-image-visibility').reply(200, {
+      data: { confirmationImagesVisibleToFriends: false },
+    });
+
+    const { result } = renderHook(
+      () => useConfirmationImageVisibilityQuery(userId),
+      { wrapper: createWrapper(queryClient) },
+    );
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual({
+        confirmationImagesVisibleToFriends: false,
+      });
+    });
+    expect(
+      queryClient.getQueryData(friendKey.confirmationImageVisibility(userId)),
+    ).toEqual({ confirmationImagesVisibleToFriends: false });
+  });
+
+  it('친구 인증 사진 공개 설정 토글을 낙관적으로 갱신하고 PATCH한다', async () => {
+    const queryClient = createTestQueryClient();
+    const queryKey = friendKey.confirmationImageVisibility(userId);
+    queryClient.setQueryData(queryKey, {
+      confirmationImagesVisibleToFriends: false,
+    });
+    mockAxios
+      .onPatch('/users/me/confirmation-image-visibility')
+      .reply((config) => {
+        expect(JSON.parse(config.data ?? '{}')).toEqual({
+          confirmationImagesVisibleToFriends: true,
+        });
+
+        return [200, { data: { confirmationImagesVisibleToFriends: true } }];
+      });
+
+    const { result } = renderHook(
+      () => useUpdateConfirmationImageVisibilityMutation(userId),
+      { wrapper: createWrapper(queryClient) },
+    );
+
+    act(() => {
+      result.current.mutate(true);
+    });
+
+    await waitFor(() => {
+      expect(queryClient.getQueryData(queryKey)).toEqual({
+        confirmationImagesVisibleToFriends: true,
+      });
+    });
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
   });
 });
 
