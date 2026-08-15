@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
+import { within } from '@testing-library/react-native';
 import { FlatList, Modal } from 'react-native';
 
 import { FlashList } from '@/components/ui/flash-list';
@@ -20,6 +21,7 @@ import {
 import { createMockFriend, createMockFriends } from '../setup/friend/mock';
 
 declare const mockPush: jest.Mock;
+declare const mockReplace: jest.Mock;
 
 // FriendRequestResponse 형식에 맞는 mock 데이터 생성
 const createMockFriendRequestResponse = (count: number) =>
@@ -34,6 +36,7 @@ const createMockFriendRequestResponse = (count: number) =>
 let mockAxios: MockAdapter;
 
 const randomFriendRecommendation = {
+  friendId: 42,
   nickname: '젤리',
   level: 6,
   job: '궁수',
@@ -111,6 +114,27 @@ describe('친구 리스트 페이지', () => {
       ).toBeOnTheScreen();
       expect(screen.queryByText('2026-08-04')).not.toBeOnTheScreen();
       expect(screen.queryByText('아침 산책')).not.toBeOnTheScreen();
+    });
+
+    it('추천 영역에서 친구 페이지로 이동한다', async () => {
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+
+      const profileActions = await screen.findByTestId(
+        'random-friend-profile-actions',
+      );
+
+      fireEvent.press(
+        within(profileActions).getByLabelText('친구 페이지로 이동'),
+      );
+
+      expect(mockPush).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '/modal?type=friend-routines&friendId=42&friendNickname=%EC%A0%A4%EB%A6%AC&date=',
+        ),
+      );
+      expect(mockReplace).not.toHaveBeenCalled();
     });
 
     it('랜덤 친구 추천 제목과 카드를 낮은 위계의 크기로 표시한다', async () => {

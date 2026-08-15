@@ -147,6 +147,7 @@ describe('friend.api', () => {
   describe('fetchRandomFriendRecommendation', () => {
     it('body 없이 랜덤 친구 추천을 요청하고 추천 프로필을 반환한다', async () => {
       const recommendation = {
+        friendId: 42,
         nickname: '젤리',
         level: 6,
         job: '궁수',
@@ -173,9 +174,10 @@ describe('friend.api', () => {
         return [200, { data: recommendation }];
       });
 
-      await expect(fetchRandomFriendRecommendation()).resolves.toEqual(
-        recommendation,
-      );
+      const result = await fetchRandomFriendRecommendation();
+
+      expect(result).toEqual(recommendation);
+      expect(result.friendId).toBe(42);
     });
 
     it('추천 후보가 없으면 서버 안내 메시지를 보존한다', async () => {

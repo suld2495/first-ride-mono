@@ -43,6 +43,7 @@ describe('routine api', () => {
   it('친구 루틴 목록의 confirmations를 루틴에 매핑한다', async () => {
     mockAxios.onGet('/friends/42/routines?date=2026-08-02').reply(200, {
       data: {
+        isFriend: false,
         friend: { nickname: '친구' },
         routines: [
           {
@@ -56,12 +57,26 @@ describe('routine api', () => {
 
     await expect(fetchFriendRoutines(42, '2026-08-02')).resolves.toEqual(
       expect.objectContaining({
+        isFriend: false,
         routines: [
           expect.objectContaining({
             confirmations: [confirmation],
           }),
         ],
       }),
+    );
+  });
+
+  it('친구 루틴 목록의 친구 정보에 있는 friend 값을 isFriend로 정규화한다', async () => {
+    mockAxios.onGet('/friends/42/routines?date=2026-08-02').reply(200, {
+      data: {
+        friend: { nickname: '친구', friend: true },
+        routines: [],
+      },
+    });
+
+    await expect(fetchFriendRoutines(42, '2026-08-02')).resolves.toEqual(
+      expect.objectContaining({ isFriend: true }),
     );
   });
 

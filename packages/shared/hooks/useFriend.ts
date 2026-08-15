@@ -1,5 +1,6 @@
 import type { FriendRequestResponse, SearchOption, User } from '@repo/types';
 import {
+  keepPreviousData,
   skipToken,
   useMutation,
   useQuery,
@@ -55,6 +56,7 @@ export const useFriendRoutinesQuery = (
     queryKey: friendKey.routines(friendId ?? '', date),
     queryFn: () => fetchFriendRoutines(friendId ?? '', date),
     enabled: !!friendId && !!date,
+    placeholderData: keepPreviousData,
     refetchOnMount: 'always',
   });
 };

@@ -31,6 +31,7 @@ interface RoutineCountListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
+  canOpenRoutineProofDetail?: boolean;
   onRequestRoutine: (
     routine: Routine,
     meta?: {
@@ -158,6 +159,7 @@ const RoutineCountList = ({
   refreshing = false,
   onRefresh,
   canRequestRoutine = false,
+  canOpenRoutineProofDetail = false,
   onRequestRoutine,
   openMenuRoutineId,
   onToggleRoutineMenu,
@@ -309,22 +311,26 @@ const RoutineCountList = ({
                     isPendingConfirmation,
                     isGoalRange,
                   });
-                  const handlePressCheckBox = canRequestWithCheckBox
+                  const confirmId = achieved
+                    ? (passedConfirmIds[countIndex - 1] ??
+                      (isTodaySuccess
+                        ? (todayPassedConfirmation?.confirmId ??
+                          (routine.todayConfirmStatus === 'PASS'
+                            ? routine.todayConfirmId
+                            : null))
+                        : null))
+                    : isPendingConfirmation
+                      ? (routine.pendingConfirmationIds[
+                          countIndex - weeklyCount - 1
+                        ] ?? null)
+                      : null;
+                  const canPressWithCheckBox =
+                    canRequestWithCheckBox ||
+                    (canOpenRoutineProofDetail && Boolean(confirmId));
+                  const handlePressCheckBox = canPressWithCheckBox
                     ? () =>
                         onRequestRoutine(routine, {
-                          confirmId: achieved
-                            ? (passedConfirmIds[countIndex - 1] ??
-                              (isTodaySuccess
-                                ? (todayPassedConfirmation?.confirmId ??
-                                  (routine.todayConfirmStatus === 'PASS'
-                                    ? routine.todayConfirmId
-                                    : null))
-                                : null))
-                            : isPendingConfirmation
-                              ? (routine.pendingConfirmationIds[
-                                  countIndex - weeklyCount - 1
-                                ] ?? null)
-                              : null,
+                          confirmId,
                           isMissedPast: isMissedPastGoal,
                         })
                     : undefined;
@@ -335,9 +341,9 @@ const RoutineCountList = ({
                       style={styles.column}
                       accessibilityLabel={label}
                       accessibilityRole={
-                        canRequestWithCheckBox ? 'button' : 'image'
+                        canPressWithCheckBox ? 'button' : 'image'
                       }
-                      disabled={!canRequestWithCheckBox}
+                      disabled={!canPressWithCheckBox}
                       onPress={handlePressCheckBox}
                     >
                       <View
@@ -388,6 +394,7 @@ const RoutineCountList = ({
     [
       date,
       canRequestRoutine,
+      canOpenRoutineProofDetail,
       itemHeight,
       onRequestRoutine,
       onToggleRoutineMenu,

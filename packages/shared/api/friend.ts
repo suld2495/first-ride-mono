@@ -340,6 +340,7 @@ export const fetchFriendRoutines = async (
   date: string,
 ): Promise<{
   friend: FriendRoutinesResponse['friend'];
+  isFriend: boolean;
   routines: Routine[];
 }> => {
   try {
@@ -351,9 +352,12 @@ export const fetchFriendRoutines = async (
     const routines = friendRoutines.routines.map((routine) =>
       toFriendRoutine(routine, friendRoutines.friend),
     );
+    const isFriend =
+      friendRoutines.isFriend ?? friendRoutines.friend.friend ?? false;
 
     return {
       friend: friendRoutines.friend,
+      isFriend,
       routines,
     };
   } catch (error) {

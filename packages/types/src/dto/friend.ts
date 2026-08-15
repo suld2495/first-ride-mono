@@ -22,6 +22,7 @@ export interface FriendCheerResponse {
 
 export interface FriendRoutineProfile {
   backgroundImageUrl?: null | string;
+  friend?: boolean;
   id: number;
   nickname: User['nickname'];
   level: number;
@@ -52,6 +53,7 @@ export interface RandomFriendRecommendationRoutine {
 }
 
 export interface RandomFriendRecommendationResponse {
+  friendId: number | string;
   nickname: User['nickname'];
   level: number;
   job: string;
@@ -87,5 +89,6 @@ export interface FriendRoutineItem {
 
 export interface FriendRoutinesResponse {
   friend: FriendRoutineProfile;
+  isFriend?: boolean;
   routines: FriendRoutineItem[];
 }
