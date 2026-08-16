@@ -29,7 +29,9 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 
 const DETAIL_IMAGE_THUMBNAIL_COUNT = 3;
 const MESSAGE_PLACEHOLDER = '안녕하세요?';
-const MESSAGE_BLUR_INTENSITY = 80;
+const MESSAGE_BLUR_INTENSITY = 100;
+const MESSAGE_BLUR_OPACITY = 0.75;
+const MESSAGE_TEXT_OPACITY = 0.6;
 const MESSAGE_BLUR_TINT = 'systemUltraThinMaterial' as const;
 
 const getMessageTime = (dateInput?: null | string) => {
@@ -456,14 +458,17 @@ const styles = StyleSheet.create((theme) => ({
   },
   chatBubbleMine: { backgroundColor: theme.colors.brand.primary },
   chatTextContainer: { position: 'relative' },
-  chatTextBlurred: { opacity: 0.85, letterSpacing: 0.5 },
+  chatTextBlurred: {
+    opacity: MESSAGE_TEXT_OPACITY,
+    letterSpacing: 0.5,
+  },
   chatTextBlur: {
     position: 'absolute',
     top: 0,
     right: 0,
     bottom: 0,
     left: 0,
-    opacity: 0.35,
+    opacity: MESSAGE_BLUR_OPACITY,
   },
   chatText: { color: theme.colors.brand.text },
   chatTime: { color: theme.colors.text.tertiary },
