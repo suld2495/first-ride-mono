@@ -276,4 +276,34 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
       screen.getByTestId('routine-proof-chat-nickname-메이트'),
     ).toHaveTextContent('메이트');
   });
+
+  it('현재 사용자가 응답자여도 내 메시지를 먼저 표시한다', () => {
+    mockRequestStore.requestId = 0;
+    const previewDetail = {
+      ...createMockRoutineDetail(0, {
+        requesterNickname: '메이트',
+        message: null,
+      }),
+      responderNickname: '나',
+      checkComment: null,
+      hasRequestMessage: true,
+      hasResponseComment: true,
+    };
+
+    const screen = render(
+      <RoutineProofDetailModal
+        previewCurrentNickname="나"
+        previewDetail={previewDetail}
+      />,
+    );
+
+    expect(
+      screen
+        .getAllByTestId(/routine-proof-chat-(request|reply)-message/)
+        .map((message) => message.props.testID),
+    ).toEqual([
+      'routine-proof-chat-reply-message',
+      'routine-proof-chat-request-message',
+    ]);
+  });
 });
