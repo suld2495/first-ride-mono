@@ -16,7 +16,7 @@ import * as Svg from 'react-native-svg';
 import { getRoutineSceneRemoteAsset } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
 import FullscreenModal from '@/components/ui/fullscreen-modal';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
@@ -28,7 +28,7 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 
 const DETAIL_IMAGE_THUMBNAIL_COUNT = 3;
 const MESSAGE_PLACEHOLDER = '안녕하세요?';
-const MESSAGE_BLUR_RADIUS = 3.5;
+const MESSAGE_BLUR_OVERLAY = require('../../assets/routine-message-blur-overlay.png');
 
 const getMessageTime = (dateInput?: null | string) => {
   if (!dateInput) return '';
@@ -100,111 +100,17 @@ const DetailImage = ({ imagePath, style }: DetailImageProps) => {
   );
 };
 
-type BlurredMessageTextProps = {
-  filterId: string;
-  text: string;
-};
-
-const BlurredMessageText = ({
-  filterId,
-  text,
-}: BlurredMessageTextProps) => {
-  const { theme } = useAppTheme();
-
-  return (
-    <View style={styles.chatTextContainer} testID="routine-proof-chat-text">
-      <Typography
-        variant="body2"
-        style={[styles.chatText, styles.chatTextLayout]}
-        accessible={false}
-      >
-        {text}
-      </Typography>
-      <Svg.Svg
-        width="100%"
-        height="100%"
-        pointerEvents="none"
-        style={styles.chatTextBlur}
-        testID="routine-proof-chat-blur"
-      >
-        <Svg.Defs>
-          <Svg.Filter
-            id={filterId}
-            x="-25%"
-            y="-50%"
-            width="150%"
-            height="200%"
-          >
-            <Svg.FeGaussianBlur
-              in="SourceGraphic"
-              stdDeviation={MESSAGE_BLUR_RADIUS}
-            />
-          </Svg.Filter>
-        </Svg.Defs>
-        <Svg.Rect
-          x="2%"
-          y="25%"
-          width="12%"
-          height="50%"
-          rx={3}
-          fill={theme.colors.brand.text}
-          filter={`url(#${filterId})`}
-          opacity={0.85}
-        />
-        <Svg.Rect
-          x="18%"
-          y="18%"
-          width="8%"
-          height="64%"
-          rx={3}
-          fill={theme.colors.brand.text}
-          filter={`url(#${filterId})`}
-          opacity={0.85}
-        />
-        <Svg.Rect
-          x="30%"
-          y="28%"
-          width="14%"
-          height="44%"
-          rx={3}
-          fill={theme.colors.brand.text}
-          filter={`url(#${filterId})`}
-          opacity={0.85}
-        />
-        <Svg.Rect
-          x="48%"
-          y="20%"
-          width="9%"
-          height="60%"
-          rx={3}
-          fill={theme.colors.brand.text}
-          filter={`url(#${filterId})`}
-          opacity={0.85}
-        />
-        <Svg.Rect
-          x="61%"
-          y="30%"
-          width="13%"
-          height="40%"
-          rx={3}
-          fill={theme.colors.brand.text}
-          filter={`url(#${filterId})`}
-          opacity={0.85}
-        />
-        <Svg.Rect
-          x="78%"
-          y="22%"
-          width="19%"
-          height="56%"
-          rx={3}
-          fill={theme.colors.brand.text}
-          filter={`url(#${filterId})`}
-          opacity={0.85}
-        />
-      </Svg.Svg>
-    </View>
-  );
-};
+const BlurredMessageText = () => (
+  <View style={styles.chatTextContainer} testID="routine-proof-chat-text">
+    <Image
+      source={MESSAGE_BLUR_OVERLAY}
+      resizeMode="stretch"
+      style={styles.chatTextBlur}
+      testID="routine-proof-chat-blur-image"
+      accessible={false}
+    />
+  </View>
+);
 
 type RoutineProofDetailModalProps = {
   previewCurrentNickname?: string;
@@ -425,10 +331,7 @@ const RoutineProofDetailModal = ({
                     ]}
                   >
                     {message.isBlurred ? (
-                      <BlurredMessageText
-                        filterId={`routine-proof-chat-${message.id}-filter`}
-                        text={message.text}
-                      />
+                      <BlurredMessageText />
                     ) : (
                       <View
                         style={styles.chatTextContainer}
@@ -551,14 +454,13 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.brand.card,
   },
   chatBubbleMine: { backgroundColor: theme.colors.brand.primary },
-  chatTextContainer: { position: 'relative' },
-  chatTextLayout: { opacity: 0 },
+  chatTextContainer: {
+    width: baseFoundation.dimension.x96,
+    height: baseFoundation.dimension.x28,
+  },
   chatTextBlur: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+    width: '100%',
+    height: '100%',
   },
   chatText: { color: theme.colors.brand.text },
   chatTime: { color: theme.colors.text.tertiary },
