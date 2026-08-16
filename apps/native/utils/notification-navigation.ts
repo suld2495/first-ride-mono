@@ -6,7 +6,25 @@ import {
   NOTIFICATION_CATEGORY_TO_SCREEN,
   PUSH_NOTIFICATION_ROUTES,
 } from '@/constants/NOTIFICATIONS';
+import { buildRoutineSharePath } from '@/share/routine-share';
 import type { NotificationDeepLinkData } from '@/types/notification-types';
+
+export const getRoutineSharePath = (
+  data: NotificationDeepLinkData | undefined,
+): string | undefined => {
+  if (
+    !data ||
+    typeof data.routineId !== 'number' ||
+    !Number.isInteger(data.routineId) ||
+    data.routineId <= 0 ||
+    typeof data.shareSessionId !== 'string' ||
+    data.shareSessionId.length === 0
+  ) {
+    return undefined;
+  }
+
+  return buildRoutineSharePath(data.routineId, data.shareSessionId);
+};
 
 export function getDeepLinkPath(
   data: NotificationDeepLinkData | undefined,
@@ -17,6 +35,12 @@ export function getDeepLinkPath(
 
   if (data.screen && typeof data.screen === 'string') {
     return data.screen;
+  }
+
+  const routineSharePath = getRoutineSharePath(data);
+
+  if (routineSharePath) {
+    return routineSharePath;
   }
 
   if (data.type && data.type in PUSH_NOTIFICATION_ROUTES) {

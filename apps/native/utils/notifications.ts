@@ -23,6 +23,7 @@ import type {
 export {
   extractDeepLinkData,
   getDeepLinkPath,
+  getRoutineSharePath,
   getNotificationNavigationIntent,
   type NotificationNavigationIntent,
 } from './notification-navigation';

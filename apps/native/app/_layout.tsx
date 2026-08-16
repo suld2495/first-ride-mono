@@ -57,6 +57,7 @@ import { getNavigationAction } from '@/utils/navigation-stack';
 import {
   extractDeepLinkData,
   getNotificationNavigationIntent,
+  getRoutineSharePath,
   syncBadgeCountFromNotification,
   syncBadgeCountWithPendingConfirmations,
 } from '@/utils/notifications';
@@ -225,6 +226,19 @@ function AppShell({ isFontReady }: AppShellProps) {
       });
 
       const data = extractDeepLinkData(response.notification);
+      const routineSharePath = getRoutineSharePath(data);
+      const isRoutineShareNotification = !!routineSharePath;
+
+      if (
+        isRoutineShareNotification &&
+        data?.shareSessionId === handledShareSessionIdRef.current
+      ) {
+        return;
+      }
+
+      if (isRoutineShareNotification && data?.shareSessionId) {
+        handledShareSessionIdRef.current = data.shareSessionId;
+      }
 
       try {
         const intent = await getNotificationNavigationIntent(data);
