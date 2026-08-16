@@ -90,13 +90,22 @@ const createFriendRoutineResponse = (friendOverrides = {}) => ({
   ],
 });
 
-const setupRoutineProofAccessMocks = (isFriend: boolean, date: string) => {
+const setupRoutineProofAccessMocks = (
+  isFriend: boolean,
+  date: string,
+  confirmationImagesVisibleToFriends = isFriend,
+) => {
   const routineResponse = createFriendRoutineResponse();
   mockAxios.onGet(`/friends/42/routines?date=${date}`).reply(
     200,
     wrapResponse({
       ...routineResponse,
       isFriend,
+      friend: {
+        ...routineResponse.friend,
+        isFriend,
+        confirmationImagesVisibleToFriends,
+      },
       routines: [
         {
           ...routineResponse.routines[0],
@@ -417,7 +426,7 @@ describe('FriendRoutinesModal', () => {
     expect(mockPush).toHaveBeenCalledWith('/modal?type=routine-proof-detail');
   });
 
-  it('친구가 아니면 완료 체크박스로 인증 상세 페이지를 열 수 없다', async () => {
+  it('친구가 아니면 완료 체크박스 클릭 시 접근 불가 Toast를 표시한다', async () => {
     const currentWeekMonday = getWeekMonday(new Date());
     mockSearchParams.date = currentWeekMonday;
     setupRoutineProofAccessMocks(false, currentWeekMonday);
@@ -425,10 +434,36 @@ describe('FriendRoutinesModal', () => {
     const screen = renderFriendRoutinesModal();
     const checkbox = await screen.findByLabelText('1회 달성');
 
-    expect(checkbox).toHaveProp('accessibilityRole', 'image');
+    expect(checkbox).toHaveProp('accessibilityRole', 'button');
 
     fireEvent.press(checkbox);
 
+    expect(mockShowToast).toHaveBeenCalledWith(
+      '친구인 경우만 이동가능합니다.',
+      'error',
+    );
+    expect(mockRequestStore.setRequestId).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalledWith(
+      '/modal?type=routine-proof-detail',
+    );
+  });
+
+  it('친구지만 인증 공유를 허용하지 않으면 완료 체크박스 클릭 시 안내 Toast를 표시한다', async () => {
+    const currentWeekMonday = getWeekMonday(new Date());
+    mockSearchParams.date = currentWeekMonday;
+    setupRoutineProofAccessMocks(true, currentWeekMonday, false);
+
+    const screen = renderFriendRoutinesModal();
+    const checkbox = await screen.findByLabelText('1회 달성');
+
+    expect(checkbox).toHaveProp('accessibilityRole', 'button');
+
+    fireEvent.press(checkbox);
+
+    expect(mockShowToast).toHaveBeenCalledWith(
+      '친구가 인증을 공유하지 않았습니다.',
+      'error',
+    );
     expect(mockRequestStore.setRequestId).not.toHaveBeenCalled();
     expect(mockPush).not.toHaveBeenCalledWith(
       '/modal?type=routine-proof-detail',

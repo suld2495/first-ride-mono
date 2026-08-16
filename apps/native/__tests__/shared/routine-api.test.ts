@@ -95,6 +95,30 @@ describe('routine api', () => {
     );
   });
 
+  it('친구 루틴 목록의 friend 하위 isFriend 값을 우선해 인증 접근 권한을 정규화한다', async () => {
+    mockAxios.onGet('/friends/42/routines?date=2026-08-02').reply(200, {
+      data: {
+        isFriend: true,
+        friend: {
+          nickname: '친구',
+          isFriend: false,
+          confirmationImagesVisibleToFriends: true,
+        },
+        routines: [],
+      },
+    });
+
+    await expect(fetchFriendRoutines(42, '2026-08-02')).resolves.toEqual(
+      expect.objectContaining({
+        isFriend: false,
+        friend: expect.objectContaining({
+          isFriend: false,
+          confirmationImagesVisibleToFriends: true,
+        }),
+      }),
+    );
+  });
+
   it('친구 루틴 목록의 photoRequired를 루틴에 매핑한다', async () => {
     mockAxios.onGet('/friends/42/routines?date=2026-08-02').reply(200, {
       data: {
