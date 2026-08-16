@@ -97,28 +97,22 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
 
     const screen = render(<RoutineProofDetailModal />);
 
-    expect(await screen.findAllByText('안녕하세요?')).toHaveLength(2);
+    expect(await screen.findByText('주고받은 메시지')).toBeOnTheScreen();
+    expect(screen.queryByText('안녕하세요?')).toBeNull();
     expect(
       screen.getByTestId('routine-proof-chat-request-message'),
     ).toBeOnTheScreen();
     expect(
       screen.getByTestId('routine-proof-chat-reply-message'),
     ).toBeOnTheScreen();
-    expect(screen.getAllByTestId('routine-proof-chat-blur')).toHaveLength(2);
+    expect(
+      screen.getAllByTestId('routine-proof-chat-blur-image'),
+    ).toHaveLength(2);
 
     const requestText = within(
       screen.getByTestId('routine-proof-chat-request-message'),
     ).getByTestId('routine-proof-chat-text');
-    const requestBlur = within(requestText).getByTestId(
-      'routine-proof-chat-blur',
-    );
-
-    expect(requestBlur.props).toEqual(
-      expect.objectContaining({
-        testID: 'routine-proof-chat-blur',
-      }),
-    );
-    const blurImage = within(requestBlur).getByTestId(
+    const blurImage = within(requestText).getByTestId(
       'routine-proof-chat-blur-image',
     );
     expect(blurImage.props).toEqual(
