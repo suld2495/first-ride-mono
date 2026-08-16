@@ -1,6 +1,7 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { Image, StyleSheet as NativeStyleSheet } from 'react-native';
+import * as Svg from 'react-native-svg';
 
 jest.mock('expo-blur', () => ({
   BlurView: jest.requireActual('react-native').View,
@@ -119,12 +120,13 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
 
     expect(requestBlur.props).toEqual(
       expect.objectContaining({
-        intensity: 100,
-        tint: 'systemUltraThinMaterial',
+        testID: 'routine-proof-chat-blur',
       }),
     );
-    expect(requestBlur.props.style).toEqual(
-      expect.objectContaining({ opacity: 0.75 }),
+    expect(requestText.findByType(Svg.FeGaussianBlur).props).toEqual(
+      expect.objectContaining({
+        stdDeviation: 4.5,
+      }),
     );
   });
 
