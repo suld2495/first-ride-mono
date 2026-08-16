@@ -3,10 +3,6 @@ import MockAdapter from 'axios-mock-adapter';
 import { Image, StyleSheet as NativeStyleSheet } from 'react-native';
 import * as Svg from 'react-native-svg';
 
-jest.mock('expo-blur', () => ({
-  BlurView: jest.requireActual('react-native').View,
-}));
-
 import RoutineProofDetailModal from '../../../components/modal/routine-proof-detail-modal';
 import {
   fireEvent,
@@ -125,7 +121,7 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     );
     expect(requestText.findByType(Svg.FeGaussianBlur).props).toEqual(
       expect.objectContaining({
-        stdDeviation: 4.5,
+        stdDeviation: 8,
       }),
     );
   });
