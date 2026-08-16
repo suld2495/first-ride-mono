@@ -294,6 +294,7 @@ const FriendRoutineDateSection = ({
               refreshing={isRefetching}
               onRefresh={onRefresh}
               readOnly
+              canOpenRoutineProofDetail={data.isFriend}
               routineColorFallback={routineColorFallback}
             />
           )}
