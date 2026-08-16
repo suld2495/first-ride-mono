@@ -345,7 +345,7 @@ describe('FriendRoutinesModal', () => {
     expect(screen.queryByLabelText('운동 10분 이상 메뉴 열기')).toBeNull();
   });
 
-  it('친구인 경우에도 완료 체크박스로 인증 상세 페이지를 열 수 없다', async () => {
+  it('친구인 경우 완료 체크박스로 인증 상세 페이지를 연다', async () => {
     const currentWeekMonday = getWeekMonday(new Date());
     mockSearchParams.date = currentWeekMonday;
     setupRoutineProofAccessMocks(true, currentWeekMonday);
@@ -353,17 +353,15 @@ describe('FriendRoutinesModal', () => {
     const screen = renderFriendRoutinesModal();
     const checkbox = await screen.findByLabelText('1회 달성');
 
-    expect(checkbox).toHaveProp('accessibilityRole', 'image');
+    expect(checkbox).toHaveProp('accessibilityRole', 'button');
 
     fireEvent.press(checkbox);
 
-    expect(mockRequestStore.setRequestId).not.toHaveBeenCalled();
-    expect(mockPush).not.toHaveBeenCalledWith(
-      '/modal?type=routine-proof-detail',
-    );
+    expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(99);
+    expect(mockPush).toHaveBeenCalledWith('/modal?type=routine-proof-detail');
   });
 
-  it('친구의 주간 루틴 완료 체크박스로도 인증 상세 페이지를 열 수 없다', async () => {
+  it('친구의 주간 루틴 완료 체크박스로도 인증 상세 페이지를 연다', async () => {
     const currentWeekMonday = getWeekMonday(new Date());
     mockRoutineStore.type = 'week';
     mockSearchParams.date = currentWeekMonday;
@@ -372,14 +370,12 @@ describe('FriendRoutinesModal', () => {
     const screen = renderFriendRoutinesModal();
     const checkbox = await screen.findByLabelText('월요일 달성');
 
-    expect(checkbox).toHaveProp('accessibilityRole', 'image');
+    expect(checkbox).toHaveProp('accessibilityRole', 'button');
 
     fireEvent.press(checkbox);
 
-    expect(mockRequestStore.setRequestId).not.toHaveBeenCalled();
-    expect(mockPush).not.toHaveBeenCalledWith(
-      '/modal?type=routine-proof-detail',
-    );
+    expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(99);
+    expect(mockPush).toHaveBeenCalledWith('/modal?type=routine-proof-detail');
   });
 
   it('친구가 아니면 완료 체크박스로 인증 상세 페이지를 열 수 없다', async () => {
