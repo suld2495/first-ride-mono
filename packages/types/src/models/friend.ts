@@ -9,7 +9,6 @@ export interface Friend {
   mottos: string[];
   mateNickname?: null | string;
   job: string;
-  profileImage: null | string;
   level: number;
   characterCode: string;
   characterImageUrl: null | string;

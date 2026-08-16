@@ -86,7 +86,6 @@ const normalizeFriend = (value: unknown, index: number): Friend => {
     mottos,
     mateNickname: getNullableString(friend.mateNickname),
     job: getString(friend.job),
-    profileImage: getNullableString(friend.profileImage),
     level: Math.max(1, Math.floor(getNumber(friend.level, 1))),
     characterCode: getString(friend.characterCode),
     characterImageUrl: getNullableString(friend.characterImageUrl),

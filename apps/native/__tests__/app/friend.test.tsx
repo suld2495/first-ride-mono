@@ -544,7 +544,6 @@ describe('친구 리스트 페이지', () => {
               motto: '오늘도 전진',
               mottos: ['오늘도 전진', '끝까지'],
               job: '마법사',
-              profileImage: '...',
               level: 7,
               characterCode: 'MAGE_INTERMEDIATE',
               characterImageUrl: '/assets/characters/mage_intermediate.png',

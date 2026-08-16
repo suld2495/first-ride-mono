@@ -12,7 +12,6 @@ export interface CreateMockFriendOptions {
   mottos?: string[];
   mateNickname?: string | null;
   job?: string;
-  profileImage?: string | null;
   level?: number;
   characterCode?: string;
   characterImageUrl?: string | null;
@@ -38,7 +37,6 @@ export const createMockFriend = (
       ? (options.mateNickname ?? null)
       : `mate${index + 1}`,
   job: options.job ?? '직장인',
-  profileImage: options.profileImage ?? null,
   level: options.level ?? index + 1,
   characterCode: options.characterCode ?? 'MAGE_INTERMEDIATE',
   characterImageUrl:
