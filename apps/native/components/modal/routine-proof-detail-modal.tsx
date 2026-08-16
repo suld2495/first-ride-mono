@@ -1,6 +1,7 @@
 import { useFetchRequestDetailQuery } from '@repo/shared/hooks/useRequest';
 import type { RoutineDetail } from '@repo/types';
 import { getFormatDateTime } from '@repo/shared/utils';
+import { BlurView } from 'expo-blur';
 import { useMemo, useState } from 'react';
 import {
   Image,
@@ -27,6 +28,8 @@ import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
 const DETAIL_IMAGE_THUMBNAIL_COUNT = 3;
+const MESSAGE_PLACEHOLDER = '안녕하세요?';
+const MESSAGE_BLUR_INTENSITY = 80;
 
 const getMessageTime = (dateInput?: null | string) => {
   if (!dateInput) return '';
@@ -103,6 +106,16 @@ type RoutineProofDetailModalProps = {
   previewDetail?: RoutineDetail;
 };
 
+type RoutineProofMessage = {
+  avatarSource: ImageSourcePropType | undefined;
+  id: string;
+  isBlurred: boolean;
+  mine: boolean;
+  nickname: string;
+  text: string;
+  time: string;
+};
+
 const RoutineProofDetailModal = ({
   previewCurrentNickname,
   previewDetail,
@@ -162,40 +175,35 @@ const RoutineProofDetailModal = ({
     detail?.responderCharacterImageUrl,
   )?.source;
   const messages = [
-    requestMessage
+    detail?.hasRequestMessage === true
       ? {
           id: 'request-message',
           avatarSource:
             isRequesterMe && user?.characterImageUrl
               ? getRoutineSceneRemoteAsset(user.characterImageUrl)?.source
               : requesterAvatarSource,
-          text: requestMessage,
+          isBlurred: !requestMessage,
+          text: requestMessage || MESSAGE_PLACEHOLDER,
           time: getMessageTime(detail?.createdAt),
           mine: isRequesterMe,
           nickname: detail?.requesterNickname ?? '',
         }
       : null,
-    replyMessage
+    detail?.hasResponseComment === true
       ? {
           id: 'reply-message',
           avatarSource:
             !isRequesterMe && user?.characterImageUrl
               ? getRoutineSceneRemoteAsset(user.characterImageUrl)?.source
               : responderAvatarSource,
-          text: replyMessage,
+          isBlurred: !replyMessage,
+          text: replyMessage || MESSAGE_PLACEHOLDER,
           time: getMessageTime(detail?.checkedAt),
           mine: !isRequesterMe,
           nickname: detail?.responderNickname ?? '',
         }
       : null,
-  ].filter(Boolean) as Array<{
-    avatarSource?: ImageSourcePropType;
-    id: string;
-    mine: boolean;
-    nickname: string;
-    text: string;
-    time: string;
-  }>;
+  ].filter((message): message is RoutineProofMessage => message !== null);
 
   return (
     <ThemeView style={styles.container}>
@@ -314,6 +322,15 @@ const RoutineProofDetailModal = ({
                     <Typography variant="body2" style={styles.chatText}>
                       {message.text}
                     </Typography>
+                    {message.isBlurred ? (
+                      <BlurView
+                        intensity={MESSAGE_BLUR_INTENSITY}
+                        tint="light"
+                        pointerEvents="none"
+                        style={styles.chatBubbleBlur}
+                        testID="routine-proof-chat-blur"
+                      />
+                    ) : null}
                   </View>
                   {message.time ? (
                     <Typography variant="caption2" style={styles.chatTime}>
@@ -419,12 +436,20 @@ const styles = StyleSheet.create((theme) => ({
   },
   chatBubble: {
     maxWidth: '68%',
+    overflow: 'hidden',
     paddingHorizontal: baseFoundation.spacing[3],
     paddingVertical: baseFoundation.spacing[2],
     borderRadius: baseFoundation.radii.m,
     backgroundColor: theme.colors.brand.card,
   },
   chatBubbleMine: { backgroundColor: theme.colors.brand.primary },
+  chatBubbleBlur: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
   chatText: { color: theme.colors.brand.text },
   chatTime: { color: theme.colors.text.tertiary },
   expandedImageBackdrop: {

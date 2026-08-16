@@ -253,6 +253,8 @@ describe('getNotificationNavigationIntent', () => {
     imagePaths: ['https://example.com/confirm.png'],
     createdAt: '2026-06-30T18:30:00',
     message: null,
+    hasRequestMessage: false,
+    hasResponseComment: false,
   };
 
   it('routine-request가 WAIT 상태이면 인증 상세로 이동한다', async () => {

@@ -2,6 +2,10 @@ import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { Image, StyleSheet as NativeStyleSheet } from 'react-native';
 
+jest.mock('expo-blur', () => ({
+  BlurView: jest.requireActual('react-native').View,
+}));
+
 import RoutineProofDetailModal from '../../../components/modal/routine-proof-detail-modal';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
 import { createMockRoutineDetail } from '../../setup/routine/mock';
@@ -243,6 +247,8 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
       responderNickname: '메이트',
       checkComment: '잘했어!',
       checkedAt: '2026-08-08T12:10:00',
+      hasRequestMessage: false,
+      hasResponseComment: true,
     };
 
     const screen = render(

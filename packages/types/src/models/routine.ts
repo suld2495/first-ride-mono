@@ -84,4 +84,6 @@ export interface RoutineDetail {
   checkStatus: Request['checkStatus'];
   message: Request['message'];
   checkComment?: Request['checkComment'] | null;
+  hasRequestMessage: boolean;
+  hasResponseComment: boolean;
 }

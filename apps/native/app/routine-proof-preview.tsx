@@ -22,6 +22,8 @@ const previewDetail: RoutineDetail = {
   checkStatus: 'PASS',
   message: '오늘도 루틴 완료했어!',
   checkComment: '좋아! 내일도 같이 해보자.',
+  hasRequestMessage: true,
+  hasResponseComment: true,
 };
 
 export default function RoutineProofPreview() {
