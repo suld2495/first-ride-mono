@@ -43,6 +43,7 @@ interface RoutineCountListProps {
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
   readOnly?: boolean;
+  useConfirmationsForProgress?: boolean;
   routineColorFallback?: string;
 }
 
@@ -165,6 +166,7 @@ const RoutineCountList = ({
   onToggleRoutineMenu,
   onScrollOffsetChange,
   readOnly = false,
+  useConfirmationsForProgress = false,
   routineColorFallback = DEFAULT_ROUTINE_COLOR,
 }: RoutineCountListProps) => {
   const { theme } = useAppTheme();
@@ -204,6 +206,9 @@ const RoutineCountList = ({
         routine.confirmations,
         date,
       );
+      const completedCount = useConfirmationsForProgress
+        ? passedConfirmIds.length
+        : weeklyCount;
       const hasTodaySuccess = isCurrentWeek && Boolean(todayPassedConfirmation);
 
       const countLabels = Array.from(
@@ -263,10 +268,10 @@ const RoutineCountList = ({
               <View style={styles.checkRow}>
                 {Array.from({ length: MAX_ROUTINE_COUNT }, (_, index) => {
                   const countIndex = index + 1;
-                  const achieved = countIndex <= weeklyCount;
+                  const achieved = countIndex <= completedCount;
                   const isPendingConfirmation =
                     !achieved &&
-                    countIndex <= weeklyCount + pendingConfirmationCount;
+                    countIndex <= completedCount + pendingConfirmationCount;
                   const isGoalRange = countIndex <= routineCount;
                   const isMissedPastGoal =
                     isPastWeek &&
@@ -321,7 +326,7 @@ const RoutineCountList = ({
                         : null))
                     : isPendingConfirmation
                       ? (routine.pendingConfirmationIds[
-                          countIndex - weeklyCount - 1
+                          countIndex - completedCount - 1
                         ] ?? null)
                       : null;
                   const canPressWithCheckBox =
@@ -400,6 +405,7 @@ const RoutineCountList = ({
       onToggleRoutineMenu,
       readOnly,
       routineColorFallback,
+      useConfirmationsForProgress,
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.routineProgressText,
       theme.colors.brand.routineUpcomingCheckboxBorder,

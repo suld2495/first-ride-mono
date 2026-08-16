@@ -18,6 +18,7 @@ import {
   fireEvent,
   render,
   resetAuthMocks,
+  within,
   waitFor,
 } from '../../setup/auth-test-utils';
 
@@ -77,7 +78,11 @@ const createFriendRoutineResponse = (friendOverrides = {}) => ({
       endDate: null,
       confirmCount: 0,
       weeklyCount: 3,
-      confirmations: [],
+      confirmations: [
+        { confirmId: 1, date: '2026-05-25', status: 'PASS' },
+        { confirmId: 2, date: '2026-05-26', status: 'PASS' },
+        { confirmId: 3, date: '2026-05-27', status: 'PASS' },
+      ],
       displayOrder: 1,
       paused: false,
       hidden: false,
@@ -343,6 +348,40 @@ describe('FriendRoutinesModal', () => {
       ),
     ).toEqual(expect.objectContaining({ marginLeft: 'auto' }));
     expect(screen.queryByLabelText('운동 10분 이상 메뉴 열기')).toBeNull();
+  });
+
+  it('친구 루틴의 PASS confirmations를 회차 체크 표시로 사용한다', async () => {
+    const currentWeekMonday = getWeekMonday(new Date());
+    mockSearchParams.date = currentWeekMonday;
+    const routineResponse = createFriendRoutineResponse();
+
+    mockAxios.onGet(`/friends/42/routines?date=${currentWeekMonday}`).reply(
+      200,
+      wrapResponse({
+        ...routineResponse,
+        routines: [
+          {
+            ...routineResponse.routines[0],
+            weeklyCount: 0,
+            confirmations: [
+              {
+                confirmId: 123,
+                date: currentWeekMonday,
+                status: 'PASS',
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const screen = renderFriendRoutinesModal();
+    const completedCheck = await screen.findByTestId('routine-count-check-1-1');
+
+    expect(await screen.findByLabelText('1회 달성')).toBeOnTheScreen();
+    expect(
+      within(completedCheck).getByTestId('routine-checkmark-icon'),
+    ).toBeOnTheScreen();
   });
 
   it('친구인 경우 완료 체크박스로 인증 상세 페이지를 연다', async () => {

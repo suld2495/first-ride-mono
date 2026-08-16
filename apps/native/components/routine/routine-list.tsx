@@ -53,6 +53,7 @@ interface RoutineListProps {
   onRefresh?: () => Promise<void>;
   readOnly?: boolean;
   canOpenRoutineProofDetail?: boolean;
+  useConfirmationsForProgress?: boolean;
   routineColorFallback?: string;
 }
 
@@ -87,6 +88,7 @@ const RoutineList = ({
   onRefresh,
   readOnly = false,
   canOpenRoutineProofDetail = false,
+  useConfirmationsForProgress = false,
   routineColorFallback,
 }: RoutineListProps) => {
   const setRoutineId = useSetRoutineId();
@@ -453,6 +455,7 @@ const RoutineList = ({
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
               canOpenRoutineProofDetail={canOpenRoutineProofDetail}
+              useConfirmationsForProgress={useConfirmationsForProgress}
               routineColorFallback={routineColorFallback}
               testID="routine-list-scroll"
             />

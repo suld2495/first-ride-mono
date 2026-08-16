@@ -295,6 +295,7 @@ const FriendRoutineDateSection = ({
               onRefresh={onRefresh}
               readOnly
               canOpenRoutineProofDetail={data.isFriend}
+              useConfirmationsForProgress
               routineColorFallback={routineColorFallback}
             />
           )}
