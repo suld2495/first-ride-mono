@@ -32,6 +32,7 @@ interface RoutineCountListProps {
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
   canOpenRoutineProofDetail?: boolean;
+  onRoutineProofDetailAccessDenied?: () => void;
   onRequestRoutine: (
     routine: Routine,
     meta?: {
@@ -161,6 +162,7 @@ const RoutineCountList = ({
   onRefresh,
   canRequestRoutine = false,
   canOpenRoutineProofDetail = false,
+  onRoutineProofDetailAccessDenied,
   onRequestRoutine,
   openMenuRoutineId,
   onToggleRoutineMenu,
@@ -331,7 +333,9 @@ const RoutineCountList = ({
                       : null;
                   const canPressWithCheckBox =
                     canRequestWithCheckBox ||
-                    (canOpenRoutineProofDetail && Boolean(confirmId));
+                    (Boolean(confirmId) &&
+                      (canOpenRoutineProofDetail ||
+                        Boolean(onRoutineProofDetailAccessDenied)));
                   const handlePressCheckBox = canPressWithCheckBox
                     ? () =>
                         onRequestRoutine(routine, {
@@ -401,6 +405,7 @@ const RoutineCountList = ({
       canRequestRoutine,
       canOpenRoutineProofDetail,
       itemHeight,
+      onRoutineProofDetailAccessDenied,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,

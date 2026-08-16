@@ -53,6 +53,7 @@ interface RoutineListProps {
   onRefresh?: () => Promise<void>;
   readOnly?: boolean;
   canOpenRoutineProofDetail?: boolean;
+  onRoutineProofDetailAccessDenied?: () => void;
   useConfirmationsForProgress?: boolean;
   routineColorFallback?: string;
 }
@@ -88,6 +89,7 @@ const RoutineList = ({
   onRefresh,
   readOnly = false,
   canOpenRoutineProofDetail = false,
+  onRoutineProofDetailAccessDenied,
   useConfirmationsForProgress = false,
   routineColorFallback,
 }: RoutineListProps) => {
@@ -267,6 +269,12 @@ const RoutineList = ({
         return;
       }
 
+      if (confirmId && onRoutineProofDetailAccessDenied) {
+        onRoutineProofDetailAccessDenied();
+
+        return;
+      }
+
       if (!showsRequestMenuItem) {
         return;
       }
@@ -305,6 +313,7 @@ const RoutineList = ({
       handleShowRequestModal,
       handleShowRoutineProofDetailModal,
       canOpenRoutineProofDetail,
+      onRoutineProofDetailAccessDenied,
       readOnly,
       showToast,
       showsRequestMenuItem,
@@ -455,6 +464,9 @@ const RoutineList = ({
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
               canOpenRoutineProofDetail={canOpenRoutineProofDetail}
+              onRoutineProofDetailAccessDenied={
+                onRoutineProofDetailAccessDenied
+              }
               useConfirmationsForProgress={useConfirmationsForProgress}
               routineColorFallback={routineColorFallback}
               testID="routine-list-scroll"
@@ -475,6 +487,9 @@ const RoutineList = ({
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
               canOpenRoutineProofDetail={canOpenRoutineProofDetail}
+              onRoutineProofDetailAccessDenied={
+                onRoutineProofDetailAccessDenied
+              }
               routineColorFallback={routineColorFallback}
               testID="routine-list-scroll"
             />

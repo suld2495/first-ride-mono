@@ -348,14 +348,23 @@ export const fetchFriendRoutines = async (
       FriendRoutinesResponse | { data: FriendRoutinesResponse }
     >(`${baseURL}/${encodeURIComponent(String(friendId))}/routines${query}`);
     const friendRoutines = unwrapFriendRoutinesResponse(response);
-    const routines = friendRoutines.routines.map((routine) =>
-      toFriendRoutine(routine, friendRoutines.friend),
-    );
     const isFriend =
-      friendRoutines.isFriend ?? friendRoutines.friend.friend ?? false;
+      friendRoutines.friend.isFriend ??
+      friendRoutines.isFriend ??
+      friendRoutines.friend.friend ??
+      false;
+    const normalizedFriend = {
+      ...friendRoutines.friend,
+      isFriend,
+      confirmationImagesVisibleToFriends:
+        friendRoutines.friend.confirmationImagesVisibleToFriends ?? false,
+    };
+    const routines = friendRoutines.routines.map((routine) =>
+      toFriendRoutine(routine, normalizedFriend),
+    );
 
     return {
-      friend: friendRoutines.friend,
+      friend: normalizedFriend,
       isFriend,
       routines,
     };

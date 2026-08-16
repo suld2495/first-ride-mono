@@ -239,6 +239,7 @@ const FriendRoutineDateSection = ({
   routineColorFallback,
 }: FriendRoutineDateSectionProps) => {
   const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
+  const { showToast } = useToast();
 
   const handleRoutineListAreaLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -250,6 +251,18 @@ const FriendRoutineDateSection = ({
   const routines = data?.routines ?? [];
   const hasRoutines = routines.length > 0;
   const showRoutineList = !isLoading && !isError && !!data;
+  const canOpenRoutineProofDetail = Boolean(
+    data?.isFriend && data.friend.confirmationImagesVisibleToFriends,
+  );
+
+  const handleRoutineProofDetailAccessDenied = useCallback(() => {
+    showToast(
+      data?.isFriend
+        ? '친구가 인증을 공유하지 않았습니다.'
+        : '친구인 경우만 이동가능합니다.',
+      'error',
+    );
+  }, [data?.isFriend, showToast]);
 
   return (
     <>
@@ -294,7 +307,10 @@ const FriendRoutineDateSection = ({
               refreshing={isRefetching}
               onRefresh={onRefresh}
               readOnly
-              canOpenRoutineProofDetail={data.isFriend}
+              canOpenRoutineProofDetail={canOpenRoutineProofDetail}
+              onRoutineProofDetailAccessDenied={
+                handleRoutineProofDetailAccessDenied
+              }
               useConfirmationsForProgress
               routineColorFallback={routineColorFallback}
             />

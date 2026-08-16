@@ -32,6 +32,7 @@ interface RoutineWeekListProps {
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
   canOpenRoutineProofDetail?: boolean;
+  onRoutineProofDetailAccessDenied?: () => void;
   onRequestRoutine: (
     routine: Routine,
     meta?: {
@@ -209,6 +210,7 @@ const RoutineWeekList = ({
   onRefresh,
   canRequestRoutine = false,
   canOpenRoutineProofDetail = false,
+  onRoutineProofDetailAccessDenied,
   onRequestRoutine,
   openMenuRoutineId,
   onToggleRoutineMenu,
@@ -364,7 +366,9 @@ const RoutineWeekList = ({
                 const confirmId = datedConfirmId ?? todayConfirmId;
                 const canPressWithCheckBox =
                   canRequestWithCheckBox ||
-                  (canOpenRoutineProofDetail && Boolean(confirmId));
+                  (Boolean(confirmId) &&
+                    (canOpenRoutineProofDetail ||
+                      Boolean(onRoutineProofDetailAccessDenied)));
                 const handlePressCheckBox = canPressWithCheckBox
                   ? () =>
                       onRequestRoutine(routine, {
@@ -427,6 +431,7 @@ const RoutineWeekList = ({
       canRequestRoutine,
       canOpenRoutineProofDetail,
       itemHeight,
+      onRoutineProofDetailAccessDenied,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,

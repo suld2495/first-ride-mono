@@ -23,6 +23,8 @@ export interface FriendCheerResponse {
 export interface FriendRoutineProfile {
   backgroundImageUrl?: null | string;
   friend?: boolean;
+  isFriend?: boolean;
+  confirmationImagesVisibleToFriends?: boolean;
   id: number;
   nickname: User['nickname'];
   level: number;
