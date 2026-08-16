@@ -119,6 +119,24 @@ describe('friend.api', () => {
         }),
       ]);
     });
+
+    it('프로필 이미지 필드를 더 이상 반환하지 않는다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet('/friends').reply(200, {
+        data: [
+          {
+            friendId: 1,
+            nickname: 'yunji12345',
+            profileImage: 'https://example.com/legacy-profile.png',
+            characterImageUrl: '/assets/characters/mage.png',
+          },
+        ],
+      });
+
+      const [friend] = await fetchFriends({ page: 1, keyword: '' });
+
+      expect(friend).not.toHaveProperty('profileImage');
+    });
   });
 
   describe('fetchFriendProfile', () => {
