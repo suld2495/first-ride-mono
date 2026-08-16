@@ -121,9 +121,11 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     );
     expect(requestText.findByType(Svg.FeGaussianBlur).props).toEqual(
       expect.objectContaining({
-        stdDeviation: 8,
+        stdDeviation: 3.5,
       }),
     );
+    expect(requestText.findAllByType(Svg.Text)).toHaveLength(0);
+    expect(requestText.findAllByType(Svg.Rect)).toHaveLength(6);
   });
 
   it('메시지 원문이 있어도 플래그가 false이면 메시지를 표시하지 않는다', async () => {
