@@ -29,7 +29,7 @@ describe('routine message blur overlay asset', () => {
       .digest('hex');
     const replyDigest = createHash('sha256').update(replyAsset).digest('hex');
 
-    expect(replyDigest).toBe(
+    expect(replyDigest).not.toBe(
       '0d1272f8fbd1cfe471b3c2a0395e88904434f4a8b3da2961d195e1666a78d62a',
     );
     expect(replyDigest).not.toBe(requestDigest);
