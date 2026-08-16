@@ -119,8 +119,8 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
 
     expect(requestBlur.props).toEqual(
       expect.objectContaining({
-        intensity: 55,
-        tint: 'systemUltraThinMaterialLight',
+        intensity: 80,
+        tint: 'systemUltraThinMaterial',
       }),
     );
   });

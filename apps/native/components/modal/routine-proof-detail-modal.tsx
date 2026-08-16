@@ -30,6 +30,7 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 const DETAIL_IMAGE_THUMBNAIL_COUNT = 3;
 const MESSAGE_PLACEHOLDER = '안녕하세요?';
 const MESSAGE_BLUR_INTENSITY = 80;
+const MESSAGE_BLUR_TINT = 'systemUltraThinMaterial' as const;
 
 const getMessageTime = (dateInput?: null | string) => {
   if (!dateInput) return '';
@@ -319,18 +320,29 @@ const RoutineProofDetailModal = ({
                       message.mine ? styles.chatBubbleMine : null,
                     ]}
                   >
-                    <Typography variant="body2" style={styles.chatText}>
-                      {message.text}
-                    </Typography>
-                    {message.isBlurred ? (
-                      <BlurView
-                        intensity={MESSAGE_BLUR_INTENSITY}
-                        tint="light"
-                        pointerEvents="none"
-                        style={styles.chatBubbleBlur}
-                        testID="routine-proof-chat-blur"
-                      />
-                    ) : null}
+                    <View
+                      style={styles.chatTextContainer}
+                      testID="routine-proof-chat-text"
+                    >
+                      <Typography
+                        variant="body2"
+                        style={[
+                          styles.chatText,
+                          message.isBlurred ? styles.chatTextBlurred : null,
+                        ]}
+                      >
+                        {message.text}
+                      </Typography>
+                      {message.isBlurred ? (
+                        <BlurView
+                          intensity={MESSAGE_BLUR_INTENSITY}
+                          tint={MESSAGE_BLUR_TINT}
+                          pointerEvents="none"
+                          style={styles.chatTextBlur}
+                          testID="routine-proof-chat-blur"
+                        />
+                      ) : null}
+                    </View>
                   </View>
                   {message.time ? (
                     <Typography variant="caption2" style={styles.chatTime}>
@@ -443,12 +455,15 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.brand.card,
   },
   chatBubbleMine: { backgroundColor: theme.colors.brand.primary },
-  chatBubbleBlur: {
+  chatTextContainer: { position: 'relative' },
+  chatTextBlurred: { opacity: 0.85, letterSpacing: 0.5 },
+  chatTextBlur: {
     position: 'absolute',
     top: 0,
     right: 0,
     bottom: 0,
     left: 0,
+    opacity: 0.35,
   },
   chatText: { color: theme.colors.brand.text },
   chatTime: { color: theme.colors.text.tertiary },
