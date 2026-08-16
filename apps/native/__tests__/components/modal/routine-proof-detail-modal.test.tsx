@@ -112,11 +112,18 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     const requestText = within(
       screen.getByTestId('routine-proof-chat-request-message'),
     ).getByTestId('routine-proof-chat-text');
-    const blurImage = within(requestText).getByTestId(
+    const requestBlurImage = within(requestText).getByTestId(
       'routine-proof-chat-blur-image',
     );
-    expect(blurImage.props).toEqual(
+    const replyBlurImage = within(
+      screen.getByTestId('routine-proof-chat-reply-message'),
+    ).getByTestId('routine-proof-chat-blur-image');
+
+    expect(requestBlurImage.props).toEqual(
       expect.objectContaining({ resizeMode: 'stretch' }),
+    );
+    expect(requestBlurImage.props.source).not.toEqual(
+      replyBlurImage.props.source,
     );
   });
 
