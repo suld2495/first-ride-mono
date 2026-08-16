@@ -1,7 +1,6 @@
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
 import { Image, StyleSheet as NativeStyleSheet } from 'react-native';
-import * as Svg from 'react-native-svg';
 
 import RoutineProofDetailModal from '../../../components/modal/routine-proof-detail-modal';
 import {
@@ -119,13 +118,12 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
         testID: 'routine-proof-chat-blur',
       }),
     );
-    expect(requestText.findByType(Svg.FeGaussianBlur).props).toEqual(
-      expect.objectContaining({
-        stdDeviation: 3.5,
-      }),
+    const blurImage = within(requestBlur).getByTestId(
+      'routine-proof-chat-blur-image',
     );
-    expect(requestText.findAllByType(Svg.Text)).toHaveLength(0);
-    expect(requestText.findAllByType(Svg.Rect)).toHaveLength(6);
+    expect(blurImage.props).toEqual(
+      expect.objectContaining({ resizeMode: 'stretch' }),
+    );
   });
 
   it('메시지 원문이 있어도 플래그가 false이면 메시지를 표시하지 않는다', async () => {
