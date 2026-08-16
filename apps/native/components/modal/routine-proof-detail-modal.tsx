@@ -214,7 +214,9 @@ const RoutineProofDetailModal = ({
           nickname: detail?.responderNickname ?? '',
         }
       : null,
-  ].filter((message): message is RoutineProofMessage => message !== null);
+  ]
+    .filter((message): message is RoutineProofMessage => message !== null)
+    .sort((left, right) => Number(right.mine) - Number(left.mine));
 
   return (
     <ThemeView style={styles.container}>
