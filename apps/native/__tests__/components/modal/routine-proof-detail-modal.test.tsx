@@ -7,7 +7,12 @@ jest.mock('expo-blur', () => ({
 }));
 
 import RoutineProofDetailModal from '../../../components/modal/routine-proof-detail-modal';
-import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
+import {
+  fireEvent,
+  render,
+  resetAuthMocks,
+  within,
+} from '../../setup/auth-test-utils';
 import { createMockRoutineDetail } from '../../setup/routine/mock';
 
 declare const mockRequestStore: {
@@ -104,6 +109,20 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
       screen.getByTestId('routine-proof-chat-reply-message'),
     ).toBeOnTheScreen();
     expect(screen.getAllByTestId('routine-proof-chat-blur')).toHaveLength(2);
+
+    const requestText = within(
+      screen.getByTestId('routine-proof-chat-request-message'),
+    ).getByTestId('routine-proof-chat-text');
+    const requestBlur = within(requestText).getByTestId(
+      'routine-proof-chat-blur',
+    );
+
+    expect(requestBlur.props).toEqual(
+      expect.objectContaining({
+        intensity: 55,
+        tint: 'systemUltraThinMaterialLight',
+      }),
+    );
   });
 
   it('메시지 원문이 있어도 플래그가 false이면 메시지를 표시하지 않는다', async () => {
