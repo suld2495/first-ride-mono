@@ -71,6 +71,26 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     expect(screen.getByTestId('routine-proof-expanded-image')).toBeOnTheScreen();
   });
 
+  it('친구 인증 조회 권한이 없으면 빈 화면 대신 API 오류를 표시한다', async () => {
+    mockAxios.onGet(/\/routine\/confirm\/detail/).reply(403, {
+      success: false,
+      error: {
+        code: 'ROUTINE_CONFIRM_ACCESS_DENIED',
+        message: '해당 인증 요청을 조회할 권한이 없습니다.',
+        data: [],
+      },
+    });
+
+    const screen = render(<RoutineProofDetailModal />);
+
+    expect(
+      await screen.findByTestId('routine-proof-detail-error'),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByText('해당 인증 요청을 조회할 권한이 없습니다.'),
+    ).toBeOnTheScreen();
+  });
+
   it('설명과 인증 데이터가 없으면 관련 영역을 표시하지 않는다', () => {
     mockRequestStore.requestId = 0;
     mockRoutineStore.routineForm = {
