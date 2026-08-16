@@ -28,7 +28,8 @@ import { getApiErrorMessage } from '@/utils/error-utils';
 
 const DETAIL_IMAGE_THUMBNAIL_COUNT = 3;
 const MESSAGE_PLACEHOLDER = '안녕하세요?';
-const MESSAGE_BLUR_OVERLAY = require('../../assets/routine-message-blur-overlay.png');
+const REQUEST_MESSAGE_BLUR_OVERLAY = require('../../assets/routine-message-blur-overlay.png');
+const REPLY_MESSAGE_BLUR_OVERLAY = require('../../assets/routine-message-blur-overlay-reply.png');
 
 const getMessageTime = (dateInput?: null | string) => {
   if (!dateInput) return '';
@@ -100,10 +101,10 @@ const DetailImage = ({ imagePath, style }: DetailImageProps) => {
   );
 };
 
-const BlurredMessageText = () => (
+const BlurredMessageText = ({ source }: { source: ImageSourcePropType }) => (
   <View style={styles.chatTextContainer} testID="routine-proof-chat-text">
     <Image
-      source={MESSAGE_BLUR_OVERLAY}
+      source={source}
       resizeMode="stretch"
       style={styles.chatTextBlur}
       testID="routine-proof-chat-blur-image"
@@ -119,6 +120,7 @@ type RoutineProofDetailModalProps = {
 
 type RoutineProofMessage = {
   avatarSource: ImageSourcePropType | undefined;
+  blurOverlaySource: ImageSourcePropType;
   id: string;
   isBlurred: boolean;
   mine: boolean;
@@ -189,6 +191,7 @@ const RoutineProofDetailModal = ({
     detail?.hasRequestMessage === true
       ? {
           id: 'request-message',
+          blurOverlaySource: REQUEST_MESSAGE_BLUR_OVERLAY,
           avatarSource:
             isRequesterMe && user?.characterImageUrl
               ? getRoutineSceneRemoteAsset(user.characterImageUrl)?.source
@@ -203,6 +206,7 @@ const RoutineProofDetailModal = ({
     detail?.hasResponseComment === true
       ? {
           id: 'reply-message',
+          blurOverlaySource: REPLY_MESSAGE_BLUR_OVERLAY,
           avatarSource:
             !isRequesterMe && user?.characterImageUrl
               ? getRoutineSceneRemoteAsset(user.characterImageUrl)?.source
@@ -333,7 +337,7 @@ const RoutineProofDetailModal = ({
                     ]}
                   >
                     {message.isBlurred ? (
-                      <BlurredMessageText />
+                      <BlurredMessageText source={message.blurOverlaySource} />
                     ) : (
                       <View
                         style={styles.chatTextContainer}
