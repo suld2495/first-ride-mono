@@ -47,6 +47,8 @@ describe('routine api', () => {
       imagePaths: [],
       message: null,
       routineName: '친구 루틴',
+      hasRequestMessage: true,
+      hasResponseComment: false,
     };
     mockAxios
       .onGet('/routine/confirm/detail?id=1004')

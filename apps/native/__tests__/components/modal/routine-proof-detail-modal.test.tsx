@@ -48,6 +48,8 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
         ...mockDetail,
         checkComment: '잘했어!',
         checkedAt: '2026-08-08T12:10:00',
+        hasRequestMessage: true,
+        hasResponseComment: true,
       },
     });
 
@@ -71,6 +73,56 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     expect(
       screen.getByTestId('routine-proof-expanded-image'),
     ).toBeOnTheScreen();
+  });
+
+  it('친구 인증은 메시지 플래그가 있으면 안내 문구를 블러 처리해 표시한다', async () => {
+    const mockDetail = createMockRoutineDetail(0, {
+      imagePaths: [],
+      message: null,
+    });
+
+    mockAxios.onGet(/\/routine\/confirm\/detail/).reply(200, {
+      data: {
+        ...mockDetail,
+        checkComment: null,
+        hasRequestMessage: true,
+        hasResponseComment: true,
+      },
+    });
+
+    const screen = render(<RoutineProofDetailModal />);
+
+    expect(await screen.findAllByText('안녕하세요?')).toHaveLength(2);
+    expect(
+      screen.getByTestId('routine-proof-chat-request-message'),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByTestId('routine-proof-chat-reply-message'),
+    ).toBeOnTheScreen();
+    expect(screen.getAllByTestId('routine-proof-chat-blur')).toHaveLength(2);
+  });
+
+  it('메시지 원문이 있어도 플래그가 false이면 메시지를 표시하지 않는다', async () => {
+    const mockDetail = createMockRoutineDetail(0, {
+      imagePaths: [],
+      message: '요청 원문',
+    });
+
+    mockAxios.onGet(/\/routine\/confirm\/detail/).reply(200, {
+      data: {
+        ...mockDetail,
+        checkComment: '응답 원문',
+        hasRequestMessage: false,
+        hasResponseComment: false,
+      },
+    });
+
+    const screen = render(<RoutineProofDetailModal />);
+
+    expect(await screen.findByText('테스트 루틴 1')).toBeOnTheScreen();
+    expect(screen.queryByText('요청 원문')).toBeNull();
+    expect(screen.queryByText('응답 원문')).toBeNull();
+    expect(screen.queryByText('주고받은 메시지')).toBeNull();
   });
 
   it('친구 인증 조회 권한이 없으면 빈 화면 대신 API 오류를 표시한다', async () => {
