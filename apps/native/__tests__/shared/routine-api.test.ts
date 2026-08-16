@@ -4,6 +4,7 @@ import {
   fetchMonthlyRoutines,
   fetchRoutines,
 } from '@repo/shared/api/routine.api';
+import { fetchRequestDetail } from '@repo/shared/api/request.api';
 import MockAdapter from 'axios-mock-adapter';
 
 let mockAxios: MockAdapter;
@@ -38,6 +39,20 @@ describe('routine api', () => {
         confirmations: [confirmation],
       }),
     ]);
+  });
+
+  it('인증 상세 조회는 confirmId를 id query parameter로 전달한다', async () => {
+    const detail = {
+      id: 1004,
+      imagePaths: [],
+      message: null,
+      routineName: '친구 루틴',
+    };
+    mockAxios
+      .onGet('/routine/confirm/detail?id=1004')
+      .reply(200, { data: detail });
+
+    await expect(fetchRequestDetail(1004)).resolves.toEqual(detail);
   });
 
   it('친구 루틴 목록의 confirmations를 루틴에 매핑한다', async () => {

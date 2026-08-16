@@ -75,6 +75,7 @@ export interface RoutineDetail {
   responderNickname: string;
   requesterCharacterImageUrl?: null | string;
   responderCharacterImageUrl?: null | string;
+  imagePath?: null | string;
   routineName: Routine['routineName'];
   routineDetail: Routine['routineDetail'];
   imagePaths: Request['image'][];

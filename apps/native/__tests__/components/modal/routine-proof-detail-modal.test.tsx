@@ -68,7 +68,9 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
 
     fireEvent.press(screen.getByTestId('routine-proof-image-0'));
 
-    expect(screen.getByTestId('routine-proof-expanded-image')).toBeOnTheScreen();
+    expect(
+      screen.getByTestId('routine-proof-expanded-image'),
+    ).toBeOnTheScreen();
   });
 
   it('친구 인증 조회 권한이 없으면 빈 화면 대신 API 오류를 표시한다', async () => {
@@ -124,6 +126,25 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     expect(screen.queryByTestId('routine-proof-image-2')).toBeNull();
   });
 
+  it('응답에 imagePaths가 없으면 imagePath를 대표 인증 사진으로 표시한다', async () => {
+    const imagePath = 'https://example.com/representative-image.jpg';
+    const mockDetail = createMockRoutineDetail(0, { imagePaths: [] });
+
+    mockAxios.onGet(/\/routine\/confirm\/detail/).reply(200, {
+      data: { ...mockDetail, imagePath },
+    });
+
+    const screen = render(<RoutineProofDetailModal />);
+
+    expect(
+      await screen.findByTestId('routine-proof-image-0'),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByTestId('routine-proof-image-0').findByType(Image).props
+        .source,
+    ).toEqual({ uri: imagePath });
+  });
+
   it('인증 사진을 원본 비율이 유지되는 contain 방식으로 표시한다', async () => {
     const mockDetail = createMockRoutineDetail(0, {
       imagePaths: ['https://example.com/image-1.jpg'],
@@ -136,8 +157,8 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     const screen = render(<RoutineProofDetailModal />);
 
     expect(
-      (await screen.findByTestId('routine-proof-image-0'))
-        .findByType(Image).props.resizeMode,
+      (await screen.findByTestId('routine-proof-image-0')).findByType(Image)
+        .props.resizeMode,
     ).toBe('contain');
   });
 
@@ -151,9 +172,9 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     });
 
     const screen = render(<RoutineProofDetailModal />);
-    const image = (await screen.findByTestId('routine-proof-image-0')).findByType(
-      Image,
-    );
+    const image = (
+      await screen.findByTestId('routine-proof-image-0')
+    ).findByType(Image);
     const imageStyle = NativeStyleSheet.flatten(image.props.style);
 
     expect(imageStyle).toMatchObject({ width: '100%', height: '100%' });

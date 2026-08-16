@@ -19,11 +19,11 @@ export const useFetchReceivedRequestsQuery = (nickname: string) => {
   });
 };
 
-export const useFetchRequestDetailQuery = (requestId: number) => {
+export const useFetchRequestDetailQuery = (confirmId: number) => {
   return useQuery({
-    queryKey: requestKey.detail(requestId),
-    queryFn: () => requestApi.fetchRequestDetail(requestId),
-    enabled: !!requestId,
+    queryKey: requestKey.detail(confirmId),
+    queryFn: () => requestApi.fetchRequestDetail(confirmId),
+    enabled: confirmId > 0,
   });
 };
 

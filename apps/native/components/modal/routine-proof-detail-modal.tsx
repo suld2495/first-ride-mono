@@ -14,6 +14,7 @@ import {
 import * as Svg from 'react-native-svg';
 
 import { getRoutineSceneRemoteAsset } from '@/components/routine/routine-scene-art';
+import EmptyState from '@/components/ui/empty-state';
 import FullscreenModal from '@/components/ui/fullscreen-modal';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
@@ -23,6 +24,7 @@ import { useAuthUser } from '@/hooks/useAuthSession';
 import { useRequestId } from '@/hooks/useRequestSelection';
 import { useRoutineForm } from '@/hooks/useRoutineSelection';
 import { baseFoundation } from '@/theme/tokens';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 const DETAIL_IMAGE_THUMBNAIL_COUNT = 3;
 
@@ -105,21 +107,43 @@ const RoutineProofDetailModal = ({
   previewCurrentNickname,
   previewDetail,
 }: RoutineProofDetailModalProps = {}) => {
-  const requestId = useRequestId();
-  const { data: fetchedDetail, isLoading } =
-    useFetchRequestDetailQuery(requestId);
+  const confirmId = useRequestId();
+  const {
+    data: fetchedDetail,
+    error,
+    isError,
+    isLoading,
+  } = useFetchRequestDetailQuery(confirmId);
   const user = useAuthUser();
   const selectedRoutine = useRoutineForm();
   const detail = previewDetail ?? fetchedDetail;
-  const imagePaths = useMemo(
-    () => detail?.imagePaths?.slice(0, DETAIL_IMAGE_THUMBNAIL_COUNT) ?? [],
-    [detail?.imagePaths],
-  );
+  const imagePaths = useMemo(() => {
+    if (detail?.imagePaths?.length) {
+      return detail.imagePaths.slice(0, DETAIL_IMAGE_THUMBNAIL_COUNT);
+    }
+
+    return detail?.imagePath ? [detail.imagePath] : [];
+  }, [detail?.imagePath, detail?.imagePaths]);
   const [expandedImagePath, setExpandedImagePath] = useState<null | string>(
     null,
   );
 
   if (isLoading && !previewDetail) return null;
+
+  if (isError && !previewDetail) {
+    return (
+      <ThemeView style={styles.container} testID="routine-proof-detail-error">
+        <EmptyState
+          icon="alert-circle-outline"
+          message={getApiErrorMessage(
+            error,
+            '인증 상세를 불러오지 못했습니다.',
+          )}
+          transparent
+        />
+      </ThemeView>
+    );
+  }
 
   const routineDescription = detail?.routineDetail?.trim();
   const fallbackRoutineDescription = selectedRoutine.routineDetail?.trim();

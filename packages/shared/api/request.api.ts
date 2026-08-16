@@ -25,11 +25,11 @@ export const fetchReceivedRequests = async (): Promise<RequestList> => {
 };
 
 export const fetchRequestDetail = async (
-  id: number,
+  confirmId: number,
 ): Promise<RoutineDetail> => {
   try {
     const response: RoutineDetail = await http.get(
-      `/routine/confirm/detail?id=${id}`,
+      `/routine/confirm/detail?id=${confirmId}`,
     );
 
     return response;
