@@ -1,6 +1,7 @@
 import {
   useAddFriendMutation,
   useFriendCheerMutation,
+  useFriendProfileQuery,
   useFriendRoutinesQuery,
 } from '@repo/shared/hooks/useFriend';
 import { getWeekMonday } from '@repo/shared/utils';
@@ -330,14 +331,20 @@ const FriendRoutinesModal = () => {
   const [date, setDate] = useState(
     () => dateParam || getWeekMonday(new Date()),
   );
+  const { data: friendProfile, isLoading: isFriendProfileLoading } =
+    useFriendProfileQuery(friendId);
   const { data, isLoading, isRefetching, refetch, isError } =
     useFriendRoutinesQuery(friendId, date);
   const friend = data?.friend;
-  const friendThemeName = friend ? getThemeNameFromUserJob(friend) : undefined;
+  const friendThemeSource = friendProfile ?? friend;
+  const friendThemeName = friendThemeSource
+    ? getThemeNameFromUserJob(friendThemeSource)
+    : undefined;
   const isFriendThemeApplied = useScopedColorSchemeOverride(friendThemeName);
   const appliedFriendThemeName = friendThemeName ?? 'blue';
   const routineBackgroundColor = getRoutineBackgroundColor(
     appliedFriendThemeName,
+    friendProfile?.evolutionCount,
   );
   const setModalBackgroundColor = useSetModalBackgroundColor();
   const backgroundImageUrl = friend?.backgroundImageUrl;
@@ -376,7 +383,7 @@ const FriendRoutinesModal = () => {
     );
   }
 
-  if (isLoading || !isFriendThemeApplied) {
+  if (isLoading || isFriendProfileLoading || !isFriendThemeApplied) {
     return <Loading />;
   }
 

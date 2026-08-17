@@ -150,10 +150,9 @@ describe('FriendRoutinesModal', () => {
     mockSearchParams.friendNickname = '혜연';
     mockSearchParams.date = '2026-05-25';
     friendProfileResponse = createFriendProfileResponse();
-    mockAxios.onGet('/friends/42/profile').reply(() => [
-      200,
-      wrapResponse(friendProfileResponse),
-    ]);
+    mockAxios
+      .onGet('/friends/42/profile')
+      .reply(() => [200, wrapResponse(friendProfileResponse)]);
   });
 
   afterEach(async () => {
