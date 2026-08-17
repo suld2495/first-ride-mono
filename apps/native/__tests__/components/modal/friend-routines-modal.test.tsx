@@ -90,6 +90,21 @@ const createFriendRoutineResponse = (friendOverrides = {}) => ({
   ],
 });
 
+const createFriendProfileResponse = (friendOverrides = {}) => ({
+  friendId: 42,
+  nickname: '혜연',
+  job: '검사',
+  motto: '오늘도 전진',
+  level: 7,
+  characterCode: 'WARRIOR_INTERMEDIATE',
+  characterImageUrl: null,
+  backgroundImageUrl: null,
+  evolutionCount: 0,
+  ...friendOverrides,
+});
+
+let friendProfileResponse = createFriendProfileResponse();
+
 const setupRoutineProofAccessMocks = (
   isFriend: boolean,
   date: string,
@@ -134,6 +149,11 @@ describe('FriendRoutinesModal', () => {
     mockSearchParams.friendId = '42';
     mockSearchParams.friendNickname = '혜연';
     mockSearchParams.date = '2026-05-25';
+    friendProfileResponse = createFriendProfileResponse();
+    mockAxios.onGet('/friends/42/profile').reply(() => [
+      200,
+      wrapResponse(friendProfileResponse),
+    ]);
   });
 
   afterEach(async () => {
@@ -147,6 +167,10 @@ describe('FriendRoutinesModal', () => {
 
   it('친구 루틴 조회 결과로 테마 컬러, 캐릭터, 배경을 적용한다', async () => {
     const backgroundImageUrl = 'https://cdn.example.com/backgrounds/mage.png';
+    friendProfileResponse = createFriendProfileResponse({
+      job: '마법사',
+      characterCode: 'MAGE_INTERMEDIATE',
+    });
     mockAxios.onGet('/friends/42/routines?date=2026-05-25').reply(
       200,
       wrapResponse({
@@ -220,7 +244,7 @@ describe('FriendRoutinesModal', () => {
     expect(screen.UNSAFE_queryAllByType(Image)).toHaveLength(2);
   });
 
-  it('친구 루틴 API의 친구 정보로 캐릭터, 배경, 한마디를 적용하고 프로필 API를 호출하지 않는다', async () => {
+  it('친구 루틴 API의 친구 정보로 캐릭터, 배경, 한마디를 적용하고 프로필 API도 호출한다', async () => {
     const characterImageUrl = 'https://cdn.example.com/characters/archer.png';
     const backgroundImageUrl =
       'https://cdn.example.com/backgrounds/archer.webp';
@@ -251,17 +275,33 @@ describe('FriendRoutinesModal', () => {
       await screen.findByTestId('friend-routine-scene-background'),
     ).toHaveProp('source', { uri: backgroundImageUrl });
     expect(await screen.findByText('루틴 API에서 온 한마디')).toBeOnTheScreen();
-    expect(mockAxios.history.get.map((request) => request.url)).toEqual([
-      '/friends/42/routines?date=2026-05-25',
-    ]);
+    expect(mockAxios.history.get.map((request) => request.url)).toEqual(
+      expect.arrayContaining([
+        '/friends/42/profile',
+        '/friends/42/routines?date=2026-05-25',
+      ]),
+    );
   });
 
   it.each([
-    ['WARRIOR', appThemes.blue.colors.brand.secondary],
-    ['ARCHER', appThemes.green.colors.brand.secondary],
+    [
+      'WARRIOR',
+      1,
+      appThemes.blue.colors.brand.routineEvolutionBackground.stage1,
+    ],
+    [
+      'ARCHER',
+      2,
+      appThemes.green.colors.brand.routineEvolutionBackground.stage2,
+    ],
   ])(
-    '친구 루틴 API의 %s job에 맞는 배경 컬러를 표시한다',
-    async (jobType, expectedBackgroundColor) => {
+    '친구 프로필 API의 %s job과 evolutionCount에 맞는 배경 컬러를 표시한다',
+    async (jobType, evolutionCount, expectedBackgroundColor) => {
+      friendProfileResponse = createFriendProfileResponse({
+        job: jobType,
+        characterCode: `${jobType}_INTERMEDIATE`,
+        evolutionCount,
+      });
       mockAxios.onGet('/friends/42/routines?date=2026-05-25').reply(
         200,
         wrapResponse({
@@ -706,7 +746,7 @@ describe('FriendRoutinesModal', () => {
 
     expect(mockAxios.history.post).toHaveLength(1);
     expect(mockAxios.history.post[0].url).toBe('/friends/42/cheer');
-    expect(mockAxios.history.get).toHaveLength(1);
+    expect(mockAxios.history.get).toHaveLength(2);
   });
 
   it('응원 콕 전송이 거절되면 서버 오류 메시지를 표시한다', async () => {
