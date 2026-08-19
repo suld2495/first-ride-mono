@@ -2478,7 +2478,10 @@ describe('루틴 조회 페이지', () => {
     it('메이트가 없는 number 타입 루틴 체크박스를 누르면 완료 확인 모달을 표시한다', async () => {
       mockRoutineStore.type = 'number';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
-        data: createMockRoutines(1, { mateNickname: '' }),
+        data: createMockRoutines(1, {
+          mateNickname: '',
+          photoRequired: false,
+        }),
       });
 
       const { findByTestId, findByText } = render(<Index />);
@@ -2489,6 +2492,58 @@ describe('루틴 조회 페이지', () => {
       expect(await findByText('사진 인증하기')).toBeOnTheScreen();
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
       expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
+    });
+
+    it('사진 인증이 필요한 개인 루틴은 인증 요청 모달로 이동한다', async () => {
+      mockRoutineStore.type = 'number';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          mateNickname: '',
+          photoRequired: true,
+        }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(await findByTestId('routine-count-check-1-4'));
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
+      });
+      expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
+      expect(mockPush).not.toHaveBeenCalledWith(
+        '/modal?type=routine-complete-confirm',
+      );
+    });
+
+    it('사진 인증이 선택사항인 개인 루틴은 확인 시 바로 인증한다', async () => {
+      mockRoutineStore.type = 'number';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          mateNickname: '',
+          photoRequired: false,
+        }),
+      });
+      mockAxios.onPost('/routine/confirm').reply(200, { data: null });
+      const appendSpy = jest.spyOn(FormData.prototype, 'append');
+
+      const { findByTestId, findByText } = render(<Index />);
+
+      fireEvent.press(await findByTestId('routine-count-check-1-4'));
+      fireEvent.press(await findByText('예'));
+
+      await waitFor(() => {
+        expect(mockAxios.history.post).toHaveLength(1);
+        expect(mockShowToast).toHaveBeenCalledWith(
+          '루틴이 완료되었습니다.',
+          'success',
+        );
+      });
+      expect(appendSpy).toHaveBeenCalledWith('routineId', '1');
+      expect(appendSpy).toHaveBeenCalledWith('message', '');
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
+
+      appendSpy.mockRestore();
     });
 
     it('메이트가 지정된 week 타입 루틴 체크박스를 누르면 인증 요청 모달로 이동한다', async () => {
@@ -2521,6 +2576,7 @@ describe('루틴 조회 페이지', () => {
           todayConfirmId: 999,
           canRequestToday: true,
           mateNickname: '',
+          photoRequired: false,
           confirmations: [
             {
               confirmId: 999,
