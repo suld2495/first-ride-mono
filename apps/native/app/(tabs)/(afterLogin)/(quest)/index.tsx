@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFetchQuestsQuery } from '@repo/shared/hooks/useQuest';
 import type { Quest } from '@repo/types';
-import { useRouter } from 'expo-router';
-import { useLayoutEffect } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useLayoutEffect, useRef } from 'react';
 import { View } from 'react-native';
 
 import Container from '@/components/layout/container';
@@ -35,15 +35,29 @@ export default function QuestPage() {
   const clearColorSchemeOverride = useClearAppColorSchemeOverride();
   const isAdmin = user?.role === 'ADMIN';
   const pageBackgroundColor = appThemes[baseThemeName].colors.background.base;
+  const hasFocusedRef = useRef(false);
 
   useLayoutEffect(() => {
     clearColorSchemeOverride();
   }, [clearColorSchemeOverride]);
 
-  const { data: quests, isLoading } = useFetchQuestsQuery(user?.userId ?? '', {
-    status: 'ACTIVE',
-    completed: false,
-  });
+  const { data: quests, isLoading, refetch } = useFetchQuestsQuery(
+    user?.userId ?? '',
+    {
+      status: 'ACTIVE',
+      completed: false,
+    },
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (hasFocusedRef.current) {
+        void refetch();
+      }
+
+      hasFocusedRef.current = true;
+    }, [refetch]),
+  );
 
   if (isLoading) {
     return (

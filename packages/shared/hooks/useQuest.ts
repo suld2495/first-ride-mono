@@ -17,6 +17,7 @@ export const useFetchQuestsQuery = (
     queryKey: questKeys.list(userId, params),
     queryFn: () => questApi.fetchQuests(params),
     enabled: !!userId,
+    refetchOnMount: 'always',
   });
 };
 

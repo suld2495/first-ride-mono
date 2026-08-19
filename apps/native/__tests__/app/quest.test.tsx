@@ -41,7 +41,7 @@ describe('QuestPage', () => {
       data: [createMockQuest()],
       isLoading: false,
       refetch: jest.fn(),
-    } as ReturnType<typeof useFetchQuestsQuery>);
+    } as unknown as ReturnType<typeof useFetchQuestsQuery>);
     mockFocus.mockClear();
   });
 
@@ -67,7 +67,7 @@ describe('QuestPage', () => {
       data: [createMockQuest()],
       isLoading: false,
       refetch,
-    } as ReturnType<typeof useFetchQuestsQuery>);
+    } as unknown as ReturnType<typeof useFetchQuestsQuery>);
 
     render(<QuestPage />);
 
