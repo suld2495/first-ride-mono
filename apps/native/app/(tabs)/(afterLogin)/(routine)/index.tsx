@@ -283,12 +283,8 @@ export default function Index() {
         return;
       }
 
-      if (resetRoutineDateIfNeeded()) {
-        return;
-      }
-
       void refetch();
-    }, [refetch, resetRoutineDateIfNeeded, user]),
+    }, [refetch, user]),
   );
 
   const handleRoutineListAreaLayout = useCallback(
