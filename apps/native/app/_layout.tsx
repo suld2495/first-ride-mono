@@ -139,6 +139,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="visibility-settings"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="beta-feedback"
               options={{ headerShown: false }}
             />

@@ -690,6 +690,7 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('루틴 설정')).toBeOnTheScreen();
     expect(queryByText('테마 설정')).toBeNull();
     expect(getByText('알림 설정')).toBeOnTheScreen();
+    expect(getByText('공개 설정')).toBeOnTheScreen();
     expect(getByText('베타 피드백')).toBeOnTheScreen();
     expect(queryByText('개인정보 설정')).toBeNull();
     expect(getByText('약관')).toBeOnTheScreen();
@@ -699,9 +700,23 @@ describe('MyInfo 로그아웃', () => {
     expect(getByText('이루라 길드')).toBeOnTheScreen();
     expect(getByText('로그아웃')).toBeOnTheScreen();
 
+    const menuItemTestIDs = within(getByTestId('settings-menu-list'))
+      .getAllByRole('button')
+      .map((item) => item.props.testID);
+    expect(menuItemTestIDs).toEqual(
+      expect.arrayContaining([
+        'settings-menu-item-알림 설정',
+        'settings-menu-item-공개 설정',
+      ]),
+    );
+    expect(menuItemTestIDs.indexOf('settings-menu-item-공개 설정')).toBe(
+      menuItemTestIDs.indexOf('settings-menu-item-알림 설정') + 1,
+    );
+
     fireEvent.press(getByText('한마디'));
     fireEvent.press(getByText('루틴 설정'));
     fireEvent.press(getByText('알림 설정'));
+    fireEvent.press(getByText('공개 설정'));
     fireEvent.press(getByText('베타 피드백'));
     fireEvent.press(getByText('약관'));
     fireEvent.press(getByText('이루라 길드'));
@@ -709,6 +724,7 @@ describe('MyInfo 로그아웃', () => {
     expect(global.mockPush).toHaveBeenCalledWith('/modal?type=account');
     expect(global.mockPush).toHaveBeenCalledWith('/routine-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/notification-settings');
+    expect(global.mockPush).toHaveBeenCalledWith('/visibility-settings');
     expect(global.mockPush).toHaveBeenCalledWith('/beta-feedback');
     expect(global.mockPush).toHaveBeenCalledWith('/terms');
     expect(global.mockPush).toHaveBeenCalledWith('/hall-of-heroes');

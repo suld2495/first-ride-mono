@@ -7,6 +7,7 @@ import InquiryPage from '../../app/inquiry';
 import NotificationSettingsPage from '../../app/notification-settings';
 import RoutineSettingsPage from '../../app/routine-settings';
 import TermsPage from '../../app/terms';
+import VisibilitySettingsPage from '../../app/visibility-settings';
 import { useColorSchemeStore } from '../../store/color-scheme.store';
 import { appThemes } from '../../theme/themes';
 import { palette } from '../../theme/tokens';
@@ -72,6 +73,7 @@ describe('설정 하위 페이지', () => {
   it.each([
     ['전체 루틴 목록', <RoutineSettingsPage />],
     ['알림 설정', <NotificationSettingsPage />],
+    ['공개 설정', <VisibilitySettingsPage />],
     ['문의', <InquiryPage />],
     ['약관', <TermsPage />],
   ])('%s 페이지는 상단 타이틀과 뒤로가기를 표시한다', async (title, page) => {
@@ -89,6 +91,14 @@ describe('설정 하위 페이지', () => {
       await waitFor(() => {
         expect(
           getByTestId('notification-settings-toggle-all'),
+        ).toBeOnTheScreen();
+      });
+    }
+
+    if (title === '공개 설정') {
+      await waitFor(() => {
+        expect(
+          getByTestId('visibility-settings-toggle-random-friend-opt-out'),
         ).toBeOnTheScreen();
       });
     }
@@ -536,7 +546,9 @@ describe('설정 하위 페이지', () => {
       ];
     });
 
-    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+    const { findByText, getByTestId, queryByText } = render(
+      <NotificationSettingsPage />,
+    );
 
     expect(await findByText('전체 알림')).toBeOnTheScreen();
     expect(
@@ -545,6 +557,8 @@ describe('설정 하위 페이지', () => {
     expect(await findByText('친구 알림')).toBeOnTheScreen();
     expect(await findByText('친구 요청')).toBeOnTheScreen();
     expect(await findByText('응원 콕')).toBeOnTheScreen();
+    expect(queryByText('친구 추천 안 하기')).toBeNull();
+    expect(queryByText('친구에게 인증 사진 공개')).toBeNull();
     expect(
       getByTestId('notification-settings-toggle-all').props.accessibilityState
         .checked,
@@ -571,7 +585,7 @@ describe('설정 하위 페이지', () => {
     });
   });
 
-  it('알림 설정 페이지는 친구 추천 안 하기 토글을 랜덤 친구 설정 API와 연결한다', async () => {
+  it('공개 설정 페이지는 친구 추천 안 하기 토글을 랜덤 친구 설정 API와 연결한다', async () => {
     mockAxios.onPatch('/users/me/random-friend-settings').reply((config) => {
       expect(JSON.parse(config.data ?? '{}')).toEqual({
         randomFriendRecommendationEnabled: false,
@@ -587,12 +601,15 @@ describe('설정 하위 페이지', () => {
       ];
     });
 
-    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+    const { findByText, getByTestId } = render(<VisibilitySettingsPage />);
 
     expect(await findByText('친구 추천 안 하기')).toBeOnTheScreen();
     const optOutToggle = getByTestId(
-      'notification-settings-toggle-random-friend-opt-out',
+      'visibility-settings-toggle-random-friend-opt-out',
     );
+    await waitFor(() => {
+      expect(optOutToggle.props.accessibilityState.disabled).toBe(false);
+    });
     expect(optOutToggle.props.accessibilityState.checked).toBe(false);
 
     fireEvent.press(optOutToggle);
@@ -609,7 +626,7 @@ describe('설정 하위 페이지', () => {
     });
   });
 
-  it('알림 설정 페이지는 친구 추천 설정 변경 실패 시 토글을 되돌리고 오류를 표시한다', async () => {
+  it('공개 설정 페이지는 친구 추천 설정 변경 실패 시 토글을 되돌리고 오류를 표시한다', async () => {
     mockAxios.onPatch('/users/me/random-friend-settings').reply(500, {
       success: false,
       error: {
@@ -617,12 +634,15 @@ describe('설정 하위 페이지', () => {
       },
     });
 
-    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+    const { findByText, getByTestId } = render(<VisibilitySettingsPage />);
 
     expect(await findByText('친구 추천 안 하기')).toBeOnTheScreen();
     const optOutToggle = getByTestId(
-      'notification-settings-toggle-random-friend-opt-out',
+      'visibility-settings-toggle-random-friend-opt-out',
     );
+    await waitFor(() => {
+      expect(optOutToggle.props.accessibilityState.disabled).toBe(false);
+    });
 
     fireEvent.press(optOutToggle);
 
@@ -637,7 +657,7 @@ describe('설정 하위 페이지', () => {
     });
   });
 
-  it('알림 설정 페이지는 친구 인증 사진 공개 토글을 공개 설정 API와 연결한다', async () => {
+  it('공개 설정 페이지는 친구 인증 사진 공개 토글을 공개 설정 API와 연결한다', async () => {
     mockAxios
       .onPatch('/users/me/confirmation-image-visibility')
       .reply((config) => {
@@ -655,12 +675,15 @@ describe('설정 하위 페이지', () => {
         ];
       });
 
-    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+    const { findByText, getByTestId } = render(<VisibilitySettingsPage />);
 
     expect(await findByText('친구에게 인증 사진 공개')).toBeOnTheScreen();
     const visibilityToggle = getByTestId(
-      'notification-settings-toggle-confirmation-image-visibility',
+      'visibility-settings-toggle-confirmation-image-visibility',
     );
+    await waitFor(() => {
+      expect(visibilityToggle.props.accessibilityState.disabled).toBe(false);
+    });
     expect(visibilityToggle.props.accessibilityState.checked).toBe(false);
 
     fireEvent.press(visibilityToggle);
@@ -678,7 +701,7 @@ describe('설정 하위 페이지', () => {
     });
   });
 
-  it('알림 설정 페이지는 친구 인증 사진 공개 설정 변경 실패 시 토글을 되돌리고 오류를 표시한다', async () => {
+  it('공개 설정 페이지는 친구 인증 사진 공개 설정 변경 실패 시 토글을 되돌리고 오류를 표시한다', async () => {
     mockAxios.onPatch('/users/me/confirmation-image-visibility').reply(500, {
       success: false,
       error: {
@@ -686,12 +709,15 @@ describe('설정 하위 페이지', () => {
       },
     });
 
-    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+    const { findByText, getByTestId } = render(<VisibilitySettingsPage />);
     expect(await findByText('친구에게 인증 사진 공개')).toBeOnTheScreen();
 
     const visibilityToggle = getByTestId(
-      'notification-settings-toggle-confirmation-image-visibility',
+      'visibility-settings-toggle-confirmation-image-visibility',
     );
+    await waitFor(() => {
+      expect(visibilityToggle.props.accessibilityState.disabled).toBe(false);
+    });
     fireEvent.press(visibilityToggle);
 
     await waitFor(() => {

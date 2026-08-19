@@ -8,18 +8,13 @@ import {
   useNotificationSettingsQuery,
   useUpdateNotificationSettingsMutation,
 } from '@repo/shared/hooks/useNotificationSettings';
-import {
-  useConfirmationImageVisibilityQuery,
-  useRandomFriendRecommendationSettingsQuery,
-  useUpdateConfirmationImageVisibilityMutation,
-  useUpdateRandomFriendRecommendationSettingsMutation,
-} from '@repo/shared/hooks/useFriend';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import Container from '@/components/layout/container';
 import PageHeader from '@/components/layout/page-header';
 import DailyRoutineReminderSettings from '@/components/notification/daily-routine-reminder-settings';
+import NotificationSwitch from '@/components/notification/notification-switch';
 import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
@@ -109,13 +104,7 @@ const getEnabledSubtypeCount = (
   settings: Record<NotificationSubtype, boolean>,
 ): number => subtypes.filter((subtype) => settings[subtype]).length;
 
-const SWITCH_THUMB_TRAVEL = baseFoundation.dimension.x20;
-const SWITCH_ANIMATION_DURATION_MS = 160;
 const NOTIFICATION_SETTINGS_UPDATE_DEBOUNCE_MS = 300;
-const RANDOM_FRIEND_SETTINGS_ERROR_MESSAGE =
-  '친구 추천 설정을 변경하지 못했습니다.';
-const CONFIRMATION_IMAGE_VISIBILITY_ERROR_MESSAGE =
-  '친구 인증 사진 공개 설정을 변경하지 못했습니다.';
 
 const applyNotificationSettingsUpdate = (
   settings: NotificationSettings,
@@ -170,69 +159,6 @@ const hasNotificationSettingsUpdate = (
 type SettingsErrorStateProps = {
   onRetry: () => void;
 };
-
-type NotificationSwitchProps = {
-  accessibilityLabel: string;
-  disabled?: boolean;
-  onValueChange: (enabled: boolean) => void;
-  testID: string;
-  value: boolean;
-};
-
-function NotificationSwitch({
-  accessibilityLabel,
-  disabled = false,
-  onValueChange,
-  testID,
-  value,
-}: NotificationSwitchProps) {
-  const thumbTranslateX = useRef(
-    new Animated.Value(value ? SWITCH_THUMB_TRAVEL : 0),
-  ).current;
-
-  useEffect(() => {
-    const animation = Animated.timing(thumbTranslateX, {
-      toValue: value ? SWITCH_THUMB_TRAVEL : 0,
-      duration: SWITCH_ANIMATION_DURATION_MS,
-      easing: Easing.out(Easing.quad),
-      useNativeDriver: true,
-    });
-
-    animation.start();
-
-    return () => {
-      animation.stop();
-    };
-  }, [thumbTranslateX, value]);
-
-  return (
-    <Pressable
-      accessibilityLabel={accessibilityLabel}
-      accessibilityRole="switch"
-      accessibilityState={{ checked: value, disabled }}
-      disabled={disabled}
-      hitSlop={baseFoundation.dimension.x8}
-      onPress={() => {
-        onValueChange(!value);
-      }}
-      style={[
-        styles.switchTrack,
-        value ? styles.switchTrackOn : styles.switchTrackOff,
-        disabled ? styles.switchTrackDisabled : null,
-      ]}
-      testID={testID}
-    >
-      <Animated.View
-        style={[
-          styles.switchThumb,
-          {
-            transform: [{ translateX: thumbTranslateX }],
-          },
-        ]}
-      />
-    </Pressable>
-  );
-}
 
 function SettingsErrorState({ onRetry }: SettingsErrorStateProps) {
   return (
@@ -289,146 +215,6 @@ function AllNotificationSection({
           <Typography color="warning" variant="caption1">
             모든 알림이 차단됩니다.
           </Typography>
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
-type RandomFriendRecommendationSectionProps = {
-  isError: boolean;
-  isLoading: boolean;
-  isSaving: boolean;
-  onRetry: () => void;
-  onToggleOptOut: (shouldOptOut: boolean) => void;
-  recommendationEnabled: boolean;
-};
-
-function RandomFriendRecommendationSection({
-  isError,
-  isLoading,
-  isSaving,
-  onRetry,
-  onToggleOptOut,
-  recommendationEnabled,
-}: RandomFriendRecommendationSectionProps) {
-  const isDisabled = isLoading || isError || isSaving;
-
-  return (
-    <View
-      style={styles.section}
-      testID="notification-settings-random-friend-section"
-    >
-      <View style={styles.primaryRow}>
-        <View style={styles.rowText}>
-          <Typography variant="body1" weight="semibold">
-            친구 추천 안 하기
-          </Typography>
-          <Typography
-            color="secondary"
-            style={styles.description}
-            variant="caption1"
-          >
-            다른 사람의 랜덤 친구 추천 목록에 내 프로필을 노출하지 않습니다.
-          </Typography>
-        </View>
-        <NotificationSwitch
-          accessibilityLabel="친구 추천 안 하기"
-          disabled={isDisabled}
-          onValueChange={onToggleOptOut}
-          testID="notification-settings-toggle-random-friend-opt-out"
-          value={!recommendationEnabled}
-        />
-      </View>
-      {isLoading ? (
-        <Typography color="secondary" variant="caption1">
-          설정을 불러오는 중입니다.
-        </Typography>
-      ) : null}
-      {isError ? (
-        <View style={styles.notice}>
-          <Typography color="secondary" variant="caption1">
-            친구 추천 설정을 불러오지 못했습니다.
-          </Typography>
-          <Pressable
-            accessibilityRole="button"
-            onPress={onRetry}
-            style={styles.retryButton}
-          >
-            <Typography color="inverse" variant="body3" weight="semibold">
-              다시 시도
-            </Typography>
-          </Pressable>
-        </View>
-      ) : null}
-    </View>
-  );
-}
-
-type ConfirmationImageVisibilitySectionProps = {
-  confirmationImagesVisibleToFriends: boolean;
-  isError: boolean;
-  isLoading: boolean;
-  isSaving: boolean;
-  onRetry: () => void;
-  onToggle: (visible: boolean) => void;
-};
-
-function ConfirmationImageVisibilitySection({
-  confirmationImagesVisibleToFriends,
-  isError,
-  isLoading,
-  isSaving,
-  onRetry,
-  onToggle,
-}: ConfirmationImageVisibilitySectionProps) {
-  const isDisabled = isLoading || isError || isSaving;
-
-  return (
-    <View
-      style={styles.section}
-      testID="notification-settings-confirmation-image-section"
-    >
-      <View style={styles.primaryRow}>
-        <View style={styles.rowText}>
-          <Typography variant="body1" weight="semibold">
-            친구에게 인증 사진 공개
-          </Typography>
-          <Typography
-            color="secondary"
-            style={styles.description}
-            variant="caption1"
-          >
-            친구가 내 루틴을 볼 때 승인된 인증 사진을 공개합니다.
-          </Typography>
-        </View>
-        <NotificationSwitch
-          accessibilityLabel="친구에게 인증 사진 공개"
-          disabled={isDisabled}
-          onValueChange={onToggle}
-          testID="notification-settings-toggle-confirmation-image-visibility"
-          value={confirmationImagesVisibleToFriends}
-        />
-      </View>
-      {isLoading ? (
-        <Typography color="secondary" variant="caption1">
-          설정을 불러오는 중입니다.
-        </Typography>
-      ) : null}
-      {isError ? (
-        <View style={styles.notice}>
-          <Typography color="secondary" variant="caption1">
-            친구 인증 사진 공개 설정을 불러오지 못했습니다.
-          </Typography>
-          <Pressable
-            accessibilityRole="button"
-            onPress={onRetry}
-            style={styles.retryButton}
-          >
-            <Typography color="inverse" variant="body3" weight="semibold">
-              다시 시도
-            </Typography>
-          </Pressable>
         </View>
       ) : null}
     </View>
@@ -566,44 +352,20 @@ function NotificationGroupsSection({
 }
 
 type NotificationSettingsContentProps = {
-  confirmationImagesVisibleToFriends: boolean;
   dailyRoutineReminderTimes: string[];
-  isConfirmationImageVisibilityError: boolean;
-  isConfirmationImageVisibilityLoading: boolean;
-  isConfirmationImageVisibilitySaving: boolean;
-  isRandomFriendRecommendationError: boolean;
-  isRandomFriendRecommendationLoading: boolean;
-  isRandomFriendRecommendationSaving: boolean;
   onChangeDailyRoutineReminderTimes: (times: string[]) => void;
-  onRetryConfirmationImageVisibility: () => void;
-  onRetryRandomFriendRecommendation: () => void;
-  onToggleConfirmationImageVisibility: (visible: boolean) => void;
-  onToggleRandomFriendRecommendationOptOut: (shouldOptOut: boolean) => void;
   onToggleAll: (allEnabled: boolean) => void;
   onToggleGroup: (group: NotificationGroup, enabled: boolean) => void;
   onToggleSubtype: (subtype: NotificationSubtype, enabled: boolean) => void;
-  randomFriendRecommendationEnabled: boolean;
   settings: NotificationSettings;
 };
 
 function NotificationSettingsContent({
-  confirmationImagesVisibleToFriends,
   dailyRoutineReminderTimes,
-  isConfirmationImageVisibilityError,
-  isConfirmationImageVisibilityLoading,
-  isConfirmationImageVisibilitySaving,
-  isRandomFriendRecommendationError,
-  isRandomFriendRecommendationLoading,
-  isRandomFriendRecommendationSaving,
   onChangeDailyRoutineReminderTimes,
-  onRetryConfirmationImageVisibility,
-  onRetryRandomFriendRecommendation,
-  onToggleConfirmationImageVisibility,
-  onToggleRandomFriendRecommendationOptOut,
   onToggleAll,
   onToggleGroup,
   onToggleSubtype,
-  randomFriendRecommendationEnabled,
   settings,
 }: NotificationSettingsContentProps) {
   return (
@@ -622,22 +384,6 @@ function NotificationSettingsContent({
       <AllNotificationSection
         allEnabled={settings.allEnabled}
         onToggle={onToggleAll}
-      />
-      <RandomFriendRecommendationSection
-        isError={isRandomFriendRecommendationError}
-        isLoading={isRandomFriendRecommendationLoading}
-        isSaving={isRandomFriendRecommendationSaving}
-        onRetry={onRetryRandomFriendRecommendation}
-        onToggleOptOut={onToggleRandomFriendRecommendationOptOut}
-        recommendationEnabled={randomFriendRecommendationEnabled}
-      />
-      <ConfirmationImageVisibilitySection
-        confirmationImagesVisibleToFriends={confirmationImagesVisibleToFriends}
-        isError={isConfirmationImageVisibilityError}
-        isLoading={isConfirmationImageVisibilityLoading}
-        isSaving={isConfirmationImageVisibilitySaving}
-        onRetry={onRetryConfirmationImageVisibility}
-        onToggle={onToggleConfirmationImageVisibility}
       />
       {settings.allEnabled && settings.subtypes.DAILY_ROUTINE_REMINDER ? (
         <DailyRoutineReminderSettings
@@ -663,25 +409,9 @@ export default function NotificationSettingsPage() {
     isLoading,
     refetch,
   } = useNotificationSettingsQuery(user?.userId ?? '');
-  const {
-    data: randomFriendRecommendationSettings,
-    isError: isRandomFriendRecommendationError,
-    isLoading: isRandomFriendRecommendationLoading,
-    refetch: refetchRandomFriendRecommendationSettings,
-  } = useRandomFriendRecommendationSettingsQuery(user?.userId ?? '');
-  const {
-    data: confirmationImageVisibility,
-    isError: isConfirmationImageVisibilityError,
-    isLoading: isConfirmationImageVisibilityLoading,
-    refetch: refetchConfirmationImageVisibility,
-  } = useConfirmationImageVisibilityQuery(user?.userId ?? '');
   const updateSettings = useUpdateNotificationSettingsMutation(
     user?.userId ?? '',
   );
-  const updateRandomFriendRecommendationSettings =
-    useUpdateRandomFriendRecommendationSettingsMutation(user?.userId ?? '');
-  const updateConfirmationImageVisibility =
-    useUpdateConfirmationImageVisibilityMutation(user?.userId ?? '');
   const [draftSettings, setDraftSettings] = useState<NotificationSettings>();
   const confirmedSettingsRef = useRef<NotificationSettings | undefined>(
     undefined,
@@ -700,33 +430,6 @@ export default function NotificationSettingsPage() {
       getApiErrorMessage(error, '알림 설정을 변경하지 못했습니다.'),
       'error',
     );
-  };
-
-  const handleToggleRandomFriendRecommendationOptOut = (
-    shouldOptOut: boolean,
-  ) => {
-    updateRandomFriendRecommendationSettings.mutate(!shouldOptOut, {
-      onError: (error) => {
-        showToast(
-          getApiErrorMessage(error, RANDOM_FRIEND_SETTINGS_ERROR_MESSAGE),
-          'error',
-        );
-      },
-    });
-  };
-
-  const handleToggleConfirmationImageVisibility = (visible: boolean) => {
-    updateConfirmationImageVisibility.mutate(visible, {
-      onError: (error) => {
-        showToast(
-          getApiErrorMessage(
-            error,
-            CONFIRMATION_IMAGE_VISIBILITY_ERROR_MESSAGE,
-          ),
-          'error',
-        );
-      },
-    });
   };
 
   const flushSettingsUpdate = () => {
@@ -864,51 +567,15 @@ export default function NotificationSettingsPage() {
       ) : null}
       {displayedSettings ? (
         <NotificationSettingsContent
-          confirmationImagesVisibleToFriends={
-            confirmationImageVisibility?.confirmationImagesVisibleToFriends ??
-            false
-          }
           dailyRoutineReminderTimes={
             displayedSettings.dailyRoutineReminderTimes
-          }
-          isConfirmationImageVisibilityError={
-            isConfirmationImageVisibilityError
-          }
-          isConfirmationImageVisibilityLoading={
-            isConfirmationImageVisibilityLoading
-          }
-          isConfirmationImageVisibilitySaving={
-            updateConfirmationImageVisibility.isPending
-          }
-          isRandomFriendRecommendationError={isRandomFriendRecommendationError}
-          isRandomFriendRecommendationLoading={
-            isRandomFriendRecommendationLoading
-          }
-          isRandomFriendRecommendationSaving={
-            updateRandomFriendRecommendationSettings.isPending
           }
           onChangeDailyRoutineReminderTimes={
             handleChangeDailyRoutineReminderTimes
           }
-          onRetryConfirmationImageVisibility={() => {
-            void refetchConfirmationImageVisibility();
-          }}
-          onRetryRandomFriendRecommendation={() => {
-            void refetchRandomFriendRecommendationSettings();
-          }}
-          onToggleConfirmationImageVisibility={
-            handleToggleConfirmationImageVisibility
-          }
-          onToggleRandomFriendRecommendationOptOut={
-            handleToggleRandomFriendRecommendationOptOut
-          }
           onToggleAll={handleToggleAll}
           onToggleGroup={handleToggleGroup}
           onToggleSubtype={handleToggleSubtype}
-          randomFriendRecommendationEnabled={
-            randomFriendRecommendationSettings?.randomFriendRecommendationEnabled ??
-            true
-          }
           settings={displayedSettings}
         />
       ) : null}
@@ -919,28 +586,6 @@ export default function NotificationSettingsPage() {
 const styles = StyleSheet.create((theme) => ({
   container: {
     backgroundColor: theme.colors.background.base,
-  },
-  switchTrack: {
-    width: baseFoundation.dimension.x52,
-    height: baseFoundation.dimension.x32,
-    justifyContent: 'center',
-    borderRadius: baseFoundation.radii.round,
-    padding: baseFoundation.dimension.x2,
-  },
-  switchTrackOn: {
-    backgroundColor: theme.colors.action.primary.default,
-  },
-  switchTrackOff: {
-    backgroundColor: theme.colors.border.default,
-  },
-  switchTrackDisabled: {
-    opacity: 0.5,
-  },
-  switchThumb: {
-    width: baseFoundation.dimension.x28,
-    height: baseFoundation.dimension.x28,
-    borderRadius: baseFoundation.radii.round,
-    backgroundColor: theme.colors.background.elevated,
   },
   content: {
     paddingHorizontal: theme.foundation.spacing[6],
