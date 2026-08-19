@@ -1,10 +1,10 @@
 /* eslint-disable sonarjs/cognitive-complexity */
+import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import {
   useDeleteRoutineMutation,
   useUpdateRoutinePauseMutation,
   useUpdateRoutineVisibilityMutation,
 } from '@repo/shared/hooks/useRoutine';
-import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import { routineKeys } from '@repo/shared/types/query-keys/routine';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
@@ -25,7 +25,6 @@ import {
 } from 'react-native';
 
 import { RoutineMoreIndicatorIcon } from '@/components/icons/routine-icons';
-import RoutineCompleteConfirmModal from '@/components/modal/routine-complete-confirm-modal';
 import { RoutineContextMenuPanel } from '@/components/routine/routine-context-menu';
 import { getRoutineScenePreviewOverlayAsset } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
@@ -119,8 +118,6 @@ const RoutineList = ({
   const deleteRoutine = useDeleteRoutineMutation(nickname);
   const { isPending: isCompletingRoutine, mutate: completeRoutine } =
     useCreateRequestMutation();
-  const [completeTargetRoutine, setCompleteTargetRoutine] =
-    useState<Routine | null>(null);
   const showsRequestMenuItem = date === getWeekMonday(new Date());
 
   const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
@@ -199,53 +196,64 @@ const RoutineList = ({
     [router, setRequestId],
   );
 
-  const handleCloseCompleteConfirmModal = useCallback(() => {
-    if (isCompletingRoutine) {
-      return;
-    }
+  const handleConfirmRoutineComplete = useCallback(
+    (targetRoutine: Routine) => {
+      if (isCompletingRoutine) {
+        return;
+      }
 
-    setCompleteTargetRoutine(null);
-  }, [isCompletingRoutine]);
+      const formData = new FormData();
+      formData.append('routineId', targetRoutine.routineId.toString());
+      formData.append('message', '');
 
-  const handleConfirmRoutineComplete = useCallback(() => {
-    const targetRoutine = completeTargetRoutine;
-
-    if (!targetRoutine || isCompletingRoutine) {
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('routineId', targetRoutine.routineId.toString());
-    formData.append('message', '');
-
-    completeRoutine(
-      { data: formData },
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries({
-            queryKey: routineKeys.list(nickname),
-          });
-          await checkLevelUpStatus();
-          setCompleteTargetRoutine(null);
-          showToast('루틴이 완료되었습니다.', 'success');
+      completeRoutine(
+        { data: formData },
+        {
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({
+              queryKey: routineKeys.list(nickname),
+            });
+            await checkLevelUpStatus();
+            showToast('루틴이 완료되었습니다.', 'success');
+          },
+          onError: (error) => {
+            showToast(
+              getApiErrorMessage(error, '루틴 완료에 실패했습니다.'),
+              'error',
+            );
+          },
         },
-        onError: (error) => {
-          showToast(
-            getApiErrorMessage(error, '루틴 완료에 실패했습니다.'),
-            'error',
-          );
+      );
+    },
+    [
+      checkLevelUpStatus,
+      completeRoutine,
+      isCompletingRoutine,
+      nickname,
+      queryClient,
+      showToast,
+    ],
+  );
+
+  const handleShowRoutineCompleteConfirm = useCallback(
+    (routine: Routine) => {
+      if (isCompletingRoutine) {
+        return;
+      }
+
+      Alert.alert('루틴 인증', '루틴 인증하시겠어요?', [
+        {
+          text: '아니요',
+          style: 'cancel',
         },
-      },
-    );
-  }, [
-    completeRoutine,
-    completeTargetRoutine,
-    checkLevelUpStatus,
-    isCompletingRoutine,
-    nickname,
-    queryClient,
-    showToast,
-  ]);
+        {
+          text: '예',
+          onPress: () => handleConfirmRoutineComplete(routine),
+        },
+      ]);
+    },
+    [handleConfirmRoutineComplete, isCompletingRoutine],
+  );
 
   const handlePressRoutineCheck = useCallback(
     (routine: Routine, meta: RoutineCheckPressMeta = {}) => {
@@ -294,8 +302,14 @@ const RoutineList = ({
         return;
       }
 
-      if (routine.isMe && routine.photoRequired === false) {
-        setCompleteTargetRoutine(routine);
+      if (routine.isMe && !routine.mateNickname) {
+        if (routine.photoRequired !== false) {
+          handleShowRequestModal(routine.routineId);
+
+          return;
+        }
+
+        handleShowRoutineCompleteConfirm(routine);
 
         return;
       }
@@ -304,6 +318,7 @@ const RoutineList = ({
     },
     [
       handleShowRequestModal,
+      handleShowRoutineCompleteConfirm,
       handleShowRoutineProofDetailModal,
       canOpenRoutineProofDetail,
       onRoutineProofDetailAccessDenied,
@@ -584,12 +599,6 @@ const RoutineList = ({
           </Pressable>
         </View>
       ) : null}
-      <RoutineCompleteConfirmModal
-        isSubmitting={isCompletingRoutine}
-        onCancel={handleCloseCompleteConfirmModal}
-        onConfirm={handleConfirmRoutineComplete}
-        visible={Boolean(completeTargetRoutine)}
-      />
     </ThemeView>
   );
 };

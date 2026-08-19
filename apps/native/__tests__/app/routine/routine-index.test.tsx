@@ -7,6 +7,7 @@ import { render as renderNative, within } from '@testing-library/react-native';
 import MockAdapter from 'axios-mock-adapter';
 import type React from 'react';
 import {
+  Alert,
   AppState,
   Pressable,
   Text,
@@ -53,6 +54,7 @@ jest.mock('@/api/update-notices.api', () => ({
 
 const mockedFetchRequiredAppVersion = jest.mocked(fetchRequiredAppVersion);
 const mockedFetchUpdateNotices = jest.mocked(fetchUpdateNotices);
+let mockAlert: jest.SpiedFunction<typeof Alert.alert>;
 const WHATS_NEW_DISMISSED_BUILD_43_KEY = 'whats-new-dismissed-build:43';
 const UPDATE_NOTICES = [
   {
@@ -273,6 +275,7 @@ describe('루틴 조회 페이지', () => {
     // 인증 요청 목록 API 기본 응답
     mockAxios.onGet(/\/routine\/confirm\/list/).reply(200, { data: [] });
     mockShowToast.mockClear();
+    mockAlert = jest.spyOn(Alert, 'alert');
     appStateChangeHandler = undefined;
     jest
       .spyOn(AppState, 'addEventListener')
@@ -707,10 +710,8 @@ describe('루틴 조회 페이지', () => {
           mockFocus();
         });
 
-        expect(mockReplace).toHaveBeenCalledWith(
-          `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
-        );
-        expect(refetch).not.toHaveBeenCalled();
+        expect(mockReplace).not.toHaveBeenCalled();
+        expect(refetch).toHaveBeenCalledTimes(1);
 
         routinesSpy.mockRestore();
       });
@@ -1266,7 +1267,7 @@ describe('루틴 조회 페이지', () => {
         );
       });
 
-      it('루틴 리스트는 상단 50%를 사용하고 하단 콘텐츠는 남은 영역의 아래쪽에 배치된다', async () => {
+      it('루틴 리스트는 상단 62%를 사용하고 하단 콘텐츠는 남은 영역의 아래쪽에 배치된다', async () => {
         const { findByText, getByTestId } = render(<Index />);
 
         await findByText('테스트 루틴 1');
@@ -1278,7 +1279,7 @@ describe('루틴 조회 페이지', () => {
         expect(flattenStyles(routineListArea.props.style)).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              height: '50%',
+              height: '62%',
               minHeight: 0,
             }),
           ]),
@@ -2475,26 +2476,32 @@ describe('루틴 조회 페이지', () => {
       expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
     });
 
-    it('메이트가 없는 number 타입 루틴 체크박스를 누르면 완료 확인 모달을 표시한다', async () => {
+    it('사진 인증이 필요 없는 개인 number 루틴을 누르면 인증 확인 모달을 표시한다', async () => {
       mockRoutineStore.type = 'number';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
         data: createMockRoutines(1, {
           mateNickname: '',
           photoRequired: false,
-        }).map((routine) => ({ ...routine, isMe: undefined })),
+        }),
       });
 
-      const { findByTestId, findByText, queryByText } = render(<Index />);
+      const { findByTestId } = render(<Index />);
 
       fireEvent.press(await findByTestId('routine-count-check-1-4'));
 
-      expect(await findByText('루틴을 완료하셨나요?')).toBeOnTheScreen();
-      expect(queryByText('사진 인증하기')).toBeNull();
+      expect(mockAlert).toHaveBeenCalledWith(
+        '루틴 인증',
+        '루틴 인증하시겠어요?',
+        [
+          { text: '아니요', style: 'cancel' },
+          { text: '예', onPress: expect.any(Function) },
+        ],
+      );
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
       expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
     });
 
-    it('사진 인증이 필요한 개인 루틴은 인증 요청 모달로 이동한다', async () => {
+    it('사진 인증이 필요한 개인 number 루틴을 누르면 기존 사진 인증 화면으로 이동한다', async () => {
       mockRoutineStore.type = 'number';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
         data: createMockRoutines(1, {
@@ -2503,7 +2510,7 @@ describe('루틴 조회 페이지', () => {
         }),
       });
 
-      const { findByTestId } = render(<Index />);
+      const { findByTestId, queryByText } = render(<Index />);
 
       fireEvent.press(await findByTestId('routine-count-check-1-4'));
 
@@ -2511,40 +2518,62 @@ describe('루틴 조회 페이지', () => {
         expect(mockPush).toHaveBeenCalledWith('/modal?type=request');
       });
       expect(mockRoutineStore.setRoutineId).toHaveBeenCalledWith(1);
-      expect(mockPush).not.toHaveBeenCalledWith(
-        '/modal?type=routine-complete-confirm',
-      );
+      expect(queryByText('루틴 인증하시겠어요?')).not.toBeOnTheScreen();
+      expect(mockAlert).not.toHaveBeenCalled();
     });
 
-    it('사진 인증이 선택사항인 개인 루틴은 확인 시 바로 인증한다', async () => {
+    it('사진 인증이 필요 없는 개인 루틴 확인 모달에서 아니요를 누르면 인증하지 않는다', async () => {
       mockRoutineStore.type = 'number';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
         data: createMockRoutines(1, {
-          isMe: true,
-          mateNickname: 'mate',
+          mateNickname: '',
+          photoRequired: false,
+        }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(await findByTestId('routine-count-check-1-4'));
+      const cancelButton = mockAlert.mock.calls[0][2]?.find(
+        (button) => button.text === '아니요',
+      );
+
+      expect(cancelButton).toEqual({ text: '아니요', style: 'cancel' });
+      expect(mockAxios.history.post).toHaveLength(0);
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
+    });
+
+    it('사진 인증이 필요 없는 개인 루틴 확인 모달에서 예를 누르면 루틴을 완료한다', async () => {
+      const appendSpy = jest.spyOn(FormData.prototype, 'append');
+      mockRoutineStore.type = 'number';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          mateNickname: '',
           photoRequired: false,
         }),
       });
       mockAxios.onPost('/routine/confirm').reply(200, { data: null });
-      const appendSpy = jest.spyOn(FormData.prototype, 'append');
 
-      const { findByTestId, findByText } = render(<Index />);
+      const { findByTestId } = render(<Index />);
 
       fireEvent.press(await findByTestId('routine-count-check-1-4'));
-      fireEvent.press(await findByText('예'));
+      const confirmButton = mockAlert.mock.calls[0][2]?.find(
+        (button) => button.text === '예',
+      );
+
+      act(() => {
+        confirmButton?.onPress?.();
+      });
 
       await waitFor(() => {
         expect(mockAxios.history.post).toHaveLength(1);
+        expect(appendSpy).toHaveBeenCalledWith('routineId', '1');
+        expect(appendSpy).not.toHaveBeenCalledWith('images', expect.anything());
         expect(mockShowToast).toHaveBeenCalledWith(
           '루틴이 완료되었습니다.',
           'success',
         );
       });
-      expect(appendSpy).toHaveBeenCalledWith('routineId', '1');
-      expect(appendSpy).toHaveBeenCalledWith('message', '');
-      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
-
-      appendSpy.mockRestore();
     });
 
     it('메이트가 지정된 week 타입 루틴 체크박스를 누르면 인증 요청 모달로 이동한다', async () => {
@@ -2596,9 +2625,11 @@ describe('루틴 조회 페이지', () => {
         ),
       );
 
-      expect(
-        await findByTestId('routine-complete-confirm-modal'),
-      ).toBeOnTheScreen();
+      expect(mockAlert).toHaveBeenCalledWith(
+        '루틴 인증',
+        '루틴 인증하시겠어요?',
+        expect.any(Array),
+      );
       expect(mockRequestStore.setRequestId).not.toHaveBeenCalledWith(999);
       expect(mockPush).not.toHaveBeenCalledWith(
         '/modal?type=routine-proof-detail',

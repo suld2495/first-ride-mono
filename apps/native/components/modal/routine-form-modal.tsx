@@ -8,6 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
+  Modal,
   Platform,
   Pressable,
   Text,
@@ -28,6 +29,7 @@ import {
   type AutocompleteInputHandle,
   type AutocompleteItem,
 } from '@/components/ui/autocomplete-input';
+import { Button } from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import DatePickerButton from '@/components/ui/date-picker-button';
 import { Input } from '@/components/ui/input';
@@ -64,6 +66,11 @@ const ROUTINE_COUNT_OPTIONS = Array.from({ length: 7 }, (_, index) => {
   };
 });
 
+const PHOTO_REQUIRED_OPTIONS = [
+  { label: '사진 인증 필수', value: true },
+  { label: '사진 인증 없이 체크', value: false },
+];
+
 const getRoutineColorRows = (themeDefaultRoutineColor: string) => {
   const options = [
     { label: '기본', value: themeDefaultRoutineColor },
@@ -75,6 +82,7 @@ const getRoutineColorRows = (themeDefaultRoutineColor: string) => {
 };
 
 const MAX_PENALTY = 100_000_000;
+const MAX_ROUTINE_DETAIL_LENGTH = 50;
 const ROUTINE_DETAIL_MAX_LINES = 3;
 const ROUTINE_DETAIL_ANIMATION_DURATION = 100;
 const ROUTINE_DETAIL_MIN_HEIGHT: number = baseFoundation.dimension.x44;
@@ -130,61 +138,85 @@ const RoutinePhotoRequiredOption = ({
   canShow,
 }: RoutinePhotoRequiredOptionProps) => {
   const { form } = useForm();
-  const { theme } = useAppTheme();
 
   if (!canShow || !form.isMe) {
     return null;
   }
 
   return (
-    <ThemeView
-      testID="photo-required-status-option"
-      style={styles.statusOption}
-      transparent
-    >
-      <FormItem
-        name="photoRequired"
-        showErrors={false}
-        item={({ value, setValue }) => (
-          <ThemeView style={styles.hiddenStatusControl} transparent>
-            <ThemeView
-              testID="photo-required-label-row"
-              style={styles.hiddenRoutineLabelRow}
-              transparent
-            >
-              <Checkbox
-                size="md"
-                disableText
-                isChecked={Boolean(value)}
-                onPress={(checked) => {
-                  setValue('photoRequired', checked);
-                }}
-              />
-              <Pressable
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: Boolean(value) }}
-                hitSlop={theme.foundation.spacing[1]}
-                onPress={() => {
-                  setValue('photoRequired', !value);
-                }}
-              >
-                <Typography
-                  testID="photo-required-label"
-                  variant="body2"
-                  weight="semibold"
-                  color={theme.colors.text.gray}
-                  style={styles.hiddenRoutineLabel}
-                >
-                  사진 인증 필수
-                </Typography>
-              </Pressable>
-            </ThemeView>
-          </ThemeView>
-        )}
-      />
-    </ThemeView>
+    <FormItem
+      name="photoRequired"
+      label="인증 방식 선택"
+      showErrors={false}
+      item={({ value, setValue }) => (
+        <Select<boolean>
+          value={Boolean(value)}
+          items={PHOTO_REQUIRED_OPTIONS}
+          placeholder="인증 방식을 선택하세요."
+          variant="filled"
+          onSelect={(selectedValue) => {
+            setValue('photoRequired', selectedValue);
+          }}
+        />
+      )}
+    />
   );
 };
+
+interface MatePhotoRequiredInfoModalProps {
+  onConfirm: () => void;
+  visible: boolean;
+}
+
+const MatePhotoRequiredInfoModal = ({
+  onConfirm,
+  visible,
+}: MatePhotoRequiredInfoModalProps) => (
+  <Modal
+    animationType="fade"
+    onRequestClose={onConfirm}
+    transparent
+    visible={visible}
+    statusBarTranslucent
+  >
+    <View style={styles.infoModalRoot}>
+      <Pressable
+        accessibilityLabel="사진 인증 필수 안내 닫기"
+        onPress={onConfirm}
+        style={styles.infoModalBackdrop}
+      />
+      <View accessibilityViewIsModal style={styles.infoModalCard}>
+        <Typography
+          color={palette.theme.gray[80]}
+          textAlign="center"
+          variant="subtitle2"
+          weight="bold"
+        >
+          사진 인증 필수
+        </Typography>
+        <Typography
+          color={palette.theme.gray[40]}
+          style={styles.infoModalMessage}
+          textAlign="center"
+          variant="body2"
+          weight="medium"
+        >
+          메이트에게 루틴 인증 요청을 보낼 땐{`\n`}사진 인증이 필수예요.
+        </Typography>
+        <Button
+          backgroundColor={palette.theme.gray[95]}
+          fullWidth
+          onPress={onConfirm}
+          size="md"
+          style={styles.infoModalButton}
+          textColor={palette.white}
+        >
+          확인
+        </Button>
+      </View>
+    </View>
+  </Modal>
+);
 
 interface RoutineDateFormItemProps {
   isPersonalRoutine: boolean;
@@ -222,39 +254,52 @@ const RoutineDateFormItem = ({
   return (
     <FormItem
       name="startDate"
-      label="루틴 기간"
       item={({ value, form, setValue: setFieldValue }) => (
         <ThemeView style={styles.dateSection} transparent>
           <ThemeView
-            style={styles.dailyRepeatControl}
+            style={styles.dateHeaderRow}
             transparent
-            testID="routine-daily-repeat-control"
+            testID="startDate-label-row"
           >
-            <Checkbox
-              size="md"
-              disableText
-              fillColor={palette.white}
-              checkedColor={palette.theme.gray[95]}
-              isChecked={Boolean(form.isDailyRepeat)}
-              showCheckIconWhenUnchecked={false}
-              onPress={(checked) => {
-                setFieldValue('isDailyRepeat', checked);
-              }}
-            />
-            <Pressable
-              hitSlop={baseFoundation.spacing[1]}
-              onPress={() => {
-                setFieldValue('isDailyRepeat', !form.isDailyRepeat);
-              }}
-            >
-              <Typography
-                variant="body2"
-                weight="regular"
-                style={styles.dailyRepeatLabel}
-              >
-                매일 반복
+            <ThemeView style={styles.dateLabelRow} transparent>
+              <Typography variant="caption1" style={styles.dateLabel}>
+                루틴 기간
               </Typography>
-            </Pressable>
+              <Typography variant="caption1" style={styles.dateRequired}>
+                *
+              </Typography>
+            </ThemeView>
+            <ThemeView
+              style={styles.dailyRepeatControl}
+              transparent
+              testID="routine-daily-repeat-control"
+            >
+              <Checkbox
+                size="md"
+                disableText
+                fillColor={palette.white}
+                checkedColor={palette.theme.gray[95]}
+                isChecked={Boolean(form.isDailyRepeat)}
+                showCheckIconWhenUnchecked={false}
+                onPress={(checked) => {
+                  setFieldValue('isDailyRepeat', checked);
+                }}
+              />
+              <Pressable
+                hitSlop={baseFoundation.spacing[1]}
+                onPress={() => {
+                  setFieldValue('isDailyRepeat', !form.isDailyRepeat);
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  weight="regular"
+                  style={styles.dailyRepeatLabel}
+                >
+                  매일 반복
+                </Typography>
+              </Pressable>
+            </ThemeView>
           </ThemeView>
           <ThemeView style={styles.dateContainer} transparent>
             <DatePickerButton
@@ -372,6 +417,7 @@ const RoutineDetailInput = ({ value, onChange }: RoutineDetailInputProps) => {
     >
       <TextInput
         ref={inputRef}
+        maxLength={MAX_ROUTINE_DETAIL_LENGTH}
         multiline
         defaultValue={initialText}
         onChangeText={handleChangeText}
@@ -444,6 +490,8 @@ const RoutineFormModal = () => {
   const [mateKeyword, setMateKeyword] = useState('');
   const [isMateSearchFocused, setIsMateSearchFocused] = useState(false);
   const [showHiddenRoutineInfo, setShowHiddenRoutineInfo] = useState(false);
+  const [showMatePhotoRequiredInfo, setShowMatePhotoRequiredInfo] =
+    useState(false);
   const { deleteRoutineById } = useRoutineDelete(routineId, user!.nickname);
   const {
     handleCreate,
@@ -630,10 +678,11 @@ const RoutineFormModal = () => {
           )}
           required
         />
+        <RoutinePhotoRequiredOption canShow={isRoutineAdd || !sourceHasMate} />
         <FormItem
           name="routineDetail"
           label="설명"
-          optionalLabel="선택"
+          optionalLabel={`(최대 ${MAX_ROUTINE_DETAIL_LENGTH}자)`}
           item={({ value, onChange }) => (
             <RoutineDetailInput value={value} onChange={onChange} />
           )}
@@ -642,7 +691,7 @@ const RoutineFormModal = () => {
           <FormItem
             name="isMe"
             showErrors={false}
-            item={({ value: isMe, setValue }) => (
+            item={({ value: isMe, form, setValue }) => (
               <ThemeView style={styles.mateSection} transparent>
                 <ThemeView style={styles.mateField} transparent>
                   <Checkbox
@@ -654,7 +703,12 @@ const RoutineFormModal = () => {
                     onPress={(checked) => {
                       setValue('isMe', !checked);
 
-                      if (!checked) {
+                      if (checked) {
+                        const shouldShowInfo = form.photoRequired === false;
+
+                        setValue('photoRequired', true);
+                        setShowMatePhotoRequiredInfo(shouldShowInfo);
+                      } else {
                         setValue('mateNickname', '');
                         setMateKeyword('');
                         setIsMateSearchFocused(false);
@@ -788,9 +842,6 @@ const RoutineFormModal = () => {
                 />
               </ThemeView>
             )}
-            <RoutinePhotoRequiredOption
-              canShow={isRoutineAdd || !sourceHasMate}
-            />
             <ThemeView
               testID="hidden-routine-status-option"
               style={styles.statusOption}
@@ -901,6 +952,10 @@ const RoutineFormModal = () => {
         isPending={isPending}
         onCancelChangeRequest={handleCancelChangeRequest}
       />
+      <MatePhotoRequiredInfoModal
+        visible={showMatePhotoRequiredInfo}
+        onConfirm={() => setShowMatePhotoRequiredInfo(false)}
+      />
     </Form>
   );
 };
@@ -933,8 +988,27 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing[3],
   },
 
+  dateHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  dateLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  dateLabel: {
+    color: theme.colors.field.label,
+  },
+
+  dateRequired: {
+    color: theme.colors.field.required,
+    marginLeft: 1,
+  },
+
   dailyRepeatControl: {
-    alignSelf: 'flex-end',
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.foundation.spacing[2],
@@ -1019,6 +1093,35 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     right: theme.foundation.spacing[3],
     top: theme.foundation.spacing[2],
+  },
+
+  infoModalRoot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.foundation.spacing[6],
+  },
+
+  infoModalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 3, 6, 0.48)',
+  },
+
+  infoModalCard: {
+    width: '100%',
+    maxWidth: 320,
+    borderRadius: baseFoundation.dimension.x16,
+    padding: theme.foundation.spacing[5],
+    backgroundColor: palette.white,
+  },
+
+  infoModalMessage: {
+    marginTop: theme.foundation.spacing[2],
+  },
+
+  infoModalButton: {
+    marginTop: theme.foundation.spacing[5],
+    borderRadius: baseFoundation.dimension.x8,
   },
 
   statusSection: {

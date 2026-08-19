@@ -271,7 +271,6 @@ const styles = StyleSheet.create((theme) => ({
 
   image: {
     width: '100%',
-    borderRadius: baseFoundation.radii.m,
   },
 
   separator: {

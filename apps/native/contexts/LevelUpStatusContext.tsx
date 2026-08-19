@@ -13,9 +13,6 @@ import {
 
 import LevelProgressCelebrationModal from '@/components/modal/level-progress-celebration-modal';
 import { useAuthUser } from '@/hooks/useAuthSession';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { getThemeNameFromUserJob } from '@/theme/job-theme';
-import type { ThemeName } from '@/theme/themes';
 import type { LevelUpStatusCelebration } from '@/utils/level-progress-celebration';
 
 interface LevelUpStatusContextValue {
@@ -28,28 +25,8 @@ const LevelUpStatusContext = createContext<LevelUpStatusContextValue>({
   checkLevelUpStatus: noopCheckLevelUpStatus,
 });
 
-const getCelebrationThemeName = (
-  themeName: ThemeName,
-  jobThemeName?: ThemeName,
-): ThemeName => {
-  if (
-    jobThemeName === 'blue' ||
-    jobThemeName === 'green' ||
-    jobThemeName === 'red'
-  ) {
-    return jobThemeName;
-  }
-
-  if (themeName === 'blue' || themeName === 'green' || themeName === 'red') {
-    return themeName;
-  }
-
-  return 'blue';
-};
-
 export const LevelUpStatusProvider = ({ children }: PropsWithChildren) => {
   const user = useAuthUser();
-  const themeName = useColorScheme();
   const { data: currentUser } = useFetchMeQuery(user?.userId);
   const [celebration, setCelebration] =
     useState<LevelUpStatusCelebration | null>(null);
@@ -112,10 +89,6 @@ export const LevelUpStatusProvider = ({ children }: PropsWithChildren) => {
     setCelebration(null);
   }, []);
 
-  const celebrationThemeName = getCelebrationThemeName(
-    themeName,
-    currentUser ? getThemeNameFromUserJob(currentUser) : undefined,
-  );
   const value = useMemo<LevelUpStatusContextValue>(
     () => ({ checkLevelUpStatus }),
     [checkLevelUpStatus],
@@ -130,7 +103,6 @@ export const LevelUpStatusProvider = ({ children }: PropsWithChildren) => {
           currentUser?.characterImageUrl ?? user?.characterImageUrl
         }
         onClose={handleClose}
-        themeName={celebrationThemeName}
       />
     </LevelUpStatusContext.Provider>
   );

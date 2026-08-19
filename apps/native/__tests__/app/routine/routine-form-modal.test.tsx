@@ -56,10 +56,6 @@ declare const mockRoutineStore: {
 };
 declare const mockShowToast: jest.Mock;
 
-interface TestInstance {
-  props: Record<string, unknown>;
-}
-
 // BouncyCheckbox mock - global 변수 사용
 (global as any).mockCheckboxChecked = false;
 
@@ -434,39 +430,23 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(getByPlaceholderText('친구를 선택하세요')).toBeOnTheScreen();
     });
 
-    it('셀프 루틴에서는 비공개 루틴 바로 위에 사진 인증 필수 항목을 표시한다', () => {
+    it('셀프 루틴에서는 인증 방식 선택을 표시한다', () => {
       const { getByTestId, getByText } = render(<RoutineFormModal />);
-      const statusOptions = getByTestId('routine-status-options');
-      getByTestId('photo-required-status-option');
-      getByTestId('hidden-routine-status-option');
-      const optionTestIds = statusOptions
-        .findAll((node: TestInstance) =>
-          [
-            'photo-required-status-option',
-            'hidden-routine-status-option',
-          ].includes(String(node.props.testID)),
-        )
-        .map((node: TestInstance) => String(node.props.testID))
-        .filter(
-          (testID: string, index: number, testIDs: string[]) =>
-            testID !== testIDs[index - 1],
-        );
 
-      expect(getByText('사진 인증 필수')).toBeOnTheScreen();
-      expect(optionTestIds).toEqual([
-        'photo-required-status-option',
-        'hidden-routine-status-option',
-      ]);
+      expect(getByTestId('photoRequired-label-row')).toBeOnTheScreen();
+      expect(getByTestId('hidden-routine-status-option')).toBeOnTheScreen();
+      expect(getByText('인증 방식 선택')).toBeOnTheScreen();
+      expect(getByText('사진 인증 없이 체크')).toBeOnTheScreen();
     });
 
-    it('메이트에게 루틴 인증 요청을 선택하면 사진 인증 필수 항목을 숨긴다', async () => {
-      const { getAllByTestId, queryByText } = render(<RoutineFormModal />);
+    it('메이트에게 루틴 인증 요청을 선택하면 인증 방식 선택을 숨긴다', async () => {
+      const { getAllByTestId, queryByTestId } = render(<RoutineFormModal />);
 
       await act(async () => {
         fireEvent.press(getAllByTestId('bouncy-checkbox')[1]);
       });
 
-      expect(queryByText('사진 인증 필수')).not.toBeOnTheScreen();
+      expect(queryByTestId('photoRequired-label-row')).not.toBeOnTheScreen();
     });
 
     it('메이트 루틴 입력에서는 체크해줄 친구를 필수로, 벌금을 선택항목으로 표시한다', async () => {
@@ -1069,7 +1049,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         );
 
         await act(async () => {
-          fireEvent.press(getAllByTestId('bouncy-checkbox')[3]);
+          fireEvent.press(getAllByTestId('bouncy-checkbox')[2]);
         });
 
         await fillAllRequiredFields(getByPlaceholderText, getByText);
@@ -1091,12 +1071,17 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
 
       it('사진 인증 필수를 선택하면 내 루틴 생성 요청에 photoRequired true를 보낸다', async () => {
         setInitialStartDate();
-        const { getByPlaceholderText, getByText } = render(
+        const { getByPlaceholderText, getByTestId, getByText } = render(
           <RoutineFormModal />,
         );
 
         await act(async () => {
-          fireEvent.press(getByText('사진 인증 필수'));
+          fireEvent.press(getByText('사진 인증 없이 체크'));
+        });
+        await act(async () => {
+          fireEvent.press(
+            within(getByTestId('select-dropdown')).getByText('사진 인증 필수'),
+          );
         });
         await fillAllRequiredFields(getByPlaceholderText, getByText);
 
@@ -1329,14 +1314,14 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
       expect(queryByText('루틴 일시정지')).not.toBeOnTheScreen();
       expect(getByText('비공개 루틴')).toBeOnTheScreen();
       expect(queryByText('메이트에게는 공개됩니다')).not.toBeOnTheScreen();
-      expect(getAllByTestId('bouncy-checkbox')[3].props.isChecked).toBe(false);
+      expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(false);
     });
 
     it('비공개 루틴 라벨 오른쪽에 원형 물음표 아이콘을 표시한다', () => {
       const { getAllByTestId, getByLabelText, getByTestId, queryByTestId } =
         render(<RoutineFormModal />);
       const labelRow = getByTestId('hidden-routine-label-row');
-      const hiddenCheckbox = getAllByTestId('bouncy-checkbox')[3];
+      const hiddenCheckbox = getAllByTestId('bouncy-checkbox')[2];
       const hiddenLabel = getByTestId('hidden-routine-label');
       const helpButton = getByLabelText('비공개 루틴 안내 보기');
       const helpIcon = getByTestId('hidden-routine-help-icon', {
@@ -1399,7 +1384,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
         fireEvent.press(getByText('비공개 루틴'));
       });
 
-      expect(getAllByTestId('bouncy-checkbox')[3].props.isChecked).toBe(true);
+      expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(true);
     });
   });
 });
@@ -1560,11 +1545,11 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
 
     it('셀프 루틴 수정에서는 저장된 사진 인증 필수 값을 표시한다', async () => {
       mockRoutineDetail({ photoRequired: true });
-      const { findByText, getAllByTestId } = render(<RoutineFormModal />);
+      const { findByText, getByTestId } = render(<RoutineFormModal />);
 
-      await findByText('사진 인증 필수');
+      expect(await findByText('사진 인증 필수')).toBeOnTheScreen();
 
-      expect(getAllByTestId('bouncy-checkbox')[2].props.isChecked).toBe(true);
+      expect(getByTestId('photoRequired-label-row')).toBeOnTheScreen();
     });
 
     it('메이트가 있는 루틴 수정에서는 사진 인증 필수 항목을 숨긴다', async () => {
@@ -1573,13 +1558,13 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         mateNickname: '메이트닉네임',
         photoRequired: true,
       });
-      const { findByPlaceholderText, queryByText } = render(
+      const { findByPlaceholderText, queryByTestId } = render(
         <RoutineFormModal />,
       );
 
       await findByPlaceholderText('루틴 이름을 입력하세요.');
 
-      expect(queryByText('사진 인증 필수')).not.toBeOnTheScreen();
+      expect(queryByTestId('photoRequired-label-row')).not.toBeOnTheScreen();
     });
 
     it('수정 모달은 routineId로 상세 조회한 값을 폼에 표시한다', async () => {
@@ -2034,10 +2019,15 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       });
 
       it('셀프 루틴의 사진 인증 필수 값이 바뀌면 수정 요청에 포함한다', async () => {
-        const { findByText } = render(<RoutineFormModal />);
+        const { findByText, getByTestId } = render(<RoutineFormModal />);
 
         await act(async () => {
-          fireEvent.press(await findByText('사진 인증 필수'));
+          fireEvent.press(await findByText('사진 인증 없이 체크'));
+        });
+        await act(async () => {
+          fireEvent.press(
+            within(getByTestId('select-dropdown')).getByText('사진 인증 필수'),
+          );
         });
         await act(async () => {
           fireEvent.press(await findByText('저장'));
@@ -2127,7 +2117,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         });
         const { findAllByTestId, findByText } = render(<RoutineFormModal />);
 
-        const [, pausedCheckbox, , hiddenCheckbox] =
+        const [, pausedCheckbox, hiddenCheckbox] =
           await findAllByTestId('bouncy-checkbox');
 
         (global as any).mockCheckboxChecked = false;
@@ -2280,7 +2270,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       ).toBeOnTheScreen();
       expect(pausedLabel).toHaveStyle({ color: palette.theme.gray[90] });
       expect(hiddenLabel).toHaveStyle({ color: palette.theme.gray[90] });
-      expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(4);
+      expect(await findAllByTestId('bouncy-checkbox')).toHaveLength(3);
       expect(statusSectionStyle).toEqual(
         expect.objectContaining({
           gap: 40,
@@ -2305,7 +2295,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       });
       const { findAllByTestId } = render(<RoutineFormModal />);
 
-      const [, pausedCheckbox, , hiddenCheckbox] =
+      const [, pausedCheckbox, hiddenCheckbox] =
         await findAllByTestId('bouncy-checkbox');
 
       expect(pausedCheckbox.props.isChecked).toBe(true);
@@ -2333,7 +2323,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
         fireEvent.press(await findByText('비공개 루틴'));
       });
 
-      const [, , , hiddenCheckbox] = await findAllByTestId('bouncy-checkbox');
+      const [, , hiddenCheckbox] = await findAllByTestId('bouncy-checkbox');
 
       expect(hiddenCheckbox.props.isChecked).toBe(true);
     });

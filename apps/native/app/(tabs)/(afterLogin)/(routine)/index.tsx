@@ -422,7 +422,7 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
   },
   routineListArea: {
-    height: '50%',
+    height: '62%',
     flexShrink: 0,
     minHeight: 0,
   },
