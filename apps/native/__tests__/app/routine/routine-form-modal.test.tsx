@@ -19,6 +19,18 @@ import {
 } from '../../setup/auth-test-utils';
 import { createMockFriends } from '../../setup/friend/mock';
 
+const mockWithTiming = jest.fn((value: number, _config?: unknown) => value);
+
+jest.mock('react-native-reanimated', () => {
+  const Reanimated = require('react-native-reanimated/mock');
+
+  return {
+    ...Reanimated,
+    withTiming: (value: number, config?: unknown) =>
+      mockWithTiming(value, config),
+  };
+});
+
 // global mock 타입 선언 (jest.setup.js에서 설정됨)
 declare const mockBack: jest.Mock;
 declare const mockDismissTo: jest.Mock;
@@ -222,6 +234,7 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
     (global as any).mockCheckboxChecked = false;
     mockShowToast.mockClear();
     mockAlert.mockClear();
+    mockWithTiming.mockClear();
 
     // 친구 목록 API 기본 목킹 (/friends?nickname=...)
     // axios interceptor가 response.data.data를 반환하므로 { data: [...] } 형식으로 응답해야 함
@@ -584,6 +597,66 @@ describe('RoutineFormModal (루틴 추가 모달)', () => {
           expect(addButton).toBeEnabled();
         },
         { timeout: 3000 },
+      );
+    });
+  });
+
+  describe('루틴 설명 자동 확장 테스트', () => {
+    it('설명 입력을 줄바꿈하고 최대 3줄 높이까지 자연스럽게 확장한다', async () => {
+      const { getByPlaceholderText, getByTestId } = render(
+        <RoutineFormModal />,
+      );
+      const descriptionInput = getByPlaceholderText('루틴 설명을 입력하세요.');
+      const lineHeight =
+        baseFoundation.typography.size.m *
+        baseFoundation.typography.lineHeight.normal;
+      const verticalPadding = baseFoundation.spacing[2];
+      const twoLineContentHeight = lineHeight * 2;
+      const twoLineHeight = lineHeight * 2 + verticalPadding * 2;
+      const maxHeight = lineHeight * 3 + verticalPadding * 2;
+      const overflowContentHeight = lineHeight * 4;
+
+      expect(descriptionInput.props.multiline).toBe(true);
+      expect(descriptionInput.props.scrollEnabled).toBe(true);
+      expect(descriptionInput.props.textAlignVertical).toBe('top');
+
+      await act(async () => {
+        fireEvent(descriptionInput, 'contentSizeChange', {
+          nativeEvent: {
+            contentSize: {
+              height: twoLineContentHeight,
+              width: 200,
+            },
+          },
+        });
+      });
+
+      expect(descriptionInput.props.scrollEnabled).toBe(true);
+      expect(mockWithTiming).toHaveBeenLastCalledWith(
+        twoLineHeight,
+        expect.objectContaining({
+          duration: 100,
+        }),
+      );
+
+      await act(async () => {
+        fireEvent(descriptionInput, 'contentSizeChange', {
+          nativeEvent: {
+            contentSize: {
+              height: overflowContentHeight,
+              width: 200,
+            },
+          },
+        });
+      });
+
+      expect(getByTestId('routine-detail-input')).toBeOnTheScreen();
+      expect(descriptionInput.props.scrollEnabled).toBe(true);
+      expect(mockWithTiming).toHaveBeenLastCalledWith(
+        maxHeight,
+        expect.objectContaining({
+          duration: 100,
+        }),
       );
     });
   });
@@ -1476,7 +1549,7 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       const routineDetailInput =
         await findByPlaceholderText('루틴 설명을 입력하세요.');
 
-      expect(routineDetailInput.props.value).toBe('기존 설명');
+      expect(routineDetailInput.props.defaultValue).toBe('기존 설명');
 
       // 기존 루틴 횟수가 표시되어야 함
       expect(await findByText('일주일에 3회')).toBeOnTheScreen();
@@ -1543,9 +1616,9 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(getByPlaceholderText('루틴 이름을 입력하세요.').props.value).toBe(
         '상세 루틴',
       );
-      expect(getByPlaceholderText('루틴 설명을 입력하세요.').props.value).toBe(
-        '상세 설명',
-      );
+      expect(
+        getByPlaceholderText('루틴 설명을 입력하세요.').props.defaultValue,
+      ).toBe('상세 설명');
       expect(getByText('일주일에 5회')).toBeOnTheScreen();
       expect(getByText('2026-05-26')).toBeOnTheScreen();
       expect(getByTestId('routine-date-button')).not.toBeDisabled();

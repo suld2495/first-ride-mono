@@ -6,8 +6,20 @@ import { getFormatDate } from '@repo/shared/utils';
 import type { RoutineForm } from '@repo/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Platform, Pressable, Text, View } from 'react-native';
+import {
+  Alert,
+  Platform,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import FormButtonGroup from '@/components/routine/routine-form/form-button-group';
 import { getRoutineSceneRemoteAsset } from '@/components/routine/routine-scene-art';
@@ -63,6 +75,9 @@ const getRoutineColorRows = (themeDefaultRoutineColor: string) => {
 };
 
 const MAX_PENALTY = 100_000_000;
+const ROUTINE_DETAIL_MAX_LINES = 3;
+const ROUTINE_DETAIL_ANIMATION_DURATION = 100;
+const ROUTINE_DETAIL_MIN_HEIGHT: number = baseFoundation.dimension.x44;
 const ANDROID_FORM_KEYBOARD_EXTRA_HEIGHT = baseFoundation.dimension.x48;
 const MATE_DROPDOWN_KEYBOARD_EXTRA_SCROLL_HEIGHT =
   baseFoundation.dimension.x48 + baseFoundation.spacing[1];
@@ -276,6 +291,110 @@ const RoutineDateFormItem = ({
       )}
       required
     />
+  );
+};
+
+interface RoutineDetailInputProps {
+  value: unknown;
+  onChange: (text: string) => void;
+}
+
+const RoutineDetailInput = ({ value, onChange }: RoutineDetailInputProps) => {
+  const { theme } = useAppTheme();
+  const lineHeight =
+    theme.foundation.typography.size.m *
+    theme.foundation.typography.lineHeight.normal;
+  const verticalPadding = theme.foundation.spacing[2];
+  const maxContentHeight = lineHeight * ROUTINE_DETAIL_MAX_LINES;
+  const maxHeight = maxContentHeight + verticalPadding * 2;
+  const initialText = value !== undefined ? String(value) : '';
+  const [inputText, setInputText] = useState(initialText);
+  const inputRef = useRef<TextInput>(null);
+  const currentTextRef = useRef(initialText);
+  const measuredContentHeightRef = useRef(0);
+  const animatedHeight = useSharedValue(ROUTINE_DETAIL_MIN_HEIGHT);
+  const targetHeight = useRef(ROUTINE_DETAIL_MIN_HEIGHT);
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: animatedHeight.value,
+  }));
+
+  const updateHeight = (contentHeight: number) => {
+    if (!Number.isFinite(contentHeight)) {
+      return;
+    }
+
+    const nextHeight = Math.min(
+      Math.max(contentHeight + verticalPadding * 2, ROUTINE_DETAIL_MIN_HEIGHT),
+      maxHeight,
+    );
+
+    if (nextHeight === targetHeight.current) {
+      return;
+    }
+
+    targetHeight.current = nextHeight;
+    animatedHeight.value = withTiming(nextHeight, {
+      duration: ROUTINE_DETAIL_ANIMATION_DURATION,
+    });
+  };
+
+  const handleNativeContentSizeChange = (contentHeight: number) => {
+    updateHeight(Math.max(contentHeight, measuredContentHeightRef.current));
+  };
+
+  const handleMeasureLayout = (contentHeight: number) => {
+    measuredContentHeightRef.current = contentHeight;
+    updateHeight(contentHeight);
+  };
+
+  useEffect(() => {
+    const nextText = value !== undefined ? String(value) : '';
+
+    if (nextText === currentTextRef.current) {
+      return;
+    }
+
+    inputRef.current?.setNativeProps({ text: nextText });
+    currentTextRef.current = nextText;
+    setInputText(nextText);
+  }, [value]);
+
+  const handleChangeText = (text: string) => {
+    currentTextRef.current = text;
+    setInputText(text);
+    onChange(text);
+  };
+
+  return (
+    <Animated.View
+      style={[styles.routineDetailContainer, animatedStyle]}
+      testID="routine-detail-input"
+    >
+      <TextInput
+        ref={inputRef}
+        multiline
+        defaultValue={initialText}
+        onChangeText={handleChangeText}
+        onContentSizeChange={(event) => {
+          handleNativeContentSizeChange(event.nativeEvent.contentSize.height);
+        }}
+        placeholder="루틴 설명을 입력하세요."
+        placeholderTextColor={theme.colors.field.placeholder}
+        scrollEnabled
+        style={[styles.routineDetailInput, { height: maxContentHeight }]}
+        textAlignVertical="top"
+      />
+      <Text
+        accessible={false}
+        pointerEvents="none"
+        style={styles.routineDetailMeasure}
+        onLayout={(event) => {
+          handleMeasureLayout(event.nativeEvent.layout.height);
+        }}
+      >
+        {inputText || ' '}
+      </Text>
+    </Animated.View>
   );
 };
 
@@ -516,12 +635,7 @@ const RoutineFormModal = () => {
           label="설명"
           optionalLabel="선택"
           item={({ value, onChange }) => (
-            <Input
-              variant="filled"
-              value={value !== undefined ? String(value) : value}
-              placeholder="루틴 설명을 입력하세요."
-              onChangeText={onChange}
-            />
+            <RoutineDetailInput value={value} onChange={onChange} />
           )}
         />
         {isRoutineAdd ? (
@@ -872,6 +986,39 @@ const styles = StyleSheet.create((theme) => ({
 
   penaltyInput: {
     textAlign: 'right',
+  },
+
+  routineDetailContainer: {
+    backgroundColor: theme.colors.field.background,
+    borderRadius: theme.foundation.radii.xs,
+    overflow: 'hidden',
+    paddingHorizontal: theme.foundation.spacing[3],
+    paddingVertical: theme.foundation.spacing[2],
+  },
+
+  routineDetailInput: {
+    color: theme.colors.field.text,
+    flexGrow: 0,
+    flexShrink: 0,
+    fontSize: theme.foundation.typography.size.m,
+    lineHeight:
+      theme.foundation.typography.size.m *
+      theme.foundation.typography.lineHeight.normal,
+    padding: 0,
+    width: '100%',
+  },
+
+  routineDetailMeasure: {
+    color: 'transparent',
+    fontSize: theme.foundation.typography.size.m,
+    lineHeight:
+      theme.foundation.typography.size.m *
+      theme.foundation.typography.lineHeight.normal,
+    left: theme.foundation.spacing[3],
+    opacity: 0,
+    position: 'absolute',
+    right: theme.foundation.spacing[3],
+    top: theme.foundation.spacing[2],
   },
 
   statusSection: {
