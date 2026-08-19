@@ -8,8 +8,9 @@ import { useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { Alert, Linking } from 'react-native';
 
-import { useToast } from '@/contexts/ToastContext';
 import { MAX_REQUEST_IMAGE_COUNT } from '@/constants/REQUEST_IMAGE';
+import { useLevelUpStatus } from '@/contexts/LevelUpStatusContext';
+import { useToast } from '@/contexts/ToastContext';
 import { getApiErrorMessage } from '@/utils/error-utils';
 import {
   normalizeRequestImages,
@@ -62,6 +63,7 @@ export const useRequestSubmission = (
   detail?: RoutineDetailInfo,
 ) => {
   const { showToast } = useToast();
+  const { checkLevelUpStatus } = useLevelUpStatus();
   const router = useRouter();
   const queryClient = useQueryClient();
   const saveRequest = useCreateRequestMutation();
@@ -116,10 +118,13 @@ export const useRequestSubmission = (
           },
         },
         {
-          onSuccess: () => {
-            void queryClient.invalidateQueries({
+          onSuccess: async () => {
+            await queryClient.invalidateQueries({
               queryKey: routineKeys.list(detail.nickname),
             });
+            if (detail.isMe) {
+              await checkLevelUpStatus();
+            }
             showToast(
               detail.isMe
                 ? '인증이 완료되었습니다.'
@@ -150,7 +155,15 @@ export const useRequestSubmission = (
         },
       );
     },
-    [detail, queryClient, routineId, router, saveRequest, showToast],
+    [
+      checkLevelUpStatus,
+      detail,
+      queryClient,
+      routineId,
+      router,
+      saveRequest,
+      showToast,
+    ],
   );
 
   const addNormalizedImages = useCallback(

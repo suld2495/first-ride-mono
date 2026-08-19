@@ -20,6 +20,11 @@ export type LevelProgressCelebration =
       currentEvolutionCount: number;
     };
 
+export type LevelUpStatusCelebration = {
+  type: 'level-up-status';
+  currentLevel: number;
+};
+
 const normalizeEvolutionCount = (value: number | undefined) =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0;
 

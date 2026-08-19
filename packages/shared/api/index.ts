@@ -411,6 +411,7 @@ export {
   updateRoutineVisibility,
 } from './routine.api';
 export { distributeStats, fetchMyStats } from './stat.api';
+export { fetchLevelUpStatus } from './level-up.api';
 export {
   fetchNotificationSettings,
   updateNotificationSettings,

@@ -10,10 +10,13 @@ import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { baseFoundation, palette } from '@/theme/tokens';
 import type { ThemeName } from '@/theme/themes';
-import type { LevelProgressCelebration } from '@/utils/level-progress-celebration';
+import type {
+  LevelProgressCelebration,
+  LevelUpStatusCelebration,
+} from '@/utils/level-progress-celebration';
 
 interface LevelProgressCelebrationModalProps {
-  celebration: LevelProgressCelebration | null;
+  celebration: LevelProgressCelebration | LevelUpStatusCelebration | null;
   characterImageUrl?: null | string;
   onClose: () => void;
   themeName: ThemeName;
@@ -89,16 +92,21 @@ const LevelProgressCelebrationModal = ({
     return null;
   }
 
+  const isStatusLevelUp = celebration.type === 'level-up-status';
   const isEvolution = celebration.type === 'evolution';
   const colors = getThemePalette(themeName);
   const characterAsset = getRoutineSceneRemoteAsset(characterImageUrl);
   const title = isEvolution ? '전직 성공!' : '레벨업!';
-  const subtitle = isEvolution
-    ? '레벨업해서 진화했어요!'
-    : `Lv.${celebration.previousLevel}에서 Lv.${celebration.currentLevel}로 성장했어요.`;
-  const description = isEvolution
-    ? '꾸준히 쌓은 루틴 경험치로 캐릭터가 새로운 모습에 가까워졌어요.'
-    : '오늘의 루틴이 경험치가 되어 캐릭터가 한 단계 더 단단해졌어요.';
+  const subtitle = isStatusLevelUp
+    ? `현재 Lv.${celebration.currentLevel}에 도달했어요.`
+    : isEvolution
+      ? '레벨업해서 진화했어요!'
+      : `Lv.${celebration.previousLevel}에서 Lv.${celebration.currentLevel}로 성장했어요.`;
+  const description = isStatusLevelUp
+    ? '꾸준히 쌓은 경험치로 캐릭터가 한 단계 더 성장했어요.'
+    : isEvolution
+      ? '꾸준히 쌓은 루틴 경험치로 캐릭터가 새로운 모습에 가까워졌어요.'
+      : '오늘의 루틴이 경험치가 되어 캐릭터가 한 단계 더 단단해졌어요.';
 
   return (
     <Modal
@@ -185,13 +193,15 @@ const LevelProgressCelebrationModal = ({
               variant="caption2"
               weight="bold"
             >
-              {isEvolution
-                ? `${getEvolutionStageLabel(
-                    celebration.previousEvolutionCount,
-                  )} > ${getEvolutionStageLabel(
-                    celebration.currentEvolutionCount,
-                  )}`
-                : `Lv.${celebration.previousLevel} > Lv.${celebration.currentLevel}`}
+              {isStatusLevelUp
+                ? `Lv.${celebration.currentLevel}`
+                : isEvolution
+                  ? `${getEvolutionStageLabel(
+                      celebration.previousEvolutionCount,
+                    )} > ${getEvolutionStageLabel(
+                      celebration.currentEvolutionCount,
+                    )}`
+                  : `Lv.${celebration.previousLevel} > Lv.${celebration.currentLevel}`}
             </Typography>
           </View>
 

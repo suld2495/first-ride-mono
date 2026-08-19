@@ -24,6 +24,10 @@ import AppTamaguiProvider, {
   ThemeStyleRefreshBoundary,
 } from '@/components/ui/tamagui-provider';
 import ToastContainer from '@/components/ui/toast-container';
+import {
+  LevelUpStatusProvider,
+  useLevelUpStatus,
+} from '@/contexts/LevelUpStatusContext';
 import { ToastProvider, useToast } from '@/contexts/ToastContext';
 import { useAppActiveRefresh } from '@/hooks/useAppActiveRefresh';
 import { useAuthIsLoading, useAuthUser } from '@/hooks/useAuthSession';
@@ -58,6 +62,7 @@ import {
   extractDeepLinkData,
   getNotificationNavigationIntent,
   getRoutineSharePath,
+  isLevelUpStatusNotification,
   syncBadgeCountFromNotification,
   syncBadgeCountWithPendingConfirmations,
 } from '@/utils/notifications';
@@ -196,6 +201,35 @@ function AppShell({ isFontReady }: AppShellProps) {
   const handledShareSessionIdRef = useRef<string | null>(null);
   const hasInitializedAnalyticsRef = useRef(false);
   const { showToast } = useToast();
+  const { checkLevelUpStatus } = useLevelUpStatus();
+  const normalizedModalType = Array.isArray(currentModalType)
+    ? currentModalType[0]
+    : currentModalType;
+  const isLevelUpCheckSurface =
+    pathname === '/(tabs)/(afterLogin)/(routine)' ||
+    (pathname === '/modal' &&
+      [
+        'request',
+        'request-list',
+        'request-detail',
+        'routine-proof-detail',
+      ].includes(normalizedModalType ?? ''));
+
+  useEffect(() => {
+    if (!user || isAuthLoading) {
+      return;
+    }
+
+    void checkLevelUpStatus();
+  }, [checkLevelUpStatus, isAuthLoading, user?.userId]);
+
+  useEffect(() => {
+    if (!user || isAuthLoading || !isLevelUpCheckSurface) {
+      return;
+    }
+
+    void checkLevelUpStatus();
+  }, [checkLevelUpStatus, isAuthLoading, isLevelUpCheckSurface, user?.userId]);
 
   useEffect(() => {
     if (hasInitializedAnalyticsRef.current) {
@@ -221,6 +255,10 @@ function AppShell({ isFontReady }: AppShellProps) {
       // 로그인된 상태에서만 딥링크 처리
       if (!user) {
         return;
+      }
+
+      if (isLevelUpStatusNotification(response.notification)) {
+        void checkLevelUpStatus();
       }
 
       void refreshRoutineWidgetSnapshot({
@@ -282,6 +320,7 @@ function AppShell({ isFontReady }: AppShellProps) {
       user,
       themeName,
       queryClient,
+      checkLevelUpStatus,
       showToast,
       router,
       pathname,
@@ -301,6 +340,10 @@ function AppShell({ isFontReady }: AppShellProps) {
         return;
       }
 
+      if (isLevelUpStatusNotification(notification)) {
+        void checkLevelUpStatus();
+      }
+
       void syncBadgeCountFromNotification(notification);
       void refreshRoutineWidgetSnapshot({
         nickname: user.nickname,
@@ -308,7 +351,7 @@ function AppShell({ isFontReady }: AppShellProps) {
         queryClient,
       });
     },
-    [user, themeName, queryClient],
+    [user, themeName, queryClient, checkLevelUpStatus],
   );
 
   const notificationHandlers: NotificationHandlers = useMemo(
@@ -360,13 +403,14 @@ function AppShell({ isFontReady }: AppShellProps) {
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
         void openPendingRoutineShare();
+        void checkLevelUpStatus();
       }
     });
 
     return () => {
       subscription.remove();
     };
-  }, [openPendingRoutineShare]);
+  }, [checkLevelUpStatus, openPendingRoutineShare]);
 
   // 앱 시작 시 저장된 테마를 Tamagui에 동기화
   useEffect(() => {
@@ -432,7 +476,9 @@ export default function RootLayout() {
         <QueryProvider userId={user?.userId ?? null}>
           <ToastProvider>
             <ThemeStyleRefreshBoundary>
-              <AppShell isFontReady={isFontReady} />
+              <LevelUpStatusProvider>
+                <AppShell isFontReady={isFontReady} />
+              </LevelUpStatusProvider>
             </ThemeStyleRefreshBoundary>
           </ToastProvider>
         </QueryProvider>

@@ -5,6 +5,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 
+import { useLevelUpStatus } from '@/contexts/LevelUpStatusContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { getApiErrorMessage } from '@/utils/error-utils';
@@ -22,6 +23,7 @@ export const useQuestAction = ({
 }: UseQuestActionParams) => {
   const router = useRouter();
   const { showToast } = useToast();
+  const { checkLevelUpStatus } = useLevelUpStatus();
   const user = useAuthUser();
   const userId = user?.userId ?? '';
   const acceptQuest = useAccpetQuestMutation(userId);
@@ -34,7 +36,8 @@ export const useQuestAction = ({
 
     if (isAccepted && !isCompleted) {
       completeQuest.mutate(questId, {
-        onSuccess: () => {
+        onSuccess: async () => {
+          await checkLevelUpStatus();
           showToast('완료되었습니다.', 'success');
           router.back();
         },
@@ -67,6 +70,7 @@ export const useQuestAction = ({
     });
   }, [
     acceptQuest,
+    checkLevelUpStatus,
     completeQuest,
     isAccepted,
     isCompleted,

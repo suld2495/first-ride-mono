@@ -1,6 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
-import { useMyStatsQuery } from '@repo/shared/hooks/useStat';
 import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import { getWeekMonday } from '@repo/shared/utils';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -17,7 +16,6 @@ import { AppState, type LayoutChangeEvent, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { UpdateNotice } from '@/api/update-notices.api';
-import LevelProgressCelebrationModal from '@/components/modal/level-progress-celebration-modal';
 import WhatsNewModal from '@/components/modal/whats-new-modal';
 import RoutineHeader from '@/components/routine/routine-header';
 import RoutineList from '@/components/routine/routine-list';
@@ -44,11 +42,6 @@ import {
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { getRoutineBackgroundColor } from '@/theme/routine-theme';
 import { baseFoundation } from '@/theme/tokens';
-import {
-  createLevelProgressCelebration,
-  type LevelProgressCelebration,
-  type LevelProgressSnapshot,
-} from '@/utils/level-progress-celebration';
 import {
   createRoutineWidgetSnapshot,
   createSignedOutRoutineWidgetSnapshot,
@@ -115,11 +108,8 @@ export default function Index() {
   const replaceRoutineRoute = router.replace;
   const resetRoutineForm = useResetRoutineFormState();
   const isFirstLoadRef = useRef(true);
-  const previousLevelProgressRef = useRef<LevelProgressSnapshot | null>(null);
   const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
   const [isManualRefreshing, setIsManualRefreshing] = useState(false);
-  const [levelProgressCelebration, setLevelProgressCelebration] =
-    useState<LevelProgressCelebration | null>(null);
 
   const searchParams = useLocalSearchParams();
   const date = (searchParams.date as string) || getWeekMonday(new Date());
@@ -136,7 +126,6 @@ export default function Index() {
     ? updateNoticesQuery.data
     : EMPTY_UPDATE_NOTICES;
   const { data: currentUser } = useFetchMeQuery(user?.userId);
-  const { data: myStats } = useMyStatsQuery(user?.userId ?? '');
   const themeName = useColorScheme();
   const userThemeName = currentUser
     ? getThemeNameFromUserJob(currentUser)
@@ -182,31 +171,6 @@ export default function Index() {
   }, [isLoading, user]);
 
   const showLoading = isLoading && isFirstLoadRef.current;
-
-  useEffect(() => {
-    if (!myStats) {
-      return;
-    }
-
-    const currentSnapshot: LevelProgressSnapshot = {
-      currentLevel: myStats.currentLevel,
-      evolutionCount: currentUser?.evolutionCount,
-    };
-    const celebration = createLevelProgressCelebration(
-      previousLevelProgressRef.current,
-      currentSnapshot,
-    );
-
-    previousLevelProgressRef.current = currentSnapshot;
-
-    if (celebration) {
-      setLevelProgressCelebration(celebration);
-    }
-  }, [currentUser?.evolutionCount, myStats]);
-
-  const handleCloseLevelProgressCelebration = useCallback(() => {
-    setLevelProgressCelebration(null);
-  }, []);
 
   const handleRefresh = useCallback(async () => {
     setIsManualRefreshing(true);
@@ -417,12 +381,6 @@ export default function Index() {
       <WhatsNewModal
         buildNumber={whatsNewBuildNumber}
         updates={updateNotices}
-      />
-      <LevelProgressCelebrationModal
-        celebration={levelProgressCelebration}
-        characterImageUrl={currentUser?.characterImageUrl}
-        onClose={handleCloseLevelProgressCelebration}
-        themeName={userThemeName}
       />
     </SafeAreaView>
   );

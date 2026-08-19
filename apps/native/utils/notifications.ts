@@ -25,6 +25,7 @@ export {
   getDeepLinkPath,
   getRoutineSharePath,
   getNotificationNavigationIntent,
+  isLevelUpStatusNotification,
   type NotificationNavigationIntent,
 } from './notification-navigation';
 

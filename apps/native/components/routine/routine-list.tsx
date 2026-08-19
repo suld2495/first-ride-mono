@@ -30,6 +30,7 @@ import { RoutineContextMenuPanel } from '@/components/routine/routine-context-me
 import { getRoutineScenePreviewOverlayAsset } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { useLevelUpStatus } from '@/contexts/LevelUpStatusContext';
 import ThemeView from '@/components/ui/theme-view';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
@@ -101,6 +102,7 @@ const RoutineList = ({
   const queryClient = useQueryClient();
   const { theme } = useAppTheme();
   const { showToast } = useToast();
+  const { checkLevelUpStatus } = useLevelUpStatus();
   const user = useAuthUser();
   const themeName = useColorScheme();
   const [isExpanded, setIsExpanded] = useState(
@@ -231,6 +233,7 @@ const RoutineList = ({
             await queryClient.invalidateQueries({
               queryKey: routineKeys.list(nickname),
             });
+            await checkLevelUpStatus();
             setCompleteTargetRoutine(null);
             showToast('루틴이 완료되었습니다.', 'success');
           },
@@ -246,6 +249,7 @@ const RoutineList = ({
     [
       completeRoutine,
       completeTargetRoutine,
+      checkLevelUpStatus,
       handleShowRequestModal,
       isCompletingRoutine,
       nickname,

@@ -102,3 +102,27 @@ export function extractDeepLinkData(
 
   return undefined;
 }
+
+const normalizeNotificationType = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  return value.replace(/[\s-]/g, '_').toUpperCase();
+};
+
+export const isLevelUpStatusNotification = (
+  notification: Notifications.Notification,
+): boolean => {
+  const data = extractDeepLinkData(notification);
+  const notificationTypes = [
+    data?.type,
+    data?.notificationType,
+    data?.subtype,
+    data?.notificationSubtype,
+  ];
+
+  return notificationTypes.some(
+    (value) => normalizeNotificationType(value) === 'LEVEL_UP',
+  );
+};

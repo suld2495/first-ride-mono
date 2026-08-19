@@ -27,3 +27,8 @@ export interface StatResponse {
   totalPointsEarned: number;
   totalPointsUsed: number;
 }
+
+export interface LevelUpStatusResponse {
+  hasLevelUp: boolean;
+  currentLevel: number;
+}
