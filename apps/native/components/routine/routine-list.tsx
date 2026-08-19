@@ -305,7 +305,11 @@ const RoutineList = ({
         return;
       }
 
-      if (routine.isMe && !routine.mateNickname && !routine.photoRequired) {
+      if (
+        routine.isMe &&
+        !routine.mateNickname &&
+        routine.photoRequired === false
+      ) {
         setCompleteTargetRoutine(routine);
 
         return;
