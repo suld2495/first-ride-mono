@@ -2520,7 +2520,8 @@ describe('루틴 조회 페이지', () => {
       mockRoutineStore.type = 'number';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
         data: createMockRoutines(1, {
-          mateNickname: '',
+          isMe: true,
+          mateNickname: 'mate',
           photoRequired: false,
         }),
       });
