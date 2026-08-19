@@ -7,11 +7,12 @@ import { appThemes } from '@/theme/themes';
 
 import QuestPage from '../../app/(tabs)/(afterLogin)/(quest)/index';
 import { createMockQuest } from '../setup/quest/mock';
-import { render } from '../setup/test-utils';
+import { act, render } from '../setup/test-utils';
 
 declare const mockAuthStore: {
   user: { nickname: string; role: 'ADMIN' | 'USER'; userId: string } | null;
 };
+declare const mockFocus: jest.Mock;
 
 jest.mock('@repo/shared/hooks/useQuest', () => ({
   useFetchQuestsQuery: jest.fn(),
@@ -39,7 +40,9 @@ describe('QuestPage', () => {
     jest.mocked(useFetchQuestsQuery).mockReturnValue({
       data: [createMockQuest()],
       isLoading: false,
+      refetch: jest.fn(),
     } as ReturnType<typeof useFetchQuestsQuery>);
+    mockFocus.mockClear();
   });
 
   it('shows status filters and requests active incomplete quests without the quest type filter', () => {
@@ -56,6 +59,23 @@ describe('QuestPage', () => {
       status: 'ACTIVE',
       completed: false,
     });
+  });
+
+  it('refetches quests when the page receives focus again', () => {
+    const refetch = jest.fn();
+    jest.mocked(useFetchQuestsQuery).mockReturnValue({
+      data: [createMockQuest()],
+      isLoading: false,
+      refetch,
+    } as ReturnType<typeof useFetchQuestsQuery>);
+
+    render(<QuestPage />);
+
+    act(() => {
+      mockFocus();
+    });
+
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it('keeps an 8px gap between the status filters and quest list', () => {
