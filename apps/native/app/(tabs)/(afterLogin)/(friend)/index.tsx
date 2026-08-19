@@ -39,7 +39,7 @@ const FriendPage = () => {
   const user = useAuthUser();
   const baseThemeName = useBaseColorSchemeValue();
   const clearColorSchemeOverride = useClearAppColorSchemeOverride();
-  const pageBackgroundColor = appThemes[baseThemeName].colors.brand.card;
+  const pageBackgroundColor = appThemes[baseThemeName].colors.background.base;
 
   const { data: requests = [], refetch: refetchRequests } =
     useFetchFriendRequestsQuery(user?.userId ?? '', page);
