@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
+  useDeleteFriendMutation,
   useFetchFriendRequestsQuery,
   useFetchFriendsQuery,
 } from '@repo/shared/hooks/useFriend';
@@ -7,7 +8,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import type { Friend } from '@repo/types';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useLayoutEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 
 import FriendAddModal from '@/components/friend/friend-add-modal';
 import FriendHeader from '@/components/friend/friend-header';
@@ -18,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
+import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import {
   useBaseColorSchemeValue,
@@ -25,12 +27,15 @@ import {
 } from '@/hooks/useThemePreference';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 const FriendPage = () => {
   const router = useRouter();
   const [page] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const deleteFriendMutation = useDeleteFriendMutation();
+  const { showToast } = useToast();
   const user = useAuthUser();
   const baseThemeName = useBaseColorSchemeValue();
   const clearColorSchemeOverride = useClearAppColorSchemeOverride();
@@ -75,6 +80,36 @@ const FriendPage = () => {
     [router],
   );
 
+  const handleDeleteFriend = useCallback(
+    (friend: Friend) => {
+      if (deleteFriendMutation.isPending) {
+        return;
+      }
+
+      Alert.alert('친구 삭제', '정말 친구 삭제하시겠어요?', [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: () => {
+            deleteFriendMutation.mutate(friend.nickname, {
+              onSuccess: () => {
+                showToast('삭제 완료', 'success');
+              },
+              onError: (error) => {
+                showToast(
+                  getApiErrorMessage(error, '친구 삭제에 실패했습니다.'),
+                  'error',
+                );
+              },
+            });
+          },
+        },
+      ]);
+    },
+    [deleteFriendMutation, showToast],
+  );
+
   return (
     <Container
       style={[styles.container, { backgroundColor: pageBackgroundColor }]}
@@ -93,6 +128,8 @@ const FriendPage = () => {
           isLoading={isLoading}
           refreshing={refreshing}
           onRefresh={handleRefresh}
+          onDeleteFriend={handleDeleteFriend}
+          isDeletingFriend={deleteFriendMutation.isPending}
           onOpenFriend={handleOpenFriend}
           listHeaderComponent={
             <View testID="friend-list-header">

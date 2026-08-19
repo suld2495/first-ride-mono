@@ -290,7 +290,7 @@ export const deleteFriend = async (
   friendNickname: User['nickname'],
 ): Promise<void> => {
   try {
-    await http.delete(`${baseURL}/${friendNickname}`);
+    await http.delete(`${baseURL}/${encodeURIComponent(friendNickname)}`);
   } catch (error) {
     throw toAppError(error);
   }

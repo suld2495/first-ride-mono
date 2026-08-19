@@ -10,6 +10,7 @@ import { baseFoundation, palette } from '@/theme/tokens';
 const ROUTINE_CONTEXT_MENU_TRIGGER_WIDTH = baseFoundation.dimension.x12;
 const ROUTINE_CONTEXT_MENU_TRIGGER_HIT_WIDTH = baseFoundation.dimension.x32;
 const ROUTINE_CONTEXT_MENU_TRIGGER_HIT_HEIGHT = baseFoundation.dimension.x56;
+export const CONTEXT_MENU_WIDTH = 144;
 
 type RoutineContextMenuProps = {
   routineId: number;
@@ -55,12 +56,20 @@ type RoutineContextMenuPanelProps = Pick<
   style?: StyleProp<ViewStyle>;
 };
 
-type RoutineContextMenuItem = {
+export type ContextMenuItem = {
   label: string;
   onPress: () => void;
   color?: string;
   disabled?: boolean;
 };
+
+interface ContextMenuPanelProps {
+  items: ContextMenuItem[];
+  style?: StyleProp<ViewStyle>;
+  testID?: string;
+  itemTestID?: string;
+  itemTextTestID?: string;
+}
 
 export const RoutineContextMenuTrigger = ({
   routineName,
@@ -102,7 +111,7 @@ export const RoutineContextMenuPanel = ({
   showsStatusItems = true,
   style,
 }: RoutineContextMenuPanelProps) => {
-  const items: RoutineContextMenuItem[] = [
+  const items: ContextMenuItem[] = [
     ...(showsRequestItem
       ? [{ label: '인증요청', onPress: onRequest, disabled: requestDisabled }]
       : []),
@@ -116,12 +125,30 @@ export const RoutineContextMenuPanel = ({
     { label: '삭제', onPress: onDelete, color: palette.theme.red[50] },
   ];
 
+  return (
+    <ContextMenuPanel
+      items={items}
+      style={style}
+      testID={`routine-context-menu-${routineId}`}
+      itemTestID="routine-context-menu-item"
+      itemTextTestID="routine-context-menu-item-text"
+    />
+  );
+};
+
+export const ContextMenuPanel = ({
+  items,
+  style,
+  testID = 'context-menu',
+  itemTestID = 'context-menu-item',
+  itemTextTestID = 'context-menu-item-text',
+}: ContextMenuPanelProps) => {
   const renderMenuItem = ({
     label,
     onPress,
     color,
     disabled,
-  }: RoutineContextMenuItem) => (
+  }: ContextMenuItem) => (
     <Pressable
       key={label}
       accessibilityRole="button"
@@ -130,13 +157,13 @@ export const RoutineContextMenuPanel = ({
       disabled={disabled}
       onPress={onPress}
       style={[styles.menuItem, disabled ? styles.menuItemDisabled : null]}
-      testID="routine-context-menu-item"
+      testID={itemTestID}
     >
       <Typography
         variant="body3"
         weight="regular"
         color={color ?? palette.theme.gray[50]}
-        testID="routine-context-menu-item-text"
+        testID={itemTextTestID}
       >
         {label}
       </Typography>
@@ -144,10 +171,7 @@ export const RoutineContextMenuPanel = ({
   );
 
   return (
-    <View
-      style={[styles.menu, style]}
-      testID={`routine-context-menu-${routineId}`}
-    >
+    <View style={[styles.menu, style]} testID={testID}>
       {items.map(renderMenuItem)}
     </View>
   );
@@ -227,7 +251,7 @@ const styles = StyleSheet.create({
   menu: {
     position: 'absolute',
     right: baseFoundation.spacing[10],
-    width: 144,
+    width: CONTEXT_MENU_WIDTH,
     padding: baseFoundation.spacing[1.5],
     borderRadius: baseFoundation.radii.xs,
     borderWidth: 1,

@@ -1,29 +1,41 @@
 import type { Friend } from '@repo/types';
-import { useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import {
   Image,
+  Modal,
   Pressable,
   View,
+  type GestureResponderEvent,
   type ImageSourcePropType,
   useWindowDimensions,
 } from 'react-native';
 
+import { RoutineRequestIcon } from '@/components/icons/routine-icons';
+import {
+  CONTEXT_MENU_WIDTH,
+  ContextMenuPanel,
+  type ContextMenuItem,
+} from '@/components/routine/routine-context-menu';
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList } from '@/components/ui/flash-list';
+import { IconButton } from '@/components/ui/icon-button';
 import { Loading } from '@/components/ui/loading';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
 import { appThemes, type ThemeName } from '@/theme/themes';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 interface FriendItemProps {
   friend: Friend;
   itemWidth: number;
+  screenWidth: number;
   isRightColumn: boolean;
   onOpen: (friend: Friend) => void;
+  onDelete?: (friend: Friend) => void;
+  isDeleting: boolean;
 }
 
 interface FriendRenderItemProps {
@@ -67,8 +79,11 @@ const FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT =
   FRIEND_MOTTO_BUBBLE_BORDER_WIDTH * 2;
 const FRIEND_MOTTO_MAX_BUBBLE_HEIGHT =
   FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT + FRIEND_MOTTO_BUBBLE_TAIL_SPACE;
+const FRIEND_NICKNAME_ACTION_ROW_HEIGHT = baseFoundation.dimension.x32;
+const FRIEND_ACTION_MENU_MARGIN = baseFoundation.spacing[2];
 const FRIEND_ITEM_TEXT_BLOCK_HEIGHT =
   baseFoundation.spacing[2] +
+  FRIEND_NICKNAME_ACTION_ROW_HEIGHT +
   baseFoundation.dimension.x10 +
   baseFoundation.typography.size.body2 +
   baseFoundation.typography.size.body3 +
@@ -171,9 +186,16 @@ const getFriendLevelTextColor = (themeName: FriendCharacterThemeName) => {
 const FriendItem = ({
   friend,
   itemWidth,
+  screenWidth,
   isRightColumn,
   onOpen,
+  onDelete,
+  isDeleting,
 }: FriendItemProps) => {
+  const { theme } = useAppTheme();
+  const menuAnchorRef = useRef<View>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const { userId, nickname, job, level, characterCode, characterImageUrl } =
     friend;
   const displayNickname =
@@ -196,88 +218,189 @@ const FriendItem = ({
     { width: characterImageSize, height: characterImageSize },
     hasMotto ? styles.characterWithMotto : null,
   ];
+  const handleCloseMenu = () => setIsMenuOpen(false);
+  const handleToggleMenu = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+
+    if (isDeleting) {
+      return;
+    }
+
+    if (isMenuOpen) {
+      handleCloseMenu();
+      return;
+    }
+
+    menuAnchorRef.current?.measureInWindow((x, y, width, height) => {
+      const maxLeft = Math.max(
+        FRIEND_ACTION_MENU_MARGIN,
+        screenWidth - CONTEXT_MENU_WIDTH - FRIEND_ACTION_MENU_MARGIN,
+      );
+      const left = Math.min(
+        Math.max(x + width - CONTEXT_MENU_WIDTH, FRIEND_ACTION_MENU_MARGIN),
+        maxLeft,
+      );
+
+      setMenuPosition({
+        top: y + height + FRIEND_ACTION_MENU_MARGIN,
+        left,
+      });
+      setIsMenuOpen(true);
+    });
+  };
+  const actionMenuItems: ContextMenuItem[] = [
+    {
+      label: '친구 삭제',
+      onPress: () => {
+        handleCloseMenu();
+        onDelete?.(friend);
+      },
+      color: palette.theme.red[50],
+    },
+  ];
 
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.card,
-        isRightColumn ? styles.rightColumnCard : null,
-        { width: itemWidth },
-        pressed ? styles.cardPressed : null,
-      ]}
-      onPress={() => onOpen(friend)}
-      accessibilityRole="button"
-      accessibilityLabel={`${displayNickname} 루틴 보기`}
-    >
-      <ThemeView
-        testID={`friend-character-panel-${testIdSuffix}`}
-        style={[
-          styles.characterPanel,
-          getFriendCharacterPanelStyle(characterThemeName),
-          { width: itemWidth, height: itemWidth },
+    <>
+      <Pressable
+        style={({ pressed }) => [
+          styles.card,
+          isRightColumn ? styles.rightColumnCard : null,
+          { width: itemWidth },
+          pressed ? styles.cardPressed : null,
         ]}
-        transparent
+        onPress={() => onOpen(friend)}
+        accessibilityRole="button"
+        accessibilityLabel={`${displayNickname} 루틴 보기`}
       >
-        {hasMotto && (
-          <CharacterSpeechBubble
-            containerMinHeight={null}
-            containerMinWidth={FRIEND_MOTTO_BUBBLE_MIN_WIDTH}
-            containerPaddingVertical={FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING}
-            multiLineContainerHeight={FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT}
-            multiLineMaxWidth={
-              itemWidth - FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN * 2
-            }
-            message={motto}
-            numberOfLines={2}
-            singleLineContainerHeight={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_HEIGHT}
-            singleLineMaxWidth={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_MAX_WIDTH}
-            singleLineWrapperTop={FRIEND_MOTTO_BUBBLE_DISPLAY_TOP}
-            style={styles.speechBubble}
-            testID={`friend-character-speech-bubble-${testIdSuffix}`}
-            textVariant="caption2"
-            themeName={characterThemeName}
-            wrapperTop={FRIEND_MOTTO_BUBBLE_TOP_MARGIN}
-          />
-        )}
-        {characterSource ? (
-          <Image
-            source={characterSource}
-            style={characterStyle}
-            resizeMode="contain"
-            accessibilityLabel={`${displayNickname} 캐릭터`}
-          />
-        ) : null}
-        <View
-          testID={`friend-level-badge-${testIdSuffix}`}
+        <ThemeView
+          testID={`friend-character-panel-${testIdSuffix}`}
           style={[
-            styles.levelBadge,
-            getFriendLevelBadgeStyle(characterThemeName),
+            styles.characterPanel,
+            getFriendCharacterPanelStyle(characterThemeName),
+            { width: itemWidth, height: itemWidth },
           ]}
+          transparent
         >
-          <Typography
-            testID={`friend-level-text-${testIdSuffix}`}
-            variant="caption2"
-            weight="semibold"
-            color={getFriendLevelTextColor(characterThemeName)}
-            style={styles.level}
+          {hasMotto && (
+            <CharacterSpeechBubble
+              containerMinHeight={null}
+              containerMinWidth={FRIEND_MOTTO_BUBBLE_MIN_WIDTH}
+              containerPaddingVertical={FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING}
+              multiLineContainerHeight={FRIEND_MOTTO_BUBBLE_TWO_LINE_HEIGHT}
+              multiLineMaxWidth={
+                itemWidth - FRIEND_MOTTO_BUBBLE_HORIZONTAL_MARGIN * 2
+              }
+              message={motto}
+              numberOfLines={2}
+              singleLineContainerHeight={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_HEIGHT}
+              singleLineMaxWidth={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_MAX_WIDTH}
+              singleLineWrapperTop={FRIEND_MOTTO_BUBBLE_DISPLAY_TOP}
+              style={styles.speechBubble}
+              testID={`friend-character-speech-bubble-${testIdSuffix}`}
+              textVariant="caption2"
+              themeName={characterThemeName}
+              wrapperTop={FRIEND_MOTTO_BUBBLE_TOP_MARGIN}
+            />
+          )}
+          {characterSource ? (
+            <Image
+              source={characterSource}
+              style={characterStyle}
+              resizeMode="contain"
+              accessibilityLabel={`${displayNickname} 캐릭터`}
+            />
+          ) : null}
+          <View
+            testID={`friend-level-badge-${testIdSuffix}`}
+            style={[
+              styles.levelBadge,
+              getFriendLevelBadgeStyle(characterThemeName),
+            ]}
           >
-            Lv. {displayLevel}
-          </Typography>
-        </View>
-      </ThemeView>
+            <Typography
+              testID={`friend-level-text-${testIdSuffix}`}
+              variant="caption2"
+              weight="semibold"
+              color={getFriendLevelTextColor(characterThemeName)}
+              style={styles.level}
+            >
+              Lv. {displayLevel}
+            </Typography>
+          </View>
+        </ThemeView>
 
-      <Typography
-        variant="body2"
-        weight="semibold"
-        style={styles.nickname}
-        numberOfLines={1}
-      >
-        {displayNickname}
-      </Typography>
-      <Typography variant="body3" style={styles.subtitle} numberOfLines={1}>
-        {subtitle}
-      </Typography>
-    </Pressable>
+        <View style={styles.nicknameRow}>
+          <Typography
+            variant="body2"
+            weight="semibold"
+            style={styles.nickname}
+            numberOfLines={1}
+          >
+            {displayNickname}
+          </Typography>
+          {onDelete ? (
+            <View
+              ref={menuAnchorRef}
+              collapsable={false}
+              style={styles.kebabAnchor}
+            >
+              <IconButton
+                testID={`friend-menu-button-${testIdSuffix}`}
+                accessibilityLabel={`${displayNickname} 친구 메뉴 열기`}
+                accessibilityRole="button"
+                disabled={isDeleting}
+                hitSlop={baseFoundation.spacing[1.5]}
+                loading={isDeleting}
+                onPress={handleToggleMenu}
+                size="sm"
+                style={styles.kebabButton}
+                variant="ghost"
+                icon={() => (
+                  <RoutineRequestIcon
+                    color={theme.colors.brand.routineProgressText}
+                  />
+                )}
+              />
+            </View>
+          ) : null}
+        </View>
+        <Typography variant="body3" style={styles.subtitle} numberOfLines={1}>
+          {subtitle}
+        </Typography>
+      </Pressable>
+
+      {onDelete ? (
+        <Modal
+          animationType="fade"
+          transparent
+          visible={isMenuOpen}
+          onRequestClose={handleCloseMenu}
+          statusBarTranslucent
+        >
+          <View
+            style={styles.actionMenuOverlay}
+            accessibilityViewIsModal
+            testID={`friend-action-menu-overlay-${testIdSuffix}`}
+          >
+            <Pressable
+              accessibilityLabel="친구 메뉴 닫기"
+              onPress={handleCloseMenu}
+              style={styles.actionMenuDismissArea}
+            />
+            <ContextMenuPanel
+              items={actionMenuItems}
+              style={[
+                styles.actionMenuPosition,
+                { top: menuPosition.top, left: menuPosition.left },
+              ]}
+              testID={`friend-action-menu-${testIdSuffix}`}
+              itemTestID={`friend-delete-menu-item-${testIdSuffix}`}
+              itemTextTestID={`friend-delete-menu-text-${testIdSuffix}`}
+            />
+          </View>
+        </Modal>
+      ) : null}
+    </>
   );
 };
 
@@ -287,6 +410,8 @@ interface FriendListProps {
   refreshing: boolean;
   onRefresh: () => Promise<void>;
   onOpenFriend: (friend: Friend) => void;
+  onDeleteFriend?: (friend: Friend) => void;
+  isDeletingFriend?: boolean;
   listHeaderComponent?: ReactElement;
 }
 
@@ -296,6 +421,8 @@ const FriendList = ({
   refreshing,
   onRefresh,
   onOpenFriend,
+  onDeleteFriend,
+  isDeletingFriend = false,
   listHeaderComponent,
 }: FriendListProps) => {
   const { width: screenWidth } = useWindowDimensions();
@@ -308,11 +435,14 @@ const FriendList = ({
       <FriendItem
         friend={item}
         itemWidth={itemWidth}
+        screenWidth={screenWidth}
         isRightColumn={index % 2 === 1}
+        isDeleting={isDeletingFriend}
+        onDelete={onDeleteFriend}
         onOpen={onOpenFriend}
       />
     ),
-    [itemWidth, onOpenFriend],
+    [isDeletingFriend, itemWidth, onDeleteFriend, onOpenFriend, screenWidth],
   );
   const getFriendItemLayout = useCallback(
     (_: Friend[] | null, index: number) => ({
@@ -395,6 +525,42 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     zIndex: 2,
   },
+  nicknameRow: {
+    width: '100%',
+    minHeight: FRIEND_NICKNAME_ACTION_ROW_HEIGHT,
+    marginTop: theme.foundation.spacing[2],
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  kebabAnchor: {
+    position: 'absolute',
+    top: theme.foundation.spacing[0],
+    right: theme.foundation.spacing[0],
+    width: baseFoundation.dimension.x20,
+    height: baseFoundation.dimension.x20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 3,
+  },
+  kebabButton: {
+    width: baseFoundation.dimension.x20,
+    height: baseFoundation.dimension.x20,
+    borderRadius: 0,
+  },
+  actionMenuOverlay: {
+    flex: 1,
+  },
+  actionMenuDismissArea: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  actionMenuPosition: {
+    position: 'absolute',
+    right: undefined,
+  },
   characterPanelBlue: {
     backgroundColor: appThemes.blue.colors.brand.primary,
   },
@@ -427,7 +593,7 @@ const styles = StyleSheet.create((theme) => ({
   level: {},
   nickname: {
     width: '100%',
-    marginTop: theme.foundation.spacing[2],
+    paddingHorizontal: FRIEND_NICKNAME_ACTION_ROW_HEIGHT,
     color: theme.colors.brand.text,
     textAlign: 'center',
   },
