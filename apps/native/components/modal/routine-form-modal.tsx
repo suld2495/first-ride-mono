@@ -172,13 +172,13 @@ const RoutinePhotoRequiredOption = ({
 };
 
 interface RoutineDateFormItemProps {
-  isRoutineAdd: boolean;
-  today: string;
+  isPersonalRoutine: boolean;
+  hasCertificationHistory: boolean;
 }
 
 const RoutineDateFormItem = ({
-  isRoutineAdd,
-  today,
+  isPersonalRoutine,
+  hasCertificationHistory,
 }: RoutineDateFormItemProps) => {
   const router = useRouter();
   const { setValue } = useForm();
@@ -257,7 +257,7 @@ const RoutineDateFormItem = ({
               disabled={Boolean(form.isDailyRepeat)}
               onPress={() => {
                 const isStartDateFixed =
-                  !isRoutineAdd && Boolean(value && value < today);
+                  isPersonalRoutine && hasCertificationHistory;
 
                 beginRoutineDateSelection(
                   value || null,
@@ -489,8 +489,10 @@ const RoutineFormModal = () => {
           required
         />
         <RoutineDateFormItem
-          isRoutineAdd={isRoutineAdd}
-          today={defaultStartDate}
+          isPersonalRoutine={Boolean(sourceRoutineForm.isMe)}
+          hasCertificationHistory={
+            (routineDetail?.confirmations?.length ?? 0) > 0
+          }
         />
         <FormItem
           name="routineCount"

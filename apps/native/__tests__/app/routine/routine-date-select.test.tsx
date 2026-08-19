@@ -63,11 +63,13 @@ describe('RoutineDateSelectPage', () => {
     expect(mockBack).toHaveBeenCalledTimes(1);
   });
 
-  it('과거에 시작한 루틴 수정은 시작일을 고정하고 선택한 날짜만 종료일로 전달한다', () => {
+  it('시작일 고정 루틴은 선택한 날짜만 종료일로 전달한다', () => {
     const today = getStartOfToday();
     const pastStartDate = new Date(today);
+    const tomorrow = new Date(today);
 
     pastStartDate.setDate(today.getDate() - 1);
+    tomorrow.setDate(today.getDate() + 1);
     mockRoutineStore.routineDateSelection = {
       initialStartDate: getFormatDate(pastStartDate),
       initialEndDate: getFormatDate(today),
@@ -78,12 +80,12 @@ describe('RoutineDateSelectPage', () => {
 
     const { getByLabelText, getByText } = render(<RoutineDateSelectPage />);
 
-    fireEvent.press(getByLabelText(`${getFormatDate(today)} 선택 가능`));
+    fireEvent.press(getByLabelText(`${getFormatDate(tomorrow)} 선택 가능`));
     fireEvent.press(getByText('선택완료'));
 
     expect(mockRoutineStore.confirmRoutineDateSelection).toHaveBeenCalledWith(
       getFormatDate(pastStartDate),
-      getFormatDate(today),
+      getFormatDate(tomorrow),
     );
   });
 

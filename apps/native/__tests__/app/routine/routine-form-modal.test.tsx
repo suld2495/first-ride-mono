@@ -1365,44 +1365,27 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
   });
 
   describe('초기 렌더링 테스트', () => {
-    it('과거에 시작한 루틴의 날짜 선택은 시작일 고정 상태로 연다', async () => {
-      const today = new Date();
-
-      today.setHours(0, 0, 0, 0);
-
-      mockAxios.resetHandlers();
-      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
-      mockRoutineDetail({
-        startDate: '2025-01-06',
-        endDate: getFormatDate(today),
-      });
-
-      const { findByTestId } = render(<RoutineFormModal />);
-
-      await act(async () => {
-        fireEvent.press(await findByTestId('routine-date-button'));
-      });
-
-      expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
-        '2025-01-06',
-        getFormatDate(today),
-        true,
-      );
-      expect(mockPush).toHaveBeenCalledWith('/routine-date-select');
-    });
-
-    it('오늘 시작하는 루틴 수정은 시작일을 고정하지 않는다', async () => {
+    it('인증 요청 이력이 있는 개인 루틴은 시작일 고정 상태로 연다', async () => {
       const today = new Date();
       const tomorrow = new Date(today);
 
       today.setHours(0, 0, 0, 0);
       tomorrow.setHours(0, 0, 0, 0);
       tomorrow.setDate(today.getDate() + 1);
+
       mockAxios.resetHandlers();
       mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
       mockRoutineDetail({
+        isMe: true,
         startDate: getFormatDate(today),
         endDate: getFormatDate(tomorrow),
+        confirmations: [
+          {
+            confirmId: 1,
+            date: getFormatDate(today),
+            status: 'PASS',
+          },
+        ],
       });
 
       const { findByTestId } = render(<RoutineFormModal />);
@@ -1414,6 +1397,66 @@ describe('RoutineFormModal (루틴 수정 모달)', () => {
       expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
         getFormatDate(today),
         getFormatDate(tomorrow),
+        true,
+      );
+      expect(mockPush).toHaveBeenCalledWith('/routine-date-select');
+    });
+
+    it('인증 요청 이력이 없는 과거 개인 루틴은 시작일을 고정하지 않는다', async () => {
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        isMe: true,
+        startDate: '2025-01-06',
+        endDate: getFormatDate(today),
+        confirmations: [],
+      });
+
+      const { findByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(await findByTestId('routine-date-button'));
+      });
+
+      expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
+        '2025-01-06',
+        getFormatDate(today),
+        false,
+      );
+    });
+
+    it('메이트 루틴은 인증 요청 이력이 있어도 시작일을 고정하지 않는다', async () => {
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+      mockAxios.resetHandlers();
+      mockAxios.onGet(/\/friends/).reply(200, { data: createMockFriends(3) });
+      mockRoutineDetail({
+        isMe: false,
+        mateNickname: '메이트닉네임',
+        startDate: '2025-01-06',
+        endDate: getFormatDate(today),
+        confirmations: [
+          {
+            confirmId: 1,
+            date: getFormatDate(today),
+            status: 'PASS',
+          },
+        ],
+      });
+
+      const { findByTestId } = render(<RoutineFormModal />);
+
+      await act(async () => {
+        fireEvent.press(await findByTestId('routine-date-button'));
+      });
+
+      expect(mockRoutineStore.beginRoutineDateSelection).toHaveBeenCalledWith(
+        '2025-01-06',
+        getFormatDate(today),
         false,
       );
     });
