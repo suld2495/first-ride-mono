@@ -2481,7 +2481,7 @@ describe('루틴 조회 페이지', () => {
         data: createMockRoutines(1, {
           mateNickname: '',
           photoRequired: false,
-        }),
+        }).map((routine) => ({ ...routine, isMe: undefined })),
       });
 
       const { findByTestId, findByText } = render(<Index />);

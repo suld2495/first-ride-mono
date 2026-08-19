@@ -41,6 +41,26 @@ describe('routine api', () => {
     ]);
   });
 
+  it('루틴 목록에 isMe가 없어도 mateNickname으로 개인 루틴 여부를 정규화한다', async () => {
+    mockAxios.onGet('/routine/list?date=2026-08-02').reply(200, {
+      data: [
+        {
+          routineId: 1,
+          mateNickname: '',
+          photoRequired: false,
+        },
+      ],
+    });
+
+    await expect(fetchRoutines('2026-08-02')).resolves.toEqual([
+      expect.objectContaining({
+        isMe: true,
+        mateNickname: '',
+        photoRequired: false,
+      }),
+    ]);
+  });
+
   it('인증 상세 조회는 confirmId를 id query parameter로 전달한다', async () => {
     const detail = {
       id: 1004,
