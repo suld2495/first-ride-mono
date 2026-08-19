@@ -1,5 +1,4 @@
 import {
-  NOTIFICATION_SUBTYPES,
   type NotificationSettings,
   type NotificationSubtype,
   type UpdateNotificationSettingsRequest,
@@ -22,24 +21,6 @@ import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
-
-const NOTIFICATION_SUBTYPE_LABELS: Record<NotificationSubtype, string> = {
-  ROUTINE_CONFIRM_REQUEST: '인증 요청',
-  ROUTINE_CONFIRM_APPROVED: '인증 승인',
-  ROUTINE_CONFIRM_REJECTED: '인증 반려',
-  ROUTINE_CHANGE_REQUEST: '루틴 변경 요청',
-  ROUTINE_CHANGE_APPROVED: '루틴 변경 승인',
-  ROUTINE_CHANGE_REJECTED: '루틴 변경 반려',
-  DAILY_ROUTINE_REMINDER: '루틴 리마인더',
-  LEVEL_UP: '레벨 업',
-  FRIEND_REQUEST: '친구 요청',
-  FRIEND_ACCEPTED: '친구 수락',
-  FRIEND_CHEER: '응원 콕',
-  QUEST_COMPLETE: '퀘스트 완료',
-  QUEST_REWARD: '퀘스트 보상',
-  SYSTEM: '시스템',
-  RANKING: '랭킹',
-};
 
 type NotificationGroupId = 'routine' | 'friend' | 'quest' | 'growth' | 'system';
 
@@ -91,18 +72,14 @@ const NOTIFICATION_GROUPS: NotificationGroup[] = [
   },
 ];
 
-const createSubtypeUpdate = (
+/** 1뎁스 그룹 토글을 API의 2뎁스 subtype 설정으로 확장한다. */
+const createGroupSubtypeUpdate = (
   subtypes: NotificationSubtype[],
   enabled: boolean,
 ): Partial<Record<NotificationSubtype, boolean>> =>
   Object.fromEntries(subtypes.map((subtype) => [subtype, enabled])) as Partial<
     Record<NotificationSubtype, boolean>
   >;
-
-const getEnabledSubtypeCount = (
-  subtypes: NotificationSubtype[],
-  settings: Record<NotificationSubtype, boolean>,
-): number => subtypes.filter((subtype) => settings[subtype]).length;
 
 const NOTIFICATION_SETTINGS_UPDATE_DEBOUNCE_MS = 300;
 
@@ -122,15 +99,53 @@ const applyNotificationSettingsUpdate = (
     update.dailyRoutineReminderTimes ?? settings.dailyRoutineReminderTimes,
 });
 
+const getUniformGroupValue = (
+  group: NotificationGroup,
+  settings: Record<NotificationSubtype, boolean>,
+): boolean | undefined => {
+  const values = group.subtypes.map((subtype) => settings[subtype]);
+
+  if (values.every(Boolean)) {
+    return true;
+  }
+
+  if (values.every((value) => !value)) {
+    return false;
+  }
+
+  return undefined;
+};
+
 const createNotificationSettingsUpdate = (
   confirmedSettings: NotificationSettings,
   draftSettings: NotificationSettings,
 ): UpdateNotificationSettingsRequest => {
   const changedSubtypes = Object.fromEntries(
-    NOTIFICATION_SUBTYPES.filter(
-      (subtype) =>
-        confirmedSettings.subtypes[subtype] !== draftSettings.subtypes[subtype],
-    ).map((subtype) => [subtype, draftSettings.subtypes[subtype]]),
+    NOTIFICATION_GROUPS.flatMap((group) => {
+      const confirmedGroupValue = getUniformGroupValue(
+        group,
+        confirmedSettings.subtypes,
+      );
+      const draftGroupValue = getUniformGroupValue(
+        group,
+        draftSettings.subtypes,
+      );
+      const shouldSyncWholeGroup =
+        draftGroupValue !== undefined &&
+        draftGroupValue !== confirmedGroupValue;
+      const subtypesToUpdate = shouldSyncWholeGroup
+        ? group.subtypes
+        : group.subtypes.filter(
+            (subtype) =>
+              confirmedSettings.subtypes[subtype] !==
+              draftSettings.subtypes[subtype],
+          );
+
+      return subtypesToUpdate.map((subtype) => [
+        subtype,
+        draftSettings.subtypes[subtype],
+      ]);
+    }),
   ) as Partial<Record<NotificationSubtype, boolean>>;
   const changedDailyRoutineReminderTimes =
     confirmedSettings.dailyRoutineReminderTimes.join('|') !==
@@ -221,39 +236,10 @@ function AllNotificationSection({
   );
 }
 
-type NotificationSubtypeRowProps = {
-  isEnabled: boolean;
-  onToggle: (subtype: NotificationSubtype, enabled: boolean) => void;
-  subtype: NotificationSubtype;
-};
-
-function NotificationSubtypeRow({
-  isEnabled,
-  onToggle,
-  subtype,
-}: NotificationSubtypeRowProps) {
-  return (
-    <View style={styles.subtypeRow}>
-      <Typography color="primary" variant="body2">
-        {NOTIFICATION_SUBTYPE_LABELS[subtype]}
-      </Typography>
-      <NotificationSwitch
-        accessibilityLabel={NOTIFICATION_SUBTYPE_LABELS[subtype]}
-        onValueChange={(enabled) => {
-          onToggle(subtype, enabled);
-        }}
-        testID={`notification-settings-toggle-${subtype}`}
-        value={isEnabled}
-      />
-    </View>
-  );
-}
-
 type NotificationGroupItemProps = {
   allEnabled: boolean;
   group: NotificationGroup;
   onToggleGroup: (group: NotificationGroup, enabled: boolean) => void;
-  onToggleSubtype: (subtype: NotificationSubtype, enabled: boolean) => void;
   settings: Record<NotificationSubtype, boolean>;
 };
 
@@ -261,18 +247,9 @@ function NotificationGroupItem({
   allEnabled,
   group,
   onToggleGroup,
-  onToggleSubtype,
   settings,
 }: NotificationGroupItemProps) {
-  const enabledSubtypeCount = getEnabledSubtypeCount(group.subtypes, settings);
-  const isGroupEnabled = enabledSubtypeCount > 0;
-  const isPartiallyEnabled =
-    enabledSubtypeCount > 0 && enabledSubtypeCount < group.subtypes.length;
-  const shouldShowSubtypes =
-    allEnabled && isGroupEnabled && group.subtypes.length > 1;
-  const groupDescription = isPartiallyEnabled
-    ? `일부 알림만 켜짐 (${enabledSubtypeCount}/${group.subtypes.length})`
-    : group.description;
+  const isGroupEnabled = group.subtypes.every((subtype) => settings[subtype]);
 
   return (
     <View style={styles.groupBlock}>
@@ -290,7 +267,7 @@ function NotificationGroupItem({
             style={styles.description}
             variant="caption1"
           >
-            {groupDescription}
+            {group.description}
           </Typography>
         </View>
         <NotificationSwitch
@@ -303,31 +280,17 @@ function NotificationGroupItem({
           value={allEnabled && isGroupEnabled}
         />
       </View>
-      {shouldShowSubtypes ? (
-        <View style={styles.subtypeList}>
-          {group.subtypes.map((subtype) => (
-            <NotificationSubtypeRow
-              key={subtype}
-              isEnabled={settings[subtype]}
-              onToggle={onToggleSubtype}
-              subtype={subtype}
-            />
-          ))}
-        </View>
-      ) : null}
     </View>
   );
 }
 
 type NotificationGroupsSectionProps = {
   onToggleGroup: (group: NotificationGroup, enabled: boolean) => void;
-  onToggleSubtype: (subtype: NotificationSubtype, enabled: boolean) => void;
   settings: NotificationSettings;
 };
 
 function NotificationGroupsSection({
   onToggleGroup,
-  onToggleSubtype,
   settings,
 }: NotificationGroupsSectionProps) {
   return (
@@ -342,7 +305,6 @@ function NotificationGroupsSection({
             allEnabled={settings.allEnabled}
             group={group}
             onToggleGroup={onToggleGroup}
-            onToggleSubtype={onToggleSubtype}
             settings={settings.subtypes}
           />
         ))}
@@ -356,7 +318,6 @@ type NotificationSettingsContentProps = {
   onChangeDailyRoutineReminderTimes: (times: string[]) => void;
   onToggleAll: (allEnabled: boolean) => void;
   onToggleGroup: (group: NotificationGroup, enabled: boolean) => void;
-  onToggleSubtype: (subtype: NotificationSubtype, enabled: boolean) => void;
   settings: NotificationSettings;
 };
 
@@ -365,7 +326,6 @@ function NotificationSettingsContent({
   onChangeDailyRoutineReminderTimes,
   onToggleAll,
   onToggleGroup,
-  onToggleSubtype,
   settings,
 }: NotificationSettingsContentProps) {
   return (
@@ -393,7 +353,6 @@ function NotificationSettingsContent({
       ) : null}
       <NotificationGroupsSection
         onToggleGroup={onToggleGroup}
-        onToggleSubtype={onToggleSubtype}
         settings={settings}
       />
     </ScrollView>
@@ -531,19 +490,9 @@ export default function NotificationSettingsPage() {
   const handleToggleAll = (allEnabled: boolean) => {
     queueSettingsUpdate({ allEnabled });
   };
-  const handleToggleSubtype = (
-    subtype: NotificationSubtype,
-    enabled: boolean,
-  ) => {
-    queueSettingsUpdate({
-      subtypes: {
-        [subtype]: enabled,
-      },
-    });
-  };
   const handleToggleGroup = (group: NotificationGroup, enabled: boolean) => {
     queueSettingsUpdate({
-      subtypes: createSubtypeUpdate(group.subtypes, enabled),
+      subtypes: createGroupSubtypeUpdate(group.subtypes, enabled),
     });
   };
   const handleChangeDailyRoutineReminderTimes = (times: string[]) => {
@@ -575,7 +524,6 @@ export default function NotificationSettingsPage() {
           }
           onToggleAll={handleToggleAll}
           onToggleGroup={handleToggleGroup}
-          onToggleSubtype={handleToggleSubtype}
           settings={displayedSettings}
         />
       ) : null}
@@ -645,19 +593,6 @@ const styles = StyleSheet.create((theme) => ({
     justifyContent: 'space-between',
     gap: theme.foundation.spacing[4],
     paddingVertical: theme.foundation.spacing[2],
-  },
-  subtypeList: {
-    borderTopWidth: baseFoundation.dimension.x1,
-    borderTopColor: theme.colors.border.divider,
-    paddingVertical: theme.foundation.spacing[1],
-  },
-  subtypeRow: {
-    minHeight: baseFoundation.dimension.x48,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.foundation.spacing[4],
-    paddingLeft: theme.foundation.spacing[3],
   },
   errorContainer: {
     flex: 1,

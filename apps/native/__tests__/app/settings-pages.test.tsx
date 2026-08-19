@@ -1061,9 +1061,9 @@ describe('설정 하위 페이지', () => {
     mockAxios.onPatch('/notifications/settings').reply((config) => {
       expect(JSON.parse(config.data ?? '{}')).toEqual({
         settings: {
-          FRIEND_REQUEST: true,
-          FRIEND_ACCEPTED: true,
-          FRIEND_CHEER: true,
+          FRIEND_REQUEST: false,
+          FRIEND_ACCEPTED: false,
+          FRIEND_CHEER: false,
         },
       });
 
@@ -1081,9 +1081,9 @@ describe('설정 하위 페이지', () => {
               ROUTINE_CHANGE_REJECTED: true,
               DAILY_ROUTINE_REMINDER: true,
               LEVEL_UP: true,
-              FRIEND_REQUEST: true,
-              FRIEND_ACCEPTED: true,
-              FRIEND_CHEER: true,
+              FRIEND_REQUEST: false,
+              FRIEND_ACCEPTED: false,
+              FRIEND_CHEER: false,
               QUEST_COMPLETE: true,
               QUEST_REWARD: true,
               SYSTEM: true,
@@ -1111,11 +1111,20 @@ describe('설정 하위 페이지', () => {
       fireEvent.press(getByTestId('notification-settings-toggle-group-friend'));
     });
 
+    expect(
+      getByTestId('notification-settings-toggle-group-friend').props
+        .accessibilityState.checked,
+    ).toBe(true);
+
+    await act(async () => {
+      fireEvent.press(getByTestId('notification-settings-toggle-group-friend'));
+    });
+
     await waitFor(() => {
       expect(
         getByTestId('notification-settings-toggle-group-friend').props
           .accessibilityState.checked,
-      ).toBe(true);
+      ).toBe(false);
     });
     await waitFor(() => {
       expect(mockAxios.history.patch).toHaveLength(1);
