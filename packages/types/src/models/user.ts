@@ -15,6 +15,7 @@ export type User = Pick<Auth, 'userId' | 'nickname'> & {
   jobType?: string;
   characterCode?: string;
   evolutionCount?: number;
+  isFriend?: boolean;
   motto: null | string;
   mottos: string[];
   role: UserRole;

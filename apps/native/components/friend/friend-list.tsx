@@ -339,28 +339,30 @@ const FriendItem = ({
             {displayNickname}
           </Typography>
           {onDelete ? (
-            <View
-              ref={menuAnchorRef}
-              collapsable={false}
-              style={styles.kebabAnchor}
-            >
-              <IconButton
-                testID={`friend-menu-button-${testIdSuffix}`}
-                accessibilityLabel={`${displayNickname} 친구 메뉴 열기`}
-                accessibilityRole="button"
-                disabled={isDeleting}
-                hitSlop={baseFoundation.spacing[1.5]}
-                loading={isDeleting}
-                onPress={handleToggleMenu}
-                size="sm"
-                style={styles.kebabButton}
-                variant="ghost"
-                icon={() => (
-                  <RoutineRequestIcon
-                    color={theme.colors.brand.routineProgressText}
-                  />
-                )}
-              />
+            <View style={styles.kebabAnchor}>
+              <View
+                ref={menuAnchorRef}
+                collapsable={false}
+                style={styles.kebabButtonAnchor}
+              >
+                <IconButton
+                  testID={`friend-menu-button-${testIdSuffix}`}
+                  accessibilityLabel={`${displayNickname} 친구 메뉴 열기`}
+                  accessibilityRole="button"
+                  disabled={isDeleting}
+                  hitSlop={baseFoundation.spacing[1.5]}
+                  loading={isDeleting}
+                  onPress={handleToggleMenu}
+                  size="sm"
+                  style={styles.kebabButton}
+                  variant="ghost"
+                  icon={() => (
+                    <RoutineRequestIcon
+                      color={theme.colors.brand.routineProgressText}
+                    />
+                  )}
+                />
+              </View>
             </View>
           ) : null}
         </View>
@@ -535,12 +537,16 @@ const styles = StyleSheet.create((theme) => ({
   kebabAnchor: {
     position: 'absolute',
     top: theme.foundation.spacing[0],
+    bottom: theme.foundation.spacing[0],
     right: theme.foundation.spacing[0],
     width: baseFoundation.dimension.x20,
-    height: baseFoundation.dimension.x20,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 3,
+  },
+  kebabButtonAnchor: {
+    width: baseFoundation.dimension.x20,
+    height: baseFoundation.dimension.x20,
   },
   kebabButton: {
     width: baseFoundation.dimension.x20,

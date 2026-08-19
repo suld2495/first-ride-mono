@@ -95,6 +95,7 @@ const UserItem = ({
   loginType,
   characterCode,
   characterImageUrl,
+  isFriend,
   close,
   itemStyle,
 }: UserItemProps) => {
@@ -184,17 +185,28 @@ const UserItem = ({
           )}
         </View>
       </View>
-      <Button
-        testID={`friend-add-request-button-${userId}`}
-        title="친구 신청"
-        variant="outline"
-        size="sm"
-        textColor={theme.colors.text.gray}
-        onPress={handleAdd}
-        disabled={isFriendRequestLoading}
-        style={styles.addButton}
-        textStyle={styles.addButtonText}
-      />
+      {isFriend === true ? (
+        <Typography
+          testID={`friend-status-text-${userId}`}
+          variant="caption1"
+          weight="medium"
+          style={styles.existingFriendText}
+        >
+          기존 친구
+        </Typography>
+      ) : (
+        <Button
+          testID={`friend-add-request-button-${userId}`}
+          title="친구 신청"
+          variant="outline"
+          size="sm"
+          textColor={theme.colors.text.gray}
+          onPress={handleAdd}
+          disabled={isFriendRequestLoading}
+          style={styles.addButton}
+          textStyle={styles.addButtonText}
+        />
+      )}
     </ThemeView>
   );
 };
@@ -567,6 +579,9 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text.gray,
     fontSize: theme.foundation.typography.size.body3,
     fontWeight: '500',
+  },
+  existingFriendText: {
+    color: theme.colors.text.gray,
   },
   emptyContainer: {
     flex: 1,
