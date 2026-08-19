@@ -41,11 +41,24 @@ const getProgressPercent = (current: number, target: number) => {
   return Math.min((current / target) * 100, 100);
 };
 
+const formatQuestRound = (current: number, target: number) => {
+  if (current >= target) {
+    return `${target}회 완료`;
+  }
+
+  return `${current + 1}회째`;
+};
+
 const QuestItem = ({ quest, onClick }: QuestItemProps) => {
   const { endDate, questName, successCount, verificationTargetCount } = quest;
   const currentCount = successCount ?? 0;
   const targetCount = Math.max(verificationTargetCount ?? 1, 1);
   const progressPercent = getProgressPercent(currentCount, targetCount);
+  const questRoundLabel = formatQuestRound(currentCount, targetCount);
+  const questRoundAccessibilityLabel =
+    currentCount >= targetCount
+      ? questRoundLabel
+      : `${questRoundLabel} 퀘스트 진행 중`;
 
   return (
     <Pressable
@@ -62,14 +75,25 @@ const QuestItem = ({ quest, onClick }: QuestItemProps) => {
               <QuestPixelStar size={baseFoundation.dimension.x28} />
             </View>
             <View style={styles.contentColumn} testID="quest-content-column">
-              <Typography
-                variant="body2"
-                weight="semibold"
-                style={styles.questName}
-                testID="quest-title"
-              >
-                {questName}
-              </Typography>
+              <View style={styles.titleRow} testID="quest-title-row">
+                <Typography
+                  variant="body2"
+                  weight="semibold"
+                  style={styles.questName}
+                  testID="quest-title"
+                >
+                  {questName}
+                </Typography>
+                <Typography
+                  variant="caption3"
+                  weight="semibold"
+                  style={styles.questRound}
+                  accessibilityLabel={questRoundAccessibilityLabel}
+                  testID="quest-round"
+                >
+                  {questRoundLabel}
+                </Typography>
+              </View>
               <View style={styles.progressRow} testID="quest-progress-row">
                 <View
                   style={styles.progressTrack}
@@ -208,8 +232,15 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   questName: {
+    flex: 1,
     color: '#FFFFFF',
     lineHeight: baseFoundation.typography.size.body2 * 1.3,
+  },
+
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.dimension.x8,
   },
 
   progressRow: {
@@ -234,5 +265,11 @@ const styles = StyleSheet.create((theme) => ({
 
   progressValue: {
     color: theme.colors.brand.background ?? '#FFFFFF',
+  },
+
+  questRound: {
+    color: theme.colors.brand.primary,
+    flexShrink: 0,
+    textAlign: 'right',
   },
 }));
