@@ -54,6 +54,14 @@ export default function RoutineDateSelectPage() {
       return;
     }
 
+    if (
+      selectedStartDate &&
+      !selectedEndDate &&
+      date.getTime() === selectedStartDate.getTime()
+    ) {
+      return;
+    }
+
     if (!selectedStartDate || selectedEndDate) {
       setSelectedStartDate(date);
       setSelectedEndDate(null);
