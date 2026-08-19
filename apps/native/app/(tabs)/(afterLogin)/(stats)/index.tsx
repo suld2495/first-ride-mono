@@ -81,7 +81,9 @@ export default function StatsPage() {
     debouncedCurrentMonth.getFullYear(),
     debouncedCurrentMonth.getMonth() + 1,
   );
-  const isLoading = isFetching;
+  const isMonthChangePending =
+    currentMonth.getTime() !== debouncedCurrentMonth.getTime();
+  const isLoading = isFetching || isMonthChangePending;
   const routines = getVisibleMonthlyRoutines(data?.routines);
 
   const moveMonth = (offset: number) => {
