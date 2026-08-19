@@ -19,6 +19,7 @@ describe('RoutineCompleteConfirmModal', () => {
 
     expect(getByTestId('routine-complete-confirm-modal')).toBeOnTheScreen();
     expect(queryByText('사진 인증하기')).toBeNull();
+    expect(queryByText('Test')).toBeNull();
 
     fireEvent(UNSAFE_getByType(Modal), 'requestClose');
     fireEvent.press(getByText('예'));
