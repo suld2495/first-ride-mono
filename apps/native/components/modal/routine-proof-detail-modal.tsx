@@ -14,6 +14,7 @@ import {
 import * as Svg from 'react-native-svg';
 
 import { getRoutineSceneRemoteAsset } from '@/components/routine/routine-scene-art';
+import EmptyState from '@/components/ui/empty-state';
 import FullscreenModal from '@/components/ui/fullscreen-modal';
 import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
@@ -23,8 +24,12 @@ import { useAuthUser } from '@/hooks/useAuthSession';
 import { useRequestId } from '@/hooks/useRequestSelection';
 import { useRoutineForm } from '@/hooks/useRoutineSelection';
 import { baseFoundation } from '@/theme/tokens';
+import { getApiErrorMessage } from '@/utils/error-utils';
 
 const DETAIL_IMAGE_THUMBNAIL_COUNT = 3;
+const MESSAGE_PLACEHOLDER = '안녕하세요?';
+const REQUEST_MESSAGE_BLUR_OVERLAY = require('../../assets/routine-message-blur-overlay.png');
+const REPLY_MESSAGE_BLUR_OVERLAY = require('../../assets/routine-message-blur-overlay-reply.png');
 
 const getMessageTime = (dateInput?: null | string) => {
   if (!dateInput) return '';
@@ -96,30 +101,75 @@ const DetailImage = ({ imagePath, style }: DetailImageProps) => {
   );
 };
 
+const BlurredMessageText = ({ source }: { source: ImageSourcePropType }) => (
+  <View style={styles.chatTextContainer} testID="routine-proof-chat-text">
+    <Image
+      source={source}
+      resizeMode="stretch"
+      style={styles.chatTextBlur}
+      testID="routine-proof-chat-blur-image"
+      accessible={false}
+    />
+  </View>
+);
+
 type RoutineProofDetailModalProps = {
   previewCurrentNickname?: string;
   previewDetail?: RoutineDetail;
+};
+
+type RoutineProofMessage = {
+  avatarSource: ImageSourcePropType | undefined;
+  blurOverlaySource: ImageSourcePropType;
+  id: string;
+  isBlurred: boolean;
+  mine: boolean;
+  nickname: string;
+  text: string;
+  time: string;
 };
 
 const RoutineProofDetailModal = ({
   previewCurrentNickname,
   previewDetail,
 }: RoutineProofDetailModalProps = {}) => {
-  const requestId = useRequestId();
-  const { data: fetchedDetail, isLoading } =
-    useFetchRequestDetailQuery(requestId);
+  const confirmId = useRequestId();
+  const {
+    data: fetchedDetail,
+    error,
+    isError,
+    isLoading,
+  } = useFetchRequestDetailQuery(confirmId);
   const user = useAuthUser();
   const selectedRoutine = useRoutineForm();
   const detail = previewDetail ?? fetchedDetail;
-  const imagePaths = useMemo(
-    () => detail?.imagePaths?.slice(0, DETAIL_IMAGE_THUMBNAIL_COUNT) ?? [],
-    [detail?.imagePaths],
-  );
+  const imagePaths = useMemo(() => {
+    if (detail?.imagePaths?.length) {
+      return detail.imagePaths.slice(0, DETAIL_IMAGE_THUMBNAIL_COUNT);
+    }
+
+    return detail?.imagePath ? [detail.imagePath] : [];
+  }, [detail?.imagePath, detail?.imagePaths]);
   const [expandedImagePath, setExpandedImagePath] = useState<null | string>(
     null,
   );
 
   if (isLoading && !previewDetail) return null;
+
+  if (isError && !previewDetail) {
+    return (
+      <ThemeView style={styles.container} testID="routine-proof-detail-error">
+        <EmptyState
+          icon="alert-circle-outline"
+          message={getApiErrorMessage(
+            error,
+            '인증 상세를 불러오지 못했습니다.',
+          )}
+          transparent
+        />
+      </ThemeView>
+    );
+  }
 
   const routineDescription = detail?.routineDetail?.trim();
   const fallbackRoutineDescription = selectedRoutine.routineDetail?.trim();
@@ -138,40 +188,39 @@ const RoutineProofDetailModal = ({
     detail?.responderCharacterImageUrl,
   )?.source;
   const messages = [
-    requestMessage
+    detail?.hasRequestMessage === true
       ? {
           id: 'request-message',
+          blurOverlaySource: REQUEST_MESSAGE_BLUR_OVERLAY,
           avatarSource:
             isRequesterMe && user?.characterImageUrl
               ? getRoutineSceneRemoteAsset(user.characterImageUrl)?.source
               : requesterAvatarSource,
-          text: requestMessage,
+          isBlurred: !requestMessage,
+          text: requestMessage || MESSAGE_PLACEHOLDER,
           time: getMessageTime(detail?.createdAt),
           mine: isRequesterMe,
           nickname: detail?.requesterNickname ?? '',
         }
       : null,
-    replyMessage
+    detail?.hasResponseComment === true
       ? {
           id: 'reply-message',
+          blurOverlaySource: REPLY_MESSAGE_BLUR_OVERLAY,
           avatarSource:
             !isRequesterMe && user?.characterImageUrl
               ? getRoutineSceneRemoteAsset(user.characterImageUrl)?.source
               : responderAvatarSource,
-          text: replyMessage,
+          isBlurred: !replyMessage,
+          text: replyMessage || MESSAGE_PLACEHOLDER,
           time: getMessageTime(detail?.checkedAt),
           mine: !isRequesterMe,
           nickname: detail?.responderNickname ?? '',
         }
       : null,
-  ].filter(Boolean) as Array<{
-    avatarSource?: ImageSourcePropType;
-    id: string;
-    mine: boolean;
-    nickname: string;
-    text: string;
-    time: string;
-  }>;
+  ]
+    .filter((message): message is RoutineProofMessage => message !== null)
+    .sort((left, right) => Number(right.mine) - Number(left.mine));
 
   return (
     <ThemeView style={styles.container}>
@@ -287,9 +336,18 @@ const RoutineProofDetailModal = ({
                       message.mine ? styles.chatBubbleMine : null,
                     ]}
                   >
-                    <Typography variant="body2" style={styles.chatText}>
-                      {message.text}
-                    </Typography>
+                    {message.isBlurred ? (
+                      <BlurredMessageText source={message.blurOverlaySource} />
+                    ) : (
+                      <View
+                        style={styles.chatTextContainer}
+                        testID="routine-proof-chat-text"
+                      >
+                        <Typography variant="body2" style={styles.chatText}>
+                          {message.text}
+                        </Typography>
+                      </View>
+                    )}
                   </View>
                   {message.time ? (
                     <Typography variant="caption2" style={styles.chatTime}>
@@ -395,12 +453,21 @@ const styles = StyleSheet.create((theme) => ({
   },
   chatBubble: {
     maxWidth: '68%',
+    overflow: 'hidden',
     paddingHorizontal: baseFoundation.spacing[3],
     paddingVertical: baseFoundation.spacing[2],
     borderRadius: baseFoundation.radii.m,
     backgroundColor: theme.colors.brand.card,
   },
   chatBubbleMine: { backgroundColor: theme.colors.brand.primary },
+  chatTextContainer: {
+    width: baseFoundation.dimension.x96,
+    height: baseFoundation.dimension.x28,
+  },
+  chatTextBlur: {
+    width: '100%',
+    height: '100%',
+  },
   chatText: { color: theme.colors.brand.text },
   chatTime: { color: theme.colors.text.tertiary },
   expandedImageBackdrop: {

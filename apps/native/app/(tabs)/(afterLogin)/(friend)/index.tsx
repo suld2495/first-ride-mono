@@ -7,6 +7,7 @@ import { getWeekMonday } from '@repo/shared/utils';
 import type { Friend } from '@repo/types';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useLayoutEffect, useState } from 'react';
+import { View } from 'react-native';
 
 import FriendAddModal from '@/components/friend/friend-add-modal';
 import FriendHeader from '@/components/friend/friend-header';
@@ -87,37 +88,40 @@ const FriendPage = () => {
         transparent
         testID="friend-page-content"
       >
-        <RandomFriendRecommendation />
-
-        <ThemeView style={styles.summaryRow} transparent>
-          <Typography variant="caption1" style={styles.totalText}>
-            전체 {friends?.length ?? 0}명
-          </Typography>
-          <Button
-            title="친구 추가"
-            variant="ghost"
-            size="sm"
-            leftIcon={({ color }) => (
-              <Ionicons
-                name="add"
-                size={baseFoundation.iconSize.m - 4}
-                color={color}
-              />
-            )}
-            onPress={() => setShowAddModal(true)}
-            backgroundColor="#111827"
-            textColor="#FFFFFF"
-            style={styles.addButton}
-            contentStyle={styles.addButtonContent}
-          />
-        </ThemeView>
-
         <FriendList
           friends={friends}
           isLoading={isLoading}
           refreshing={refreshing}
           onRefresh={handleRefresh}
           onOpenFriend={handleOpenFriend}
+          listHeaderComponent={
+            <View testID="friend-list-header">
+              <RandomFriendRecommendation />
+
+              <ThemeView style={styles.summaryRow} transparent>
+                <Typography variant="caption1" style={styles.totalText}>
+                  전체 {friends?.length ?? 0}명
+                </Typography>
+                <Button
+                  title="친구 추가"
+                  variant="ghost"
+                  size="sm"
+                  leftIcon={({ color }) => (
+                    <Ionicons
+                      name="add"
+                      size={baseFoundation.iconSize.m - 4}
+                      color={color}
+                    />
+                  )}
+                  onPress={() => setShowAddModal(true)}
+                  backgroundColor="#111827"
+                  textColor="#FFFFFF"
+                  style={styles.addButton}
+                  contentStyle={styles.addButtonContent}
+                />
+              </ThemeView>
+            </View>
+          }
         />
       </ThemeView>
 

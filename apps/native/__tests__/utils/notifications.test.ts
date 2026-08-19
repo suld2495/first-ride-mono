@@ -253,6 +253,8 @@ describe('getNotificationNavigationIntent', () => {
     imagePaths: ['https://example.com/confirm.png'],
     createdAt: '2026-06-30T18:30:00',
     message: null,
+    hasRequestMessage: false,
+    hasResponseComment: false,
   };
 
   it('routine-request가 WAIT 상태이면 인증 상세로 이동한다', async () => {
@@ -272,6 +274,21 @@ describe('getNotificationNavigationIntent', () => {
     });
 
     expect(requestApi.fetchRequestDetail).toHaveBeenCalledWith(123);
+  });
+
+  it('이미지 공유 재개 알림은 인증 업로드 모달로 이동한다', async () => {
+    const shareNotificationData = {
+      type: 'request',
+      routineId: 456,
+      shareSessionId: 'share-session-1',
+    } as unknown as NotificationDeepLinkData;
+
+    await expect(
+      getNotificationNavigationIntent(shareNotificationData),
+    ).resolves.toEqual({
+      kind: 'navigate',
+      path: '/modal?type=request&routineId=456&shareSessionId=share-session-1',
+    });
   });
 
   it('routine-request가 WAIT 상태가 아니면 완료된 인증 상세로 이동한다', async () => {

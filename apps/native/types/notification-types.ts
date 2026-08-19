@@ -125,6 +125,8 @@ export interface NotificationDeepLinkData {
   type?: PushNotificationType;
   /** 관련 루틴 ID */
   routineId?: number;
+  /** 이미지 공유로 생성된 인증 세션 ID */
+  shareSessionId?: string;
   /** 관련 요청 ID */
   requestId?: number;
   /** 루틴 인증 요청 ID */

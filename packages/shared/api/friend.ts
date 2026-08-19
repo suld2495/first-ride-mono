@@ -15,6 +15,24 @@ import axiosInstance, { toAppError } from '.';
 import http from './client';
 
 const baseURL = '/friends';
+const randomFriendRecommendationSettingsURL =
+  '/users/me/random-friend-settings';
+const confirmationImageVisibilityURL =
+  '/users/me/confirmation-image-visibility';
+
+export type RandomFriendRecommendationSettings = {
+  randomFriendRecommendationEnabled: boolean;
+};
+
+type RandomFriendRecommendationSettingsResponse =
+  Partial<RandomFriendRecommendationSettings>;
+
+export type ConfirmationImageVisibilitySettings = {
+  confirmationImagesVisibleToFriends: boolean;
+};
+
+type ConfirmationImageVisibilitySettingsResponse =
+  Partial<ConfirmationImageVisibilitySettings>;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
@@ -68,7 +86,6 @@ const normalizeFriend = (value: unknown, index: number): Friend => {
     mottos,
     mateNickname: getNullableString(friend.mateNickname),
     job: getString(friend.job),
-    profileImage: getNullableString(friend.profileImage),
     level: Math.max(1, Math.floor(getNumber(friend.level, 1))),
     characterCode: getString(friend.characterCode),
     characterImageUrl: getNullableString(friend.characterImageUrl),
@@ -144,6 +161,82 @@ export const fetchRandomFriendRecommendation =
       throw toAppError(error);
     }
   };
+
+const normalizeRandomFriendRecommendationSettings = (
+  settings: RandomFriendRecommendationSettingsResponse,
+): RandomFriendRecommendationSettings => ({
+  randomFriendRecommendationEnabled:
+    settings.randomFriendRecommendationEnabled ?? true,
+});
+
+export const fetchRandomFriendRecommendationSettings =
+  async (): Promise<RandomFriendRecommendationSettings> => {
+    try {
+      const settings = await http.get<
+        RandomFriendRecommendationSettingsResponse,
+        void
+      >(randomFriendRecommendationSettingsURL);
+
+      return normalizeRandomFriendRecommendationSettings(settings);
+    } catch (error) {
+      throw toAppError(error);
+    }
+  };
+
+export const updateRandomFriendRecommendationSettings = async (
+  randomFriendRecommendationEnabled: boolean,
+): Promise<RandomFriendRecommendationSettings> => {
+  try {
+    const settings = await http.patch<
+      RandomFriendRecommendationSettingsResponse,
+      RandomFriendRecommendationSettings
+    >(randomFriendRecommendationSettingsURL, {
+      randomFriendRecommendationEnabled,
+    });
+
+    return normalizeRandomFriendRecommendationSettings(settings);
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+const normalizeConfirmationImageVisibility = (
+  settings: ConfirmationImageVisibilitySettingsResponse,
+): ConfirmationImageVisibilitySettings => ({
+  confirmationImagesVisibleToFriends:
+    settings.confirmationImagesVisibleToFriends ?? false,
+});
+
+export const fetchConfirmationImageVisibility =
+  async (): Promise<ConfirmationImageVisibilitySettings> => {
+    try {
+      const settings = await http.get<
+        ConfirmationImageVisibilitySettingsResponse,
+        void
+      >(confirmationImageVisibilityURL);
+
+      return normalizeConfirmationImageVisibility(settings);
+    } catch (error) {
+      throw toAppError(error);
+    }
+  };
+
+export const updateConfirmationImageVisibility = async (
+  confirmationImagesVisibleToFriends: boolean,
+): Promise<ConfirmationImageVisibilitySettings> => {
+  try {
+    const settings = await http.patch<
+      ConfirmationImageVisibilitySettingsResponse,
+      ConfirmationImageVisibilitySettings
+    >(confirmationImageVisibilityURL, {
+      confirmationImagesVisibleToFriends,
+    });
+
+    return normalizeConfirmationImageVisibility(settings);
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
 
 export const sendFriendCheer = async (
   friendId: Friend['friendId'],
@@ -246,6 +339,7 @@ export const fetchFriendRoutines = async (
   date: string,
 ): Promise<{
   friend: FriendRoutinesResponse['friend'];
+  isFriend: boolean;
   routines: Routine[];
 }> => {
   try {
@@ -254,12 +348,24 @@ export const fetchFriendRoutines = async (
       FriendRoutinesResponse | { data: FriendRoutinesResponse }
     >(`${baseURL}/${encodeURIComponent(String(friendId))}/routines${query}`);
     const friendRoutines = unwrapFriendRoutinesResponse(response);
+    const isFriend =
+      friendRoutines.friend.isFriend ??
+      friendRoutines.isFriend ??
+      friendRoutines.friend.friend ??
+      false;
+    const normalizedFriend = {
+      ...friendRoutines.friend,
+      isFriend,
+      confirmationImagesVisibleToFriends:
+        friendRoutines.friend.confirmationImagesVisibleToFriends ?? false,
+    };
     const routines = friendRoutines.routines.map((routine) =>
-      toFriendRoutine(routine, friendRoutines.friend),
+      toFriendRoutine(routine, normalizedFriend),
     );
 
     return {
-      friend: friendRoutines.friend,
+      friend: normalizedFriend,
+      isFriend,
       routines,
     };
   } catch (error) {

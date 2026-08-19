@@ -1,4 +1,5 @@
 import axiosInstance from '@repo/shared/api';
+import { getWeekMonday } from '@repo/shared/utils';
 import MockAdapter from 'axios-mock-adapter';
 import { useContext } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
@@ -17,12 +18,17 @@ import {
   fireEvent,
   render,
   resetAuthMocks,
+  within,
   waitFor,
 } from '../../setup/auth-test-utils';
 
 declare const mockSearchParams: Record<string, string | undefined>;
 declare const mockPush: jest.Mock;
 declare const mockShowToast: jest.Mock;
+declare const mockRequestStore: {
+  requestId: number;
+  setRequestId: jest.Mock;
+};
 declare const mockRoutineStore: {
   type: 'number' | 'week';
 };
@@ -47,7 +53,8 @@ const renderFriendRoutinesModal = () =>
     </ModalHeaderActionProvider>,
   );
 
-const createFriendRoutineResponse = () => ({
+const createFriendRoutineResponse = (friendOverrides = {}) => ({
+  isFriend: true,
   friend: {
     id: 42,
     nickname: '혜연',
@@ -56,6 +63,8 @@ const createFriendRoutineResponse = () => ({
     job: '검사',
     characterCode: 'WARRIOR_INTERMEDIATE',
     characterImageUrl: null,
+    backgroundImageUrl: null,
+    ...friendOverrides,
   },
   routines: [
     {
@@ -69,13 +78,67 @@ const createFriendRoutineResponse = () => ({
       endDate: null,
       confirmCount: 0,
       weeklyCount: 3,
-      confirmations: [],
+      confirmations: [
+        { confirmId: 1, date: '2026-05-25', status: 'PASS' },
+        { confirmId: 2, date: '2026-05-26', status: 'PASS' },
+        { confirmId: 3, date: '2026-05-27', status: 'PASS' },
+      ],
       displayOrder: 1,
       paused: false,
       hidden: false,
     },
   ],
 });
+
+const createFriendProfileResponse = (friendOverrides = {}) => ({
+  friendId: 42,
+  nickname: '혜연',
+  job: '검사',
+  motto: '오늘도 전진',
+  level: 7,
+  characterCode: 'WARRIOR_INTERMEDIATE',
+  characterImageUrl: null,
+  backgroundImageUrl: null,
+  evolutionCount: 0,
+  ...friendOverrides,
+});
+
+let friendProfileResponse = createFriendProfileResponse();
+
+const setupRoutineProofAccessMocks = (
+  isFriend: boolean,
+  date: string,
+  confirmationImagesVisibleToFriends = isFriend,
+) => {
+  const routineResponse = createFriendRoutineResponse();
+  mockAxios.onGet(`/friends/42/routines?date=${date}`).reply(
+    200,
+    wrapResponse({
+      ...routineResponse,
+      isFriend,
+      friend: {
+        ...routineResponse.friend,
+        isFriend,
+        confirmationImagesVisibleToFriends,
+      },
+      routines: [
+        {
+          ...routineResponse.routines[0],
+          weeklyCount: 1,
+          confirmations: [
+            {
+              confirmId: 99,
+              date,
+              status: 'PASS',
+            },
+          ],
+          todayConfirmStatus: 'PASS',
+          todayConfirmId: 99,
+        },
+      ],
+    }),
+  );
+};
 
 describe('FriendRoutinesModal', () => {
   beforeEach(() => {
@@ -86,6 +149,10 @@ describe('FriendRoutinesModal', () => {
     mockSearchParams.friendId = '42';
     mockSearchParams.friendNickname = '혜연';
     mockSearchParams.date = '2026-05-25';
+    friendProfileResponse = createFriendProfileResponse();
+    mockAxios
+      .onGet('/friends/42/profile')
+      .reply(() => [200, wrapResponse(friendProfileResponse)]);
   });
 
   afterEach(async () => {
@@ -97,24 +164,29 @@ describe('FriendRoutinesModal', () => {
     mockAxios.restore();
   });
 
-  it('친구 프로필 조회 결과로 테마 컬러, 캐릭터, 배경을 적용한다', async () => {
+  it('친구 루틴 조회 결과로 테마 컬러, 캐릭터, 배경을 적용한다', async () => {
     const backgroundImageUrl = 'https://cdn.example.com/backgrounds/mage.png';
-    mockAxios.onGet('/friends/42/profile').reply(
+    friendProfileResponse = createFriendProfileResponse({
+      job: '마법사',
+      characterCode: 'MAGE_INTERMEDIATE',
+    });
+    mockAxios.onGet('/friends/42/routines?date=2026-05-25').reply(
       200,
       wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '마법사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'MAGE_INTERMEDIATE',
-        characterImageUrl: 'https://cdn.example.com/characters/mage.png',
-        backgroundImageUrl,
+        isFriend: true,
+        friend: {
+          id: 42,
+          nickname: '혜연',
+          job: '마법사',
+          motto: '오늘도 전진',
+          level: 7,
+          characterCode: 'MAGE_INTERMEDIATE',
+          characterImageUrl: 'https://cdn.example.com/characters/mage.png',
+          backgroundImageUrl,
+        },
+        routines: [],
       }),
     );
-    mockAxios
-      .onGet('/friends/42/routines?date=2026-05-25')
-      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
 
     const screen = renderFriendRoutinesModal();
 
@@ -171,6 +243,45 @@ describe('FriendRoutinesModal', () => {
     expect(screen.UNSAFE_queryAllByType(Image)).toHaveLength(2);
   });
 
+  it('친구 루틴 API의 친구 정보로 캐릭터, 배경, 한마디를 적용하고 프로필 API도 호출한다', async () => {
+    const characterImageUrl = 'https://cdn.example.com/characters/archer.png';
+    const backgroundImageUrl =
+      'https://cdn.example.com/backgrounds/archer.webp';
+    mockAxios.onGet('/friends/42/routines?date=2026-05-25').reply(
+      200,
+      wrapResponse({
+        isFriend: false,
+        friend: {
+          id: 42,
+          nickname: '혜연',
+          level: 7,
+          motto: '루틴 API에서 온 한마디',
+          job: '궁수',
+          characterCode: 'ARCHER_INTERMEDIATE',
+          characterImageUrl,
+          backgroundImageUrl,
+        },
+        routines: [],
+      }),
+    );
+
+    const screen = renderFriendRoutinesModal();
+
+    expect(
+      await screen.findByTestId('friend-routine-scene-character'),
+    ).toHaveProp('source', { uri: characterImageUrl });
+    expect(
+      await screen.findByTestId('friend-routine-scene-background'),
+    ).toHaveProp('source', { uri: backgroundImageUrl });
+    expect(await screen.findByText('루틴 API에서 온 한마디')).toBeOnTheScreen();
+    expect(mockAxios.history.get.map((request) => request.url)).toEqual(
+      expect.arrayContaining([
+        '/friends/42/profile',
+        '/friends/42/routines?date=2026-05-25',
+      ]),
+    );
+  });
+
   it.each([
     [
       'WARRIOR',
@@ -183,25 +294,30 @@ describe('FriendRoutinesModal', () => {
       appThemes.green.colors.brand.routineEvolutionBackground.stage2,
     ],
   ])(
-    '친구 프로필의 %s evolutionCount=%s에 맞는 배경 컬러를 표시한다',
+    '친구 프로필 API의 %s job과 evolutionCount에 맞는 배경 컬러를 표시한다',
     async (jobType, evolutionCount, expectedBackgroundColor) => {
-      mockAxios.onGet('/friends/42/profile').reply(
+      friendProfileResponse = createFriendProfileResponse({
+        job: jobType,
+        characterCode: `${jobType}_INTERMEDIATE`,
+        evolutionCount,
+      });
+      mockAxios.onGet('/friends/42/routines?date=2026-05-25').reply(
         200,
         wrapResponse({
-          friendId: 42,
-          nickname: '혜연',
-          job: jobType,
-          motto: '오늘도 전진',
-          level: 7,
-          characterCode: `${jobType}_INTERMEDIATE`,
-          characterImageUrl: null,
-          backgroundImageUrl: null,
-          evolutionCount,
+          isFriend: true,
+          friend: {
+            id: 42,
+            nickname: '혜연',
+            job: jobType,
+            motto: '오늘도 전진',
+            level: 7,
+            characterCode: `${jobType}_INTERMEDIATE`,
+            characterImageUrl: null,
+            backgroundImageUrl: null,
+          },
+          routines: [],
         }),
       );
-      mockAxios
-        .onGet('/friends/42/routines?date=2026-05-25')
-        .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
 
       const screen = renderFriendRoutinesModal();
 
@@ -219,21 +335,8 @@ describe('FriendRoutinesModal', () => {
     },
   );
 
-  it('내 테마가 달라도 루틴 카드 영역은 친구 프로필 테마를 사용한다', async () => {
+  it('내 테마가 달라도 루틴 카드 영역은 친구 루틴 API의 친구 테마를 사용한다', async () => {
     useColorSchemeStore.getState().setColorScheme('red');
-    mockAxios.onGet('/friends/42/profile').reply(
-      200,
-      wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '검사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'WARRIOR_INTERMEDIATE',
-        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
-        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.png',
-      }),
-    );
     mockAxios
       .onGet('/friends/42/routines?date=2026-05-25')
       .reply(200, wrapResponse(createFriendRoutineResponse()));
@@ -254,19 +357,6 @@ describe('FriendRoutinesModal', () => {
   it('친구가 지정한 루틴 컬러를 완료 체크 배경에 표시한다', async () => {
     const routineColor = '#F791DE';
 
-    mockAxios.onGet('/friends/42/profile').reply(
-      200,
-      wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '검사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'WARRIOR_INTERMEDIATE',
-        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
-        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.png',
-      }),
-    );
     mockAxios.onGet('/friends/42/routines?date=2026-05-25').reply(
       200,
       wrapResponse({
@@ -289,19 +379,6 @@ describe('FriendRoutinesModal', () => {
 
   it('친구 홈의 주간 루틴 카드에도 수행 횟수를 표시하고 메뉴는 숨긴다', async () => {
     mockRoutineStore.type = 'week';
-    mockAxios.onGet('/friends/42/profile').reply(
-      200,
-      wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '검사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'WARRIOR_INTERMEDIATE',
-        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
-        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.png',
-      }),
-    );
     mockAxios
       .onGet('/friends/42/routines?date=2026-05-25')
       .reply(200, wrapResponse(createFriendRoutineResponse()));
@@ -321,36 +398,138 @@ describe('FriendRoutinesModal', () => {
     expect(screen.queryByLabelText('운동 10분 이상 메뉴 열기')).toBeNull();
   });
 
+  it('친구 루틴의 PASS confirmations를 회차 체크 표시로 사용한다', async () => {
+    const currentWeekMonday = getWeekMonday(new Date());
+    mockSearchParams.date = currentWeekMonday;
+    const routineResponse = createFriendRoutineResponse();
+
+    mockAxios.onGet(`/friends/42/routines?date=${currentWeekMonday}`).reply(
+      200,
+      wrapResponse({
+        ...routineResponse,
+        routines: [
+          {
+            ...routineResponse.routines[0],
+            weeklyCount: 0,
+            confirmations: [
+              {
+                confirmId: 123,
+                date: currentWeekMonday,
+                status: 'PASS',
+              },
+            ],
+          },
+        ],
+      }),
+    );
+
+    const screen = renderFriendRoutinesModal();
+    const completedCheck = await screen.findByTestId('routine-count-check-1-1');
+
+    expect(await screen.findByLabelText('1회 달성')).toBeOnTheScreen();
+    expect(
+      within(completedCheck).getByTestId('routine-checkmark-icon'),
+    ).toBeOnTheScreen();
+  });
+
+  it('친구인 경우 완료 체크박스로 인증 상세 페이지를 연다', async () => {
+    const currentWeekMonday = getWeekMonday(new Date());
+    mockSearchParams.date = currentWeekMonday;
+    setupRoutineProofAccessMocks(true, currentWeekMonday);
+
+    const screen = renderFriendRoutinesModal();
+    const checkbox = await screen.findByLabelText('1회 달성');
+
+    expect(checkbox).toHaveProp('accessibilityRole', 'button');
+
+    fireEvent.press(checkbox);
+
+    expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(99);
+    expect(mockPush).toHaveBeenCalledWith('/modal?type=routine-proof-detail');
+  });
+
+  it('친구의 주간 루틴 완료 체크박스로도 인증 상세 페이지를 연다', async () => {
+    const currentWeekMonday = getWeekMonday(new Date());
+    mockRoutineStore.type = 'week';
+    mockSearchParams.date = currentWeekMonday;
+    setupRoutineProofAccessMocks(true, currentWeekMonday);
+
+    const screen = renderFriendRoutinesModal();
+    const checkbox = await screen.findByLabelText('월요일 달성');
+
+    expect(checkbox).toHaveProp('accessibilityRole', 'button');
+
+    fireEvent.press(checkbox);
+
+    expect(mockRequestStore.setRequestId).toHaveBeenCalledWith(99);
+    expect(mockPush).toHaveBeenCalledWith('/modal?type=routine-proof-detail');
+  });
+
+  it('친구가 아니면 완료 체크박스 클릭 시 접근 불가 Toast를 표시한다', async () => {
+    const currentWeekMonday = getWeekMonday(new Date());
+    mockSearchParams.date = currentWeekMonday;
+    setupRoutineProofAccessMocks(false, currentWeekMonday);
+
+    const screen = renderFriendRoutinesModal();
+    const checkbox = await screen.findByLabelText('1회 달성');
+
+    expect(checkbox).toHaveProp('accessibilityRole', 'button');
+
+    fireEvent.press(checkbox);
+
+    expect(mockShowToast).toHaveBeenCalledWith(
+      '친구인 경우만 이동가능합니다.',
+      'error',
+    );
+    expect(mockRequestStore.setRequestId).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalledWith(
+      '/modal?type=routine-proof-detail',
+    );
+  });
+
+  it('친구지만 인증 공유를 허용하지 않으면 완료 체크박스 클릭 시 안내 Toast를 표시한다', async () => {
+    const currentWeekMonday = getWeekMonday(new Date());
+    mockSearchParams.date = currentWeekMonday;
+    setupRoutineProofAccessMocks(true, currentWeekMonday, false);
+
+    const screen = renderFriendRoutinesModal();
+    const checkbox = await screen.findByLabelText('1회 달성');
+
+    expect(checkbox).toHaveProp('accessibilityRole', 'button');
+
+    fireEvent.press(checkbox);
+
+    expect(mockShowToast).toHaveBeenCalledWith(
+      '친구가 인증을 공유하지 않았습니다.',
+      'error',
+    );
+    expect(mockRequestStore.setRequestId).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalledWith(
+      '/modal?type=routine-proof-detail',
+    );
+  });
+
   it('날짜를 이동해도 라우터 push 없이 루틴 영역만 갱신한다', async () => {
     const getRemoteAssetSpy = jest.spyOn(
       routineSceneArt,
       'getRoutineSceneRemoteAsset',
     );
-
-    mockAxios.onGet('/friends/42/profile').reply(
-      200,
-      wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '검사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'WARRIOR_INTERMEDIATE',
-        characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
-        backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.png',
-      }),
-    );
+    const initialRoutineResponse = createFriendRoutineResponse({
+      characterImageUrl: 'https://cdn.example.com/characters/warrior.png',
+      backgroundImageUrl: 'https://cdn.example.com/backgrounds/warrior.png',
+    });
     mockAxios
       .onGet('/friends/42/routines?date=2026-05-25')
-      .reply(200, wrapResponse(createFriendRoutineResponse()))
+      .reply(200, wrapResponse(initialRoutineResponse))
       .onGet('/friends/42/routines?date=2026-06-01')
       .reply(
         200,
         wrapResponse({
-          friend: { id: 42 },
+          isFriend: true,
+          friend: initialRoutineResponse.friend,
           routines: [
             {
-              ...createFriendRoutineResponse().routines[0],
+              ...initialRoutineResponse.routines[0],
               routineId: 2,
               routineName: '휴식하기',
             },
@@ -376,22 +555,23 @@ describe('FriendRoutinesModal', () => {
   });
 
   it('친구 이미지 URL이 없으면 프론트 캐릭터와 배경을 폴백으로 표시하지 않는다', async () => {
-    mockAxios.onGet('/friends/42/profile').reply(
+    mockAxios.onGet('/friends/42/routines?date=2026-05-25').reply(
       200,
       wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '검사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'WARRIOR_INTERMEDIATE',
-        characterImageUrl: null,
-        backgroundImageUrl: null,
+        isFriend: true,
+        friend: {
+          id: 42,
+          nickname: '혜연',
+          job: '검사',
+          motto: '오늘도 전진',
+          level: 7,
+          characterCode: 'WARRIOR_INTERMEDIATE',
+          characterImageUrl: null,
+          backgroundImageUrl: null,
+        },
+        routines: [],
       }),
     );
-    mockAxios
-      .onGet('/friends/42/routines?date=2026-05-25')
-      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
 
     const screen = renderFriendRoutinesModal();
 
@@ -401,22 +581,12 @@ describe('FriendRoutinesModal', () => {
   });
 
   it('응원 콕 버튼을 상단 친구 타이틀 우측에 표시한다', async () => {
-    mockAxios.onGet('/friends/42/profile').reply(
-      200,
-      wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '검사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'WARRIOR_INTERMEDIATE',
-        characterImageUrl: null,
-        backgroundImageUrl: null,
-      }),
-    );
     mockAxios
       .onGet('/friends/42/routines?date=2026-05-25')
-      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
+      .reply(
+        200,
+        wrapResponse({ isFriend: true, friend: { id: 42 }, routines: [] }),
+      );
 
     const screen = renderFriendRoutinesModal();
 
@@ -460,27 +630,53 @@ describe('FriendRoutinesModal', () => {
     });
   });
 
+  it('친구가 아니면 응원 콕 대신 친구 추가 버튼을 표시하고 요청을 보낸다', async () => {
+    mockAxios.onGet('/friends/42/routines?date=2026-05-25').reply(
+      200,
+      wrapResponse({
+        ...createFriendRoutineResponse(),
+        isFriend: false,
+      }),
+    );
+    mockAxios.onPost('/friends/requests').reply(201, {
+      data: {
+        id: 10,
+        senderNickname: '윤윤',
+        receiverNickname: '혜연',
+        status: 'PENDING',
+        createdAt: '2026-07-29T14:10:00',
+      },
+    });
+
+    const screen = renderFriendRoutinesModal();
+
+    const addFriendButton = await screen.findByRole('button', {
+      name: '친구 추가',
+    });
+
+    expect(screen.queryByRole('button', { name: '응원 콕' })).toBeNull();
+
+    fireEvent.press(addFriendButton);
+
+    await waitFor(() => {
+      expect(mockAxios.history.post[0]?.url).toBe('/friends/requests');
+      expect(mockAxios.history.post[0]?.data).toBe(
+        JSON.stringify({ receiverNickname: '혜연' }),
+      );
+    });
+  });
+
   it('응원 콕 전송 중에는 응원 아이콘만 로딩 아이콘으로 교체한다', async () => {
     let resolveCheerRequest:
       | ((response: [number, { message: string }]) => void)
       | undefined;
 
-    mockAxios.onGet('/friends/42/profile').reply(
-      200,
-      wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '검사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'WARRIOR_INTERMEDIATE',
-        characterImageUrl: null,
-        backgroundImageUrl: null,
-      }),
-    );
     mockAxios
       .onGet('/friends/42/routines?date=2026-05-25')
-      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
+      .reply(
+        200,
+        wrapResponse({ isFriend: true, friend: { id: 42 }, routines: [] }),
+      );
     mockAxios.onPost('/friends/42/cheer').reply(
       () =>
         new Promise((resolve) => {
@@ -519,23 +715,13 @@ describe('FriendRoutinesModal', () => {
     });
   });
 
-  it('응원 콕을 보낸 뒤 루틴과 프로필을 다시 조회하지 않고 성공 메시지를 표시한다', async () => {
-    mockAxios.onGet('/friends/42/profile').reply(
-      200,
-      wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '검사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'WARRIOR_INTERMEDIATE',
-        characterImageUrl: null,
-        backgroundImageUrl: null,
-      }),
-    );
+  it('응원 콕을 보낸 뒤 루틴을 다시 조회하지 않고 성공 메시지를 표시한다', async () => {
     mockAxios
       .onGet('/friends/42/routines?date=2026-05-25')
-      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
+      .reply(
+        200,
+        wrapResponse({ isFriend: true, friend: { id: 42 }, routines: [] }),
+      );
     mockAxios.onPost('/friends/42/cheer').reply(200, {
       cheerId: 10,
       senderId: 1,
@@ -563,22 +749,12 @@ describe('FriendRoutinesModal', () => {
   });
 
   it('응원 콕 전송이 거절되면 서버 오류 메시지를 표시한다', async () => {
-    mockAxios.onGet('/friends/42/profile').reply(
-      200,
-      wrapResponse({
-        friendId: 42,
-        nickname: '혜연',
-        job: '검사',
-        motto: '오늘도 전진',
-        level: 7,
-        characterCode: 'WARRIOR_INTERMEDIATE',
-        characterImageUrl: null,
-        backgroundImageUrl: null,
-      }),
-    );
     mockAxios
       .onGet('/friends/42/routines?date=2026-05-25')
-      .reply(200, wrapResponse({ friend: { id: 42 }, routines: [] }));
+      .reply(
+        200,
+        wrapResponse({ isFriend: true, friend: { id: 42 }, routines: [] }),
+      );
     mockAxios.onPost('/friends/42/cheer').reply(429, {
       success: false,
       error: {

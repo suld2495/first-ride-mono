@@ -53,6 +53,16 @@ describe('설정 하위 페이지', () => {
         },
       },
     });
+    mockAxios.onGet('/users/me/random-friend-settings').reply(200, {
+      data: {
+        randomFriendRecommendationEnabled: true,
+      },
+    });
+    mockAxios.onGet('/users/me/confirmation-image-visibility').reply(200, {
+      data: {
+        confirmationImagesVisibleToFriends: false,
+      },
+    });
   });
 
   afterEach(() => {
@@ -558,6 +568,140 @@ describe('설정 하위 페이지', () => {
     });
     await waitFor(() => {
       expect(mockAxios.history.patch).toHaveLength(1);
+    });
+  });
+
+  it('알림 설정 페이지는 친구 추천 안 하기 토글을 랜덤 친구 설정 API와 연결한다', async () => {
+    mockAxios.onPatch('/users/me/random-friend-settings').reply((config) => {
+      expect(JSON.parse(config.data ?? '{}')).toEqual({
+        randomFriendRecommendationEnabled: false,
+      });
+
+      return [
+        200,
+        {
+          data: {
+            randomFriendRecommendationEnabled: false,
+          },
+        },
+      ];
+    });
+
+    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+
+    expect(await findByText('친구 추천 안 하기')).toBeOnTheScreen();
+    const optOutToggle = getByTestId(
+      'notification-settings-toggle-random-friend-opt-out',
+    );
+    expect(optOutToggle.props.accessibilityState.checked).toBe(false);
+
+    fireEvent.press(optOutToggle);
+
+    await waitFor(() => {
+      expect(optOutToggle.props.accessibilityState.checked).toBe(true);
+    });
+    await waitFor(() => {
+      expect(
+        mockAxios.history.patch.filter(
+          (request) => request.url === '/users/me/random-friend-settings',
+        ),
+      ).toHaveLength(1);
+    });
+  });
+
+  it('알림 설정 페이지는 친구 추천 설정 변경 실패 시 토글을 되돌리고 오류를 표시한다', async () => {
+    mockAxios.onPatch('/users/me/random-friend-settings').reply(500, {
+      success: false,
+      error: {
+        message: '친구 추천 설정을 저장하지 못했습니다.',
+      },
+    });
+
+    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+
+    expect(await findByText('친구 추천 안 하기')).toBeOnTheScreen();
+    const optOutToggle = getByTestId(
+      'notification-settings-toggle-random-friend-opt-out',
+    );
+
+    fireEvent.press(optOutToggle);
+
+    await waitFor(() => {
+      expect(optOutToggle.props.accessibilityState.checked).toBe(false);
+    });
+    await waitFor(() => {
+      expect(mockShowToast).toHaveBeenCalledWith(
+        '친구 추천 설정을 저장하지 못했습니다.',
+        'error',
+      );
+    });
+  });
+
+  it('알림 설정 페이지는 친구 인증 사진 공개 토글을 공개 설정 API와 연결한다', async () => {
+    mockAxios
+      .onPatch('/users/me/confirmation-image-visibility')
+      .reply((config) => {
+        expect(JSON.parse(config.data ?? '{}')).toEqual({
+          confirmationImagesVisibleToFriends: true,
+        });
+
+        return [
+          200,
+          {
+            data: {
+              confirmationImagesVisibleToFriends: true,
+            },
+          },
+        ];
+      });
+
+    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+
+    expect(await findByText('친구에게 인증 사진 공개')).toBeOnTheScreen();
+    const visibilityToggle = getByTestId(
+      'notification-settings-toggle-confirmation-image-visibility',
+    );
+    expect(visibilityToggle.props.accessibilityState.checked).toBe(false);
+
+    fireEvent.press(visibilityToggle);
+
+    await waitFor(() => {
+      expect(visibilityToggle.props.accessibilityState.checked).toBe(true);
+    });
+    await waitFor(() => {
+      expect(
+        mockAxios.history.patch.filter(
+          (request) =>
+            request.url === '/users/me/confirmation-image-visibility',
+        ),
+      ).toHaveLength(1);
+    });
+  });
+
+  it('알림 설정 페이지는 친구 인증 사진 공개 설정 변경 실패 시 토글을 되돌리고 오류를 표시한다', async () => {
+    mockAxios.onPatch('/users/me/confirmation-image-visibility').reply(500, {
+      success: false,
+      error: {
+        message: '친구 인증 사진 공개 설정을 변경하지 못했습니다.',
+      },
+    });
+
+    const { findByText, getByTestId } = render(<NotificationSettingsPage />);
+    expect(await findByText('친구에게 인증 사진 공개')).toBeOnTheScreen();
+
+    const visibilityToggle = getByTestId(
+      'notification-settings-toggle-confirmation-image-visibility',
+    );
+    fireEvent.press(visibilityToggle);
+
+    await waitFor(() => {
+      expect(visibilityToggle.props.accessibilityState.checked).toBe(false);
+    });
+    await waitFor(() => {
+      expect(mockShowToast).toHaveBeenCalledWith(
+        '친구 인증 사진 공개 설정을 변경하지 못했습니다.',
+        'error',
+      );
     });
   });
 

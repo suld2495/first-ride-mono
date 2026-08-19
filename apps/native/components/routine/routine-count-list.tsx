@@ -31,6 +31,8 @@ interface RoutineCountListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
+  canOpenRoutineProofDetail?: boolean;
+  onRoutineProofDetailAccessDenied?: () => void;
   onRequestRoutine: (
     routine: Routine,
     meta?: {
@@ -42,6 +44,7 @@ interface RoutineCountListProps {
   onToggleRoutineMenu: (routineId: number) => void;
   onScrollOffsetChange?: (scrollOffset: number) => void;
   readOnly?: boolean;
+  useConfirmationsForProgress?: boolean;
   routineColorFallback?: string;
 }
 
@@ -158,11 +161,14 @@ const RoutineCountList = ({
   refreshing = false,
   onRefresh,
   canRequestRoutine = false,
+  canOpenRoutineProofDetail = false,
+  onRoutineProofDetailAccessDenied,
   onRequestRoutine,
   openMenuRoutineId,
   onToggleRoutineMenu,
   onScrollOffsetChange,
   readOnly = false,
+  useConfirmationsForProgress = false,
   routineColorFallback = DEFAULT_ROUTINE_COLOR,
 }: RoutineCountListProps) => {
   const { theme } = useAppTheme();
@@ -202,6 +208,9 @@ const RoutineCountList = ({
         routine.confirmations,
         date,
       );
+      const completedCount = useConfirmationsForProgress
+        ? passedConfirmIds.length
+        : weeklyCount;
       const hasTodaySuccess = isCurrentWeek && Boolean(todayPassedConfirmation);
 
       const countLabels = Array.from(
@@ -261,10 +270,10 @@ const RoutineCountList = ({
               <View style={styles.checkRow}>
                 {Array.from({ length: MAX_ROUTINE_COUNT }, (_, index) => {
                   const countIndex = index + 1;
-                  const achieved = countIndex <= weeklyCount;
+                  const achieved = countIndex <= completedCount;
                   const isPendingConfirmation =
                     !achieved &&
-                    countIndex <= weeklyCount + pendingConfirmationCount;
+                    countIndex <= completedCount + pendingConfirmationCount;
                   const isGoalRange = countIndex <= routineCount;
                   const isMissedPastGoal =
                     isPastWeek &&
@@ -309,22 +318,28 @@ const RoutineCountList = ({
                     isPendingConfirmation,
                     isGoalRange,
                   });
-                  const handlePressCheckBox = canRequestWithCheckBox
+                  const confirmId = achieved
+                    ? (passedConfirmIds[countIndex - 1] ??
+                      (isTodaySuccess
+                        ? (todayPassedConfirmation?.confirmId ??
+                          (routine.todayConfirmStatus === 'PASS'
+                            ? routine.todayConfirmId
+                            : null))
+                        : null))
+                    : isPendingConfirmation
+                      ? (routine.pendingConfirmationIds[
+                          countIndex - completedCount - 1
+                        ] ?? null)
+                      : null;
+                  const canPressWithCheckBox =
+                    canRequestWithCheckBox ||
+                    (Boolean(confirmId) &&
+                      (canOpenRoutineProofDetail ||
+                        Boolean(onRoutineProofDetailAccessDenied)));
+                  const handlePressCheckBox = canPressWithCheckBox
                     ? () =>
                         onRequestRoutine(routine, {
-                          confirmId: achieved
-                            ? (passedConfirmIds[countIndex - 1] ??
-                              (isTodaySuccess
-                                ? (todayPassedConfirmation?.confirmId ??
-                                  (routine.todayConfirmStatus === 'PASS'
-                                    ? routine.todayConfirmId
-                                    : null))
-                                : null))
-                            : isPendingConfirmation
-                              ? (routine.pendingConfirmationIds[
-                                  countIndex - weeklyCount - 1
-                                ] ?? null)
-                              : null,
+                          confirmId,
                           isMissedPast: isMissedPastGoal,
                         })
                     : undefined;
@@ -335,9 +350,9 @@ const RoutineCountList = ({
                       style={styles.column}
                       accessibilityLabel={label}
                       accessibilityRole={
-                        canRequestWithCheckBox ? 'button' : 'image'
+                        canPressWithCheckBox ? 'button' : 'image'
                       }
-                      disabled={!canRequestWithCheckBox}
+                      disabled={!canPressWithCheckBox}
                       onPress={handlePressCheckBox}
                     >
                       <View
@@ -388,11 +403,14 @@ const RoutineCountList = ({
     [
       date,
       canRequestRoutine,
+      canOpenRoutineProofDetail,
       itemHeight,
+      onRoutineProofDetailAccessDenied,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,
       routineColorFallback,
+      useConfirmationsForProgress,
       theme.colors.brand.pendingConfirmationCheckbox,
       theme.colors.brand.routineProgressText,
       theme.colors.brand.routineUpcomingCheckboxBorder,

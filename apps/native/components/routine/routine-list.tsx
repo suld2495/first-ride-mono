@@ -51,6 +51,9 @@ interface RoutineListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   readOnly?: boolean;
+  canOpenRoutineProofDetail?: boolean;
+  onRoutineProofDetailAccessDenied?: () => void;
+  useConfirmationsForProgress?: boolean;
   routineColorFallback?: string;
 }
 
@@ -84,6 +87,9 @@ const RoutineList = ({
   refreshing = false,
   onRefresh,
   readOnly = false,
+  canOpenRoutineProofDetail = false,
+  onRoutineProofDetailAccessDenied,
+  useConfirmationsForProgress = false,
   routineColorFallback,
 }: RoutineListProps) => {
   const setRoutineId = useSetRoutineId();
@@ -241,6 +247,25 @@ const RoutineList = ({
 
   const handlePressRoutineCheck = useCallback(
     (routine: Routine, meta: RoutineCheckPressMeta = {}) => {
+      const todayConfirmId =
+        routine.todayConfirmStatus === 'PASS' ||
+        routine.todayConfirmStatus === 'WAIT'
+          ? routine.todayConfirmId
+          : null;
+      const confirmId = meta.confirmId ?? todayConfirmId;
+
+      if (confirmId && canOpenRoutineProofDetail) {
+        handleShowRoutineProofDetailModal(confirmId);
+
+        return;
+      }
+
+      if (confirmId && onRoutineProofDetailAccessDenied) {
+        onRoutineProofDetailAccessDenied();
+
+        return;
+      }
+
       if (!showsRequestMenuItem) {
         return;
       }
@@ -257,16 +282,13 @@ const RoutineList = ({
         return;
       }
 
-      const todayConfirmId =
-        routine.todayConfirmStatus === 'PASS' ||
-        routine.todayConfirmStatus === 'WAIT'
-          ? routine.todayConfirmId
-          : null;
-      const confirmId = meta.confirmId ?? todayConfirmId;
-
       if (confirmId) {
         handleShowRoutineProofDetailModal(confirmId);
 
+        return;
+      }
+
+      if (readOnly) {
         return;
       }
 
@@ -288,6 +310,9 @@ const RoutineList = ({
       handleShowRequestModal,
       handleShowRoutineCompleteConfirm,
       handleShowRoutineProofDetailModal,
+      canOpenRoutineProofDetail,
+      onRoutineProofDetailAccessDenied,
+      readOnly,
       showToast,
       showsRequestMenuItem,
     ],
@@ -436,6 +461,11 @@ const RoutineList = ({
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
+              canOpenRoutineProofDetail={canOpenRoutineProofDetail}
+              onRoutineProofDetailAccessDenied={
+                onRoutineProofDetailAccessDenied
+              }
+              useConfirmationsForProgress={useConfirmationsForProgress}
               routineColorFallback={routineColorFallback}
               testID="routine-list-scroll"
             />
@@ -454,6 +484,10 @@ const RoutineList = ({
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
+              canOpenRoutineProofDetail={canOpenRoutineProofDetail}
+              onRoutineProofDetailAccessDenied={
+                onRoutineProofDetailAccessDenied
+              }
               routineColorFallback={routineColorFallback}
               testID="routine-list-scroll"
             />

@@ -1,4 +1,5 @@
 import {
+  useAddFriendMutation,
   useFriendCheerMutation,
   useFriendProfileQuery,
   useFriendRoutinesQuery,
@@ -6,7 +7,7 @@ import {
 import { getWeekMonday } from '@repo/shared/utils';
 import { useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
 
 import FriendCheerIcon from '@/components/icons/friend-cheer-icon';
@@ -87,24 +88,159 @@ const FriendRoutineCharacterStage = memo(
 
 FriendRoutineCharacterStage.displayName = 'FriendRoutineCharacterStage';
 
+interface FriendRoutineHeaderActionProps {
+  friendId: string;
+  friendNickname: string;
+  isFriend: boolean;
+}
+
+const FriendCheerHeaderAction = ({
+  friendId,
+}: Pick<FriendRoutineHeaderActionProps, 'friendId'>) => {
+  const { isPending: isCheerPending, mutate: cheerFriend } =
+    useFriendCheerMutation();
+  const { showToast } = useToast();
+
+  const handleCheer = useCallback(() => {
+    cheerFriend(friendId, {
+      onSuccess: () => {
+        showToast('친구에게 응원을 보냈어요!', 'success');
+      },
+      onError: (error) => {
+        showToast(
+          getApiErrorMessage(error, '응원 콕을 보내지 못했습니다.'),
+          'error',
+        );
+      },
+    });
+  }, [cheerFriend, friendId, showToast]);
+
+  return (
+    <ModalHeaderAction>
+      <Button
+        accessibilityLabel="응원 콕"
+        accessibilityRole="button"
+        backgroundColor={palette.white}
+        contentStyle={styles.cheerButtonContent}
+        disabled={isCheerPending}
+        leftIcon={
+          isCheerPending ? (
+            <LoadingSpinner
+              size={baseFoundation.iconSize.xs}
+              strokeWidth={3}
+              testID="friend-cheer-loading-icon"
+            />
+          ) : (
+            <FriendCheerIcon />
+          )
+        }
+        onPress={handleCheer}
+        size="sm"
+        style={styles.cheerButton}
+        textColor={palette.theme.gray[70]}
+        textStyle={styles.cheerButtonText}
+        variant="ghost"
+      >
+        응원
+      </Button>
+    </ModalHeaderAction>
+  );
+};
+
+const FriendAddHeaderAction = ({
+  friendNickname,
+}: Pick<FriendRoutineHeaderActionProps, 'friendNickname'>) => {
+  const addFriendMutation = useAddFriendMutation();
+  const { showToast } = useToast();
+  const requestInFlightRef = useRef(false);
+  const [isRequested, setIsRequested] = useState(false);
+
+  const handleAddFriend = useCallback(() => {
+    if (requestInFlightRef.current || isRequested) {
+      return;
+    }
+
+    requestInFlightRef.current = true;
+    addFriendMutation.mutate(friendNickname, {
+      onSuccess: () => {
+        setIsRequested(true);
+        showToast('친구 요청을 보냈습니다.', 'success');
+      },
+      onError: (error) => {
+        showToast(
+          getApiErrorMessage(error, '친구 추가에 실패했습니다.'),
+          'error',
+        );
+      },
+      onSettled: () => {
+        requestInFlightRef.current = false;
+      },
+    });
+  }, [addFriendMutation, friendNickname, isRequested, showToast]);
+
+  return (
+    <ModalHeaderAction>
+      <Button
+        accessibilityLabel={isRequested ? '친구 요청 완료' : '친구 추가'}
+        accessibilityRole="button"
+        backgroundColor={palette.white}
+        disabled={isRequested}
+        loading={addFriendMutation.isPending}
+        onPress={handleAddFriend}
+        size="sm"
+        style={styles.friendAddButton}
+        textColor={palette.theme.gray[70]}
+        textStyle={styles.cheerButtonText}
+        variant="ghost"
+      >
+        {isRequested ? '요청 완료' : '친구 추가'}
+      </Button>
+    </ModalHeaderAction>
+  );
+};
+
+const FriendRoutineHeaderAction = ({
+  friendId,
+  friendNickname,
+  isFriend,
+}: FriendRoutineHeaderActionProps) =>
+  isFriend ? (
+    <FriendCheerHeaderAction friendId={friendId} />
+  ) : (
+    <FriendAddHeaderAction friendNickname={friendNickname} />
+  );
+
 interface FriendRoutineDateSectionProps {
   children: ReactNode;
+  data: FriendRoutinesData | undefined;
+  date: string;
   friendId: string;
+  isError: boolean;
+  isLoading: boolean;
+  isRefetching: boolean;
+  onDateChange: (date: string) => void;
+  onRefresh: () => Promise<void>;
   routineColorFallback: string;
 }
 
+type FriendRoutinesData = NonNullable<
+  ReturnType<typeof useFriendRoutinesQuery>['data']
+>;
+
 const FriendRoutineDateSection = ({
   children,
+  data,
+  date,
   friendId,
+  isError,
+  isLoading,
+  isRefetching,
+  onDateChange,
+  onRefresh,
   routineColorFallback,
 }: FriendRoutineDateSectionProps) => {
-  const { date: dateParam } = useLocalSearchParams<{ date?: string }>();
-  const [date, setDate] = useState(
-    () => dateParam || getWeekMonday(new Date()),
-  );
   const [routineListAreaHeight, setRoutineListAreaHeight] = useState(0);
-  const { data, isLoading, isRefetching, refetch, isError } =
-    useFriendRoutinesQuery(friendId, date);
+  const { showToast } = useToast();
 
   const handleRoutineListAreaLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -113,24 +249,35 @@ const FriendRoutineDateSection = ({
     [],
   );
 
-  const handleRefresh = useCallback(
-    () => refetch().then(() => undefined),
-    [refetch],
-  );
-
-  const handleDateChange = useCallback((targetDate: string) => {
-    setDate(targetDate);
-  }, []);
-
   const routines = data?.routines ?? [];
   const hasRoutines = routines.length > 0;
   const showRoutineList = !isLoading && !isError && !!data;
+  const canOpenRoutineProofDetail = Boolean(
+    data?.isFriend && data.friend.confirmationImagesVisibleToFriends,
+  );
+
+  const handleRoutineProofDetailAccessDenied = useCallback(() => {
+    showToast(
+      data?.isFriend
+        ? '친구가 인증을 공유하지 않았습니다.'
+        : '친구인 경우만 이동가능합니다.',
+      'error',
+    );
+  }, [data?.isFriend, showToast]);
 
   return (
     <>
+      {data ? (
+        <FriendRoutineHeaderAction
+          friendId={friendId}
+          friendNickname={data.friend.nickname}
+          isFriend={data.isFriend}
+        />
+      ) : null}
+
       <RoutineHeader
         date={date}
-        onDateChange={handleDateChange}
+        onDateChange={onDateChange}
         showNotification={false}
       />
 
@@ -159,8 +306,13 @@ const FriendRoutineDateSection = ({
                 hasRoutines ? routineListAreaHeight || undefined : undefined
               }
               refreshing={isRefetching}
-              onRefresh={handleRefresh}
+              onRefresh={onRefresh}
               readOnly
+              canOpenRoutineProofDetail={canOpenRoutineProofDetail}
+              onRoutineProofDetailAccessDenied={
+                handleRoutineProofDetailAccessDenied
+              }
+              useConfirmationsForProgress
               routineColorFallback={routineColorFallback}
             />
           )}
@@ -172,26 +324,31 @@ const FriendRoutineDateSection = ({
 };
 
 const FriendRoutinesModal = () => {
-  const { friendId } = useLocalSearchParams<{
+  const { friendId, date: dateParam } = useLocalSearchParams<{
     friendId?: string;
+    date?: string;
   }>();
-  const { data: profile, isLoading: isProfileLoading } =
+  const [date, setDate] = useState(
+    () => dateParam || getWeekMonday(new Date()),
+  );
+  const { data: friendProfile, isLoading: isFriendProfileLoading } =
     useFriendProfileQuery(friendId);
-  const { isPending: isCheerPending, mutate: cheerFriend } =
-    useFriendCheerMutation();
-  const { showToast } = useToast();
-  const profileThemeName = profile
-    ? getThemeNameFromUserJob(profile)
+  const { data, isLoading, isRefetching, refetch, isError } =
+    useFriendRoutinesQuery(friendId, date);
+  const friend = data?.friend;
+  const friendThemeSource = friendProfile ?? friend;
+  const friendThemeName = friendThemeSource
+    ? getThemeNameFromUserJob(friendThemeSource)
     : undefined;
-  const isProfileThemeApplied = useScopedColorSchemeOverride(profileThemeName);
-  const appliedProfileThemeName = profileThemeName ?? 'blue';
+  const isFriendThemeApplied = useScopedColorSchemeOverride(friendThemeName);
+  const appliedFriendThemeName = friendThemeName ?? 'blue';
   const routineBackgroundColor = getRoutineBackgroundColor(
-    appliedProfileThemeName,
-    profile?.evolutionCount,
+    appliedFriendThemeName,
+    friendProfile?.evolutionCount,
   );
   const setModalBackgroundColor = useSetModalBackgroundColor();
-  const backgroundImageUrl = profile?.backgroundImageUrl;
-  const characterImageUrl = profile?.characterImageUrl;
+  const backgroundImageUrl = friend?.backgroundImageUrl;
+  const characterImageUrl = friend?.characterImageUrl;
   const backgroundAsset = useMemo(
     () => getRoutineSceneRemoteAsset(backgroundImageUrl),
     [backgroundImageUrl],
@@ -200,55 +357,16 @@ const FriendRoutinesModal = () => {
     () => getRoutineSceneRemoteAsset(characterImageUrl),
     [characterImageUrl],
   );
-  const speechBubbleMessage = profile?.motto?.trim() || '안녕?';
-  const handleCheer = useCallback(() => {
-    if (!friendId) {
-      return;
-    }
+  const speechBubbleMessage = friend?.motto?.trim() || '안녕?';
 
-    cheerFriend(friendId, {
-      onSuccess: () => {
-        showToast('친구에게 응원을 보냈어요!', 'success');
-      },
-      onError: (error) => {
-        showToast(
-          getApiErrorMessage(error, '응원 콕을 보내지 못했습니다.'),
-          'error',
-        );
-      },
-    });
-  }, [cheerFriend, friendId, showToast]);
-  const cheerHeaderAction = useMemo(
-    () => (
-      <Button
-        accessibilityLabel="응원 콕"
-        accessibilityRole="button"
-        backgroundColor={palette.white}
-        contentStyle={styles.cheerButtonContent}
-        disabled={isCheerPending}
-        leftIcon={
-          isCheerPending ? (
-            <LoadingSpinner
-              size={baseFoundation.iconSize.xs}
-              strokeWidth={3}
-              testID="friend-cheer-loading-icon"
-            />
-          ) : (
-            <FriendCheerIcon />
-          )
-        }
-        onPress={handleCheer}
-        size="sm"
-        style={styles.cheerButton}
-        textColor={palette.theme.gray[70]}
-        textStyle={styles.cheerButtonText}
-        variant="ghost"
-      >
-        응원
-      </Button>
-    ),
-    [handleCheer, isCheerPending],
+  const handleRefresh = useCallback(
+    () => refetch().then(() => undefined),
+    [refetch],
   );
+
+  const handleDateChange = useCallback((targetDate: string) => {
+    setDate(targetDate);
+  }, []);
 
   useEffect(() => {
     setModalBackgroundColor?.(routineBackgroundColor);
@@ -265,25 +383,30 @@ const FriendRoutinesModal = () => {
     );
   }
 
-  if (isProfileLoading || !isProfileThemeApplied) {
+  if (isLoading || isFriendProfileLoading || !isFriendThemeApplied) {
     return <Loading />;
   }
 
-  const profileTheme = appThemes[appliedProfileThemeName];
+  const friendTheme = appThemes[appliedFriendThemeName];
 
   return (
     <ThemeView
       style={[styles.container, { backgroundColor: routineBackgroundColor }]}
     >
-      <ModalHeaderAction>{cheerHeaderAction}</ModalHeaderAction>
-
       {backgroundAsset ? (
         <FriendRoutineSceneBackground backgroundAsset={backgroundAsset} />
       ) : null}
 
       <FriendRoutineDateSection
+        data={data}
+        date={date}
         friendId={friendId}
-        routineColorFallback={profileTheme.colors.brand.primary}
+        isError={isError}
+        isLoading={isLoading}
+        isRefetching={isRefetching}
+        onDateChange={handleDateChange}
+        onRefresh={handleRefresh}
+        routineColorFallback={friendTheme.colors.brand.primary}
       >
         <View style={styles.routineCharacterArea}>
           <FriendRoutineCharacterStage
@@ -349,6 +472,17 @@ const styles = StyleSheet.create((theme) => ({
   },
   cheerButtonContent: {
     gap: baseFoundation.dimension.x3,
+  },
+  friendAddButton: {
+    borderColor: palette.theme.gray[50],
+    borderRadius: baseFoundation.dimension.x8,
+    borderWidth: baseFoundation.dimension.x1,
+    height: baseFoundation.dimension.x30,
+    minHeight: baseFoundation.dimension.x30,
+    minWidth: baseFoundation.dimension.x80,
+    opacity: 1,
+    paddingHorizontal: baseFoundation.spacing[0],
+    width: baseFoundation.dimension.x80,
   },
   cheerButtonText: {
     fontSize: baseFoundation.typography.size.caption1,

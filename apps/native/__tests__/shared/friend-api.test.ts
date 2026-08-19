@@ -1,10 +1,14 @@
 import axiosInstance from '@repo/shared/api';
 import {
   addFriend,
+  fetchConfirmationImageVisibility,
   fetchFriendProfile,
   fetchFriends,
   fetchRandomFriendRecommendation,
+  fetchRandomFriendRecommendationSettings,
   sendFriendCheer,
+  updateConfirmationImageVisibility,
+  updateRandomFriendRecommendationSettings,
 } from '@repo/shared/api/friend';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -18,7 +22,6 @@ const friends = [
     nickname: 'yunji12345',
     mateNickname: 'mate1',
     job: '직장인',
-    profileImage: null,
     level: 1,
     characterCode: 'MAGE_INTERMEDIATE',
     characterImageUrl: null,
@@ -29,7 +32,6 @@ const friends = [
     nickname: 'hy',
     mateNickname: 'mate2',
     job: '직장인',
-    profileImage: null,
     level: 2,
     characterCode: 'MAGE_INTERMEDIATE',
     characterImageUrl: null,
@@ -40,7 +42,6 @@ const friends = [
     nickname: 'Fff',
     mateNickname: 'mate3',
     job: '직장인',
-    profileImage: null,
     level: 3,
     characterCode: 'MAGE_INTERMEDIATE',
     characterImageUrl: null,
@@ -115,6 +116,23 @@ describe('friend.api', () => {
         }),
       ]);
     });
+
+    it('프로필 이미지 필드를 더 이상 반환하지 않는다', async () => {
+      mockAxios.resetHandlers();
+      mockAxios.onGet('/friends').reply(200, {
+        data: [
+          {
+            friendId: 1,
+            nickname: 'yunji12345',
+            characterImageUrl: '/assets/characters/mage.png',
+          },
+        ],
+      });
+
+      const [friend] = await fetchFriends({ page: 1, keyword: '' });
+
+      expect(friend).not.toHaveProperty('profileImage');
+    });
   });
 
   describe('fetchFriendProfile', () => {
@@ -143,6 +161,7 @@ describe('friend.api', () => {
   describe('fetchRandomFriendRecommendation', () => {
     it('body 없이 랜덤 친구 추천을 요청하고 추천 프로필을 반환한다', async () => {
       const recommendation = {
+        friendId: 42,
         nickname: '젤리',
         level: 6,
         job: '궁수',
@@ -169,9 +188,10 @@ describe('friend.api', () => {
         return [200, { data: recommendation }];
       });
 
-      await expect(fetchRandomFriendRecommendation()).resolves.toEqual(
-        recommendation,
-      );
+      const result = await fetchRandomFriendRecommendation();
+
+      expect(result).toEqual(recommendation);
+      expect(result.friendId).toBe(42);
     });
 
     it('추천 후보가 없으면 서버 안내 메시지를 보존한다', async () => {
@@ -185,6 +205,80 @@ describe('friend.api', () => {
       await expect(fetchRandomFriendRecommendation()).rejects.toMatchObject({
         status: 400,
         message: '추천할 사용자가 없습니다.\n잠시 후 다시 시도해주세요.',
+      });
+    });
+  });
+
+  describe('randomFriendRecommendationSettings', () => {
+    it('랜덤 친구 추천 노출 설정을 조회한다', async () => {
+      mockAxios.onGet('/users/me/random-friend-settings').reply(200, {
+        data: {
+          randomFriendRecommendationEnabled: false,
+        },
+      });
+
+      await expect(fetchRandomFriendRecommendationSettings()).resolves.toEqual({
+        randomFriendRecommendationEnabled: false,
+      });
+    });
+
+    it('랜덤 친구 추천 노출 설정 변경값을 PATCH body로 전송한다', async () => {
+      mockAxios.onPatch('/users/me/random-friend-settings').reply((config) => {
+        expect(JSON.parse(config.data ?? '{}')).toEqual({
+          randomFriendRecommendationEnabled: false,
+        });
+
+        return [
+          200,
+          {
+            data: {
+              randomFriendRecommendationEnabled: false,
+            },
+          },
+        ];
+      });
+
+      await expect(
+        updateRandomFriendRecommendationSettings(false),
+      ).resolves.toEqual({
+        randomFriendRecommendationEnabled: false,
+      });
+    });
+  });
+
+  describe('confirmationImageVisibility', () => {
+    it('친구 인증 사진 공개 설정을 조회한다', async () => {
+      mockAxios.onGet('/users/me/confirmation-image-visibility').reply(200, {
+        data: {
+          confirmationImagesVisibleToFriends: false,
+        },
+      });
+
+      await expect(fetchConfirmationImageVisibility()).resolves.toEqual({
+        confirmationImagesVisibleToFriends: false,
+      });
+    });
+
+    it('친구 인증 사진 공개 설정 변경값을 PATCH body로 전송한다', async () => {
+      mockAxios
+        .onPatch('/users/me/confirmation-image-visibility')
+        .reply((config) => {
+          expect(JSON.parse(config.data ?? '{}')).toEqual({
+            confirmationImagesVisibleToFriends: true,
+          });
+
+          return [
+            200,
+            {
+              data: {
+                confirmationImagesVisibleToFriends: true,
+              },
+            },
+          ];
+        });
+
+      await expect(updateConfirmationImageVisibility(true)).resolves.toEqual({
+        confirmationImagesVisibleToFriends: true,
       });
     });
   });

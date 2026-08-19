@@ -11,7 +11,6 @@ export type UserLoginType = 'PLAIN' | 'KAKAO' | 'APPLE' | 'GOOGLE' | 'NAVER';
 export type User = Pick<Auth, 'userId' | 'nickname'> & {
   backgroundImageUrl?: null | string;
   characterImageUrl?: null | string;
-  profileImage?: null | string;
   job?: string;
   jobType?: string;
   characterCode?: string;

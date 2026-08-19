@@ -4,6 +4,7 @@ import {
   fetchMonthlyRoutines,
   fetchRoutines,
 } from '@repo/shared/api/routine.api';
+import { fetchRequestDetail } from '@repo/shared/api/request.api';
 import MockAdapter from 'axios-mock-adapter';
 
 let mockAxios: MockAdapter;
@@ -40,9 +41,26 @@ describe('routine api', () => {
     ]);
   });
 
+  it('인증 상세 조회는 confirmId를 id query parameter로 전달한다', async () => {
+    const detail = {
+      id: 1004,
+      imagePaths: [],
+      message: null,
+      routineName: '친구 루틴',
+      hasRequestMessage: true,
+      hasResponseComment: false,
+    };
+    mockAxios
+      .onGet('/routine/confirm/detail?id=1004')
+      .reply(200, { data: detail });
+
+    await expect(fetchRequestDetail(1004)).resolves.toEqual(detail);
+  });
+
   it('친구 루틴 목록의 confirmations를 루틴에 매핑한다', async () => {
     mockAxios.onGet('/friends/42/routines?date=2026-08-02').reply(200, {
       data: {
+        isFriend: false,
         friend: { nickname: '친구' },
         routines: [
           {
@@ -56,11 +74,49 @@ describe('routine api', () => {
 
     await expect(fetchFriendRoutines(42, '2026-08-02')).resolves.toEqual(
       expect.objectContaining({
+        isFriend: false,
         routines: [
           expect.objectContaining({
             confirmations: [confirmation],
           }),
         ],
+      }),
+    );
+  });
+
+  it('친구 루틴 목록의 친구 정보에 있는 friend 값을 isFriend로 정규화한다', async () => {
+    mockAxios.onGet('/friends/42/routines?date=2026-08-02').reply(200, {
+      data: {
+        friend: { nickname: '친구', friend: true },
+        routines: [],
+      },
+    });
+
+    await expect(fetchFriendRoutines(42, '2026-08-02')).resolves.toEqual(
+      expect.objectContaining({ isFriend: true }),
+    );
+  });
+
+  it('친구 루틴 목록의 friend 하위 isFriend 값을 우선해 인증 접근 권한을 정규화한다', async () => {
+    mockAxios.onGet('/friends/42/routines?date=2026-08-02').reply(200, {
+      data: {
+        isFriend: true,
+        friend: {
+          nickname: '친구',
+          isFriend: false,
+          confirmationImagesVisibleToFriends: true,
+        },
+        routines: [],
+      },
+    });
+
+    await expect(fetchFriendRoutines(42, '2026-08-02')).resolves.toEqual(
+      expect.objectContaining({
+        isFriend: false,
+        friend: expect.objectContaining({
+          isFriend: false,
+          confirmationImagesVisibleToFriends: true,
+        }),
       }),
     );
   });

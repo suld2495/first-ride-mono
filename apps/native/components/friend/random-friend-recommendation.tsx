@@ -2,7 +2,9 @@ import {
   useAddFriendMutation,
   useRandomFriendRecommendationQuery,
 } from '@repo/shared/hooks/useFriend';
+import { getWeekMonday } from '@repo/shared/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
 import { Switch, View } from 'react-native';
 
@@ -18,7 +20,9 @@ import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
+import { useAuthUser } from '@/hooks/useAuthSession';
 import { useRandomFriendRecommendationRollover } from '@/hooks/useRandomFriendRecommendationRollover';
+import { useRandomFriendRecommendationPreference } from '@/hooks/useRandomFriendRecommendationPreference';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
@@ -119,8 +123,13 @@ const RandomFriendRecommendation = () => {
   } = useRandomFriendRecommendationQuery();
   const addFriendMutation = useAddFriendMutation();
   const { showToast } = useToast();
+  const user = useAuthUser();
   const requestInFlightRef = useRef(false);
-  const [isRecommendationEnabled, setIsRecommendationEnabled] = useState(true);
+  const {
+    isEnabled: isRecommendationEnabled,
+    setEnabled: setRecommendationEnabled,
+  } = useRandomFriendRecommendationPreference(user?.userId);
+  const router = useRouter();
   const [requestedNickname, setRequestedNickname] = useState<string | null>(
     null,
   );
@@ -168,11 +177,23 @@ const RandomFriendRecommendation = () => {
   };
 
   const handleRecommendationEnabledChange = (enabled: boolean) => {
-    setIsRecommendationEnabled(enabled);
+    setRecommendationEnabled(enabled);
 
     if (enabled) {
       void refetch();
     }
+  };
+
+  const handleOpenFriendPage = () => {
+    if (!recommendation) {
+      return;
+    }
+
+    router.push(
+      `/modal?type=friend-routines&friendId=${encodeURIComponent(String(recommendation.friendId))}&friendNickname=${encodeURIComponent(
+        recommendation.nickname,
+      )}&date=${getWeekMonday(new Date())}`,
+    );
   };
 
   const errorMessage = error
@@ -273,30 +294,52 @@ const RandomFriendRecommendation = () => {
                 Lv. {recommendation.level} · {recommendation.job}
               </Typography>
             </View>
-            <Button
-              accessibilityLabel={
-                isRequested
-                  ? `${recommendation.nickname}에게 친구 요청 완료`
-                  : `${recommendation.nickname}에게 친구 요청`
-              }
-              accessibilityRole="button"
-              variant="ghost"
-              size="md"
-              leftIcon={({ color }) => (
-                <Ionicons
-                  color={color}
-                  name={isRequested ? 'checkmark' : 'person-add'}
-                  size={baseFoundation.iconSize.m}
-                  testID="random-friend-request-icon"
-                />
-              )}
-              onPress={handleRequestFriend}
-              backgroundColor={profileTheme.colors.brand.text}
-              textColor={profileTheme.colors.action.primary.label}
-              loading={addFriendMutation.isPending}
-              disabled={isRequested}
-              style={styles.requestButton}
-            />
+            <View
+              style={styles.profileActions}
+              testID="random-friend-profile-actions"
+            >
+              <Button
+                accessibilityLabel="친구 페이지로 이동"
+                accessibilityRole="button"
+                rightIcon={({ color }) => (
+                  <Ionicons
+                    color={color}
+                    name="chevron-forward"
+                    size={baseFoundation.iconSize.m}
+                    testID="random-friend-page-navigation-icon"
+                  />
+                )}
+                onPress={handleOpenFriendPage}
+                backgroundColor={profileTheme.colors.brand.text}
+                textColor={profileTheme.colors.action.primary.label}
+                style={styles.navigationButton}
+                contentStyle={styles.actionButtonContent}
+              />
+              <Button
+                accessibilityLabel={
+                  isRequested
+                    ? `${recommendation.nickname}에게 친구 요청 완료`
+                    : `${recommendation.nickname}에게 친구 요청`
+                }
+                accessibilityRole="button"
+                variant="ghost"
+                size="md"
+                leftIcon={({ color }) => (
+                  <Ionicons
+                    color={color}
+                    name={isRequested ? 'checkmark' : 'person-add'}
+                    size={baseFoundation.iconSize.m}
+                    testID="random-friend-request-icon"
+                  />
+                )}
+                onPress={handleRequestFriend}
+                backgroundColor={profileTheme.colors.brand.text}
+                textColor={profileTheme.colors.action.primary.label}
+                loading={addFriendMutation.isPending}
+                disabled={isRequested}
+                style={styles.requestButton}
+              />
+            </View>
           </View>
         </View>
       )}
@@ -406,6 +449,20 @@ const styles = StyleSheet.create((theme) => ({
   profileMeta: {
     minWidth: baseFoundation.dimension.x0,
     flexShrink: 1,
+  },
+  profileActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.foundation.spacing[1],
+  },
+  navigationButton: {
+    width: baseFoundation.dimension.x44,
+    height: baseFoundation.dimension.x44,
+    paddingHorizontal: baseFoundation.spacing[0],
+    borderRadius: theme.foundation.radii.xs,
+  },
+  actionButtonContent: {
+    gap: baseFoundation.dimension.x0,
   },
   requestButton: {
     width: baseFoundation.dimension.x44,

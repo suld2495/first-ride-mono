@@ -79,6 +79,9 @@ export interface CreateMockRoutineDetailOptions {
   createdAt?: string;
   checkStatus?: RoutineDetail['checkStatus'];
   message?: string | null;
+  checkComment?: string | null;
+  hasRequestMessage?: boolean;
+  hasResponseComment?: boolean;
 }
 
 export const createMockRoutineDetail = (
@@ -95,4 +98,9 @@ export const createMockRoutineDetail = (
   createdAt: options.createdAt ?? new Date().toISOString(),
   checkStatus: options.checkStatus ?? 'WAIT',
   message: options.message ?? null,
+  checkComment: options.checkComment ?? null,
+  hasRequestMessage:
+    options.hasRequestMessage ?? Boolean(options.message?.trim()),
+  hasResponseComment:
+    options.hasResponseComment ?? Boolean(options.checkComment?.trim()),
 });

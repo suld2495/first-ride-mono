@@ -31,6 +31,8 @@ interface RoutineWeekListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
+  canOpenRoutineProofDetail?: boolean;
+  onRoutineProofDetailAccessDenied?: () => void;
   onRequestRoutine: (
     routine: Routine,
     meta?: {
@@ -207,6 +209,8 @@ const RoutineWeekList = ({
   refreshing = false,
   onRefresh,
   canRequestRoutine = false,
+  canOpenRoutineProofDetail = false,
+  onRoutineProofDetailAccessDenied,
   onRequestRoutine,
   openMenuRoutineId,
   onToggleRoutineMenu,
@@ -360,7 +364,12 @@ const RoutineWeekList = ({
                     ? routine.todayConfirmId
                     : null;
                 const confirmId = datedConfirmId ?? todayConfirmId;
-                const handlePressCheckBox = canRequestWithCheckBox
+                const canPressWithCheckBox =
+                  canRequestWithCheckBox ||
+                  (Boolean(confirmId) &&
+                    (canOpenRoutineProofDetail ||
+                      Boolean(onRoutineProofDetailAccessDenied)));
+                const handlePressCheckBox = canPressWithCheckBox
                   ? () =>
                       onRequestRoutine(routine, {
                         confirmId,
@@ -375,9 +384,9 @@ const RoutineWeekList = ({
                     style={styles.dayColumn}
                     accessibilityLabel={`${DAY_LABELS[index]}요일 ${statusLabel}`}
                     accessibilityRole={
-                      canRequestWithCheckBox ? 'button' : 'image'
+                      canPressWithCheckBox ? 'button' : 'image'
                     }
-                    disabled={!canRequestWithCheckBox}
+                    disabled={!canPressWithCheckBox}
                     onPress={handlePressCheckBox}
                   >
                     <View
@@ -420,7 +429,9 @@ const RoutineWeekList = ({
     },
     [
       canRequestRoutine,
+      canOpenRoutineProofDetail,
       itemHeight,
+      onRoutineProofDetailAccessDenied,
       onRequestRoutine,
       onToggleRoutineMenu,
       readOnly,

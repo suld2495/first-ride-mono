@@ -75,6 +75,7 @@ export interface RoutineDetail {
   responderNickname: string;
   requesterCharacterImageUrl?: null | string;
   responderCharacterImageUrl?: null | string;
+  imagePath?: null | string;
   routineName: Routine['routineName'];
   routineDetail: Routine['routineDetail'];
   imagePaths: Request['image'][];
@@ -83,4 +84,6 @@ export interface RoutineDetail {
   checkStatus: Request['checkStatus'];
   message: Request['message'];
   checkComment?: Request['checkComment'] | null;
+  hasRequestMessage: boolean;
+  hasResponseComment: boolean;
 }

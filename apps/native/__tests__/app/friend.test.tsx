@@ -1,7 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '@repo/shared/api';
 import MockAdapter from 'axios-mock-adapter';
+import { within } from '@testing-library/react-native';
 import { FlatList, Modal } from 'react-native';
 
+import { FlashList } from '@/components/ui/flash-list';
+import { RANDOM_FRIEND_RECOMMENDATION_ENABLED_KEY_PREFIX } from '@/hooks/useRandomFriendRecommendationPreference';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
@@ -17,6 +21,7 @@ import {
 import { createMockFriend, createMockFriends } from '../setup/friend/mock';
 
 declare const mockPush: jest.Mock;
+declare const mockReplace: jest.Mock;
 
 // FriendRequestResponse 형식에 맞는 mock 데이터 생성
 const createMockFriendRequestResponse = (count: number) =>
@@ -31,6 +36,7 @@ const createMockFriendRequestResponse = (count: number) =>
 let mockAxios: MockAdapter;
 
 const randomFriendRecommendation = {
+  friendId: 42,
   nickname: '젤리',
   level: 6,
   job: '궁수',
@@ -51,6 +57,7 @@ const randomFriendRecommendation = {
     },
   ],
 };
+const randomFriendRecommendationStorageKey = `${RANDOM_FRIEND_RECOMMENDATION_ENABLED_KEY_PREFIX}:test123`;
 
 // axios response interceptor가 response.data.data를 반환하므로
 // { data: [...] } 형태로 감싸야 함
@@ -72,8 +79,9 @@ const setupMocks = (friendsData: ReturnType<typeof createMockFriends> = []) => {
 };
 
 describe('친구 리스트 페이지', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     resetAuthMocks();
+    await AsyncStorage.removeItem(randomFriendRecommendationStorageKey);
     useColorSchemeStore.getState().setColorScheme('blue');
     useColorSchemeStore.getState().clearColorSchemeOverride();
     mockAxios = new MockAdapter(axiosInstance);
@@ -106,6 +114,27 @@ describe('친구 리스트 페이지', () => {
       ).toBeOnTheScreen();
       expect(screen.queryByText('2026-08-04')).not.toBeOnTheScreen();
       expect(screen.queryByText('아침 산책')).not.toBeOnTheScreen();
+    });
+
+    it('추천 영역에서 친구 페이지로 이동한다', async () => {
+      setupMocks([]);
+
+      const screen = render(<FriendPage />);
+
+      const profileActions = await screen.findByTestId(
+        'random-friend-profile-actions',
+      );
+
+      fireEvent.press(
+        within(profileActions).getByLabelText('친구 페이지로 이동'),
+      );
+
+      expect(mockPush).toHaveBeenCalledWith(
+        expect.stringContaining(
+          '/modal?type=friend-routines&friendId=42&friendNickname=%EC%A0%A4%EB%A6%AC&date=',
+        ),
+      );
+      expect(mockReplace).not.toHaveBeenCalled();
     });
 
     it('랜덤 친구 추천 제목과 카드를 낮은 위계의 크기로 표시한다', async () => {
@@ -225,6 +254,39 @@ describe('친구 리스트 페이지', () => {
       );
     });
 
+    it('스위치 상태를 기기에 저장하고 다시 진입했을 때 복원한다', async () => {
+      setupMocks([]);
+
+      const firstScreen = render(<FriendPage />);
+      const firstSwitch =
+        await firstScreen.findByLabelText('랜덤 친구 추천 받기');
+
+      fireEvent(firstSwitch, 'valueChange', false);
+
+      await waitFor(() => {
+        expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+          randomFriendRecommendationStorageKey,
+          'false',
+        );
+      });
+
+      firstScreen.unmount();
+
+      setupMocks([]);
+      const secondScreen = render(<FriendPage />);
+      const restoredSwitch =
+        await secondScreen.findByLabelText('랜덤 친구 추천 받기');
+
+      await waitFor(() => {
+        expect(restoredSwitch.props.accessibilityState).toEqual(
+          expect.objectContaining({ checked: false }),
+        );
+      });
+      expect(
+        secondScreen.queryByTestId('random-friend-card'),
+      ).not.toBeOnTheScreen();
+    });
+
     it('자정이 되면 랜덤 친구 추천 API를 다시 호출한다', async () => {
       jest.useFakeTimers().setSystemTime(new Date('2026-08-12T23:59:59.000'));
       setupMocks([]);
@@ -341,6 +403,22 @@ describe('친구 리스트 페이지', () => {
     describe('친구가 있는 경우', () => {
       beforeEach(() => {
         setupMocks(createMockFriends(3));
+      });
+
+      it('랜덤 친구 추천을 친구 목록과 같은 스크롤 콘텐츠에 포함한다', async () => {
+        const screen = render(<FriendPage />);
+
+        expect(await screen.findByText('friend1')).toBeOnTheScreen();
+
+        const list = screen.UNSAFE_getByType(FlashList);
+
+        expect(list.props.ListHeaderComponent).toEqual(
+          expect.objectContaining({
+            props: expect.objectContaining({
+              testID: 'friend-list-header',
+            }),
+          }),
+        );
       });
 
       it('친구 수와 2열 캐릭터 카드가 표시된다', async () => {
@@ -466,7 +544,6 @@ describe('친구 리스트 페이지', () => {
               motto: '오늘도 전진',
               mottos: ['오늘도 전진', '끝까지'],
               job: '마법사',
-              profileImage: '...',
               level: 7,
               characterCode: 'MAGE_INTERMEDIATE',
               characterImageUrl: '/assets/characters/mage_intermediate.png',
