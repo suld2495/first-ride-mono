@@ -9,7 +9,6 @@ interface RoutineCompleteConfirmModalProps {
   isSubmitting?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
-  routineName?: string;
   visible: boolean;
 }
 
@@ -17,7 +16,6 @@ const RoutineCompleteConfirmModal = ({
   isSubmitting = false,
   onCancel,
   onConfirm,
-  routineName,
   visible,
 }: RoutineCompleteConfirmModalProps) => {
   const handleCancel = () => {
@@ -61,18 +59,6 @@ const RoutineCompleteConfirmModal = ({
           >
             루틴을 완료하셨나요?
           </Typography>
-          {routineName ? (
-            <Typography
-              color={palette.theme.gray[40]}
-              style={styles.routineName}
-              textAlign="center"
-              variant="caption1"
-              weight="medium"
-            >
-              {routineName}
-            </Typography>
-          ) : null}
-
           <View style={styles.buttonRow}>
             <Button
               disabled={isSubmitting}
@@ -123,9 +109,6 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: baseFoundation.dimension.x16,
     padding: theme.foundation.spacing[5],
     backgroundColor: palette.white,
-  },
-  routineName: {
-    marginTop: theme.foundation.spacing[2],
   },
   buttonRow: {
     flexDirection: 'row',

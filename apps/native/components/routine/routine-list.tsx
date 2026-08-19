@@ -588,7 +588,6 @@ const RoutineList = ({
         isSubmitting={isCompletingRoutine}
         onCancel={handleCloseCompleteConfirmModal}
         onConfirm={handleConfirmRoutineComplete}
-        routineName={completeTargetRoutine?.routineName}
         visible={Boolean(completeTargetRoutine)}
       />
     </ThemeView>

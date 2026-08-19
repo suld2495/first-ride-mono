@@ -12,7 +12,6 @@ describe('RoutineCompleteConfirmModal', () => {
       <RoutineCompleteConfirmModal
         onCancel={onCancel}
         onConfirm={onConfirm}
-        routineName="Test"
         visible
       />,
     );
