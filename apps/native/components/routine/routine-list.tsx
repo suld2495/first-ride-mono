@@ -302,13 +302,7 @@ const RoutineList = ({
         return;
       }
 
-      if (routine.isMe && !routine.mateNickname) {
-        if (routine.photoRequired !== false) {
-          handleShowRequestModal(routine.routineId);
-
-          return;
-        }
-
+      if (routine.isMe && routine.photoRequired === false) {
         handleShowRoutineCompleteConfirm(routine);
 
         return;
