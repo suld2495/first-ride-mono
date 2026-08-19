@@ -2484,12 +2484,12 @@ describe('루틴 조회 페이지', () => {
         }).map((routine) => ({ ...routine, isMe: undefined })),
       });
 
-      const { findByTestId, findByText } = render(<Index />);
+      const { findByTestId, findByText, queryByText } = render(<Index />);
 
       fireEvent.press(await findByTestId('routine-count-check-1-4'));
 
       expect(await findByText('루틴을 완료하셨나요?')).toBeOnTheScreen();
-      expect(await findByText('사진 인증하기')).toBeOnTheScreen();
+      expect(queryByText('사진 인증하기')).toBeNull();
       expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
       expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
     });

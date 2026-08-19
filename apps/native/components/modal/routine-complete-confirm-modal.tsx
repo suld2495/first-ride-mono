@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
 import { Modal, Pressable, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
-import Checkbox from '@/components/ui/checkbox';
 import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { baseFoundation, palette } from '@/theme/tokens';
@@ -10,7 +8,7 @@ import { baseFoundation, palette } from '@/theme/tokens';
 interface RoutineCompleteConfirmModalProps {
   isSubmitting?: boolean;
   onCancel: () => void;
-  onConfirm: (withPhoto: boolean) => void;
+  onConfirm: () => void;
   routineName?: string;
   visible: boolean;
 }
@@ -22,29 +20,16 @@ const RoutineCompleteConfirmModal = ({
   routineName,
   visible,
 }: RoutineCompleteConfirmModalProps) => {
-  const [withPhoto, setWithPhoto] = useState(false);
-
-  useEffect(() => {
-    if (!visible) {
-      setWithPhoto(false);
-    }
-  }, [visible]);
-
   const handleCancel = () => {
     if (isSubmitting) {
       return;
     }
 
-    setWithPhoto(false);
     onCancel();
   };
 
   const handleConfirm = () => {
-    if (isSubmitting) {
-      return;
-    }
-
-    onConfirm(withPhoto);
+    onConfirm();
   };
 
   return (
@@ -87,19 +72,6 @@ const RoutineCompleteConfirmModal = ({
               {routineName}
             </Typography>
           ) : null}
-
-          <View style={styles.optionRow}>
-            <Checkbox
-              checkedColor={palette.theme.gray[95]}
-              fillColor={palette.theme.gray[95]}
-              isChecked={withPhoto}
-              labelColor={palette.theme.gray[70]}
-              onPress={setWithPhoto}
-              size="md"
-              text="사진 인증하기"
-              visualChecked={withPhoto}
-            />
-          </View>
 
           <View style={styles.buttonRow}>
             <Button
@@ -154,10 +126,6 @@ const styles = StyleSheet.create((theme) => ({
   },
   routineName: {
     marginTop: theme.foundation.spacing[2],
-  },
-  optionRow: {
-    alignSelf: 'center',
-    marginTop: theme.foundation.spacing[5],
   },
   buttonRow: {
     flexDirection: 'row',

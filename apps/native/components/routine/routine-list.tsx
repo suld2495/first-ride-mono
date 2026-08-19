@@ -207,56 +207,45 @@ const RoutineList = ({
     setCompleteTargetRoutine(null);
   }, [isCompletingRoutine]);
 
-  const handleConfirmRoutineComplete = useCallback(
-    (withPhoto: boolean) => {
-      const targetRoutine = completeTargetRoutine;
+  const handleConfirmRoutineComplete = useCallback(() => {
+    const targetRoutine = completeTargetRoutine;
 
-      if (!targetRoutine || isCompletingRoutine) {
-        return;
-      }
+    if (!targetRoutine || isCompletingRoutine) {
+      return;
+    }
 
-      if (withPhoto) {
-        setCompleteTargetRoutine(null);
-        handleShowRequestModal(targetRoutine.routineId);
+    const formData = new FormData();
+    formData.append('routineId', targetRoutine.routineId.toString());
+    formData.append('message', '');
 
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('routineId', targetRoutine.routineId.toString());
-      formData.append('message', '');
-
-      completeRoutine(
-        { data: formData },
-        {
-          onSuccess: async () => {
-            await queryClient.invalidateQueries({
-              queryKey: routineKeys.list(nickname),
-            });
-            await checkLevelUpStatus();
-            setCompleteTargetRoutine(null);
-            showToast('루틴이 완료되었습니다.', 'success');
-          },
-          onError: (error) => {
-            showToast(
-              getApiErrorMessage(error, '루틴 완료에 실패했습니다.'),
-              'error',
-            );
-          },
+    completeRoutine(
+      { data: formData },
+      {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: routineKeys.list(nickname),
+          });
+          await checkLevelUpStatus();
+          setCompleteTargetRoutine(null);
+          showToast('루틴이 완료되었습니다.', 'success');
         },
-      );
-    },
-    [
-      completeRoutine,
-      completeTargetRoutine,
-      checkLevelUpStatus,
-      handleShowRequestModal,
-      isCompletingRoutine,
-      nickname,
-      queryClient,
-      showToast,
-    ],
-  );
+        onError: (error) => {
+          showToast(
+            getApiErrorMessage(error, '루틴 완료에 실패했습니다.'),
+            'error',
+          );
+        },
+      },
+    );
+  }, [
+    completeRoutine,
+    completeTargetRoutine,
+    checkLevelUpStatus,
+    isCompletingRoutine,
+    nickname,
+    queryClient,
+    showToast,
+  ]);
 
   const handlePressRoutineCheck = useCallback(
     (routine: Routine, meta: RoutineCheckPressMeta = {}) => {
