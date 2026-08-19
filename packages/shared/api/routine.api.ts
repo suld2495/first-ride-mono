@@ -20,6 +20,7 @@ import http from './client';
 
 type RoutineResponse = Omit<
   Routine,
+  | 'isMe'
   | 'hasPendingConfirmation'
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
@@ -32,6 +33,7 @@ type RoutineResponse = Omit<
   | 'pendingChangeRequestStatus'
   | 'photoRequired'
 > & {
+  isMe?: Routine['isMe'] | null;
   hasPendingConfirmation?: Routine['hasPendingConfirmation'] | null;
   pendingConfirmationCount?: Routine['pendingConfirmationCount'] | null;
   pendingConfirmationIds?: Routine['pendingConfirmationIds'] | null;
@@ -45,24 +47,29 @@ type RoutineResponse = Omit<
   photoRequired?: Routine['photoRequired'] | null;
 };
 
-const normalizeRoutine = (routine: RoutineResponse): Routine => ({
-  ...routine,
-  hasPendingConfirmation: Boolean(routine.hasPendingConfirmation),
-  pendingConfirmationCount: routine.pendingConfirmationCount ?? 0,
-  pendingConfirmationIds: Array.isArray(routine.pendingConfirmationIds)
-    ? routine.pendingConfirmationIds
-    : [],
-  confirmations: Array.isArray(routine.confirmations)
-    ? routine.confirmations
-    : [],
-  todayConfirmStatus: routine.todayConfirmStatus ?? null,
-  todayConfirmId: routine.todayConfirmId ?? null,
-  canRequestToday: routine.canRequestToday ?? true,
-  hasPendingChangeRequest: Boolean(routine.hasPendingChangeRequest),
-  pendingChangeRequestId: routine.pendingChangeRequestId ?? null,
-  pendingChangeRequestStatus: routine.pendingChangeRequestStatus ?? null,
-  photoRequired: routine.photoRequired ?? !routine.isMe,
-});
+const normalizeRoutine = (routine: RoutineResponse): Routine => {
+  const isMe = routine.isMe ?? !routine.mateNickname;
+
+  return {
+    ...routine,
+    isMe,
+    hasPendingConfirmation: Boolean(routine.hasPendingConfirmation),
+    pendingConfirmationCount: routine.pendingConfirmationCount ?? 0,
+    pendingConfirmationIds: Array.isArray(routine.pendingConfirmationIds)
+      ? routine.pendingConfirmationIds
+      : [],
+    confirmations: Array.isArray(routine.confirmations)
+      ? routine.confirmations
+      : [],
+    todayConfirmStatus: routine.todayConfirmStatus ?? null,
+    todayConfirmId: routine.todayConfirmId ?? null,
+    canRequestToday: routine.canRequestToday ?? true,
+    hasPendingChangeRequest: Boolean(routine.hasPendingChangeRequest),
+    pendingChangeRequestId: routine.pendingChangeRequestId ?? null,
+    pendingChangeRequestStatus: routine.pendingChangeRequestStatus ?? null,
+    photoRequired: routine.photoRequired ?? !isMe,
+  };
+};
 
 const MONTHLY_ROUTINE_STATUSES = new Set<MonthlyRoutineStatus>([
   'ACTIVE',
