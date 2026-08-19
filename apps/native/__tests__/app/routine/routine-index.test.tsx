@@ -685,7 +685,7 @@ describe('루틴 조회 페이지', () => {
         routinesSpy.mockRestore();
       });
 
-      it('화면에 다시 포커스되면 현재 주의 루틴으로 이동한다', () => {
+      it('루틴 추가 모달에서 돌아오면 선택한 주의 날짜를 유지한다', async () => {
         const currentWeekDate = getWeekMonday(new Date());
         const selectedDate = beforeWeek(new Date(currentWeekDate));
         const refetch = jest.fn();
@@ -699,7 +699,9 @@ describe('루틴 조회 페이지', () => {
           } as unknown as ReturnType<typeof routineHooks.useRoutinesQuery>);
 
         mockSearchParams.date = selectedDate;
-        render(<Index />);
+        const { findByLabelText } = render(<Index />);
+
+        fireEvent.press(await findByLabelText('루틴 추가'));
 
         mockReplace.mockClear();
         refetch.mockClear();
@@ -707,10 +709,39 @@ describe('루틴 조회 페이지', () => {
           mockFocus();
         });
 
-        expect(mockReplace).toHaveBeenCalledWith(
-          `/(tabs)/(afterLogin)/(routine)?date=${currentWeekDate}`,
-        );
-        expect(refetch).not.toHaveBeenCalled();
+        expect(mockReplace).not.toHaveBeenCalled();
+        expect(refetch).toHaveBeenCalledTimes(1);
+
+        routinesSpy.mockRestore();
+      });
+
+      it('루틴 수정 모달에서 돌아오면 선택한 주의 날짜를 유지한다', async () => {
+        const currentWeekDate = getWeekMonday(new Date());
+        const selectedDate = beforeWeek(new Date(currentWeekDate));
+        const refetch = jest.fn();
+        const routinesSpy = jest
+          .spyOn(routineHooks, 'useRoutinesQuery')
+          .mockReturnValue({
+            data: createMockRoutines(1),
+            isLoading: false,
+            isRefetching: false,
+            refetch,
+          } as unknown as ReturnType<typeof routineHooks.useRoutinesQuery>);
+
+        mockSearchParams.date = selectedDate;
+        const { findByLabelText } = render(<Index />);
+
+        fireEvent.press(await findByLabelText('테스트 루틴 1 메뉴 열기'));
+        fireEvent.press(await findByLabelText('수정'));
+
+        mockReplace.mockClear();
+        refetch.mockClear();
+        act(() => {
+          mockFocus();
+        });
+
+        expect(mockReplace).not.toHaveBeenCalled();
+        expect(refetch).toHaveBeenCalledTimes(1);
 
         routinesSpy.mockRestore();
       });
