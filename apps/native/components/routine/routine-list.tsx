@@ -1,10 +1,10 @@
 /* eslint-disable sonarjs/cognitive-complexity */
+import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import {
   useDeleteRoutineMutation,
   useUpdateRoutinePauseMutation,
   useUpdateRoutineVisibilityMutation,
 } from '@repo/shared/hooks/useRoutine';
-import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import { routineKeys } from '@repo/shared/types/query-keys/routine';
 import { getWeekMonday } from '@repo/shared/utils';
 import type { Routine } from '@repo/types';
@@ -25,7 +25,6 @@ import {
 } from 'react-native';
 
 import { RoutineMoreIndicatorIcon } from '@/components/icons/routine-icons';
-import RoutineCompleteConfirmModal from '@/components/modal/routine-complete-confirm-modal';
 import { RoutineContextMenuPanel } from '@/components/routine/routine-context-menu';
 import { getRoutineScenePreviewOverlayAsset } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
@@ -111,8 +110,6 @@ const RoutineList = ({
   const deleteRoutine = useDeleteRoutineMutation(nickname);
   const { isPending: isCompletingRoutine, mutate: completeRoutine } =
     useCreateRequestMutation();
-  const [completeTargetRoutine, setCompleteTargetRoutine] =
-    useState<Routine | null>(null);
   const showsRequestMenuItem = date === getWeekMonday(new Date());
 
   const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
@@ -191,26 +188,9 @@ const RoutineList = ({
     [router, setRequestId],
   );
 
-  const handleCloseCompleteConfirmModal = useCallback(() => {
-    if (isCompletingRoutine) {
-      return;
-    }
-
-    setCompleteTargetRoutine(null);
-  }, [isCompletingRoutine]);
-
   const handleConfirmRoutineComplete = useCallback(
-    (withPhoto: boolean) => {
-      const targetRoutine = completeTargetRoutine;
-
-      if (!targetRoutine || isCompletingRoutine) {
-        return;
-      }
-
-      if (withPhoto) {
-        setCompleteTargetRoutine(null);
-        handleShowRequestModal(targetRoutine.routineId);
-
+    (targetRoutine: Routine) => {
+      if (isCompletingRoutine) {
         return;
       }
 
@@ -221,11 +201,10 @@ const RoutineList = ({
       completeRoutine(
         { data: formData },
         {
-          onSuccess: async () => {
-            await queryClient.invalidateQueries({
+          onSuccess: () => {
+            void queryClient.invalidateQueries({
               queryKey: routineKeys.list(nickname),
             });
-            setCompleteTargetRoutine(null);
             showToast('루틴이 완료되었습니다.', 'success');
           },
           onError: (error) => {
@@ -237,15 +216,27 @@ const RoutineList = ({
         },
       );
     },
-    [
-      completeRoutine,
-      completeTargetRoutine,
-      handleShowRequestModal,
-      isCompletingRoutine,
-      nickname,
-      queryClient,
-      showToast,
-    ],
+    [completeRoutine, isCompletingRoutine, nickname, queryClient, showToast],
+  );
+
+  const handleShowRoutineCompleteConfirm = useCallback(
+    (routine: Routine) => {
+      if (isCompletingRoutine) {
+        return;
+      }
+
+      Alert.alert('루틴 인증', '루틴 인증하시겠어요?', [
+        {
+          text: '아니요',
+          style: 'cancel',
+        },
+        {
+          text: '예',
+          onPress: () => handleConfirmRoutineComplete(routine),
+        },
+      ]);
+    },
+    [handleConfirmRoutineComplete, isCompletingRoutine],
   );
 
   const handlePressRoutineCheck = useCallback(
@@ -280,7 +271,13 @@ const RoutineList = ({
       }
 
       if (routine.isMe && !routine.mateNickname) {
-        setCompleteTargetRoutine(routine);
+        if (routine.photoRequired) {
+          handleShowRequestModal(routine.routineId);
+
+          return;
+        }
+
+        handleShowRoutineCompleteConfirm(routine);
 
         return;
       }
@@ -289,6 +286,7 @@ const RoutineList = ({
     },
     [
       handleShowRequestModal,
+      handleShowRoutineCompleteConfirm,
       handleShowRoutineProofDetailModal,
       showToast,
       showsRequestMenuItem,
@@ -557,13 +555,6 @@ const RoutineList = ({
           </Pressable>
         </View>
       ) : null}
-      <RoutineCompleteConfirmModal
-        isSubmitting={isCompletingRoutine}
-        onCancel={handleCloseCompleteConfirmModal}
-        onConfirm={handleConfirmRoutineComplete}
-        routineName={completeTargetRoutine?.routineName}
-        visible={Boolean(completeTargetRoutine)}
-      />
     </ThemeView>
   );
 };
