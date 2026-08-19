@@ -2501,6 +2501,29 @@ describe('루틴 조회 페이지', () => {
       expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
     });
 
+    it('isMe가 true이면 mateNickname이 있어도 사진 없는 개인 루틴을 바로 완료한다', async () => {
+      mockRoutineStore.type = 'number';
+      mockAxios.onGet(/\/routine\/list/).reply(200, {
+        data: createMockRoutines(1, {
+          isMe: true,
+          mateNickname: 'legacy-mate-value',
+          photoRequired: false,
+        }),
+      });
+
+      const { findByTestId } = render(<Index />);
+
+      fireEvent.press(await findByTestId('routine-count-check-1-4'));
+
+      expect(mockAlert).toHaveBeenCalledWith(
+        '루틴 인증',
+        '루틴 인증하시겠어요?',
+        expect.any(Array),
+      );
+      expect(mockPush).not.toHaveBeenCalledWith('/modal?type=request');
+      expect(mockRoutineStore.setRoutineId).not.toHaveBeenCalledWith(1);
+    });
+
     it('사진 인증이 필요한 개인 number 루틴을 누르면 기존 사진 인증 화면으로 이동한다', async () => {
       mockRoutineStore.type = 'number';
       mockAxios.onGet(/\/routine\/list/).reply(200, {
