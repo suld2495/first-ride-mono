@@ -264,6 +264,10 @@ const RoutineList = ({
           : null;
       const confirmId = meta.confirmId ?? todayConfirmId;
 
+      if (confirmId && routine.isMe && routine.photoRequired === false) {
+        return;
+      }
+
       if (confirmId && canOpenRoutineProofDetail) {
         handleShowRoutineProofDetailModal(confirmId);
 
