@@ -170,6 +170,15 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
     [onClickItem],
   );
 
+  if (quests.length === 0) {
+    return (
+      <EmptyState
+        icon="briefcase-outline"
+        message="퀘스트가 존재하지 않습니다."
+      />
+    );
+  }
+
   return (
     <FlashList
       data={quests}
@@ -183,12 +192,6 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
       maxToRenderPerBatch={10}
       windowSize={5}
       getItemLayout={getQuestItemLayout}
-      ListEmptyComponent={
-        <EmptyState
-          icon="briefcase-outline"
-          message="퀘스트가 존재하지 않습니다."
-        />
-      }
     />
   );
 };

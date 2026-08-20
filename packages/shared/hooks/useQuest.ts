@@ -8,15 +8,20 @@ import { questKeys, rewardKeys } from '../types/query-keys/quest';
 import { statKey } from '../types/query-keys/stat';
 import { userKey } from '../types/query-keys/user';
 
+export interface FetchQuestsQueryOptions {
+  enabled?: boolean;
+}
+
 // 목록 조회
 export const useFetchQuestsQuery = (
   userId: User['userId'],
   params: FetchQuestsParams = {},
+  options: FetchQuestsQueryOptions = {},
 ) => {
   return useQuery({
     queryKey: questKeys.list(userId, params),
     queryFn: () => questApi.fetchQuests(params),
-    enabled: !!userId,
+    enabled: !!userId && (options.enabled ?? true),
     refetchOnMount: 'always',
   });
 };

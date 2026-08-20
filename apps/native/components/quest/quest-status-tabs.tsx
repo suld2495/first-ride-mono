@@ -37,6 +37,7 @@ const QuestStatusTabs = ({
             <Button
               key={tab.value}
               testID={`quest-status-tab-${tab.value}`}
+              accessibilityState={{ selected: isSelected }}
               variant="ghost"
               onPress={() => onSelect(tab.value)}
               style={({ pressed }: { pressed: boolean }) => [
