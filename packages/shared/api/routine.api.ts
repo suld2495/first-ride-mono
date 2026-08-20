@@ -294,6 +294,18 @@ export const cancelRoutineChangeRequest = async (
   }
 };
 
+export const cancelRoutineConfirmation = async (
+  confirmId: number,
+): Promise<RoutineActionResponse> => {
+  try {
+    return await http.delete<RoutineActionResponse, void>(
+      `/routine/confirm/${confirmId}`,
+    );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
 export const fetchReceivedRoutineChangeRequests = async (): Promise<
   RoutineChangeRequest[]
 > => {

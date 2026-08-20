@@ -400,6 +400,7 @@ export {
   replyRequest,
 } from './request.api';
 export {
+  cancelRoutineConfirmation,
   createRoutine,
   deleteRoutine,
   fetchMonthlyRoutines,

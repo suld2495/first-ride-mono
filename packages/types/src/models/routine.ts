@@ -3,7 +3,7 @@ import { Request } from './request';
 export interface RoutineConfirmation {
   confirmId: number;
   date: string;
-  status: 'WAIT' | 'PASS' | 'DENY';
+  status: 'WAIT' | 'PASS' | 'DENY' | 'CANCELLED';
 }
 
 export interface Routine {
@@ -26,7 +26,7 @@ export interface Routine {
   pendingConfirmationCount: number;
   pendingConfirmationIds: number[];
   confirmations: RoutineConfirmation[];
-  todayConfirmStatus: 'WAIT' | 'PASS' | 'DENY' | null;
+  todayConfirmStatus: 'WAIT' | 'PASS' | 'DENY' | 'CANCELLED' | null;
   todayConfirmId: number | null;
   canRequestToday: boolean;
   hasPendingChangeRequest?: boolean;

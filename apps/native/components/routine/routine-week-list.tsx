@@ -37,6 +37,7 @@ interface RoutineWeekListProps {
     routine: Routine,
     meta?: {
       confirmId?: number | null;
+      isTodayPass?: boolean;
       isFutureDay?: boolean;
       isMissedPast?: boolean;
     },
@@ -373,6 +374,7 @@ const RoutineWeekList = ({
                   ? () =>
                       onRequestRoutine(routine, {
                         confirmId,
+                        isTodayPass: isToday && confirmationStatus === 'PASS',
                         isFutureDay,
                         isMissedPast: isMissedPastDay,
                       })

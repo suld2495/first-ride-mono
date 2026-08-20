@@ -37,6 +37,7 @@ interface RoutineCountListProps {
     routine: Routine,
     meta?: {
       confirmId?: number | null;
+      isTodayPass?: boolean;
       isMissedPast?: boolean;
     },
   ) => void;
@@ -211,7 +212,11 @@ const RoutineCountList = ({
       const completedCount = useConfirmationsForProgress
         ? passedConfirmIds.length
         : weeklyCount;
-      const hasTodaySuccess = isCurrentWeek && Boolean(todayPassedConfirmation);
+      const hasTodaySuccess =
+        isCurrentWeek &&
+        (Boolean(todayPassedConfirmation) ||
+          (routine.todayConfirmStatus === 'PASS' &&
+            routine.todayConfirmId !== null));
 
       const countLabels = Array.from(
         { length: MAX_ROUTINE_COUNT },
@@ -340,6 +345,7 @@ const RoutineCountList = ({
                     ? () =>
                         onRequestRoutine(routine, {
                           confirmId,
+                          isTodayPass: isTodaySuccess,
                           isMissedPast: isMissedPastGoal,
                         })
                     : undefined;

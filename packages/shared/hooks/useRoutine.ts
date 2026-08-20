@@ -19,6 +19,7 @@ import type { QueryKey } from '@tanstack/react-query';
 
 import * as routineApi from '../api/routine.api';
 import { routineKey } from '../types/query-keys/routine';
+import { userKey } from '../types/query-keys/user';
 import { getWeekMonday } from '../utils/date-utils';
 
 const DAYS_PER_WEEK = 7;
@@ -146,6 +147,29 @@ export const useCancelRoutineChangeRequestMutation = (
         }),
         queryClient.invalidateQueries({
           queryKey: routineKey.detail(routineId),
+        }),
+      ]);
+    },
+  });
+};
+
+export const useCancelRoutineConfirmationMutation = (nickname: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (confirmId: number) =>
+      routineApi.cancelRoutineConfirmation(confirmId),
+
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: routineKey.list(nickname),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['stat'],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: userKey.all(),
         }),
       ]);
     },

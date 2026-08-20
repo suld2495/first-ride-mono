@@ -1,6 +1,7 @@
 /* eslint-disable sonarjs/cognitive-complexity */
 import { useCreateRequestMutation } from '@repo/shared/hooks/useRequest';
 import {
+  useCancelRoutineConfirmationMutation,
   useDeleteRoutineMutation,
   useUpdateRoutinePauseMutation,
   useUpdateRoutineVisibilityMutation,
@@ -70,6 +71,7 @@ const ROUTINE_LIST_ANIMATION_DURATION = 220;
 
 interface RoutineCheckPressMeta {
   confirmId?: number | null;
+  isTodayPass?: boolean;
   isFutureDay?: boolean;
   isMissedPast?: boolean;
 }
@@ -116,6 +118,8 @@ const RoutineList = ({
   const updatePause = useUpdateRoutinePauseMutation(nickname);
   const updateVisibility = useUpdateRoutineVisibilityMutation();
   const deleteRoutine = useDeleteRoutineMutation(nickname);
+  const { isPending: isCancellingRoutine, mutate: cancelRoutineConfirmation } =
+    useCancelRoutineConfirmationMutation(nickname);
   const { isPending: isCompletingRoutine, mutate: completeRoutine } =
     useCreateRequestMutation();
   const showsRequestMenuItem = date === getWeekMonday(new Date());
@@ -255,6 +259,47 @@ const RoutineList = ({
     [handleConfirmRoutineComplete, isCompletingRoutine],
   );
 
+  const handleCancelRoutineConfirmation = useCallback(
+    (confirmId: number) => {
+      if (isCancellingRoutine) {
+        return;
+      }
+
+      cancelRoutineConfirmation(confirmId, {
+        onSuccess: () => {
+          showToast('루틴 인증이 취소되었습니다.', 'success');
+        },
+        onError: (error) => {
+          showToast(
+            getApiErrorMessage(error, '루틴 인증 취소에 실패했습니다.'),
+            'error',
+          );
+        },
+      });
+    },
+    [cancelRoutineConfirmation, isCancellingRoutine, showToast],
+  );
+
+  const handleShowRoutineCancellationConfirm = useCallback(
+    (confirmId: number) => {
+      if (isCancellingRoutine) {
+        return;
+      }
+
+      Alert.alert('루틴 인증 취소', '오늘 인증을 취소하시겠어요?', [
+        {
+          text: '아니요',
+          style: 'cancel',
+        },
+        {
+          text: '취소하기',
+          onPress: () => handleCancelRoutineConfirmation(confirmId),
+        },
+      ]);
+    },
+    [handleCancelRoutineConfirmation, isCancellingRoutine],
+  );
+
   const handlePressRoutineCheck = useCallback(
     (routine: Routine, meta: RoutineCheckPressMeta = {}) => {
       const todayConfirmId =
@@ -263,6 +308,18 @@ const RoutineList = ({
           ? routine.todayConfirmId
           : null;
       const confirmId = meta.confirmId ?? todayConfirmId;
+
+      if (
+        confirmId &&
+        meta.isTodayPass &&
+        !readOnly &&
+        routine.isMe &&
+        routine.photoRequired === false
+      ) {
+        handleShowRoutineCancellationConfirm(confirmId);
+
+        return;
+      }
 
       if (confirmId && routine.isMe && routine.photoRequired === false) {
         return;
@@ -316,6 +373,7 @@ const RoutineList = ({
     },
     [
       handleShowRequestModal,
+      handleShowRoutineCancellationConfirm,
       handleShowRoutineCompleteConfirm,
       handleShowRoutineProofDetailModal,
       canOpenRoutineProofDetail,
