@@ -36,18 +36,20 @@ export default function QuestPage() {
   const isAdmin = user?.role === 'ADMIN';
   const pageBackgroundColor = appThemes[baseThemeName].colors.background.base;
   const hasFocusedRef = useRef(false);
+  const questQueryParams =
+    statusFilter === 'ALL'
+      ? { status: 'ALL' as const, scope: 'ALL' as const }
+      : { status: 'ALL' as const, scope: 'IN_PROGRESS' as const };
 
   useLayoutEffect(() => {
     clearColorSchemeOverride();
   }, [clearColorSchemeOverride]);
 
-  const { data: quests, isLoading, refetch } = useFetchQuestsQuery(
-    user?.userId ?? '',
-    {
-      status: 'ACTIVE',
-      completed: false,
-    },
-  );
+  const {
+    data: quests,
+    isLoading,
+    refetch,
+  } = useFetchQuestsQuery(user?.userId ?? '', questQueryParams);
 
   useFocusEffect(
     useCallback(() => {

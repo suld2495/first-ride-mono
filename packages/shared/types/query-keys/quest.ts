@@ -12,6 +12,7 @@ export const questKeys = {
       params.status ?? 'ALL',
       params.questType ?? 'ALL',
       params.completed ?? 'ALL',
+      params.scope ?? 'ALL',
     ] as const,
   details: (userId: User['userId']) =>
     [...questKeys.all(userId), 'detail'] as const,

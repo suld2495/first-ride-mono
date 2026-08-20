@@ -41,7 +41,15 @@ const getProgressPercent = (current: number, target: number) => {
   return Math.min((current / target) * 100, 100);
 };
 
-const formatQuestRound = (current: number, target: number) => {
+const formatQuestRound = (
+  current: number,
+  target: number,
+  currentWeeklyStreak?: number,
+) => {
+  if (typeof currentWeeklyStreak === 'number') {
+    return `${currentWeeklyStreak}회째`;
+  }
+
   if (current >= target) {
     return `${target}회 완료`;
   }
@@ -50,11 +58,21 @@ const formatQuestRound = (current: number, target: number) => {
 };
 
 const QuestItem = ({ quest, onClick }: QuestItemProps) => {
-  const { endDate, questName, successCount, verificationTargetCount } = quest;
+  const {
+    currentWeeklyStreak,
+    endDate,
+    questName,
+    successCount,
+    verificationTargetCount,
+  } = quest;
   const currentCount = successCount ?? 0;
   const targetCount = Math.max(verificationTargetCount ?? 1, 1);
   const progressPercent = getProgressPercent(currentCount, targetCount);
-  const questRoundLabel = formatQuestRound(currentCount, targetCount);
+  const questRoundLabel = formatQuestRound(
+    currentCount,
+    targetCount,
+    currentWeeklyStreak,
+  );
   const questRoundAccessibilityLabel =
     currentCount >= targetCount
       ? questRoundLabel

@@ -1,6 +1,7 @@
 import type {
   CreateQuestForm,
   Quest,
+  QuestScope,
   QuestStatusFilter,
   QuestTypeFilter,
   UpdateQuestForm,
@@ -13,6 +14,7 @@ export interface FetchQuestsParams {
   status?: QuestStatusFilter;
   questType?: QuestTypeFilter;
   completed?: boolean;
+  scope?: QuestScope;
 }
 
 // 목록 조회
@@ -21,7 +23,7 @@ export const fetchQuests = async (
 ): Promise<Quest[]> => {
   try {
     const searchParams = new URLSearchParams();
-    if (params.status && params.status !== 'ALL') {
+    if (params.status) {
       searchParams.append('status', params.status);
     }
     if (params.questType && params.questType !== 'ALL') {
@@ -30,9 +32,12 @@ export const fetchQuests = async (
     if (typeof params.completed === 'boolean') {
       searchParams.append('completed', String(params.completed));
     }
+    if (params.scope) {
+      searchParams.append('scope', params.scope);
+    }
     const query = searchParams.toString();
     const response: Quest[] = await http.get(
-      `/quest/list${query ? `?${query}` : ''}`,
+      `${params.scope ? '/quest/my' : '/quest/list'}${query ? `?${query}` : ''}`,
     );
 
     return response;
