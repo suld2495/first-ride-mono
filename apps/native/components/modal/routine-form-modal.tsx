@@ -213,14 +213,10 @@ const MatePhotoRequiredInfoModal = ({
 );
 
 interface RoutineDateFormItemProps {
-  isPersonalRoutine: boolean;
-  hasCertificationHistory: boolean;
+  confirmCount: number;
 }
 
-const RoutineDateFormItem = ({
-  isPersonalRoutine,
-  hasCertificationHistory,
-}: RoutineDateFormItemProps) => {
+const RoutineDateFormItem = ({ confirmCount }: RoutineDateFormItemProps) => {
   const router = useRouter();
   const { setValue } = useForm();
   const routineDateSelection = useRoutineDateSelection();
@@ -310,8 +306,7 @@ const RoutineDateFormItem = ({
               variant="outlined"
               disabled={Boolean(form.isDailyRepeat)}
               onPress={() => {
-                const isStartDateFixed =
-                  isPersonalRoutine && hasCertificationHistory;
+                const isStartDateFixed = confirmCount >= 1;
 
                 beginRoutineDateSelection(
                   value || null,
@@ -648,12 +643,7 @@ const RoutineFormModal = () => {
           )}
           required
         />
-        <RoutineDateFormItem
-          isPersonalRoutine={Boolean(sourceRoutineForm.isMe)}
-          hasCertificationHistory={
-            (routineDetail?.confirmations?.length ?? 0) > 0
-          }
-        />
+        <RoutineDateFormItem confirmCount={routineDetail?.confirmCount ?? 0} />
         <FormItem
           name="routineCount"
           label="루틴 횟수"

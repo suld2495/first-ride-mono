@@ -19,6 +19,7 @@ export interface Routine {
   isMe: boolean;
   startDate: string;
   endDate?: string;
+  confirmCount?: number;
   paused: boolean;
   hidden: boolean;
   photoRequired: boolean;
@@ -44,6 +45,7 @@ export type RoutineForm = Omit<
   | 'pendingConfirmationCount'
   | 'pendingConfirmationIds'
   | 'confirmations'
+  | 'confirmCount'
   | 'todayConfirmStatus'
   | 'todayConfirmId'
   | 'canRequestToday'
