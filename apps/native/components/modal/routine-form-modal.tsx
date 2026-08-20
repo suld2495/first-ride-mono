@@ -130,16 +130,10 @@ type RoutineStatusForm = RoutineForm & {
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RoutineStatusForm>();
 
-interface RoutinePhotoRequiredOptionProps {
-  canShow: boolean;
-}
-
-const RoutinePhotoRequiredOption = ({
-  canShow,
-}: RoutinePhotoRequiredOptionProps) => {
+const RoutinePhotoRequiredOption = () => {
   const { form } = useForm();
 
-  if (!canShow || !form.isMe) {
+  if (!form.isMe) {
     return null;
   }
 
@@ -464,7 +458,6 @@ const RoutineFormModal = () => {
   const sourceRoutineForm = !isRoutineAdd
     ? (routineDetail ?? routineForm)
     : routineForm;
-  const sourceHasMate = Boolean(sourceRoutineForm.mateNickname);
   const isDirectRoutine =
     sourceRoutineForm.isMe ||
     (!!sourceRoutineForm.mateNickname &&
@@ -503,7 +496,7 @@ const RoutineFormModal = () => {
     nickname: user!.nickname,
     routineId,
     originalForm: isRoutineAdd ? undefined : normalizedRoutineForm,
-    canUpdatePhotoRequired: !sourceHasMate,
+    canUpdatePhotoRequired: isDirectRoutine,
     initialPendingChangeRequestId:
       routineDetail?.hasPendingChangeRequest === true
         ? routineDetail.pendingChangeRequestId
@@ -678,7 +671,7 @@ const RoutineFormModal = () => {
           )}
           required
         />
-        <RoutinePhotoRequiredOption canShow={isRoutineAdd || !sourceHasMate} />
+        <RoutinePhotoRequiredOption />
         <FormItem
           name="routineDetail"
           label="설명"
