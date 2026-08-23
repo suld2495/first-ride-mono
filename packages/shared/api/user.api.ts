@@ -1,9 +1,17 @@
-import type { SearchOption, UpdateMottoRequest, User } from '@repo/types';
+import type {
+  ApplyFriendCodeRequest,
+  ApplyFriendCodeResponse,
+  FriendCodeStatusResponse,
+  SearchOption,
+  UpdateMottoRequest,
+  User,
+} from '@repo/types';
 
 import { toAppError } from '.';
 import http from './client';
 
 const baseURL = '/users';
+const friendCodeURL = `${baseURL}/me/friend-code`;
 
 export const fetchUserList = async ({
   keyword = '',
@@ -36,6 +44,38 @@ export const updateMotto = async (
     return await http.put<User, UpdateMottoRequest>(
       `${baseURL}/me/motto`,
       request,
+    );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const fetchFriendCodeStatus =
+  async (): Promise<FriendCodeStatusResponse> => {
+    try {
+      return await http.get<FriendCodeStatusResponse, void>(friendCodeURL);
+    } catch (error) {
+      throw toAppError(error);
+    }
+  };
+
+export const applyFriendCode = async (
+  request: ApplyFriendCodeRequest,
+): Promise<ApplyFriendCodeResponse> => {
+  try {
+    return await http.post<ApplyFriendCodeResponse, ApplyFriendCodeRequest>(
+      friendCodeURL,
+      request,
+    );
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const skipFriendCode = async (): Promise<FriendCodeStatusResponse> => {
+  try {
+    return await http.post<FriendCodeStatusResponse, undefined>(
+      `${friendCodeURL}/skip`,
     );
   } catch (error) {
     throw toAppError(error);
