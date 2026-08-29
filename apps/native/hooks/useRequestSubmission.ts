@@ -69,11 +69,13 @@ export const useRequestSubmission = (
   const queryClient = useQueryClient();
   const saveRequest = useCreateRequestMutation();
   const isSubmittingRef = useRef(false);
+  const hasSucceededRef = useRef(false);
+  const [hasSucceeded, setHasSucceeded] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleSubmit = useCallback(
     (submittedForm: RequestForm) => {
-      if (isSubmittingRef.current) {
+      if (isSubmittingRef.current || hasSucceededRef.current) {
         return;
       }
 
@@ -121,6 +123,8 @@ export const useRequestSubmission = (
         },
         {
           onSuccess: async () => {
+            hasSucceededRef.current = true;
+            setHasSucceeded(true);
             await queryClient.invalidateQueries({
               queryKey: routineKeys.list(detail.nickname),
             });
@@ -295,7 +299,7 @@ export const useRequestSubmission = (
     handleSubmit,
     pickImage,
     takePicture,
-    isPending: saveRequest.isPending,
+    isPending: saveRequest.isPending || hasSucceeded,
     uploadProgress,
   };
 };
