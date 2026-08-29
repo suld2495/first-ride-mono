@@ -31,6 +31,7 @@ export type { RequestImage } from '@/utils/request-image';
 
 export type RequestForm = {
   images: RequestImage[];
+  memo: string;
   message: string;
 };
 
@@ -102,6 +103,7 @@ export const useRequestSubmission = (
       }
       formData.append('routineId', routineId.toString());
       formData.append('message', submittedForm.message);
+      formData.append('memo', submittedForm.memo);
 
       isSubmittingRef.current = true;
       setUploadProgress(0);

@@ -64,7 +64,7 @@ const RequestModal = ({ previewDetail }: RequestModalProps = {}) => {
     [photoRequired],
   );
   const initialForm = useMemo<RequestForm>(
-    () => ({ images: sharedImages, message: '' }),
+    () => ({ images: sharedImages, memo: '', message: '' }),
     [sharedImages],
   );
   const { handleSubmit, pickImage, takePicture, isPending, uploadProgress } =
@@ -340,7 +340,7 @@ const RequestModal = ({ previewDetail }: RequestModalProps = {}) => {
             </ThemeView>
           )}
 
-          {hasMateTarget ? (
+          {hasMateTarget && (
             <ThemeView
               testID="request-message-section"
               style={styles.messageSection}
@@ -367,7 +367,34 @@ const RequestModal = ({ previewDetail }: RequestModalProps = {}) => {
                 )}
               />
             </ThemeView>
-          ) : null}
+          )}
+
+          <ThemeView
+            testID="request-memo-section"
+            style={styles.messageSection}
+            transparent
+          >
+            <FormItem
+              name="memo"
+              label="메모"
+              optionalLabel="(선택)"
+              item={({ value, onChange }) => (
+                <Input
+                  accessibilityLabel="메모"
+                  editable={!isPending}
+                  fullWidth
+                  inputStyle={styles.messageInput}
+                  maxLength={100}
+                  multiline
+                  onChangeText={onChange}
+                  placeholder="메모를 입력해주세요."
+                  style={styles.messageField}
+                  value={value}
+                  variant="filled"
+                />
+              )}
+            />
+          </ThemeView>
 
           <RequetButtonGroup useForm={useForm} loading={isPending} />
         </Form>
