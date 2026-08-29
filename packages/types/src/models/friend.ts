@@ -18,6 +18,7 @@ export interface Friend {
 export interface FriendRequest {
   id: number;
   senderNickname: User['nickname'];
+  senderCharacterImageUrl?: null | string;
   receiverNickname: User['nickname'];
   status: FriendRequestStatus;
   createdAt: Date;

@@ -5,6 +5,7 @@ import { User } from '../models/user';
 export interface FriendRequestResponse {
   id: number;
   senderNickname: User['nickname'];
+  senderCharacterImageUrl?: null | string;
   receiverNickname: User['nickname'];
   status: FriendRequestStatus;
   createdAt: string;
