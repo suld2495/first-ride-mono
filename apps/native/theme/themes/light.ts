@@ -78,6 +78,7 @@ export const lightTheme: ThemeContract = {
       info: {
         bg: palette.blue[50],
         text: palette.blue[700],
+        tooltipText: palette.blue[400],
         border: palette.blue[200],
       },
     },

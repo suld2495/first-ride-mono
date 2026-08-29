@@ -4,6 +4,7 @@ import type {
   FriendProfileResponse,
   FriendRoutinesResponse,
   FriendRequestResponse,
+  FriendSentRequestResponse,
   RandomFriendRecommendationResponse,
   Routine,
   SearchOption,
@@ -134,6 +135,21 @@ export const fetchFriendRequests = async (
     );
 
     return response;
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const fetchSentFriendRequests = async (): Promise<
+  FriendSentRequestResponse[]
+> => {
+  try {
+    const response = await axiosInstance.get<
+      FriendSentRequestResponse[] | { data: FriendSentRequestResponse[] }
+    >(`${baseURL}/requests/sent`);
+    const body = response.data;
+
+    return Array.isArray(body) ? body : body.data;
   } catch (error) {
     throw toAppError(error);
   }

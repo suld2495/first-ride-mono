@@ -16,6 +16,7 @@ import {
   fetchFriendProfile,
   fetchFriendRoutines,
   fetchFriendRequests,
+  fetchSentFriendRequests,
   fetchFriends,
   fetchRandomFriendRecommendation,
   type RandomFriendRecommendationSettings,
@@ -210,6 +211,14 @@ export const useFetchFriendRequestsQuery = (
         createdAt: new Date(request.createdAt),
       }));
     },
+  });
+};
+
+export const useFetchSentFriendRequestsQuery = (userId: User['userId']) => {
+  return useQuery({
+    queryKey: friendRequestKey.sent(userId),
+    queryFn: fetchSentFriendRequests,
+    enabled: !!userId,
   });
 };
 

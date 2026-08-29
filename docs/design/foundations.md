@@ -37,6 +37,8 @@ First Ride의 테마 구조는 `ThemeContract`를 기준으로 한다.
 - `questDetail`: 퀘스트 상세 전용 역할
 - `tag`: 중요도 태그 역할
 
+정보 안내 팝오버 문구는 `feedback.info.tooltipText` 역할을 사용해 테마별 정보 배경 위에서도 읽기 쉽도록 관리한다.
+
 `palette`는 원재료이고 `theme.colors`는 제품 역할이다. 디자이너는 `palette`를 고치고, 컴포넌트에서는 되도록 `theme.colors`를 참조한다.
 
 ## Spacing

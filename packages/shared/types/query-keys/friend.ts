@@ -22,4 +22,6 @@ export const friendRequestKey = {
   all: (userId: User['userId']) => ['friend-request', userId] as const,
   list: (userId: User['userId'], page: number) =>
     [...friendRequestKey.all(userId), page] as const,
+  sent: (userId: User['userId']) =>
+    [...friendRequestKey.all(userId), 'sent'] as const,
 };

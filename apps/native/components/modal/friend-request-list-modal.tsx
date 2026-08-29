@@ -56,23 +56,41 @@ const NotificationContent = ({
   id,
   senderNickname,
   senderCharacterImageUrl,
+  receiverCharacterImageUrl,
+  receiverBackgroundImageUrl,
   createdAt,
   onAccept,
   onReject,
 }: NotificationContentProps) => {
   const { data: searchResults } = useFetchUserListQuery({
-    keyword: senderCharacterImageUrl ? '' : senderNickname,
+    page: 1,
+    keyword:
+      senderCharacterImageUrl || receiverCharacterImageUrl
+        ? ''
+        : senderNickname,
   });
   const senderProfile = searchResults?.find(
     (user) => user.nickname === senderNickname,
   );
   const characterAsset = getRoutineSceneRemoteAsset(
-    senderCharacterImageUrl ?? senderProfile?.characterImageUrl,
+    senderCharacterImageUrl ??
+      receiverCharacterImageUrl ??
+      senderProfile?.characterImageUrl,
+  );
+  const backgroundAsset = getRoutineSceneRemoteAsset(
+    receiverBackgroundImageUrl,
   );
 
   return (
     <ThemeView style={styles.notificationRow} transparent>
       <View style={styles.avatar}>
+        {backgroundAsset?.source ? (
+          <Image
+            source={backgroundAsset.source}
+            style={styles.avatarBackgroundImage}
+            resizeMode="cover"
+          />
+        ) : null}
         {characterAsset?.source ? (
           <Image
             source={characterAsset.source}
@@ -92,7 +110,6 @@ const NotificationContent = ({
               title="거절"
               size="sm"
               variant="outline"
-              backgroundColor={palette.white}
               textColor={palette.theme.gray[90]}
               onPress={() => onReject(id)}
               style={styles.rejectButton}
@@ -264,6 +281,9 @@ const styles = StyleSheet.create((theme) => ({
     width: theme.foundation.dimension.x48,
     height: theme.foundation.dimension.x60,
   },
+  avatarBackgroundImage: {
+    ...StyleSheet.absoluteFillObject,
+  },
   notificationHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -277,6 +297,7 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.foundation.spacing[2],
   },
   rejectButton: {
+    backgroundColor: palette.white,
     borderColor: palette.theme.gray[90],
     borderRadius: theme.foundation.radii.xs,
     paddingHorizontal: theme.foundation.spacing[2],

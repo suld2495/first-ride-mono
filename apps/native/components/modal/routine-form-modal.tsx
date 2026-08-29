@@ -89,6 +89,8 @@ const ROUTINE_DETAIL_MIN_HEIGHT: number = baseFoundation.dimension.x44;
 const ANDROID_FORM_KEYBOARD_EXTRA_HEIGHT = baseFoundation.dimension.x48;
 const MATE_DROPDOWN_KEYBOARD_EXTRA_SCROLL_HEIGHT =
   baseFoundation.dimension.x48 + baseFoundation.spacing[1];
+const ROUTINE_OPTION_CHECKBOX_FILL_COLOR = palette.theme.gray[95];
+const ROUTINE_OPTION_CHECKBOX_CHECKED_COLOR = palette.theme.gray[5];
 
 const getPenaltyDigits = (text: string) => text.replace(/[^0-9]/g, '');
 
@@ -267,8 +269,8 @@ const RoutineDateFormItem = ({ confirmCount }: RoutineDateFormItemProps) => {
               <Checkbox
                 size="md"
                 disableText
-                fillColor={palette.white}
-                checkedColor={palette.theme.gray[95]}
+                fillColor={ROUTINE_OPTION_CHECKBOX_FILL_COLOR}
+                checkedColor={ROUTINE_OPTION_CHECKBOX_CHECKED_COLOR}
                 isChecked={Boolean(form.isDailyRepeat)}
                 showCheckIconWhenUnchecked={false}
                 onPress={(checked) => {
@@ -283,7 +285,7 @@ const RoutineDateFormItem = ({ confirmCount }: RoutineDateFormItemProps) => {
               >
                 <Typography
                   variant="body2"
-                  weight="regular"
+                  weight="semibold"
                   style={styles.dailyRepeatLabel}
                 >
                   매일 반복
@@ -681,7 +683,8 @@ const RoutineFormModal = () => {
                     size="md"
                     text="메이트에게 루틴 인증 요청"
                     labelColor={theme.colors.field.label}
-                    fillColor={palette.theme.gray[95]}
+                    fillColor={ROUTINE_OPTION_CHECKBOX_FILL_COLOR}
+                    checkedColor={ROUTINE_OPTION_CHECKBOX_CHECKED_COLOR}
                     isChecked={!isMe}
                     onPress={(checked) => {
                       setValue('isMe', !checked);
@@ -815,6 +818,8 @@ const RoutineFormModal = () => {
                         size="md"
                         text="루틴 일시정지"
                         labelColor={theme.colors.text.gray}
+                        fillColor={ROUTINE_OPTION_CHECKBOX_FILL_COLOR}
+                        checkedColor={ROUTINE_OPTION_CHECKBOX_CHECKED_COLOR}
                         isChecked={!!value}
                         onPress={(checked) => {
                           setValue('paused', checked);
@@ -851,6 +856,8 @@ const RoutineFormModal = () => {
                       <Checkbox
                         size="md"
                         disableText
+                        fillColor={ROUTINE_OPTION_CHECKBOX_FILL_COLOR}
+                        checkedColor={ROUTINE_OPTION_CHECKBOX_CHECKED_COLOR}
                         isChecked={!!value}
                         onPress={(checked) => {
                           setValue('hidden', checked);
@@ -868,7 +875,7 @@ const RoutineFormModal = () => {
                           testID="hidden-routine-label"
                           variant="body2"
                           weight="semibold"
-                          color={theme.colors.text.gray}
+                          color={theme.colors.field.label}
                           style={styles.hiddenRoutineLabel}
                         >
                           비공개 루틴
@@ -901,7 +908,7 @@ const RoutineFormModal = () => {
                             style={styles.hiddenRoutineInfoPopover}
                           >
                             <Typography
-                              variant="caption2"
+                              variant="caption1"
                               weight="regular"
                               style={styles.hiddenRoutineInfoText}
                             >
@@ -968,7 +975,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   dateSection: {
-    gap: theme.foundation.spacing[3],
+    gap: theme.foundation.spacing[1],
   },
 
   dateHeaderRow: {
@@ -1177,7 +1184,8 @@ const styles = StyleSheet.create((theme) => ({
     zIndex: baseFoundation.zIndex.tooltip,
   },
   hiddenRoutineInfoText: {
-    color: theme.colors.feedback.info.text,
+    color:
+      theme.colors.feedback.info.tooltipText ?? theme.colors.feedback.info.text,
   },
   deleteButton: {
     height: 44,

@@ -20,6 +20,7 @@ export const greenTheme: ThemeContract = {
       info: {
         ...commonTheme.colors.feedback.info,
         text: palette.theme.softGreen[50],
+        tooltipText: palette.theme.softGreen[10],
         border: palette.theme.softGreen[50],
         bg: palette.theme.green[80],
       },

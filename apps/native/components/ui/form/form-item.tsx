@@ -112,7 +112,7 @@ export function createFormItem<T extends Record<string, unknown>>(
                 {isTooltipVisible && (
                   <View style={styles.tooltipBubble}>
                     <Typography
-                      variant="caption2"
+                      variant="caption1"
                       weight="regular"
                       style={styles.tooltipText}
                     >
@@ -236,6 +236,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   tooltipText: {
-    color: theme.colors.feedback.info.text,
+    color:
+      theme.colors.feedback.info.tooltipText ?? theme.colors.feedback.info.text,
   },
 }));

@@ -7,6 +7,20 @@ export interface FriendRequestResponse {
   senderNickname: User['nickname'];
   senderCharacterImageUrl?: null | string;
   receiverNickname: User['nickname'];
+  receiverId?: number;
+  receiverCharacterImageUrl?: null | string;
+  receiverBackgroundImageUrl?: null | string;
+  status: FriendRequestStatus;
+  createdAt: string;
+}
+
+export interface FriendSentRequestResponse {
+  id: number;
+  senderNickname: User['nickname'];
+  receiverNickname: User['nickname'];
+  receiverId: number;
+  receiverCharacterImageUrl: null | string;
+  receiverBackgroundImageUrl: null | string;
   status: FriendRequestStatus;
   createdAt: string;
 }

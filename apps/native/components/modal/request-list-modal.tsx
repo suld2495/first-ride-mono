@@ -246,7 +246,7 @@ const RequestListModal = () => {
       {
         count: requests.length,
         id: 'confirmation' as const,
-        label: '인증 요청',
+        label: '루틴 인증 요청',
       },
       {
         count: routineChangeRequests.length,
@@ -508,9 +508,6 @@ const RequestListModal = () => {
               })
             : null}
         </ThemeView>
-        <Typography variant="body2" style={styles.introDescription}>
-          도착한 요청을 확인해 주세요
-        </Typography>
       </ThemeView>
       <ThemeView style={styles.tabBar}>
         {tabs.map((tab) => {
@@ -585,7 +582,7 @@ const styles = StyleSheet.create((theme) => ({
 
   intro: {
     position: 'relative',
-    minHeight: baseFoundation.dimension.x120,
+    minHeight: baseFoundation.dimension.x84,
     paddingHorizontal: baseFoundation.spacing[6],
     paddingTop: baseFoundation.spacing[5],
     paddingRight: baseFoundation.spacing[24],
@@ -595,10 +592,6 @@ const styles = StyleSheet.create((theme) => ({
 
   introTitle: {
     color: theme.colors.brand.text,
-  },
-
-  introDescription: {
-    color: theme.colors.text.muted,
   },
 
   accentText: {
