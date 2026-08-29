@@ -122,7 +122,13 @@ const RoutineList = ({
     useCancelRoutineConfirmationMutation(nickname);
   const { isPending: isCompletingRoutine, mutate: completeRoutine } =
     useCreateRequestMutation();
-  const showsRequestMenuItem = date === getWeekMonday(new Date());
+  const isCurrentWeek = date === getWeekMonday(new Date());
+  const showsRequestMenuItem = isCurrentWeek;
+  const canOpenRoutineProofDetailThisWeek =
+    isCurrentWeek && canOpenRoutineProofDetail;
+  const routineProofDetailAccessDeniedHandler = isCurrentWeek
+    ? onRoutineProofDetailAccessDenied
+    : undefined;
 
   const canExpandList = routines.length > MAX_VISIBLE_ROUTINES;
   const hasPreviewLayer = canExpandList;
@@ -325,14 +331,14 @@ const RoutineList = ({
         return;
       }
 
-      if (confirmId && canOpenRoutineProofDetail) {
+      if (confirmId && canOpenRoutineProofDetailThisWeek) {
         handleShowRoutineProofDetailModal(confirmId);
 
         return;
       }
 
-      if (confirmId && onRoutineProofDetailAccessDenied) {
-        onRoutineProofDetailAccessDenied();
+      if (confirmId && routineProofDetailAccessDeniedHandler) {
+        routineProofDetailAccessDeniedHandler();
 
         return;
       }
@@ -376,8 +382,8 @@ const RoutineList = ({
       handleShowRoutineCancellationConfirm,
       handleShowRoutineCompleteConfirm,
       handleShowRoutineProofDetailModal,
-      canOpenRoutineProofDetail,
-      onRoutineProofDetailAccessDenied,
+      canOpenRoutineProofDetailThisWeek,
+      routineProofDetailAccessDeniedHandler,
       readOnly,
       showToast,
       showsRequestMenuItem,
@@ -527,9 +533,9 @@ const RoutineList = ({
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
-              canOpenRoutineProofDetail={canOpenRoutineProofDetail}
+              canOpenRoutineProofDetail={canOpenRoutineProofDetailThisWeek}
               onRoutineProofDetailAccessDenied={
-                onRoutineProofDetailAccessDenied
+                routineProofDetailAccessDeniedHandler
               }
               useConfirmationsForProgress={useConfirmationsForProgress}
               routineColorFallback={routineColorFallback}
@@ -550,9 +556,9 @@ const RoutineList = ({
               onToggleRoutineMenu={handleToggleRoutineMenu}
               onScrollOffsetChange={handleRoutineListScrollOffsetChange}
               readOnly={readOnly}
-              canOpenRoutineProofDetail={canOpenRoutineProofDetail}
+              canOpenRoutineProofDetail={canOpenRoutineProofDetailThisWeek}
               onRoutineProofDetailAccessDenied={
-                onRoutineProofDetailAccessDenied
+                routineProofDetailAccessDeniedHandler
               }
               routineColorFallback={routineColorFallback}
               testID="routine-list-scroll"
