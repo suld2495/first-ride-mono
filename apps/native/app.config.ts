@@ -61,6 +61,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         icon: './assets/splash.png',
         color: '#7edcd5',
         defaultChannel: 'routine-channel',
+        enableBackgroundRemoteNotifications: true,
       },
     ],
     [

@@ -67,6 +67,7 @@ import {
   syncBadgeCountWithPendingConfirmations,
 } from '@/utils/notifications';
 import { refreshRoutineWidgetSnapshot } from '@/utils/routine-widget-refresh';
+import { getWidgetSyncData, syncWidgetData } from '@/utils/widget-sync';
 
 // Tamagui initialization - must be imported before any component using styles
 import '@/api/bootstrap.api';
@@ -261,13 +262,19 @@ function AppShell({ isFontReady }: AppShellProps) {
         void checkLevelUpStatus();
       }
 
-      void refreshRoutineWidgetSnapshot({
-        nickname: user.nickname,
-        themeName,
-        queryClient,
-      });
-
       const data = extractDeepLinkData(response.notification);
+      const widgetData = getWidgetSyncData(data);
+
+      if (widgetData) {
+        void syncWidgetData(widgetData, { themeName }).catch(() => undefined);
+      } else {
+        void refreshRoutineWidgetSnapshot({
+          nickname: user.nickname,
+          themeName,
+          queryClient,
+        });
+      }
+
       const routineSharePath = getRoutineSharePath(data);
       const isRoutineShareNotification = !!routineSharePath;
 
@@ -345,11 +352,19 @@ function AppShell({ isFontReady }: AppShellProps) {
       }
 
       void syncBadgeCountFromNotification(notification);
-      void refreshRoutineWidgetSnapshot({
-        nickname: user.nickname,
-        themeName,
-        queryClient,
-      });
+
+      const data = extractDeepLinkData(notification);
+      const widgetData = getWidgetSyncData(data);
+
+      if (widgetData) {
+        void syncWidgetData(widgetData, { themeName }).catch(() => undefined);
+      } else {
+        void refreshRoutineWidgetSnapshot({
+          nickname: user.nickname,
+          themeName,
+          queryClient,
+        });
+      }
     },
     [user, themeName, queryClient, checkLevelUpStatus],
   );

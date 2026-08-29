@@ -52,6 +52,24 @@ export interface CharacterWidgetSnapshot {
   experienceStyle: CharacterWidgetExperienceStyle;
 }
 
+export interface WidgetSyncRoutineData {
+  routineId: number;
+  routineName: string;
+  routineCount: number;
+  completedCount: number;
+  widgetEnabled: boolean;
+  completedDates: string[];
+}
+
+export interface WidgetSyncData {
+  level: number;
+  exp: number;
+  expForNextLevel: number;
+  characterImageUrl: null | string;
+  backgroundImageUrl: null | string;
+  routines: WidgetSyncRoutineData[];
+}
+
 export type RoutineWidgetSnapshot =
   | {
       status: 'signedOut';
@@ -229,6 +247,47 @@ export const createRoutineWidgetSnapshot = (
   };
 };
 
+export const createRoutineWidgetSnapshotFromWidgetData = (
+  widgetData: WidgetSyncData,
+  options: CreateRoutineWidgetSnapshotOptions = {},
+): RoutineWidgetSnapshot => {
+  const today = options.today ?? new Date();
+  const todayKey = createRoutineDateKey(today);
+
+  const widgetItems = widgetData.routines
+    .filter((routine) => routine.widgetEnabled)
+    .map<RoutineWidgetItem>((routine) => {
+      const completedDates = [...new Set(routine.completedDates)];
+
+      return {
+        id: routine.routineId,
+        title: routine.routineName,
+        weeklyCount: routine.completedCount,
+        routineCount: routine.routineCount,
+        achievementRate:
+          routine.routineCount <= 0
+            ? 1
+            : routine.completedCount / routine.routineCount,
+        completedDates,
+        isTodayDone: completedDates.includes(todayKey),
+        accentColor: DEFAULT_ROUTINE_COLOR,
+        darkAccentColor: DEFAULT_ROUTINE_COLOR,
+      };
+    })
+    .filter((item) => item.weeklyCount < item.routineCount || item.isTodayDone);
+
+  return {
+    status: 'ready',
+    title: '이번 주 루틴',
+    message: widgetItems.length ? '' : '이번 주 루틴을 모두 달성했어요',
+    items: widgetItems,
+    smallItems: createSmallRoutineWidgetItems(widgetItems),
+    remainingCount: 0,
+    generatedAt: today.toISOString(),
+    countLabelStyle: createRoutineWidgetCountLabelStyle(options.themeName),
+  };
+};
+
 export const createCharacterWidgetSnapshot = (
   user: User,
   stats: StatResponse,
@@ -268,6 +327,50 @@ export const createCharacterWidgetSnapshot = (
       primaryColor: experienceTheme.colors.brand.icon,
       trackColor: experienceTheme.colors.brand.secondary,
       textColor: experienceTheme.colors.brand.routineBorder,
+    },
+  };
+};
+
+export const createCharacterWidgetSnapshotFromWidgetData = (
+  widgetData: WidgetSyncData,
+  options: CreateCharacterWidgetSnapshotOptions = {},
+): CharacterWidgetSnapshot => {
+  const themeName = options.themeName ?? DEFAULT_THEME_NAME;
+  const theme = appThemes[themeName] ?? appThemes.dark;
+  const expForNextLevel = Math.max(1, Math.floor(widgetData.expForNextLevel));
+  const currentExp = Math.min(
+    expForNextLevel,
+    Math.max(0, Math.floor(widgetData.exp)),
+  );
+  const assetHost = options.assetHost ?? DEFAULT_ASSET_HOST;
+  const usesDarkTheme = theme.name === 'dark';
+
+  return {
+    status: 'ready',
+    level: Math.max(1, Math.floor(widgetData.level)),
+    currentExp,
+    expForNextLevel,
+    characterImageUrl: resolveWidgetAssetUrl(
+      widgetData.characterImageUrl,
+      assetHost,
+    ),
+    backgroundImageUrl: resolveWidgetAssetUrl(
+      widgetData.backgroundImageUrl,
+      assetHost,
+    ),
+    generatedAt: (options.now ?? new Date()).toISOString(),
+    levelBadgeStyle: {
+      backgroundColor: usesDarkTheme
+        ? theme.colors.brand.background
+        : theme.colors.brand.text,
+      textColor: usesDarkTheme
+        ? theme.colors.brand.text
+        : theme.colors.brand.background,
+    },
+    experienceStyle: {
+      primaryColor: theme.colors.brand.icon,
+      trackColor: theme.colors.brand.secondary,
+      textColor: theme.colors.brand.routineBorder,
     },
   };
 };
