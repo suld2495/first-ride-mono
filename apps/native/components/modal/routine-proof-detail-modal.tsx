@@ -176,6 +176,7 @@ const RoutineProofDetailModal = ({
   const visibleRoutineDescription =
     routineDescription ?? fallbackRoutineDescription;
   const routineName = detail?.routineName ?? selectedRoutine.routineName;
+  const memo = detail?.memo?.trim();
   const requestMessage = detail?.message?.trim();
   const replyMessage = detail?.checkComment?.trim();
   const isRequesterMe =
@@ -297,6 +298,25 @@ const RoutineProofDetailModal = ({
             </Typography>
             <Typography variant="body2" style={styles.detailText}>
               {getFormatDateTime(detail.createdAt)}
+            </Typography>
+          </ThemeView>
+        ) : null}
+
+        {memo ? (
+          <ThemeView
+            transparent
+            style={[styles.section, styles.proofSectionSpacing]}
+            testID="routine-proof-memo-section"
+          >
+            <Typography
+              variant="caption1"
+              weight="semibold"
+              style={styles.sectionTitle}
+            >
+              메모
+            </Typography>
+            <Typography variant="body2" style={styles.detailText}>
+              {memo}
             </Typography>
           </ThemeView>
         ) : null}

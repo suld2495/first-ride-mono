@@ -85,6 +85,7 @@ export interface RoutineDetail {
   checkedAt?: Request['createdAt'] | null;
   checkStatus: Request['checkStatus'];
   message: Request['message'];
+  memo?: string | null;
   checkComment?: Request['checkComment'] | null;
   hasRequestMessage: boolean;
   hasResponseComment: boolean;
