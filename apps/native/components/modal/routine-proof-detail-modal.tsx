@@ -102,7 +102,7 @@ const DetailImage = ({ imagePath, style }: DetailImageProps) => {
 };
 
 const BlurredMessageText = ({ source }: { source: ImageSourcePropType }) => (
-  <View style={styles.chatTextContainer} testID="routine-proof-chat-text">
+  <View style={styles.chatBlurContainer} testID="routine-proof-chat-text">
     <Image
       source={source}
       resizeMode="stretch"
@@ -460,7 +460,8 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.brand.card,
   },
   chatBubbleMine: { backgroundColor: theme.colors.brand.primary },
-  chatTextContainer: {
+  chatTextContainer: { flexShrink: 1 },
+  chatBlurContainer: {
     width: baseFoundation.dimension.x96,
     height: baseFoundation.dimension.x28,
   },
