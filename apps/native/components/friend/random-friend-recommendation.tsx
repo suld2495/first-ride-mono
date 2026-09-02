@@ -2,12 +2,12 @@ import {
   useAddFriendMutation,
   useRandomFriendRecommendationQuery,
 } from '@repo/shared/hooks/useFriend';
-import { getWeekMonday } from '@repo/shared/utils';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
-import { Switch, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
+import { HomeTabIcon } from '@/components/icons/tab-bar-icons';
 import {
   getRoutineSceneBackgroundAsset,
   getRoutineSceneCharacterAsset,
@@ -29,9 +29,16 @@ import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 import { formatCountdown } from '@/utils/random-friend-recommendation-timer';
 
-const CARD_HEIGHT = baseFoundation.dimension.x250;
+const CARD_HEIGHT =
+  baseFoundation.dimension.x250 - baseFoundation.dimension.x12;
 const CHARACTER_SIZE = baseFoundation.dimension.x140;
 const PROFILE_HEIGHT = baseFoundation.dimension.x52;
+const COUNTDOWN_WIDTH = baseFoundation.dimension.x96;
+const RECOMMENDATION_TOGGLE_WIDTH = baseFoundation.dimension.x40;
+const RECOMMENDATION_TOGGLE_HEIGHT = baseFoundation.dimension.x24;
+const RECOMMENDATION_TOGGLE_THUMB_SIZE = baseFoundation.dimension.x20;
+const RECOMMENDATION_TOGGLE_PADDING = baseFoundation.dimension.x1;
+const RECOMMENDATION_TOGGLE_HIT_SLOP = baseFoundation.dimension.x8;
 const FRIEND_REQUEST_ERROR_MESSAGE =
   '친구 요청을 보내지 못했습니다. 다시 시도해주세요.';
 const RECOMMENDATION_ERROR_MESSAGE =
@@ -79,8 +86,6 @@ const RandomFriendRecommendationHeader = ({
   onEnabledChange,
   refetch,
 }: RandomFriendRecommendationHeaderProps) => {
-  const { theme } = useAppTheme();
-
   return (
     <View style={styles.recommendationHeader}>
       <View
@@ -94,18 +99,21 @@ const RandomFriendRecommendationHeader = ({
         >
           랜덤 친구 추천
         </Typography>
-        <Switch
+        <Pressable
           accessibilityLabel="랜덤 친구 추천 받기"
+          accessibilityRole="switch"
           accessibilityState={{ checked: enabled }}
-          ios_backgroundColor={theme.colors.border.strong}
-          onValueChange={onEnabledChange}
-          thumbColor={theme.colors.background.elevated}
-          trackColor={{
-            false: theme.colors.border.strong,
-            true: theme.colors.text.muted,
-          }}
-          value={enabled}
-        />
+          hitSlop={RECOMMENDATION_TOGGLE_HIT_SLOP}
+          onPress={() => onEnabledChange(!enabled)}
+          style={[
+            styles.recommendationToggle,
+            enabled
+              ? styles.recommendationToggleOn
+              : styles.recommendationToggleOff,
+          ]}
+        >
+          <View style={styles.recommendationToggleThumb} />
+        </Pressable>
       </View>
       {enabled ? (
         <RandomFriendRecommendationCountdown refetch={refetch} />
@@ -115,6 +123,7 @@ const RandomFriendRecommendationHeader = ({
 };
 
 const RandomFriendRecommendation = () => {
+  const { theme } = useAppTheme();
   const {
     data: recommendation,
     error,
@@ -184,16 +193,8 @@ const RandomFriendRecommendation = () => {
     }
   };
 
-  const handleOpenFriendPage = () => {
-    if (!recommendation) {
-      return;
-    }
-
-    router.push(
-      `/modal?type=friend-routines&friendId=${encodeURIComponent(String(recommendation.friendId))}&friendNickname=${encodeURIComponent(
-        recommendation.nickname,
-      )}&date=${getWeekMonday(new Date())}`,
-    );
+  const handleOpenHome = () => {
+    router.push('/(tabs)/(afterLogin)/(routine)');
   };
 
   const errorMessage = error
@@ -299,17 +300,17 @@ const RandomFriendRecommendation = () => {
               testID="random-friend-profile-actions"
             >
               <Button
-                accessibilityLabel="친구 페이지로 이동"
+                accessibilityLabel="홈으로 이동"
                 accessibilityRole="button"
-                rightIcon={({ color }) => (
-                  <Ionicons
-                    color={color}
-                    name="chevron-forward"
-                    size={baseFoundation.iconSize.m}
-                    testID="random-friend-page-navigation-icon"
-                  />
+                rightIcon={() => (
+                  <View testID="random-friend-page-navigation-icon">
+                    <HomeTabIcon
+                      color={theme.colors.action.primary.label}
+                      size={baseFoundation.iconSize.s}
+                    />
+                  </View>
                 )}
-                onPress={handleOpenFriendPage}
+                onPress={handleOpenHome}
                 backgroundColor={profileTheme.colors.brand.text}
                 textColor={profileTheme.colors.action.primary.label}
                 style={styles.navigationButton}
@@ -367,12 +368,34 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text.muted,
     flexShrink: 1,
   },
+  recommendationToggle: {
+    width: RECOMMENDATION_TOGGLE_WIDTH,
+    height: RECOMMENDATION_TOGGLE_HEIGHT,
+    padding: RECOMMENDATION_TOGGLE_PADDING,
+    justifyContent: 'center',
+    borderRadius: theme.foundation.radii.xs,
+  },
+  recommendationToggleOn: {
+    alignItems: 'flex-end',
+    backgroundColor: theme.colors.brand.primary,
+  },
+  recommendationToggleOff: {
+    alignItems: 'flex-start',
+    backgroundColor: theme.colors.brand.secondary,
+  },
+  recommendationToggleThumb: {
+    width: RECOMMENDATION_TOGGLE_THUMB_SIZE,
+    height: RECOMMENDATION_TOGGLE_THUMB_SIZE,
+    backgroundColor: theme.colors.background.input,
+  },
   countdownContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     height: baseFoundation.dimension.x24,
     gap: theme.foundation.spacing[1],
     borderRadius: theme.foundation.radii.xs,
+    width: COUNTDOWN_WIDTH,
+    justifyContent: 'center',
     paddingHorizontal: theme.foundation.spacing[2],
     backgroundColor: 'rgba(255, 255, 255, 0.55)',
   },
@@ -381,18 +404,23 @@ const styles = StyleSheet.create((theme) => ({
   },
   countdown: {
     color: theme.colors.text.muted,
+    fontVariant: ['tabular-nums'],
     flexShrink: 0,
   },
   card: {
     position: 'relative',
     height: CARD_HEIGHT,
     borderRadius: theme.foundation.radii.m,
+    borderWidth: baseFoundation.dimension.x1,
+    borderColor: theme.colors.brand.primary,
     overflow: 'hidden',
     backgroundColor: appThemes.green.colors.brand.card,
   },
   stateCard: {
     height: CARD_HEIGHT,
     borderRadius: theme.foundation.radii.m,
+    borderWidth: baseFoundation.dimension.x1,
+    borderColor: theme.colors.brand.primary,
     alignItems: 'center',
     justifyContent: 'center',
     gap: theme.foundation.spacing[4],

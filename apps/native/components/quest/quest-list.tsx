@@ -4,7 +4,7 @@ import { Pressable, View } from 'react-native';
 
 import { EmptyState } from '@/components/ui/empty-state';
 import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
 import { baseFoundation } from '@/theme/tokens';
@@ -165,6 +165,7 @@ const getQuestItemLayout = (_: Quest[] | null, index: number) => ({
 const QuestItemSeparator = () => <View style={styles.itemSeparator} />;
 
 const QuestList = ({ quests, onClickItem }: QuestListProps) => {
+  const { theme } = useAppTheme();
   const renderQuestItem = useCallback<ListRenderItem<Quest>>(
     ({ item }) => <QuestItem quest={item} onClick={onClickItem} />,
     [onClickItem],
@@ -174,7 +175,8 @@ const QuestList = ({ quests, onClickItem }: QuestListProps) => {
     return (
       <EmptyState
         icon="briefcase-outline"
-        message="퀘스트가 존재하지 않습니다."
+        message="퀘스트가 없어요."
+        messageColor={theme.colors.brand.text}
       />
     );
   }

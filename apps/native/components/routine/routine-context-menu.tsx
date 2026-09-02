@@ -1,4 +1,5 @@
 /* eslint-disable local-rules/no-multiple-components-in-file */
+import { Fragment } from 'react';
 import { Pressable, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
@@ -53,6 +54,7 @@ type RoutineContextMenuPanelProps = Pick<
   | 'requestDisabled'
   | 'showsStatusItems'
 > & {
+  isMe?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -61,6 +63,7 @@ export type ContextMenuItem = {
   onPress: () => void;
   color?: string;
   disabled?: boolean;
+  dividerAfter?: boolean;
 };
 
 interface ContextMenuPanelProps {
@@ -106,6 +109,7 @@ export const RoutineContextMenuPanel = ({
   onPause,
   onRequest,
   onDelete,
+  isMe = true,
   showsRequestItem,
   requestDisabled = false,
   showsStatusItems = true,
@@ -113,7 +117,14 @@ export const RoutineContextMenuPanel = ({
 }: RoutineContextMenuPanelProps) => {
   const items: ContextMenuItem[] = [
     ...(showsRequestItem
-      ? [{ label: '인증요청', onPress: onRequest, disabled: requestDisabled }]
+      ? [
+          {
+            label: isMe ? '루틴 완료' : '메이트 확인 요청',
+            onPress: onRequest,
+            disabled: requestDisabled,
+            dividerAfter: true,
+          },
+        ]
       : []),
     { label: '수정', onPress: onEdit },
     ...(showsStatusItems
@@ -148,26 +159,29 @@ export const ContextMenuPanel = ({
     onPress,
     color,
     disabled,
+    dividerAfter,
   }: ContextMenuItem) => (
-    <Pressable
-      key={label}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      style={[styles.menuItem, disabled ? styles.menuItemDisabled : null]}
-      testID={itemTestID}
-    >
-      <Typography
-        variant="body3"
-        weight="regular"
-        color={color ?? palette.theme.gray[50]}
-        testID={itemTextTestID}
+    <Fragment key={label}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ disabled }}
+        disabled={disabled}
+        onPress={onPress}
+        style={[styles.menuItem, disabled ? styles.menuItemDisabled : null]}
+        testID={itemTestID}
       >
-        {label}
-      </Typography>
-    </Pressable>
+        <Typography
+          variant="body3"
+          weight="regular"
+          color={color ?? palette.theme.gray[50]}
+          testID={itemTextTestID}
+        >
+          {label}
+        </Typography>
+      </Pressable>
+      {dividerAfter ? <View style={styles.menuDivider} /> : null}
+    </Fragment>
   );
 
   return (
@@ -274,6 +288,12 @@ const styles = StyleSheet.create({
   },
   menuItemDisabled: {
     opacity: baseFoundation.opacity.disabled,
+  },
+  menuDivider: {
+    height: 1,
+    marginHorizontal: baseFoundation.spacing[1],
+    marginVertical: baseFoundation.spacing[1],
+    backgroundColor: palette.theme.gray[200],
   },
 });
 

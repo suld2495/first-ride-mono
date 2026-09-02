@@ -60,6 +60,7 @@
 - 텍스트 색은 `theme.colors.text.*`에서 고른다.
 - 버튼 색은 `theme.colors.action.*`에서 고른다.
 - 상태 배지는 `theme.colors.feedback.*`를 사용한다.
+- 정보 아이콘 안내 팝오버의 문구는 `theme.colors.feedback.info.tooltipText`를 사용한다.
 - 카드와 패널은 `background.surface` 또는 `background.elevated`를 우선 사용한다.
 - 입력 필드는 `background.input`, `border.input`, `text.input`을 함께 확인한다.
 - 포커스 상태는 `border.focus`를 사용한다.

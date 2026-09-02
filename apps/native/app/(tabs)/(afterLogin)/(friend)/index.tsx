@@ -186,6 +186,7 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: theme.foundation.spacing[4],
+    marginBottom: theme.foundation.spacing[3],
   },
   addButton: {
     height: baseFoundation.dimension.x28,

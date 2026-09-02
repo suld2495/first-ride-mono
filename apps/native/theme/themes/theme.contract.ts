@@ -64,7 +64,7 @@ export type ThemeContract = {
       success: { bg: string; text: string; border: string };
       error: { bg: string; text: string; border: string };
       warning: { bg: string; text: string; border: string };
-      info: { bg: string; text: string; border: string };
+      info: { bg: string; text: string; tooltipText?: string; border: string };
     };
     tag: {
       critical: {
@@ -223,6 +223,7 @@ export const baseTheme: ThemeContract = {
       info: {
         bg: palette.blue[900],
         text: palette.blue[300],
+        tooltipText: palette.blue[50],
         border: palette.blue[700],
       },
     },

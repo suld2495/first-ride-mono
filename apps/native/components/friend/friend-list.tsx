@@ -68,7 +68,6 @@ const FRIEND_MOTTO_BUBBLE_DISPLAY_TOP =
   FRIEND_MOTTO_BUBBLE_TOP_MARGIN + FRIEND_MOTTO_LINE_HEIGHT;
 const FRIEND_MOTTO_BUBBLE_BORDER_WIDTH = 2;
 const FRIEND_MOTTO_BUBBLE_TAIL_SPACE = baseFoundation.spacing[2];
-const FRIEND_MOTTO_BUBBLE_SINGLE_LINE_MAX_WIDTH = 118;
 const FRIEND_MOTTO_BUBBLE_SINGLE_LINE_HEIGHT =
   FRIEND_MOTTO_LINE_HEIGHT +
   FRIEND_MOTTO_BUBBLE_VERTICAL_PADDING * 2 +
@@ -293,7 +292,6 @@ const FriendItem = ({
               message={motto}
               numberOfLines={2}
               singleLineContainerHeight={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_HEIGHT}
-              singleLineMaxWidth={FRIEND_MOTTO_BUBBLE_SINGLE_LINE_MAX_WIDTH}
               singleLineWrapperTop={FRIEND_MOTTO_BUBBLE_DISPLAY_TOP}
               style={styles.speechBubble}
               testID={`friend-character-speech-bubble-${testIdSuffix}`}
@@ -568,13 +566,13 @@ const styles = StyleSheet.create((theme) => ({
     right: undefined,
   },
   characterPanelBlue: {
-    backgroundColor: appThemes.blue.colors.brand.primary,
+    backgroundColor: appThemes.blue.colors.brand.card,
   },
   characterPanelGreen: {
-    backgroundColor: appThemes.green.colors.brand.primary,
+    backgroundColor: appThemes.green.colors.brand.card,
   },
   characterPanelRed: {
-    backgroundColor: appThemes.red.colors.brand.primary,
+    backgroundColor: appThemes.red.colors.brand.card,
   },
   levelBadge: {
     position: 'absolute',

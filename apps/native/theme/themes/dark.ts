@@ -78,6 +78,7 @@ export const darkTheme: ThemeContract = {
       info: {
         bg: palette.blue[900],
         text: palette.blue[300],
+        tooltipText: palette.blue[50],
         border: palette.blue[700],
       },
     },

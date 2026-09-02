@@ -624,6 +624,7 @@ const RoutineList = ({
             onPause={() => handleToggleRoutinePause(openMenuRoutine)}
             onRequest={() => handleShowRequestModal(openMenuRoutine.routineId)}
             onDelete={() => handleDeleteRoutine(openMenuRoutine)}
+            isMe={openMenuRoutine.isMe}
             showsRequestItem={showsRequestMenuItem}
             requestDisabled={!openMenuRoutine.canRequestToday}
             showsStatusItems={false}

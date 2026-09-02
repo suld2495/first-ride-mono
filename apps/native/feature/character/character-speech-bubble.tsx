@@ -213,6 +213,7 @@ const styles = StyleSheet.create(() => ({
     textAlign: 'center',
   },
   messageRow: {
+    width: '100%',
     maxWidth: '100%',
     flexDirection: 'row',
     alignItems: 'center',
