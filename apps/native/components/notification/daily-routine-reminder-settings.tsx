@@ -6,6 +6,7 @@ import { Platform, Pressable, View } from 'react-native';
 
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import Typography from '@/components/ui/typography';
+import { useToast } from '@/contexts/ToastContext';
 import { baseFoundation } from '@/theme/tokens';
 
 const MIN_REMINDER_MINUTES = 8 * 60;
@@ -13,6 +14,10 @@ const MAX_REMINDER_MINUTES = 22 * 60;
 const MIN_REMINDER_INTERVAL_MINUTES = 2 * 60;
 const MAX_REMINDER_TIMES = 3;
 const KOREA_TIME_ZONE = 'Asia/Seoul';
+const REMINDER_TIME_RANGE_ERROR_MESSAGE =
+  '이루라 알림 시간은 08:00 이상 22:00 미만으로 설정할 수 있습니다.';
+const REMINDER_TIME_INTERVAL_ERROR_MESSAGE =
+  '이루라 알림 시간은 최소 2시간 이상 간격을 두어야 합니다.';
 
 type DailyRoutineReminderSettingsProps = {
   onChange: (times: string[]) => void;
@@ -49,24 +54,37 @@ const sortReminderTimes = (times: string[]): string[] =>
     (left, right) => parseReminderTime(left) - parseReminderTime(right),
   );
 
-const isValidReminderTimeSet = (times: string[]): boolean => {
+const getReminderTimeValidationMessage = (
+  times: string[],
+): string | undefined => {
   const minutes = times.map(parseReminderTime);
 
-  return (
-    minutes.every(
+  if (
+    !minutes.every(
       (time) => time >= MIN_REMINDER_MINUTES && time < MAX_REMINDER_MINUTES,
-    ) &&
-    new Set(minutes).size === minutes.length &&
-    minutes.every((time, index) =>
-      minutes
-        .filter((_otherTime, otherIndex) => otherIndex !== index)
-        .every(
-          (otherTime) =>
-            Math.abs(time - otherTime) >= MIN_REMINDER_INTERVAL_MINUTES,
-        ),
     )
+  ) {
+    return REMINDER_TIME_RANGE_ERROR_MESSAGE;
+  }
+
+  const hasDuplicateTime = new Set(minutes).size !== minutes.length;
+  const hasTooCloseTimes = minutes.some((time, index) =>
+    minutes.some(
+      (otherTime, otherIndex) =>
+        otherIndex !== index &&
+        Math.abs(time - otherTime) < MIN_REMINDER_INTERVAL_MINUTES,
+    ),
   );
+
+  if (hasDuplicateTime || hasTooCloseTimes) {
+    return REMINDER_TIME_INTERVAL_ERROR_MESSAGE;
+  }
+
+  return undefined;
 };
+
+const isValidReminderTimeSet = (times: string[]): boolean =>
+  getReminderTimeValidationMessage(times) === undefined;
 
 const getNextAvailableReminderTime = (times: string[]): string | undefined => {
   if (times.length >= MAX_REMINDER_TIMES) {
@@ -96,28 +114,50 @@ export default function DailyRoutineReminderSettings({
   times,
 }: DailyRoutineReminderSettingsProps) {
   const { theme } = useAppTheme();
+  const { showToast } = useToast();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [draftTime, setDraftTime] = useState<string>();
   const displayedTimes = times;
   const editingTime =
     editingIndex === null ? undefined : displayedTimes[editingIndex];
+  const pickerTime = draftTime ?? editingTime;
+
+  const resetEditing = () => {
+    setEditingIndex(null);
+    setDraftTime(undefined);
+  };
+
+  const commitReminderTime = (nextTime: string): boolean => {
+    if (editingIndex === null) {
+      return false;
+    }
+
+    const nextTimes = displayedTimes.map((time, index) =>
+      index === editingIndex ? nextTime : time,
+    );
+    const validationMessage = getReminderTimeValidationMessage(nextTimes);
+
+    if (validationMessage) {
+      showToast(validationMessage, 'error');
+      return false;
+    }
+
+    onChange(sortReminderTimes(nextTimes));
+    return true;
+  };
 
   const handlePickerChange = (event: DateTimePickerEvent, date?: Date) => {
     if (event.type === 'dismissed' || !date || editingIndex === null) {
-      setEditingIndex(null);
+      resetEditing();
       return;
     }
 
     const nextTime = formatReminderTime(date);
-    const nextTimes = displayedTimes.map((time, index) =>
-      index === editingIndex ? nextTime : time,
-    );
-
-    if (isValidReminderTimeSet(nextTimes)) {
-      onChange(sortReminderTimes(nextTimes));
-    }
+    setDraftTime(nextTime);
 
     if (Platform.OS === 'android') {
-      setEditingIndex(null);
+      commitReminderTime(nextTime);
+      resetEditing();
     }
   };
 
@@ -167,6 +207,7 @@ export default function DailyRoutineReminderSettings({
               accessibilityLabel={`발송 시간 ${index + 1}`}
               onPress={() => {
                 setEditingIndex(index);
+                setDraftTime(time);
               }}
               style={styles.timeButton}
               testID={`notification-settings-reminder-time-${index}`}
@@ -196,7 +237,7 @@ export default function DailyRoutineReminderSettings({
         ))}
       </View>
 
-      {editingTime ? (
+      {pickerTime ? (
         <View style={styles.pickerContainer}>
           <DateTimePicker
             display="spinner"
@@ -206,13 +247,15 @@ export default function DailyRoutineReminderSettings({
             testID="notification-settings-reminder-time-picker"
             textColor={theme.colors.action.primary.label}
             timeZoneName="Asia/Seoul"
-            value={createDateForReminderTime(editingTime)}
+            value={createDateForReminderTime(pickerTime)}
           />
           {Platform.OS === 'ios' ? (
             <Pressable
               accessibilityRole="button"
               onPress={() => {
-                setEditingIndex(null);
+                if (draftTime && commitReminderTime(draftTime)) {
+                  resetEditing();
+                }
               }}
               style={styles.doneButton}
               testID="notification-settings-reminder-time-done"
