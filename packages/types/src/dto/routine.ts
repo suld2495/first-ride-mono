@@ -44,6 +44,7 @@ export type UpdateRoutinePayload = Partial<
   > &
     Pick<Routine, 'hidden' | 'paused'> & {
       category: string;
+      clearEndDate: true;
     }
 >;
 

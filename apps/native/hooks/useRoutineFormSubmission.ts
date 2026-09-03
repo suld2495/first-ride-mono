@@ -123,8 +123,29 @@ const buildChangedRoutinePayload = (
 ): UpdateRoutinePayload => {
   const values = normalizeRoutineUpdateValues(data, canUpdatePhotoRequired);
 
+  const { endDate: currentEndDate, ...valuesWithoutEndDate } = values;
+
+  const getEndDatePayload = (
+    originalValues?: EditableRoutineUpdateValues,
+  ): Pick<UpdateRoutinePayload, 'clearEndDate' | 'endDate'> => {
+    if (data.isDailyRepeat) {
+      return !originalValues || originalValues.endDate
+        ? { clearEndDate: true }
+        : {};
+    }
+
+    if (!originalValues || currentEndDate !== originalValues.endDate) {
+      return { endDate: currentEndDate };
+    }
+
+    return {};
+  };
+
   if (!originalForm) {
-    return values;
+    return {
+      ...valuesWithoutEndDate,
+      ...getEndDatePayload(),
+    };
   }
 
   const originalValues = normalizeRoutineUpdateValues(
@@ -148,9 +169,7 @@ const buildChangedRoutinePayload = (
     ...(values.startDate !== originalValues.startDate
       ? { startDate: values.startDate }
       : {}),
-    ...(values.endDate !== originalValues.endDate
-      ? { endDate: values.endDate }
-      : {}),
+    ...getEndDatePayload(originalValues),
     ...(values.symbolColor !== originalValues.symbolColor
       ? { symbolColor: values.symbolColor }
       : {}),
