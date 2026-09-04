@@ -32,6 +32,10 @@ export const LevelUpStatusProvider = ({ children }: PropsWithChildren) => {
     useState<LevelUpStatusCelebration | null>(null);
   const inFlightRequestRef = useRef<Promise<void> | null>(null);
   const activeUserIdRef = useRef<string | undefined>(user?.userId);
+  const lastCelebratedLevelRef = useRef<{
+    userId: string;
+    currentLevel: number;
+  } | null>(null);
 
   useEffect(() => {
     activeUserIdRef.current = user?.userId;
@@ -65,6 +69,19 @@ export const LevelUpStatusProvider = ({ children }: PropsWithChildren) => {
           return;
         }
 
+        const lastCelebratedLevel = lastCelebratedLevelRef.current;
+
+        if (
+          lastCelebratedLevel?.userId === requestedUserId &&
+          status.currentLevel <= lastCelebratedLevel.currentLevel
+        ) {
+          return;
+        }
+
+        lastCelebratedLevelRef.current = {
+          userId: requestedUserId,
+          currentLevel: status.currentLevel,
+        };
         setCelebration({
           type: 'level-up-status',
           currentLevel: status.currentLevel,

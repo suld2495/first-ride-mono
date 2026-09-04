@@ -510,11 +510,11 @@ export default function RootLayout() {
       <AppTamaguiProvider>
         <QueryProvider userId={user?.userId ?? null}>
           <ToastProvider>
-            <ThemeStyleRefreshBoundary>
-              <LevelUpStatusProvider>
+            <LevelUpStatusProvider>
+              <ThemeStyleRefreshBoundary>
                 <AppShell isFontReady={isFontReady} />
-              </LevelUpStatusProvider>
-            </ThemeStyleRefreshBoundary>
+              </ThemeStyleRefreshBoundary>
+            </LevelUpStatusProvider>
           </ToastProvider>
         </QueryProvider>
       </AppTamaguiProvider>
