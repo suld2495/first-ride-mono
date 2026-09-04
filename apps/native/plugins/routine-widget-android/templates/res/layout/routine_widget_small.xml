@@ -4,6 +4,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:background="@drawable/routine_widget_background"
+  android:elevation="5dp"
   android:orientation="vertical"
   android:padding="20dp">
 
@@ -16,7 +17,7 @@
     android:gravity="center_vertical"
     android:maxLines="1"
     android:text="이번 주 루틴"
-    android:textColor="?android:attr/textColorPrimary"
+    android:textColor="#000000"
     android:textSize="15sp"
     android:textStyle="bold" />
 
@@ -37,7 +38,7 @@
     android:fontFamily="sans-serif"
     android:gravity="center"
     android:text="로그인 해주세요"
-    android:textColor="?android:attr/textColorSecondary"
+    android:textColor="#666666"
     android:textSize="13sp"
     android:textStyle="bold" />
 </LinearLayout>

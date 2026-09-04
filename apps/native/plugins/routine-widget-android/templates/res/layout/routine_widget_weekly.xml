@@ -4,6 +4,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:background="@drawable/routine_widget_background"
+  android:elevation="5dp"
   android:paddingHorizontal="24dp"
   android:paddingVertical="16dp">
 
@@ -21,7 +22,7 @@
     android:fontFamily="sans-serif"
     android:gravity="center"
     android:text="로그인 해주세요"
-    android:textColor="?android:attr/textColorSecondary"
+    android:textColor="#666666"
     android:textSize="13sp"
     android:textStyle="bold" />
 </FrameLayout>

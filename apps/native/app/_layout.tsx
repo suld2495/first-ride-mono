@@ -137,6 +137,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="widget-settings"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="routine-date-select"
               options={{ headerShown: false }}
             />
@@ -266,13 +270,21 @@ function AppShell({ isFontReady }: AppShellProps) {
       const widgetData = getWidgetSyncData(data);
 
       if (widgetData) {
-        void syncWidgetData(widgetData, { themeName }).catch(() => undefined);
+        void syncWidgetData(widgetData, { themeName })
+          .then(() =>
+            refreshRoutineWidgetSnapshot({
+              nickname: user.nickname,
+              themeName,
+              queryClient,
+            }),
+          )
+          .catch(() => undefined);
       } else {
         void refreshRoutineWidgetSnapshot({
           nickname: user.nickname,
           themeName,
           queryClient,
-        });
+        }).catch(() => undefined);
       }
 
       const routineSharePath = getRoutineSharePath(data);
@@ -357,13 +369,21 @@ function AppShell({ isFontReady }: AppShellProps) {
       const widgetData = getWidgetSyncData(data);
 
       if (widgetData) {
-        void syncWidgetData(widgetData, { themeName }).catch(() => undefined);
+        void syncWidgetData(widgetData, { themeName })
+          .then(() =>
+            refreshRoutineWidgetSnapshot({
+              nickname: user.nickname,
+              themeName,
+              queryClient,
+            }),
+          )
+          .catch(() => undefined);
       } else {
         void refreshRoutineWidgetSnapshot({
           nickname: user.nickname,
           themeName,
           queryClient,
-        });
+        }).catch(() => undefined);
       }
     },
     [user, themeName, queryClient, checkLevelUpStatus],

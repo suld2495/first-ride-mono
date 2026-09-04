@@ -35,6 +35,7 @@ const SETTING_ITEMS: Array<{
 }> = [
   { title: '한마디', href: '/modal?type=account' },
   { title: '루틴 설정', href: '/routine-settings' },
+  { title: '위젯 설정', href: '/widget-settings' as Href },
   { title: '알림 설정', href: '/notification-settings' },
   { title: '공개 설정', href: '/visibility-settings' },
   { title: '약관', href: '/terms' },

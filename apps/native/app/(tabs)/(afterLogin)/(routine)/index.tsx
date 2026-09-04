@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import { useFetchMeQuery } from '@repo/shared/hooks/useUser';
 import { getWeekMonday } from '@repo/shared/utils';
+import { useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -42,11 +43,7 @@ import {
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { getRoutineBackgroundColor } from '@/theme/routine-theme';
 import { baseFoundation } from '@/theme/tokens';
-import {
-  createRoutineWidgetSnapshot,
-  createSignedOutRoutineWidgetSnapshot,
-} from '@/widget/routine-widget';
-import { saveRoutineWidgetSnapshot } from '@/widget/routine-widget-native';
+import { refreshRoutineWidgetSnapshots } from '@/utils/routine-widget-refresh';
 
 const ROUTINE_CHARACTER_BOTTOM_OFFSET = baseFoundation.dimension.x48;
 const ROUTINE_SPEECH_BUBBLE_OVERLAP = baseFoundation.dimension.x44;
@@ -116,6 +113,7 @@ export default function Index() {
   const debouncedDate = useDebounce(date);
   const routineDateRef = useRef(date);
   const appStateRef = useRef(AppState.currentState);
+  const queryClient = useQueryClient();
   const user = useAuthUser();
   const requiredAppVersionQuery = useRequiredAppVersionQuery(user?.userId);
   const updateNoticesQuery = useUpdateNoticesQuery(user?.userId);
@@ -272,15 +270,16 @@ export default function Index() {
   }, [router]);
 
   useEffect(() => {
-    const snapshot = user
-      ? createRoutineWidgetSnapshot(routines, { themeName })
-      : createSignedOutRoutineWidgetSnapshot();
+    if (!user) {
+      void clearRoutineShareTargets();
+      return;
+    }
 
-    void saveRoutineWidgetSnapshot(snapshot);
-    void (user
-      ? syncRoutineShareTargets(routines)
-      : clearRoutineShareTargets());
-  }, [routines, themeName, user]);
+    void refreshRoutineWidgetSnapshots({ themeName, queryClient }).catch(
+      () => undefined,
+    );
+    void syncRoutineShareTargets(routines).catch(() => undefined);
+  }, [queryClient, routines, themeName, user]);
 
   if (!user) {
     return null;

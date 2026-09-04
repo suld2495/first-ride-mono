@@ -4,3 +4,4 @@ export { routineKey, routineKeys } from './routine';
 export { statKey } from './stat';
 export { notificationSettingsKeys } from './notification-settings';
 export { notificationBadgeKeys } from './notification-badge';
+export { widgetRoutineKeys } from './widget-routine';

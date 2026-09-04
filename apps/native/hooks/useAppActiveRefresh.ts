@@ -61,7 +61,7 @@ export const useAppActiveRefresh = (
           nickname,
           themeName,
           queryClient,
-        });
+        }).catch(() => undefined);
 
         if (userId) {
           void refreshCharacterWidgetSnapshot({

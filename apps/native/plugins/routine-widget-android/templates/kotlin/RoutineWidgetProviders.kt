@@ -20,6 +20,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
+import android.util.TypedValue
 import android.graphics.Typeface
 import android.view.View
 import android.widget.RemoteViews
@@ -155,13 +156,18 @@ class CharacterWidgetProvider : AppWidgetProvider() {
 }
 
 private object RoutineWidgetRenderer {
+  const val MAX_SMALL_ROUTINES = 4
   const val MAX_MEDIUM_ROUTINES = 4
   const val MAX_LARGE_ROUTINES = 10
   private const val SMALL_WIDGET_RESERVED_HEIGHT_DP = 68
   private const val SMALL_ROW_HEIGHT_DP = 21
+  private const val SMALL_COUNT_LABEL_WIDTH_DP = 36
+  private const val SMALL_COUNT_LABEL_HEIGHT_DP = 18
+  private const val SMALL_COUNT_LABEL_CORNER_RADIUS_DP = 7
+  private const val SMALL_COUNT_LABEL_TEXT_SIZE_SP = 9f
   private const val FALLBACK_ACCENT_COLOR = "#8FAFEF"
-  private const val FALLBACK_COUNT_BACKGROUND = "#E3F2FD"
-  private const val FALLBACK_COUNT_TEXT = "#1565C0"
+  private const val FALLBACK_COUNT_BACKGROUND = "#B0DAFF"
+  private const val FALLBACK_COUNT_TEXT = "#2C5171"
   private const val FALLBACK_DARK_COUNT_BACKGROUND = "#1565C0"
   private const val FALLBACK_DARK_COUNT_TEXT = "#BBDEFB"
   private val dayLabels = listOf("월", "화", "수", "목", "금", "토", "일")
@@ -218,6 +224,7 @@ private object RoutineWidgetRenderer {
     if (status != "signedOut" && !isEmpty) {
       val visibleCount = minOf(
         items.length(),
+        MAX_SMALL_ROUTINES,
         maxOf(1, (heightDp - SMALL_WIDGET_RESERVED_HEIGHT_DP) / SMALL_ROW_HEIGHT_DP),
       )
       val isDark = isDarkMode(context)
@@ -253,9 +260,20 @@ private object RoutineWidgetRenderer {
           "${item.optInt("weeklyCount")}/${item.optInt("routineCount")}",
         )
         row.setTextColor(R.id.routine_count_text, countText)
+        row.setTextViewTextSize(
+          R.id.routine_count_text,
+          TypedValue.COMPLEX_UNIT_SP,
+          SMALL_COUNT_LABEL_TEXT_SIZE_SP,
+        )
         row.setImageViewBitmap(
           R.id.routine_count_background,
-          roundedRectangleBitmap(context, 36, 18, 7, countBackground),
+          roundedRectangleBitmap(
+            context,
+            SMALL_COUNT_LABEL_WIDTH_DP,
+            SMALL_COUNT_LABEL_HEIGHT_DP,
+            SMALL_COUNT_LABEL_CORNER_RADIUS_DP,
+            countBackground,
+          ),
         )
         row.setTextViewText(R.id.routine_title, title)
         row.setTextColor(
@@ -276,7 +294,11 @@ private object RoutineWidgetRenderer {
     isLarge: Boolean,
   ): RemoteViews {
     val views = RemoteViews(context.packageName, R.layout.routine_widget_weekly)
-    val items = snapshot.optJSONArray("items") ?: JSONArray()
+    val items = (if (isLarge) {
+      snapshot.optJSONArray("largeItems")
+    } else {
+      snapshot.optJSONArray("mediumItems")
+    }) ?: snapshot.optJSONArray("items") ?: JSONArray()
     val status = snapshot.optString("status")
     val isEmpty = items.length() == 0
 
@@ -505,14 +527,7 @@ private object RoutineWidgetRenderer {
       Configuration.UI_MODE_NIGHT_YES
 
   private fun resolveSystemTextColor(context: Context, disabled: Boolean): Int {
-    val attribute = if (disabled) android.R.attr.textColorSecondary else android.R.attr.textColorPrimary
-    val values = context.obtainStyledAttributes(intArrayOf(attribute))
-
-    return try {
-      values.getColor(0, if (disabled) Color.GRAY else Color.BLACK)
-    } finally {
-      values.recycle()
-    }
+    return if (disabled) Color.DKGRAY else Color.BLACK
   }
 
   private fun withAlpha(color: Int, alpha: Float): Int =

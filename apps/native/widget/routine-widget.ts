@@ -1,10 +1,16 @@
-import type { Routine, StatResponse, User } from '@repo/types';
+import type {
+  Routine,
+  StatResponse,
+  User,
+  WidgetRoutineData,
+} from '@repo/types';
 
 import { DEFAULT_ROUTINE_COLOR } from '@/constants/ROUTINE_COLORS';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
 import { appThemes, type ThemeName } from '@/theme/themes';
 
 const PAD_LENGTH = 2;
+const SMALL_WIDGET_ROUTINE_LIMIT = 4;
 const DEFAULT_THEME_NAME: ThemeName = 'dark';
 const DEFAULT_ASSET_HOST = (
   process.env.EXPO_PUBLIC_VITE_BASE_URL ?? ''
@@ -84,6 +90,8 @@ export type RoutineWidgetSnapshot =
       message: string;
       items: RoutineWidgetItem[];
       smallItems: RoutineWidgetItem[];
+      mediumItems?: RoutineWidgetItem[];
+      largeItems?: RoutineWidgetItem[];
       remainingCount: 0;
       generatedAt: string;
       countLabelStyle: RoutineWidgetCountLabelStyle;
@@ -134,6 +142,15 @@ const DARK_COUNT_LABEL_STYLES: Record<ThemeName, RoutineWidgetCountLabelStyle> =
     },
   };
 
+const WIDGET_ROUTINE_ACCENT_COLORS = [
+  '#8FAFF0',
+  '#FFD17A',
+  '#F28C8C',
+  '#99D68F',
+  '#C7A6FF',
+  '#7DD9D3',
+] as const;
+
 const createRoutineDateKey = (date: Date): string => {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(PAD_LENGTH, '0');
@@ -158,20 +175,31 @@ const createRoutineWidgetCountLabelStyle = (
 
 const createSmallRoutineWidgetItems = (
   items: RoutineWidgetItem[],
+): RoutineWidgetItem[] => items.slice(0, SMALL_WIDGET_ROUTINE_LIMIT);
+
+const createWidgetRoutineItems = (
+  widgetData: WidgetRoutineData,
+  todayKey: string,
 ): RoutineWidgetItem[] => {
-  const pendingItems: RoutineWidgetItem[] = [];
-  const doneTodayItems: RoutineWidgetItem[] = [];
+  return widgetData.routines.map((routine, index) => {
+    const completedDates = [...new Set(routine.completedDates)];
+    const completedCount = Math.max(0, Math.floor(routine.completedCount));
+    const routineCount = Math.max(0, Math.floor(routine.routineCount));
+    const accentColor =
+      WIDGET_ROUTINE_ACCENT_COLORS[index % WIDGET_ROUTINE_ACCENT_COLORS.length];
 
-  for (const item of items) {
-    if (item.isTodayDone) {
-      doneTodayItems.push(item);
-      continue;
-    }
-
-    pendingItems.push(item);
-  }
-
-  return [...pendingItems, ...doneTodayItems];
+    return {
+      id: routine.routineId,
+      title: routine.routineName,
+      weeklyCount: completedCount,
+      routineCount,
+      achievementRate: routineCount <= 0 ? 1 : completedCount / routineCount,
+      completedDates,
+      isTodayDone: completedDates.includes(todayKey),
+      accentColor,
+      darkAccentColor: accentColor,
+    };
+  });
 };
 
 const resolveWidgetAssetUrl = (
@@ -282,6 +310,36 @@ export const createRoutineWidgetSnapshotFromWidgetData = (
     message: widgetItems.length ? '' : '이번 주 루틴을 모두 달성했어요',
     items: widgetItems,
     smallItems: createSmallRoutineWidgetItems(widgetItems),
+    remainingCount: 0,
+    generatedAt: today.toISOString(),
+    countLabelStyle: createRoutineWidgetCountLabelStyle(options.themeName),
+  };
+};
+
+export const createRoutineWidgetSnapshotFromWidgetResponses = (
+  widgetDataBySize: Record<'SMALL' | 'MEDIUM' | 'LARGE', WidgetRoutineData>,
+  options: CreateRoutineWidgetSnapshotOptions = {},
+): RoutineWidgetSnapshot => {
+  const today = options.today ?? new Date();
+  const todayKey = createRoutineDateKey(today);
+  const smallItems = createWidgetRoutineItems(widgetDataBySize.SMALL, todayKey);
+  const mediumItems = createWidgetRoutineItems(
+    widgetDataBySize.MEDIUM,
+    todayKey,
+  );
+  const largeItems = createWidgetRoutineItems(widgetDataBySize.LARGE, todayKey);
+
+  return {
+    status: 'ready',
+    title: '이번 주 루틴',
+    message:
+      smallItems.length || mediumItems.length || largeItems.length
+        ? ''
+        : '표시할 루틴이 없습니다',
+    items: largeItems,
+    smallItems: createSmallRoutineWidgetItems(smallItems),
+    mediumItems,
+    largeItems,
     remainingCount: 0,
     generatedAt: today.toISOString(),
     countLabelStyle: createRoutineWidgetCountLabelStyle(options.themeName),

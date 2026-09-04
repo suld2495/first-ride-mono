@@ -7,10 +7,19 @@ import WidgetKit
 private let groupIdentifier = "group.com.mannal.firstride"
 private let snapshotKey = "snapshot"
 private let characterSnapshotKey = "characterSnapshot"
+private let routineWidgetCornerRadius: CGFloat = 24
+private let routineWidgetShadowOpacity: Double = 0.18
+private let routineWidgetShadowRadius: CGFloat = 8
+private let routineWidgetShadowYOffset: CGFloat = 5
 private let widgetPadding: CGFloat = 20
 private let titleHeight: CGFloat = 18
 private let titleSpacing: CGFloat = 6
 private let routineRowHeight: CGFloat = 18
+private let smallWidgetMaximumVisibleItemCount = 4
+private let routineCountLabelWidth: CGFloat = 36
+private let routineCountLabelHeight: CGFloat = 18
+private let routineCountLabelCornerRadius: CGFloat = 7
+private let routineCountLabelFontSize: CGFloat = 9
 private let minimumRoutineRowSpacing: CGFloat = 3
 private let weeklyStatusHorizontalPadding: CGFloat = 24
 private let weeklyStatusHeaderHeight: CGFloat = 20
@@ -24,8 +33,26 @@ private let mediumWeeklyStatusMaximumVisibleItemCount = 4
 private let largeWeeklyStatusMaximumVisibleItemCount = 10
 private let weeklyStatusDayLabels = ["월", "화", "수", "목", "금", "토", "일"]
 private let dailyRefreshEntryCount = 8
-private let fallbackCountLabelBackgroundColor = Color(red: 0.89, green: 0.95, blue: 0.99)
-private let fallbackCountLabelTextColor = Color(red: 0.08, green: 0.40, blue: 0.75)
+private let fallbackCountLabelBackgroundColor = Color(
+  red: 176 / 255.0,
+  green: 218 / 255.0,
+  blue: 1.0
+)
+private let fallbackCountLabelTextColor = Color(
+  red: 44 / 255.0,
+  green: 81 / 255.0,
+  blue: 113 / 255.0
+)
+private let fallbackDarkCountLabelBackgroundColor = Color(
+  red: 21 / 255.0,
+  green: 101 / 255.0,
+  blue: 192 / 255.0
+)
+private let fallbackDarkCountLabelTextColor = Color(
+  red: 187 / 255.0,
+  green: 222 / 255.0,
+  blue: 251 / 255.0
+)
 private let fallbackRoutineAccentColors = [
   Color(red: 0.56, green: 0.69, blue: 0.94),
   Color(red: 1.00, green: 0.82, blue: 0.48),
@@ -69,6 +96,8 @@ struct RoutineWidgetSnapshot: Codable {
   let message: String
   let items: [RoutineWidgetItem]
   let smallItems: [RoutineWidgetItem]?
+  let mediumItems: [RoutineWidgetItem]?
+  let largeItems: [RoutineWidgetItem]?
   let remainingCount: Int
   let countLabelStyle: RoutineWidgetCountLabelStyle?
 
@@ -78,6 +107,8 @@ struct RoutineWidgetSnapshot: Codable {
     message: "로그인 해주세요",
     items: [],
     smallItems: nil,
+    mediumItems: nil,
+    largeItems: nil,
     remainingCount: 0,
     countLabelStyle: nil
   )
@@ -546,6 +577,16 @@ struct RoutineWidgetEntryView: View {
         smallWidgetBody
       }
     }
+    .background(
+      RoundedRectangle(cornerRadius: routineWidgetCornerRadius, style: .continuous)
+        .fill(Color.white)
+    )
+    .shadow(
+      color: Color.black.opacity(routineWidgetShadowOpacity),
+      radius: routineWidgetShadowRadius,
+      x: 0,
+      y: routineWidgetShadowYOffset
+    )
     .routineWidgetBackground()
     .widgetURL(URL(string: "first-ride://"))
   }
@@ -555,15 +596,15 @@ struct RoutineWidgetEntryView: View {
       VStack(alignment: .leading, spacing: titleSpacing) {
         Text(entry.snapshot.title)
           .font(.system(size: 15, weight: .bold))
-          .foregroundStyle(Color.primary)
+          .foregroundStyle(Color.black)
           .lineLimit(1)
           .frame(height: titleHeight, alignment: .center)
 
-        if entry.snapshot.status == "signedOut" || entry.snapshot.items.isEmpty {
+        if entry.snapshot.status == "signedOut" || smallItems.isEmpty {
           Spacer(minLength: 0)
           Text(entry.snapshot.message)
             .font(.system(size: 13, weight: .medium))
-            .foregroundStyle(Color.secondary)
+            .foregroundStyle(Color.gray)
             .frame(maxWidth: .infinity, alignment: .center)
           Spacer(minLength: 0)
         } else {
@@ -580,10 +621,12 @@ struct RoutineWidgetEntryView: View {
     }
   }
 
-  private func visibleItems(for widgetHeight: CGFloat) -> [RoutineWidgetItem] {
-    let items = entry.snapshot.smallItems ?? entry.snapshot.items
+  private var smallItems: [RoutineWidgetItem] {
+    entry.snapshot.smallItems ?? entry.snapshot.items
+  }
 
-    return Array(items.prefix(visibleItemLimit(for: widgetHeight)))
+  private func visibleItems(for widgetHeight: CGFloat) -> [RoutineWidgetItem] {
+    return Array(smallItems.prefix(visibleItemLimit(for: widgetHeight)))
   }
 
   private func rowSpacing(for widgetHeight: CGFloat, itemCount: Int) -> CGFloat {
@@ -605,7 +648,10 @@ struct RoutineWidgetEntryView: View {
     let availableListHeight = widgetHeight - verticalPadding - titleHeight - titleSpacing
     let rowStride = routineRowHeight + minimumRoutineRowSpacing
 
-    return max(0, Int((availableListHeight + minimumRoutineRowSpacing) / rowStride))
+    return min(
+      smallWidgetMaximumVisibleItemCount,
+      max(0, Int((availableListHeight + minimumRoutineRowSpacing) / rowStride))
+    )
   }
 }
 
@@ -615,10 +661,10 @@ struct RoutineWidgetWeeklyStatusView: View {
 
   var body: some View {
     GeometryReader { geometry in
-      if entry.snapshot.status == "signedOut" || entry.snapshot.items.isEmpty {
+      if entry.snapshot.status == "signedOut" || currentItems.isEmpty {
         Text(entry.snapshot.message)
           .font(.system(size: 13, weight: .medium))
-          .foregroundStyle(Color.secondary)
+          .foregroundStyle(Color.gray)
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
       } else {
         let visibleItems = visibleItems(for: geometry.size.height)
@@ -648,7 +694,16 @@ struct RoutineWidgetWeeklyStatusView: View {
   private func visibleItems(for widgetHeight: CGFloat) -> [RoutineWidgetItem] {
     let itemLimit = weeklyStatusVisibleItemLimit(for: widgetHeight)
 
-    return Array(entry.snapshot.items.prefix(itemLimit))
+    return Array(currentItems.prefix(itemLimit))
+  }
+
+  private var currentItems: [RoutineWidgetItem] {
+    switch widgetFamily {
+    case .systemLarge:
+      return entry.snapshot.largeItems ?? entry.snapshot.items
+    default:
+      return entry.snapshot.mediumItems ?? entry.snapshot.items
+    }
   }
 
   private func weeklyStatusVisibleItemLimit(for widgetHeight: CGFloat) -> Int {
@@ -710,11 +765,11 @@ struct RoutineWidgetWeeklyStatusHeader: View {
         let isToday = weekDateKeys.indices.contains(index) && weekDateKeys[index] == currentDateKey
         Text(label)
           .font(.system(size: 12, weight: isToday ? .bold : .semibold))
-          .foregroundStyle(isToday ? Color.primary : Color.secondary)
+          .foregroundStyle(isToday ? Color.black : Color.gray)
           .frame(maxWidth: .infinity, minHeight: weeklyStatusHeaderHeight)
           .background(
             isToday
-              ? Color.secondary.opacity(0.18)
+              ? Color.black.opacity(0.08)
               : Color.clear
           )
           .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
@@ -736,7 +791,7 @@ struct RoutineWidgetWeeklyStatusRow: View {
     HStack(spacing: 0) {
       Text(item.title)
         .font(.system(size: 13, weight: .semibold))
-        .foregroundStyle(Color.primary)
+        .foregroundStyle(Color.black)
         .lineLimit(1)
         .frame(width: weeklyStatusNameColumnWidth, height: weeklyStatusRowHeight, alignment: .leading)
 
@@ -779,7 +834,9 @@ struct RoutineWidgetRow: View {
       hex: colorScheme == .dark
         ? countLabelStyle?.darkBackgroundColor
         : countLabelStyle?.backgroundColor,
-      fallback: fallbackCountLabelBackgroundColor
+      fallback: colorScheme == .dark
+        ? fallbackDarkCountLabelBackgroundColor
+        : fallbackCountLabelBackgroundColor
     )
   }
 
@@ -788,12 +845,14 @@ struct RoutineWidgetRow: View {
       hex: colorScheme == .dark
         ? countLabelStyle?.darkTextColor
         : countLabelStyle?.textColor,
-      fallback: fallbackCountLabelTextColor
+      fallback: colorScheme == .dark
+        ? fallbackDarkCountLabelTextColor
+        : fallbackCountLabelTextColor
     )
   }
 
   private var titleTextColor: Color {
-    isDoneToday ? Color.gray.opacity(0.55) : Color.primary
+    isDoneToday ? Color.gray.opacity(0.55) : Color.black
   }
 
   private var isDoneToday: Bool {
@@ -807,11 +866,11 @@ struct RoutineWidgetRow: View {
   var body: some View {
     HStack(spacing: 6) {
       Text("\(item.weeklyCount)/\(item.routineCount)")
-        .font(.system(size: 10, weight: .bold))
+        .font(.system(size: routineCountLabelFontSize, weight: .bold))
         .foregroundStyle(countLabelTextColor)
-        .frame(width: 36, height: routineRowHeight)
+        .frame(width: routineCountLabelWidth, height: routineCountLabelHeight)
         .background(countLabelBackgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: routineCountLabelCornerRadius, style: .continuous))
 
       Text(item.title)
         .font(.system(size: 12, weight: .medium))
@@ -887,9 +946,9 @@ extension View {
   @ViewBuilder
   func routineWidgetBackground() -> some View {
     if #available(iOSApplicationExtension 17.0, *) {
-      self.containerBackground(Color(uiColor: .systemBackground), for: .widget)
+      self.containerBackground(Color.white, for: .widget)
     } else {
-      self.background(Color(uiColor: .systemBackground))
+      self.background(Color.white)
     }
   }
 
