@@ -406,6 +406,7 @@ export {
   fetchMonthlyRoutines,
   fetchPausedRoutines,
   fetchRoutineDetail,
+  fetchRoutineSummary,
   fetchRoutines,
   updateRoutine,
   updateRoutinePause,

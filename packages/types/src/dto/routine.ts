@@ -144,6 +144,13 @@ export type RoutineActionResponse = {
   message: string;
 };
 
+export type RoutineSummaryResponse = {
+  routineId: Routine['routineId'];
+  routineName: string;
+  routineDetail: string | null;
+  totalSuccessCount: number;
+};
+
 export type MonthlyRoutineListRequest = {
   year: number;
   month: number;

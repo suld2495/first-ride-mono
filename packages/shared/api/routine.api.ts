@@ -8,6 +8,7 @@ import type {
   RoutineActionResponse,
   RoutineChangeRequest,
   RoutineMonthlySummary,
+  RoutineSummaryResponse,
   UpdateRoutineForm,
   UpdateRoutineOrderRequest,
   UpdateRoutinePauseRequest,
@@ -15,7 +16,7 @@ import type {
   UpdateRoutineVisibilityRequest,
 } from '@repo/types';
 
-import { toAppError } from '.';
+import axiosInstance, { toAppError } from '.';
 import http from './client';
 
 type RoutineResponse = Omit<
@@ -95,6 +96,39 @@ const getNumber = (value: unknown, fallback = 0): number => {
         : Number.NaN;
 
   return Number.isFinite(numericValue) ? numericValue : fallback;
+};
+
+const normalizeRoutineSummaryResponse = (
+  value: unknown,
+): RoutineSummaryResponse => {
+  const candidate = isRecord(value) && 'data' in value ? value.data : value;
+
+  if (!isRecord(candidate)) {
+    throw new Error('루틴 요약 응답을 확인할 수 없습니다.');
+  }
+
+  const { routineDetail, routineId, routineName, totalSuccessCount } =
+    candidate;
+
+  if (
+    typeof routineId !== 'number' ||
+    !Number.isInteger(routineId) ||
+    typeof routineName !== 'string' ||
+    (routineDetail !== null &&
+      routineDetail !== undefined &&
+      typeof routineDetail !== 'string') ||
+    typeof totalSuccessCount !== 'number' ||
+    !Number.isInteger(totalSuccessCount)
+  ) {
+    throw new Error('루틴 요약 응답을 확인할 수 없습니다.');
+  }
+
+  return {
+    routineId,
+    routineName,
+    routineDetail: typeof routineDetail === 'string' ? routineDetail : null,
+    totalSuccessCount,
+  };
 };
 
 const getMonthlyStatus = (value: unknown): MonthlyRoutineStatus =>
@@ -247,6 +281,20 @@ export const fetchRoutineDetail = async (id: number): Promise<Routine> => {
     );
 
     return normalizeRoutine(response);
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
+export const fetchRoutineSummary = async (
+  id: Routine['routineId'],
+): Promise<RoutineSummaryResponse> => {
+  try {
+    const response = await axiosInstance.get<unknown>(
+      `/routine/${encodeURIComponent(String(id))}/summary`,
+    );
+
+    return normalizeRoutineSummaryResponse(response.data);
   } catch (error) {
     throw toAppError(error);
   }

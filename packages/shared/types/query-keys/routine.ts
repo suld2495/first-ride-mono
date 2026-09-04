@@ -13,6 +13,7 @@ export const routineKeys = {
   receivedChangeRequests: (nickname: string) =>
     [...routineKeys.changeRequests(), 'received', nickname] as const,
   detail: (id: number) => [...routineKeys.all(), id] as const,
+  summary: (id: number) => [...routineKeys.all(), 'summary', id] as const,
 };
 
 export const routineKey = routineKeys;

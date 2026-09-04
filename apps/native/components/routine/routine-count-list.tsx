@@ -31,6 +31,7 @@ interface RoutineCountListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
+  onPressRoutineName: (routine: Routine) => void;
   canOpenRoutineProofDetail?: boolean;
   onRoutineProofDetailAccessDenied?: () => void;
   onRequestRoutine: (
@@ -162,6 +163,7 @@ const RoutineCountList = ({
   refreshing = false,
   onRefresh,
   canRequestRoutine = false,
+  onPressRoutineName,
   canOpenRoutineProofDetail = false,
   onRoutineProofDetailAccessDenied,
   onRequestRoutine,
@@ -237,7 +239,12 @@ const RoutineCountList = ({
               style={styles.cardSurface}
             >
               <View style={styles.titleRow}>
-                <View style={styles.titleTextWrap}>
+                <Pressable
+                  accessibilityLabel={`${routineName} 상세 보기`}
+                  accessibilityRole="button"
+                  onPress={() => onPressRoutineName(routine)}
+                  style={styles.titleTextWrap}
+                >
                   <Typography
                     variant="body3"
                     weight="semibold"
@@ -246,7 +253,7 @@ const RoutineCountList = ({
                   >
                     {routineName}
                   </Typography>
-                </View>
+                </Pressable>
 
                 {!readOnly ? (
                   <RoutineContextMenuTrigger
@@ -413,6 +420,7 @@ const RoutineCountList = ({
       itemHeight,
       onRoutineProofDetailAccessDenied,
       onRequestRoutine,
+      onPressRoutineName,
       onToggleRoutineMenu,
       readOnly,
       routineColorFallback,

@@ -31,6 +31,7 @@ interface RoutineWeekListProps {
   refreshing?: boolean;
   onRefresh?: () => Promise<void>;
   canRequestRoutine?: boolean;
+  onPressRoutineName: (routine: Routine) => void;
   canOpenRoutineProofDetail?: boolean;
   onRoutineProofDetailAccessDenied?: () => void;
   onRequestRoutine: (
@@ -210,6 +211,7 @@ const RoutineWeekList = ({
   refreshing = false,
   onRefresh,
   canRequestRoutine = false,
+  onPressRoutineName,
   canOpenRoutineProofDetail = false,
   onRoutineProofDetailAccessDenied,
   onRequestRoutine,
@@ -264,7 +266,12 @@ const RoutineWeekList = ({
             style={styles.cardSurface}
           >
             <View style={styles.titleRow}>
-              <View style={styles.titleTextWrap}>
+              <Pressable
+                accessibilityLabel={`${routineName} 상세 보기`}
+                accessibilityRole="button"
+                onPress={() => onPressRoutineName(routine)}
+                style={styles.titleTextWrap}
+              >
                 <Typography
                   variant="body3"
                   weight="semibold"
@@ -273,7 +280,7 @@ const RoutineWeekList = ({
                 >
                   {routineName}
                 </Typography>
-              </View>
+              </Pressable>
               <View style={readOnly ? styles.metaRowReadOnly : styles.metaRow}>
                 <View
                   pointerEvents="none"
@@ -435,6 +442,7 @@ const RoutineWeekList = ({
       itemHeight,
       onRoutineProofDetailAccessDenied,
       onRequestRoutine,
+      onPressRoutineName,
       onToggleRoutineMenu,
       readOnly,
       routineColorFallback,

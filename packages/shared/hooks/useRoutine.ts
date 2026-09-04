@@ -232,6 +232,15 @@ export const useRoutineDetailQuery = (routineId: number) => {
   });
 };
 
+export const useRoutineSummaryQuery = (routineId: number) => {
+  return useQuery({
+    queryKey: routineKey.summary(routineId),
+    queryFn: () => routineApi.fetchRoutineSummary(routineId),
+    enabled: !!routineId,
+    refetchOnMount: 'always',
+  });
+};
+
 export const useDeleteRoutineMutation = (nickname: string) => {
   const queryClient = useQueryClient();
 

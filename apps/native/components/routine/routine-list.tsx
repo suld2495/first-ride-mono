@@ -26,6 +26,7 @@ import {
 } from 'react-native';
 
 import { RoutineMoreIndicatorIcon } from '@/components/icons/routine-icons';
+import RoutineInfoModal from '@/components/modal/routine-info-modal';
 import { RoutineContextMenuPanel } from '@/components/routine/routine-context-menu';
 import { getRoutineScenePreviewOverlayAsset } from '@/components/routine/routine-scene-art';
 import EmptyState from '@/components/ui/empty-state';
@@ -112,6 +113,9 @@ const RoutineList = ({
   const [openMenuRoutineId, setOpenMenuRoutineId] = useState<number | null>(
     null,
   );
+  const [selectedRoutineId, setSelectedRoutineId] = useState<number | null>(
+    null,
+  );
   const [routineListScrollOffset, setRoutineListScrollOffset] = useState(0);
   const overlayOpacity = useRef(new Animated.Value(1)).current;
   const nickname = user?.nickname || '';
@@ -196,6 +200,15 @@ const RoutineList = ({
     },
     [router, setRoutineId],
   );
+
+  const handleShowRoutineInfoModal = useCallback((routine: Routine) => {
+    setOpenMenuRoutineId(null);
+    setSelectedRoutineId(routine.routineId);
+  }, []);
+
+  const handleCloseRoutineInfoModal = useCallback(() => {
+    setSelectedRoutineId(null);
+  }, []);
 
   const handleShowRoutineProofDetailModal = useCallback(
     (confirmId: number) => {
@@ -528,6 +541,7 @@ const RoutineList = ({
               refreshing={refreshing}
               onRefresh={onRefresh}
               canRequestRoutine={!readOnly}
+              onPressRoutineName={handleShowRoutineInfoModal}
               onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
@@ -551,6 +565,7 @@ const RoutineList = ({
               refreshing={refreshing}
               onRefresh={onRefresh}
               canRequestRoutine={!readOnly}
+              onPressRoutineName={handleShowRoutineInfoModal}
               onRequestRoutine={handlePressRoutineCheck}
               openMenuRoutineId={openMenuRoutineId}
               onToggleRoutineMenu={handleToggleRoutineMenu}
@@ -661,6 +676,12 @@ const RoutineList = ({
             </View>
           </Pressable>
         </View>
+      ) : null}
+      {selectedRoutineId !== null ? (
+        <RoutineInfoModal
+          onClose={handleCloseRoutineInfoModal}
+          routineId={selectedRoutineId}
+        />
       ) : null}
     </ThemeView>
   );
