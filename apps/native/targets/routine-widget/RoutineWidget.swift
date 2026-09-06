@@ -579,7 +579,7 @@ struct RoutineWidgetEntryView: View {
     }
     .background(
       RoundedRectangle(cornerRadius: routineWidgetCornerRadius, style: .continuous)
-        .fill(Color.white)
+        .fill(Color(uiColor: .systemBackground))
     )
     .shadow(
       color: Color.black.opacity(routineWidgetShadowOpacity),
@@ -596,7 +596,7 @@ struct RoutineWidgetEntryView: View {
       VStack(alignment: .leading, spacing: titleSpacing) {
         Text(entry.snapshot.title)
           .font(.system(size: 15, weight: .bold))
-          .foregroundStyle(Color.black)
+          .foregroundStyle(Color.primary)
           .lineLimit(1)
           .frame(height: titleHeight, alignment: .center)
 
@@ -604,7 +604,7 @@ struct RoutineWidgetEntryView: View {
           Spacer(minLength: 0)
           Text(entry.snapshot.message)
             .font(.system(size: 13, weight: .medium))
-            .foregroundStyle(Color.gray)
+            .foregroundStyle(Color.secondary)
             .frame(maxWidth: .infinity, alignment: .center)
           Spacer(minLength: 0)
         } else {
@@ -664,7 +664,7 @@ struct RoutineWidgetWeeklyStatusView: View {
       if entry.snapshot.status == "signedOut" || currentItems.isEmpty {
         Text(entry.snapshot.message)
           .font(.system(size: 13, weight: .medium))
-          .foregroundStyle(Color.gray)
+          .foregroundStyle(Color.secondary)
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
       } else {
         let visibleItems = visibleItems(for: geometry.size.height)
@@ -765,11 +765,11 @@ struct RoutineWidgetWeeklyStatusHeader: View {
         let isToday = weekDateKeys.indices.contains(index) && weekDateKeys[index] == currentDateKey
         Text(label)
           .font(.system(size: 12, weight: isToday ? .bold : .semibold))
-          .foregroundStyle(isToday ? Color.black : Color.gray)
+          .foregroundStyle(isToday ? Color.primary : Color.secondary)
           .frame(maxWidth: .infinity, minHeight: weeklyStatusHeaderHeight)
           .background(
             isToday
-              ? Color.black.opacity(0.08)
+              ? Color.secondary.opacity(0.18)
               : Color.clear
           )
           .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
@@ -791,7 +791,7 @@ struct RoutineWidgetWeeklyStatusRow: View {
     HStack(spacing: 0) {
       Text(item.title)
         .font(.system(size: 13, weight: .semibold))
-        .foregroundStyle(Color.black)
+        .foregroundStyle(Color.primary)
         .lineLimit(1)
         .frame(width: weeklyStatusNameColumnWidth, height: weeklyStatusRowHeight, alignment: .leading)
 
@@ -852,7 +852,7 @@ struct RoutineWidgetRow: View {
   }
 
   private var titleTextColor: Color {
-    isDoneToday ? Color.gray.opacity(0.55) : Color.black
+    isDoneToday ? Color.gray.opacity(0.55) : Color.primary
   }
 
   private var isDoneToday: Bool {
@@ -946,9 +946,9 @@ extension View {
   @ViewBuilder
   func routineWidgetBackground() -> some View {
     if #available(iOSApplicationExtension 17.0, *) {
-      self.containerBackground(Color.white, for: .widget)
+      self.containerBackground(Color(uiColor: .systemBackground), for: .widget)
     } else {
-      self.background(Color.white)
+      self.background(Color(uiColor: .systemBackground))
     }
   }
 

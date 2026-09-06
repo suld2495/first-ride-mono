@@ -527,7 +527,14 @@ private object RoutineWidgetRenderer {
       Configuration.UI_MODE_NIGHT_YES
 
   private fun resolveSystemTextColor(context: Context, disabled: Boolean): Int {
-    return if (disabled) Color.DKGRAY else Color.BLACK
+    val attribute = if (disabled) android.R.attr.textColorSecondary else android.R.attr.textColorPrimary
+    val values = context.obtainStyledAttributes(intArrayOf(attribute))
+
+    return try {
+      values.getColor(0, if (disabled) Color.GRAY else Color.BLACK)
+    } finally {
+      values.recycle()
+    }
   }
 
   private fun withAlpha(color: Int, alpha: Float): Int =
