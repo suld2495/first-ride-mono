@@ -92,6 +92,7 @@ export const SNOOZE_OPTIONS = {
 export const NOTIFICATION_DATA_KEYS = {
   CATEGORY: 'category',
   ROUTINE_ID: 'routineId',
+  OWNER_ID: 'ownerId',
   SCREEN: 'screen',
   ACTION: 'action',
 } as const;
@@ -101,6 +102,7 @@ export const NOTIFICATION_DATA_KEYS = {
  */
 export const DEEP_LINK_SCREENS = {
   ROUTINE: '/(tabs)/(afterLogin)/(routine)',
+  ROUTINE_DETAIL: '/(tabs)/(afterLogin)/(routine)/detail',
   FRIEND: '/(tabs)/(afterLogin)/(friend)',
   QUEST: '/(tabs)/(afterLogin)/(quest)',
   MY_INFO: '/(tabs)/(afterLogin)/my-info',
@@ -128,6 +130,7 @@ export const PUSH_NOTIFICATION_ROUTES: Record<PushNotificationType, string> = {
   'routine-request': '/modal?type=request-detail',
   'routine-approved': DEEP_LINK_SCREENS.ROUTINE,
   'routine-rejected': DEEP_LINK_SCREENS.ROUTINE,
+  'routine-mate-assigned': DEEP_LINK_SCREENS.ROUTINE_DETAIL,
   'friend-request': '/modal?type=friend-request-list',
   'friend-accepted': DEEP_LINK_SCREENS.FRIEND,
   'friend-cheer': DEEP_LINK_SCREENS.FRIEND,

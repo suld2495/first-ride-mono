@@ -224,10 +224,10 @@ export const useRejectRoutineChangeRequestMutation = (nickname: string) => {
   });
 };
 
-export const useRoutineDetailQuery = (routineId: number) => {
+export const useRoutineDetailQuery = (routineId: number, ownerId?: string) => {
   return useQuery({
-    queryKey: routineKey.detail(routineId),
-    queryFn: () => routineApi.fetchRoutineDetail(routineId),
+    queryKey: routineKey.detail(routineId, ownerId),
+    queryFn: () => routineApi.fetchRoutineDetail(routineId, ownerId),
     enabled: !!routineId,
   });
 };

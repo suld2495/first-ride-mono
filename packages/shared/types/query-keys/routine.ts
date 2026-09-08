@@ -12,7 +12,10 @@ export const routineKeys = {
   changeRequests: () => [...routineKeys.all(), 'change-requests'] as const,
   receivedChangeRequests: (nickname: string) =>
     [...routineKeys.changeRequests(), 'received', nickname] as const,
-  detail: (id: number) => [...routineKeys.all(), id] as const,
+  detail: (id: number, ownerId?: string) =>
+    ownerId
+      ? ([...routineKeys.all(), id, ownerId] as const)
+      : ([...routineKeys.all(), id] as const),
   summary: (id: number) => [...routineKeys.all(), 'summary', id] as const,
 };
 

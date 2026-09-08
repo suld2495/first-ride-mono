@@ -56,6 +56,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="(afterLogin)/(routine)/detail"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="(afterLogin)/(quest)/index"
         options={{
           title: '퀘스트',

@@ -23,6 +23,7 @@ import type {
 export {
   extractDeepLinkData,
   getDeepLinkPath,
+  getRoutineMateAssignedPath,
   getRoutineSharePath,
   getNotificationNavigationIntent,
   isLevelUpStatusNotification,

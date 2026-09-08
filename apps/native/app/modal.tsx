@@ -70,7 +70,10 @@ export default function Modal() {
   }, [isPublicModal, modalType, router, user]);
 
   useEffect(() => {
-    if (modalType !== 'request' || !routineId) {
+    if (
+      (modalType !== 'request' && modalType !== 'routine-detail') ||
+      !routineId
+    ) {
       return;
     }
 

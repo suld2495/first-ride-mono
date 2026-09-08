@@ -78,6 +78,7 @@ export type PushNotificationType =
   | 'routine-request' // 루틴 인증 요청
   | 'routine-approved' // 인증 승인
   | 'routine-rejected' // 인증 거부
+  | 'routine-mate-assigned' // 메이트 지정
   | 'friend-request' // 친구 요청
   | 'friend-accepted' // 친구 수락
   | 'friend-cheer'; // 응원 콕
@@ -125,6 +126,8 @@ export interface NotificationDeepLinkData {
   type?: PushNotificationType;
   /** 관련 루틴 ID */
   routineId?: number;
+  /** 루틴 소유자 ID */
+  ownerId?: string;
   /** 이미지 공유로 생성된 인증 세션 ID */
   shareSessionId?: string;
   /** 관련 요청 ID */

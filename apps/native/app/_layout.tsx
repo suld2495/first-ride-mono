@@ -313,7 +313,11 @@ function AppShell({ isFontReady }: AppShellProps) {
         if (data?.requestId) {
           setRequestId(data.requestId);
         }
-        if (data?.routineId) {
+        if (
+          typeof data?.routineId === 'number' &&
+          Number.isInteger(data.routineId) &&
+          data.routineId > 0
+        ) {
           setRoutineId(data.routineId);
         }
 

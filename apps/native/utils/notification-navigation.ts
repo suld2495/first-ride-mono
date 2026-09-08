@@ -7,7 +7,63 @@ import {
   PUSH_NOTIFICATION_ROUTES,
 } from '@/constants/NOTIFICATIONS';
 import { buildRoutineSharePath } from '@/share/routine-share';
-import type { NotificationDeepLinkData } from '@/types/notification-types';
+import type {
+  NotificationDeepLinkData,
+  PushNotificationType,
+} from '@/types/notification-types';
+
+const ROUTINE_MATE_ASSIGNED_TYPE: PushNotificationType =
+  'routine-mate-assigned';
+const URL_BASE = 'https://first-ride.local';
+
+const getPositiveInteger = (value: unknown): number | undefined => {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value <= 0) {
+    return undefined;
+  }
+
+  return value;
+};
+
+const getNotificationScreen = (
+  data: NotificationDeepLinkData,
+  fallback: string,
+): string =>
+  typeof data.screen === 'string' && data.screen.length > 0
+    ? data.screen
+    : fallback;
+
+const addRoutineDetailParams = (
+  path: string,
+  ownerId: string,
+  routineId: number,
+): string => {
+  const url = new URL(path, URL_BASE);
+  url.searchParams.set('ownerId', ownerId);
+  url.searchParams.set('routineId', String(routineId));
+
+  return `${url.pathname}${url.search}${url.hash}`;
+};
+
+export const getRoutineMateAssignedPath = (
+  data: NotificationDeepLinkData | undefined,
+): string | undefined => {
+  if (!data || data.type !== ROUTINE_MATE_ASSIGNED_TYPE) {
+    return undefined;
+  }
+
+  const routineId = getPositiveInteger(data.routineId);
+  const ownerId = typeof data.ownerId === 'string' ? data.ownerId.trim() : '';
+
+  if (!routineId || !ownerId) {
+    return undefined;
+  }
+
+  return addRoutineDetailParams(
+    getNotificationScreen(data, DEEP_LINK_SCREENS.ROUTINE_DETAIL),
+    ownerId,
+    routineId,
+  );
+};
 
 export const getRoutineSharePath = (
   data: NotificationDeepLinkData | undefined,
@@ -31,6 +87,10 @@ export function getDeepLinkPath(
 ): string {
   if (!data) {
     return DEEP_LINK_SCREENS.ROUTINE;
+  }
+
+  if (data.type === ROUTINE_MATE_ASSIGNED_TYPE) {
+    return getRoutineMateAssignedPath(data) ?? DEEP_LINK_SCREENS.ROUTINE;
   }
 
   if (data.screen && typeof data.screen === 'string') {

@@ -272,9 +272,17 @@ export const fetchPausedRoutines = async (): Promise<Routine[]> => {
   }
 };
 
-export const fetchRoutineDetail = async (id: number): Promise<Routine> => {
+export const fetchRoutineDetail = async (
+  id: number,
+  ownerId?: string,
+): Promise<Routine> => {
   try {
-    const query = `routineId=${encodeURIComponent(id)}`;
+    const query = [
+      `routineId=${encodeURIComponent(id)}`,
+      ownerId ? `ownerId=${encodeURIComponent(ownerId)}` : null,
+    ]
+      .filter((parameter): parameter is string => parameter !== null)
+      .join('&');
 
     const response: RoutineResponse = await http.get(
       `/routine/details?${query}`,

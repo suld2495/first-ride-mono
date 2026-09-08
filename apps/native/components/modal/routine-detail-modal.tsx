@@ -3,7 +3,7 @@ import {
   useCancelRoutineChangeRequestMutation,
   useRoutineDetailQuery,
 } from '@repo/shared/hooks/useRoutine';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, ScrollView } from 'react-native';
 
 import { Button } from '@/components/ui/button';
@@ -21,9 +21,18 @@ import { baseFoundation } from '@/theme/tokens';
 
 const RoutineDetailModal = () => {
   const router = useRouter();
+  const { ownerId: routeOwnerId } = useLocalSearchParams<{
+    ownerId?: string | string[];
+  }>();
   const routineId = useRoutineId();
   const setRoutineForm = useSetRoutineForm();
-  const { data: detail, isLoading } = useRoutineDetailQuery(routineId);
+  const normalizedRouteOwnerId = Array.isArray(routeOwnerId)
+    ? routeOwnerId[0]
+    : routeOwnerId;
+  const { data: detail, isLoading } = useRoutineDetailQuery(
+    routineId,
+    normalizedRouteOwnerId,
+  );
 
   const user = useAuthUser();
   const { showToast } = useToast();
