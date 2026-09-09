@@ -38,6 +38,7 @@ const SETTING_ITEMS: Array<{
   { title: '위젯 설정', href: '/widget-settings' as Href },
   { title: '알림 설정', href: '/notification-settings' },
   { title: '공개 설정', href: '/visibility-settings' },
+  { title: '앱 사용 안내', href: '/onboarding?replay=true' },
   { title: '약관', href: '/terms' },
   { title: '이루라 길드', href: '/hall-of-heroes' },
 ];

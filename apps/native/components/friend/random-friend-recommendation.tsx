@@ -373,7 +373,7 @@ const styles = StyleSheet.create((theme) => ({
     height: RECOMMENDATION_TOGGLE_HEIGHT,
     padding: RECOMMENDATION_TOGGLE_PADDING,
     justifyContent: 'center',
-    borderRadius: theme.foundation.radii.xs,
+    borderRadius: baseFoundation.radii.round,
   },
   recommendationToggleOn: {
     alignItems: 'flex-end',
@@ -386,6 +386,7 @@ const styles = StyleSheet.create((theme) => ({
   recommendationToggleThumb: {
     width: RECOMMENDATION_TOGGLE_THUMB_SIZE,
     height: RECOMMENDATION_TOGGLE_THUMB_SIZE,
+    borderRadius: baseFoundation.radii.round,
     backgroundColor: theme.colors.background.input,
   },
   countdownContainer: {

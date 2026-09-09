@@ -11,6 +11,7 @@ import type {
 
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { fontFamilies } from '@/theme/font-families';
 import { baseFoundation } from '@/theme/tokens';
 
 /**
@@ -313,6 +314,7 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.feedback.error.bg,
   },
   text: {
+    fontFamily: fontFamilies.semibold,
     fontWeight: '600',
   },
   textSm: {
