@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
   Keyboard,
+  Platform,
   Pressable,
   RefreshControl,
   type StyleProp,
@@ -364,6 +365,7 @@ const FriendAddModal = ({ visible, onClose }: FriendAddModalProps) => {
                       size="sm"
                       fullWidth
                       style={styles.searchInput}
+                      inputStyle={styles.searchInputText}
                       color="title"
                       placeholderTextColor={palette.theme.gray[10]}
                     />
@@ -485,6 +487,19 @@ const styles = StyleSheet.create((theme) => ({
     marginVertical: theme.foundation.spacing[3],
     borderRadius: baseFoundation.radii.xs,
     borderColor: palette.theme.gray[8],
+  },
+  searchInputText: {
+    ...(Platform.OS === 'android'
+      ? {
+          includeFontPadding: false,
+          lineHeight: Math.round(
+            baseFoundation.typography.size.body3 *
+              baseFoundation.typography.lineHeight.normal,
+          ),
+          paddingVertical: 0,
+          textAlignVertical: 'center' as const,
+        }
+      : {}),
   },
   searchInputWrapper: {
     flex: 1,

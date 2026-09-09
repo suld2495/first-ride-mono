@@ -1,7 +1,7 @@
 import { ScrollView, Switch, View } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
@@ -11,6 +11,7 @@ import {
 } from '@/hooks/useClarityAnalyticsSetting';
 
 const PrivacyModal = () => {
+  const { theme } = useAppTheme();
   const claritySetting = useClarityAnalyticsSetting();
   const firebaseSetting = useFirebaseAnalyticsSetting();
 
@@ -33,10 +34,14 @@ const PrivacyModal = () => {
         </ThemeView>
         <View style={styles.analyticsSection}>
           <View style={styles.analyticsHeading}>
-            <Typography variant="h3" weight="bold">
+            <Typography
+              color={theme.colors.brand.text}
+              variant="h3"
+              weight="bold"
+            >
               사용 데이터 분석 설정
             </Typography>
-            <Typography color="secondary" variant="body2">
+            <Typography color={theme.colors.brand.text} variant="body2">
               두 분석 도구는 기본적으로 켜져 있으며, 아래에서 각각 언제든 끌 수
               있습니다.
             </Typography>
@@ -47,7 +52,7 @@ const PrivacyModal = () => {
               <Typography variant="body1" weight="semibold">
                 Microsoft Clarity
               </Typography>
-              <Typography color="secondary" variant="caption1">
+              <Typography color={theme.colors.text.primary} variant="caption1">
                 화면 이용 흐름, 탭·스크롤과 세션 정보를 수집해 사용성을
                 개선합니다.
               </Typography>
@@ -72,7 +77,7 @@ const PrivacyModal = () => {
               <Typography variant="body1" weight="semibold">
                 Firebase Analytics
               </Typography>
-              <Typography color="secondary" variant="caption1">
+              <Typography color={theme.colors.text.primary} variant="caption1">
                 앱 실행, 세션과 기기·앱 기술 정보를 수집해 이용 현황을
                 분석합니다.
               </Typography>
@@ -92,7 +97,7 @@ const PrivacyModal = () => {
             />
           </View>
 
-          <Typography color="secondary" variant="caption1">
+          <Typography color={theme.colors.brand.text} variant="caption1">
             끈 분석 도구는 즉시 수집을 중지하며 다음 앱 실행에서도 꺼진 상태를
             유지합니다. 비밀번호와 인증 토큰은 분석 목적으로 전송하지 않습니다.
           </Typography>
@@ -189,7 +194,7 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   table: {
-    color: theme.colors.text.secondary,
+    color: theme.colors.brand.text,
     borderColor: theme.colors.border.divider,
   },
 
