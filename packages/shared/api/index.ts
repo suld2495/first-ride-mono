@@ -66,6 +66,7 @@ interface HttpConfig {
 }
 
 const UN_AUTHORIZATION_CODE = 401;
+const AUTH_TOKEN_REFRESH_FAILED_CODE = 'AUTH_TOKEN_REFRESH_FAILED';
 const REQUEST_ID_HEADER = 'X-Request-ID';
 const AUTHORIZATION_HEADER = 'Authorization';
 const INTERNAL_SERVER_ERROR_STATUS = 500;
@@ -217,7 +218,14 @@ const refreshAccessToken = async (
   const storedRefreshToken = await activeTokenManager.getRefreshToken();
 
   if (!storedRefreshToken) {
-    throw new Error('Refresh token is missing.');
+    throw new ApiError(
+      [],
+      UN_AUTHORIZATION_CODE,
+      '/auth/refresh',
+      new Error('Refresh token is missing.'),
+      '세션이 만료되었습니다. 다시 로그인해주세요.',
+      AUTH_TOKEN_REFRESH_FAILED_CODE,
+    );
   }
 
   const response = await activeTokenManager.refreshTokens(storedRefreshToken);

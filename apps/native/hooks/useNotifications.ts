@@ -8,6 +8,7 @@ import type {
   PushNotificationToken,
   UseNotificationsOptions,
 } from '@/types/notification-types';
+import { getNotificationErrorDetails } from '@/utils/notification-error';
 import {
   checkPermissions,
   registerForPushNotifications,
@@ -86,9 +87,21 @@ export function useNotifications(
 
     handledResponseIdRef.current = responseId;
 
-    void Promise.resolve(
-      handlers.onResponseReceived(lastNotificationResponse),
-    ).then(() => Notifications.clearLastNotificationResponseAsync());
+    void Promise.resolve()
+      .then(() => handlers.onResponseReceived?.(lastNotificationResponse))
+      .catch((error: unknown) => {
+        console.error(
+          '[Notification] response handler failed',
+          getNotificationErrorDetails(error),
+        );
+      })
+      .then(() => Notifications.clearLastNotificationResponseAsync())
+      .catch((error: unknown) => {
+        console.error(
+          '[Notification] response cleanup failed',
+          getNotificationErrorDetails(error),
+        );
+      });
   }, [handlers, lastNotificationResponse, responseHandlingMode]);
 
   useEffect(() => {

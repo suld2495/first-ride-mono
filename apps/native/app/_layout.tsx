@@ -59,7 +59,14 @@ import { initializeFirebaseAnalyticsWithStoredPreference } from '@/utils/firebas
 import { initializeKakao } from '@/utils/initialize-kakao';
 import { getNavigationAction } from '@/utils/navigation-stack';
 import {
+  getNotificationErrorMessage,
+  getNotificationHandlingStage,
+  logNotificationProcessingError,
+  type NotificationHandlingStage,
+} from '@/utils/notification-error';
+import {
   extractDeepLinkData,
+  getNotificationRequestId,
   getNotificationNavigationIntent,
   getRoutineSharePath,
   isLevelUpStatusNotification,
@@ -266,11 +273,27 @@ function AppShell({ isFontReady }: AppShellProps) {
         return;
       }
 
-      if (isLevelUpStatusNotification(response.notification)) {
-        void checkLevelUpStatus();
+      let data: ReturnType<typeof extractDeepLinkData> = undefined;
+
+      const reportError = (
+        stage: NotificationHandlingStage,
+        error: unknown,
+      ): void => {
+        logNotificationProcessingError({ response, data, stage, error });
+        showToast(getNotificationErrorMessage(error, stage), 'error');
+      };
+
+      try {
+        data = extractDeepLinkData(response.notification);
+
+        if (isLevelUpStatusNotification(response.notification)) {
+          void checkLevelUpStatus();
+        }
+      } catch (error) {
+        reportError('notification-data', error);
+        return;
       }
 
-      const data = extractDeepLinkData(response.notification);
       const widgetData = getWidgetSyncData(data);
 
       if (widgetData) {
@@ -305,17 +328,31 @@ function AppShell({ isFontReady }: AppShellProps) {
         handledShareSessionIdRef.current = data.shareSessionId;
       }
 
+      let intent: Awaited<ReturnType<typeof getNotificationNavigationIntent>>;
+
       try {
-        const intent = await getNotificationNavigationIntent(data);
+        intent = await getNotificationNavigationIntent(data);
+      } catch (error) {
+        reportError(
+          getNotificationHandlingStage(error, 'detail-request'),
+          error,
+        );
+        return;
+      }
 
-        if (intent.kind === 'toast') {
-          showToast(intent.message, 'info');
-          return;
-        }
+      if (intent.kind === 'toast') {
+        showToast(intent.message, 'info');
+        return;
+      }
 
+      let navigationAction: ReturnType<typeof getNavigationAction> | undefined;
+
+      try {
         // 알림 타입에 따라 store 설정
-        if (data?.requestId) {
-          setRequestId(data.requestId);
+        const requestId = getNotificationRequestId(data);
+
+        if (requestId !== undefined) {
+          setRequestId(requestId);
         }
         if (
           typeof data?.routineId === 'number' &&
@@ -326,21 +363,26 @@ function AppShell({ isFontReady }: AppShellProps) {
         }
 
         // 현재 화면과 같은 페이지 유형이면 교체하고, 다른 페이지 유형이면 쌓는다.
-        const navigationAction = getNavigationAction(
+        navigationAction = getNavigationAction(
           {
             pathname,
             searchParams: { type: currentModalType },
           },
           intent.path,
         );
+      } catch (error) {
+        reportError('notification-data', error);
+        return;
+      }
 
+      try {
         if (navigationAction === 'replace') {
-          router.replace(intent.path as Href);
+          await Promise.resolve(router.replace(intent.path as Href));
         } else {
-          router.push(intent.path as Href);
+          await Promise.resolve(router.push(intent.path as Href));
         }
-      } catch {
-        showToast('알림을 처리하지 못했습니다. 다시 시도해주세요.', 'error');
+      } catch (error) {
+        reportError('navigation', error);
       }
     },
     [

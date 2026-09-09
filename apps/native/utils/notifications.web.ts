@@ -9,6 +9,7 @@ import type {
 export {
   extractDeepLinkData,
   getDeepLinkPath,
+  getNotificationRequestId,
   getRoutineMateAssignedPath,
   getNotificationNavigationIntent,
   type NotificationNavigationIntent,

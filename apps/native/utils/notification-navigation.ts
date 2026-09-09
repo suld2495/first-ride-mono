@@ -11,6 +11,7 @@ import type {
   NotificationDeepLinkData,
   PushNotificationType,
 } from '@/types/notification-types';
+import { NotificationProcessingError } from '@/utils/notification-error';
 
 const ROUTINE_MATE_ASSIGNED_TYPE: PushNotificationType =
   'routine-mate-assigned';
@@ -82,6 +83,11 @@ export const getRoutineSharePath = (
   return buildRoutineSharePath(data.routineId, data.shareSessionId);
 };
 
+export const getNotificationRequestId = (
+  data: NotificationDeepLinkData | undefined,
+): number | undefined =>
+  getPositiveInteger(data?.requestId) ?? getPositiveInteger(data?.confirmId);
+
 export function getDeepLinkPath(
   data: NotificationDeepLinkData | undefined,
 ): string {
@@ -127,29 +133,72 @@ export type NotificationNavigationIntent =
 export async function getNotificationNavigationIntent(
   data: NotificationDeepLinkData | undefined,
 ): Promise<NotificationNavigationIntent> {
-  const path = getDeepLinkPath(data);
+  let path: string;
 
-  if (data?.type !== 'routine-request' || !data.requestId) {
+  try {
+    path = getDeepLinkPath(data);
+  } catch (error) {
+    throw new NotificationProcessingError('notification-data', error);
+  }
+
+  if (data?.type !== 'routine-request') {
     return {
       kind: 'navigate',
       path,
     };
   }
 
-  const detail = await fetchRequestDetail(data.requestId);
+  const requestId = getNotificationRequestId(data);
 
-  if (detail.checkStatus === 'WAIT') {
-    return {
-      kind: 'navigate',
-      path,
-    };
+  if (!requestId) {
+    throw new NotificationProcessingError(
+      'notification-data',
+      new Error('Routine request notification is missing a request ID.'),
+    );
   }
 
-  return {
-    kind: 'navigate',
-    path: '/modal?type=routine-proof-detail',
-  };
+  let detail: unknown;
+
+  try {
+    detail = await fetchRequestDetail(requestId);
+  } catch (error) {
+    throw new NotificationProcessingError('detail-request', error);
+  }
+
+  try {
+    if (!isRoutineDetailResponse(detail)) {
+      throw new Error('Routine request detail response is invalid.');
+    }
+
+    if (detail.checkStatus === 'WAIT') {
+      return {
+        kind: 'navigate',
+        path,
+      };
+    }
+
+    return {
+      kind: 'navigate',
+      path: '/modal?type=routine-proof-detail',
+    };
+  } catch (error) {
+    throw new NotificationProcessingError('detail-response', error);
+  }
 }
+
+const isRoutineDetailResponse = (
+  detail: unknown,
+): detail is { checkStatus: 'WAIT' | 'PASS' | 'DENY' } => {
+  if (!detail || typeof detail !== 'object') {
+    return false;
+  }
+
+  const checkStatus = (detail as { checkStatus?: unknown }).checkStatus;
+
+  return (
+    checkStatus === 'WAIT' || checkStatus === 'PASS' || checkStatus === 'DENY'
+  );
+};
 
 export function extractDeepLinkData(
   notification: Notifications.Notification,
