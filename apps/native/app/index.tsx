@@ -6,15 +6,19 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 export default function Index() {
   const user = useAuthUser();
   const isAuthLoading = useAuthIsLoading();
-  const { isLoading: isOnboardingLoading, isCompleted } = useOnboarding();
+  const { isLoading: isOnboardingLoading, isRequired, error } = useOnboarding();
 
-  if (isAuthLoading || (!user && isOnboardingLoading)) {
-    return null;
+  if (isAuthLoading || (user && (isOnboardingLoading || error))) {
+    return <Redirect href="/onboarding-loading" />;
   }
 
   if (user) {
-    return <Redirect href="/(tabs)/(afterLogin)/(routine)" />;
+    return (
+      <Redirect
+        href={isRequired ? '/onboarding' : '/(tabs)/(afterLogin)/(routine)'}
+      />
+    );
   }
 
-  return <Redirect href={isCompleted ? '/sign-in' : '/onboarding'} />;
+  return <Redirect href="/sign-in" />;
 }

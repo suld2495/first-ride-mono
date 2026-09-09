@@ -47,6 +47,7 @@ const PAGES = [
 
 interface OnboardingScreenProps {
   onComplete: () => void;
+  onClose: () => void;
   isCompleting: boolean;
   isReplay: boolean;
   error: string | null;
@@ -54,6 +55,7 @@ interface OnboardingScreenProps {
 
 export default function OnboardingScreen({
   onComplete,
+  onClose,
   isCompleting,
   isReplay,
   error,
@@ -93,13 +95,13 @@ export default function OnboardingScreen({
         'hardwareBackPress',
         () => {
           if (isCompleting) return true;
-          if (page === 0) return false;
+          if (page === 0) return !isReplay;
           goToPage(page - 1);
           return true;
         },
       );
       return () => subscription.remove();
-    }, [goToPage, isCompleting, page]),
+    }, [goToPage, isCompleting, isReplay, page]),
   );
 
   const handleLayout = (event: LayoutChangeEvent) => {
@@ -135,23 +137,23 @@ export default function OnboardingScreen({
             >
               이루라
             </Typography>
-            <IconButton
-              accessibilityRole="button"
-              accessibilityLabel={
-                isReplay ? '앱 사용 안내 닫기' : '온보딩 건너뛰기'
-              }
-              disabled={isCompleting}
-              onPress={onComplete}
-              size="lg"
-              variant="ghost"
-              icon={({ size }) => (
-                <Ionicons
-                  name="close-outline"
-                  size={size}
-                  color={theme.colors.text.gray}
-                />
-              )}
-            />
+            {isReplay ? (
+              <IconButton
+                accessibilityRole="button"
+                accessibilityLabel="앱 사용 안내 닫기"
+                disabled={isCompleting}
+                onPress={onClose}
+                size="lg"
+                variant="ghost"
+                icon={({ size }) => (
+                  <Ionicons
+                    name="close-outline"
+                    size={size}
+                    color={theme.colors.text.gray}
+                  />
+                )}
+              />
+            ) : null}
           </View>
 
           <View style={styles.pager} onLayout={handleLayout}>

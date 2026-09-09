@@ -1,5 +1,6 @@
+import { useNavigationState } from '@react-navigation/native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import OnboardingScreen from '@/components/onboarding/onboarding-screen';
 import { useAuthUser } from '@/hooks/useAuthSession';
@@ -7,13 +8,27 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 
 export default function Onboarding() {
   const router = useRouter();
+  const canNavigateToRoutines = useNavigationState((state) =>
+    state.routeNames.includes('(tabs)'),
+  );
   const user = useAuthUser();
   const { replay } = useLocalSearchParams<{ replay?: string }>();
-  const { complete } = useOnboarding();
-  const isReplay = replay === 'true';
+  const { complete, isRequired } = useOnboarding();
+  const isReplay = replay === 'true' && !isRequired;
   const submitting = useRef(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [hasCompleted, setHasCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!hasCompleted || isRequired || !canNavigateToRoutines) return;
+
+    if (isReplay && router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace(user ? '/(tabs)/(afterLogin)/(routine)' : '/sign-in');
+    }
+  }, [hasCompleted, isRequired, isReplay, canNavigateToRoutines, router, user]);
 
   const handleComplete = async () => {
     if (submitting.current) return;
@@ -22,16 +37,10 @@ export default function Onboarding() {
     setError(null);
 
     try {
-      if (!isReplay) await complete();
-
-      if (isReplay && router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace(user ? '/(tabs)/(afterLogin)/(routine)' : '/sign-in');
-      }
+      await complete();
+      setHasCompleted(true);
     } catch {
       setError('안내 완료 상태를 저장하지 못했어요. 다시 시도해주세요.');
-    } finally {
       submitting.current = false;
       setIsCompleting(false);
     }
@@ -47,6 +56,11 @@ export default function Onboarding() {
       />
       <OnboardingScreen
         onComplete={() => void handleComplete()}
+        onClose={() => {
+          if (isCompleting) return;
+          if (router.canGoBack()) router.back();
+          else router.replace('/(tabs)/(afterLogin)/(routine)');
+        }}
         isCompleting={isCompleting}
         isReplay={isReplay}
         error={error}

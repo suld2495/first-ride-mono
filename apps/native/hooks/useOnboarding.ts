@@ -1,22 +1,39 @@
-import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useOnboardingStore } from '@/store/onboarding.store';
+import {
+  fetchOnboardingStatus,
+  markOnboardingSeen,
+} from '@/api/onboarding.api';
+import { useAuthStore } from '@/store/auth.store';
 
-interface UseOnboardingReturn {
-  isLoading: boolean;
-  isCompleted: boolean;
-  complete: () => Promise<void>;
-}
+export const useOnboarding = () => {
+  const user = useAuthStore((state) => state.user);
+  const isAuthLoading = useAuthStore((state) => state.isLoading);
+  const queryClient = useQueryClient();
+  const queryKey = ['onboarding', user?.userId] as const;
+  const query = useQuery({
+    queryKey,
+    queryFn: fetchOnboardingStatus,
+    enabled: !!user && !isAuthLoading,
+    staleTime: Infinity,
+    gcTime: Infinity,
+    retry: false,
+    retryOnMount: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
 
-export const useOnboarding = (): UseOnboardingReturn => {
-  const isHydrated = useOnboardingStore((state) => state.isHydrated);
-  const isCompleted = useOnboardingStore((state) => state.isCompleted);
-  const hydrate = useOnboardingStore((state) => state.hydrate);
-  const complete = useOnboardingStore((state) => state.complete);
+  const complete = async () => {
+    await markOnboardingSeen();
+    queryClient.setQueryData(queryKey, { onboardingRequired: false });
+  };
 
-  useEffect(() => {
-    void hydrate();
-  }, [hydrate]);
-
-  return { isLoading: !isHydrated, isCompleted, complete };
+  return {
+    isLoading: isAuthLoading || (!!user && query.isPending),
+    isRequired: query.data?.onboardingRequired === true,
+    error: user ? query.error : null,
+    retry: query.refetch,
+    complete,
+  };
 };

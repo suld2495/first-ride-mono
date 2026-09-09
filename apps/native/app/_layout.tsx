@@ -19,7 +19,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { updatePushToken } from '@/api/push-token.api';
 import ForceUpdateController from '@/components/force-update-controller';
 import MockProvider from '@/components/mock/mock-provider';
-import OnboardingEntry from '@/components/onboarding/onboarding-entry';
 import SplashScreenController from '@/components/splash';
 import AppTamaguiProvider, {
   ThemeStyleRefreshBoundary,
@@ -113,26 +112,36 @@ interface StackLayoutProps {
 const StackLayout = ({ isFontReady }: StackLayoutProps) => {
   const user = useAuthUser();
   const colorScheme = useColorScheme();
-  const { isLoading: isOnboardingLoading } = useOnboarding();
+  const { isLoading: isOnboardingLoading, isRequired, error } = useOnboarding();
+  const isCheckingOnboarding = isOnboardingLoading || !!error;
+  const canEnterApp = !!user && !isCheckingOnboarding && !isRequired;
+  const entryRoute = isCheckingOnboarding
+    ? 'onboarding-loading'
+    : user && isRequired
+      ? 'onboarding'
+      : getAuthStackInitialRouteName(!!user);
 
   return (
     <>
       <StatusBar style="dark" />
-      <SplashScreenController
-        isReady={isFontReady && (!!user || !isOnboardingLoading)}
-      />
+      <SplashScreenController isReady={isFontReady} />
       <ForceUpdateController />
       <NavThemeProvider value={NAV_THEME[colorScheme]}>
         <Stack
-          key={getAuthStackKey(!!user)}
-          initialRouteName={getAuthStackInitialRouteName(!!user)}
+          key={`${getAuthStackKey(!!user)}-${isCheckingOnboarding ? 'checking' : 'ready'}`}
+          initialRouteName={entryRoute}
           screenOptions={{ headerShown: false }}
         >
           <Stack.Screen name="modal" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="onboarding"
-            options={{ headerShown: false, presentation: 'fullScreenModal' }}
-          />
+          <Stack.Protected guard={isCheckingOnboarding}>
+            <Stack.Screen name="onboarding-loading" />
+          </Stack.Protected>
+          <Stack.Protected guard={!!user && !isCheckingOnboarding}>
+            <Stack.Screen
+              name="onboarding"
+              options={{ headerShown: false, presentation: 'fullScreenModal' }}
+            />
+          </Stack.Protected>
           {__DEV__ ? (
             <Stack.Screen
               name="routine-proof-preview"
@@ -145,7 +154,7 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
           ) : null}
-          <Stack.Protected guard={!!user}>
+          <Stack.Protected guard={canEnterApp}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="account" options={{ headerShown: false }} />
             <Stack.Screen
@@ -186,7 +195,7 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
           </Stack.Protected>
-          <Stack.Protected guard={!user}>
+          <Stack.Protected guard={!user && !isCheckingOnboarding}>
             <Stack.Screen name="sign-in" options={{ headerShown: false }} />
             <Stack.Screen name="sign-up" options={{ headerShown: false }} />
             <Stack.Screen
@@ -199,7 +208,6 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
             />
           </Stack.Protected>
         </Stack>
-        <OnboardingEntry />
       </NavThemeProvider>
     </>
   );
@@ -218,7 +226,13 @@ function AppShell({ isFontReady }: AppShellProps) {
   }>();
   const queryClient = useQueryClient();
   const user = useAuthUser();
-  const isAuthLoading = useAuthIsLoading();
+  const isSessionLoading = useAuthIsLoading();
+  const onboarding = useOnboarding();
+  const isAuthLoading =
+    isSessionLoading ||
+    onboarding.isLoading ||
+    onboarding.isRequired ||
+    !!onboarding.error;
   const themeName = useColorScheme();
   const setRequestId = useSetRequestId();
   const setRoutineId = useSetRoutineId();
