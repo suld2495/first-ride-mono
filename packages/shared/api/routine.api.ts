@@ -350,6 +350,25 @@ export const cancelRoutineChangeRequest = async (
   }
 };
 
+export const requestRoutineMateChange = async ({
+  routineId,
+  friendId,
+}: {
+  routineId: number;
+  friendId: number;
+}): Promise<{ created: boolean; request: RoutineChangeRequest }> => {
+  try {
+    const response = await axiosInstance.post<{ data: RoutineChangeRequest }>(
+      `/routine/${routineId}/mate-change-requests`,
+      { friendId },
+    );
+
+    return { created: response.status === 201, request: response.data.data };
+  } catch (error) {
+    throw toAppError(error);
+  }
+};
+
 export const cancelRoutineConfirmation = async (
   confirmId: number,
 ): Promise<RoutineActionResponse> => {

@@ -534,6 +534,13 @@ export default function RoutineSettingsPage() {
                 isHidden={openMenuRoutine.hidden}
                 isPaused={openMenuRoutine.paused}
                 onEdit={() => handleShowUpdateModal(openMenuRoutine)}
+                onChangeMate={() => {
+                  closeRoutineMenu();
+                  router.push({
+                    pathname: '/routine-mate-change',
+                    params: { routineId: openMenuRoutine.routineId },
+                  });
+                }}
                 onHide={() => handleToggleRoutineVisibility(openMenuRoutine)}
                 onPause={() => handleToggleRoutinePause(openMenuRoutine)}
                 onRequest={closeRoutineMenu}

@@ -18,6 +18,7 @@ import {
 import type { QueryKey } from '@tanstack/react-query';
 
 import * as routineApi from '../api/routine.api';
+import { requestKey } from '../types/query-keys/request';
 import { routineKey } from '../types/query-keys/routine';
 import { userKey } from '../types/query-keys/user';
 import { getWeekMonday } from '../utils/date-utils';
@@ -153,6 +154,23 @@ export const useCancelRoutineChangeRequestMutation = (
   });
 };
 
+export const useRequestRoutineMateChangeMutation = (nickname: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: routineApi.requestRoutineMateChange,
+    retry: false,
+    onSuccess: async (_data, { routineId }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: routineKey.list(nickname) }),
+        queryClient.invalidateQueries({
+          queryKey: routineKey.detail(routineId),
+        }),
+      ]);
+    },
+  });
+};
+
 export const useCancelRoutineConfirmationMutation = (nickname: string) => {
   const queryClient = useQueryClient();
 
@@ -193,6 +211,7 @@ export const useApproveRoutineChangeRequestMutation = (nickname: string) => {
       routineApi.approveRoutineChangeRequest(changeRequestId),
     onSuccess: async (_data, variables) => {
       await Promise.all([
+        queryClient.invalidateQueries({ queryKey: requestKey.all() }),
         queryClient.invalidateQueries({
           queryKey: routineKey.receivedChangeRequests(nickname),
         }),

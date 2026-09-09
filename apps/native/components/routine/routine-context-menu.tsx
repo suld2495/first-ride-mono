@@ -55,6 +55,7 @@ type RoutineContextMenuPanelProps = Pick<
   | 'showsStatusItems'
 > & {
   isMe?: boolean;
+  onChangeMate?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -110,6 +111,7 @@ export const RoutineContextMenuPanel = ({
   onRequest,
   onDelete,
   isMe = true,
+  onChangeMate,
   showsRequestItem,
   requestDisabled = false,
   showsStatusItems = true,
@@ -127,6 +129,7 @@ export const RoutineContextMenuPanel = ({
         ]
       : []),
     { label: '수정', onPress: onEdit },
+    ...(onChangeMate ? [{ label: '메이트 변경', onPress: onChangeMate }] : []),
     ...(showsStatusItems
       ? [
           { label: isHidden ? '공개' : '비공개', onPress: onHide },

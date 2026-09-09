@@ -137,6 +137,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="routine-mate-change"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="widget-settings"
               options={{ headerShown: false }}
             />

@@ -115,6 +115,7 @@ export interface SelectProps<T = string | number> {
    * 드롭다운 최대 높이
    */
   dropdownMaxHeight?: number;
+  showSelectedIndicator?: boolean;
 }
 
 const DROPDOWN_ITEM_HEIGHT = 44;
@@ -155,6 +156,7 @@ export function Select<T = string | number>({
   placeholderTextColor,
   containerStyle,
   dropdownMaxHeight = 250,
+  showSelectedIndicator = true,
 }: SelectProps<T>) {
   const { theme } = useAppTheme();
   const isTestEnv = process.env.NODE_ENV === 'test';
@@ -278,7 +280,7 @@ export function Select<T = string | number>({
             </Text>
           )}
         </View>
-        {item.value === value && (
+        {showSelectedIndicator && item.value === value && (
           <Ionicons
             name="checkmark"
             size={baseFoundation.iconSize.m}
@@ -289,6 +291,7 @@ export function Select<T = string | number>({
     ),
     [
       handleSelectItem,
+      showSelectedIndicator,
       sizeTextStyle,
       textStyle,
       theme.colors.field.icon,
