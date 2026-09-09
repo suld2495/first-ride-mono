@@ -19,6 +19,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { updatePushToken } from '@/api/push-token.api';
 import ForceUpdateController from '@/components/force-update-controller';
 import MockProvider from '@/components/mock/mock-provider';
+import OnboardingEntry from '@/components/onboarding/onboarding-entry';
 import SplashScreenController from '@/components/splash';
 import AppTamaguiProvider, {
   ThemeStyleRefreshBoundary,
@@ -36,6 +37,7 @@ import {
   setNotificationHandler,
   useNotifications,
 } from '@/hooks/useNotifications';
+import { useOnboarding } from '@/hooks/useOnboarding';
 import { useSetRequestId } from '@/hooks/useRequestSelection';
 import { useSetRoutineId } from '@/hooks/useRoutineSelection';
 import { useInitialAndroidBarSync } from '@/hooks/useThemeColor';
@@ -104,11 +106,14 @@ interface StackLayoutProps {
 const StackLayout = ({ isFontReady }: StackLayoutProps) => {
   const user = useAuthUser();
   const colorScheme = useColorScheme();
+  const { isLoading: isOnboardingLoading } = useOnboarding();
 
   return (
     <>
       <StatusBar style="dark" />
-      <SplashScreenController isReady={isFontReady} />
+      <SplashScreenController
+        isReady={isFontReady && (!!user || !isOnboardingLoading)}
+      />
       <ForceUpdateController />
       <NavThemeProvider value={NAV_THEME[colorScheme]}>
         <Stack
@@ -117,6 +122,10 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
           screenOptions={{ headerShown: false }}
         >
           <Stack.Screen name="modal" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="onboarding"
+            options={{ headerShown: false, presentation: 'fullScreenModal' }}
+          />
           {__DEV__ ? (
             <Stack.Screen
               name="routine-proof-preview"
@@ -175,6 +184,7 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
             />
           </Stack.Protected>
         </Stack>
+        <OnboardingEntry />
       </NavThemeProvider>
     </>
   );

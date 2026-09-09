@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { fontFamilies } from '@/theme/font-families';
 import { baseFoundation } from '@/theme/tokens';
 
 /**
@@ -491,6 +492,7 @@ const styles = StyleSheet.create((theme) => ({
     bottom: 0,
     left: 0,
     padding: 0,
+    fontFamily: fontFamilies.regular,
   },
   containerXs: {
     height: baseFoundation.dimension.x28,
@@ -538,6 +540,7 @@ const styles = StyleSheet.create((theme) => ({
   input: {
     flex: 1,
     color: theme.colors.field.text,
+    fontFamily: fontFamilies.regular,
   },
   inputXs: {
     fontSize: theme.foundation.typography.size.s,
@@ -556,12 +559,14 @@ const styles = StyleSheet.create((theme) => ({
   },
   label: {
     fontSize: theme.foundation.typography.size.m,
+    fontFamily: fontFamilies.semibold,
     fontWeight: '600',
     marginBottom: baseFoundation.spacing[1],
     marginLeft: baseFoundation.spacing[1],
     color: theme.colors.field.label,
   },
   helperText: {
+    fontFamily: fontFamilies.regular,
     fontSize: theme.foundation.typography.size.s,
     marginTop: theme.foundation.spacing[1],
   },

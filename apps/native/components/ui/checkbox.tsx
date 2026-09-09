@@ -3,6 +3,7 @@ import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import Svg, { Path } from 'react-native-svg';
 
 import { useAppTheme } from '@/components/ui/tamagui';
+import { fontFamilies } from '@/theme/font-families';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 export type CheckboxSize = 'xs' | 'md' | 'lg';
@@ -77,6 +78,8 @@ export interface CheckboxProps {
   checkedColor?: string;
   /** Controlled checked state */
   isChecked?: boolean;
+  /** Prevent interaction for disabled fields and read-only previews. */
+  disabled?: boolean;
   /** Optional visual checked state override */
   visualChecked?: boolean;
   /** Whether checked labels should use BouncyCheckbox strike-through */
@@ -103,6 +106,7 @@ const Checkbox = ({
   fillColor,
   checkedColor,
   isChecked,
+  disabled = false,
   visualChecked,
   strikeThroughOnChecked = false,
   showCheckIconWhenUnchecked = true,
@@ -125,6 +129,7 @@ const Checkbox = ({
   };
   const textStyle = {
     color: resolvedLabelColor,
+    fontFamily: fontFamilies.semibold,
     ...CHECKBOX_LABEL_STYLE_MAP[size],
     ...(strikeThroughOnChecked ? {} : { textDecorationLine: 'none' as const }),
   };
@@ -137,6 +142,7 @@ const Checkbox = ({
 
   return (
     <BouncyCheckbox
+      disabled={disabled}
       size={CHECKBOX_SIZE_MAP[size]}
       text={text}
       disableText={disableText}
