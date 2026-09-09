@@ -137,7 +137,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     googleServicesFile: './google-services.json',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#76dcd1',
+      backgroundColor: '#FFFFFF',
     },
     package: 'com.firstride.irura',
     jsEngine: 'hermes',
