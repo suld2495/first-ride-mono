@@ -53,7 +53,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         microphonePermission: false,
       },
     ],
-    ['expo-web-browser', { experimentalLauncherActivity: true }],
+    'expo-web-browser',
     'expo-secure-store',
     [
       'expo-notifications',
