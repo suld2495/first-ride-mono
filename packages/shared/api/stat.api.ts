@@ -4,7 +4,7 @@ import type {
   StatResponse,
 } from '@repo/types';
 
-import { toAppError } from '.';
+import { toAppError } from './http-client';
 import http from './client';
 
 export const fetchMyStats = async (): Promise<StatResponse> => {

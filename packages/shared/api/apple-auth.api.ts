@@ -8,7 +8,7 @@ import type {
   AppleSignUpResponse,
 } from '@repo/types';
 
-import { toAppError } from '.';
+import { toAppError } from './http-client';
 import http from './client';
 
 const baseURL = '/auth/apple';

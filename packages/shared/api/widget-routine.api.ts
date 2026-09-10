@@ -5,7 +5,7 @@ import type {
   WidgetRoutineSize,
 } from '@repo/types';
 
-import { toAppError } from '.';
+import { toAppError } from './http-client';
 import { getWeekMonday, getWeekSunday } from '../utils';
 import http from './client';
 

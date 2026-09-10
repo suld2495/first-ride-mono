@@ -1,6 +1,6 @@
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import axiosInstance, { toAppError } from '.';
+import axiosInstance, { toAppError } from './http-client';
 
 const get = async <R, D>(
   url: string,

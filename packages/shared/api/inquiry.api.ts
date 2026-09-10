@@ -1,4 +1,4 @@
-import { toAppError } from '.';
+import { toAppError } from './http-client';
 import http from './client';
 
 export interface CreateInquiryRequest {

@@ -1,6 +1,6 @@
 import type { LevelUpStatusResponse } from '@repo/types';
 
-import { toAppError } from '.';
+import { toAppError } from './http-client';
 import http from './client';
 
 export const fetchLevelUpStatus = async (): Promise<LevelUpStatusResponse> => {

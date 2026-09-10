@@ -5,7 +5,7 @@ import type {
   StatRankingEntry,
 } from '@repo/types';
 
-import { toAppError } from '.';
+import { toAppError } from './http-client';
 import http from './client';
 
 export const fetchAllLevelRanking = async (

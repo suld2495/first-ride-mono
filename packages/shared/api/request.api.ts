@@ -5,7 +5,7 @@ import type {
 } from '@repo/types';
 import type { AxiosProgressEvent } from 'axios';
 
-import { toAppError } from '.';
+import { toAppError } from './http-client';
 import http from './client';
 
 const IMAGE_UPLOAD_TIMEOUT_MS = 60_000;

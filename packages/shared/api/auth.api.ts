@@ -17,7 +17,7 @@ import type {
 } from '@repo/types';
 import axios from 'axios';
 
-import axiosInstance, { toAppError } from '.';
+import axiosInstance, { toAppError } from './http-client';
 import http from './client';
 
 const baseURL = '/auth';

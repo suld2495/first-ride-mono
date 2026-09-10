@@ -12,7 +12,7 @@ import type {
 } from '@repo/types';
 import type { AxiosResponse } from 'axios';
 
-import axiosInstance, { toAppError } from '.';
+import axiosInstance, { toAppError } from './http-client';
 import http from './client';
 
 const baseURL = '/friends';

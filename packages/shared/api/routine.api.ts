@@ -16,7 +16,7 @@ import type {
   UpdateRoutineVisibilityRequest,
 } from '@repo/types';
 
-import axiosInstance, { toAppError } from '.';
+import axiosInstance, { toAppError } from './http-client';
 import http from './client';
 
 type RoutineResponse = Omit<

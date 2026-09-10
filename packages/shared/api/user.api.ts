@@ -7,7 +7,7 @@ import type {
   User,
 } from '@repo/types';
 
-import { toAppError } from '.';
+import { toAppError } from './http-client';
 import http from './client';
 
 const baseURL = '/users';

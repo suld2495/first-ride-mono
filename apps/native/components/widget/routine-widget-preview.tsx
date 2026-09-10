@@ -7,8 +7,8 @@ import Typography from '@/components/ui/typography';
 
 const DAYS_PER_WEEK = 7;
 export const SMALL_WIDGET_ROUTINE_LIMIT = 4;
-const MEDIUM_VISIBLE_ITEM_COUNT = 4;
-const LARGE_VISIBLE_ITEM_COUNT = 10;
+export const MEDIUM_WIDGET_ROUTINE_LIMIT = 4;
+export const LARGE_WIDGET_ROUTINE_LIMIT = 10;
 const NATIVE_SMALL_WIDGET_PADDING = 20;
 const NATIVE_WIDGET_HORIZONTAL_PADDING = 24;
 const NATIVE_WIDGET_VERTICAL_PADDING = 16;
@@ -16,6 +16,10 @@ const NATIVE_WEEKLY_NAME_COLUMN_WIDTH = 150;
 const NATIVE_WEEKLY_ROW_HEIGHT = 22;
 const NATIVE_WEEKLY_MEDIUM_ROW_SPACING = 4;
 const NATIVE_WEEKLY_LARGE_ROW_SPACING = 8;
+const LARGE_WIDGET_PREVIEW_HEIGHT =
+  NATIVE_WIDGET_VERTICAL_PADDING * 2 +
+  NATIVE_WEEKLY_ROW_HEIGHT * (LARGE_WIDGET_ROUTINE_LIMIT + 1) +
+  NATIVE_WEEKLY_LARGE_ROW_SPACING * LARGE_WIDGET_ROUTINE_LIMIT;
 const WIDGET_SHADOW_OPACITY = 0.18;
 const WIDGET_SHADOW_RADIUS = 8;
 const WIDGET_SHADOW_OFFSET_Y = 5;
@@ -144,7 +148,7 @@ const RoutineWidgetWeeklyPreview = ({
   const { theme } = useAppTheme();
   const weekDateKeys = getWeekDateKeys(weekStartDate);
   const visibleLimit =
-    size === 'LARGE' ? LARGE_VISIBLE_ITEM_COUNT : MEDIUM_VISIBLE_ITEM_COUNT;
+    size === 'LARGE' ? LARGE_WIDGET_ROUTINE_LIMIT : MEDIUM_WIDGET_ROUTINE_LIMIT;
   const visibleRoutines = routines.slice(0, visibleLimit);
   const today = getToday();
 
@@ -287,7 +291,7 @@ const styles = StyleSheet.create((theme) => ({
     minHeight: 166,
   },
   largeWidget: {
-    minHeight: 270,
+    height: LARGE_WIDGET_PREVIEW_HEIGHT,
   },
   smallContent: {
     flex: 1,

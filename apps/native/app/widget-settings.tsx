@@ -1,10 +1,11 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAllRoutinesQuery } from '@repo/shared/hooks/useRoutine';
+import { useRoutinesQuery } from '@repo/shared/hooks/useRoutine';
 import {
   useSaveWidgetRoutineConfigMutation,
   useWidgetRoutineConfigQuery,
   useWidgetRoutineDataQuery,
 } from '@repo/shared/hooks/useWidgetRoutine';
+import { getWeekMonday } from '@repo/shared/utils';
 import type {
   Routine,
   UpdateWidgetRoutineConfigRequest,
@@ -25,6 +26,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import Container from '@/components/layout/container';
 import PageHeader from '@/components/layout/page-header';
 import RoutineWidgetPreview, {
+  LARGE_WIDGET_ROUTINE_LIMIT,
+  MEDIUM_WIDGET_ROUTINE_LIMIT,
   getRoutineWidgetAccentColor,
   SMALL_WIDGET_ROUTINE_LIMIT,
   type RoutineWidgetPreviewRoutine,
@@ -65,6 +68,12 @@ const WIDGET_SIZE_OPTIONS: Array<{
   { apiSize: 'LARGE', key: 'large', label: '대형' },
 ];
 
+const WIDGET_ROUTINE_LIMITS: Record<WidgetRoutineSizeKey, number> = {
+  small: SMALL_WIDGET_ROUTINE_LIMIT,
+  medium: MEDIUM_WIDGET_ROUTINE_LIMIT,
+  large: LARGE_WIDGET_ROUTINE_LIMIT,
+};
+
 const EMPTY_ROUTINES: Routine[] = [];
 
 const getCompleteRoutineOrder = (
@@ -97,13 +106,15 @@ const getConfiguredRoutineIds = (
   return {
     small: [...config.small]
       .sort((left, right) => left.displayOrder - right.displayOrder)
-      .slice(0, SMALL_WIDGET_ROUTINE_LIMIT)
+      .slice(0, WIDGET_ROUTINE_LIMITS.small)
       .map((item) => item.routineId),
     medium: [...config.medium]
       .sort((left, right) => left.displayOrder - right.displayOrder)
+      .slice(0, WIDGET_ROUTINE_LIMITS.medium)
       .map((item) => item.routineId),
     large: [...config.large]
       .sort((left, right) => left.displayOrder - right.displayOrder)
+      .slice(0, WIDGET_ROUTINE_LIMITS.large)
       .map((item) => item.routineId),
   };
 };
@@ -313,7 +324,8 @@ export default function WidgetSettingsPage() {
   const [isEditorInitialized, setIsEditorInitialized] = useState(false);
 
   const configQuery = useWidgetRoutineConfigQuery();
-  const routinesQuery = useAllRoutinesQuery(user?.nickname ?? '');
+  const currentHomeDate = getWeekMonday(new Date());
+  const routinesQuery = useRoutinesQuery(user?.nickname ?? '', currentHomeDate);
   const activeSizeOption =
     WIDGET_SIZE_OPTIONS.find((option) => option.key === activeSize) ??
     WIDGET_SIZE_OPTIONS[0];
@@ -383,9 +395,8 @@ export default function WidgetSettingsPage() {
   const handleToggleRoutine = useCallback(
     (routineId: number) => {
       if (
-        activeSize === 'small' &&
         !selectedRoutineIdSet.has(routineId) &&
-        selectedRoutineIds.length >= SMALL_WIDGET_ROUTINE_LIMIT
+        selectedRoutineIds.length >= WIDGET_ROUTINE_LIMITS[activeSize]
       ) {
         return;
       }

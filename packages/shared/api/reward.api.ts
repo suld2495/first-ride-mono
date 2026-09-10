@@ -5,7 +5,7 @@ import type {
   UpdateRewardForm,
 } from '@repo/types';
 
-import { toAppError } from '.';
+import { toAppError } from './http-client';
 import http from './client';
 
 // 보상 목록 조회 (필터 포함)
