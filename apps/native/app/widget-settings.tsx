@@ -503,13 +503,24 @@ export default function WidgetSettingsPage() {
         />
       </View>
       <View style={styles.listHeading}>
-        <Typography
-          style={{ color: theme.colors.brand.text }}
-          variant="subtitle2"
-          weight="bold"
-        >
-          {activeSizeOption.label} 위젯에 표시할 루틴
-        </Typography>
+        <View style={styles.listHeadingRow}>
+          <Typography
+            color={theme.colors.brand.text}
+            style={styles.listHeadingTitle}
+            variant="subtitle2"
+            weight="bold"
+          >
+            {activeSizeOption.label} 위젯에 표시할 루틴
+          </Typography>
+          <Typography
+            color={theme.colors.text.muted}
+            style={styles.listHeadingCount}
+            variant="body3"
+            weight="bold"
+          >
+            ({selectedRoutineIds.length} / {WIDGET_ROUTINE_LIMITS[activeSize]})
+          </Typography>
+        </View>
       </View>
       {orderedRoutines.length > 0 ? (
         <View pointerEvents="none" style={styles.routineListBackdropAnchor}>
@@ -654,6 +665,19 @@ const styles = StyleSheet.create((theme) => ({
   listHeading: {
     gap: theme.foundation.spacing[1],
     paddingBottom: theme.foundation.spacing[3],
+  },
+  listHeadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: theme.foundation.spacing[2],
+  },
+  listHeadingTitle: {
+    flex: 1,
+  },
+  listHeadingCount: {
+    flexShrink: 0,
+    fontSize: theme.foundation.typography.size.subtitle2 - 4,
   },
   routineRow: {
     height: baseFoundation.dimension.x60,
