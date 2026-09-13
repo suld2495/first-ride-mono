@@ -1,16 +1,20 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRoutineDetailQuery } from '@repo/shared/hooks/useRoutine';
 import { createRequestFormValidators } from '@repo/shared/service/validatorMessage';
 import type { Routine } from '@repo/types';
 import { useLocalSearchParams } from 'expo-router';
-import { useMemo } from 'react';
-import { Image, Pressable } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Image, Pressable, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
+import RequestPlusIcon from '@/components/icons/request-image/request-plus-icon';
+import RequestRemoveImageIcon from '@/components/icons/request-image/request-remove-image-icon';
 import RequetButtonGroup from '@/components/request/request-button-group';
-import { Button } from '@/components/ui/button';
+import RequestImageSourceDialog from '@/components/request/request-image-source-dialog';
+import RequestImageSourceTile, {
+  type RequestImageSourceKind,
+} from '@/components/request/request-image-source-tile';
 import { Input } from '@/components/ui/input';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
@@ -23,15 +27,21 @@ import {
   useRequestSubmission,
 } from '@/hooks/useRequestSubmission';
 import { useRoutineId } from '@/hooks/useRoutineSelection';
-import { baseFoundation, palette } from '@/theme/tokens';
+import { requestFormColors } from '@/theme/themes/light';
+import { baseFoundation } from '@/theme/tokens';
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const { Form, FormItem, useForm } = useCreateForm<RequestForm>();
-const requestImageSlots = Array.from(
-  { length: MAX_REQUEST_IMAGE_COUNT },
-  (_, index) => index,
-);
-const REQUEST_IMAGE_ACTION_HEIGHT = baseFoundation.dimension.x60;
+
+// 피그마: 사진이 2장 미만이면 2열(사진 + 추가 버튼), 2장 이상이면 3열로 배치한다.
+const WIDE_IMAGE_SLOT_COUNT = 2;
+// 피그마 헤더(44pt, 제목 중심 22pt)와 공용 PageHeader(38pt + 아래 여백 6pt, 제목 중심 19pt) 차이만큼
+// 상단 여백에서 3pt를 빼 헤더 제목 ↔ 루틴 제목 간격을 피그마와 맞춘다.
+const HEADER_TITLE_CENTER_OFFSET = baseFoundation.dimension.x3;
+const getImageSlotCount = (imageCount: number) =>
+  imageCount < WIDE_IMAGE_SLOT_COUNT
+    ? WIDE_IMAGE_SLOT_COUNT
+    : MAX_REQUEST_IMAGE_COUNT;
 
 type RequestModalPreviewDetail = Pick<
   Routine,
@@ -48,8 +58,48 @@ interface RequestModalProps {
   previewDetail?: RequestModalPreviewDetail;
 }
 
+interface SectionLabelProps {
+  optional?: boolean;
+  optionalTestID?: string;
+  required?: boolean;
+  requiredTestID?: string;
+  title: string;
+}
+
+const SectionLabel = ({
+  optional = false,
+  optionalTestID,
+  required = false,
+  requiredTestID,
+  title,
+}: SectionLabelProps) => (
+  <View style={styles.labelRow}>
+    <Typography variant="caption1" weight="bold" style={styles.label}>
+      {title}
+    </Typography>
+    {required ? (
+      <Typography
+        variant="caption1"
+        weight="bold"
+        style={styles.requiredMark}
+        testID={requiredTestID}
+      >
+        *
+      </Typography>
+    ) : null}
+    {optional ? (
+      <Typography
+        variant="caption3"
+        style={styles.optionalLabel}
+        testID={optionalTestID}
+      >
+        선택
+      </Typography>
+    ) : null}
+  </View>
+);
+
 const RequestModal = ({ previewDetail }: RequestModalProps = {}) => {
-  const { theme } = useAppTheme();
   const { shareSessionId } = useLocalSearchParams<{
     shareSessionId?: string;
   }>();
@@ -59,6 +109,7 @@ const RequestModal = ({ previewDetail }: RequestModalProps = {}) => {
   const sharedImages = usePendingRoutineShareImages(routineId, shareSessionId);
   const hasMateTarget = detail?.isMe === false && !!detail?.mateNickname;
   const photoRequired = detail?.photoRequired ?? true;
+  const routineDescription = detail?.routineDetail?.trim();
   const requestImageValidators = useMemo(
     () => createRequestFormValidators<RequestImage>(photoRequired),
     [photoRequired],
@@ -67,6 +118,7 @@ const RequestModal = ({ previewDetail }: RequestModalProps = {}) => {
     () => ({ images: sharedImages, memo: '', message: '' }),
     [sharedImages],
   );
+  const [isSourceDialogVisible, setIsSourceDialogVisible] = useState(false);
   const { handleSubmit, pickImage, takePicture, isPending, uploadProgress } =
     useRequestSubmission(
       routineId,
@@ -85,7 +137,11 @@ const RequestModal = ({ previewDetail }: RequestModalProps = {}) => {
   }
 
   return (
-    <ThemeView testID="request-form-content" style={styles.container}>
+    <ThemeView
+      testID="request-form-content"
+      style={styles.container}
+      transparent
+    >
       <KeyboardAwareScrollView
         enableOnAndroid={true}
         contentContainerStyle={styles.scroll}
@@ -94,309 +150,271 @@ const RequestModal = ({ previewDetail }: RequestModalProps = {}) => {
         showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
         testID="request-form-scroll"
       >
-        <ThemeView testID="request-summary" style={styles.summary} transparent>
-          <ThemeView
-            testID="request-routine-summary"
-            style={[
-              styles.routineSummary,
-              !hasMateTarget && styles.routineSummaryFull,
-            ]}
-            transparent
-          >
-            <ThemeView style={styles.infoGroup} transparent>
-              <Typography variant="body2" style={styles.infoLabel}>
-                루틴 이름
-              </Typography>
-              <Typography
-                variant="body1"
-                weight="semibold"
-                style={styles.infoValue}
-              >
-                {detail?.routineName}
-              </Typography>
-            </ThemeView>
-            <ThemeView style={styles.infoGroup} transparent>
-              <Typography variant="body2" style={styles.infoLabel}>
-                루틴 설명
-              </Typography>
-              <Typography
-                variant="body1"
-                weight="semibold"
-                style={styles.infoValue}
-              >
-                {detail?.routineDetail}
-              </Typography>
-            </ThemeView>
-          </ThemeView>
-          {hasMateTarget && (
-            <>
-              <ThemeView
-                testID="request-summary-divider"
-                style={styles.summaryDivider}
-                transparent
-              />
-              <ThemeView
-                testID="request-target-summary"
-                style={styles.targetSummary}
-                transparent
-              >
-                <Typography variant="body2" style={styles.infoLabel}>
-                  인증 대상
-                </Typography>
-                <Typography
-                  variant="body1"
-                  weight="semibold"
-                  style={styles.infoValue}
-                >
-                  {detail.mateNickname}
-                </Typography>
-              </ThemeView>
-            </>
-          )}
-        </ThemeView>
-
         <Form
           form={initialForm}
           onSubmit={handleSubmit}
           validators={requestImageValidators}
         >
-          <FormItem
-            name="images"
-            item={({ form, setValue }) => (
+          <View style={styles.formBody}>
+            <View style={styles.topGroup}>
               <ThemeView
-                testID="request-media-stage"
-                style={styles.mediaStage}
+                testID="request-summary"
+                style={styles.summary}
                 transparent
               >
-                <ThemeView style={styles.mediaHeader} transparent>
-                  <Typography
-                    variant="body3"
-                    weight="bold"
-                    style={styles.mediaTitle}
-                  >
-                    인증 사진
-                  </Typography>
-                  {!photoRequired && (
-                    <Typography
-                      testID="request-photo-optional-label"
-                      variant="caption2"
-                      style={styles.photoOptionalLabel}
-                    >
-                      선택
-                    </Typography>
-                  )}
-                </ThemeView>
-
-                <ThemeView style={styles.uploadFrame} transparent>
-                  <ThemeView style={styles.previewList} transparent>
-                    {requestImageSlots.map((index) => {
-                      const image = form.images[index];
-
-                      if (!image) {
-                        return (
-                          <ThemeView
-                            key={`request-image-slot-${index}`}
-                            testID="request-image-slot"
-                            style={styles.previewItem}
-                            transparent
-                          >
-                            <Pressable
-                              accessibilityLabel={`사진 ${index + 1} 추가`}
-                              accessibilityHint="앨범에서 사진을 선택합니다"
-                              accessibilityRole="button"
-                              disabled={
-                                isPending ||
-                                form.images.length >= MAX_REQUEST_IMAGE_COUNT
-                              }
-                              style={styles.slotButton}
-                              onPress={() => pickImage(setValue, form.images)}
-                            >
-                              <Ionicons
-                                testID="request-image-slot-icon"
-                                name="add-circle-outline"
-                                size={baseFoundation.dimension.x28}
-                                color={palette.theme.gray[300]}
-                              />
-                            </Pressable>
-                          </ThemeView>
-                        );
-                      }
-
-                      const handleRemoveImage = () => {
-                        setValue(
-                          'images',
-                          form.images.filter((_, imageIndex) => {
-                            return imageIndex !== index;
-                          }),
-                        );
-                      };
-
-                      return (
-                        <ThemeView
-                          key={`request-image-slot-${index}`}
-                          testID="request-image-slot"
-                          style={styles.previewItem}
-                          transparent
-                        >
-                          <Image
-                            testID="request-image-preview"
-                            source={{ uri: image.uri }}
-                            style={styles.preview}
-                            resizeMode="cover"
-                          />
-                          <Pressable
-                            accessibilityLabel="이미지 제거"
-                            accessibilityRole="button"
-                            disabled={isPending}
-                            hitSlop={baseFoundation.spacing[2]}
-                            onPress={handleRemoveImage}
-                            style={[
-                              styles.removeButton,
-                              isPending && styles.removeButtonDisabled,
-                            ]}
-                            testID={`remove-request-image-${index}`}
-                          >
-                            <Ionicons
-                              name="close"
-                              size={baseFoundation.iconSize.s}
-                              color="#FFFFFF"
-                            />
-                          </Pressable>
-                        </ThemeView>
-                      );
-                    })}
-                  </ThemeView>
-                </ThemeView>
-
-                <ThemeView
-                  testID="request-image-actions"
-                  style={styles.imageActions}
-                  transparent
+                <Typography
+                  variant="subtitle1"
+                  weight="bold"
+                  style={styles.title}
+                  testID="request-routine-summary"
                 >
-                  <Button
-                    testID="gallery-button"
-                    title="앨범에서 선택"
-                    variant="ghost"
-                    textColor={theme.colors.action.primary.default}
-                    leftIcon={({ color }) => (
-                      <Ionicons
-                        name="image-outline"
-                        size={baseFoundation.iconSize.l}
-                        color={color}
-                      />
-                    )}
-                    size="sm"
-                    style={styles.imageAction}
-                    textStyle={styles.imageActionText}
-                    disabled={
-                      isPending || form.images.length >= MAX_REQUEST_IMAGE_COUNT
+                  {detail?.routineName}
+                </Typography>
+                {routineDescription ? (
+                  <Typography variant="body2" style={styles.description}>
+                    {routineDescription}
+                  </Typography>
+                ) : null}
+                {hasMateTarget && (
+                  <View
+                    testID="request-target-summary"
+                    style={styles.targetRow}
+                  >
+                    <Typography
+                      variant="caption1"
+                      weight="bold"
+                      style={styles.label}
+                    >
+                      인증 대상
+                    </Typography>
+                    <Typography variant="body2" style={styles.targetName}>
+                      {detail.mateNickname}
+                    </Typography>
+                  </View>
+                )}
+              </ThemeView>
+
+              <FormItem
+                name="images"
+                item={({ form, setValue }) => {
+                  const { images } = form;
+                  const canAddImage =
+                    !isPending && images.length < MAX_REQUEST_IMAGE_COUNT;
+                  const addImage = (source: RequestImageSourceKind) => {
+                    if (source === 'gallery') {
+                      void pickImage(setValue, images);
+                      return;
                     }
-                    onPress={() => pickImage(setValue, form.images)}
-                  />
-                  <ThemeView style={styles.actionDivider} transparent />
-                  <Button
-                    testID="camera-button"
-                    title="카메라로 촬영"
-                    variant="ghost"
-                    textColor={theme.colors.action.primary.default}
-                    leftIcon={({ color }) => (
-                      <Ionicons
-                        name="camera-outline"
-                        size={baseFoundation.iconSize.l}
-                        color={color}
+
+                    void takePicture(setValue, images);
+                  };
+                  const removeImage = (index: number) => {
+                    setValue(
+                      'images',
+                      images.filter((_, imageIndex) => imageIndex !== index),
+                    );
+                  };
+
+                  return (
+                    <ThemeView
+                      testID="request-media-stage"
+                      style={styles.section}
+                      transparent
+                    >
+                      <SectionLabel
+                        title="인증 사진 첨부"
+                        required={photoRequired}
+                        requiredTestID="request-photo-required-mark"
+                        optional={!photoRequired}
+                        optionalTestID="request-photo-optional-label"
                       />
-                    )}
-                    size="sm"
-                    style={styles.imageAction}
-                    textStyle={styles.imageActionText}
-                    disabled={
-                      isPending || form.images.length >= MAX_REQUEST_IMAGE_COUNT
-                    }
-                    onPress={() => takePicture(setValue, form.images)}
+
+                      {images.length === 0 ? (
+                        <View
+                          style={styles.tileRow}
+                          testID="request-image-actions"
+                        >
+                          <RequestImageSourceTile
+                            kind="gallery"
+                            disabled={isPending}
+                            onPress={() => addImage('gallery')}
+                            testID="gallery-button"
+                          />
+                          <RequestImageSourceTile
+                            kind="camera"
+                            disabled={isPending}
+                            onPress={() => addImage('camera')}
+                            testID="camera-button"
+                          />
+                        </View>
+                      ) : (
+                        <View
+                          style={styles.tileRow}
+                          testID="request-image-list"
+                        >
+                          {Array.from({
+                            length: getImageSlotCount(images.length),
+                          }).map((_, index) => {
+                            const image = images[index];
+
+                            if (image) {
+                              return (
+                                <View
+                                  key={`request-image-${image.sourceUri}-${index}`}
+                                  style={styles.imageTile}
+                                  testID="request-image-slot"
+                                >
+                                  <Image
+                                    accessibilityLabel={`인증 사진 ${index + 1}`}
+                                    testID="request-image-preview"
+                                    source={{ uri: image.uri }}
+                                    style={styles.preview}
+                                    resizeMode="cover"
+                                  />
+                                  <Pressable
+                                    accessibilityLabel={`인증 사진 ${index + 1} 삭제`}
+                                    accessibilityRole="button"
+                                    disabled={isPending}
+                                    onPress={() => removeImage(index)}
+                                    style={[
+                                      styles.removeButtonArea,
+                                      isPending && styles.removeButtonDisabled,
+                                    ]}
+                                    testID={`remove-request-image-${index}`}
+                                  >
+                                    <View style={styles.removeButton}>
+                                      <RequestRemoveImageIcon />
+                                    </View>
+                                  </Pressable>
+                                </View>
+                              );
+                            }
+
+                            // 슬롯 수가 images.length < 2 ? 2 : 3 이므로 남는 슬롯은 항상 '+' 하나다.
+                            return (
+                              <Pressable
+                                key="request-add-image"
+                                accessibilityHint="앨범 선택 또는 카메라 촬영을 선택합니다"
+                                accessibilityLabel="인증 사진 추가"
+                                accessibilityRole="button"
+                                accessibilityState={{
+                                  disabled: !canAddImage,
+                                }}
+                                disabled={!canAddImage}
+                                onPress={() => setIsSourceDialogVisible(true)}
+                                style={[
+                                  styles.addTile,
+                                  !canAddImage && styles.addTileDisabled,
+                                ]}
+                                testID="request-add-image-button"
+                              >
+                                <RequestPlusIcon />
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      )}
+
+                      <RequestImageSourceDialog
+                        visible={isSourceDialogVisible}
+                        onClose={() => setIsSourceDialogVisible(false)}
+                        onSelect={addImage}
+                      />
+                    </ThemeView>
+                  );
+                }}
+              />
+
+              {isPending && (
+                <ThemeView
+                  accessibilityRole="progressbar"
+                  accessibilityValue={{
+                    min: 0,
+                    max: 100,
+                    now: uploadProgress,
+                  }}
+                  testID="request-upload-progress-track"
+                  style={styles.uploadProgressTrack}
+                >
+                  <ThemeView
+                    testID="request-upload-progress-fill"
+                    style={[
+                      styles.uploadProgressFill,
+                      { width: `${uploadProgress}%` },
+                    ]}
                   />
                 </ThemeView>
+              )}
+            </View>
+
+            {hasMateTarget && (
+              <ThemeView
+                testID="request-message-section"
+                style={styles.section}
+                transparent
+              >
+                <SectionLabel
+                  title="메시지"
+                  optional
+                  optionalTestID="request-message-optional-label"
+                />
+                <FormItem
+                  name="message"
+                  item={({ value, onChange }) => (
+                    <Input
+                      accessibilityLabel="메시지"
+                      editable={!isPending}
+                      fullWidth
+                      inputStyle={styles.fieldInput}
+                      maxLength={100}
+                      multiline
+                      onChangeText={onChange}
+                      placeholder="메이트에게 남길 한 줄 메시지"
+                      placeholderTextColor={requestFormColors.placeholder}
+                      size="md"
+                      style={styles.field}
+                      value={value}
+                      variant="filled"
+                    />
+                  )}
+                />
               </ThemeView>
             )}
-          />
 
-          {isPending && (
             <ThemeView
-              accessibilityRole="progressbar"
-              accessibilityValue={{
-                min: 0,
-                max: 100,
-                now: uploadProgress,
-              }}
-              testID="request-upload-progress-track"
-              style={styles.uploadProgressTrack}
-            >
-              <ThemeView
-                testID="request-upload-progress-fill"
-                style={[
-                  styles.uploadProgressFill,
-                  { width: `${uploadProgress}%` },
-                ]}
-              />
-            </ThemeView>
-          )}
-
-          {hasMateTarget && (
-            <ThemeView
-              testID="request-message-section"
-              style={styles.messageSection}
+              testID="request-memo-section"
+              style={styles.section}
               transparent
             >
+              <SectionLabel
+                title="메모"
+                optional
+                optionalTestID="request-memo-optional-label"
+              />
               <FormItem
-                name="message"
-                label="메시지"
-                optionalLabel="(선택)"
+                name="memo"
                 item={({ value, onChange }) => (
                   <Input
-                    accessibilityLabel="메시지"
+                    accessibilityLabel="메모"
                     editable={!isPending}
                     fullWidth
-                    inputStyle={styles.messageInput}
+                    inputStyle={styles.fieldInput}
                     maxLength={100}
                     multiline
                     onChangeText={onChange}
-                    placeholder="메이트에게 남길 한 줄 메시지"
-                    style={styles.messageField}
+                    placeholder="루틴 관련 메모를 작성하세요"
+                    placeholderTextColor={requestFormColors.placeholder}
+                    size="md"
+                    style={styles.field}
                     value={value}
                     variant="filled"
                   />
                 )}
               />
             </ThemeView>
-          )}
 
-          <ThemeView
-            testID="request-memo-section"
-            style={styles.messageSection}
-            transparent
-          >
-            <FormItem
-              name="memo"
-              label="메모"
-              optionalLabel="(선택)"
-              item={({ value, onChange }) => (
-                <Input
-                  accessibilityLabel="메모"
-                  editable={!isPending}
-                  fullWidth
-                  inputStyle={styles.messageInput}
-                  maxLength={100}
-                  multiline
-                  onChangeText={onChange}
-                  placeholder="메모를 입력해주세요."
-                  style={styles.messageField}
-                  value={value}
-                  variant="filled"
-                />
-              )}
-            />
-          </ThemeView>
-
-          <RequetButtonGroup useForm={useForm} loading={isPending} />
+            <RequetButtonGroup useForm={useForm} loading={isPending} />
+          </View>
         </Form>
       </KeyboardAwareScrollView>
     </ThemeView>
@@ -405,199 +423,139 @@ const RequestModal = ({ previewDetail }: RequestModalProps = {}) => {
 
 export default RequestModal;
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create(() => ({
   container: {
     flex: 1,
-    marginTop: baseFoundation.spacing[3],
-    paddingHorizontal: baseFoundation.dimension.x18,
+    paddingHorizontal: baseFoundation.spacing[6],
   },
-
   scroll: {
-    gap: baseFoundation.spacing[5],
+    paddingTop: baseFoundation.spacing[4] - HEADER_TITLE_CENTER_OFFSET,
     paddingBottom: baseFoundation.spacing[6],
   },
-
-  summary: {
-    minHeight: baseFoundation.dimension.x96,
+  // 피그마: (제목+사진) 블록 ↔ 메시지/메모 섹션 사이 48pt
+  formBody: { gap: baseFoundation.spacing[12] },
+  topGroup: { gap: baseFoundation.spacing[7] },
+  summary: { gap: baseFoundation.spacing[2] },
+  title: {
+    color: requestFormColors.text,
+    lineHeight: 27.2,
+    letterSpacing: -0.4,
+  },
+  description: {
+    color: requestFormColors.description,
+    lineHeight: 20.4,
+    letterSpacing: -0.3,
+  },
+  targetRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingBottom: baseFoundation.spacing[4],
-    borderBottomWidth: baseFoundation.dimension.x1,
-    borderBottomColor: theme.colors.brand.primary,
+    gap: baseFoundation.spacing[2],
+    marginTop: baseFoundation.spacing[1],
   },
-
-  routineSummary: {
-    width: '50%',
-    flexGrow: 0,
-    flexShrink: 0,
-    justifyContent: 'center',
+  targetName: {
+    color: requestFormColors.text,
+    lineHeight: 20.4,
+    letterSpacing: -0.3,
+  },
+  section: { gap: baseFoundation.spacing[1] },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: baseFoundation.spacing[1],
+  },
+  label: {
+    color: requestFormColors.label,
+    lineHeight: 17.68,
+    letterSpacing: -0.13,
+  },
+  requiredMark: {
+    color: requestFormColors.required,
+    lineHeight: 17.68,
+    letterSpacing: -0.13,
+    marginLeft: -baseFoundation.dimension.x2,
+  },
+  optionalLabel: {
+    color: requestFormColors.label,
+    lineHeight: 14.96,
+    letterSpacing: -0.11,
+  },
+  tileRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: baseFoundation.spacing[3],
   },
-
-  routineSummaryFull: {
-    width: '100%',
-  },
-
-  targetSummary: {
+  // 사진 타일은 화면 너비에 따라 커지되 항상 1:1 비율을 유지한다.
+  imageTile: {
     flex: 1,
-    justifyContent: 'center',
-    paddingLeft: baseFoundation.spacing[6],
-  },
-
-  infoGroup: {
-    gap: baseFoundation.spacing[1.5],
-  },
-
-  summaryDivider: {
-    width: StyleSheet.hairlineWidth,
-    height: baseFoundation.dimension.x36,
-    backgroundColor: theme.colors.brand.primary,
-  },
-
-  infoLabel: {
-    color: theme.colors.text.muted,
-  },
-
-  infoValue: {
-    color: theme.colors.brand.text,
-  },
-
-  mediaStage: {
-    overflow: 'hidden',
+    minWidth: 0,
+    aspectRatio: 1,
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: requestFormColors.border,
     borderRadius: baseFoundation.radii.s,
-    borderWidth: 0,
-    backgroundColor: theme.colors.background.media,
+    backgroundColor: requestFormColors.surface,
   },
-
+  preview: {
+    width: '100%',
+    height: '100%',
+    borderRadius: baseFoundation.radii.s - 1,
+  },
+  // 피그마 button_delete: 사진 우측 상단, 40x40 터치 영역 안에 24 원형 버튼(8 inset)
+  removeButtonArea: {
+    position: 'absolute',
+    top: -baseFoundation.dimension.x1,
+    right: -baseFoundation.dimension.x1,
+    width: baseFoundation.dimension.x40,
+    height: baseFoundation.dimension.x40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  removeButton: {
+    width: baseFoundation.dimension.x24,
+    height: baseFoundation.dimension.x24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: baseFoundation.radii.round,
+    backgroundColor: requestFormColors.removeButton,
+  },
+  removeButtonDisabled: { opacity: baseFoundation.opacity.disabled },
+  addTile: {
+    flex: 1,
+    minWidth: 0,
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: requestFormColors.border,
+    borderRadius: baseFoundation.radii.s,
+    backgroundColor: requestFormColors.surface,
+  },
+  addTileDisabled: { opacity: baseFoundation.opacity.disabled },
   uploadProgressTrack: {
     width: '100%',
     height: baseFoundation.dimension.x6,
-    marginTop: baseFoundation.spacing[2],
     overflow: 'hidden',
     borderRadius: baseFoundation.radii.round,
-    backgroundColor: theme.colors.brand.bottomTab,
+    backgroundColor: requestFormColors.surface,
   },
-
   uploadProgressFill: {
     height: '100%',
     borderRadius: baseFoundation.radii.round,
-    backgroundColor: theme.colors.action.primary.default,
+    backgroundColor: requestFormColors.accent,
   },
-
-  mediaHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: baseFoundation.spacing[4],
-    paddingTop: baseFoundation.spacing[4],
-  },
-
-  mediaTitle: {
-    color: theme.colors.brand.text,
-  },
-
-  photoOptionalLabel: {
-    color: theme.colors.text.muted,
-  },
-
-  imageCount: {
-    color: theme.colors.action.primary.default,
-  },
-
-  messageField: {
-    minHeight: baseFoundation.dimension.x112,
+  field: {
+    minHeight: baseFoundation.dimension.x44,
     height: 'auto',
-    paddingHorizontal: baseFoundation.spacing[4],
-    paddingVertical: baseFoundation.spacing[3],
-    borderRadius: baseFoundation.radii.s,
-    backgroundColor: theme.colors.background.media,
-  },
-
-  messageInput: {
-    minHeight: baseFoundation.dimension.x80,
-    textAlignVertical: 'top',
-  },
-
-  messageSection: {
-    marginTop: baseFoundation.spacing[4],
-  },
-
-  uploadFrame: {
-    marginHorizontal: baseFoundation.spacing[4],
-    marginTop: baseFoundation.spacing[2],
-    marginBottom: baseFoundation.spacing[4],
-  },
-
-  preview: {
-    width: baseFoundation.dimension.x96,
-    height: baseFoundation.dimension.x80,
+    paddingHorizontal: baseFoundation.spacing[3],
+    paddingVertical: baseFoundation.spacing[2],
     borderRadius: baseFoundation.radii.xs,
+    backgroundColor: requestFormColors.surface,
   },
-
-  previewItem: {
-    position: 'relative',
-    width: baseFoundation.dimension.x96,
-    height: baseFoundation.dimension.x80,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: baseFoundation.dimension.x1,
-    borderStyle: 'dashed',
-    borderColor: palette.theme.gray[300],
-    borderRadius: baseFoundation.radii.xs,
-  },
-
-  previewList: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: baseFoundation.spacing[2],
-  },
-
-  slotButton: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  removeButton: {
-    position: 'absolute',
-    right: -baseFoundation.spacing[3],
-    top: -baseFoundation.spacing[3],
-    width: baseFoundation.dimension.x24,
-    height: baseFoundation.dimension.x24,
-    borderRadius: baseFoundation.dimension.x12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.72)',
-  },
-
-  removeButtonDisabled: {
-    opacity: 0.5,
-  },
-
-  imageActions: {
-    minHeight: REQUEST_IMAGE_ACTION_HEIGHT,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderTopWidth: baseFoundation.dimension.x1,
-    borderTopColor: palette.theme.gray[300],
-  },
-
-  imageAction: {
-    flex: 1,
-    height: REQUEST_IMAGE_ACTION_HEIGHT,
-    borderRadius: baseFoundation.radii.none,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-
-  imageActionText: {
-    fontSize: theme.foundation.typography.size.caption1,
-  },
-
-  actionDivider: {
-    width: baseFoundation.dimension.x1,
-    height: baseFoundation.dimension.x28,
-    backgroundColor: palette.theme.gray[300],
+  fieldInput: {
+    color: requestFormColors.text,
+    fontSize: baseFoundation.typography.size.body1,
+    lineHeight: 21.76,
+    letterSpacing: -0.32,
+    textAlignVertical: 'center',
   },
 }));

@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { Alert, ScrollView } from 'react-native';
 
 import LoadingSpinner from '@/components/ui/loading-spinner';
+
 import RequestModal from '../../../components/modal/request-modal';
 import { SHOW_SCROLL_INDICATOR } from '../../../constants/SCROLL_INDICATOR';
 import { fireEvent, render, resetAuthMocks } from '../../setup/auth-test-utils';
@@ -37,6 +38,11 @@ jest.mock('@/share/routine-share', () => ({
   clearPendingRoutineShare: (...args: unknown[]) =>
     mockClearPendingRoutineShare(...args),
 }));
+
+// iOS처럼 다이얼로그가 닫힌 뒤(onDismiss) 사진 선택기가 열리는 경로를 재현한다.
+jest.mock('@/components/ui/fullscreen-modal', () =>
+  jest.requireActual('../../setup/mock-fullscreen-modal'),
+);
 
 jest.mock('expo-image-picker', () => ({
   requestMediaLibraryPermissionsAsync: () =>
@@ -117,11 +123,37 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       assets: createPickedAssets(images),
     });
 
-    const galleryButton = getByTestId('gallery-button');
+    await openGalleryFromForm(getByTestId);
+  };
+
+  // 사진이 이미 있으면 '+' 타일 → '사진 추가' 다이얼로그 → 앨범 선택 순서로 진입한다.
+  const openGalleryFromForm = async (getByTestId: (testId: string) => any) => {
+    let addImageButton: unknown = null;
+
+    try {
+      addImageButton = getByTestId('request-add-image-button');
+    } catch {
+      addImageButton = null;
+    }
+
+    if (addImageButton) {
+      await act(async () => {
+        fireEvent.press(addImageButton as never);
+      });
+    }
+
+    const previousCallCount = mockLaunchImageLibraryAsync.mock.calls.length;
 
     await act(async () => {
-      fireEvent.press(galleryButton);
+      fireEvent.press(getByTestId('gallery-button'));
     });
+
+    await waitFor(() => {
+      expect(mockLaunchImageLibraryAsync.mock.calls.length).toBeGreaterThan(
+        previousCallCount,
+      );
+    });
+    await act(async () => {});
   };
 
   describe('루틴 정보 표시 테스트', () => {
@@ -138,11 +170,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(await findByText('테스트 루틴 1 상세')).toBeOnTheScreen();
     });
 
-    it('이미지 추가 방법을 텍스트 버튼으로 표시한다', async () => {
+    it('이미지 추가 방법을 앨범 선택·카메라 촬영 타일로 표시한다', async () => {
       const { findByText } = render(<RequestModal />);
 
-      expect(await findByText('앨범에서 선택')).toBeOnTheScreen();
-      expect(await findByText('카메라로 촬영')).toBeOnTheScreen();
+      expect(await findByText('앨범 선택')).toBeOnTheScreen();
+      expect(await findByText('카메라 촬영')).toBeOnTheScreen();
     });
 
     it('혼자 인증하는 루틴은 루틴 요약 영역만 표시한다', async () => {
@@ -150,108 +182,89 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       await screen.findByText('테스트 루틴 1');
 
-      expect(screen.getByTestId('request-summary')).toHaveStyle({
-        flexDirection: 'row',
-        minHeight: 96,
-      });
-      expect(screen.queryByTestId('request-summary-divider')).toBeNull();
+      expect(screen.getByTestId('request-summary')).toBeOnTheScreen();
       expect(screen.queryByTestId('request-target-summary')).toBeNull();
-      expect(screen.getByTestId('request-routine-summary')).toHaveStyle({
-        width: '100%',
-      });
+      expect(screen.getByTestId('request-routine-summary')).toHaveTextContent(
+        '테스트 루틴 1',
+      );
     });
 
-    it('빈 이미지 스테이지에 세 개의 미리보기 자리를 위로 당겨 표시한다', async () => {
+    it('사진이 없으면 앨범 선택·카메라 촬영 타일을 1:1 비율로 표시한다', async () => {
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
 
       expect(screen.getByTestId('request-form-content')).toHaveStyle({
-        paddingHorizontal: 18,
+        paddingHorizontal: 24,
       });
-      expect(screen.getByTestId('request-media-stage')).toHaveStyle({
-        backgroundColor: '#FAFAFA',
+      expect(screen.queryByTestId('request-image-slot')).toBeNull();
+      expect(screen.queryByTestId('request-add-image-button')).toBeNull();
+      expect(screen.getByText('인증 사진 첨부')).toHaveStyle({ fontSize: 13 });
+      expect(
+        screen.getByTestId('request-photo-required-mark'),
+      ).toHaveTextContent('*');
+      expect(screen.queryByTestId('request-photo-optional-label')).toBeNull();
+      expect(screen.getByTestId('gallery-button')).toHaveStyle({
+        aspectRatio: 1,
         borderRadius: 12,
-        borderWidth: 0,
+        flex: 1,
       });
-      expect(screen.queryByTestId('request-empty-image-area')).toBeNull();
-      expect(screen.queryByTestId('request-empty-image-button')).toBeNull();
-      expect(screen.queryByTestId('request-empty-image-icon')).toBeNull();
-      expect(screen.queryByText('사진을 추가해 주세요')).toBeNull();
-      expect(screen.getByText('인증 사진')).toHaveStyle({
-        fontSize: 14,
+      expect(screen.getByTestId('camera-button')).toHaveStyle({
+        aspectRatio: 1,
+        flex: 1,
       });
-      expect(screen.queryByText('0/3')).toBeNull();
-      const imageSlots = screen.getAllByTestId('request-image-slot');
-
-      expect(imageSlots).toHaveLength(3);
-      expect(imageSlots[0]).toHaveStyle({
-        borderColor: '#D0D4DB',
-        borderWidth: 1,
-        height: 80,
-        width: 96,
-      });
-      for (const slotIcon of screen.getAllByTestId('request-image-slot-icon')) {
-        expect(slotIcon).toHaveProp('size', 28);
-      }
     });
 
-    it('앨범과 카메라 액션을 이미지 스테이지의 도구막대에 묶는다', async () => {
+    it('앨범 선택과 카메라 촬영 타일을 한 줄에 나란히 배치한다', async () => {
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
 
       expect(screen.getByTestId('request-image-actions')).toHaveStyle({
         flexDirection: 'row',
-        minHeight: 60,
+        gap: 12,
       });
-      expect(screen.getByText('앨범에서 선택')).toHaveStyle({
-        fontSize: 13,
-      });
-      expect(screen.getByText('카메라로 촬영')).toHaveStyle({
-        fontSize: 13,
-      });
+      expect(screen.getByText('앨범 선택')).toHaveStyle({ fontSize: 15 });
+      expect(screen.getByText('카메라 촬영')).toHaveStyle({ fontSize: 15 });
       expect(screen.getByTestId('gallery-button')).toBeOnTheScreen();
       expect(screen.getByTestId('camera-button')).toBeOnTheScreen();
     });
 
-    it('취소와 인증 액션을 모달 고정 푸터에 표시한다', async () => {
+    it('모달 고정 푸터에 완료 버튼만 표시하고 기본은 비활성화한다', async () => {
       const screen = render(<RequestModal />);
 
       await screen.findByText('테스트 루틴 1');
 
       expect(screen.getByTestId('modal-footer')).toBeOnTheScreen();
       expect(screen.getByTestId('request-form-button-container')).toHaveStyle({
-        paddingHorizontal: 24,
-        borderTopColor: '#A7CBEA',
+        padding: 24,
       });
-      expect(screen.getByTestId('request-cancel-button')).toHaveStyle({
-        backgroundColor: '#E2F1FF',
-        width: 140,
-      });
+      expect(screen.queryByTestId('request-cancel-button')).toBeNull();
+      expect(screen.queryByText('취소')).toBeNull();
       expect(screen.getByTestId('request-submit-button')).toHaveStyle({
-        backgroundColor: '#A7CBEA',
-        opacity: 1,
+        backgroundColor: '#A4ABB4',
+        borderRadius: 8,
       });
-      expect(screen.getByText('취소')).toBeOnTheScreen();
-      expect(screen.getByText('취소')).toHaveStyle({ fontSize: 16 });
-      expect(screen.getByText('인증')).toHaveStyle({ fontSize: 16 });
-      expect(screen.getByText('인증')).toBeDisabled();
+      expect(screen.getByText('완료')).toHaveStyle({ fontSize: 15 });
+      expect(screen.getByText('완료')).toBeDisabled();
     });
 
-    it('루틴 설명 라벨과 상세 내용을 표시한다', async () => {
-      const { findByText } = render(<RequestModal />);
+    it('루틴 설명을 제목 아래에 라벨 없이 표시한다', async () => {
+      const { findByText, queryByText } = render(<RequestModal />);
 
       await findByText('테스트 루틴 1');
 
-      expect(await findByText('루틴 설명')).toBeOnTheScreen();
-      expect(await findByText('테스트 루틴 1 상세')).toBeOnTheScreen();
+      expect(queryByText('루틴 설명')).toBeNull();
+      expect(await findByText('테스트 루틴 1 상세')).toHaveStyle({
+        fontSize: 15,
+      });
     });
 
-    it('루틴 이름 라벨이 표시된다', async () => {
-      const { findByText } = render(<RequestModal />);
+    it('루틴 이름을 제목으로 표시한다', async () => {
+      const { findByText, queryByText } = render(<RequestModal />);
 
-      expect(await findByText('루틴 이름')).toBeOnTheScreen();
+      expect(await findByText('테스트 루틴 1')).toHaveStyle({ fontSize: 20 });
+      expect(queryByText('루틴 이름')).toBeNull();
     });
 
     it('개인 루틴은 메이트 메시지 입력 영역을 표시하지 않는다', async () => {
@@ -260,7 +273,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await screen.findByText('테스트 루틴 1');
 
       expect(screen.queryByText('메시지')).not.toBeOnTheScreen();
-      expect(screen.queryByText('(선택)')).not.toBeOnTheScreen();
+      expect(screen.queryByTestId('request-message-optional-label')).toBeNull();
       expect(screen.queryByTestId('request-message-section')).toBeNull();
       expect(
         screen.queryByPlaceholderText('메이트에게 남길 한 줄 메시지'),
@@ -286,16 +299,18 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       fireEvent.changeText(messageInput, '오늘도 루틴 완료!');
 
       expect(screen.getByText('메시지')).toBeOnTheScreen();
-      expect(screen.getByText('(선택)')).toBeOnTheScreen();
+      expect(
+        screen.getByTestId('request-message-optional-label'),
+      ).toHaveTextContent('선택');
       expect(messageInput).toHaveProp('maxLength', 100);
       expect(messageInput).toHaveProp('multiline', true);
       expect(messageInput).toHaveStyle({
-        minHeight: 80,
-        textAlignVertical: 'top',
+        fontSize: 16,
+        textAlignVertical: 'center',
       });
       expect(messageInput).toHaveProp('value', '오늘도 루틴 완료!');
       expect(screen.getByTestId('request-message-section')).toHaveStyle({
-        marginTop: 16,
+        gap: 4,
       });
     });
 
@@ -359,9 +374,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
 
-      const { findByText, getByTestId, queryByTestId, queryByText } = render(
-        <RequestModal />,
-      );
+      const { findByText, getByTestId, queryByText } = render(<RequestModal />);
 
       await findByText('테스트 루틴 1');
       expect(await findByText('인증 대상')).toBeOnTheScreen();
@@ -369,12 +382,8 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       expect(
         queryByText('메이트에게 루틴 인증 요청을 보냅니다.'),
       ).not.toBeOnTheScreen();
-      expect(queryByTestId('request-mate-help')).toBeNull();
-      expect(getByTestId('request-summary-divider')).toHaveStyle({
-        height: 36,
-      });
       expect(getByTestId('request-target-summary')).toHaveStyle({
-        flex: 1,
+        flexDirection: 'row',
       });
     });
   });
@@ -392,7 +401,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       // 루틴 정보가 로드될 때까지 대기
       await findByText('테스트 루틴 1');
 
-      const submitButton = getByText('인증');
+      const submitButton = getByText('완료');
 
       expect(submitButton).toBeDisabled();
     });
@@ -405,7 +414,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await selectImageFromGallery(getByTestId);
 
       await waitFor(() => {
-        const submitButton = getByText('인증');
+        const submitButton = getByText('완료');
 
         expect(submitButton).toBeEnabled();
       });
@@ -418,8 +427,10 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await selectImageFromGallery(screen.getByTestId);
 
       await waitFor(() => {
-        expect(screen.queryByText('1/3')).toBeNull();
-        expect(screen.getAllByTestId('request-image-slot')).toHaveLength(3);
+        expect(screen.getAllByTestId('request-image-slot')).toHaveLength(1);
+        expect(
+          screen.getByTestId('request-add-image-button'),
+        ).toBeOnTheScreen();
         expect(screen.getAllByTestId('request-image-preview')).toHaveLength(1);
       });
     });
@@ -447,7 +458,6 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         'base64',
       );
       await waitFor(() => {
-        expect(screen.queryByText('1/3')).toBeNull();
         expect(screen.getByTestId('request-image-preview')).toHaveProp(
           'source',
           { uri: 'file:///normalized/camera-image-data.jpg' },
@@ -512,12 +522,6 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       await waitFor(() => {
         expect(screen.getAllByTestId('request-image-preview')).toHaveLength(3);
-        expect(
-          screen.queryByTestId('request-empty-image-button'),
-        ).not.toBeOnTheScreen();
-        expect(
-          screen.queryByText('사진을 추가해 주세요'),
-        ).not.toBeOnTheScreen();
       });
     });
 
@@ -535,7 +539,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       });
     });
 
-    it('미리보기 이미지는 명시적인 크기를 가진다', async () => {
+    it('미리보기 이미지는 1:1 타일을 가득 채운다', async () => {
       const { findByText, getByTestId } = render(<RequestModal />);
 
       await findByText('테스트 루틴 1');
@@ -543,10 +547,106 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await selectImageFromGallery(getByTestId);
 
       await waitFor(() => {
-        expect(getByTestId('request-image-preview')).toHaveStyle({
-          width: 96,
-          height: 80,
+        expect(getByTestId('request-image-slot')).toHaveStyle({
+          aspectRatio: 1,
+          flex: 1,
         });
+        expect(getByTestId('request-image-preview')).toHaveStyle({
+          width: '100%',
+          height: '100%',
+        });
+      });
+    });
+
+    it('사진이 2장이면 3열로, 3장이면 추가 버튼 없이 표시한다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+      await selectImageFromGallery(screen.getByTestId, [
+        'test-image-data-1',
+        'test-image-data-2',
+      ]);
+
+      await waitFor(() => {
+        expect(screen.getAllByTestId('request-image-slot')).toHaveLength(2);
+        expect(
+          screen.getByTestId('request-add-image-button'),
+        ).toBeOnTheScreen();
+      });
+
+      await selectImageFromGallery(screen.getByTestId, ['test-image-data-3']);
+
+      await waitFor(() => {
+        expect(screen.getAllByTestId('request-image-slot')).toHaveLength(3);
+        expect(screen.queryByTestId('request-add-image-button')).toBeNull();
+      });
+    });
+
+    it('+ 버튼을 누르면 사진 추가 다이얼로그가 열리고 닫기를 누르면 선택기를 열지 않는다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+      await selectImageFromGallery(screen.getByTestId);
+      mockLaunchImageLibraryAsync.mockClear();
+
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('request-add-image-button'));
+      });
+
+      expect(screen.getByText('사진 추가')).toBeOnTheScreen();
+      expect(screen.getByTestId('gallery-button')).toBeOnTheScreen();
+      expect(screen.getByTestId('camera-button')).toBeOnTheScreen();
+
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('request-image-source-close'));
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('사진 추가')).toBeNull();
+      });
+      expect(mockLaunchImageLibraryAsync).not.toHaveBeenCalled();
+      expect(mockLaunchCameraAsync).not.toHaveBeenCalled();
+    });
+
+    it('다이얼로그에서 카메라 촬영을 선택하면 카메라로 사진을 추가한다', async () => {
+      mockLaunchCameraAsync.mockResolvedValue({
+        canceled: false,
+        assets: createPickedAssets(['camera-image-data']),
+      });
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+      await selectImageFromGallery(screen.getByTestId);
+
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('request-add-image-button'));
+      });
+      await act(async () => {
+        fireEvent.press(screen.getByTestId('camera-button'));
+      });
+
+      await waitFor(() => {
+        expect(mockLaunchCameraAsync).toHaveBeenCalledTimes(1);
+        expect(screen.getAllByTestId('request-image-preview')).toHaveLength(2);
+      });
+    });
+
+    it('메모만 입력하고 사진이 없으면 완료 버튼은 비활성화 상태를 유지한다', async () => {
+      const screen = render(<RequestModal />);
+
+      await screen.findByText('테스트 루틴 1');
+
+      fireEvent.changeText(
+        screen.getByPlaceholderText('루틴 관련 메모를 작성하세요'),
+        '무지출 성공 +5일 달성!',
+      );
+
+      expect(screen.getByText('완료')).toBeDisabled();
+
+      await selectImageFromGallery(screen.getByTestId);
+
+      await waitFor(() => {
+        expect(screen.getByText('완료')).toBeEnabled();
       });
     });
 
@@ -611,7 +711,6 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       await waitFor(() => {
         expect(screen.getAllByTestId('request-image-preview')).toHaveLength(1);
-        expect(screen.queryByText('1/3')).toBeNull();
       });
     });
 
@@ -668,7 +767,6 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId('request-image-preview')).toBeNull();
-        expect(screen.queryByText('0/3')).toBeNull();
         expect(mockShowToast).toHaveBeenCalledWith(
           '업로드할 수 없는 이미지는 제외했습니다.',
           'error',
@@ -698,10 +796,10 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         expect(
           screen.getByTestId('request-photo-optional-label'),
         ).toHaveTextContent('선택');
-        expect(screen.getByText('인증')).toBeEnabled();
+        expect(screen.getByText('완료')).toBeEnabled();
 
         await act(async () => {
-          fireEvent.press(screen.getByText('인증'));
+          fireEvent.press(screen.getByText('완료'));
         });
 
         await waitFor(() => {
@@ -737,11 +835,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('인증')).toBeEnabled();
+          expect(getByText('완료')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('인증'));
+          fireEvent.press(getByText('완료'));
         });
 
         await waitFor(() => {
@@ -778,11 +876,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId, selectedImages);
 
         await waitFor(() => {
-          expect(getByText('인증')).toBeEnabled();
+          expect(getByText('완료')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('인증'));
+          fireEvent.press(getByText('완료'));
         });
 
         await waitFor(() => {
@@ -830,11 +928,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         );
 
         await waitFor(() => {
-          expect(screen.getByText('인증')).toBeEnabled();
+          expect(screen.getByText('완료')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(screen.getByText('인증'));
+          fireEvent.press(screen.getByText('완료'));
         });
 
         await waitFor(() => {
@@ -871,7 +969,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         );
 
         await act(async () => {
-          fireEvent.press(screen.getByText('인증'));
+          fireEvent.press(screen.getByText('완료'));
         });
 
         await waitFor(() => {
@@ -902,12 +1000,12 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(screen.getByTestId);
 
         await waitFor(() => {
-          expect(screen.getByText('인증')).toBeEnabled();
+          expect(screen.getByText('완료')).toBeEnabled();
         });
 
         act(() => {
-          fireEvent.press(screen.getByText('인증'));
-          fireEvent.press(screen.getByText('인증'));
+          fireEvent.press(screen.getByText('완료'));
+          fireEvent.press(screen.getByText('완료'));
         });
 
         await waitFor(() => {
@@ -925,7 +1023,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         });
       });
 
-      it('요청 중에는 스피너를 표시하고 취소, 요청, 이미지 업로드 버튼을 비활성화한다', async () => {
+      it('요청 중에는 스피너를 표시하고 완료, 사진 추가·삭제 버튼을 비활성화한다', async () => {
         let resolveRequest: () => void = () => {};
 
         mockAxios.resetHandlers();
@@ -946,19 +1044,17 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(screen.getByTestId);
 
         await waitFor(() => {
-          expect(screen.getByText('인증')).toBeEnabled();
+          expect(screen.getByText('완료')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(screen.getByText('인증'));
+          fireEvent.press(screen.getByText('완료'));
         });
 
         await waitFor(() => {
           expect(screen.UNSAFE_getByType(LoadingSpinner)).toBeTruthy();
-          expect(screen.getByText('취소')).toBeDisabled();
           expect(screen.getByTestId('request-submit-button')).toBeDisabled();
-          expect(screen.getByTestId('gallery-button')).toBeDisabled();
-          expect(screen.getByTestId('camera-button')).toBeDisabled();
+          expect(screen.getByTestId('request-add-image-button')).toBeDisabled();
           expect(screen.getByTestId('remove-request-image-0')).toBeDisabled();
         });
 
@@ -997,7 +1093,7 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         ).not.toBeOnTheScreen();
 
         await act(async () => {
-          fireEvent.press(screen.getByText('인증'));
+          fireEvent.press(screen.getByText('완료'));
         });
 
         await waitFor(() => {
@@ -1067,11 +1163,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('인증')).toBeEnabled();
+          expect(getByText('완료')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('인증'));
+          fireEvent.press(getByText('완료'));
         });
 
         await waitFor(() => {
@@ -1106,11 +1202,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('인증')).toBeEnabled();
+          expect(getByText('완료')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('인증'));
+          fireEvent.press(getByText('완료'));
         });
 
         await waitFor(() => {
@@ -1142,11 +1238,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('인증')).toBeEnabled();
+          expect(getByText('완료')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('인증'));
+          fireEvent.press(getByText('완료'));
         });
 
         await waitFor(() => {
@@ -1174,11 +1270,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('인증')).toBeEnabled();
+          expect(getByText('완료')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('인증'));
+          fireEvent.press(getByText('완료'));
         });
 
         await waitFor(() => {
@@ -1209,11 +1305,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
         await selectImageFromGallery(getByTestId);
 
         await waitFor(() => {
-          expect(getByText('인증')).toBeEnabled();
+          expect(getByText('완료')).toBeEnabled();
         });
 
         await act(async () => {
-          fireEvent.press(getByText('인증'));
+          fireEvent.press(getByText('완료'));
         });
 
         await waitFor(() => {
@@ -1241,11 +1337,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await selectImageFromGallery(getByTestId);
 
       await waitFor(() => {
-        expect(getByText('인증')).toBeEnabled();
+        expect(getByText('완료')).toBeEnabled();
       });
 
       await act(async () => {
-        fireEvent.press(getByText('인증'));
+        fireEvent.press(getByText('완료'));
       });
 
       await waitFor(() => {
@@ -1269,11 +1365,11 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
       await selectImageFromGallery(getByTestId);
 
       await waitFor(() => {
-        expect(getByText('인증')).toBeEnabled();
+        expect(getByText('완료')).toBeEnabled();
       });
 
       await act(async () => {
-        fireEvent.press(getByText('인증'));
+        fireEvent.press(getByText('완료'));
       });
 
       await waitFor(() => {
@@ -1285,21 +1381,20 @@ describe('RequestModal (루틴 인증 요청 모달)', () => {
     });
   });
 
-  describe('취소 버튼 테스트', () => {
+  describe('푸터 버튼 테스트', () => {
     beforeEach(() => {
       const mockRoutine = createMockRoutine(0, { isMe: true });
 
       mockAxios.onGet(/\/routine\/details/).reply(200, { data: mockRoutine });
     });
 
-    it('취소 버튼이 화면에 표시된다', async () => {
-      const { findByText, getByText } = render(<RequestModal />);
+    it('취소 버튼 없이 완료 버튼만 표시한다', async () => {
+      const { findByText, getByText, queryByText } = render(<RequestModal />);
 
       await findByText('테스트 루틴 1');
 
-      const cancelButton = getByText('취소');
-
-      expect(cancelButton).toBeOnTheScreen();
+      expect(queryByText('취소')).toBeNull();
+      expect(getByText('완료')).toBeOnTheScreen();
     });
   });
 });

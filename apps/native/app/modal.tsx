@@ -4,9 +4,9 @@ import { Platform } from 'react-native';
 import Animated, { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ModalBackgroundColorProvider } from '@/components/modal/modal-background-color-context';
 import ModalFooterOutlet from '@/components/modal/modal-footer-outlet';
 import ModalFooterProvider from '@/components/modal/modal-footer-provider';
-import { ModalBackgroundColorProvider } from '@/components/modal/modal-background-color-context';
 import ModalHeader from '@/components/modal/modal-header';
 import ModalHeaderActionProvider from '@/components/modal/modal-header-action-provider';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
@@ -14,6 +14,10 @@ import ThemeView from '@/components/ui/theme-view';
 import { useAuthUser } from '@/hooks/useAuthSession';
 import { useModal } from '@/hooks/useModal';
 import { useSetRoutineId } from '@/hooks/useRoutineSelection';
+import {
+  requestFormColors,
+  routineProofDetailColors,
+} from '@/theme/themes/light';
 import { normalizeModalType, type ModalType } from '@/types/modal';
 
 const MODAL_ANIMATION_DURATION = 250;
@@ -92,6 +96,12 @@ export default function Modal() {
     <ThemeView
       style={[
         styles.wrapper,
+        modalType === 'routine-proof-detail' && {
+          backgroundColor: routineProofDetailColors.background,
+        },
+        modalType === 'request' && {
+          backgroundColor: requestFormColors.background,
+        },
         modalOptions.fullBleedBackground && {
           backgroundColor: fullBleedBackgroundColor,
         },
@@ -117,6 +127,8 @@ export default function Modal() {
               <ModalHeader
                 title={modalTitle}
                 transparent={modalOptions.headerTransparent}
+                titleColor={modalOptions.headerTitleColor}
+                backIconColor={modalOptions.headerBackIconColor}
                 onBackPress={
                   !user && isPublicModal
                     ? () => router.replace('/sign-in')

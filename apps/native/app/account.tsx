@@ -3,17 +3,28 @@ import {
   useUpdateMottoMutation,
 } from '@repo/shared/hooks/useUser';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import ModalHeader from '@/components/modal/modal-header';
 import ModalHeaderAction from '@/components/modal/modal-header-action';
+import ModalHeaderActionContext from '@/components/modal/modal-header-action-context';
+import ModalHeaderActionProvider from '@/components/modal/modal-header-action-provider';
 import {
   getRoutineSceneRemoteAsset,
   renderRoutineSceneAsset,
 } from '@/components/routine/routine-scene-art';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import ThemeView from '@/components/ui/theme-view';
 import Typography from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthSignIn, useAuthUser } from '@/hooks/useAuthSession';
@@ -195,9 +206,60 @@ const Account = () => {
   );
 };
 
-export default Account;
+/**
+ * 한마디 화면 껍데기.
+ * - `/modal?type=account`: 모달 래퍼(app/modal.tsx)가 안전영역·헤더·저장 버튼 자리를 제공하므로 본문만 그린다.
+ * - `/account` 스택 라우트: 같은 구조가 없으므로 안전영역 + 헤더 + 저장 버튼을 자체적으로 갖춘다.
+ *
+ * 본문은 `children`으로 받는다. 이 컴포넌트는 ModalHeaderActionContext를 구독하므로 저장 버튼이
+ * setAction 될 때마다 다시 렌더링되는데, 부모가 만든 같은 `children` 엘리먼트를 그대로 돌려주면
+ * React가 본문 재렌더링을 건너뛰어 setAction → 재렌더링 → setAction 무한 반복이 생기지 않는다.
+ */
+const AccountShell = ({ children }: { children: ReactNode }) => {
+  const headerActionContext = useContext(ModalHeaderActionContext);
+  const insets = useSafeAreaInsets();
+  const { theme } = useAppTheme();
+
+  if (headerActionContext) {
+    return children;
+  }
+
+  return (
+    <ModalHeaderActionProvider>
+      <ThemeView
+        style={[styles.standaloneScreen, { paddingTop: insets.top }]}
+        testID="account-standalone-screen"
+      >
+        <ModalHeader title="한마디" />
+        <View
+          style={[
+            styles.standaloneContent,
+            { paddingHorizontal: theme.foundation.spacing[6] },
+          ]}
+          testID="account-standalone-content"
+        >
+          {children}
+        </View>
+      </ThemeView>
+    </ModalHeaderActionProvider>
+  );
+};
+
+const AccountScreen = () => (
+  <AccountShell>
+    <Account />
+  </AccountShell>
+);
+
+export default AccountScreen;
 
 const styles = StyleSheet.create((theme) => ({
+  standaloneScreen: {
+    flex: 1,
+  },
+  standaloneContent: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
@@ -242,7 +304,8 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: 0,
   },
   mottoInputText: {
-    color: theme.colors.text.label,
+    // 입력 텍스트는 라벨(gray 30)보다 한 단계 어두운 gray 40으로 표시한다.
+    color: palette.theme.gray[40],
     fontSize: baseFoundation.typography.size.body2,
     fontWeight: baseFoundation.typography.weight.semibold,
     paddingVertical: 12,

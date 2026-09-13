@@ -8,12 +8,16 @@ import { StyleSheet } from '@/components/ui/tamagui';
 interface ModalHeaderProps {
   title: string;
   transparent?: boolean;
+  titleColor?: string;
+  backIconColor?: string;
   onBackPress?: () => void;
 }
 
 const ModalHeader = ({
   title,
   transparent = false,
+  titleColor,
+  backIconColor,
   onBackPress,
 }: ModalHeaderProps) => {
   const modalRouter = useRouter();
@@ -40,6 +44,8 @@ const ModalHeader = ({
       showBackButton
       onBackPress={handleBack}
       right={headerAction}
+      titleColor={titleColor}
+      backIconColor={backIconColor}
       style={!transparent && styles.container}
     />
   );

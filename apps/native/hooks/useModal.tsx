@@ -15,6 +15,10 @@ import RoutineReorderModal from '@/components/modal/routine-reorder-modal';
 import StatModal from '@/components/modal/stat-modal';
 import TermsPolicyModal from '@/components/modal/terms-policy-modal';
 import ThemeModal from '@/components/modal/theme-modal';
+import {
+  requestFormColors,
+  routineProofDetailColors,
+} from '@/theme/themes/light';
 import type { ModalType } from '@/types/modal';
 export { normalizeModalType, type ModalType } from '@/types/modal';
 
@@ -23,6 +27,9 @@ interface ModalOptions {
   contentPaddingHorizontal?: number;
   contentTransparent?: boolean;
   fullBleedBackground?: boolean;
+  /** 배경을 테마와 무관하게 고정한 모달은 헤더 색도 함께 고정해 다크 테마에서 묻히지 않게 한다. */
+  headerBackIconColor?: string;
+  headerTitleColor?: string;
   headerTransparent?: boolean;
 }
 
@@ -53,7 +60,17 @@ export const useModal = (
         },
       ];
     case 'request':
-      return ['루틴 인증', RequestModal, { contentPaddingHorizontal: 0 }];
+      return [
+        '루틴 인증',
+        RequestModal,
+        {
+          contentPaddingHorizontal: 0,
+          headerTransparent: true,
+          headerTitleColor: requestFormColors.headerTitle,
+          headerBackIconColor: requestFormColors.headerIcon,
+          contentTransparent: true,
+        },
+      ];
     case 'request-list':
       return [
         '받은 요청',
@@ -68,7 +85,13 @@ export const useModal = (
       return [
         '루틴 상세',
         RoutineProofDetailModal,
-        { contentPaddingHorizontal: 0 },
+        {
+          contentPaddingHorizontal: 0,
+          headerTransparent: true,
+          headerTitleColor: routineProofDetailColors.headerTitle,
+          headerBackIconColor: routineProofDetailColors.headerIcon,
+          contentTransparent: true,
+        },
       ];
     case 'friend-request-list':
       return ['친구 요청', FriendRequestListModal, {}];

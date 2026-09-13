@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import PixelCard from '@/components/ui/pixel-card';
+import { useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
@@ -13,6 +14,8 @@ interface AuthFormProps {
 }
 
 const AuthForm = ({ title, children }: AuthFormProps) => {
+  const { theme } = useAppTheme();
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={styles.scrollContent}
@@ -22,7 +25,13 @@ const AuthForm = ({ title, children }: AuthFormProps) => {
       showsVerticalScrollIndicator={SHOW_SCROLL_INDICATOR}
     >
       <ThemeView style={styles.container}>
-        <Typography variant="title" weight="semibold" glow style={styles.title}>
+        <Typography
+          variant="title"
+          weight="semibold"
+          glow
+          color={theme.colors.text.pageHeaderTitle}
+          style={styles.title}
+        >
           {title}
         </Typography>
         <PixelCard>

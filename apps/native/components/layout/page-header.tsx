@@ -21,6 +21,10 @@ interface PageHeaderProps {
   showBackButton?: boolean;
   onBackPress?: () => void;
   backAccessibilityLabel?: string;
+  /** 테마와 무관하게 제목 색을 고정할 때 사용한다 (회색 배경 모달 등). */
+  titleColor?: string;
+  /** 테마와 무관하게 뒤로가기 아이콘 색을 고정할 때 사용한다. */
+  backIconColor?: string;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -31,6 +35,8 @@ const PageHeader = ({
   showBackButton = false,
   onBackPress,
   backAccessibilityLabel = '뒤로가기',
+  titleColor,
+  backIconColor,
   style,
 }: PageHeaderProps) => {
   const { theme } = useAppTheme();
@@ -55,14 +61,23 @@ const PageHeader = ({
             accessibilityLabel={backAccessibilityLabel}
             accessibilityRole="button"
             style={styles.backButton}
-            icon={() => <PageHeaderBackIcon color={theme.colors.text.gray} />}
+            icon={() => (
+              <PageHeaderBackIcon
+                color={backIconColor ?? theme.colors.text.gray}
+              />
+            )}
           />
         </View>
       ) : null}
 
       <View style={styles.center} pointerEvents="box-none">
         {center ?? (
-          <Typography variant="body1" weight="semibold" style={styles.title}>
+          <Typography
+            variant="body1"
+            weight="semibold"
+            color={titleColor ?? theme.colors.text.pageHeaderTitle}
+            style={styles.title}
+          >
             {title}
           </Typography>
         )}
@@ -112,7 +127,6 @@ const styles = StyleSheet.create((theme) => ({
     left: baseFoundation.spacing[0],
     right: baseFoundation.spacing[0],
     textAlign: 'center',
-    color: theme.colors.text.pageHeaderTitle,
   },
   right: {
     position: 'absolute',

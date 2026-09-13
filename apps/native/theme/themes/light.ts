@@ -2,6 +2,44 @@ import { palette } from '@/theme/tokens';
 
 import type { ThemeContract } from './theme.contract';
 
+export const routineProofDetailColors = {
+  background: palette.theme.gray[3],
+  surface: palette.theme.gray[5],
+  border: palette.theme.gray[8],
+  text: palette.theme.gray[70],
+  description: palette.theme.gray[13],
+  label: palette.theme.gray[10],
+  nickname: palette.theme.gray[20],
+  message: palette.theme.gray[30],
+  ownMessage: palette.theme.gray[40],
+  replyBackground: palette.white,
+  headerTitle: palette.theme.gray[90],
+  headerIcon: palette.theme.gray[80],
+} as const;
+
+export const requestFormColors = {
+  background: palette.theme.gray[3],
+  surface: palette.theme.gray[5],
+  border: palette.theme.gray[8],
+  label: palette.theme.gray[10],
+  placeholder: palette.theme.gray[10],
+  description: palette.theme.gray[30],
+  text: palette.theme.gray[70],
+  dialogTitle: palette.theme.gray[70],
+  dialogClose: palette.theme.gray[90],
+  removeButton: palette.theme.gray[40],
+  removeIcon: palette.theme.gray[8],
+  required: palette.theme.blue[50],
+  accent: palette.theme.blue[50],
+  submit: palette.theme.blue[50],
+  submitDisabled: palette.theme.gray[10],
+  submitLabel: palette.white,
+  dialogSurface: palette.white,
+  overlay: 'rgba(0, 0, 0, 0.7)',
+  headerTitle: palette.theme.gray[90],
+  headerIcon: palette.theme.gray[80],
+} as const;
+
 export const lightTheme: ThemeContract = {
   name: 'light',
   density: 'comfortable',

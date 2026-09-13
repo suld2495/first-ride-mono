@@ -2,9 +2,10 @@ import {
   useFetchMeQuery,
   useUpdateMottoMutation,
 } from '@repo/shared/hooks/useUser';
-import { fireEvent } from '@testing-library/react-native';
+import { fireEvent, waitFor } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
+import ModalHeaderActionProvider from '@/components/modal/modal-header-action-provider';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { baseFoundation, palette } from '@/theme/tokens';
@@ -20,6 +21,29 @@ jest.mock('@repo/shared/hooks/useUser', () => ({
 jest.mock('@/hooks/useColorScheme', () => ({
   useColorScheme: jest.fn(() => 'light'),
 }));
+
+// 단독 라우트(/account)에서는 ModalHeader가 router.canGoBack()을 호출하므로 router 객체를 함께 제공한다.
+jest.mock('expo-router', () => ({
+  router: {
+    back: jest.fn(),
+    canGoBack: () => true,
+    replace: jest.fn(),
+  },
+  useRouter: () => ({
+    back: jest.fn(),
+    dismissTo: jest.fn(),
+    push: jest.fn(),
+    replace: jest.fn(),
+  }),
+}));
+
+// 앱에서는 /modal?type=account 로 열리므로 모달 헤더 액션 컨텍스트 안에서 렌더링한다.
+const renderAccount = () =>
+  render(
+    <ModalHeaderActionProvider>
+      <Account />
+    </ModalHeaderActionProvider>,
+  );
 
 describe('Account', () => {
   beforeEach(() => {
@@ -45,7 +69,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByTestId } = render(<Account />);
+    const { getByTestId } = renderAccount();
     const characterStyle = StyleSheet.flatten(
       getByTestId('account-character').props.style,
     );
@@ -65,7 +89,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByTestId } = render(<Account />);
+    const { getByTestId } = renderAccount();
 
     expect(getByTestId('account-character')).toHaveProp('source', {
       uri: 'https://cdn.example.com/characters/warrior.png',
@@ -79,7 +103,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByTestId } = render(<Account />);
+    const { getByTestId } = renderAccount();
     const characterContainerStyle = StyleSheet.flatten(
       getByTestId('account-character-container').props.style,
     );
@@ -101,7 +125,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByTestId } = render(<Account />);
+    const { getByTestId } = renderAccount();
     const contentStyle = StyleSheet.flatten(
       getByTestId('account-content').props.style,
     );
@@ -116,7 +140,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByPlaceholderText, getByTestId } = render(<Account />);
+    const { getByPlaceholderText, getByTestId } = renderAccount();
     const inputWrapperStyle = StyleSheet.flatten(
       getByTestId('account-motto-input-wrapper').props.style,
     );
@@ -146,7 +170,7 @@ describe('Account', () => {
     );
     expect(inputStyle).toEqual(
       expect.objectContaining({
-        color: palette.theme.gray[70],
+        color: palette.theme.gray[40],
         fontSize: baseFoundation.typography.size.body2,
         fontWeight: baseFoundation.typography.weight.semibold,
         paddingHorizontal: 24,
@@ -162,7 +186,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByTestId } = render(<Account />);
+    const { getByTestId } = renderAccount();
     const mottoInput = getByTestId('account-motto-input');
 
     fireEvent.changeText(mottoInput, '바뀐 한마디');
@@ -176,7 +200,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByTestId } = render(<Account />);
+    const { getByTestId } = renderAccount();
 
     expect(getByTestId('account-motto-input')).toHaveProp('maxLength', 26);
   });
@@ -187,7 +211,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByTestId } = render(<Account />);
+    const { getByTestId } = renderAccount();
     const mottoInput = getByTestId('account-motto-input');
 
     fireEvent.changeText(mottoInput, '공백 포함 한마디');
@@ -201,7 +225,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByTestId } = render(<Account />);
+    const { getByTestId } = renderAccount();
     const mottoInput = getByTestId('account-motto-input');
 
     expect(getByTestId('account-motto-byte-counter')).toHaveTextContent(
@@ -222,7 +246,7 @@ describe('Account', () => {
       mutate: jest.fn(),
     });
 
-    const { getByTestId, rerender } = render(<Account />);
+    const { getByTestId, rerender } = renderAccount();
 
     expect(
       StyleSheet.flatten(getByTestId('account-motto-byte-counter').props.style),
@@ -233,7 +257,11 @@ describe('Account', () => {
     );
 
     useColorSchemeStore.getState().setColorScheme('red');
-    rerender(<Account />);
+    rerender(
+      <ModalHeaderActionProvider>
+        <Account />
+      </ModalHeaderActionProvider>,
+    );
 
     expect(
       StyleSheet.flatten(getByTestId('account-motto-byte-counter').props.style),
@@ -244,13 +272,46 @@ describe('Account', () => {
     );
   });
 
+  it('모달 래퍼 없이 열리면 안전영역·헤더·저장 버튼을 갖춘 단독 화면으로 보여준다', async () => {
+    (useUpdateMottoMutation as jest.Mock).mockReturnValue({
+      isPending: false,
+      mutate: jest.fn(),
+    });
+
+    const { getByLabelText, getByTestId, getByText } = render(<Account />);
+
+    expect(getByTestId('account-standalone-screen')).toBeOnTheScreen();
+    expect(getByText('한마디')).toBeOnTheScreen();
+    expect(getByLabelText('뒤로가기')).toBeOnTheScreen();
+    expect(
+      StyleSheet.flatten(getByTestId('account-standalone-content').props.style)
+        .paddingHorizontal,
+    ).toBe(baseFoundation.spacing[6]);
+
+    await waitFor(() => {
+      expect(getByLabelText('한마디 상단 저장')).toBeOnTheScreen();
+    });
+    expect(getByText('저장')).toBeOnTheScreen();
+  });
+
+  it('모달 래퍼 안에서는 단독 화면 껍데기를 만들지 않는다', () => {
+    (useUpdateMottoMutation as jest.Mock).mockReturnValue({
+      isPending: false,
+      mutate: jest.fn(),
+    });
+
+    const { queryByTestId } = renderAccount();
+
+    expect(queryByTestId('account-standalone-screen')).toBeNull();
+  });
+
   it('새 한마디 입력 아래 기존 목록 영역을 보여주지 않는다', () => {
     (useUpdateMottoMutation as jest.Mock).mockReturnValue({
       isPending: false,
       mutate: jest.fn(),
     });
 
-    const { queryByLabelText, queryByText } = render(<Account />);
+    const { queryByLabelText, queryByText } = renderAccount();
 
     expect(queryByLabelText('한마디 추가')).toBeNull();
     expect(queryByLabelText('끝까지 간다 수정')).toBeNull();

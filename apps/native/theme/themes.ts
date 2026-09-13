@@ -2,6 +2,7 @@ import { blueTheme } from './themes/blue';
 import { darkTheme } from './themes/dark';
 import { greenTheme } from './themes/green';
 import { lightTheme } from './themes/light';
+import { withNeutralSurface } from './themes/neutral-surface';
 import { redTheme } from './themes/red';
 import { type ThemeContract } from './themes/theme.contract';
 
@@ -21,6 +22,20 @@ export const appThemes = {
 } as const;
 
 export type ThemeName = keyof typeof appThemes;
+
+/** 홈 외 화면에서 쓰는 중립 표면 버전. 테마 이름은 원본과 같다. */
+export const neutralAppThemes = {
+  light: withNeutralSurface(lightTheme),
+  dark: withNeutralSurface(darkTheme),
+  blue: withNeutralSurface(blueTheme),
+  green: withNeutralSurface(greenTheme),
+  red: withNeutralSurface(redTheme),
+} as const satisfies Record<ThemeName, ThemeContract>;
+
+export type NeutralThemeName = `${ThemeName}Neutral`;
+
+export const getNeutralThemeName = (name: ThemeName): NeutralThemeName =>
+  `${name}Neutral`;
 
 const mapTheme = (theme: ThemeContract, mode: ThemeName) => ({
   background: theme.colors.background.base,
@@ -71,4 +86,9 @@ export const themes = {
   blue: mapTheme(blueTheme, 'blue'),
   green: mapTheme(greenTheme, 'green'),
   red: mapTheme(redTheme, 'red'),
+  lightNeutral: mapTheme(neutralAppThemes.light, 'light'),
+  darkNeutral: mapTheme(neutralAppThemes.dark, 'dark'),
+  blueNeutral: mapTheme(neutralAppThemes.blue, 'blue'),
+  greenNeutral: mapTheme(neutralAppThemes.green, 'green'),
+  redNeutral: mapTheme(neutralAppThemes.red, 'red'),
 } as const;

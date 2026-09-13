@@ -1,14 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '@repo/shared/api';
-import MockAdapter from 'axios-mock-adapter';
+import { getWeekMonday } from '@repo/shared/utils';
 import { within } from '@testing-library/react-native';
+import MockAdapter from 'axios-mock-adapter';
 import { FlatList, Modal } from 'react-native';
 
 import { FlashList } from '@/components/ui/flash-list';
 import { RANDOM_FRIEND_RECOMMENDATION_ENABLED_KEY_PREFIX } from '@/hooks/useRandomFriendRecommendationPreference';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 import FriendPage from '../../app/(tabs)/(afterLogin)/(friend)/index';
 import {
@@ -116,7 +117,7 @@ describe('친구 리스트 페이지', () => {
       expect(screen.queryByText('아침 산책')).not.toBeOnTheScreen();
     });
 
-    it('추천 영역에서 친구 페이지로 이동한다', async () => {
+    it('추천 카드의 홈 아이콘을 누르면 추천 친구의 friendId와 닉네임으로 친구 루틴 화면을 연다', async () => {
       setupMocks([]);
 
       const screen = render(<FriendPage />);
@@ -124,15 +125,23 @@ describe('친구 리스트 페이지', () => {
       const profileActions = await screen.findByTestId(
         'random-friend-profile-actions',
       );
+      const homeButton =
+        within(profileActions).getByLabelText('친구 페이지로 이동');
 
-      fireEvent.press(
-        within(profileActions).getByLabelText('친구 페이지로 이동'),
-      );
+      expect(
+        within(homeButton).getByTestId('random-friend-page-navigation-icon'),
+      ).toBeOnTheScreen();
 
+      fireEvent.press(homeButton);
+
+      expect(mockPush).toHaveBeenCalledTimes(1);
       expect(mockPush).toHaveBeenCalledWith(
-        expect.stringContaining(
-          '/modal?type=friend-routines&friendId=42&friendNickname=%EC%A0%A4%EB%A6%AC&date=',
-        ),
+        `/modal?type=friend-routines&friendId=42&friendNickname=${encodeURIComponent(
+          '젤리',
+        )}&date=${getWeekMonday(new Date())}`,
+      );
+      expect(mockPush).not.toHaveBeenCalledWith(
+        expect.stringContaining('(routine)'),
       );
       expect(mockReplace).not.toHaveBeenCalled();
     });
@@ -431,17 +440,20 @@ describe('친구 리스트 페이지', () => {
         expect(await findByLabelText('friend1 캐릭터')).toBeOnTheScreen();
       });
 
-      it('친구 목록 화면은 현재 내 테마 배경을 적용한다', async () => {
+      it('친구 목록 화면은 홈 외 화면이므로 중립 표면(회색) 배경을 적용한다', async () => {
+        useColorSchemeStore.getState().setNeutralSurface(true);
         const screen = render(<FriendPage />);
 
         expect(await screen.findByText('friend1')).toBeOnTheScreen();
 
         expect(screen.getByTestId('friend-page')).toHaveStyle({
-          backgroundColor: appThemes.blue.colors.brand.card,
+          backgroundColor: palette.theme.gray[3],
         });
+        useColorSchemeStore.getState().setNeutralSurface(false);
       });
 
-      it('친구 카드 배경은 친구 직업 테마의 30톤을 적용한다', async () => {
+      it('친구 카드 배경은 친구 직업 테마와 무관하게 회색 패널을 적용한다', async () => {
+        useColorSchemeStore.getState().setNeutralSurface(true);
         const screen = render(<FriendPage />);
 
         expect(await screen.findByText('friend1')).toBeOnTheScreen();
@@ -449,8 +461,9 @@ describe('친구 리스트 페이지', () => {
         expect(
           screen.getByTestId('friend-character-panel-friend1'),
         ).toHaveStyle({
-          backgroundColor: appThemes.red.colors.brand.primary,
+          backgroundColor: palette.theme.gray[5],
         });
+        useColorSchemeStore.getState().setNeutralSurface(false);
       });
 
       it('친구 목록 화면이 포커스되면 친구 테마 override를 즉시 해제한다', async () => {
@@ -474,7 +487,7 @@ describe('친구 리스트 페이지', () => {
 
         expect(await screen.findByText('friend1')).toBeOnTheScreen();
         expect(screen.getByTestId('friend-page')).toHaveStyle({
-          backgroundColor: appThemes.blue.colors.brand.card,
+          backgroundColor: appThemes.blue.colors.background.base,
         });
         expect(useColorSchemeStore.getState().colorSchemeOverride).toBeNull();
       });

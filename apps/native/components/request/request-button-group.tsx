@@ -1,14 +1,13 @@
 import type { FormContextType } from '@repo/shared/components';
 import { useMemo } from 'react';
-import { StyleSheet as RNStyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ModalFooter from '@/components/modal/modal-footer';
 import { Button } from '@/components/ui/button';
-import Link from '@/components/ui/link';
-import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
+import { StyleSheet } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import type { RequestForm } from '@/hooks/useRequestSubmission';
+import { requestFormColors } from '@/theme/themes/light';
 import { baseFoundation } from '@/theme/tokens';
 
 interface RequetButtonGroupProps {
@@ -20,7 +19,6 @@ const RequetButtonGroup = ({
   useForm,
   loading = false,
 }: RequetButtonGroupProps) => {
-  const { theme } = useAppTheme();
   const { enabled, handleSubmit } = useForm();
   const insets = useSafeAreaInsets();
 
@@ -39,45 +37,27 @@ const RequetButtonGroup = ({
           },
         ]}
       >
-        <ThemeView
-          testID="request-cancel-button"
-          transparent
-          style={styles.cancelButton}
-        >
-          <Link
-            title="취소"
-            href=".."
-            variant="outline"
-            size="md"
-            fullWidth
-            textColor={theme.colors.action.primary.default}
-            style={styles.button}
-            disabled={loading}
-          />
-        </ThemeView>
         <Button
           testID="request-submit-button"
-          title="인증"
+          title="완료"
           variant="primary"
           size="md"
+          fullWidth
+          backgroundColor={
+            enabled
+              ? requestFormColors.submit
+              : requestFormColors.submitDisabled
+          }
+          textColor={requestFormColors.submitLabel}
           onPress={() => handleSubmit()}
-          style={[
-            styles.button,
-            styles.submitButton,
-            !enabled && styles.submitButtonDisabled,
-          ]}
+          style={[styles.submitButton, !enabled && styles.submitButtonDisabled]}
+          textStyle={styles.submitLabel}
           disabled={!enabled || loading}
           loading={loading}
         />
       </ThemeView>
     ),
-    [
-      enabled,
-      handleSubmit,
-      insets.bottom,
-      loading,
-      theme.colors.action.primary.default,
-    ],
+    [enabled, handleSubmit, insets.bottom, loading],
   );
 
   return <ModalFooter>{footer}</ModalFooter>;
@@ -85,38 +65,23 @@ const RequetButtonGroup = ({
 
 export default RequetButtonGroup;
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create(() => ({
   buttonContainer: {
     width: '100%',
-    flexDirection: 'row',
-    gap: theme.foundation.spacing[3],
-    paddingHorizontal: theme.foundation.spacing[6],
-    paddingTop: theme.foundation.spacing[4],
-    borderTopWidth: RNStyleSheet.hairlineWidth,
-    borderTopColor: theme.colors.brand.bottomTab,
-    backgroundColor: theme.colors.background.base,
+    padding: baseFoundation.spacing[6],
+    paddingTop: baseFoundation.spacing[6],
   },
-
-  button: {
-    borderRadius: theme.foundation.radii.xs,
+  submitButton: {
+    minHeight: baseFoundation.dimension.x44,
+    padding: baseFoundation.spacing[3],
+    borderRadius: baseFoundation.radii.xs,
     shadowOpacity: 0,
     elevation: 0,
   },
-
-  cancelButton: {
-    width: baseFoundation.dimension.x140,
-    flexGrow: 0,
-    flexShrink: 0,
-    borderRadius: theme.foundation.radii.xs,
-    backgroundColor: theme.colors.brand.card,
-  },
-
-  submitButton: {
-    flex: 1,
-  },
-
-  submitButtonDisabled: {
-    opacity: 1,
-    backgroundColor: theme.colors.brand.bottomTab,
+  submitButtonDisabled: { opacity: 1 },
+  submitLabel: {
+    fontSize: baseFoundation.typography.size.body2,
+    lineHeight: 20.4,
+    letterSpacing: -0.3,
   },
 }));

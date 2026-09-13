@@ -5,6 +5,7 @@ import QuestList from '@/components/quest/quest-list';
 import { FlashList } from '@/components/ui/flash-list';
 import { useColorSchemeStore } from '@/store/color-scheme.store';
 import { appThemes } from '@/theme/themes';
+import { palette } from '@/theme/tokens';
 
 import { createMockQuest, createMockQuests } from '../../setup/quest/mock';
 
@@ -17,10 +18,12 @@ describe('QuestList', () => {
   afterEach(() => {
     useColorSchemeStore.getState().setColorScheme('blue');
     useColorSchemeStore.getState().clearColorSchemeOverride();
+    useColorSchemeStore.getState().setNeutralSurface(false);
     jest.useRealTimers();
   });
 
-  it('renders each quest item with a two-layer themed frame', () => {
+  it('renders each quest item with a two-layer neutral gray frame', () => {
+    useColorSchemeStore.getState().setNeutralSurface(true);
     const screen = render(
       <QuestList quests={[createMockQuest()]} onClickItem={jest.fn()} />,
     );
@@ -38,19 +41,19 @@ describe('QuestList', () => {
     });
 
     expect(StyleSheet.flatten(outerFrame?.props.style)).toMatchObject({
-      borderColor: appThemes.blue.colors.brand.text,
+      borderColor: palette.theme.gray[8],
       borderRadius: 14,
       borderWidth: 2,
-      backgroundColor: '#FFFFFF',
+      backgroundColor: palette.white,
       padding: 2,
     });
     const innerFrameStyle = StyleSheet.flatten(innerFrame?.props.style);
 
     expect(innerFrameStyle).toMatchObject({
-      borderColor: '#FFFFFF',
+      borderColor: palette.white,
       borderRadius: 12,
       borderWidth: 3,
-      backgroundColor: appThemes.blue.colors.brand.text,
+      backgroundColor: palette.theme.gray[5],
       padding: 17,
     });
     expect(innerFrameStyle.justifyContent).toBeUndefined();

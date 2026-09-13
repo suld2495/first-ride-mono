@@ -14,6 +14,7 @@ import Loading from '@/components/ui/loading';
 import { StyleSheet } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useNeutralSurface } from '@/hooks/useEffectiveColorScheme';
 import {
   useQuestStatusFilter,
   useSetQuestId,
@@ -23,7 +24,7 @@ import {
   useBaseColorSchemeValue,
   useClearAppColorSchemeOverride,
 } from '@/hooks/useThemePreference';
-import { appThemes } from '@/theme/themes';
+import { appThemes, neutralAppThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 
 export default function QuestPage() {
@@ -35,7 +36,11 @@ export default function QuestPage() {
   const baseThemeName = useBaseColorSchemeValue();
   const clearColorSchemeOverride = useClearAppColorSchemeOverride();
   const isAdmin = user?.role === 'ADMIN';
-  const pageBackgroundColor = appThemes[baseThemeName].colors.background.base;
+  const neutralSurface = useNeutralSurface();
+  // 친구 테마 오버라이드는 무시하고 내 기본 테마를 쓰되, 홈 외 화면이므로 중립 표면 배경을 적용한다.
+  const pageBackgroundColor = (neutralSurface ? neutralAppThemes : appThemes)[
+    baseThemeName
+  ].colors.background.base;
   const userId = user?.userId ?? '';
   const [isQuestPageFocused, setIsQuestPageFocused] = useState(false);
   const questQueryParams =

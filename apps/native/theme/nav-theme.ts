@@ -6,6 +6,8 @@ import {
   blueTheme,
   greenTheme,
   redTheme,
+  neutralAppThemes,
+  type ThemeName,
 } from './themes';
 import { palette } from './tokens';
 
@@ -65,4 +67,24 @@ export const NAV_THEME = {
       text: redTheme.colors.brand.text,
     },
   },
+};
+
+/** 홈 외 화면(중립 표면)에서 쓰는 네비게이션 테마. 화면 전환 사이 배경이 회색 계열로 보이게 한다. */
+export const getNavTheme = (themeName: ThemeName, neutralSurface: boolean) => {
+  const base = NAV_THEME[themeName];
+
+  if (!neutralSurface) return base;
+
+  const neutral = neutralAppThemes[themeName];
+
+  return {
+    ...base,
+    colors: {
+      ...base.colors,
+      background: neutral.colors.background.base,
+      border: neutral.colors.border.default,
+      card: neutral.colors.background.surface,
+      text: neutral.colors.text.primary,
+    },
+  };
 };

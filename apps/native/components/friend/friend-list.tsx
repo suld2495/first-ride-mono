@@ -25,7 +25,8 @@ import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
-import { appThemes, type ThemeName } from '@/theme/themes';
+import type { ThemeName } from '@/theme/themes';
+import { neutralSurfaceColors } from '@/theme/themes/neutral-surface';
 import { baseFoundation, palette } from '@/theme/tokens';
 
 interface FriendItemProps {
@@ -161,26 +162,15 @@ const getFriendCharacterThemeName = ({
   return 'blue';
 };
 
-const getFriendCharacterPanelStyle = (themeName: FriendCharacterThemeName) => {
-  if (themeName === 'red') return styles.characterPanelRed;
-  if (themeName === 'green') return styles.characterPanelGreen;
+// 홈 외 화면은 중립 표면(회색)으로 그리므로 친구 직업 테마와 무관하게 같은 회색 패널·배지를 쓴다.
+const getFriendCharacterPanelStyle = (_themeName: FriendCharacterThemeName) =>
+  styles.characterPanelNeutral;
 
-  return styles.characterPanelBlue;
-};
+const getFriendLevelBadgeStyle = (_themeName: FriendCharacterThemeName) =>
+  styles.levelBadgeNeutral;
 
-const getFriendLevelBadgeStyle = (themeName: FriendCharacterThemeName) => {
-  if (themeName === 'red') return styles.levelBadgeRed;
-  if (themeName === 'green') return styles.levelBadgeGreen;
-
-  return styles.levelBadgeBlue;
-};
-
-const getFriendLevelTextColor = (themeName: FriendCharacterThemeName) => {
-  if (themeName === 'red') return appThemes.red.colors.brand.text;
-  if (themeName === 'green') return appThemes.green.colors.brand.text;
-
-  return appThemes.blue.colors.brand.text;
-};
+const getFriendLevelTextColor = (_themeName: FriendCharacterThemeName) =>
+  neutralSurfaceColors.text;
 
 const FriendItem = ({
   friend,
@@ -565,14 +555,8 @@ const styles = StyleSheet.create((theme) => ({
     position: 'absolute',
     right: undefined,
   },
-  characterPanelBlue: {
-    backgroundColor: appThemes.blue.colors.brand.card,
-  },
-  characterPanelGreen: {
-    backgroundColor: appThemes.green.colors.brand.card,
-  },
-  characterPanelRed: {
-    backgroundColor: appThemes.red.colors.brand.card,
+  characterPanelNeutral: {
+    backgroundColor: theme.colors.background.surface,
   },
   levelBadge: {
     position: 'absolute',
@@ -585,14 +569,8 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  levelBadgeBlue: {
-    backgroundColor: appThemes.blue.colors.brand.background,
-  },
-  levelBadgeGreen: {
-    backgroundColor: appThemes.green.colors.brand.background,
-  },
-  levelBadgeRed: {
-    backgroundColor: appThemes.red.colors.brand.background,
+  levelBadgeNeutral: {
+    backgroundColor: theme.colors.border.default,
   },
   level: {},
   nickname: {

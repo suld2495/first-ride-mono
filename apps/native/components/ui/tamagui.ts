@@ -21,16 +21,20 @@ import {
 
 import {
   getEffectiveColorSchemeSnapshot,
+  getNeutralSurfaceSnapshot,
   useEffectiveColorScheme,
+  useNeutralSurface,
 } from '@/hooks/useEffectiveColorScheme';
-import { appThemes } from '@/theme/themes';
+import { appThemes, neutralAppThemes } from '@/theme/themes';
 import { createFoundation } from '@/theme/tokens';
 
 const createAppStyleTheme = (
   themeName: keyof typeof appThemes,
   viewportWidth?: number,
+  neutralSurface = false,
 ) => {
-  const theme = appThemes[themeName] ?? appThemes.dark;
+  const themeSet = neutralSurface ? neutralAppThemes : appThemes;
+  const theme = themeSet[themeName] ?? themeSet.dark;
 
   return {
     ...theme,
@@ -52,7 +56,11 @@ type CreatedStyles<T> = T & {
 const getThemeName = () => getEffectiveColorSchemeSnapshot();
 
 const getTheme = (): AppTheme =>
-  createAppStyleTheme(getThemeName(), Dimensions.get('window').width);
+  createAppStyleTheme(
+    getThemeName(),
+    Dimensions.get('window').width,
+    getNeutralSurfaceSnapshot(),
+  );
 
 const evaluateStyles = <T extends Record<string, unknown>>(
   factory: StyleFactory<T>,
@@ -82,10 +90,12 @@ export const StyleSheet = {
 
 export const useAppTheme = () => {
   const colorScheme = useEffectiveColorScheme();
+  // 스토어 구독은 값이 바뀔 때 다시 렌더링하기 위한 것이고, 실제 값은 렌더 스냅샷을 우선한다.
+  useNeutralSurface();
   const { width } = useWindowDimensions();
 
   return {
-    theme: createAppStyleTheme(colorScheme, width),
+    theme: createAppStyleTheme(colorScheme, width, getNeutralSurfaceSnapshot()),
     rt: {
       themeName: colorScheme,
     },

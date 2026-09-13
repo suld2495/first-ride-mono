@@ -21,11 +21,12 @@ import ThemeView from '@/components/ui/theme-view';
 import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuthUser } from '@/hooks/useAuthSession';
+import { useNeutralSurface } from '@/hooks/useEffectiveColorScheme';
 import {
   useBaseColorSchemeValue,
   useClearAppColorSchemeOverride,
 } from '@/hooks/useThemePreference';
-import { appThemes } from '@/theme/themes';
+import { appThemes, neutralAppThemes } from '@/theme/themes';
 import { baseFoundation } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 
@@ -39,7 +40,11 @@ const FriendPage = () => {
   const user = useAuthUser();
   const baseThemeName = useBaseColorSchemeValue();
   const clearColorSchemeOverride = useClearAppColorSchemeOverride();
-  const pageBackgroundColor = appThemes[baseThemeName].colors.background.base;
+  const neutralSurface = useNeutralSurface();
+  // 친구 테마 오버라이드는 무시하고 내 기본 테마를 쓰되, 홈 외 화면이므로 중립 표면 배경을 적용한다.
+  const pageBackgroundColor = (neutralSurface ? neutralAppThemes : appThemes)[
+    baseThemeName
+  ].colors.background.base;
 
   const { data: requests = [], refetch: refetchRequests } =
     useFetchFriendRequestsQuery(user?.userId ?? '', page);

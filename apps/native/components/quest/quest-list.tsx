@@ -7,7 +7,7 @@ import { FlashList, type ListRenderItem } from '@/components/ui/flash-list';
 import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { Typography } from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 
 import QuestPixelStar from './quest-pixel-star';
 
@@ -213,20 +213,21 @@ const styles = StyleSheet.create((theme) => ({
     height: QUEST_ITEM_GAP,
   },
 
+  // 홈 외 화면(중립 표면)용 회색 카드: 바깥 테두리 gray8 · 안쪽 카드 gray5
   cardOuter: {
-    borderColor: theme.colors.brand.text,
+    borderColor: theme.colors.border.default,
     borderWidth: 2,
     borderRadius: baseFoundation.dimension.x14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.white,
     marginVertical: baseFoundation.spacing[0],
     padding: baseFoundation.dimension.x2,
   },
 
   cardInner: {
-    borderColor: '#FFFFFF',
+    borderColor: palette.white,
     borderWidth: 3,
     borderRadius: baseFoundation.dimension.x12,
-    backgroundColor: theme.colors.brand.text,
+    backgroundColor: theme.colors.background.surface,
     padding: 17,
   },
 
@@ -240,7 +241,7 @@ const styles = StyleSheet.create((theme) => ({
     width: baseFoundation.dimension.x40,
     height: baseFoundation.dimension.x40,
     borderRadius: baseFoundation.dimension.x6,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -251,12 +252,12 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   remainingText: {
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.tertiary,
   },
 
   questName: {
     flex: 1,
-    color: '#FFFFFF',
+    color: theme.colors.text.primary,
     lineHeight: baseFoundation.typography.size.body2 * 1.3,
   },
 
@@ -276,22 +277,22 @@ const styles = StyleSheet.create((theme) => ({
     flex: 1,
     height: baseFoundation.dimension.x8,
     borderRadius: 999,
-    backgroundColor: theme.colors.text.muted,
+    backgroundColor: theme.colors.border.default,
     overflow: 'hidden',
   },
 
   progressFill: {
     height: '100%',
     borderRadius: 999,
-    backgroundColor: theme.colors.brand.primary,
+    backgroundColor: theme.colors.action.primary.default,
   },
 
   progressValue: {
-    color: theme.colors.brand.background ?? '#FFFFFF',
+    color: theme.colors.text.primary,
   },
 
   questRound: {
-    color: theme.colors.brand.primary,
+    color: theme.colors.action.primary.default,
     flexShrink: 0,
     textAlign: 'right',
   },

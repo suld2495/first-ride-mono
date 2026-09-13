@@ -10,12 +10,15 @@ type ColorScheme = ThemeName;
 interface ColorSchemeState {
   colorScheme: ColorScheme;
   colorSchemeOverride: ColorScheme | null;
+  /** 홈 화면을 제외한 화면에서 배경·텍스트를 회색 계열(중립 표면)로 그리는지 여부. 라우트에 따라 자동으로 바뀐다. */
+  neutralSurface: boolean;
 }
 
 interface Action {
   setColorScheme: (colorScheme: ColorScheme) => void;
   setColorSchemeOverride: (colorScheme: ColorScheme) => void;
   clearColorSchemeOverride: () => void;
+  setNeutralSurface: (neutralSurface: boolean) => void;
   syncWithTamagui: () => void;
 }
 
@@ -27,8 +30,14 @@ export const useColorSchemeStore = create<ColorSchemeState & Action>()(
     (set, get) => ({
       colorScheme: 'blue',
       colorSchemeOverride: null,
+      neutralSurface: false,
       setColorScheme: (colorScheme: ColorScheme) => {
         set({ colorScheme });
+      },
+      setNeutralSurface: (neutralSurface: boolean) => {
+        if (get().neutralSurface === neutralSurface) return;
+
+        set({ neutralSurface });
       },
       setColorSchemeOverride: (colorScheme: ColorScheme) => {
         set({ colorSchemeOverride: colorScheme });

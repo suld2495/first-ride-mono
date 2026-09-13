@@ -3,7 +3,7 @@ import type { ViewProps } from 'react-native';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import { baseFoundation } from '@/theme/tokens';
 
 interface ScreenLayoutProps extends ViewProps {
@@ -17,10 +17,22 @@ export const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   noPadding = false,
   ...props
 }) => {
+  // 라우트에 따라 바뀌는 중립 표면(홈 외 회색 배경)에 즉시 반응하도록 훅으로 배경색을 읽는다.
+  const { theme } = useAppTheme();
+  const backgroundStyle = { backgroundColor: theme.colors.background.base };
+
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+    <SafeAreaView
+      style={[styles.safeArea, backgroundStyle]}
+      edges={['top', 'left', 'right']}
+    >
       <View
-        style={[styles.container, noPadding && styles.noPadding, style]}
+        style={[
+          styles.container,
+          backgroundStyle,
+          noPadding && styles.noPadding,
+          style,
+        ]}
         {...props}
       >
         {children}

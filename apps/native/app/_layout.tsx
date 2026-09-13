@@ -20,6 +20,7 @@ import { updatePushToken } from '@/api/push-token.api';
 import ForceUpdateController from '@/components/force-update-controller';
 import MockProvider from '@/components/mock/mock-provider';
 import SplashScreenController from '@/components/splash';
+import NeutralSurfaceController from '@/components/theme/neutral-surface-controller';
 import AppTamaguiProvider, {
   ThemeStyleRefreshBoundary,
 } from '@/components/ui/tamagui-provider';
@@ -32,6 +33,7 @@ import { ToastProvider, useToast } from '@/contexts/ToastContext';
 import { useAppActiveRefresh } from '@/hooks/useAppActiveRefresh';
 import { useAuthIsLoading, useAuthUser } from '@/hooks/useAuthSession';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useNeutralSurface } from '@/hooks/useEffectiveColorScheme';
 import {
   setNotificationHandler,
   useNotifications,
@@ -48,7 +50,7 @@ import { useVisitCheck } from '@/hooks/useVisitCheck';
 import { getPendingRoutineShare } from '@/share/routine-share';
 import { fontFamilies } from '@/theme/font-families';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
-import { NAV_THEME } from '@/theme/nav-theme';
+import { getNavTheme } from '@/theme/nav-theme';
 import type { NotificationHandlers } from '@/types/notification-types';
 import {
   getAuthStackInitialRouteName,
@@ -112,6 +114,7 @@ interface StackLayoutProps {
 const StackLayout = ({ isFontReady }: StackLayoutProps) => {
   const user = useAuthUser();
   const colorScheme = useColorScheme();
+  const neutralSurface = useNeutralSurface();
   const { isLoading: isOnboardingLoading, isRequired, error } = useOnboarding();
   const isCheckingOnboarding = isOnboardingLoading || !!error;
   const canEnterApp = !!user && !isCheckingOnboarding && !isRequired;
@@ -126,7 +129,7 @@ const StackLayout = ({ isFontReady }: StackLayoutProps) => {
       <StatusBar style="dark" />
       <SplashScreenController isReady={isFontReady} />
       <ForceUpdateController />
-      <NavThemeProvider value={NAV_THEME[colorScheme]}>
+      <NavThemeProvider value={getNavTheme(colorScheme, neutralSurface)}>
         <Stack
           key={`${getAuthStackKey(!!user)}-${isCheckingOnboarding ? 'checking' : 'ready'}`}
           initialRouteName={entryRoute}
@@ -400,11 +403,9 @@ function AppShell({ isFontReady }: AppShellProps) {
       }
 
       try {
-        if (navigationAction === 'replace') {
-          await Promise.resolve(router.replace(intent.path as Href));
-        } else {
-          await Promise.resolve(router.push(intent.path as Href));
-        }
+        await (navigationAction === 'replace'
+          ? Promise.resolve(router.replace(intent.path as Href))
+          : Promise.resolve(router.push(intent.path as Href)));
       } catch (error) {
         reportError('navigation', error);
       }
@@ -564,6 +565,7 @@ function AppShell({ isFontReady }: AppShellProps) {
   return (
     <>
       <MockProvider />
+      <NeutralSurfaceController />
       <StackLayout isFontReady={isFontReady} />
       <ToastContainer />
     </>

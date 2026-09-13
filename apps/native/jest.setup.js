@@ -283,11 +283,22 @@ jest.mock('@/components/ui/tamagui', () => {
       return 'blue';
     }
   };
+  const getMockNeutralSurface = () => {
+    try {
+      const { useColorSchemeStore } = require('@/store/color-scheme.store');
+
+      return Boolean(useColorSchemeStore.getState().neutralSurface);
+    } catch {
+      return false;
+    }
+  };
   const getMockTheme = () => {
     try {
-      const { appThemes } = require('@/theme/themes');
+      const { appThemes, neutralAppThemes } = require('@/theme/themes');
       const { createFoundation } = require('@/theme/tokens');
-      const theme = appThemes[getMockThemeName()] ?? appThemes.blue;
+      // 홈 외 화면의 중립 표면(회색) 플래그를 실제 useAppTheme/StyleSheet와 동일하게 반영한다.
+      const themeSet = getMockNeutralSurface() ? neutralAppThemes : appThemes;
+      const theme = themeSet[getMockThemeName()] ?? themeSet.blue;
 
       return {
         ...theme,

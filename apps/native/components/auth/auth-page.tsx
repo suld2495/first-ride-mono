@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { StyleSheet } from '@/components/ui/tamagui';
+import { StyleSheet, useAppTheme } from '@/components/ui/tamagui';
 import ThemeView from '@/components/ui/theme-view';
 import Typography from '@/components/ui/typography';
 import { SHOW_SCROLL_INDICATOR } from '@/constants/SCROLL_INDICATOR';
@@ -63,10 +63,17 @@ const AuthPageRoot = ({ children, style, contentStyle }: AuthPageProps) => {
 };
 
 const Header = ({ children, style, title }: AuthPageHeaderProps) => {
+  const { theme } = useAppTheme();
+
   return (
     <View style={[styles.header, style]}>
       {title ? (
-        <Typography variant="title" weight="semibold" style={styles.title}>
+        <Typography
+          variant="title"
+          weight="semibold"
+          color={theme.colors.text.pageHeaderTitle}
+          style={styles.title}
+        >
           {title}
         </Typography>
       ) : null}
@@ -86,7 +93,7 @@ const AuthPage = Object.assign(AuthPageRoot, {
 
 export default AuthPage;
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: palette.theme.blue[10],
@@ -110,7 +117,6 @@ const styles = StyleSheet.create((theme) => ({
   },
 
   title: {
-    color: theme.colors.text.label,
     textAlign: 'center',
   },
 
@@ -119,4 +125,4 @@ const styles = StyleSheet.create((theme) => ({
     width: '100%',
     alignItems: 'center',
   },
-}));
+});

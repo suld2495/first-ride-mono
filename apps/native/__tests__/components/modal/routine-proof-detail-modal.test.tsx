@@ -62,14 +62,18 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
 
     expect(await screen.findByText('물 마시기')).toBeOnTheScreen();
     expect(await screen.findByText('하루 2L 마시기')).toBeOnTheScreen();
-    expect(await screen.findByText('인증 사진')).toBeOnTheScreen();
-    expect(await screen.findByText('인증 시간')).toBeOnTheScreen();
+    expect(screen.queryByText('인증 사진')).toBeNull();
+    expect(screen.queryByText('인증 시간')).toBeNull();
+    expect(
+      await screen.findByTestId('routine-proof-completed-at'),
+    ).toHaveTextContent(/^\d+월 \d+일 (오전|오후) \d{1,2}:\d{2} 인증 완료$/);
     expect(await screen.findByText('오늘도 완료했어!')).toBeOnTheScreen();
     expect(await screen.findByText('잘했어!')).toBeOnTheScreen();
     expect(
       screen.getByTestId('routine-proof-chat-nickname-requester'),
     ).toHaveTextContent('requester');
-    expect(screen.getByText('나')).toBeOnTheScreen();
+    expect(screen.queryByText('나')).toBeNull();
+    expect(screen.getByTestId('routine-proof-image-2')).toBeOnTheScreen();
     expect(screen.queryByText('응원의 한마디')).toBeNull();
     expect(screen.queryByText('승인')).toBeNull();
 
@@ -105,9 +109,9 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     expect(
       screen.getByTestId('routine-proof-chat-reply-message'),
     ).toBeOnTheScreen();
-    expect(
-      screen.getAllByTestId('routine-proof-chat-blur-image'),
-    ).toHaveLength(2);
+    expect(screen.getAllByTestId('routine-proof-chat-blur-image')).toHaveLength(
+      2,
+    );
 
     const requestText = within(
       screen.getByTestId('routine-proof-chat-request-message'),
@@ -180,8 +184,8 @@ describe('RoutineProofDetailModal (완료된 루틴 인증 상세 모달)', () =
     const screen = render(<RoutineProofDetailModal />);
 
     expect(screen.getByText('저녁 스트레칭')).toBeOnTheScreen();
-    expect(screen.queryByText('인증 사진')).toBeNull();
-    expect(screen.queryByText('인증 시간')).toBeNull();
+    expect(screen.queryByTestId('routine-proof-image-0')).toBeNull();
+    expect(screen.queryByTestId('routine-proof-completed-at')).toBeNull();
     expect(screen.queryByText('주고받은 메시지')).toBeNull();
   });
 

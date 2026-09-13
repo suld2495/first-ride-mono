@@ -1,8 +1,9 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   useAddFriendMutation,
   useRandomFriendRecommendationQuery,
 } from '@repo/shared/hooks/useFriend';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { getWeekMonday } from '@repo/shared/utils';
 import { useRouter } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
@@ -21,11 +22,10 @@ import { Typography } from '@/components/ui/typography';
 import { useToast } from '@/contexts/ToastContext';
 import CharacterSpeechBubble from '@/feature/character/character-speech-bubble';
 import { useAuthUser } from '@/hooks/useAuthSession';
-import { useRandomFriendRecommendationRollover } from '@/hooks/useRandomFriendRecommendationRollover';
 import { useRandomFriendRecommendationPreference } from '@/hooks/useRandomFriendRecommendationPreference';
+import { useRandomFriendRecommendationRollover } from '@/hooks/useRandomFriendRecommendationRollover';
 import { getThemeNameFromUserJob } from '@/theme/job-theme';
-import { appThemes } from '@/theme/themes';
-import { baseFoundation } from '@/theme/tokens';
+import { baseFoundation, palette } from '@/theme/tokens';
 import { getApiErrorMessage } from '@/utils/error-utils';
 import { formatCountdown } from '@/utils/random-friend-recommendation-timer';
 
@@ -143,7 +143,6 @@ const RandomFriendRecommendation = () => {
     null,
   );
   const profileThemeName = getThemeNameFromUserJob(recommendation);
-  const profileTheme = appThemes[profileThemeName];
   const backgroundAsset = useMemo(
     () =>
       getRoutineSceneRemoteAsset(recommendation?.backgroundImageUrl) ??
@@ -193,8 +192,16 @@ const RandomFriendRecommendation = () => {
     }
   };
 
-  const handleOpenHome = () => {
-    router.push('/(tabs)/(afterLogin)/(routine)');
+  const handleOpenFriendPage = () => {
+    if (!recommendation) {
+      return;
+    }
+
+    router.push(
+      `/modal?type=friend-routines&friendId=${recommendation.friendId}&friendNickname=${encodeURIComponent(
+        recommendation.nickname,
+      )}&date=${getWeekMonday(new Date())}`,
+    );
   };
 
   const errorMessage = error
@@ -217,7 +224,7 @@ const RandomFriendRecommendation = () => {
         <View style={styles.stateCard} testID="random-friend-error">
           <Typography
             variant="body2"
-            color={appThemes.green.colors.brand.text}
+            color={theme.colors.text.primary}
             textAlign="center"
             style={styles.errorMessage}
           >
@@ -229,8 +236,8 @@ const RandomFriendRecommendation = () => {
             variant="ghost"
             size="sm"
             onPress={handleRetry}
-            backgroundColor={appThemes.green.colors.brand.text}
-            textColor={appThemes.green.colors.action.primary.label}
+            backgroundColor={theme.colors.text.primary}
+            textColor={theme.colors.action.primary.label}
           />
         </View>
       ) : (
@@ -272,23 +279,18 @@ const RandomFriendRecommendation = () => {
             })}
           </View>
 
-          <View
-            style={[
-              styles.profile,
-              { backgroundColor: profileTheme.colors.brand.background },
-            ]}
-          >
+          <View style={[styles.profile, { backgroundColor: palette.white }]}>
             <View style={styles.identity} testID="random-friend-identity">
               <Typography
                 variant="body2"
                 weight="semibold"
-                color={profileTheme.colors.brand.text}
+                color={theme.colors.text.primary}
               >
                 {recommendation.nickname}
               </Typography>
               <Typography
                 variant="body3"
-                color={profileTheme.colors.text.soft}
+                color={theme.colors.text.tertiary}
                 numberOfLines={1}
                 style={styles.profileMeta}
               >
@@ -300,7 +302,7 @@ const RandomFriendRecommendation = () => {
               testID="random-friend-profile-actions"
             >
               <Button
-                accessibilityLabel="홈으로 이동"
+                accessibilityLabel="친구 페이지로 이동"
                 accessibilityRole="button"
                 rightIcon={() => (
                   <View testID="random-friend-page-navigation-icon">
@@ -310,9 +312,9 @@ const RandomFriendRecommendation = () => {
                     />
                   </View>
                 )}
-                onPress={handleOpenHome}
-                backgroundColor={profileTheme.colors.brand.text}
-                textColor={profileTheme.colors.action.primary.label}
+                onPress={handleOpenFriendPage}
+                backgroundColor={theme.colors.text.primary}
+                textColor={theme.colors.action.primary.label}
                 style={styles.navigationButton}
                 contentStyle={styles.actionButtonContent}
               />
@@ -334,8 +336,8 @@ const RandomFriendRecommendation = () => {
                   />
                 )}
                 onPress={handleRequestFriend}
-                backgroundColor={profileTheme.colors.brand.text}
-                textColor={profileTheme.colors.action.primary.label}
+                backgroundColor={theme.colors.text.primary}
+                textColor={theme.colors.action.primary.label}
                 loading={addFriendMutation.isPending}
                 disabled={isRequested}
                 style={styles.requestButton}
@@ -377,11 +379,11 @@ const styles = StyleSheet.create((theme) => ({
   },
   recommendationToggleOn: {
     alignItems: 'flex-end',
-    backgroundColor: theme.colors.brand.primary,
+    backgroundColor: theme.colors.action.primary.default,
   },
   recommendationToggleOff: {
     alignItems: 'flex-start',
-    backgroundColor: theme.colors.brand.secondary,
+    backgroundColor: theme.colors.border.default,
   },
   recommendationToggleThumb: {
     width: RECOMMENDATION_TOGGLE_THUMB_SIZE,
@@ -413,20 +415,20 @@ const styles = StyleSheet.create((theme) => ({
     height: CARD_HEIGHT,
     borderRadius: theme.foundation.radii.m,
     borderWidth: baseFoundation.dimension.x1,
-    borderColor: theme.colors.brand.primary,
+    borderColor: theme.colors.border.default,
     overflow: 'hidden',
-    backgroundColor: appThemes.green.colors.brand.card,
+    backgroundColor: theme.colors.background.surface,
   },
   stateCard: {
     height: CARD_HEIGHT,
     borderRadius: theme.foundation.radii.m,
     borderWidth: baseFoundation.dimension.x1,
-    borderColor: theme.colors.brand.primary,
+    borderColor: theme.colors.border.default,
     alignItems: 'center',
     justifyContent: 'center',
     gap: theme.foundation.spacing[4],
     paddingHorizontal: theme.foundation.spacing[6],
-    backgroundColor: appThemes.green.colors.brand.card,
+    backgroundColor: theme.colors.background.surface,
   },
   errorMessage: {
     lineHeight: baseFoundation.dimension.x22,
