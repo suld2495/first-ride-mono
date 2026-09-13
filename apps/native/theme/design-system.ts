@@ -89,9 +89,11 @@ export const designSystem = {
       },
 
       gray: {
-        5: '#EDEEF0',
-        8: '#DBDEE2',
-        10: '#B0B4BA',
+        3: '#F7F7F7',
+        5: '#ECEDEF',
+        8: '#DFE0E3',
+        10: '#A4ABB4',
+        13: '#8F97A3',
         15: '#777B84',
         20: '#696E77',
         30: '#5A6169',
